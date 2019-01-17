@@ -1,5 +1,8 @@
 package eu.domibus.configuration;
 
+import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import eu.domibus.api.configuration.DataBaseEngine;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -11,6 +14,12 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
+
+import static eu.domibus.api.metrics.Metrics.METRIC_REGISTRY;
 
 /**
  * @author Cosmin Baciu
@@ -31,6 +40,21 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Override
     public String getConfigLocation() {
         return System.getProperty(DOMIBUS_CONFIG_LOCATION);
+    }
+
+    @PostConstruct
+    public void init(){
+        final String graphiteSystem = domibusPropertyProvider.getProperty("domibus.system.graphite.name",null);
+        if(graphiteSystem!=null) {
+            final Graphite graphite = new Graphite(new InetSocketAddress("localhost", 2003));
+            final GraphiteReporter reporter = GraphiteReporter.forRegistry(METRIC_REGISTRY)
+                    .prefixedWith(graphiteSystem)
+                    .convertRatesTo(TimeUnit.SECONDS)
+                    .convertDurationsTo(TimeUnit.MILLISECONDS)
+                    .filter(MetricFilter.ALL)
+                    .build(graphite);
+            reporter.start(10, TimeUnit.SECONDS);
+        }
     }
 
     //TODO add caching

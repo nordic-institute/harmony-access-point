@@ -36,7 +36,7 @@ public class StatisticAspect {
         final String timerName = timer.timerName();
         LOG.trace("adding a timer with name:[{}] in class:[{}]", timerName, clazz.getName());
         com.codahale.metrics.Timer methodTimer = Metrics.METRIC_REGISTRY.timer(name(clazz, timerName+"_timer"));
-        Counter methodCounter = Metrics.METRIC_REGISTRY.counter(name(MSHWebservice.class, timerName+"_counter"));
+        Counter methodCounter = Metrics.METRIC_REGISTRY.counter(name(clazz, timerName+"_counter"));
         try {
             context = methodTimer.time();
             methodCounter.inc();

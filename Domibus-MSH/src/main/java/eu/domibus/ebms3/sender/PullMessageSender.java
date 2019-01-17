@@ -12,6 +12,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.common.statistics.Timer;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullReceiptSender;
 import eu.domibus.ebms3.common.model.*;
@@ -89,9 +90,13 @@ public class PullMessageSender {
     @Qualifier("taskExecutor")
     private Executor executor;
 
+    @Autowired
+    private PullFrequencyComponent pullFrequencyComponent;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
+    @Timer(clazz = PullMessageSender.class,timerName = "pull_message_sender")
     public void processPullRequest(final Message map) {
         if (domibusInitializationHelper.isNotReady()) {
             return;
@@ -124,6 +129,7 @@ public class PullMessageSender {
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pMode);
+            pullFrequencyComponent.success();
             messaging = MessageUtil.getMessage(response, jaxbContext);
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpc);
@@ -189,6 +195,7 @@ public class PullMessageSender {
     private void checkConnectionProblem(EbMS3Exception e) {
         if (e.getErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
             LOG.warn("ConnectionFailure ", e);
+            pullFrequencyComponent.increaseError();
         } else {
             throw new WebServiceException(e);
         }

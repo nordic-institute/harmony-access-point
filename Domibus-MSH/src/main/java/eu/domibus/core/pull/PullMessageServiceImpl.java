@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
@@ -88,16 +89,16 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Qualifier("domibusProperties")
     private java.util.Properties domibusProperties;
 
-    private JdbcTemplate jdbcTemplate;
 
 
 
-    @Autowired
+
+  /*  @Autowired
     @Qualifier("domibusJDBC-XADataSource")
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
+*/
     private Integer extraNumberOfAttemptTimeForExpirationDate;
 
     /**
@@ -186,7 +187,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Transactional(propagation = Propagation.REQUIRED)
     @eu.domibus.common.statistics.Timer(clazz = PullMessageServiceImpl.class, timerName = "get_pull_message_id")
     public String getPullMessageId(final String initiator, final String mpc) {
-        final List<MessagingLock> messagingLock = messagingLockDao.findReadyToPull(initiator, mpc);
+        final List<MessagingLock> messagingLock = messagingLockDao.findReadyToPull(mpc,initiator);
         LOG.trace("[PULL_REQUEST]:Reading messages for initiatior [{}] mpc[{}].", initiator, mpc);
         for (MessagingLock lock : messagingLock) {
             LOG.trace("[getPullMessageId]:Message[{}]] try to acquire lock", lock.getMessageId());
@@ -222,9 +223,11 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Transactional(propagation = Propagation.REQUIRED)
     @eu.domibus.common.statistics.Timer(clazz = PullMessageServiceImpl.class, timerName = "get_pull_message_id")
     public String getOracleMessageIdWithOtherTransaction(final String initiator, final String mpc) {
-        final SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("select ml.ID_PK from TB_MESSAGING_LOCK ml where ml.MESSAGE_STATE = 'READY' and ml.MPC=? and ml.INITIATOR=? and ml.NEXT_ATTEMPT<CURRENT_TIMESTAMP and ml.MESSAGE_STALED>CURRENT_TIMESTAMP and rownum <= 50 order by ml.ID_PK ", mpc, initiator);
-        while (sqlRowSet.next()) {
-            final PullMessageId pullMessageId = messagingLockDao.getMessageIdInTransaction(sqlRowSet.getLong(1));
+        final List<MessagingLock> messagingLocks = messagingLockDao.findReadyToPull(mpc,initiator);
+        LOG.trace("[PULL_REQUEST]:Reading messages for initiatior [{}] mpc[{}].", initiator, mpc);
+        for (MessagingLock messagingLock : messagingLocks) {
+            LOG.info("before locking");
+            final PullMessageId pullMessageId = messagingLockDao.getMessageIdInTransaction(Integer.valueOf(messagingLock.getEntityId()).longValue());
             if (pullMessageId != null) {
                 LOG.debug("[PULL_REQUEST]:Message:[{}] retrieved", pullMessageId.getMessageId());
                 final String messageId = pullMessageId.getMessageId();
@@ -550,5 +553,4 @@ public class PullMessageServiceImpl implements PullMessageService {
         LOG.debug("[releaseLockAfterReceipt]:Message:[{}] release lock  with status[{}] and next attempt:[{}].", lock.getMessageId(), lock.getMessageState(), lock.getNextAttempt());
 
     }
-
 }

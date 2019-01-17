@@ -14,6 +14,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.core.pull.MessagingLockDao;
 import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.core.pull.PullMessageServiceImpl;
 import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
@@ -157,6 +158,7 @@ public class RetryService {
      * Method call by job to reset waiting_for_receipt messages into ready to pull.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @eu.domibus.common.statistics.Timer(clazz = RetryService.class, timerName = "reset_waiting_for_receipt")
     public void resetWaitingForReceiptPullMessages() {
         final List<MessagingLock> messagesToReset = messagingLockDao.findWaitingForReceipt();
         for (MessagingLock messagingLock : messagesToReset) {
@@ -169,6 +171,7 @@ public class RetryService {
      * Method call by job to to expire messages that could not be delivered in the configured time range..
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @eu.domibus.common.statistics.Timer(clazz = RetryService.class, timerName = "bulk_expire_pull_messages")
     public void bulkExpirePullMessages() {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
         LOG.trace("Delete expired pull message");
@@ -181,6 +184,7 @@ public class RetryService {
      * Method call by job to to delete messages marked as failed.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @eu.domibus.common.statistics.Timer(clazz = RetryService.class, timerName = "bulk_delete_pull")
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
         LOG.trace("Delete unecessary locks");

@@ -23,12 +23,10 @@ public interface PullMessageService {
      */
     String getPullMessageId(String initiator, String mpc);
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @eu.domibus.common.statistics.Timer(clazz = PullMessageServiceImpl.class,timerName = "get_pull_message_id")
+
     String getOracleMessageIdWithOtherTransaction(String initiator, String mpc);
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @eu.domibus.common.statistics.Timer(clazz = PullMessageServiceImpl.class,timerName = "get_pull_message_id")
+
     String getOracleMessageId(String initiator, String mpc);
 
     /**

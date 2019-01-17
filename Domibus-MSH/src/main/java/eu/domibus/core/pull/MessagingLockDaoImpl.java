@@ -53,6 +53,8 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
     protected static final String LOCK_BY_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,MESSAGE_STALED FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_STATE='READY' and ml.ID_PK=?1 FOR UPDATE";
 
+    //protected static final String LOCK_BY_ID_ORACLE_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,MESSAGE_STALED FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_STATE='READY' and ml.ID_PK=?1 FOR UPDATE NOWAIT";
+
     protected static final String LOCK_BY_MESSAGE_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,MESSAGE_STALED FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=?1 FOR UPDATE";
 
     @PersistenceContext(unitName = "domibusJTA")
@@ -61,14 +63,6 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     private JdbcTemplate jdbcTemplate;
 
     private JdbcTemplate lockJdbcTemplate;
-
-    private TransactionTemplate template;
-
-    @Autowired
-    public MessagingLockDaoImpl(DataSourceTransactionManager dataSourceTransactionManager) {
-        template = new TransactionTemplate(dataSourceTransactionManager);
-        template.setPropagationBehavior(PROPAGATION_REQUIRES_NEW);
-    }
 
     @Autowired
     @Qualifier("domibusJDBC-XADataSource")
@@ -95,7 +89,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     }
 
     @Override
-    @eu.domibus.common.statistics.Timer(clazz = MessagingLockDaoImpl.class, timerName = "get_pull_message_id_on_pkid")
+    @eu.domibus.common.statistics.Timer(clazz = MessagingLockDaoImpl.class, timerName = "get_next_message_to_process")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PullMessageId getMessageIdInTransaction(final Long idPk) {
         return getMessageId(idPk);

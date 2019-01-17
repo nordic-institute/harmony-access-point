@@ -80,6 +80,16 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+            <version>4.0.2</version>
+        </dependency>
 
     </dependencies>
 </project>

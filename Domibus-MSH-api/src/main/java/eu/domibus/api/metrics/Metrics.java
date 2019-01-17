@@ -1,9 +1,15 @@
 package eu.domibus.api.metrics;
 
+import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Thomas Dussart
@@ -15,5 +21,6 @@ public class Metrics {
 
     public static final MetricRegistry METRIC_REGISTRY = new MetricRegistry();
     public static final HealthCheckRegistry HEALTH_CHECK_REGISTRY = new HealthCheckRegistry();
+
 
 }
