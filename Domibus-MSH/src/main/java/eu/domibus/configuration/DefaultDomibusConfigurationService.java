@@ -9,14 +9,18 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.security.DomibusProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
+import java.security.Provider;
+import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.api.metrics.Metrics.METRIC_REGISTRY;
@@ -37,6 +41,9 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    private DomibusProvider domibusProvider;
+
     @Override
     public String getConfigLocation() {
         return System.getProperty(DOMIBUS_CONFIG_LOCATION);
@@ -44,6 +51,9 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @PostConstruct
     public void init(){
+        //final Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
+        Security.insertProviderAt (domibusProvider, 1);
+        //Security.insertProviderAt (new BouncyCastleProvider(), 1);
         final String graphiteSystem = domibusPropertyProvider.getProperty("domibus.system.graphite.name",null);
         if(graphiteSystem!=null) {
             final Graphite graphite = new Graphite(new InetSocketAddress("localhost", 2003));

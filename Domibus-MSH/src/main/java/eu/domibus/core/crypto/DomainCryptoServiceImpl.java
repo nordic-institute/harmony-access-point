@@ -10,11 +10,13 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
+import eu.domibus.core.crypto.api.X509PkiPathTrustProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.pki.CertificateService;
 import eu.domibus.pki.DomibusCertificateException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -32,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Cosmin Baciu
@@ -61,6 +64,9 @@ public class DomainCryptoServiceImpl extends Merlin implements DomainCryptoServi
 
     @Autowired
     protected Topic clusterCommandTopic;
+
+    @Autowired(required = false)
+    private List<X509PkiPathTrustProvider> x509PkiPathTrustProviderList;
 
     @PostConstruct
     public void init() {
@@ -176,6 +182,17 @@ public class DomainCryptoServiceImpl extends Merlin implements DomainCryptoServi
         certificates.forEach(certEntry ->
                 doAddCertificate(certEntry.getCertificate(), certEntry.getAlias(), overwrite));
         persistTrustStore();
+    }
+
+    @Override
+    public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
+        if (CollectionUtils.isEmpty(x509PkiPathTrustProviderList)) {
+            super.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+        } else {
+            for (X509PkiPathTrustProvider x509PkiPathTrustProvider : x509PkiPathTrustProviderList) {
+                x509PkiPathTrustProvider.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+            }
+        }
     }
 
     private boolean doAddCertificate(X509Certificate certificate, String alias, boolean overwrite) {
@@ -298,6 +315,7 @@ public class DomainCryptoServiceImpl extends Merlin implements DomainCryptoServi
         aliases.forEach(alias -> doRemoveCertificate(alias));
         persistTrustStore();
     }
+
 
     private synchronized boolean doRemoveCertificate(String alias) {
         boolean containsAlias;

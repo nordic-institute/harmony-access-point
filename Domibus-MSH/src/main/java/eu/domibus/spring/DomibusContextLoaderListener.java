@@ -2,12 +2,14 @@ package eu.domibus.spring;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.plugin.PluginException;
+import eu.domibus.core.security.DomibusProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.classloader.PluginClassLoader;
 import eu.domibus.property.PropertyResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.ContextLoaderListener;
 
 import javax.servlet.ServletContext;
@@ -25,6 +27,8 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextLoaderListener.class);
 
     PluginClassLoader pluginClassLoader = null;
+
+
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
