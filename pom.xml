@@ -108,6 +108,11 @@
             </snapshots>
         </repository>
         <repository>
+            <id>cefdigital-dss</id>
+            <name>CEF Digital</name>
+            <url>https://ec.europa.eu/cefdigital/artifact/content/repositories/esignaturedss/</url>
+        </repository>
+        <repository>
             <id>cefdigital-snapshots</id>
             <url>https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery-snapshots/</url>
             <releases>
