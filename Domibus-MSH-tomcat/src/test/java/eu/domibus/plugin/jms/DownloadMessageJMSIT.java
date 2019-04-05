@@ -91,7 +91,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessage.getMessageInfo().setMessageId(messageId);
         eu.domibus.ebms3.common.model.Messaging messaging = new eu.domibus.ebms3.common.model.Messaging();
         messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, null);
+        messagingService.storeMessage(messaging, MSHRole.RECEIVING, null, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
@@ -99,7 +99,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         userMessageLog.setMshRole(MSHRole.RECEIVING);
         userMessageLog.setReceived(new Date());
-        userMessageLogService.save(messageId, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "");
+        userMessageLogService.save(messageId, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
 
 
         javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");

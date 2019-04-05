@@ -1,8 +1,11 @@
 package eu.domibus.core.message.fragment;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.ebms3.common.model.Error;
+import eu.domibus.ebms3.common.model.UserMessage;
 
 import javax.xml.soap.SOAPMessage;
+import java.io.File;
 
 /**
  * Class responsible for handling operations related to SplitAndJoin like: rejoin the source message based on message fragments, etc
@@ -11,6 +14,10 @@ import javax.xml.soap.SOAPMessage;
  * @since 4.1
  */
 public interface SplitAndJoinService {
+
+    void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression);
+
+    void sendSignalError(String messageId, String ebMS3ErrorCode, String errorDetail, String pmodeKey);
 
     /**
      * Checks if the leg is configured to use SplitAndJoin
@@ -29,11 +36,34 @@ public interface SplitAndJoinService {
     String generateSourceFileName(String temporaryDirectoryLocation);
 
     /**
-     * Rejoins the source message based on the message fragments associated to a specific group
+     * Rejoins the source message file from the message fragments associated to a specific group
      *
      * @param groupId
      * @return
      */
-    SOAPMessage rejoinSourceMessage(String groupId);
+    File rejoinMessageFragments(String groupId);
+
+    SOAPMessage getUserMessage(File sourceMessageFileName, String contentTypeString);
+
+    /**
+     * Rejoins the source message from a file present on disk
+     *
+     * @param groupId
+     * @param sourceMessageFile
+     * @param backendName
+     */
+    void rejoinSourceMessage(String groupId, String sourceMessageFile, String backendName);
+
+    void setSourceMessageAsFailed(final UserMessage userMessage);
+
+    void setUserMessageFragmentAsFailed(String messageId);
+
+    void messageFragmentSendFailed(final String groupId);
+
+    void handleSourceMessageSignalError(final String messageId, final Error error);
+
+    void sendSourceMessageReceipt(String sourceMessageId, String pModeKey);
+
+    void splitAndJoinReceiveFailed(String groupId, final String sourceMessageId, String errorDetail);
 
 }

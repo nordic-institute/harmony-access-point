@@ -7,27 +7,27 @@ import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
-import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
-import javax.inject.Inject;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -77,6 +77,9 @@ public class BackendFSImplTest {
 
     @Injectable
     private MessageExtService messageExtService;
+
+    @Injectable
+    protected FSProcessFileService fsProcessFileService;
 
     @Injectable
     String name = "fsplugin";
@@ -304,7 +307,7 @@ public class BackendFSImplTest {
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
 
         // the null causes an IOException
-        final DataHandler dataHandler = new DataHandler(new ByteArrayDataSource((byte[])null, TEXT_XML));
+        final DataHandler dataHandler = new DataHandler(new ByteArrayDataSource((byte[]) null, TEXT_XML));
         final UserMessage userMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
@@ -355,7 +358,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
         }};
 
         backendFS.messageStatusChanged(event);
@@ -483,7 +486,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
             fsPluginProperties.isSentActionDelete(null);
             result = true;
@@ -516,7 +519,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
             fsPluginProperties.isSentActionDelete(null);
             result = false;
@@ -535,10 +538,10 @@ public class BackendFSImplTest {
 
         new VerificationsInOrder(1) {{
             fsFilesManager.moveFile(contentFile, with(new Delegate<FileObject>() {
-              void delegate(FileObject file) throws IOException {
-                     Assert.assertNotNull(file);
-                     Assert.assertEquals( location + "/SENT/content_" + messageId + ".xml", file.getName().getURI());
-                 }
+                void delegate(FileObject file) throws IOException {
+                    Assert.assertNotNull(file);
+                    Assert.assertEquals(location + "/SENT/content_" + messageId + ".xml", file.getName().getURI());
+                }
             }));
         }};
     }
@@ -561,7 +564,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
         }};
 
@@ -592,7 +595,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
         }};
 
@@ -628,7 +631,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
             backendFS.getErrorsForMessage(messageId);
             result = errorList;
@@ -643,4 +646,35 @@ public class BackendFSImplTest {
         }};
     }
 
+
+    @Test
+    public void payloadSubmittedEvent(@Injectable PayloadSubmittedEvent event,
+                                      @Injectable FileObject fileObject) throws FileSystemException {
+        new Expectations() {{
+            fsFilesManager.getEnsureRootLocation(event.getFileName());
+            result = fileObject;
+        }};
+
+        backendFS.payloadSubmittedEvent(event);
+
+        new Verifications() {{
+            fsFilesManager.createLockFile(fileObject);
+        }};
+    }
+
+    @Test
+    public void payloadProcessedEvent(@Injectable PayloadProcessedEvent event,
+                                      @Injectable FileObject fileObject) throws FileSystemException {
+        new Expectations() {{
+            fsFilesManager.getEnsureRootLocation(event.getFileName());
+            result = fileObject;
+        }};
+
+        backendFS.payloadProcessedEvent(event);
+
+        new Verifications() {{
+            fsFilesManager.deleteLockFile(fileObject);
+            fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+        }};
+    }
 }

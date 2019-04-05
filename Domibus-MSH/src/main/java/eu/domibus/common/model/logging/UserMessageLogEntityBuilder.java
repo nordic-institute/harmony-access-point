@@ -8,15 +8,15 @@ import eu.domibus.common.NotificationStatus;
  * @author Federico Martini
  * @since 3.2
  */
-public class UserMessageLogBuilder {
+public class UserMessageLogEntityBuilder {
 
     private UserMessageLog userMessageLog;
 
-    public static UserMessageLogBuilder create() {
-        return new UserMessageLogBuilder();
+    public static UserMessageLogEntityBuilder create() {
+        return new UserMessageLogEntityBuilder();
     }
 
-    private UserMessageLogBuilder() {
+    private UserMessageLogEntityBuilder() {
         this.userMessageLog = new UserMessageLog();
     }
 
@@ -24,42 +24,42 @@ public class UserMessageLogBuilder {
         return userMessageLog;
     }
 
-    public UserMessageLogBuilder setMessageId(String messageId) {
+    public UserMessageLogEntityBuilder setMessageId(String messageId) {
         userMessageLog.setMessageId(messageId);
         return this;
     }
 
-    public UserMessageLogBuilder setMessageStatus(MessageStatus messageStatus) {
+    public UserMessageLogEntityBuilder setMessageStatus(MessageStatus messageStatus) {
         userMessageLog.setMessageStatus(messageStatus);
         return this;
     }
 
-    public UserMessageLogBuilder setNotificationStatus(NotificationStatus notificationStatus) {
+    public UserMessageLogEntityBuilder setNotificationStatus(NotificationStatus notificationStatus) {
         userMessageLog.setNotificationStatus(notificationStatus);
         return this;
     }
 
-    public UserMessageLogBuilder setMshRole(MSHRole mshRole) {
+    public UserMessageLogEntityBuilder setMshRole(MSHRole mshRole) {
         userMessageLog.setMshRole(mshRole);
         return this;
     }
 
-    public UserMessageLogBuilder setSendAttemptsMax(int maxAttempts) {
+    public UserMessageLogEntityBuilder setSendAttemptsMax(int maxAttempts) {
         userMessageLog.setSendAttemptsMax(maxAttempts);
         return this;
     }
 
-    public UserMessageLogBuilder setMpc(String mpc) {
+    public UserMessageLogEntityBuilder setMpc(String mpc) {
         userMessageLog.setMpc(mpc);
         return this;
     }
 
-    public UserMessageLogBuilder setBackendName(String backendName) {
+    public UserMessageLogEntityBuilder setBackendName(String backendName) {
         userMessageLog.setBackend(backendName);
         return this;
     }
 
-    public UserMessageLogBuilder setEndpoint(String endpoint) {
+    public UserMessageLogEntityBuilder setEndpoint(String endpoint) {
         userMessageLog.setEndpoint(endpoint);
         return this;
     }

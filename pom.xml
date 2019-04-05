@@ -63,6 +63,7 @@
         <liquibase.version>3.4.2</liquibase.version>
         <mysql.connector.java.version>5.1.34</mysql.connector.java.version>
         <wiremock.version>2.0.8-beta</wiremock.version>
+        <dropwizard.metrics.version>4.0.3</dropwizard.metrics.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -91,6 +92,11 @@
         <dss.version>5.4</dss.version>
         <!--Statistics properties -->
         <metrics.version>4.0.2</metrics.version>
+        <!--Uumds properties-->
+        <nimbus-jose-jwt.version>5.4</nimbus-jose-jwt.version>
+        <!--Please keep those two dependencies version aligned with transitive dependency-->
+        <json-smart.version>2.3</json-smart.version>
+        <ehcache.version>2.10.5</ehcache.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -588,6 +594,23 @@
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
             </dependency>
+
+            <!-- Metrics -->
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${dropwizard.metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-servlets</artifactId>
+                <version>${dropwizard.metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-jmx</artifactId>
+                <version>${dropwizard.metrics.version}</version>
+            </dependency>
             <!-- End Miscellaneous -->
 
             <!-- Dropwizard -->
@@ -653,6 +676,30 @@
                 <version>${dss.version}</version>
             </dependency>
 
+            <!--UUMDS extension -->
+
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.minidev</groupId>
+                        <artifactId>json-smart</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>${json-smart.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
             <!-- Test dependencies -->
             <dependency>
                 <groupId>org.springframework</groupId>

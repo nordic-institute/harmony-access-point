@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.queue;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -32,6 +33,9 @@ public class FSSendMessageListener implements MessageListener {
     @Autowired
     private FSSendMessagesService fsSendMessagesService;
 
+    @Autowired
+    protected FSFilesManager fsFilesManager;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void onMessage(Message message) {
@@ -51,12 +55,18 @@ public class FSSendMessageListener implements MessageListener {
         if (StringUtils.isNotBlank(fileName)) {
             FileObject fileObject = null;
             try {
-                FileSystemManager fileSystemManager = VFS.getManager();
+                FileSystemManager fileSystemManager = getVFSManager();
                 fileObject = fileSystemManager.resolveFile(fileName);
                 if (!fileObject.exists()) {
                     LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
                     return;
                 }
+                if (fsFilesManager.hasLockFile(fileObject)) {
+                    LOG.debug("Skipping file [{}]: it has a lock file associated", fileName);
+                    return;
+                }
+
+
             } catch (FileSystemException e) {
                 LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
             }
@@ -67,5 +77,9 @@ public class FSSendMessageListener implements MessageListener {
         } else {
             LOG.error("Error while consuming JMS message: [{}] fileName empty.", message);
         }
+    }
+
+    protected FileSystemManager getVFSManager() throws FileSystemException {
+        return VFS.getManager();
     }
 }

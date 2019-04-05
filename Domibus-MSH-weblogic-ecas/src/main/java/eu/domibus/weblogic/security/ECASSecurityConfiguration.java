@@ -44,7 +44,10 @@ public class ECASSecurityConfiguration extends AbstractWebSecurityConfigurerAdap
         http
                 .jee().authenticatedUserDetailsService(ecasUserDetailsService)
                 .and()
-                .sessionManagement().sessionFixation().none();
+                .sessionManagement().sessionFixation().none()
+                .and()
+                .authorizeRequests()
+                .antMatchers( "/rest/security/user/domain").authenticated();
 
     }
 
