@@ -14,7 +14,7 @@ import java.util.Date;
 @Table(name = "TB_MESSAGE_LOG")
 @DiscriminatorValue("USER_MESSAGE")
 @NamedQueries({
-        @NamedQuery(name = "UserMessageLog.findRetryMessages", query = "select userMessageLog.messageId from UserMessageLog userMessageLog where userMessageLog.messageStatus = eu.domibus.common.MessageStatus.WAITING_FOR_RETRY and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP and 1 <= userMessageLog.sendAttempts and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax"),
+        @NamedQuery(name = "UserMessageLog.findRetryMessages", query = "select userMessageLog.messageId from UserMessageLog userMessageLog where userMessageLog.messageStatus = eu.domibus.common.MessageStatus.WAITING_FOR_RETRY and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP and 1 <= userMessageLog.sendAttempts and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax and (userMessageLog.sourceMessage is null or userMessageLog.sourceMessage=false)"),
         @NamedQuery(name = "UserMessageLog.findPullWaitingForReceiptMessages", query = "select userMessageLog.messageId from UserMessageLog userMessageLog where userMessageLog.messageStatus = eu.domibus.common.MessageStatus.WAITING_FOR_RECEIPT and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP and 1 <= userMessageLog.sendAttempts and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax"),
         @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT mi.messageId,mi.timestamp FROM UserMessageLog as um ,MessageInfo mi where um.messageStatus=eu.domibus.common.MessageStatus.READY_TO_PULL and um.messageId=mi.messageId order by mi.timestamp desc"),
         @NamedQuery(name = "UserMessageLog.findTimedoutMessages", query = "select userMessageLog.messageId from UserMessageLog userMessageLog where userMessageLog.messageStatus = eu.domibus.common.MessageStatus.WAITING_FOR_RETRY and userMessageLog.nextAttempt < :TIMESTAMP_WITH_TOLERANCE"),
@@ -37,10 +37,31 @@ public class UserMessageLog extends MessageLog {
     @JoinColumn(name = "MESSAGE_ID", referencedColumnName = "MESSAGE_ID", updatable = false, insertable = false)
     protected MessageInfo messageInfo;
 
+    @Column(name = "SOURCE_MESSAGE")
+    protected Boolean sourceMessage;
+
+    @Column(name = "MESSAGE_FRAGMENT")
+    protected Boolean messageFragment;
+
     public UserMessageLog() {
         setMessageType(MessageType.USER_MESSAGE);
         setReceived(new Date());
         setSendAttempts(0);
     }
 
+    public Boolean getSourceMessage() {
+        return sourceMessage;
+    }
+
+    public void setSourceMessage(Boolean sourceMessage) {
+        this.sourceMessage = sourceMessage;
+    }
+
+    public Boolean getMessageFragment() {
+        return messageFragment;
+    }
+
+    public void setMessageFragment(Boolean messageFragment) {
+        this.messageFragment = messageFragment;
+    }
 }

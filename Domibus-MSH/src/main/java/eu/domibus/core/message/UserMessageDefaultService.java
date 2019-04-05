@@ -19,6 +19,8 @@ import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.message.fragment.MessageGroupDao;
+import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.pull.ToExtractor;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -27,6 +29,7 @@ import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
+import eu.domibus.ebms3.sender.SplitAndJoinException;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -34,11 +37,16 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.DelayedDispatchMessageCreator;
 import eu.domibus.messaging.DispatchMessageCreator;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.plugin.transformer.impl.UserMessageFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -117,6 +125,35 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected MessageGroupDao messageGroupDao;
+
+    @Autowired
+    protected UserMessageFactory userMessageFactory;
+
+    @Autowired
+    protected DatabaseMessageHandler databaseMessageHandler;
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
+    public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
+        messageGroupDao.create(messageGroupEntity);
+
+        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageInfo().getMessageId());
+        for (int index = 0; index < fragmentFiles.size(); index++) {
+            try {
+                final String fragmentFile = fragmentFiles.get(index);
+                createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragmentFile, index + 1);
+            } catch (MessagingProcessingException e) {
+                throw new SplitAndJoinException("Could not create Messaging for fragment " + index, e);
+            }
+        }
+    }
+
+    protected void createMessagingForFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, String backendName, String fragmentFile, int index) throws MessagingProcessingException {
+        final UserMessage userMessageFragment = userMessageFactory.createUserMessageFragment(userMessage, messageGroupEntity, Long.valueOf(index), fragmentFile);
+        databaseMessageHandler.submitMessageFragment(userMessageFragment, backendName);
+    }
 
     @Override
     public String getFinalRecipient(String messageId) {
@@ -240,6 +277,13 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(messageId, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
     }
 
+    @Override
+    public void scheduleSourceMessageSending(String messageId) {
+        LOG.debug("Sending message to sendLargeMessageQueue");
+        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+        jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+    }
+
     protected void scheduleSending(String messageId, JmsMessage jmsMessage) {
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
@@ -253,22 +297,87 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSourceMessageRejoin(String groupId) {
+    public void scheduleMessageFragmentSendFailed(String groupId, String backendName) {
+        LOG.debug("Scheduling marking the group [{}] as failed", groupId);
+
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
-                .property(UserMessageService.MSG_TYPE, UserMessageService.MSG_SOURCE_MESSAGE_REJOIN)
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_MESSAGE_FRAGMENT_SEND_FAILED)
                 .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_BACKEND_NAME, backendName)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleUserMessageFragmentFailed(String messageId) {
+        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+        if (MessageStatus.SEND_ENQUEUED != messageStatus) {
+            LOG.debug("UserMessage fragment [{}] was not scheduled to be marked as failed: status is [{}]", messageId, messageStatus);
+            return;
+        }
+
+        LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED)
+                .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSourceMessageRejoinFile(String groupId, String backendName) {
+        LOG.debug("Scheduling the SourceMessage file rejoining for group [{}]", groupId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN_FILE)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_BACKEND_NAME, backendName)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSourceMessageRejoin(String groupId, String file, String backendName) {
+        LOG.debug("Scheduling the SourceMessage rejoining for group [{}] from file [{}]", groupId, file);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_SOURCE_MESSAGE_FILE, file)
+                .property(UserMessageService.MSG_BACKEND_NAME, backendName)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }
 
     @Override
     public void scheduleSourceMessageReceipt(String messageId, String pmodeKey) {
+        LOG.debug("Scheduling the SourceMessage receipt for message [{}]", messageId);
+
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
-                .property(UserMessageService.MSG_TYPE, UserMessageService.MSG_SOURCE_MESSAGE_RECEIPT)
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, messageId)
                 .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSendingSignalError(String messageId, String ebMS3ErrorCode, String errorDetail, String pmodeKey) {
+        LOG.debug("Scheduling sending the Signal error for message [{}]", messageId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)
+                .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }

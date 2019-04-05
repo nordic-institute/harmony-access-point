@@ -1,12 +1,12 @@
 package eu.domibus.common.dao;
 
 import com.google.common.collect.Maps;
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -97,10 +97,28 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
+    /**
+     * Finds a UserMessageLog by message id. If the message id is not found it catches the exception raised Hibernate and returns null.
+     *
+     * @param messageId The message id
+     * @return The UserMessageLog
+     */
+    public UserMessageLog findByMessageIdSafely(String messageId) {
+        try {
+            return findByMessageId(messageId);
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with id [" + messageId + "]");
+            return null;
+        }
+    }
+
+
     public UserMessageLog findByMessageId(String messageId) {
+        //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         return query.getSingleResult();
+
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
@@ -237,7 +255,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public String findLastUserTestMessageId(String party) {
         HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype",MessageSubtype.TEST);
+        filters.put("messageSubtype", MessageSubtype.TEST);
         filters.put("mshRole", MSHRole.SENDING);
         filters.put("toPartyId", party);
         filters.put("messageType", MessageType.USER_MESSAGE);

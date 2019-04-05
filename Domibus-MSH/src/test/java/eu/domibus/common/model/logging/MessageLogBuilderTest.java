@@ -51,7 +51,7 @@ public class MessageLogBuilderTest {
         String backendName = "backendWebservice";
 
         // Builds the user message log
-        UserMessageLogBuilder umlBuilder = UserMessageLogBuilder.create()
+        UserMessageLogEntityBuilder umlBuilder = UserMessageLogEntityBuilder.create()
                 .setMessageId(messageId)
                 .setMessageStatus(MessageStatus.SEND_ENQUEUED)
                 .setMshRole(MSHRole.SENDING)

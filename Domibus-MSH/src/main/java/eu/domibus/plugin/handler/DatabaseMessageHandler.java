@@ -22,7 +22,9 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
@@ -55,6 +57,7 @@ import java.util.Map;
  * During download, it manages the user authentication and the AS4 message's reading, data clearing and status update.
  *
  * @author Christian Koch, Stefan Mueller, Federico Martini, Ioana Dragusanu
+ * @author Cosmin Baciu
  * @since 3.0
  */
 @Service
@@ -88,6 +91,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private UserMessageLogService userMessageLogService;
 
     @Autowired
+    private StorageProvider storageProvider;
+
+    @Autowired
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
@@ -115,16 +121,19 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private PullMessageService pullMessageService;
 
     @Autowired
-    AuthUtils authUtils;
+    protected AuthUtils authUtils;
 
     @Autowired
-    UserMessageService userMessageService;
+    protected UserMessageService userMessageService;
 
     @Autowired
-    UIReplicationSignalService uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
-    SplitAndJoinService splitAndJoinService;
+    protected SplitAndJoinService splitAndJoinService;
+
+    @Autowired
+    protected PModeDefaultService pModeDefaultService;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
@@ -287,7 +296,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             fillMpc(userMessage, legConfiguration, to);
 
             try {
-                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration);
+                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
@@ -295,9 +304,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
             MessageStatus messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            userMessageLogService.save(messageId, messageStatus.toString(), getNotificationStatus(legConfiguration).toString(),
+            userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
-                    backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction());
+                    backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
             if (MessageStatus.READY_TO_PULL != messageStatus) {
                 // Sends message to the proper queue if not a message to be pulled.
                 userMessageService.scheduleSending(messageId);
@@ -403,8 +412,18 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             payloadProfileValidator.validate(message, pModeKey);
             propertyProfileValidator.validate(message, pModeKey);
 
+            final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
+            userMessage.setSplitAndJoin(splitAndJoin);
+
+            if (splitAndJoin && storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
+                LOG.error("SplitAndJoin feature needs payload storage on the file system");
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
+                ex.setMshRole(MSHRole.SENDING);
+                throw ex;
+            }
+
             try {
-                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration);
+                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
@@ -414,9 +433,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             if (messageStatus == null) {
                 messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             }
-            userMessageLogService.save(messageId, messageStatus.toString(), getNotificationStatus(legConfiguration).toString(),
+            final boolean sourceMessage = userMessage.isSourceMessage();
+            userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
-                    backendName, to.getEndpoint(), messageData.getService(), messageData.getAction());
+                    backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
             if (MessageStatus.READY_TO_PULL != messageStatus) {
                 // Sends message to the proper queue if not a message to be pulled.
                 userMessageService.scheduleSending(messageId);
@@ -466,10 +486,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", runTimEx);
             throw MessagingExceptionFactory.transform(runTimEx, ErrorCode.EBMS_0003);
         }
-    }
-
-    private NotificationStatus getNotificationStatus(LegConfiguration legConfiguration) {
-        return legConfiguration.getErrorHandling().isBusinessErrorNotifyProducer() ? NotificationStatus.REQUIRED : NotificationStatus.NOT_REQUIRED;
     }
 
     private int getMaxAttempts(LegConfiguration legConfiguration) {
