@@ -2,6 +2,8 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -20,18 +22,19 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import eu.domibus.web.rest.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -99,6 +102,12 @@ public class MessageLogResourceTest {
     @Mocked
     SignalMessage signalMessage;
 
+    @Injectable
+    BlacklistValidator blacklistValidator;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Parameterized.Parameters(name = "{index}: messageType=\"{0}\" messageSubtype=\"{2}\"")
     public static Collection<Object[]> values() {
         return Arrays.asList(new Object[][]{
@@ -120,6 +129,8 @@ public class MessageLogResourceTest {
         new Expectations() {{
             messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = expectedMessageLogResult;
+            blacklistValidator.isValid(anyString);
+            result = true;
         }};
 
         // When
@@ -155,7 +166,7 @@ public class MessageLogResourceTest {
             messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any);
             result = messageList;
 
-            csvServiceImpl.exportToCSV(messageList, null, (Map<String, String>)any, (List<String>)any);
+            csvServiceImpl.exportToCSV(messageList, null, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +
                     "conversationId,fromPartyId,toPartyId,originalSender,finalRecipient,refToMessageId,messageId," + MessageStatus.ACKNOWLEDGED + "," +
                     NotificationStatus.NOTIFIED + "," + MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + ",1,5," + date + "," +
