@@ -4,10 +4,8 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.NotificationType;
+import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.*;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
@@ -18,6 +16,7 @@ import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
+import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,6 +24,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.NotifyMessageCreator;
+import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.routing.BackendFilterEntity;
@@ -113,6 +113,12 @@ public class BackendNotificationService {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    protected List<BackendConnector> backendConnectors;
+
+    @Autowired
+    protected UserMessageService userMessageService;
+
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
@@ -144,7 +150,7 @@ public class BackendNotificationService {
         }
         properties.put(MessageConstants.ERROR_DETAIL, errorResult.getErrorDetail());
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED_FAILURE;
-        if(userMessage.isUserMessageFragment()) {
+        if (userMessage.isUserMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE;
         }
 
@@ -156,11 +162,31 @@ public class BackendNotificationService {
             return;
         }
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
-        if(userMessage.isUserMessageFragment()) {
+        if (userMessage.isUserMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<String, Object>());
+    }
+
+    public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
+        final BackendConnector backendConnector = getBackendConnector(backendName);
+        PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
+        payloadSubmittedEvent.setCid(partInfo.getHref());
+        payloadSubmittedEvent.setFileName(originalFilename);
+        payloadSubmittedEvent.setMessageId(userMessage.getMessageInfo().getMessageId());
+        payloadSubmittedEvent.setMime(partInfo.getMime());
+        backendConnector.payloadSubmittedEvent(payloadSubmittedEvent);
+    }
+
+    public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
+        final BackendConnector backendConnector = getBackendConnector(backendName);
+        PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
+        payloadProcessedEvent.setCid(partInfo.getHref());
+        payloadProcessedEvent.setFileName(originalFilename);
+        payloadProcessedEvent.setMessageId(userMessage.getMessageInfo().getMessageId());
+        payloadProcessedEvent.setMime(partInfo.getMime());
+        backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
@@ -258,6 +284,15 @@ public class BackendNotificationService {
         return null;
     }
 
+    protected BackendConnector getBackendConnector(String backendName) {
+        for (final BackendConnector backendConnector : backendConnectors) {
+            if (backendConnector.getName().equalsIgnoreCase(backendName)) {
+                return backendConnector;
+            }
+        }
+        return null;
+    }
+
     protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, Object> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
@@ -303,7 +338,7 @@ public class BackendNotificationService {
         final String messageId = userMessage.getMessageInfo().getMessageId();
         final String backendName = userMessageLogDao.findBackendForMessageId(messageId);
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
-        if(userMessage.isUserMessageFragment()) {
+        if (userMessage.isUserMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
         }
 

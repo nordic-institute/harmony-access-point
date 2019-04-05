@@ -194,6 +194,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
+    public Long getLongDomainProperty(Domain domain, String propertyName) {
+        String domainValue = getDomainProperty(domain, propertyName);
+        return getLongInternal(propertyName, domainValue);
+    }
+
+    @Override
     public Integer getIntegerOptionalDomainProperty(String propertyName) {
         String optionalDomainValue = getOptionalDomainProperty(propertyName);
         return getIntegerInternal(propertyName, optionalDomainValue);
@@ -211,8 +217,25 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getDefaultIntegerValue(propertyName);
     }
 
-    private Integer getDefaultIntegerValue(String propertyName) {
+    protected Long getLongInternal(String propertyName, String customValue) {
+        if(customValue != null) {
+            try {
+                return Long.valueOf(customValue);
+            } catch (final NumberFormatException e) {
+                LOGGER.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to a Long value", e);
+                return getDefaultLongValue(propertyName);
+            }
+        }
+        return getDefaultLongValue(propertyName);
+    }
+
+    protected Integer getDefaultIntegerValue(String propertyName) {
         Integer defaultValue = MapUtils.getInteger(domibusDefaultProperties, propertyName);
+        return checkDefaultValue(propertyName, defaultValue);
+    }
+
+    protected Long getDefaultLongValue(String propertyName) {
+        Long defaultValue = MapUtils.getLong(domibusDefaultProperties, propertyName);
         return checkDefaultValue(propertyName, defaultValue);
     }
 
