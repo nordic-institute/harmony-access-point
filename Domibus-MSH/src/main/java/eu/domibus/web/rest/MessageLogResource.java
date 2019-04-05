@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import eu.domibus.web.rest.validators.NotBlacklisted;
 
 /**
  * @author Tiago Miguel, Catalin Enache
@@ -126,21 +125,11 @@ public class MessageLogResource {
             @RequestParam(value = RECEIVED_TO_STR, required = false) String receivedTo,
             @RequestParam(value = "messageSubtype", required = false) MessageSubtype messageSubtype) {
 
-        if (!blacklistValidator.isValid(fromPartyId)) {
-            throw new IllegalArgumentException(NotBlacklisted.MESSAGE + " in fromPartyId");
-        }
-        if (!blacklistValidator.isValid(toPartyId)) {
-            throw new IllegalArgumentException(NotBlacklisted.MESSAGE + " in toPartyId");
-        }
-        if (!blacklistValidator.isValid(originalSender)) {
-            throw new IllegalArgumentException(NotBlacklisted.MESSAGE + " in originalSender");
-        }
-        if (!blacklistValidator.isValid(refToMessageId)) {
-            throw new IllegalArgumentException(NotBlacklisted.MESSAGE + " in refToMessageId");
-        }
-        if (!blacklistValidator.isValid(messageId)) {
-            throw new IllegalArgumentException(NotBlacklisted.MESSAGE + " in messageId");
-        }
+        blacklistValidator.validate(fromPartyId);
+        blacklistValidator.validate(toPartyId);
+        blacklistValidator.validate(originalSender);
+        blacklistValidator.validate(refToMessageId);
+        blacklistValidator.validate(messageId);
 
         LOG.debug("Getting message log");
 

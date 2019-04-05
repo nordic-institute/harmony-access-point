@@ -42,8 +42,18 @@ public class BlacklistValidator implements ConstraintValidator<NotBlacklisted, S
         init();
     }
 
-    public boolean isValid(String value) {
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        return isValid(value, null);
+    }
 
+    public void validate(String value) {
+        if (!isValid(value)) {
+            throw new IllegalArgumentException(NotBlacklisted.MESSAGE);
+        }
+    }
+
+    public boolean isValid(String value) {
         try {
             if (ArrayUtils.isEmpty(blacklist)) {
                 return true;
@@ -60,8 +70,4 @@ public class BlacklistValidator implements ConstraintValidator<NotBlacklisted, S
         }
     }
 
-    @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        return isValid(value, null);
-    }
 }

@@ -129,8 +129,8 @@ public class MessageLogResourceTest {
         new Expectations() {{
             messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = expectedMessageLogResult;
-            blacklistValidator.isValid(anyString);
-            result = true;
+            blacklistValidator.validate(anyString);
+            times = 5;
         }};
 
         // When
