@@ -11,13 +11,24 @@ import java.util.List;
  */
 public interface UserMessageService {
 
-    String MSG_SOURCE_MESSAGE_REJOIN = "SourceMessageRejoin";
-    String MSG_SOURCE_MESSAGE_RECEIPT = "SourceMessageReceipt";
+    String COMMAND_SOURCE_MESSAGE_REJOIN = "SourceMessageRejoin";
+    String COMMAND_SOURCE_MESSAGE_RECEIPT = "SourceMessageReceipt";
+    String COMMAND_SOURCE_MESSAGE_REJOIN_FILE = "SourceMessageRejoinFile";
+    String COMMAND_MESSAGE_FRAGMENT_SEND_FAILED = "MessageFragmentSendFailed";
+    String COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED = "SetMessageFragmentAsFailed";
+    String COMMAND_SEND_SIGNAL_ERROR = "SendSignalError";
+
+
+    String MSG_SOURCE_MESSAGE_FILE = "SourceMessageFile";
     String MSG_TYPE = "messageType";
     String MSG_GROUP_ID = "groupId";
+    String MSG_BACKEND_NAME = "backendName";
     String MSG_SOURCE_MESSAGE_ID = "sourceMessageId";
+    String MSG_USER_MESSAGE_ID = "userMessageId";
+    String MSG_EBMS3_ERROR_CODE = "ebms3ErrorCode";
+    String MSG_EBMS3_ERROR_DETAIL = "ebms3ErrorDetail";
 
-    public static final String PULL_RECEIPT_REF_TO_MESSAGE_ID = "pullReceiptRefToMessageId";
+    String PULL_RECEIPT_REF_TO_MESSAGE_ID = "pullReceiptRefToMessageId";
 
     String getFinalRecipient(final String messageId);
 
@@ -46,13 +57,67 @@ public interface UserMessageService {
 
     void scheduleSending(String messageId);
 
-    void scheduleSourceMessageRejoin(String groupId);
+    /**
+     * Schedules the handling of the MessageFragment send failed event
+     *
+     * @param groupId
+     * @param backendName
+     */
+    void scheduleMessageFragmentSendFailed(String groupId, String backendName);
 
+    /**
+     * Schedules the marking of the UserMessageFragment as failed
+     *
+     * @param messageId
+     */
+    void scheduleUserMessageFragmentFailed(String messageId);
+
+    /**
+     * Schedules the sending of the SourceMessage
+     *
+     * @param messageId
+     */
+    void scheduleSourceMessageSending(String messageId);
+
+    /**
+     * Schedules the rejoining of the SourceMessage file
+     *
+     * @param groupId
+     * @param backendName
+     */
+    void scheduleSourceMessageRejoinFile(String groupId, String backendName);
+
+    /**
+     * Schedules the rejoining of the SourceMessage
+     *
+     * @param groupId
+     * @param file
+     * @param backendName
+     */
+    void scheduleSourceMessageRejoin(String groupId, String file, String backendName);
+
+    /**
+     * Schedules the sending of the SourceMessage receipt
+     *
+     * @param messageId
+     * @param pmodeKey
+     */
     void scheduleSourceMessageReceipt(String messageId, String pmodeKey);
+
+    /**
+     * Schedules the sending of the Signal error in case a SourceMessage fails to be rejoined
+     *
+     * @param messageId
+     * @param errorCode
+     * @param errorDetail
+     * @param pmodeKey
+     */
+    void scheduleSendingSignalError(String messageId, String errorCode, String errorDetail, String pmodeKey);
 
     void scheduleSending(String messageId, Long delay);
 
     void scheduleSending(String messageId, int retryCount);
+
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt

@@ -3,6 +3,7 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
@@ -16,7 +17,6 @@ import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
-import junit.framework.Assert;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
@@ -68,6 +68,9 @@ public class UpdateRetryLoggingServiceTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    UserMessageService userMessageService;
 
     @Before
     public void setupExpectations() {

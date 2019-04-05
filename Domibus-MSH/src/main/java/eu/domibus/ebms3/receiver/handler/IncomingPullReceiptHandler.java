@@ -8,6 +8,8 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.UserMessageLog;
@@ -37,6 +39,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
+
+import static eu.domibus.common.metrics.MetricNames.INCOMING_PULL_REQUEST_RECEIPT;
 
 /**
  * Handles the incoming AS4 pull receipt
@@ -71,9 +75,6 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     private ReliabilityMatcher pullReceiptMatcher;
 
     @Autowired
-    private PullRequestHandler pullRequestHandler;
-
-    @Autowired
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
@@ -86,6 +87,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     protected SoapUtil soapUtil;
 
     @Override
+    @Timer(INCOMING_PULL_REQUEST_RECEIPT)
+    @Counter(INCOMING_PULL_REQUEST_RECEIPT)
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.trace("before pull receipt.");
         final SOAPMessage soapMessage = handlePullRequestReceipt(request, messaging);

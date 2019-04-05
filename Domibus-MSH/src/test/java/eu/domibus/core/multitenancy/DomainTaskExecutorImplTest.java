@@ -1,7 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainException;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -27,19 +27,22 @@ public class DomainTaskExecutorImplTest {
     @Injectable
     protected SchedulingTaskExecutor taskExecutor;
 
+    @Injectable
+    protected SchedulingTaskExecutor quartzTaskExecutor;
+
     @Tested
     DomainTaskExecutorImpl domainTaskExecutor;
 
     @Test
     public void testSubmitRunnable(@Injectable Runnable submitRunnable) {
-        domainTaskExecutor.submitRunnable(submitRunnable);
+        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, false, DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
 
         new Verifications() {{
             taskExecutor.submit(submitRunnable);
         }};
     }
 
-    @Test(expected = DomainException.class)
+    @Test(expected = DomainTaskException.class)
     public void testSubmitRunnableThreadInterruption(@Injectable Runnable submitRunnable,
                                                      @Injectable Future<?> utrFuture) throws Exception {
         new Expectations() {{
@@ -50,7 +53,7 @@ public class DomainTaskExecutorImplTest {
             result = new InterruptedException();
         }};
 
-        domainTaskExecutor.submitRunnable(submitRunnable);
+        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, true, DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
 
         new Verifications() {{
             taskExecutor.submit(submitRunnable);

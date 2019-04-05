@@ -18,6 +18,7 @@ import java.util.concurrent.*;
 public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImpl.class);
+    public static final long DEFAULT_WAIT_TIMEOUT = 5000L;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -26,6 +27,10 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
+    @Qualifier("quartzTaskExecutor")
+    @Autowired
+    protected SchedulingTaskExecutor schedulingLongTaskExecutor;
+
     @Override
     public <T extends Object> T submit(Callable<T> task) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task);
@@ -33,7 +38,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         try {
             return utrFuture.get(5000L, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new DomainException("Could not execute task", e);
+            throw new DomainTaskException("Could not execute task", e);
         }
     }
 
@@ -41,25 +46,43 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submit(Runnable task) {
         LOG.trace("Submitting task");
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
-        submitRunnable(clearDomainRunnable);
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
     public void submit(Runnable task, Domain domain) {
-        LOG.trace("Submitting task for domain [{}]", domain);
-        final DomainRunnable domainRunnable = new DomainRunnable(domainContextProvider, domain, task);
-        submitRunnable(domainRunnable);
+        submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    protected void submitRunnable(Runnable task) {
-        final Future<?> utrFuture = schedulingTaskExecutor.submit(task);
-        try {
-            utrFuture.get(5000L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new DomainException("Could not execute task", e);
-        } catch (ExecutionException | TimeoutException e) {
-            throw new DomainException("Could not execute task", e);
+    @Override
+    public void submitLongRunningTask(Runnable task, Domain domain) {
+        submitLongRunningTask(task, null, domain);
+    }
+
+    @Override
+    public void submitLongRunningTask(Runnable task, Runnable errorHandler, Domain domain) {
+        submit(schedulingLongTaskExecutor, new LongTaskRunnable(task, errorHandler), domain, false, null, null);
+    }
+
+    protected void submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        LOG.trace("Submitting task for domain [{}]", domain);
+        final DomainRunnable domainRunnable = new DomainRunnable(domainContextProvider, domain, task);
+        submitRunnable(taskExecutor, domainRunnable, waitForTask, timeout, timeUnit);
+    }
+
+    protected void submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        final Future<?> utrFuture = taskExecutor.submit(task);
+
+        if (waitForTask) {
+            LOG.debug("Waiting for task to complete");
+            try {
+                utrFuture.get(timeout, timeUnit);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new DomainTaskException("Could not execute task", e);
+            } catch (ExecutionException | TimeoutException e) {
+                throw new DomainTaskException("Could not execute task", e);
+            }
         }
     }
 }
