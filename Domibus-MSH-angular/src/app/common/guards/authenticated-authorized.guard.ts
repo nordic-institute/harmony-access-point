@@ -1,6 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {SecurityService} from '../../security/security.service';
+import {DomibusInfoService} from "../appinfo/domibusinfo.service";
 
 /**
  * It will handle for each route where is defined:
@@ -10,23 +11,28 @@ import {SecurityService} from '../../security/security.service';
 @Injectable()
 export class AuthenticatedAuthorizedGuard implements CanActivate {
 
-  constructor (private router: Router, private securityService: SecurityService) {
+  constructor (private router: Router, private securityService: SecurityService, private domibusInfoService: DomibusInfoService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    console.log('AuthenticatedAuthorizedGuard enter for url='+route.url);
     let canActivate = false;
     const isAuthenticated = await this.securityService.isAuthenticated(true);
+    console.log('AuthenticatedAuthorizedGuard - isAuthenticated=' + isAuthenticated);
 
     if (isAuthenticated) {
       canActivate = true;
-      const isUserFromExternalAuthProvider = this.securityService.isUserFromExternalAuthProvider();
 
       //check also authorization
       const allowedRoles = route.data.checkRoles;
+      console.log('AuthenticatedAuthorizedGuard allowedRoles='+allowedRoles);
       if (!!allowedRoles) { //only if there are roles to check
         const isAuthorized = this.securityService.isAuthorized(allowedRoles);
+        console.log('AuthenticatedAuthorizedGuard isAuthorized=' + isAuthorized);
         if (!isAuthorized) {
           canActivate = false;
+          const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
+          console.log('AuthenticatedAuthorizedGuard isUserFromExternalAuthProvider=' + isUserFromExternalAuthProvider);
           this.router.navigate([isUserFromExternalAuthProvider ? '/notAuthorized' : '/']);
         }
       }
