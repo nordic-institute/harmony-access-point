@@ -130,7 +130,7 @@ public class MessageLogResourceTest {
             messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = expectedMessageLogResult;
             blacklistValidator.validate(anyString);
-            times = 5;
+            times = 7;
         }};
 
         // When
