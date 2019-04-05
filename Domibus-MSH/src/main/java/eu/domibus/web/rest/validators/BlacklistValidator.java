@@ -44,7 +44,7 @@ public class BlacklistValidator implements ConstraintValidator<NotBlacklisted, S
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return isValid(value, null);
+        return isValid(value);
     }
 
     public void validate(String value) {
