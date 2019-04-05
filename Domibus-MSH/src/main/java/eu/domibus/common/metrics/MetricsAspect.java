@@ -47,7 +47,7 @@ public class MetricsAspect {
     public Object surroundWithACounter(ProceedingJoinPoint pjp, Counter counter) throws Throwable {
         final Class<?> clazz = counter.clazz();
         final MetricNames counterName = counter.value();
-        LOG.trace("adding a timer with name:[{}] in class:[{}]", counterName, clazz.getName());
+        LOG.trace("adding a counter with name:[{}] in class:[{}]", counterName, clazz.getName());
         com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName.getCounterName()));
         try {
             methodCounter.inc();
