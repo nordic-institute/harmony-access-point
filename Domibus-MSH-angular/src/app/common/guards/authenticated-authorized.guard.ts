@@ -11,28 +11,24 @@ import {DomibusInfoService} from "../appinfo/domibusinfo.service";
 @Injectable()
 export class AuthenticatedAuthorizedGuard implements CanActivate {
 
-  constructor (private router: Router, private securityService: SecurityService, private domibusInfoService: DomibusInfoService) {
+  constructor(private router: Router, private securityService: SecurityService, private domibusInfoService: DomibusInfoService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    console.log('AuthenticatedAuthorizedGuard enter for url='+route.url);
     let canActivate = false;
     const isAuthenticated = await this.securityService.isAuthenticated(true);
-    console.log('AuthenticatedAuthorizedGuard - isAuthenticated=' + isAuthenticated);
 
     if (isAuthenticated) {
       canActivate = true;
 
       //check also authorization
       const allowedRoles = route.data.checkRoles;
-      console.log('AuthenticatedAuthorizedGuard allowedRoles='+allowedRoles);
       if (!!allowedRoles) { //only if there are roles to check
         const isAuthorized = this.securityService.isAuthorized(allowedRoles);
-        console.log('AuthenticatedAuthorizedGuard isAuthorized=' + isAuthorized);
         if (!isAuthorized) {
           canActivate = false;
           const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
-          console.log('AuthenticatedAuthorizedGuard isUserFromExternalAuthProvider=' + isUserFromExternalAuthProvider);
+
           this.router.navigate([isUserFromExternalAuthProvider ? '/notAuthorized' : '/']);
         }
       }
