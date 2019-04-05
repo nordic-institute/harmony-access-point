@@ -29,6 +29,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
 
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_USER_MESSAGE;
+
 /**
  * Common logic for sending AS4 messages to C3
  *
@@ -36,8 +38,6 @@ import java.sql.Timestamp;
  * @since 4.1
  */
 public abstract class AbstractUserMessageSender implements MessageSender {
-
-    private static final String OUTGOING_USER_MESSAGE = "outgoing_user_message";
 
     @Autowired
     protected PModeProvider pModeProvider;

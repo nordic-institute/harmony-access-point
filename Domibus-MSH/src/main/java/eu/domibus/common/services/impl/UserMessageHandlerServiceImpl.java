@@ -53,6 +53,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
+
 /**
  * @author Thomas Dussart
  * @author Catalin Enache
@@ -114,8 +116,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected AS4ReceiptService as4ReceiptService;
-
-    private static final String INCOMING_USER_MESSAGE = "incoming_user_message";
 
     @Override
     @Timer(value = INCOMING_USER_MESSAGE)

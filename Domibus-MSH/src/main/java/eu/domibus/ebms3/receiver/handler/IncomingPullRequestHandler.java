@@ -1,8 +1,8 @@
 package eu.domibus.ebms3.receiver.handler;
 
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.metrics.Timer;
-import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.core.security.AuthorizationService;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
 
+import static eu.domibus.common.metrics.MetricNames.INCOMING_PULL_REQUEST;
+
 /**
  * Handles the incoming AS4 pull request
  *
@@ -25,8 +27,6 @@ import javax.xml.soap.SOAPMessage;
 public class IncomingPullRequestHandler implements IncomingMessageHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullRequestHandler.class);
-
-    private final static String INCOMING_PULL_REQUEST = "incoming_pull_request";
 
     @Autowired
     private PullRequestHandler pullRequestHandler;

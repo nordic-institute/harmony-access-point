@@ -30,9 +30,9 @@ public class MetricsAspect {
     public Object surroundWithATimer(ProceedingJoinPoint pjp, Timer timer) throws Throwable {
         com.codahale.metrics.Timer.Context context = null;
         final Class<?> clazz = timer.clazz();
-        final String timerName = timer.value();
+        final MetricNames timerName = timer.value();
         LOG.trace("adding a timer with name:[{}] in class:[{}]", timerName, clazz.getName());
-        com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName + "_timer"));
+        com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName.getTimerName()));
         try {
             context = methodTimer.time();
             return pjp.proceed();
@@ -46,9 +46,9 @@ public class MetricsAspect {
     @Around("@annotation(counter)")
     public Object surroundWithACounter(ProceedingJoinPoint pjp, Counter counter) throws Throwable {
         final Class<?> clazz = counter.clazz();
-        final String counterName = counter.value();
+        final MetricNames counterName = counter.value();
         LOG.trace("adding a timer with name:[{}] in class:[{}]", counterName, clazz.getName());
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName + "_counter"));
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName.getCounterName()));
         try {
             methodCounter.inc();
             return pjp.proceed();

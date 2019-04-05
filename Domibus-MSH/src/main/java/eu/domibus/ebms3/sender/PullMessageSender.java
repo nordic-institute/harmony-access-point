@@ -44,6 +44,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_REQUEST;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -54,8 +56,6 @@ import java.util.concurrent.Executor;
 public class PullMessageSender {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageSender.class);
-
-    private static final String OUTGOING_PULL_REQUEST = "outgoing_pull_request";
 
     @Autowired
     protected MessageUtil messageUtil;

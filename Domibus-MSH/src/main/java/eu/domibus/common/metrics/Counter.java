@@ -18,7 +18,7 @@ public @interface Counter {
     /**
      * @return the counter name.
      */
-    String value();
+    MetricNames value();
 
     /**
      * @return the counter class.

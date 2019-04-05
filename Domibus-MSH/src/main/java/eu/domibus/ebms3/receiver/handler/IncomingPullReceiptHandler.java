@@ -40,6 +40,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
 
+import static eu.domibus.common.metrics.MetricNames.INCOMING_PULL_REQUEST_RECEIPT;
+
 /**
  * Handles the incoming AS4 pull receipt
  *
@@ -50,8 +52,6 @@ import java.io.IOException;
 public class IncomingPullReceiptHandler implements IncomingMessageHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullReceiptHandler.class);
-
-    private static final String INCOMING_PULL_REQUEST_RECEIPT = "incoming_pull_request_receipt";
 
     @Autowired
     private MessagingDao messagingDao;

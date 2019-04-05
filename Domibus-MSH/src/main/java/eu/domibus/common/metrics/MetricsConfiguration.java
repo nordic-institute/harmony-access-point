@@ -48,7 +48,7 @@ public class MetricsConfiguration {
     }
 
     @Bean
-    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider) {
+    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry) {
         MetricRegistry metricRegistry = new MetricRegistry();
         Boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
 
@@ -103,6 +103,8 @@ public class MetricsConfiguration {
                     .build();
             reporter.start(periodProperty, timeUnit);
         }
+        MetricsHelper.setHealthCheckRegistry(healthCheckRegistry);
+        MetricsHelper.setMetricRegistry(metricRegistry);
         return metricRegistry;
     }
 

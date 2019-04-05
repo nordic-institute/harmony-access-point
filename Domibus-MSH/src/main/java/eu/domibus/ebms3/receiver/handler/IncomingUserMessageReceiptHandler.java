@@ -31,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE_RECEIPT;
+
 /**
  * Handles the incoming AS4 receipts
  *
@@ -41,8 +43,6 @@ import javax.xml.ws.soap.SOAPFaultException;
 public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageReceiptHandler.class);
-
-    private static final String INCOMING_USER_MESSAGE_RECEIPT = "incoming_user_message_receipt";
 
     protected Reliability sourceMessageReliability;
 

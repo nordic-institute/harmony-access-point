@@ -18,7 +18,7 @@ public @interface Timer {
     /**
      * @return the timer name.
      */
-    String value();
+    MetricNames value();
 
     /**
      * @return the timer class.
