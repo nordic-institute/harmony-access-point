@@ -48,6 +48,11 @@ public class RestControllerAdvice extends ResponseEntityExceptionHandler {
         return handleWrappedException(ex);
     }
 
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<ErrorRO> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorRO> handleException(Exception ex) {
         return errorHandlerService.createResponse(ex);
@@ -65,6 +70,6 @@ public class RestControllerAdvice extends ResponseEntityExceptionHandler {
                 .getAllErrors().stream()
                 .map(ObjectError::getDefaultMessage)
                 .collect(Collectors.toList());
-        return new ResponseEntity(list, HttpStatus.CONFLICT);
+        return new ResponseEntity(list, HttpStatus.BAD_REQUEST);
     }
 }

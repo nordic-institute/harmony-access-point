@@ -67,7 +67,7 @@ public class JmsResource {
 
 
     @RequestMapping(value = {"/messages"}, method = POST)
-    public ResponseEntity<MessagesResponseRO> messages(@RequestBody MessagesRequestRO request) {
+    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid MessagesRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
         try {

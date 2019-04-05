@@ -128,8 +128,10 @@ public class MessageLogResource {
         blacklistValidator.validate(fromPartyId);
         blacklistValidator.validate(toPartyId);
         blacklistValidator.validate(originalSender);
+        blacklistValidator.validate(finalRecipient);
         blacklistValidator.validate(refToMessageId);
         blacklistValidator.validate(messageId);
+        blacklistValidator.validate(conversationId);
 
         LOG.debug("Getting message log");
 

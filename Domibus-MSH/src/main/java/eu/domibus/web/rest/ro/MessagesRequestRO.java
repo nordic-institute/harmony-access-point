@@ -11,7 +11,6 @@ import java.util.Date;
  */
 public class MessagesRequestRO {
 
-    @NotBlacklisted
     private String source;
     @NotBlacklisted
     private String jmsType;

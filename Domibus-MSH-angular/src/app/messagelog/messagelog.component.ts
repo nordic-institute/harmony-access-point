@@ -319,7 +319,7 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
     }, (error: any) => {
       console.log('error getting the message log:' + error);
       this.loading = false;
-      this.alertService.error('Error occured:' + error);
+      this.alertService.exception('Error occurred: ', error);
     });
   }
 
