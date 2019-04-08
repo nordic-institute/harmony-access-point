@@ -1,9 +1,12 @@
 package eu.domibus.plugin.fs.queue;
 
+import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
+import eu.domibus.plugin.fs.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -35,6 +38,15 @@ public class FSSendMessageListener implements MessageListener {
 
     @Autowired
     protected FSFilesManager fsFilesManager;
+
+    @Autowired
+    private FSPluginProperties fsPluginProperties;
+
+    @Autowired
+    private AuthenticationExtService authenticationExtService;
+
+    @Autowired
+    private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -69,6 +81,14 @@ public class FSSendMessageListener implements MessageListener {
 
             } catch (FileSystemException e) {
                 LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
+            }
+
+            if (domibusConfigurationExtService.isMultiTenantAware()) {
+                if (domain == null) {
+                    domain = FSSendMessagesService.DEFAULT_DOMAIN;
+                }
+
+                fsSendMessagesService.checkAuthenticationMultitenancy(domain);
             }
 
             //process the file
