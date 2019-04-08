@@ -114,7 +114,7 @@ export class SecurityService {
   }
 
   getCurrentUserFromServer(): Promise<User> {
-    return this.http.get('rest/security/user').map((res: Response) => res.json()).toPromise();
+    return this.http.get('rest/security/user').map((res: Response) => res.text() ? res.json() : null).toPromise();
   }
 
 
@@ -126,10 +126,14 @@ export class SecurityService {
       // to the login screen in case the user is not authenticated
       this.getCurrentUserFromServer().then(user => {
         console.log('getting user from server - user='+user);
-        let userUndefined = (user == null || user == undefined);
-        isAuthenticated = !userUndefined;
-        console.log('isAuthenticated userUndefined='+userUndefined);
-        if (isAuthenticated && !!this.getCurrentUser()) {
+        // let userUndefined = (user == null || user == undefined);
+        isAuthenticated = user ? user.username != '' : false;
+        console.log('isAuthenticated isAuthenticated='+isAuthenticated);
+        const currentUser = this.getCurrentUser();
+        console.log('currentUser='+currentUser);
+        console.log('!!currentUser='+!currentUser);
+        let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
+        if (shouldUpdateUserLocally) {
           console.log('update user on local storage');
           this.updateCurrentUser(user);
         } else {
