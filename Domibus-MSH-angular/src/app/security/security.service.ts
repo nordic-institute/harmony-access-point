@@ -95,16 +95,17 @@ export class SecurityService {
 
   clearSession() {
     this.domainService.resetDomain();
-    sessionStorage.removeItem('currentUser');
+    localStorage.removeItem('currentUser');
   }
 
   getCurrentUser(): User {
-    const storedUser = sessionStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem('currentUser');
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
   updateCurrentUser(user: User): void {
-    sessionStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    console.log('updateCurrentUser - end');
   }
 
 
@@ -116,27 +117,29 @@ export class SecurityService {
     return this.http.get('rest/security/user').map((res: Response) => res.json()).toPromise();
   }
 
-  isAuthenticated(callServer: boolean = false): Promise<boolean> {
 
+  isAuthenticated(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       let isAuthenticated = false;
-      if (callServer) {
-        // we get the username from the server to trigger the redirection
-        // to the login screen in case the user is not authenticated
-        this.getCurrentUsernameFromServer().then(username => {
-          let userUndefined = (username == null || username == "");
-          isAuthenticated = !userUndefined;
-          resolve(isAuthenticated);
-        }).catch(reason => {
-          console.log('Error while calling getCurrentUsernameFromServer: ' + reason);
-          reject(false);
-        });
-      } else {
-        //get the user from session storage
-        const currentUser = this.getCurrentUser();
-        isAuthenticated = (currentUser !== null);
+
+      // we get the username from the server to trigger the redirection
+      // to the login screen in case the user is not authenticated
+      this.getCurrentUserFromServer().then(user => {
+        console.log('getting user from server - user='+user);
+        let userUndefined = (user == null || user == undefined);
+        isAuthenticated = !userUndefined;
+        console.log('isAuthenticated userUndefined='+userUndefined);
+        if (isAuthenticated && !!this.getCurrentUser()) {
+          console.log('update user on local storage');
+          this.updateCurrentUser(user);
+        } else {
+          console.log('dont update user on local storage');
+        }
         resolve(isAuthenticated);
-      }
+      }).catch(reason => {
+        console.log('Error while calling getCurrentUsernameFromServer: ' + reason);
+        reject(false);
+      });
     });
   }
 
