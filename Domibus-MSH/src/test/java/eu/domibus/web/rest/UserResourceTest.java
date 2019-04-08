@@ -1,7 +1,9 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
+import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.UserService;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +66,8 @@ public class UserResourceTest {
         userResponseRO.setUserName("username");
         userResponseRO.setEmail("email");
         userResponseRO.setActive(true);
-        userResponseRO.setAuthorities(new ArrayList<String>());
+        userResponseRO.setAuthorities(Arrays.asList("ROLE_USER"));
+        userResponseRO.updateRolesField();
         userResponseRO.setStatus("PERSISTED");
         return userResponseRO;
     }
@@ -72,7 +76,7 @@ public class UserResourceTest {
     public void testUsers() {
         // Given
         final List<User> userList = new ArrayList<User>();
-        userList.add(new User("username", "email", true, new ArrayList<String>(), UserState.PERSISTED, null, false));
+        userList.add(new User("username", "email", true, Arrays.asList("ROLE_USER"), UserState.PERSISTED, null, false));
 
         final List<UserResponseRO> userResponseROList = getUserResponseList();
 
@@ -86,11 +90,52 @@ public class UserResourceTest {
 
         // When
         List<UserResponseRO> userResponseROS = userResource.users();
+        userResource.updateUsers(userResponseROS);
 
         // Then
         Assert.assertNotNull(userResponseROS);
         UserResponseRO userResponseRO = getUserResponseRO();
         Assert.assertEquals(userResponseRO, userResponseROS.get(0));
+    }
+
+    @Test
+    public void testRegularAdminRoles() {
+        List<UserRole> userRoles = Arrays.asList(new UserRole(AuthRole.ROLE_ADMIN.name()));
+
+        // Given
+        new Expectations() {{
+            authUtils.isSuperAdmin();
+            result = false;
+            userManagementService.findUserRoles();
+            result = userRoles;
+        }};
+
+        // When
+        List<String> roles = userResource.userRoles();
+
+        // Then
+        Assert.assertNotNull(roles);
+        Assert.assertFalse("ROLE_AP_ADMIN must not be returned for regular admins", roles.contains(AuthRole.ROLE_AP_ADMIN.name()));
+    }
+
+    @Test
+    public void testSuperAdminRole() {
+        List<UserRole> userRoles = Arrays.asList(new UserRole(AuthRole.ROLE_ADMIN.name()));
+
+        // Given
+        new Expectations() {{
+            authUtils.isSuperAdmin();
+            result = true;
+            superUserManagementService.findUserRoles();
+            result = userRoles;
+        }};
+
+        // When
+        List<String> roles = userResource.userRoles();
+
+        // Then
+        Assert.assertNotNull(roles);
+        Assert.assertTrue("ROLE_AP_ADMIN must be returned for super admins", roles.contains(AuthRole.ROLE_AP_ADMIN.name()));
     }
 
     @Test
@@ -122,4 +167,6 @@ public class UserResourceTest {
         Assert.assertEquals("Username, Email, Active, Roles" + System.lineSeparator() +
                 "user1, email@email.com, true, ROLE_ADMIN" + System.lineSeparator(), csv.getBody());
     }
+
+
 }
