@@ -205,4 +205,4 @@ const appRoutes: Routes = [
 
 ];
 
-export const routing = RouterModule.forRoot(appRoutes, {enableTracing: true});
+export const routing = RouterModule.forRoot(appRoutes);

@@ -105,7 +105,6 @@ export class SecurityService {
 
   updateCurrentUser(user: User): void {
     localStorage.setItem('currentUser', JSON.stringify(user));
-    console.log('updateCurrentUser - end');
   }
 
 
@@ -125,19 +124,11 @@ export class SecurityService {
       // we get the username from the server to trigger the redirection
       // to the login screen in case the user is not authenticated
       this.getCurrentUserFromServer().then(user => {
-        console.log('getting user from server - user='+user);
-        // let userUndefined = (user == null || user == undefined);
+
         isAuthenticated = user ? user.username != '' : false;
-        console.log('isAuthenticated isAuthenticated='+isAuthenticated);
-        const currentUser = this.getCurrentUser();
-        console.log('currentUser='+currentUser);
-        console.log('!!currentUser='+!currentUser);
         let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
         if (shouldUpdateUserLocally) {
-          console.log('update user on local storage');
           this.updateCurrentUser(user);
-        } else {
-          console.log('dont update user on local storage');
         }
         resolve(isAuthenticated);
       }).catch(reason => {

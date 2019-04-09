@@ -19,7 +19,6 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
     const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
     const isAuthenticated = await this.securityService.isAuthenticated();
-    console.log('AuthenticatedAuthorizedGuard - isAuthenticated=' + isAuthenticated);
 
     if (isAuthenticated) {
       canActivate = true;
@@ -28,7 +27,6 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
       const allowedRoles = route.data.checkRoles;
       if (!!allowedRoles) { //only if there are roles to check
         const isAuthorized = this.securityService.isAuthorized(allowedRoles);
-        console.log('AuthenticatedAuthorizedGuard - isAuthorized=' + isAuthorized);
         if (!isAuthorized) {
           canActivate = false;
 
