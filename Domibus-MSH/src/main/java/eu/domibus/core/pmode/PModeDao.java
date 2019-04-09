@@ -469,7 +469,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public String findMpcUri(String mpcName) throws EbMS3Exception {
-        LOG.warn("We do not expecte calls to this class anymore");
+        LOG.warn("No calls expected to this class anymore");
         return null;
     }
 }
