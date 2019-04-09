@@ -1,5 +1,6 @@
 package utils.soap_client;
 
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.webService.generated.*;
 
@@ -35,13 +36,23 @@ public class MyMessageSender {
 	private static final String SAMPLE_MSH_MESSAGE = "src\\main\\resources\\eu\\domibus\\example\\ws\\sampleMSHMessage.xml";
 	private static String mshWSLoc;
 
-	public SubmitResponse sendMessage(String pluginU, String password) throws Exception{
+	public SubmitResponse sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception{
 		WebserviceExample webserviceExample = new WebserviceExample();
         BackendInterface backendInterface = webserviceExample.getPort(pluginU, password);
 
 
         SubmitRequest submitRequest = Helper.parseSendRequestXML(TEST_SUBMIT_MESSAGE_SUBMITREQUEST,SubmitRequest.class);
         Messaging messaging = Helper.parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
+
+        if (null != messageRefID) {
+            MessageInfo info = new MessageInfo();
+            info.setRefToMessageId(messageRefID);
+            messaging.getUserMessage().setMessageInfo(info);
+        }
+
+        if (null != conversationID) {
+            messaging.getUserMessage().getCollaborationInfo().setConversationId(conversationID);
+        }
 
         SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
 
@@ -83,7 +94,7 @@ public class MyMessageSender {
             jaxbMessagingContext.createMarshaller().marshal(new JAXBElement(new QName("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/", "Messaging"), Messaging.class, messaging), soapMessage.getSOAPHeader());
 
             AttachmentPart attachment=soapMessage.createAttachmentPart();
-            attachment.setContent("PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=", "text/xml");
+            attachment.setContent("TEST_BEST", "text/xml");
             attachment.setContentId("payload");
             soapMessage.addAttachmentPart(attachment);
             soapMessage.saveChanges();

@@ -1,13 +1,10 @@
 package domibus.ui;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DOMIBUS_PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.TestServicePage;
-import pages.login.LoginPage;
 
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -39,7 +36,7 @@ public class TestServicePgTest extends BaseTest {
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
 
-		rest.uploadPMode("pmode-invalid_process.xml", null);
+		rest.uploadPMode("pmodes/pmode-invalid_process.xml", null);
 		page.wait.forXMillis(500);
 		page.refreshPage();
 		soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state (2)");
@@ -50,7 +47,7 @@ public class TestServicePgTest extends BaseTest {
 	@Test(description = "TS-2", groups = {"multiTenancy", "singleTenancy"})
 	public void availableParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		rest.uploadPMode("pmode-blue.xml", null);
+		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
@@ -67,7 +64,7 @@ public class TestServicePgTest extends BaseTest {
 	@Test(description = "TS-3", groups = {"multiTenancy", "singleTenancy"})
 	public void testBlueParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		rest.uploadPMode("pmode-blue.xml", null);
+		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);

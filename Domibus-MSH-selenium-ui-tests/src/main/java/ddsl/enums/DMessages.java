@@ -95,5 +95,7 @@ public class DMessages {
 
 	public static final String TESTSERVICE_NOTCONFIGURED = "The test service is not properly configured.";
 
+	public static final String RESEND_MESSAGE_SUCCESS = "The operation resend message completed successfully";
+
 
 }

@@ -83,6 +83,17 @@ public class BaseTest {
 		return new DomibusPage(driver);
 	}
 
+	protected DomibusPage login(String user, String pass){
+
+		HashMap<String, String> userInfo = new HashMap<>();
+		userInfo.put("username", user);
+		userInfo.put("pass", data.getDefaultTestPass());
+
+		login(userInfo);
+
+		return new DomibusPage(driver);
+	}
+
 
 
 

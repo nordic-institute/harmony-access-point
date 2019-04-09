@@ -7,7 +7,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +16,10 @@ import utils.TestDataProvider;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
-import java.io.File;
+import java.io.*;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -370,8 +372,6 @@ public class DomibusRestClient {
 		return null;
 	}
 
-
-
 	public void createMessageFilter(String actionName, String domain) {
 		String payloadTemplate = "{\"entityId\":0,\"index\":0,\"backendName\":\"backendWebservice\",\"routingCriterias\":[{\"entityId\":0,\"name\":\"action\",\"expression\":\"%s\"}],\"persisted\":false,\"from\":null,\"to\":null,\"action\":{\"entityId\":0,\"name\":\"action\",\"expression\":\"%s\"},\"service\":null,\"$$index\":2}";
 		String payload = String.format(payloadTemplate, actionName, actionName);
@@ -425,7 +425,6 @@ public class DomibusRestClient {
 		}
 	}
 
-
 	public void uploadPMode(String pmodeFilePath, String domain) throws Exception {
 		switchDomain(domain);
 
@@ -447,5 +446,35 @@ public class DomibusRestClient {
 		return entries.length() > 0;
 	}
 
+	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception{
+		switchDomain(domain);
 
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_CSV), params);
+		System.out.println(clientResponse.getStatus());
+		InputStream in= clientResponse.getEntity(InputStream.class);
+
+		File file = File.createTempFile("domibus", "");
+		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		in.close();
+		return file.getAbsolutePath();
+	}
+
+	public String downloadMessage(String id, String domain) throws Exception{
+		switchDomain(domain);
+
+		HashMap<String, String> params = new HashMap<>();
+		params.put("messageId", id);
+
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
+		System.out.println(clientResponse.getStatus());
+		InputStream in= clientResponse.getEntity(InputStream.class);
+
+		File file = File.createTempFile("message", ".zip");
+		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		in.close();
+
+		return file.getAbsolutePath();
+	}
 }

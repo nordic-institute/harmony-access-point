@@ -23,7 +23,6 @@ public class DriverManager {
 //		return driver;
 
 		WebDriver driver = new ChromeDriver();
-		((JavascriptExecutor)driver).executeScript("document.body.style.zoom = '10%';");
 		driver.manage().window().maximize();
 
 		return driver;

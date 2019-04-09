@@ -17,7 +17,7 @@ public class DObject {
 	protected DWait wait;
 
 	//	protected Logger log = LoggerFactory.getLogger(this.getClass());
-	protected WebElement element;
+	public WebElement element;
 
 	public DObject(WebDriver driver, WebElement element) {
 		wait = new DWait(driver);
