@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -17,7 +18,6 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -25,6 +25,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import eu.domibus.web.rest.validators.BlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -80,6 +81,9 @@ public class MessageLogResource {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    BlacklistValidator blacklistValidator;
+
     Date defaultFrom;
 
     Date defaultTo;
@@ -90,6 +94,9 @@ public class MessageLogResource {
         try {
             defaultFrom = ft.parse("1970-01-01 23:59:00");
             defaultTo = ft.parse("2977-10-25 23:59:00");
+
+            blacklistValidator.init();
+
         } catch (ParseException e) {
             LOG.error("Impossible to initiate default dates");
         }
@@ -117,6 +124,14 @@ public class MessageLogResource {
             @RequestParam(value = RECEIVED_FROM_STR, required = false) String receivedFrom,
             @RequestParam(value = RECEIVED_TO_STR, required = false) String receivedTo,
             @RequestParam(value = "messageSubtype", required = false) MessageSubtype messageSubtype) {
+
+        blacklistValidator.validate(fromPartyId);
+        blacklistValidator.validate(toPartyId);
+        blacklistValidator.validate(originalSender);
+        blacklistValidator.validate(finalRecipient);
+        blacklistValidator.validate(refToMessageId);
+        blacklistValidator.validate(messageId);
+        blacklistValidator.validate(conversationId);
 
         LOG.debug("Getting message log");
 
@@ -244,7 +259,7 @@ public class MessageLogResource {
         LOG.debug("Getting last sent test message for partyId='{}'", partyId);
 
         String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
-        if(StringUtils.isBlank(userMessageId)) {
+        if (StringUtils.isBlank(userMessageId)) {
             LOG.debug("Could not find last user message id for party [{}]", partyId);
             return ResponseEntity.noContent().build();
         }
@@ -253,7 +268,7 @@ public class MessageLogResource {
         //TODO create a UserMessageLog object independent of Hibernate annotations in the domibus-api and use the UserMessageLogService instead
         try {
             userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
-        } catch (NoResultException ex){
+        } catch (NoResultException ex) {
             LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
         }
 
@@ -275,7 +290,7 @@ public class MessageLogResource {
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@RequestParam(value = "partyId") String partyId, @RequestParam(value = "userMessageId") String userMessageId) {
         LOG.debug("Getting last received test message from partyId='{}'", partyId);
         Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
-        if(messaging == null) {
+        if (messaging == null) {
             LOG.debug("Could not find messaging for message ID[{}]", userMessageId);
             return ResponseEntity.noContent().build();
         }

@@ -1,5 +1,6 @@
 package eu.domibus.configuration.security;
 
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.common.services.impl.UserDetailServiceImpl;
 import eu.domibus.security.AuthenticationService;
 import eu.domibus.security.AuthenticationServiceImpl;
@@ -54,8 +55,10 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     }
 
     @Override
-    public void configureHttpSecurity(HttpSecurity http) throws Exception {
-        //nothing here
+    public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .authorizeRequests()
+                .antMatchers( "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name());
     }
 
     @Override

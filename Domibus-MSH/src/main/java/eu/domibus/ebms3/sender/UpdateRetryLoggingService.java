@@ -2,6 +2,7 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
@@ -59,6 +60,9 @@ public class UpdateRetryLoggingService {
     @Autowired
     private RawEnvelopeLogDao rawEnvelopeLogDao;
 
+    @Autowired
+    protected UserMessageService userMessageService;
+
 
     /**
      * This method is responsible for the handling of retries for a given sent message.
@@ -86,23 +90,35 @@ public class UpdateRetryLoggingService {
         } else { // max retries reached, mark message as ultimately failed (the message may be pushed back to the send queue by an administrator but this send completely failed)
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             messageFailed(userMessage, userMessageLog);
+
+            if (userMessage.isUserMessageFragment()) {
+                userMessageService.scheduleMessageFragmentSendFailed(userMessage.getMessageFragment().getGroupId(), userMessageLog.getBackend());
+            }
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void messageFailedInANewTransaction(UserMessage userMessage, MessageLog userMessageLog) {
+        LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageInfo().getMessageId());
+
         messageFailed(userMessage, userMessageLog);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessageLog.getMessageId());
     }
 
     public void messageFailed(UserMessage userMessage, MessageLog userMessageLog) {
+        LOG.debug("Marking message [{}] as failed", userMessage.getMessageInfo().getMessageId());
         final String messageId = userMessageLog.getMessageId();
+        messageFailed(userMessage, messageId, userMessageLog.getNotificationStatus(), userMessageLog.isTestMessage(), userMessageLog.getBackend());
+    }
+
+    protected void messageFailed(UserMessage userMessage, final String messageId, NotificationStatus notificationStatus, boolean isTestMessage, String backendName) {
         LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE);
-        if (NotificationStatus.REQUIRED.equals(userMessageLog.getNotificationStatus()) && !userMessageLog.isTestMessage()) {
+        if (NotificationStatus.REQUIRED.equals(notificationStatus) && !isTestMessage) {
             LOG.info("Notifying backend for message failure");
             backendNotificationService.notifyOfSendFailure(userMessage);
         }
+
         userMessageLogService.setMessageAsSendFailure(messageId);
 
         if (domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE)) {
@@ -138,7 +154,7 @@ public class UpdateRetryLoggingService {
      * @return true if the message can be sent again
      */
     public boolean hasAttemptsLeft(final MessageLog userMessageLog, final LegConfiguration legConfiguration) {
-        if(legConfiguration.getReceptionAwareness() == null){
+        if (legConfiguration.getReceptionAwareness() == null) {
             return false;
         }
         LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]",
@@ -186,14 +202,14 @@ public class UpdateRetryLoggingService {
 
     public boolean isExpired(LegConfiguration legConfiguration, MessageLog userMessageLog) {
         int delay = domibusPropertyProvider.getIntegerProperty(MESSAGE_EXPIRATION_DELAY);
-        Boolean isExpired =  (getMessageExpirationDate(userMessageLog, legConfiguration).getTime() + delay) < System.currentTimeMillis();
+        Boolean isExpired = (getMessageExpirationDate(userMessageLog, legConfiguration).getTime() + delay) < System.currentTimeMillis();
         LOG.debug("Verify if message expired: [{}]", isExpired);
         return isExpired;
     }
 
     public void updateMessageLogNextAttemptDate(LegConfiguration legConfiguration, MessageLog userMessageLog) {
         Date nextAttempt = new Date();
-        if (userMessageLog.getNextAttempt() !=null) {
+        if (userMessageLog.getNextAttempt() != null) {
             nextAttempt = new Date(userMessageLog.getNextAttempt().getTime());
         }
         RetryStrategy.AttemptAlgorithm algorithm = legConfiguration.getReceptionAwareness().getStrategy().getAlgorithm();

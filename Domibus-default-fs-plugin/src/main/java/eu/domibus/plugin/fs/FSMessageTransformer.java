@@ -113,7 +113,10 @@ public class FSMessageTransformer
                     payloadProperties.add(new Submission.TypedProperty(property.getName(), property.getValue(), property.getType()));
                 }
             }
-            submission.addPayload(contentId, dataHandler, payloadProperties);
+            final Submission.Payload payload = new Submission.Payload(contentId, dataHandler, payloadProperties, false, null, null);
+            payload.setPayloadSize(fsPayload.getFileSize());
+            payload.setFilepath(fsPayload.getFilePath());
+            submission.addPayload(payload);
         }
     }
 

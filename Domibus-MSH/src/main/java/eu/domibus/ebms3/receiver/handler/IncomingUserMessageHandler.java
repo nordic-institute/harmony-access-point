@@ -3,6 +3,7 @@ package eu.domibus.ebms3.receiver.handler;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.security.AuthorizationService;
+import eu.domibus.ebms3.common.AttachmentCleanupService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,13 +28,19 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageHandler.class);
 
     @Autowired
-    protected AuthorizationService authorizationService;
+    protected AttachmentCleanupService attachmentCleanupService;
 
+    @Autowired
+    protected AuthorizationService authorizationService;
 
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
-        authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
         LOG.debug("Processing UserMessage");
-        return userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+        authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
+        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+
+        attachmentCleanupService.cleanAttachments(request);
+
+        return response;
     }
 }

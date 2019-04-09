@@ -78,6 +78,7 @@ public class EbMS3MessageBuilder {
         return buildSOAPMessage(signalMessage);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage buildSOAPMessage(final UserMessage userMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPUserMessage(userMessage, null);
     }
@@ -167,7 +168,7 @@ public class EbMS3MessageBuilder {
         return message;
     }
 
-    protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) throws EbMS3Exception {
+    protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
             message = this.messageFactory.createMessage();
