@@ -65,8 +65,7 @@ public class RestControllerAdviceTest {
         )
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(content().json(formattedException, false))
-        ;
+                .andExpect(content().json(formattedException, false));
     }
 
     @Test
@@ -83,9 +82,9 @@ public class RestControllerAdviceTest {
                         .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                         .content(dummyPayload)
         )
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(content().json(formattedException, false))
-        ;
+                .andExpect(content().json(formattedException, false));
+
     }
 }

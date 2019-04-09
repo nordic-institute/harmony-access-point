@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs.queue;
 
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.FSTestHelper;
@@ -30,6 +31,9 @@ public class FSSendMessageListenerTest {
 
     @Injectable
     private FSSendMessagesService fsSendMessagesService;
+
+    @Injectable
+    private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
     FSFilesManager fsFilesManager;
@@ -66,7 +70,7 @@ public class FSSendMessageListenerTest {
 
 
     @Test
-    public void test_onMessage_FileExists_Success(final @Mocked FileSystemManager fileSystemManager, final @Mocked Message message, final @Mocked FileObject file) throws Exception {
+    public void test_onMessage_FileExists_Success(final @Mocked Message message, final @Mocked FileObject file) throws Exception {
         final String domain = null;
         final String fileName = "ram:" + contentFile.getURL().getFile();
 
@@ -90,7 +94,7 @@ public class FSSendMessageListenerTest {
     }
 
     @Test
-    public void test_onMessage_FileDoesntExist_Error(final @Mocked FileSystemManager fileSystemManager, final @Mocked Message message, final @Mocked FileObject file) throws Exception {
+    public void test_onMessage_FileDoesntExist_Error(final @Mocked Message message, final @Mocked FileObject file) throws Exception {
         final String domain = null;
         final String fileName = "ram:" + contentFile.getURL().getFile() + "bla";
 

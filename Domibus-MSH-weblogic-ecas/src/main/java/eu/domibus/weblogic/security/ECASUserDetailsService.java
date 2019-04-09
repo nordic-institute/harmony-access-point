@@ -107,7 +107,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         LOG.debug("createUserDetails - start");
         List<GrantedAuthority> userGroups = new LinkedList<>();
         List<AuthRole> userGroupsStr = new LinkedList<>();
-        String domainCode = null;
+        String domainCodeFromLDAP = null;
         final String ldapGroupPrefix = domibusPropertyProvider.getProperty(ECAS_DOMIBUS_LDAP_GROUP_PREFIX_KEY);
         LOG.debug("createUserDetails - LDAP group prefix is: {}", ldapGroupPrefix);
 
@@ -129,8 +129,8 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
                         userGroupsStr.add(userRoleMappings.get(principalName));
                         LOG.debug("createUserDetails - userGroup added: {}", userRoleMappings.get(principalName));
                     } else if (domainMappings.get(principalName) != null) {
-                        domainCode = domainMappings.get(principalName);
-                        LOG.debug("createUserDetails - domain added: {}", domainCode);
+                        domainCodeFromLDAP = domainMappings.get(principalName);
+                        LOG.debug("createUserDetails - domain added: {}", domainCodeFromLDAP);
                     }
                 }
             } else {
@@ -147,27 +147,30 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         //chose highest privilege among LDAP user groups
         final GrantedAuthority grantedAuthority = chooseHighestUserGroup(userGroupsStr);
 
-        Domain domain = domibusConfigurationService.isMultiTenantAware() ?
-                domainService.getDomain(domainCode) : DomainService.DEFAULT_DOMAIN;
+        Domain domain = domibusConfigurationService.isMultiTenantAware() ? domainService.getDomain(domainCodeFromLDAP)
+                : DomainService.DEFAULT_DOMAIN;
 
         if (null != grantedAuthority && null != domain) {
             //we set the groups only if LDAP groups are mapping on both privileges and domain code
             userGroups.add(grantedAuthority);
         }
-        LOG.debug("userDetail userGroups={}", userGroups);
+        LOG.debug("userDetail  userGroups={}", userGroups);
 
         UserDetail userDetail = new UserDetail(username, StringUtils.EMPTY, userGroups);
         userDetail.setDefaultPasswordUsed(false);
         userDetail.setExternalAuthProvider(true);
-        if (null != domain && null != domain.getCode()) {
-            userDetail.setDomain(domain.getCode());
-            domainContextProvider.setCurrentDomain(domain.getCode());
-        }
-        LOG.debug("Domain set to: {}", domain);
         userDetail.setDaysTillExpiration(Integer.MAX_VALUE);
 
-        LOG.debug("createUserDetails - end");
+        domainContextProvider.clearCurrentDomain();
+        //for multitenancy we still set domain to DEFAULT even if there is no matching LDAP group
+        final String domainCode = domain != null ? domain.getCode() : DomainService.DEFAULT_DOMAIN.getCode();
+        LOG.debug("Domain  set to: {}", domainCode);
+        userDetail.setDomain(domainCode);
+        domainContextProvider.setCurrentDomain(domainCode);
+
+        LOG.debug("createUserDetails  - end");
         return userDetail;
+
     }
 
     protected GrantedAuthority chooseHighestUserGroup(final List<AuthRole> userGroups) {
