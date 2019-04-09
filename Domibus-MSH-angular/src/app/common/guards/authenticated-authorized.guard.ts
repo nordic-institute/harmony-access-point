@@ -16,7 +16,9 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     let canActivate = false;
-    const isAuthenticated = await this.securityService.isAuthenticated(true);
+
+    const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
+    const isAuthenticated = await this.securityService.isAuthenticated();
 
     if (isAuthenticated) {
       canActivate = true;
@@ -27,7 +29,6 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
         const isAuthorized = this.securityService.isAuthorized(allowedRoles);
         if (!isAuthorized) {
           canActivate = false;
-          const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
 
           this.router.navigate([isUserFromExternalAuthProvider ? '/notAuthorized' : '/']);
         }
@@ -37,7 +38,12 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
       // todo: the call to clear is not cohesive, should refactor
       this.securityService.clearSession();
       // todo: the redirect is duplicated, should refactor
-      this.router.navigate(['/login'], {queryParams: {returnUrl: state.url}});
+      if (!isUserFromExternalAuthProvider) {
+        this.router.navigate(['/login'], {queryParams: {returnUrl: state.url}});
+      } else {
+        //ECAS redirect to logout
+        this.router.navigate(['/logout']);
+      }
     }
     return canActivate;
   }
