@@ -15,7 +15,6 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
@@ -29,6 +28,7 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ebms3.sender.PullFrequencyComponent;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateService;
@@ -47,7 +47,6 @@ import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
@@ -112,11 +111,13 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private PullMessageService pullMessageService;
 
     @Autowired
-    MpcService mpcService;
+    private MpcService mpcService;
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    private PullFrequencyComponent pullFrequencyComponent;
 
     /**
      * {@inheritDoc}
@@ -176,11 +177,10 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         if (pullProcesses.isEmpty()) {
             LOG.trace("No pull process configured !");
         }
-
-        final Integer numberOfPullRequestPerMpc = domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE);
         LOG.debug("DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE property read for domain[{}]", domainProvider.getCurrentDomain());
 
-        if (!domibusConfigurationService.isMultiTenantAware() && pause(pullProcesses, numberOfPullRequestPerMpc)) {
+        final Integer numberOfPullRequestPerMpc = pullFrequencyComponent.getPullRequestNumberPerJobCycle();
+        if (!domibusConfigurationService.isMultiTenantAware() && pause(pullProcesses, pullFrequencyComponent.getPullRequestNumberPerJobCycle())) {
             return;
         }
         for (Process pullProcess : pullProcesses) {
@@ -235,6 +235,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             }
         }
 
+        LOG.trace("numberOfPullMpc:[{}], numberOfPullRequestPerMpc[{}],queueMessageNumber:[{}]", numberOfPullMpc, numberOfPullRequestPerMpc, queueMessageNumber);
         final int pullRequestsToSendCount = numberOfPullMpc * numberOfPullRequestPerMpc;
         final boolean shouldPause = queueMessageNumber > pullRequestsToSendCount;
         if (shouldPause) {

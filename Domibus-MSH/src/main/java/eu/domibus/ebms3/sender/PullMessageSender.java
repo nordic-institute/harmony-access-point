@@ -91,6 +91,9 @@ public class PullMessageSender {
     @Qualifier("taskExecutor")
     private Executor executor;
 
+    @Autowired
+    private PullFrequencyComponent pullFrequencyComponent;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
@@ -126,6 +129,7 @@ public class PullMessageSender {
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            pullFrequencyComponent.success();
             messaging = messageUtil.getMessage(response);
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpc);
@@ -184,6 +188,7 @@ public class PullMessageSender {
     private void checkConnectionProblem(EbMS3Exception e) {
         if (e.getErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
             LOG.warn("ConnectionFailure ", e);
+            pullFrequencyComponent.increaseError();
         } else {
             throw new WebServiceException(e);
         }
