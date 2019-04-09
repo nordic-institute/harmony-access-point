@@ -134,7 +134,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     }
 
     public Boolean getExpired() {
-        return expired;
+        return BooleanUtils.toBoolean(expired);
     }
 
     public void setExpired(Boolean expired) {

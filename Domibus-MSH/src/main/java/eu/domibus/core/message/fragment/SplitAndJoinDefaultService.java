@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -394,17 +395,13 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
             return;
         }
+        final MessageStatus messageStatus = messageLog.getMessageStatus();
+        if (MessageStatus.SEND_ENQUEUED != messageStatus) {
+            LOG.debug("UserMessage fragment [{}] was not scheduled to be marked as failed: status is [{}]", messageId, messageStatus);
+            return;
+        }
+
         updateRetryLoggingService.messageFailed(userMessage, messageLog);
-    }
-
-    @Override
-    public void messageFragmentSendFailed(final String groupId) {
-        LOG.debug("SplitAndJoin message fragment failed for group [{}]", groupId);
-
-        sendSplitAndJoinFailed(groupId);
-
-        final List<UserMessage> groupUserMessages = messagingDao.findUserMessageByGroupId(groupId);
-        groupUserMessages.stream().forEach(userMessage -> userMessageService.scheduleUserMessageFragmentFailed(userMessage.getMessageInfo().getMessageId()));
     }
 
     @Override
@@ -424,10 +421,10 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
         LOG.debug("Found expired groups [{}]", expiredGroups);
-        expiredGroups.stream().forEach(messageGroupEntity -> setGroupAsExpired(messageGroupEntity));
+        expiredGroups.stream().forEach(messageGroupEntity -> setReceivedGroupAsExpired(messageGroupEntity));
     }
 
-    protected void setGroupAsExpired(MessageGroupEntity messageGroupEntity) {
+    protected void setReceivedGroupAsExpired(MessageGroupEntity messageGroupEntity) {
         messageGroupEntity.setExpired(true);
         messageGroupDao.update(messageGroupEntity);
         userMessageService.scheduleSplitAndJoinReceiveFailed(messageGroupEntity.getGroupId(), messageGroupEntity.getSourceMessageId(), ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), "Group has expired");
@@ -475,11 +472,26 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     }
 
+    @Override
+    public void messageFragmentSendFailed(final String groupId) {
+        LOG.debug("SplitAndJoin message fragment failed for group [{}]", groupId);
+
+        sendSplitAndJoinFailed(groupId);
+
+        final List<UserMessage> groupUserMessages = messagingDao.findUserMessageByGroupId(groupId);
+        groupUserMessages.stream().forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId()));
+    }
+
 
     protected void sendSplitAndJoinFailed(final String groupId) {
         final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(groupId);
         if (messageGroupEntity == null) {
             LOG.warn("Group not found [{}]: could't clear SplitAndJoin messages for group", groupId);
+            return;
+        }
+
+        if (messageGroupEntity.getRejected()) {
+            LOG.debug("The group [{}] is already marked as rejected", groupId);
             return;
         }
 

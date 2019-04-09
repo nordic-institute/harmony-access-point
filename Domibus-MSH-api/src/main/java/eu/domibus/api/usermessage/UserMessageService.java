@@ -72,7 +72,7 @@ public interface UserMessageService {
      *
      * @param messageId
      */
-    void scheduleUserMessageFragmentFailed(String messageId);
+    void scheduleSetUserMessageFragmentAsFailed(String messageId);
 
     /**
      * Schedules the sending of the SourceMessage

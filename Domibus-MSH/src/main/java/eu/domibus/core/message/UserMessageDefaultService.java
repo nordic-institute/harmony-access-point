@@ -310,13 +310,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleUserMessageFragmentFailed(String messageId) {
-        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        if (MessageStatus.SEND_ENQUEUED != messageStatus) {
-            LOG.debug("UserMessage fragment [{}] was not scheduled to be marked as failed: status is [{}]", messageId, messageStatus);
-            return;
-        }
-
+    public void scheduleSetUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
 
         final JmsMessage jmsMessage = JMSMessageBuilder
