@@ -415,6 +415,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
 
     protected void handleMessageFragment(UserMessage userMessage, MessageFragmentType messageFragmentType) throws EbMS3Exception {
+        userMessage.setSplitAndJoin(true);
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
         validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
 
