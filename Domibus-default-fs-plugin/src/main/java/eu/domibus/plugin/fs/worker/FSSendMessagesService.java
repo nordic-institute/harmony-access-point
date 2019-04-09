@@ -98,19 +98,7 @@ public class FSSendMessagesService {
                 domain = DEFAULT_DOMAIN;
             }
 
-            String authenticationUser = fsPluginProperties.getAuthenticationUser(domain);
-            if (authenticationUser == null) {
-                LOG.error("Authentication User not defined for domain [{}]", domain);
-                return;
-            }
-
-            String authenticationPassword = fsPluginProperties.getAuthenticationPassword(domain);
-            if (authenticationPassword == null) {
-                LOG.error("Authentication Password not defined for domain [{}]", domain);
-                return;
-            }
-
-            authenticationExtService.basicAuthenticate(authenticationUser, authenticationPassword);
+            checkAuthenticationMultitenancy(domain);
         }
 
         FileObject[] contentFiles = null;
@@ -135,6 +123,27 @@ public class FSSendMessagesService {
                 fsFilesManager.closeAll(contentFiles);
             }
         }
+    }
+
+    /**
+     * It will check authentication username and password presence
+     *
+     * @param domain
+     */
+    public void checkAuthenticationMultitenancy(String domain) {
+        String authenticationUser = fsPluginProperties.getAuthenticationUser(domain);
+        if (authenticationUser == null) {
+            LOG.error("Authentication User not defined for domain [{}]", domain);
+            return;
+        }
+
+        String authenticationPassword = fsPluginProperties.getAuthenticationPassword(domain);
+        if (authenticationPassword == null) {
+            LOG.error("Authentication Password not defined for domain [{}]", domain);
+            return;
+        }
+
+        authenticationExtService.basicAuthenticate(authenticationUser, authenticationPassword);
     }
 
     /**

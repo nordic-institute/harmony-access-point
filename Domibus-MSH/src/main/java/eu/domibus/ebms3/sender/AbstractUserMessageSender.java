@@ -10,6 +10,8 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessageExchangeService;
@@ -27,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
+
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_USER_MESSAGE;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -67,6 +71,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected UserMessageLogDao userMessageLogDao;
 
     @Override
+    @Timer(OUTGOING_USER_MESSAGE)
+    @Counter(OUTGOING_USER_MESSAGE)
     public void sendMessage(final UserMessage userMessage) {
         String messageId = userMessage.getMessageInfo().getMessageId();
 

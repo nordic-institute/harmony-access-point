@@ -1,6 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {SecurityService} from '../../security/security.service';
+import {DomibusInfoService} from "../appinfo/domibusinfo.service";
 
 /**
  * It will handle for each route where is defined:
@@ -10,7 +11,7 @@ import {SecurityService} from '../../security/security.service';
 @Injectable()
 export class AuthenticatedAuthorizedGuard implements CanActivate {
 
-  constructor (private router: Router, private securityService: SecurityService) {
+  constructor(private router: Router, private securityService: SecurityService, private domibusInfoService: DomibusInfoService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -19,7 +20,6 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
     if (isAuthenticated) {
       canActivate = true;
-      const isUserFromExternalAuthProvider = this.securityService.isUserFromExternalAuthProvider();
 
       //check also authorization
       const allowedRoles = route.data.checkRoles;
@@ -27,6 +27,8 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
         const isAuthorized = this.securityService.isAuthorized(allowedRoles);
         if (!isAuthorized) {
           canActivate = false;
+          const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
+
           this.router.navigate([isUserFromExternalAuthProvider ? '/notAuthorized' : '/']);
         }
       }
