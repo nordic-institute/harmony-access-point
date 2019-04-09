@@ -999,14 +999,6 @@
             </modules>
         </profile>
         <profile>
-            <id>wildfly</id>
-            <modules>
-                <module>Domibus-MSH-jms-wildfly</module>
-                <module>Domibus-MSH-taskexecutor-wildfly</module>
-                <module>Domibus-MSH-wildfly</module>
-            </modules>
-        </profile>
-        <profile>
             <id>wildfly12</id>
             <modules>
                 <module>Domibus-MSH-jms-wildfly-artemis</module>
