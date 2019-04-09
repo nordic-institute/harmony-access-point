@@ -40,12 +40,6 @@ public class FSSendMessageListener implements MessageListener {
     protected FSFilesManager fsFilesManager;
 
     @Autowired
-    private FSPluginProperties fsPluginProperties;
-
-    @Autowired
-    private AuthenticationExtService authenticationExtService;
-
-    @Autowired
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

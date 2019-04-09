@@ -126,7 +126,7 @@ public class FSSendMessagesService {
     }
 
     /**
-     * It will check authentication Username and password presence
+     * It will check authentication username and password presence
      *
      * @param domain
      */
