@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -14,11 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -26,6 +33,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
 @RequestMapping(value = "/rest/jms")
+@Validated
 public class JmsResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(JmsResource.class);
@@ -59,7 +67,7 @@ public class JmsResource {
 
 
     @RequestMapping(value = {"/messages"}, method = POST)
-    public ResponseEntity<MessagesResponseRO> messages(@RequestBody MessagesRequestRO request) {
+    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid MessagesRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
         try {
@@ -77,7 +85,7 @@ public class JmsResource {
     }
 
     @RequestMapping(value = {"/messages/action"}, method = POST)
-    public ResponseEntity<MessagesActionResponseRO> action(@RequestBody MessagesActionRequestRO request) {
+    public ResponseEntity<MessagesActionResponseRO> action(@RequestBody @Valid MessagesActionRequestRO request) {
 
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
         response.setOutcome("Success");
@@ -87,6 +95,11 @@ public class JmsResource {
             String[] ids = messageIds.toArray(new String[0]);
 
             if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
+
+                Map<String, JMSDestination> destinations = jmsManager.getDestinations();
+                if (!destinations.containsKey(request.getDestination())) {
+                    throw new IllegalArgumentException("Unknown destination");
+                }
                 jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
 
             } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {

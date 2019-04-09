@@ -6,6 +6,8 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.configuration.ReplyPattern;
@@ -28,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
+
+import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE_RECEIPT;
 
 /**
  * Handles the incoming AS4 receipts
@@ -71,6 +75,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
 
     @Transactional
     @Override
+    @Timer(INCOMING_USER_MESSAGE_RECEIPT)
+    @Counter(INCOMING_USER_MESSAGE_RECEIPT)
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.debug("Processing UserMessage receipt");
         final SOAPMessage soapMessage = handleUserMessageReceipt(request, messaging);

@@ -1,6 +1,6 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.multitenancy.DomainException;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.error.RestControllerAdvice;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class RestControllerAdviceTest {
         String exceptionMessage = "aaa";
         String formattedException = " {\"message\": \"[DOM_001]:" + exceptionMessage + "\"} ";
 
-        doThrow(new DomainException(exceptionMessage)).when(pluginUserResource).updateUsers(anyList());
+        doThrow(new DomainTaskException(exceptionMessage)).when(pluginUserResource).updateUsers(anyList());
 
         mockMvc.perform(
                 put("/rest/plugin/users")
@@ -65,8 +65,7 @@ public class RestControllerAdviceTest {
         )
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(content().json(formattedException, false))
-        ;
+                .andExpect(content().json(formattedException, false));
     }
 
     @Test
@@ -83,9 +82,9 @@ public class RestControllerAdviceTest {
                         .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                         .content(dummyPayload)
         )
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(content().json(formattedException, false))
-        ;
+                .andExpect(content().json(formattedException, false));
+
     }
 }

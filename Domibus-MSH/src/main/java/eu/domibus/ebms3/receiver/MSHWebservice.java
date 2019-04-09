@@ -29,7 +29,6 @@ import javax.xml.ws.soap.SOAPBinding;
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class MSHWebservice implements Provider<SOAPMessage> {
 
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebservice.class);
 
     @Autowired

@@ -184,7 +184,10 @@ const appRoutes: Routes = [
   },
   {
     path: 'logout',
-    component: LogoutAuthExtProviderComponent
+    component: LogoutAuthExtProviderComponent,
+    data: {
+      isDomainIndependent: true
+    }
   },
   {
     path: 'notAuthorized',
@@ -194,7 +197,10 @@ const appRoutes: Routes = [
   {
     path: '**',
     component: MessageLogComponent,
-    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard]
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      checkRoles: SecurityService.USER_ROLES
+    }
   },
 
 ];

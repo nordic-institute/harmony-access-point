@@ -19,11 +19,13 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.http.entity.ContentType;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +51,7 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
 
     protected MessageUtil messageUtil;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handleMessage(Message message) throws Fault {
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
@@ -66,23 +69,26 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
 
         String fileName = splitAndJoinService.generateSourceFileName(temporaryDirectoryLocation);
 
-        try (FileOutputStream cos = new FileOutputStream(new File(fileName));
-             InputStream in = message.getContent(InputStream.class)) {
+        try (InputStream in = message.getContent(InputStream.class)) {
             LOG.debug("Start copying message [{}] to file [{}]", messageId, fileName);
-            IOUtils.copy(in, cos);
-            in.close();
-            cos.close();
+
+            Files.copy(in, Paths.get(fileName));
+
             LOG.debug("Finished copying message [{}] to file [{}]", messageId, fileName);
-
-            replaceSoapEnvelope(message, contentType);
-
-            LOG.putMDC(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE, fileName);
-            LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
-            LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domain);
         } catch (IOException e) {
-            LOG.error("Could not store message into temporary location [{}]", temporaryDirectoryLocation);
+            LOG.error("Could not store message into temporary location [{}]", temporaryDirectoryLocation, e);
             throw new Fault(e);
         }
+
+        try {
+            replaceSoapEnvelope(message, contentType);
+        } catch (IOException e) {
+            LOG.error("Could not replace SoapEnvelope", e);
+            throw new Fault(e);
+        }
+        LOG.putMDC(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE, fileName);
+        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
+        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domain);
     }
 
     protected void replaceSoapEnvelope(Message message, String contentTypeHeader) throws IOException {

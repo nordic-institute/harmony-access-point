@@ -1,15 +1,15 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.model.logging.UserMessageLogBuilder;
+import eu.domibus.common.model.logging.UserMessageLogEntityBuilder;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     private UserMessageLog createUserMessageLog(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
         // Builds the user message log
-        UserMessageLogBuilder umlBuilder = UserMessageLogBuilder.create()
+        UserMessageLogEntityBuilder umlBuilder = UserMessageLogEntityBuilder.create()
                 .setMessageId(messageId)
                 .setMessageStatus(MessageStatus.valueOf(messageStatus))
                 .setMshRole(MSHRole.valueOf(mshRole))
@@ -49,22 +49,13 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     }
 
     @Override
-    public void save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
+    public void save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
         final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
+        userMessageLog.setSourceMessage(sourceMessage);
+        userMessageLog.setMessageFragment(messageFragment);
 
-        //we set the status after we send the status change event; otherwise the old status and the new status would be the same
-        userMessageLog.setMessageStatus(status);
-        userMessageLogDao.create(userMessageLog);
-        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, status, new Timestamp(System.currentTimeMillis()));
-    }
-
-    @Override
-    public void save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action) {
-        final MessageStatus status = MessageStatus.valueOf(messageStatus);
-        // Builds the user message log
-        final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
         // Sets the subtype
         MessageSubtype messageSubtype = null;
         if (checkTestMessage(service, action)) {

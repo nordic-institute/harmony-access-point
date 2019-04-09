@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs.queue;
 
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.FSTestHelper;
@@ -25,11 +26,17 @@ import java.io.InputStream;
 @RunWith(JMockit.class)
 public class FSSendMessageListenerTest {
 
+    @Tested
+    FSSendMessageListener fsSendMessageListener;
+
     @Injectable
     private FSSendMessagesService fsSendMessagesService;
 
-    @Tested
-    FSSendMessageListener fsSendMessageListener;
+    @Injectable
+    private DomibusConfigurationExtService domibusConfigurationExtService;
+
+    @Injectable
+    FSFilesManager fsFilesManager;
 
     private FileObject rootDir;
     private FileObject outgoingFolder;
@@ -63,7 +70,7 @@ public class FSSendMessageListenerTest {
 
 
     @Test
-    public void test_onMessage_FileExists_Success(final @Mocked FileSystemManager fileSystemManager, final @Mocked Message message, final @Mocked FileObject file) throws Exception {
+    public void test_onMessage_FileExists_Success(final @Mocked Message message, final @Mocked FileObject file) throws Exception {
         final String domain = null;
         final String fileName = "ram:" + contentFile.getURL().getFile();
 
@@ -87,7 +94,7 @@ public class FSSendMessageListenerTest {
     }
 
     @Test
-    public void test_onMessage_FileDoesntExist_Error(final @Mocked FileSystemManager fileSystemManager, final @Mocked Message message, final @Mocked FileObject file) throws Exception {
+    public void test_onMessage_FileDoesntExist_Error(final @Mocked Message message, final @Mocked FileObject file) throws Exception {
         final String domain = null;
         final String fileName = "ram:" + contentFile.getURL().getFile() + "bla";
 
@@ -98,6 +105,43 @@ public class FSSendMessageListenerTest {
 
             message.getStringProperty(MessageConstants.FILE_NAME);
             result = fileName;
+        }};
+
+        //tested method
+        fsSendMessageListener.onMessage(message);
+
+        new Verifications() {{
+            fsSendMessagesService.processFileSafely((FileObject) any, anyString);
+            maxTimes = 0;
+        }};
+    }
+
+    @Test
+    public void test_onMessage_FileLockAlreadExists(final @Mocked FileSystemManager fileSystemManager,
+                                                    final @Mocked Message message,
+                                                    final @Mocked FileObject file) throws Exception {
+        final String domain = null;
+        final String fileName = "ram:" + contentFile.getURL().getFile() + "bla";
+
+
+        new Expectations(fsSendMessageListener) {{
+            message.getStringProperty(MessageConstants.DOMAIN);
+            result = domain;
+
+            fsSendMessageListener.getVFSManager();
+            result = fileSystemManager;
+
+            message.getStringProperty(MessageConstants.FILE_NAME);
+            result = fileName;
+
+            fileSystemManager.resolveFile(fileName);
+            result = file;
+
+            file.exists();
+            result = true;
+
+            fsFilesManager.hasLockFile(file);
+            result = true;
         }};
 
         //tested method

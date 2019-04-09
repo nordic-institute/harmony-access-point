@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.sender;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
@@ -9,6 +10,8 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessageExchangeService;
@@ -26,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
+
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_USER_MESSAGE;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -66,6 +71,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected UserMessageLogDao userMessageLogDao;
 
     @Override
+    @Timer(OUTGOING_USER_MESSAGE)
+    @Counter(OUTGOING_USER_MESSAGE)
     public void sendMessage(final UserMessage userMessage) {
         String messageId = userMessage.getMessageInfo().getMessageId();
 
@@ -84,6 +91,19 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         final String pModeKey;
 
         try {
+
+            try {
+                validateBeforeSending(userMessage);
+            } catch (DomibusCoreException e) {
+                getLog().error("Validation exception: message [{}] will not be send", messageId, e);
+                attemptError = e.getMessage();
+                attemptStatus = MessageAttemptStatus.ABORT;
+                // this flag is used in the finally clause
+                reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
+                return;
+            }
+
+
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
             getLog().debug("PMode key found : " + pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
@@ -151,12 +171,20 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
                 updateAndCreateAttempt(attempt, attemptError, attemptStatus);
             } catch (Exception ex) {
-                getLog().warn("Finally exception when handlingReliability: ", ex);
+                getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
                 updateAndCreateAttempt(attempt, attemptError, attemptStatus);
             }
         }
     }
+
+    protected void validateBeforeSending(final UserMessage userMessage) {
+        //can be overridden by child implementations
+    }
+
+    protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;
+
+    protected abstract DomibusLogger getLog();
 
     protected void updateAndCreateAttempt(MessageAttempt attempt, String attemptError, MessageAttemptStatus attemptStatus) {
         attempt.setError(attemptError);
@@ -165,7 +193,5 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         messageAttemptService.create(attempt);
     }
 
-    protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;
 
-    protected abstract DomibusLogger getLog();
 }
