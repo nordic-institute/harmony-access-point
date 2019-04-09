@@ -20,6 +20,8 @@ Domibus 4.1
 - Allow pull processes with 0 or multiple initiators
 - Allow pulling based on mpc containing the initiator
 - Save message for pulling when mpc attribute is provided
+- Implemented default authorization spi
+- Added domain properties domibus.sender.trust.validation.expression to validate the certificate subject
 Domibus 4.0.2
 - Improved the logging in the Default JMS Plugin
 - Allow sending an XML payload in the Soap body

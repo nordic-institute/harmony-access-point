@@ -1,7 +1,5 @@
 package eu.domibus.ebms3.receiver;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -15,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
@@ -54,7 +50,14 @@ public class MSHWebservice implements Provider<SOAPMessage> {
             ex.setMshRole(MSHRole.RECEIVING);
             throw new WebServiceException(ex);
         }
+        SOAPMessage soapMessage;
+        try {
+            soapMessage = messageHandler.processMessage(request, messaging);
+        } catch (EbMS3Exception e) {
+            LOG.error("Error processing message!");
+            throw new WebServiceException(e);
+        }
+        return soapMessage;
 
-        return messageHandler.processMessage(request, messaging);
     }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.core.security.AuthorizationService;
@@ -34,7 +35,7 @@ public class IncomingPullRequestHandler implements IncomingMessageHandler {
     private AuthorizationService authorizationService;
 
     @Override
-    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
+    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) throws EbMS3Exception {
         authorizationService.authorizePullRequest(request, messaging.getSignalMessage().getPullRequest());
         LOG.trace("before pull request.");
         final SOAPMessage soapMessage = handlePullRequest(messaging);

@@ -19,6 +19,7 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.MessageUtils;
@@ -80,8 +81,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     public static final String ID = "Id";
 
-    protected static final String DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK = "domibus.sender.certificate.subject.check";
-
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
@@ -139,11 +138,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
         LOG.info("Validating sender certificate for party [{}]", senderPartyName);
         X509Certificate certificate = getSenderCertificate(message);
-        if (!checkSenderPartyTrust(certificate, senderPartyName, messageId, isPullMessage)) {
-            EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender [" + senderPartyName + "] is not trusted", messageId, null);
-            ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-            throw new Fault(ebMS3Ex);
-        }
 
         if (!checkCertificateValidity(certificate, senderPartyName, isPullMessage)) {
             EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender [" + senderPartyName + "] certificate is not valid or has been revoked", messageId, null);
@@ -170,29 +164,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             }
         }
         return true;
-    }
-
-    protected Boolean checkSenderPartyTrust(X509Certificate certificate, String sender, String messageId, boolean isPullMessage) {
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK)) {
-            LOG.debug("Sender alias verification is disabled");
-            return true;
-        }
-
-        LOG.info("Verifying sender trust");
-        if (certificate != null && org.apache.commons.lang3.StringUtils.containsIgnoreCase(certificate.getSubjectDN().getName(), sender)) {
-            if (isPullMessage) {
-                LOG.info("[Pulling] - Sender [" + sender + "] is trusted.");
-            } else {
-                LOG.info("Sender [" + sender + "] is trusted.");
-            }
-            return true;
-        }
-        if (isPullMessage) {
-            LOG.error("[Pulling] - Sender [" + sender + "] is not trusted. To disable this check, set the property " + DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING + " to false.");
-        } else {
-            LOG.error("Sender [" + sender + "] is not trusted. To disable this check, set the property " + DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING + " to false.");
-        }
-        return false;
     }
 
     private boolean isMessageSecured(SoapMessage msg) {
@@ -259,10 +230,10 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             if (tokenReference == null) {
                 msg.put(CertificateExchangeType.getKey(), CertificateExchangeType.KEY_INFO.name());
                 final List<? extends Certificate> certificateChain = getCertificateFromKeyInfo(requestData, securityHeader);
-                addSerializedCertificateToMessage(msg, certificateChain, CertificateExchangeType.KEY_INFO);
-                if (certificateChain.size() == 0) {
+                if (CollectionUtils.isEmpty(certificateChain)) {
                     throw new SoapFault("CertificateException: Could not extract the certificate for validation", version.getSender());
                 }
+                addSerializedCertificateToMessage(msg, certificateChain, CertificateExchangeType.KEY_INFO);
                 return (X509Certificate) certificateChain.get(0);
             } else {
                 BinarySecurityTokenReference binarySecurityTokenReference = (BinarySecurityTokenReference) tokenReference;
@@ -285,7 +256,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
     }
 
-    private void addSerializedCertificateToMessage(SoapMessage msg, List<? extends Certificate> certificateChain, CertificateExchangeType binarySecurityToken) {
+    private void addSerializedCertificateToMessage(SoapMessage msg, final List<? extends Certificate> certificateChain, CertificateExchangeType binarySecurityToken) {
         msg.put(CertificateExchangeType.getKey(), binarySecurityToken.name());
         final String chain = certificateService.serializeCertificateChainIntoPemFormat(certificateChain);
         msg.put(CertificateExchangeType.getValue(), chain);

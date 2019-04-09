@@ -466,4 +466,10 @@ public class PModeDao extends PModeProvider {
         // Not implemented on purpose
         return null;
     }
+
+    @Override
+    public String findMpcUri(String mpcName) throws EbMS3Exception {
+        LOG.warn("We do not expecte calls to this class anymore");
+        return null;
+    }
 }
