@@ -84,8 +84,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         try {
             mpcQualified = pModeProvider.findMpcUri(mpc);
         } catch (EbMS3Exception e) {
-            LOG.error("Could not find mpc [{}]", mpc);
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc");
+            LOG.error("Could not find mpc [{}]", mpc, e);
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc", e);
         }
 
         PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpcQualified);
@@ -136,13 +136,13 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.debug("Truststore certificate: [{}]", cert.toString());
 
             if (!signingCertificate.equals(cert)) {
-                LOG.info("Signing certificate: [{}]", signingCertificate.toString());
-                LOG.info("Truststore certificate: [{}]", cert.toString());
-                LOG.error("Signing certificate and truststore certificate do not match.");
-                throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Signing certificate and truststore certificate do not match.");
+                String excMessage = "Signing certificate and truststore certificate do not match.";
+                excMessage += String.format("Signing certificate: [{}]", signingCertificate.toString());
+                excMessage += String.format("Truststore certificate: [{}]", cert.toString());
+                LOG.error(excMessage);
+                throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
             }
         } catch (KeyStoreException e) {
-            LOG.error("Failed to get certificate from truststore", e);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_005, "Failed to get certificate from truststore", e);
         }
     }
@@ -162,8 +162,9 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         LOG.debug("Property [{}], value [{}]", DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION, certSubjectExpression);
         if (!regexUtil.matches(certSubjectExpression, subject)) {
-            LOG.error("Certificate subject [{}] does not match the regullar expression configured [{}]", subject, certSubjectExpression);
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Certificate subject " + subject + " does not match the regullar expression configured " + certSubjectExpression);
+            String excMessage = String.format("Certificate subject [{}] does not match the regullar expression configured [{}]", subject, certSubjectExpression);
+            LOG.error(excMessage);
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
         }
     }
 

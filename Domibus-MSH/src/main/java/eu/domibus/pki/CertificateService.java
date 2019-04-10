@@ -43,8 +43,8 @@ public interface CertificateService {
      * Validates that the bytes represent a valid truststore
      *
      * @param newTrustStoreBytes the content
-     * @param password           the password to open the truststore
-     * @param type               the type of the truststore: jks, PKCS12
+     * @param password the password to open the truststore
+     * @param type the type of the truststore: jks, PKCS12
      */
     void validateLoadOperation(ByteArrayInputStream newTrustStoreBytes, String password, String type);
 

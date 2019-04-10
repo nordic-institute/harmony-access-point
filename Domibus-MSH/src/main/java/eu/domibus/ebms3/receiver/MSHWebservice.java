@@ -53,7 +53,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         try {
             soapMessage = messageHandler.processMessage(request, messaging);
         } catch (EbMS3Exception e) {
-            LOG.error("Error processing message!");
+            LOG.warn("Error processing message!");
             throw new WebServiceException(e);
         }
         return soapMessage;
