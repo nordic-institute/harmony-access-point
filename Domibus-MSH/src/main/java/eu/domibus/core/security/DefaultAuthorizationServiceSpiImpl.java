@@ -85,7 +85,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             mpcQualified = pModeProvider.findMpcUri(mpc);
         } catch (EbMS3Exception e) {
             LOG.error("Could not find mpc [{}]", mpc, e);
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc", e);
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not find mpc " + mpc, e);
         }
 
         PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpcQualified);
@@ -162,7 +162,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         LOG.debug("Property [{}], value [{}]", DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION, certSubjectExpression);
         if (!regexUtil.matches(certSubjectExpression, subject)) {
-            String excMessage = String.format("Certificate subject [{}] does not match the regullar expression configured [{}]", subject, certSubjectExpression);
+            String excMessage = String.format("Certificate subject [{}] does not match the regular expression configured [{}]", subject, certSubjectExpression);
             LOG.error(excMessage);
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
         }
@@ -181,7 +181,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
 
         if (StringUtils.containsIgnoreCase(signingCertificate.getSubjectDN().getName(), alias)) {
-            LOG.info("Sender [" + alias + "] is trusted.");
+            LOG.info("Sender [{}] is trusted", alias);
             return;
         }
         throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Sender alias verification failed. " +
