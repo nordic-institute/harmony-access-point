@@ -90,7 +90,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
         PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpcQualified);
         if (pullContext == null || pullContext.getProcess() == null) {
-            LOG.warn("Pull context could not be extracted");
+            LOG.error("Could not extract process on mpc [{}]", mpc);
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not extract process on mpc [{}]"  + mpc);
         }
 
         if (CollectionUtils.isEmpty(pullContext.getProcess().getInitiatorParties()) ||
@@ -122,7 +123,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {
         LOG.debug("Authorize against certificate extracted based on the alias [{}] from the truststore", alias);
         if (signingCertificate == null) {
-            LOG.warn("Signing certificate is not provided.");
+            LOG.debug("Signing certificate is not provided.");
             return;
         }
         LOG.debug("Signing certificate: [{}]", signingCertificate.toString());
@@ -147,6 +148,12 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     }
 
     protected void authorizeAgainstCertificateSubjectExpression(X509Certificate signingCertificate) {
+        LOG.debug("Authorize against certificate subject");
+        if (signingCertificate == null) {
+            LOG.debug("Signing certificate is not provided.");
+            return;
+        }
+
         String subject = signingCertificate.getSubjectDN().getName();
         String certSubjectExpression = domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
         if (StringUtils.isEmpty(certSubjectExpression)) {
@@ -166,9 +173,9 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             return;
         }
 
-        LOG.info("Verifying sender trust");
+        LOG.debug("Authorize against certificate CN with alias [{}]", alias);
         if (signingCertificate == null) {
-            LOG.debug("SigningCertificate is null, sender alias verification is disabled");
+            LOG.debug("Signing certificate is not provided.");
             return;
         }
 
