@@ -1,7 +1,6 @@
 package eu.domibus.common.services.impl;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
@@ -28,7 +27,7 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.sender.PullFrequencyComponent;
+import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateService;
@@ -114,10 +113,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private MpcService mpcService;
 
     @Autowired
-    private DomibusConfigurationService domibusConfigurationService;
+    private PullFrequencyHelper pullFrequencyHelper;
 
-    @Autowired
-    private PullFrequencyComponent pullFrequencyComponent;
+
 
     /**
      * {@inheritDoc}
@@ -178,34 +176,38 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.trace("No pull process configured !");
         }
         LOG.debug("DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE property read for domain[{}]", domainProvider.getCurrentDomain());
+        pullProcesses.
+                stream().
+                map(Process::getResponderParties).
+                forEach(pullFrequencyHelper::setResponders);
 
-        final Integer numberOfPullRequestPerMpc = pullFrequencyComponent.getPullRequestNumberPerJobCycle();
-        if (!domibusConfigurationService.isMultiTenantAware() && pause(pullProcesses, pullFrequencyComponent.getPullRequestNumberPerJobCycle())) {
+        final Integer maxPullRequestNumber = pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle();
+        if (pause(pullProcesses, maxPullRequestNumber)) {
             return;
         }
         for (Process pullProcess : pullProcesses) {
             try {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 for (LegConfiguration legConfiguration : pullProcess.getLegs()) {
-                    for (Party initiatorParty : pullProcess.getResponderParties()) {
+                    for (Party responder : pullProcess.getResponderParties()) {
                         String mpcQualifiedName = legConfiguration.getDefaultMpc().getQualifiedName();
                         if (mpc != null && !mpc.equals(mpcQualifiedName)) {
                             continue;
                         }
                         //@thom remove the pullcontext from here.
                         PullContext pullContext = new PullContext(pullProcess,
-                                initiatorParty,
+                                responder,
                                 mpcQualifiedName);
                         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(pullContext.getAgreement(),
-                                initiatorParty.getName(),
+                                responder.getName(),
                                 initiator.getName(),
                                 legConfiguration.getService().getName(),
                                 legConfiguration.getAction().getName(),
                                 legConfiguration.getName());
                         LOG.debug("messageExchangeConfiguration:[{}]", messageExchangeConfiguration);
-
-                        LOG.debug("Sending:[{}] pull request for mpc:[{}]", numberOfPullRequestPerMpc, mpcQualifiedName);
-                        for (int i = 0; i < numberOfPullRequestPerMpc; i++) {
+                        Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForResponder(responder.getName());
+                        LOG.debug("Sending:[{}] pull request for mpc:[{}] to party:[{}]", pullRequestNumberForResponder, mpcQualifiedName, responder.getName());
+                        for (int i = 0; i < pullRequestNumberForResponder; i++) {
                             jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
                                     .property(MPC, mpcQualifiedName)
                                     .property(PMODE_KEY, messageExchangeConfiguration.getReversePmodeKey())
@@ -219,7 +221,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 LOG.warn("Invalid pull process configuration found during pull try " + e.getMessage());
             }
         }
-
     }
 
     private boolean pause(List<Process> pullProcesses, int numberOfPullRequestPerMpc) {
@@ -268,7 +269,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             }
         }
         if (partyId == null && pullMessageService.allowDynamicInitiatorInPullProcess()) {
-            LOG.debug("Extract partyId from mpc [{}]" , mpc);
+            LOG.debug("Extract partyId from mpc [{}]", mpc);
             partyId = mpcService.extractInitiator(mpc);
         }
         return partyId;

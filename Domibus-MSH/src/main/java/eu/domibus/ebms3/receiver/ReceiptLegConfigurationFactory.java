@@ -18,7 +18,8 @@ public class ReceiptLegConfigurationFactory extends AbstractMessageLegConfigurat
     @Override
     protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Messaging messaging) {
         ReceiptLegConfigurationExtractor receiptLegConfigurationExtractor=null;
-        if (messaging.getSignalMessage().getReceipt() != null || CollectionUtils.isNotEmpty(messaging.getSignalMessage().getError())) {
+        if (messaging.getSignalMessage().getReceipt() != null || (CollectionUtils.isNotEmpty(messaging.getSignalMessage().getError())
+                && messaging.getSignalMessage().getMessageInfo().getRefToMessageId() != null)) {
             receiptLegConfigurationExtractor = new ReceiptLegConfigurationExtractor(soapMessage, messaging);
         }
         return receiptLegConfigurationExtractor;

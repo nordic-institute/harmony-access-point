@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.sender;
+package eu.domibus.ebms3.puller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Thomas Dussart
  * @since 4.0
  */
-public class DomainPullFrequency {
+public class ResponderPullFrequencyConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomainPullFrequency.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResponderPullFrequencyConfiguration.class);
 
     private Integer maxRequestPerJobCycle;
 
@@ -34,7 +34,7 @@ public class DomainPullFrequency {
     private AtomicInteger increment = new AtomicInteger(0);
 
 
-    public DomainPullFrequency(
+    public ResponderPullFrequencyConfiguration(
             final Integer maxRequestPerJobCycle,
             final Integer recoveringTimeInSeconds,
             final Integer numberOfErrorToTriggerFrequencyDecrease) {
@@ -52,45 +52,41 @@ public class DomainPullFrequency {
         }
     }
 
-    public void sucess() {
+    public void success() {
         lowCapacity.compareAndSet(true, false);
         errorCounter.set(0);
     }
 
     public void increaseErrorCounter() {
-        if (recoveringTimeInSeconds != 0) {
-            if (!lowCapacity.get()) {
-                final int numberOfError = errorCounter.incrementAndGet();
-                if (numberOfError >= numberOfErrorToTriggerFrequencyDecrease) {
-                    LOG.trace("Number of error:[{}] >= numberOfErrorToTriggerFrequencyDecrease:[{}] -> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease);
-                    error();
-                }
+        if (recoveringTimeInSeconds != 0 && !lowCapacity.get()) {
+            final int numberOfError = errorCounter.incrementAndGet();
+            if (numberOfError >= numberOfErrorToTriggerFrequencyDecrease) {
+                LOG.trace("Number of error:[{}] >= number of error to trigger frequency decrease:[{}] -> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease);
+                error();
             }
         }
     }
 
     public Integer getMaxRequestPerJobCycle() {
+        LOG.trace("recoveringTimeInSeconds:[{}], fullCapacity:[{}], low capacity:[{}], maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, fullCapacity, lowCapacity, 1);
         if (lowCapacity.get()) {
-            LOG.trace("recoveringTimeInSeconds:[{}], fullCapacity:[{}], lowcapacity:[{}], maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, lowCapacity, fullCapacity, 1);
             return 1;
         }
         if (recoveringTimeInSeconds == 0 || fullCapacity.get()) {
-//            LOG.trace("recoveringTimeInSeconds:[{}],fullCapacity:[{}],maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, fullCapacity, maxRequestPerJobCycle);
             return maxRequestPerJobCycle;
         }
         final long previousTime = executionTime.get();
         final long updatedTime = executionTime.updateAndGet(operand -> {
-                    if (operand == 0) {
-                        return System.currentTimeMillis();
-                    } else if (System.currentTimeMillis() - operand > 1000) {
+            if (operand == 0 || (System.currentTimeMillis() - operand > 1000)) {
                         return System.currentTimeMillis();
                     }
                     return operand;
                 }
         );
+        LOG.trace("Last frequency check was at:[{}]", previousTime);
         if (previousTime != updatedTime) {
-            final int increment = this.increment.addAndGet(1);
-            final double ratio = increment * (maxRequestPerJobCycle / Double.valueOf(recoveringTimeInSeconds));
+            final int newValue = this.increment.addAndGet(1);
+            final double ratio = newValue * (maxRequestPerJobCycle / Double.valueOf(recoveringTimeInSeconds));
             final double i = maxRequestPerJobCycle / ratio;
             final Double temporaryPace = maxRequestPerJobCycle / i;
             adaptableRequestPerJobCycle.set(temporaryPace.intValue() + 1);
@@ -103,4 +99,18 @@ public class DomainPullFrequency {
         return adaptableRequestPerJobCycle.get();
     }
 
+    @Override
+    public String toString() {
+        return "DomainPullFrequency{" +
+                "maxRequestPerJobCycle=" + maxRequestPerJobCycle +
+                ", recoveringTimeInSeconds=" + recoveringTimeInSeconds +
+                ", numberOfErrorToTriggerFrequencyDecrease=" + numberOfErrorToTriggerFrequencyDecrease +
+                ", adaptableRequestPerJobCycle=" + adaptableRequestPerJobCycle +
+                ", errorCounter=" + errorCounter +
+                ", executionTime=" + executionTime +
+                ", fullCapacity=" + fullCapacity +
+                ", lowCapacity=" + lowCapacity +
+                ", increment=" + increment +
+                '}';
+    }
 }
