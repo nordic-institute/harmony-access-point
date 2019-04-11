@@ -136,6 +136,9 @@ public class UserMessageHandlerServiceTest {
     @Injectable
     private PartyService partyService;
 
+    @Injectable
+    private CertificateService certificateService;
+
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String PUSH_TESTCASE1_TC1ACTION = "pushTestcase1tc1Action";

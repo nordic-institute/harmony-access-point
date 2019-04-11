@@ -383,6 +383,7 @@ public class PartyServiceImpl implements PartyService {
         multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
     }
 
+    @Override
     public void updatePartyEndpoint(final String partyName, final String newEndpoint) {
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
         if (pModeArchiveInfo == null)

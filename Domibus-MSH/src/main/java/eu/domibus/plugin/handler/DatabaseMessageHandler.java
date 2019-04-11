@@ -36,6 +36,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.*;
+import eu.domibus.pki.CertificateService;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -46,10 +47,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
@@ -141,6 +139,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     private PartyService partyService;
 
+    @Autowired
+    private CertificateService certificateService;
+
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -201,7 +202,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             Property property = iterator.next();
             if ("C3Certificate".equalsIgnoreCase(property.getName())) {
                 updateC3Certificate(to.getName(), property.getValue());
-                iterator.remove(); // ?
+                iterator.remove();
             }
             if ("C3URL".equalsIgnoreCase(property.getName())) {
                 partyService.updatePartyEndpoint(to.getName(), property.getValue());
@@ -210,10 +211,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     private void updateC3Certificate(final String partyName, final String encodedCertificate) throws CertificateException {
-        final byte[] decode = Base64.getDecoder().decode(encodedCertificate);
-        InputStream targetStream = new ByteArrayInputStream(decode);
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate certificate = (X509Certificate) factory.generateCertificate(targetStream);
+        X509Certificate certificate = certificateService.loadCertificateFromEncodedString(encodedCertificate);
         LOG.info("Add public certificate to the truststore for party [{}]", partyName);
         //add certificate to Truststore
         multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, partyName, true);

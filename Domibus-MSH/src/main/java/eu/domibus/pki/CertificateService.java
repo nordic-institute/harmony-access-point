@@ -59,6 +59,16 @@ public interface CertificateService {
     X509Certificate loadCertificateFromString(String content) throws CertificateException;
 
     /**
+     * Returns the certificate deserialized from a base64 string
+     *
+     * @param content the certificate serialized as a base64 string
+     *
+     * @return a certificate
+     * @throws CertificateException if the base64 string cannot be deserialized to a certificate
+     */
+    X509Certificate loadCertificateFromEncodedString(String content) throws CertificateException;
+
+    /**
      * Returns the certificate entry from the trust store given an alias
      *
      * @param alias the certificate alias

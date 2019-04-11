@@ -39,6 +39,7 @@ import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
+import eu.domibus.pki.CertificateService;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
 import mockit.Expectations;
@@ -155,6 +156,9 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     private PartyService partyService;
+
+    @Injectable
+    private CertificateService certificateService;
 
     @Injectable
     protected MultiDomainCryptoService multiDomainCertificateProvider;
