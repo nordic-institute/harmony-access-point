@@ -348,6 +348,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     /**
      * Persists the incoming SourceMessage
+     *
      * @param request
      * @param legConfiguration
      * @param pmodeKey
@@ -414,6 +415,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
 
     protected void handleMessageFragment(UserMessage userMessage, MessageFragmentType messageFragmentType) throws EbMS3Exception {
+        userMessage.setSplitAndJoin(true);
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
         validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
 
@@ -425,6 +427,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final MessageHeaderType messageHeader = messageFragmentType.getMessageHeader();
             messageHeaderEntity.setStart(messageHeader.getStart());
             messageHeaderEntity.setBoundary(messageHeader.getBoundary());
+            messageGroupEntity.setMshRole(MSHRole.RECEIVING);
             messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
             messageGroupEntity.setSoapAction(messageFragmentType.getAction());
             messageGroupEntity.setCompressionAlgorithm(messageFragmentType.getCompressionAlgorithm());
@@ -451,19 +454,26 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         final String groupId = messageFragmentType.getGroupId();
-        if (messageGroupEntity != null) {
-            if (messageGroupEntity.getRejected()) {
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0040, "A fragment is received that relates to a group that was previously rejected", userMessage.getMessageInfo().getMessageId(), null);
-                ex.setMshRole(MSHRole.RECEIVING);
-                throw ex;
-            }
-            final Long fragmentCount = messageGroupEntity.getFragmentCount();
-            if (fragmentCount != null && messageFragmentType.getFragmentCount() != null && messageFragmentType.getFragmentCount() > fragmentCount) {
-                LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0048, "An incoming message fragment has a a value greater than the known FragmentCount", userMessage.getMessageInfo().getMessageId(), null);
-                ex.setMshRole(MSHRole.RECEIVING);
-                throw ex;
-            }
+        if (messageGroupEntity == null) {
+            LOG.warn("Could not validate UserMessage fragment [[{}] for group [{}]: messageGroupEntity is null", userMessage.getMessageInfo().getMessageId(), groupId);
+            return;
+        }
+        if (messageGroupEntity.getExpired()) {
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0051, "More time than Pmode[].Splitting.JoinInterval has passed since the first fragment was received but not all other fragments are received", userMessage.getMessageInfo().getMessageId(), null);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
+        }
+        if (messageGroupEntity.getRejected()) {
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0040, "A fragment is received that relates to a group that was previously rejected", userMessage.getMessageInfo().getMessageId(), null);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
+        }
+        final Long fragmentCount = messageGroupEntity.getFragmentCount();
+        if (fragmentCount != null && messageFragmentType.getFragmentCount() != null && messageFragmentType.getFragmentCount() > fragmentCount) {
+            LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0048, "An incoming message fragment has a a value greater than the known FragmentCount", userMessage.getMessageInfo().getMessageId(), null);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
         }
     }
 

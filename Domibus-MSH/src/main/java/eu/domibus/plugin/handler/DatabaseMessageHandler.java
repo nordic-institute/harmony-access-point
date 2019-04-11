@@ -437,15 +437,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
-            if (MessageStatus.READY_TO_PULL != messageStatus) {
-                // Sends message to the proper queue if not a message to be pulled.
-                userMessageService.scheduleSending(messageId);
-            } else {
-                final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-                LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
-            }
 
+            if (!sourceMessage) {
+                if (MessageStatus.READY_TO_PULL != messageStatus) {
+                    // Sends message to the proper queue if not a message to be pulled.
+                    userMessageService.scheduleSending(messageId);
+                } else {
+                    final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+                    LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
+                    pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
+                }
+            }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
 
