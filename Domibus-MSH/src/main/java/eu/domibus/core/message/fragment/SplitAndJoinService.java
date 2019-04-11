@@ -1,6 +1,5 @@
 package eu.domibus.core.message.fragment;
 
-import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.UserMessage;

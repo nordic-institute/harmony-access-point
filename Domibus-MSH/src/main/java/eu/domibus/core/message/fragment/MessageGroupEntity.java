@@ -18,7 +18,7 @@ import java.math.BigInteger;
 @Table(name = "TB_MESSAGE_GROUP")
 @NamedQueries({
         @NamedQuery(name = "MessageGroupEntity.findByGroupId", query = "SELECT c FROM MessageGroupEntity c where c.groupId=:GROUP_ID"),
-        @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole = 'RECEIVING' " +
+        @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole = :MSH_ROLE " +
                 "and c.fragmentCount <> c.receivedFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )")
 })
 public class MessageGroupEntity extends AbstractBaseEntity {
