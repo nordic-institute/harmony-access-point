@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.common.dao.MessagingDao;
@@ -31,7 +31,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.util.MessageUtil;
 import org.apache.commons.io.IOUtils;
@@ -59,9 +58,6 @@ import java.io.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.Set;
@@ -144,6 +140,9 @@ public class UserMessageHandlerService {
 
     @Autowired
     protected DomainContextProvider domainProvider;
+
+    @Autowired
+    private PartyService partyService;
 
 
     public SOAPMessage handleNewUserMessage(final String pmodeKey, final SOAPMessage request, final Messaging messaging,final UserMessageHandlerContext userMessageHandlerContext) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
@@ -346,75 +345,36 @@ public class UserMessageHandlerService {
         return userMessage.getMessageInfo().getMessageId();
     }
 
+
     private void updateC3(UserMessage userMessage, Party to) throws CertificateException {
         final MessageProperties messageProperties = userMessage.getMessageProperties();
         final Set<Property> propertySet = messageProperties.getProperty();
         if (messageProperties == null || propertySet == null) {
             return;
         }
+
         final Iterator<Property> iterator = propertySet.iterator();
         while (iterator.hasNext()) {
             Property property = iterator.next();
             if ("C3Certificate".equalsIgnoreCase(property.getName())) {
-                updateC3Certificate(to, iterator, property);
+                updateC3Certificate(to.getName(), property.getValue());
+                iterator.remove(); // ?
             }
             if ("C3URL".equalsIgnoreCase(property.getName())) {
-                updateC3URL(to, property);
+                partyService.updatePartyEndpoint(to.getName(), property.getValue());
             }
-
         }
     }
 
-    private void updateC3Certificate(Party to, Iterator<Property> iterator, Property property) throws CertificateException {
-        final String value = property.getValue();
-        final byte[] decode = Base64.getDecoder().decode(value);
+    private void updateC3Certificate(final String partyName, final String encodedCertificate) throws CertificateException {
+        final byte[] decode = Base64.getDecoder().decode(encodedCertificate);
         InputStream targetStream = new ByteArrayInputStream(decode);
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate certificate = (X509Certificate) factory.generateCertificate(targetStream);
-        LOG.info("Add public certificate to the truststore for party [{}]", to.getName());
+        LOG.info("Add public certificate to the truststore for party [{}]", partyName);
         //add certificate to Truststore
-        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, to.getName(), true);
-        LOG.info("Certificate added to the truststore for party [{}]", to.getName());
-        iterator.remove();
-    }
-
-    private void updateC3URL(Party to, Property property) {
-        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
-        if (pModeArchiveInfo == null)
-            throw new IllegalStateException("Could not update PMode parties: PMode not found!");
-
-        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
-
-        Configuration configuration;
-        try {
-            configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
-        } catch (XmlProcessingException e) {
-            LOG.error("Error reading current PMode", e);
-            throw new IllegalStateException(e);
-        }
-
-        final Parties partiesXml = configuration.getBusinessProcesses().getPartiesXml();
-        for (Party party : partiesXml.getParty()) {
-            if (party.getName().equalsIgnoreCase(to.getName())) {
-                final String C3NewURL = property.getValue();
-                LOG.info("Updating URL for party [{}] with [{}]", party.getName(), C3NewURL);
-                party.setEndpoint(C3NewURL);
-                break;
-            }
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
-        ZonedDateTime confDate = ZonedDateTime.ofInstant(rawConfiguration.getConfigurationDate().toInstant(), ZoneId.systemDefault());
-        String updatedDescription = "Updated [" + to.getName() + "] to version of " + confDate.format(formatter);
-
-        byte[] updatedPmode;
-        try {
-            updatedPmode = pModeProvider.serializePModeConfiguration(configuration);
-            pModeProvider.updatePModes(updatedPmode, updatedDescription);
-        } catch (XmlProcessingException e) {
-            LOG.error("Error writing current PMode", e);
-            throw new IllegalStateException(e);
-        }
+        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, partyName, true);
+        LOG.info("Certificate added to the truststore for party [{}]", partyName);
     }
 
     /**

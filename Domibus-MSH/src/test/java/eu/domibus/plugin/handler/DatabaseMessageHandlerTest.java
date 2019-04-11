@@ -3,6 +3,8 @@ package eu.domibus.plugin.handler;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -23,6 +25,7 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
@@ -46,6 +49,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
@@ -88,9 +92,6 @@ public class DatabaseMessageHandlerTest {
 
     @Tested
     private DatabaseMessageHandler dmh;
-
-    @Injectable
-    JMSManager jmsManager;
 
     @Injectable
     private Queue sendMessageQueue;
@@ -151,6 +152,18 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Injectable
+    private PartyService partyService;
+
+    @Injectable
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Injectable
+    protected ConfigurationDAO configurationDAO;
+
+    @Injectable
+    protected DomainContextProvider domainProvider;
 
 
     protected Property createProperty(String name, String value, String type) {

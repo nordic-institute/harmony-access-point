@@ -2,6 +2,7 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
@@ -118,16 +119,10 @@ public class UserMessageHandlerServiceTest {
     PropertyProfileValidator propertyProfileValidator;
 
     @Injectable
-    CertificateService certificateService;
-
-    @Injectable
     SOAPMessage soapRequestMessage;
 
     @Injectable
     SOAPMessage soapResponseMessage;
-
-    @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Injectable
     protected UIReplicationSignalService uiReplicationSignalService;
@@ -137,6 +132,9 @@ public class UserMessageHandlerServiceTest {
 
     @Injectable
     protected DomainContextProvider domainProvider;
+
+    @Injectable
+    private PartyService partyService;
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
