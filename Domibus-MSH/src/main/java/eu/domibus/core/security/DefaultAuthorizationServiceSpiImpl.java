@@ -130,19 +130,19 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.debug("Signing certificate is not provided.");
             return;
         }
-        LOG.debug("Signing certificate: [{}]", signingCertificate);
+        LOG.debug("Signing certificate: [%s]", signingCertificate);
         try {
             X509Certificate cert = certificateService.getPartyX509CertificateFromTruststore(alias);
             if (cert == null) {
                 LOG.warn("Failed to get the certificate based on the partyName [{}]. No further authorization against truststore is performed.", alias);
                 return;
             }
-            LOG.debug("Truststore certificate: [{}]", cert);
+            LOG.debug("Truststore certificate: [%s]", cert);
 
             if (!signingCertificate.equals(cert)) {
                 String excMessage = "Signing certificate and truststore certificate do not match.";
-                excMessage += String.format("Signing certificate: [{}]", signingCertificate);
-                excMessage += String.format("Truststore certificate: [{}]", cert);
+                excMessage += String.format("Signing certificate: %s", signingCertificate);
+                excMessage += String.format("Truststore certificate: %s", cert);
                 LOG.error(excMessage);
                 throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
             }
@@ -167,7 +167,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         LOG.debug("Property [{}], value [{}]", DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION, certSubjectExpression);
         if (!regexUtil.matches(certSubjectExpression, subject)) {
-            String excMessage = String.format("Certificate subject [{}] does not match the regular expression configured [{}]", subject, certSubjectExpression);
+            String excMessage = String.format("Certificate subject [%s] does not match the regular expression configured [%s]", subject, certSubjectExpression);
             LOG.error(excMessage);
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
         }
@@ -189,7 +189,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.info("Sender [{}] is trusted", alias);
             return;
         }
-        throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Sender alias verification failed. " +
-                "Signing certificate CN does not contain the alias: " + signingCertificate.getSubjectDN().getName() + " " + alias);
+        String excMessage = String.format("Sender alias verification failed. Signing certificate CN does not contain the alias [%s]: %s ", alias, signingCertificate);
+        throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
     }
 }
