@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
@@ -32,24 +32,28 @@ export class DomainSelectorComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
+    try {
+      const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
 
-    if (isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) {
-      this.domains = await this.domainService.getDomains();
-      this.displayDomains = true;
-      this.showDomains = this.shouldShowDomains(this.route.snapshot);
+      if (isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) {
+        this.domains = await this.domainService.getDomains();
+        this.displayDomains = true;
+        this.showDomains = this.shouldShowDomains(this.route.snapshot);
 
-      this.domainService.getCurrentDomain().subscribe(domain => {
-        this.domainCode = this.currentDomainCode = (domain ? domain.code : null);
-      });
-    }
-
-    this.router.events.subscribe(event => {
-      if (event instanceof RoutesRecognized) {
-        let route = event.state.root.firstChild;
-        this.showDomains = this.shouldShowDomains(route);
+        this.domainService.getCurrentDomain().subscribe(domain => {
+          this.domainCode = this.currentDomainCode = (domain ? domain.code : null);
+        });
       }
-    });
+
+      this.router.events.subscribe(event => {
+        if (event instanceof RoutesRecognized) {
+          let route = event.state.root.firstChild;
+          this.showDomains = this.shouldShowDomains(route);
+        }
+      });
+    } catch (error) {
+      console.log('error while calling backend for getting domains information: ' + error);
+    }
   }
 
   private shouldShowDomains(route: ActivatedRouteSnapshot) {
