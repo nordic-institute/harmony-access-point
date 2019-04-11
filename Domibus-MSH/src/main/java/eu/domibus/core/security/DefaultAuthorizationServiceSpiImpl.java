@@ -99,9 +99,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.error("Default authorization of Pull Request requires one initiator per pull process");
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Default authorization of Pull Request requires one initiator per pull process");
         }
-        Optional<Party> initiatorOptional = pullContext.getProcess().getInitiatorParties().stream().findFirst();
-
-        String initiatorName = initiatorOptional.isPresent() ? initiatorOptional.get().getName() : null;
+        Party initiator = pullContext.getProcess().getInitiatorParties().iterator().next();
+        String initiatorName = initiator.getName();
 
         doAuthorize(signingCertificate, initiatorName);
     }
@@ -126,19 +125,19 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.debug("Signing certificate is not provided.");
             return;
         }
-        LOG.debug("Signing certificate: [{}]", signingCertificate.toString());
+        LOG.debug("Signing certificate: [{}]", signingCertificate);
         try {
             X509Certificate cert = certificateService.getPartyX509CertificateFromTruststore(alias);
             if (cert == null) {
                 LOG.warn("Failed to get the certificate based on the partyName [{}]. No further authorization against truststore is performed.", alias);
                 return;
             }
-            LOG.debug("Truststore certificate: [{}]", cert.toString());
+            LOG.debug("Truststore certificate: [{}]", cert);
 
             if (!signingCertificate.equals(cert)) {
                 String excMessage = "Signing certificate and truststore certificate do not match.";
-                excMessage += String.format("Signing certificate: [{}]", signingCertificate.toString());
-                excMessage += String.format("Truststore certificate: [{}]", cert.toString());
+                excMessage += String.format("Signing certificate: [{}]", signingCertificate);
+                excMessage += String.format("Truststore certificate: [{}]", cert);
                 LOG.error(excMessage);
                 throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
             }
@@ -185,6 +184,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             return;
         }
         throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Sender alias verification failed. " +
-                "Signing certificate CN does not contain the alias " + signingCertificate.getSubjectDN().getName() + alias);
+                "Signing certificate CN does not contain the alias: " + signingCertificate.getSubjectDN().getName() + " " + alias);
     }
 }

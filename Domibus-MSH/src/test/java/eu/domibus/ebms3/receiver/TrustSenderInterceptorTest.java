@@ -212,31 +212,6 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(expiredCertificate, "test sender", false));
     }
 
-//    @Test
-//    public void testCheckSenderPartyTrust() throws Exception {
-//        final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-//
-//        new Expectations() {{
-//            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
-//            result = true;
-//        }};
-//
-//        Assert.assertTrue(trustSenderInterceptor.checkSenderPartyTrust(certificate, "GlobalSign", "messageID123", false));
-//        Assert.assertFalse(trustSenderInterceptor.checkSenderPartyTrust(certificate, "test sender", "messageID123", false));
-//    }
-//
-//    @Test
-//    public void testCheckSenderPartyTrustDisabled() throws Exception {
-//        final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-//
-//        new Expectations() {{
-//            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
-//            result = false;
-//        }};
-//
-//        Assert.assertTrue(trustSenderInterceptor.checkSenderPartyTrust(certificate, "test sender", "messageID123", false));
-//    }
-
     @Test
     public void testHandleOneTestActivated(@Mocked final SoapMessage message) {
         new Expectations() {{
