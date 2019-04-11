@@ -48,7 +48,7 @@
         <property name="jobDetail" ref="fsPluginPurgeSentWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.sent.purge.worker.cronExpression}"/>
     </bean>
-    
+
     <!-- quartz job for purging failed messages -->
     <bean id="fsPluginPurgeFailedWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
@@ -61,7 +61,7 @@
         <property name="jobDetail" ref="fsPluginPurgeFailedWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.failed.purge.worker.cronExpression}"/>
     </bean>
-    
+
     <!-- quartz job for purging received messages -->
     <bean id="fsPluginPurgeReceivedWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
@@ -74,7 +74,7 @@
         <property name="jobDetail" ref="fsPluginPurgeReceivedWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.received.purge.worker.cronExpression}"/>
     </bean>
-    
+
     <!-- quartz job for sending messages (from OUT folders) -->
     <bean id="fsPluginSendMessagesWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -87,17 +87,4 @@
         <property name="jobDetail" ref="fsPluginSendMessagesWorkerJob"/>
         <property name="repeatInterval" value="${fsplugin.messages.send.worker.repeatInterval}"/>
     </bean>
-
-    <!-- customizable list of triggers to be executed by quartz -->
-    <bean id="fsPluginTriggerList" class="org.springframework.beans.factory.config.ListFactoryBean">
-        <property name="sourceList">
-            <list>
-                <ref bean="fsPluginPurgeSentWorkerTrigger"/>
-                <ref bean="fsPluginPurgeFailedWorkerTrigger"/>
-                <ref bean="fsPluginPurgeReceivedWorkerTrigger"/>
-                <ref bean="fsPluginSendMessagesWorkerTrigger"/>
-            </list>
-        </property>
-    </bean>
-
 </beans>
