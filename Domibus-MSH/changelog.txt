@@ -1,4 +1,7 @@
 Domibus 4.1
+- Remove support for Wildfly 9
+- Add drop wizard statistics to Domibus.
+- Add new authentication module using the DSS library.
 - Add a new path:${domibus.config.location}/extensions/lib for loading identity and authorization extensions.
 - Upgrade the Tomcat distribution to 8.5.38
 - Password policy enforcement for admin users: check complexity, expiration, reuse. Send Alerts on expiration event. Added corresponding properties in configuration.

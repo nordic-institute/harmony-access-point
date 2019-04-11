@@ -79,9 +79,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         MessageAttempt attempt = new MessageAttempt();
         attempt.setMessageId(messageId);
         attempt.setStartDate(new Timestamp(System.currentTimeMillis()));
-        MessageAttemptStatus attemptStatus = MessageAttemptStatus.SUCCESS;
-        String attemptError = null;
-
+        attempt.setStatus(MessageAttemptStatus.SUCCESS);
 
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
         // Assuming that everything goes fine
@@ -96,8 +94,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 validateBeforeSending(userMessage);
             } catch (DomibusCoreException e) {
                 getLog().error("Validation exception: message [{}] will not be send", messageId, e);
-                attemptError = e.getMessage();
-                attemptStatus = MessageAttemptStatus.ABORT;
+                attempt.setError(e.getMessage());
+                attempt.setStatus(MessageAttemptStatus.ABORT);
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
                 return;
@@ -128,8 +126,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
             } catch (ChainCertificateInvalidException cciEx) {
                 getLog().securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx, null);
-                attemptError = cciEx.getMessage();
-                attemptStatus = MessageAttemptStatus.ABORT;
+                attempt.setError(cciEx.getMessage());
+                attempt.setStatus(MessageAttemptStatus.ABORT);
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
@@ -153,27 +151,27 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             } else {
                 getLog().warn("Error for message with ID [" + messageId + "]", soapFEx);
             }
-            attemptError = soapFEx.getMessage();
-            attemptStatus = MessageAttemptStatus.ERROR;
+            attempt.setError(soapFEx.getMessage());
+            attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (final EbMS3Exception e) {
             reliabilityChecker.handleEbms3Exception(e, messageId);
-            attemptError = e.getMessage();
-            attemptStatus = MessageAttemptStatus.ERROR;
+            attempt.setError(e.getMessage());
+            attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             getLog().error("Error sending message [{}]", messageId, t);
-            attemptError = t.getMessage();
-            attemptStatus = MessageAttemptStatus.ERROR;
+            attempt.setError(t.getMessage());
+            attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
                 reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
-                updateAndCreateAttempt(attempt, attemptError, attemptStatus);
+                updateAndCreateAttempt(attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
-                updateAndCreateAttempt(attempt, attemptError, attemptStatus);
+                updateAndCreateAttempt(attempt);
             }
         }
     }
@@ -186,9 +184,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     protected abstract DomibusLogger getLog();
 
-    protected void updateAndCreateAttempt(MessageAttempt attempt, String attemptError, MessageAttemptStatus attemptStatus) {
-        attempt.setError(attemptError);
-        attempt.setStatus(attemptStatus);
+    protected void updateAndCreateAttempt(MessageAttempt attempt) {
         attempt.setEndDate(new Timestamp(System.currentTimeMillis()));
         messageAttemptService.create(attempt);
     }
