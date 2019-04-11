@@ -86,6 +86,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public String findMpcUri(String mpcName) throws EbMS3Exception {
+        return getCurrentPModeProvider().findMpcUri(mpcName);
+    }
+
+    @Override
     protected String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
         return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action);
     }

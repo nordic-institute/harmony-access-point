@@ -37,7 +37,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.*;
+import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
+import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
  * @author idragusa
@@ -81,13 +82,13 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         String trustoreFilename = RESOURCE_PATH + "nonEmptySource.jks";
         String trustorePassword = "1234";
 
-        new Expectations(){{
+        new Expectations() {{
             tokenReferenceExtractor.extractTokenReference(withAny(securityHeader));
-            result=binarySecurityTokenReference;
+            result = binarySecurityTokenReference;
             binarySecurityTokenReference.getUri();
-            result="#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
+            result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
-            result= X_509_V_3;
+            result = X_509_V_3;
             certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
             result = x509Certificate;
         }};
@@ -102,11 +103,11 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
         new Expectations() {{
             tokenReferenceExtractor.extractTokenReference(withAny(securityHeader));
-            result=binarySecurityTokenReference;
+            result = binarySecurityTokenReference;
             binarySecurityTokenReference.getUri();
-            result="#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
+            result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
-            result=X_509_V_3;
+            result = X_509_V_3;
             certificateService.isCertificateValid((X509Certificate) any);
             result = false;
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
@@ -125,11 +126,11 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
         new Expectations() {{
             tokenReferenceExtractor.extractTokenReference(withAny(securityHeader));
-            result=binarySecurityTokenReference;
+            result = binarySecurityTokenReference;
             binarySecurityTokenReference.getUri();
-            result="#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
+            result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
-            result=X_509_V_3;
+            result = X_509_V_3;
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = false;
             certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
@@ -144,11 +145,11 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Test
     public void testGetCertificateFromBinarySecurityTokenX509v3(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, URISyntaxException {
-        new Expectations(){{
+        new Expectations() {{
             binarySecurityTokenReference.getUri();
-            result="#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
+            result = "#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
             binarySecurityTokenReference.getValueType();
-            result=X_509_V_3;
+            result = X_509_V_3;
         }};
         Document doc = readDocument("dataset/as4/RawXMLMessageWithSpaces.xml");
         final List<? extends Certificate> xc = trustSenderInterceptor.getCertificateFromBinarySecurityToken(doc.getDocumentElement(), binarySecurityTokenReference);
@@ -158,11 +159,11 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Test
     public void testGetCertificateFromBinarySecurityTokenX509PKIPathv1(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, URISyntaxException {
-        new Expectations(){{
+        new Expectations() {{
             binarySecurityTokenReference.getUri();
-            result="#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
+            result = "#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
             binarySecurityTokenReference.getValueType();
-            result="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1";
+            result = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1";
         }};
         Document doc = readDocument("dataset/as4/RawXMLMessageWithSpacesAndPkiPath.xml");
         final List<? extends Certificate> certificateFromBinarySecurityToken = trustSenderInterceptor.getCertificateFromBinarySecurityToken(doc.getDocumentElement(), binarySecurityTokenReference);
@@ -171,8 +172,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     }
 
 
-
-    protected void testHandleMessage(Document doc, String trustoreFilename,  String trustorePassword) throws JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException {
+    protected void testHandleMessage(Document doc, String trustoreFilename, String trustorePassword) throws JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException {
         SoapMessage soapMessage = getSoapMessageForDom(doc);
 
         new Expectations() {{
@@ -213,41 +213,15 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     }
 
     @Test
-    public void testCheckSenderPartyTrust() throws Exception {
-        final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-
+    public void testHandleOneTestActivated(@Mocked final SoapMessage message) {
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
-            result = true;
-        }};
-
-        Assert.assertTrue(trustSenderInterceptor.checkSenderPartyTrust(certificate, "GlobalSign", "messageID123", false));
-        Assert.assertFalse(trustSenderInterceptor.checkSenderPartyTrust(certificate, "test sender", "messageID123", false));
-    }
-
-    @Test
-    public void testCheckSenderPartyTrustDisabled() throws Exception {
-        final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
             result = false;
         }};
-
-        Assert.assertTrue(trustSenderInterceptor.checkSenderPartyTrust(certificate, "test sender", "messageID123", false));
-    }
-
-    @Test
-    public void testHandleOneTestActivated(@Mocked final SoapMessage message){
-        new Expectations(){{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
-            result=false;
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
-            result=false;
-        }};
         trustSenderInterceptor.handleMessage(message);
-        new Verifications(){{
-           message.getExchange();times=0;
+        new Verifications() {{
+            message.getExchange();
+            times = 0;
         }};
     }
 }

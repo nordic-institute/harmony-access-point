@@ -491,6 +491,12 @@ public class CertificateServiceImpl implements CertificateService {
         return res;
     }
 
+    public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
+        X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
+        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
+        return cert;
+    }
+
     private TrustStoreEntry createTrustStoreEntry(X509Certificate certificate) {
         return createTrustStoreEntry(null, certificate);
     }

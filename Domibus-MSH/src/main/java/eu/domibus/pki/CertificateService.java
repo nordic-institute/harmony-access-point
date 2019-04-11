@@ -28,19 +28,20 @@ public interface CertificateService {
      * Return the detail of the truststore entries.
      *
      * @param trustStore the trust store from where to retrieve the certificates
-     *
      * @return a list of certificate
      */
     List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore);
 
     /**
      * Save certificate data in the database, and use this data to display a revocation warning when needed.
+     *
      * @param domain the current domain
      */
     void saveCertificateAndLogRevocation(Domain domain);
 
     /**
      * Validates that the bytes represent a valid truststore
+     *
      * @param newTrustStoreBytes the content
      * @param password the password to open the truststore
      * @param type the type of the truststore: jks, PKCS12
@@ -56,7 +57,6 @@ public interface CertificateService {
      * Returns the certificate deserialized from a base64 string
      *
      * @param content the certificate serialized as a base64 string
-     *
      * @return a certificate
      * @throws CertificateException if the base64 string cannot be deserialized to a certificate
      */
@@ -66,11 +66,19 @@ public interface CertificateService {
      * Returns the certificate entry from the trust store given an alias
      *
      * @param alias the certificate alias
-     *
      * @return a certificate entry
      * @throws KeyStoreException if the trust store was not initialized
      */
     TrustStoreEntry getPartyCertificateFromTruststore(String alias) throws KeyStoreException;
+
+    /**
+     * Returns the certificate entry from the trust store given an alias
+     *
+     * @param alias the certificate alias
+     * @return an X509Certificate
+     * @throws KeyStoreException if the trust store was not initialized
+     */
+    X509Certificate getPartyX509CertificateFromTruststore(String alias) throws KeyStoreException;
 
     /**
      * Given a list of certificates, returns a string containing the certificates in a 64 base encoded format and
@@ -101,7 +109,6 @@ public interface CertificateService {
      * Returns a certificate entry converted from a base64 string
      *
      * @param certificateContent the certificate serialized as a base64 string
-     *
      * @return a certificate entry
      * @throws CertificateException if the base64 string cannot be converted to a certificate entry
      */

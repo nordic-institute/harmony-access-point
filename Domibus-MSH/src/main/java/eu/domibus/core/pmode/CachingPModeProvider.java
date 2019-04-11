@@ -177,10 +177,10 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No Candidates for Legs found", null, null);
         }
-        String pullLegName = candidates.stream()
+        Optional<LegConfiguration> optional = candidates.stream()
                 .filter(candidate -> candidateMatches(candidate, service, action, mpc))
-                .findFirst()
-                .get().getName();
+                .findFirst();
+        String pullLegName = optional.isPresent() ? optional.get().getName() : null;
         if (pullLegName != null) {
             return pullLegName;
         }
@@ -658,6 +658,15 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         return null;
+    }
+
+    public String findMpcUri(final String mpcName) throws EbMS3Exception {
+        for (final Mpc mpc : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc.getName(), mpcName)) {
+                return mpc.getQualifiedName();
+            }
+        }
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found", null, null);
     }
 
     @Nullable
