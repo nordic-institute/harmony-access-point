@@ -2,6 +2,8 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -57,6 +59,9 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    DomainContextProvider domainContextProvider;
 
     @Autowired
     RegexUtil regexUtil;
@@ -154,7 +159,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
 
         String subject = signingCertificate.getSubjectDN().getName();
-        String certSubjectExpression = domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+        Domain domain = domainContextProvider.getCurrentDomain();
+        String certSubjectExpression = domibusPropertyProvider.getProperty(domain, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
         if (StringUtils.isEmpty(certSubjectExpression)) {
             LOG.debug("[{}] is empty, verification is disabled.", DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             return;
