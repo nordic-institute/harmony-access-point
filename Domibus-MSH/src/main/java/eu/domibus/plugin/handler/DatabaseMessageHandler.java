@@ -28,9 +28,9 @@ import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -193,7 +193,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private void updateC3(UserMessage userMessage, Party to) throws Exception {
         final MessageProperties messageProperties = userMessage.getMessageProperties();
         final Set<Property> propertySet = messageProperties.getProperty();
-        if(messageProperties == null || propertySet == null) {
+        if (messageProperties == null || propertySet == null) {
             return;
         }
         final Iterator<Property> iterator = propertySet.iterator();
@@ -239,7 +239,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         final Parties partiesXml = configuration.getBusinessProcesses().getPartiesXml();
         for (Party party : partiesXml.getParty()) {
-            if(party.getName().equalsIgnoreCase(to.getName())) {
+            if (party.getName().equalsIgnoreCase(to.getName())) {
                 final String C3NewURL = property.getValue();
                 LOG.info("Updating URL for party [{}] with [{}]", party.getName(), C3NewURL);
                 party.setEndpoint(C3NewURL);
@@ -249,7 +249,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         ZonedDateTime confDate = ZonedDateTime.ofInstant(rawConfiguration.getConfigurationDate().toInstant(), ZoneId.systemDefault());
-        String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
+        String updatedDescription = "Updated [" + to.getName() + "] to version of " + confDate.format(formatter);
 
         byte[] updatedPmode;
         try {
@@ -266,14 +266,14 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.debug("OriginalUser is [{}]", authOriginalUser);
             /* check the message belongs to the authenticated user */
             boolean found = false;
-            for(String recipient : recipients) {
+            for (String recipient : recipients) {
                 String originalUser = getOriginalUser(userMessage, recipient);
                 if (originalUser != null && originalUser.equalsIgnoreCase(authOriginalUser)) {
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 LOG.debug("User [{}] is trying to submit/access a message having as final recipients: [{}]", authOriginalUser, recipients);
                 throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
             }
@@ -354,7 +354,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
 
-        if(userMessage == null) {
+        if (userMessage == null) {
             LOG.warn("UserMessage is null");
             throw new MessageNotFoundException("UserMessage is null");
         }
@@ -417,8 +417,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             if (MessageStatus.READY_TO_PULL != messageStatus) {
                 // Sends message to the proper queue if not a message to be pulled.
                 userMessageService.scheduleSending(messageId);
-            }
-            else{
+            } else {
                 final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
                 LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
                 pullMessageService.addPullMessageLock(new PartyExtractor(to), userMessage, userMessageLog);
@@ -469,7 +468,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     private int getMaxAttempts(LegConfiguration legConfiguration) {
-        return ( legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount() ) + 1; // counting retries after the first send attempt
+        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
     }
 
     private void fillMpc(UserMessage userMessage, LegConfiguration legConfiguration, Party to) {

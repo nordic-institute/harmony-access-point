@@ -1,6 +1,7 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
@@ -17,6 +18,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -130,6 +132,11 @@ public class UserMessageHandlerServiceTest {
     @Injectable
     protected UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Injectable
+    protected DomainContextProvider domainProvider;
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";

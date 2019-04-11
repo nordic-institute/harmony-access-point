@@ -3,6 +3,8 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.common.dao.MessagingDao;
@@ -11,25 +13,25 @@ import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.ErrorHandling;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.configuration.ReplyPattern;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogBuilder;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.receiver.UserMessageHandlerContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.util.MessageUtil;
 import org.apache.commons.io.IOUtils;
@@ -54,7 +56,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author Thomas Dussart
@@ -128,6 +138,12 @@ public class UserMessageHandlerService {
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Autowired
+    protected DomainContextProvider domainProvider;
 
 
     public SOAPMessage handleNewUserMessage(final String pmodeKey, final SOAPMessage request, final Messaging messaging,final UserMessageHandlerContext userMessageHandlerContext) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
@@ -276,6 +292,15 @@ public class UserMessageHandlerService {
 
         handlePayloads(request, userMessage);
 
+        try {
+            Party to = pModeProvider.getReceiverParty(pmodeKey);
+            updateC3(userMessage, to);
+        } catch (CertificateException exc) {
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could update C3 certificate" + exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
+        }
+
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
         try {
@@ -319,6 +344,77 @@ public class UserMessageHandlerService {
         nonRepudiationService.saveRequest(request, userMessage);
 
         return userMessage.getMessageInfo().getMessageId();
+    }
+
+    private void updateC3(UserMessage userMessage, Party to) throws CertificateException {
+        final MessageProperties messageProperties = userMessage.getMessageProperties();
+        final Set<Property> propertySet = messageProperties.getProperty();
+        if (messageProperties == null || propertySet == null) {
+            return;
+        }
+        final Iterator<Property> iterator = propertySet.iterator();
+        while (iterator.hasNext()) {
+            Property property = iterator.next();
+            if ("C3Certificate".equalsIgnoreCase(property.getName())) {
+                updateC3Certificate(to, iterator, property);
+            }
+            if ("C3URL".equalsIgnoreCase(property.getName())) {
+                updateC3URL(to, property);
+            }
+
+        }
+    }
+
+    private void updateC3Certificate(Party to, Iterator<Property> iterator, Property property) throws CertificateException {
+        final String value = property.getValue();
+        final byte[] decode = Base64.getDecoder().decode(value);
+        InputStream targetStream = new ByteArrayInputStream(decode);
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        X509Certificate certificate = (X509Certificate) factory.generateCertificate(targetStream);
+        LOG.info("Add public certificate to the truststore for party [{}]", to.getName());
+        //add certificate to Truststore
+        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, to.getName(), true);
+        LOG.info("Certificate added to the truststore for party [{}]", to.getName());
+        iterator.remove();
+    }
+
+    private void updateC3URL(Party to, Property property) {
+        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
+        if (pModeArchiveInfo == null)
+            throw new IllegalStateException("Could not update PMode parties: PMode not found!");
+
+        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
+
+        Configuration configuration;
+        try {
+            configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
+        } catch (XmlProcessingException e) {
+            LOG.error("Error reading current PMode", e);
+            throw new IllegalStateException(e);
+        }
+
+        final Parties partiesXml = configuration.getBusinessProcesses().getPartiesXml();
+        for (Party party : partiesXml.getParty()) {
+            if (party.getName().equalsIgnoreCase(to.getName())) {
+                final String C3NewURL = property.getValue();
+                LOG.info("Updating URL for party [{}] with [{}]", party.getName(), C3NewURL);
+                party.setEndpoint(C3NewURL);
+                break;
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
+        ZonedDateTime confDate = ZonedDateTime.ofInstant(rawConfiguration.getConfigurationDate().toInstant(), ZoneId.systemDefault());
+        String updatedDescription = "Updated [" + to.getName() + "] to version of " + confDate.format(formatter);
+
+        byte[] updatedPmode;
+        try {
+            updatedPmode = pModeProvider.serializePModeConfiguration(configuration);
+            pModeProvider.updatePModes(updatedPmode, updatedDescription);
+        } catch (XmlProcessingException e) {
+            LOG.error("Error writing current PMode", e);
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
