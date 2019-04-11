@@ -17,7 +17,6 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
-import eu.domibus.core.crypto.spi.model.PullRequestMapping;
 import eu.domibus.core.crypto.spi.model.UserMessageMapping;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.mpc.MpcService;
@@ -358,8 +357,18 @@ public abstract class PModeProvider {
     }
 
     public PullRequestPmodeData getPullRequestMapping(PullRequest pullRequest) throws EbMS3Exception {
-        Map<PullRequestMapping, String> mappings = new HashMap<>();
-        final Mpc mpc = findMpc(pullRequest.getMpc());
+        Mpc mpc;
+        try {
+            mpc = findMpc(pullRequest.getMpc());
+        } catch (EbMS3Exception e) {
+            if (mpcService.forcePullOnMpc(pullRequest.getMpc())) {
+                String mpcQualifiedName = mpcService.extractBaseMpc(pullRequest.getMpc());
+                LOG.debug("Trying base mpc [{}]", mpcQualifiedName);
+                mpc = findMpc(mpcQualifiedName);
+            } else {
+                throw e;
+            }
+        }
         return new PullRequestPmodeData(mpc.getName());
     }
 

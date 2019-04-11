@@ -68,20 +68,20 @@ public class PullRequestHandler {
     @Autowired
     private PullMessageService pullMessageService;
 
-    public SOAPMessage handlePullRequest(String messageId, PullContext pullContext) {
+    public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
-            LOG.info("Message id [{}] ", messageId);
+            LOG.info("Message id [{}], refToMessageId [{}]", messageId, refToMessageId);
             // Sonar Bug: ignored because the following call happens within a transaction that gets started by the web service calling this method
             return handleRequest(messageId, pullContext); // NOSONAR
         } else {
-            return notifyNoMessage(pullContext);
+            return notifyNoMessage(pullContext, refToMessageId);
         }
     }
 
-    SOAPMessage notifyNoMessage(PullContext pullContext) {
+    SOAPMessage notifyNoMessage(PullContext pullContext, String refToMessageId) {
         LOG.trace("No message for received pull request with mpc " + pullContext.getMpcQualifiedName());
         EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0006, "There is no message available for\n" +
-                "pulling from this MPC at this moment.", null, null);
+                "pulling from this MPC at this moment.", refToMessageId, null);
         return messageBuilder.getSoapMessage(ebMS3Exception);
     }
 

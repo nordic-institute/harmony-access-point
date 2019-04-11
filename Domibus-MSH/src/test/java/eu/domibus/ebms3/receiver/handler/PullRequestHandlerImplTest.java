@@ -167,7 +167,7 @@ public class PullRequestHandlerImplTest {
                                                     @Mocked final LegConfiguration legConfiguration,
                                                     @Mocked final PullContext pullContext) throws EbMS3Exception {
 
-        pullRequestHandler.notifyNoMessage(pullContext);
+        pullRequestHandler.notifyNoMessage(pullContext, null);
         new Verifications() {{
 
             EbMS3Exception exception;
