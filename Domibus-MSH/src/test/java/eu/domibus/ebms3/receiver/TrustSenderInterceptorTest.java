@@ -217,8 +217,6 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
             result = false;
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
-            result = false;
         }};
         trustSenderInterceptor.handleMessage(message);
         new Verifications() {{
