@@ -108,6 +108,7 @@ public class UpdateRetryLoggingService {
 
     public void messageFailed(UserMessage userMessage, MessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageInfo().getMessageId());
+
         final String messageId = userMessageLog.getMessageId();
         messageFailed(userMessage, messageId, userMessageLog.getNotificationStatus(), userMessageLog.isTestMessage(), userMessageLog.getBackend());
     }
@@ -121,9 +122,16 @@ public class UpdateRetryLoggingService {
 
         userMessageLogService.setMessageAsSendFailure(messageId);
 
-        if (domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE)) {
+        if (shouldDeletePayloadOnSendFailure(userMessage)) {
             messagingDao.clearPayloadData(messageId);
         }
+    }
+
+    protected boolean shouldDeletePayloadOnSendFailure(UserMessage userMessage) {
+        if (userMessage.isUserMessageFragment()) {
+            return true;
+        }
+        return domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
     }
 
 

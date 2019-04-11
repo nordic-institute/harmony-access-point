@@ -310,13 +310,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleUserMessageFragmentFailed(String messageId) {
-        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        if (MessageStatus.SEND_ENQUEUED != messageStatus) {
-            LOG.debug("UserMessage fragment [{}] was not scheduled to be marked as failed: status is [{}]", messageId, messageStatus);
-            return;
-        }
-
+    public void scheduleSetUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
 
         final JmsMessage jmsMessage = JMSMessageBuilder
@@ -377,6 +371,21 @@ public class UserMessageDefaultService implements UserMessageService {
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
                 .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail) {
+        LOG.debug("Scheduling marking the SplitAndJoin receive failed for group [{}]", groupId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, sourceMessageId)
+                .property(UserMessageService.MSG_EBMS3_ERROR_CODE, errorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);

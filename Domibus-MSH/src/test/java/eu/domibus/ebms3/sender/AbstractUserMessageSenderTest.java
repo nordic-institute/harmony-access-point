@@ -167,10 +167,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
         }};
     }
 
@@ -219,10 +219,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
         }};
     }
 
@@ -282,10 +282,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
 
         }};
     }
@@ -376,10 +376,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
 
         }};
     }
@@ -456,10 +456,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attempt.getError());
+            Assert.assertEquals(attemptStatus, attempt.getStatus());
         }};
     }
 

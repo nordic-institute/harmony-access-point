@@ -1,5 +1,6 @@
 package eu.domibus.core.message.fragment;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -31,5 +33,11 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
             LOG.trace("Could not found MessageGroupEntity for group [{}]", groupId);
             return null;
         }
+    }
+
+    public List<MessageGroupEntity> findOngoingReceivedNonExpiredOrRejected() {
+        TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findReceivedNonExpiredOrRejected", MessageGroupEntity.class);
+        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
+        return query.getResultList();
     }
 }
