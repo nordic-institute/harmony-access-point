@@ -2,6 +2,7 @@ package eu.domibus.ebms3.puller;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -23,9 +24,15 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
     @Autowired
     private MessageExchangeService messageExchangeService;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         try {
+            if (!authUtils.isUnsecureLoginAllowed()) {
+                authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
+            }
             messageExchangeService.initiatePullRequest();
         } catch (PModeException e) {
             LOG.warn("Invalid pmode configuration for pull request " + e.getMessage(), e);
