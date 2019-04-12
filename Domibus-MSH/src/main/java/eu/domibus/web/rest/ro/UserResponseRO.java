@@ -43,6 +43,7 @@ public class UserResponseRO {
     public void updateRolesField() {
         int count = 0;
         String separator = StringUtils.EMPTY;
+        roles = StringUtils.EMPTY;
         for (String authority : authorities) {
             if (count > 0) {
                 separator = ",";

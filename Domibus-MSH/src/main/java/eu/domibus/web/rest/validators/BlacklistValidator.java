@@ -16,12 +16,14 @@ import java.util.Arrays;
  * Custom validator that checks that the value does not contain any char from the blacklist
  *
  * @author Ion Perpegel
- * since 4.1
+ * @since 4.1
  */
 @Component
 public class BlacklistValidator implements ConstraintValidator<NotBlacklisted, String> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BlacklistValidator.class);
+
+    public static final String BLACKLIST_PROPERTY = "domibus.userInput.blackList";
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
@@ -30,7 +32,7 @@ public class BlacklistValidator implements ConstraintValidator<NotBlacklisted, S
 
     public void init() {
         if (blacklist == null) {
-            String blacklistValue = domibusPropertyProvider.getProperty("domibus.userInput.blackList");
+            String blacklistValue = domibusPropertyProvider.getProperty(BLACKLIST_PROPERTY);
             if (!Strings.isNullOrEmpty(blacklistValue)) {
                 this.blacklist = ArrayUtils.toObject(blacklistValue.toCharArray());
             }
@@ -54,20 +56,14 @@ public class BlacklistValidator implements ConstraintValidator<NotBlacklisted, S
     }
 
     public boolean isValid(String value) {
-        try {
-            if (ArrayUtils.isEmpty(blacklist)) {
-                return true;
-            }
-            if (Strings.isNullOrEmpty(value)) {
-                return true;
-            }
-
-            return !Arrays.stream(blacklist).anyMatch(el -> value.contains(el.toString()));
-
-        } catch (Exception e) {
-            LOG.trace("Exception in BlacklistValidator:", e);
-            return false;
+        if (ArrayUtils.isEmpty(blacklist)) {
+            return true;
         }
+        if (Strings.isNullOrEmpty(value)) {
+            return true;
+        }
+
+        return !Arrays.stream(blacklist).anyMatch(el -> value.contains(el.toString()));
     }
 
 }

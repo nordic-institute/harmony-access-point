@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
@@ -38,9 +37,6 @@ public class PluginUserServiceImplTest {
 
     @Injectable
     private BCryptPasswordEncoder bcryptEncoder;
-
-    @Injectable
-    private UserRoleDao userRoleDao;
 
     @Injectable
     private UserDomainService userDomainService;

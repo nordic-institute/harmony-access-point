@@ -42,9 +42,6 @@ public class PluginUserServiceImpl implements PluginUserService {
     private BCryptPasswordEncoder bcryptEncoder;
 
     @Autowired
-    private UserRoleDao userRoleDao;
-
-    @Autowired
     private UserDomainService userDomainService;
 
     @Autowired

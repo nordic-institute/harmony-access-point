@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.ro.*;
@@ -15,7 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -163,4 +166,33 @@ public class JmsResourceTest {
         Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
         Assert.assertNull(responseEntity.getBody().getOutcome());
     }
+
+
+    @Test
+    public void testGetCsv() throws EbMS3Exception {
+        // Given
+        String source = "";
+        String jmsType = null;
+        Long fromDate = LocalDate.now().plusDays(-10).toEpochDay();
+        Long toDate = LocalDate.now().toEpochDay();
+        String selector = "";
+        JmsMessage jmsMessage = new JmsMessage();
+        List<JmsMessage> jmsMessageList = Arrays.asList(jmsMessage);
+        String mockCsvResult = "csv";
+
+        new Expectations(jmsResource) {{
+            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
+            result = jmsMessageList;
+            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
+            result = mockCsvResult;
+        }};
+
+        // When
+        final ResponseEntity<String> csv = jmsResource.getCsv(source, jmsType, fromDate, toDate, selector);
+
+        // Then
+        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assert.assertEquals(mockCsvResult, csv.getBody());
+    }
+
 }
