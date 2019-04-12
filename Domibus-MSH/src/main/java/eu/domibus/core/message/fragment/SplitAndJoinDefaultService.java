@@ -57,10 +57,7 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -443,7 +440,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         fragments.sort(Comparator.comparing(object -> object.getMessageInfo().getTimestamp()));
-        final UserMessage firstReceivedFragment = fragments.stream().findFirst().get();
+        final UserMessage firstReceivedFragment = fragments.get(0);
         MessageExchangeConfiguration userMessageExchangeContext = null;
         LegConfiguration legConfiguration = null;
         try {
