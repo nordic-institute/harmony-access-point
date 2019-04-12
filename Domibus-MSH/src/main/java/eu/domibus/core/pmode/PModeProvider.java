@@ -163,7 +163,6 @@ public abstract class PModeProvider {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public List<String> updatePModes(byte[] bytes, String description) throws XmlProcessingException {
         LOG.debug("Updating the PMode");
         description = validateDescriptionSize(description);
