@@ -69,6 +69,9 @@ public class IncomingPullRequestHandler implements IncomingMessageHandler {
         }
         LOG.debug("Retrieve ready to pull User message for mpc: [{}]", pullRequest.getMpc());
         String messageId = messageExchangeService.retrieveReadyToPullUserMessageId(pullRequest.getMpc(), pullContext.getInitiator());
-        return pullRequestHandler.handlePullRequest(messageId, pullContext);
+
+        String refToMessageId = (messaging.getSignalMessage().getMessageInfo() == null) ? null :
+                messaging.getSignalMessage().getMessageInfo().getMessageId();
+        return pullRequestHandler.handlePullRequest(messageId, pullContext, refToMessageId);
     }
 }

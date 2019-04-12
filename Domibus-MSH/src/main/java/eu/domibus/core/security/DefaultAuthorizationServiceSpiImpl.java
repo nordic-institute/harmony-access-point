@@ -48,6 +48,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     private static final String DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION = "domibus.sender.trust.validation.expression";
 
+    private static final String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
+
     @Autowired
     private CertificateService certificateService;
 
@@ -125,6 +127,11 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     }
 
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {
+        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS)) {
+            LOG.debug("Sender certificate verification is disabled");
+            return;
+        }
+
         LOG.debug("Authorize against certificate extracted based on the alias [{}] from the truststore", alias);
         if (signingCertificate == null) {
             LOG.debug("Signing certificate is not provided.");

@@ -40,6 +40,8 @@ import java.util.List;
 public class PullReceiptListener implements MessageListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullReceiptListener.class);
 
+    private static final int MAX_RETRY_COUNT = 3;
+
     @Autowired
     protected PullReceiptSender pullReceiptSender;
 
@@ -60,6 +62,9 @@ public class PullReceiptListener implements MessageListener {
 
     @Autowired
     private SignalMessageDao signalMessageDao;
+
+    @Autowired
+    UserMessageService userMessageService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
@@ -85,8 +90,25 @@ public class PullReceiptListener implements MessageListener {
             final Policy policy = policyService.getPolicy(legConfiguration);
             List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(refToMessageId);
 
+            int retryCount = 0;
+            try {
+                if (message.propertyExists(MessageConstants.RETRY_COUNT)) {
+                    retryCount = message.getIntProperty(MessageConstants.RETRY_COUNT);
+                }
+            } catch (final NumberFormatException nfe) {
+                LOG.trace("Error getting message properties", nfe);
+                //This is ok, no delay has been set
+            } catch (final JMSException e) {
+                LOG.error("Error processing JMS message", e);
+            }
+
             if (CollectionUtils.isEmpty(signalMessages)) {
-                LOG.warn("Could not send pull receipt for message [{}]. No signal messages found.", refToMessageId);
+                if (retryCount < MAX_RETRY_COUNT) {
+                    userMessageService.scheduleSendingPullReceipt(refToMessageId, pModeKey, retryCount + 1);
+                    LOG.warn("Pull receipt not found, retry count is [{}] -> reschedule sending", retryCount);
+                    return;
+                }
+                LOG.warn("Pull receipt for [{}] not found for [{}] times and will not be sent", refToMessageId, retryCount);
                 return;
             }
 
