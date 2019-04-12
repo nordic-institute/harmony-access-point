@@ -1,6 +1,9 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.party.PartyService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
@@ -17,6 +20,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -116,19 +120,28 @@ public class UserMessageHandlerServiceTest {
     PropertyProfileValidator propertyProfileValidator;
 
     @Injectable
-    CertificateService certificateService;
-
-    @Injectable
     SOAPMessage soapRequestMessage;
 
     @Injectable
     SOAPMessage soapResponseMessage;
 
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
-    protected UIReplicationSignalService uiReplicationSignalService;
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Injectable
+    protected DomainContextProvider domainProvider;
+
+    @Injectable
+    private PartyService partyService;
+
+    @Injectable
+    private CertificateService certificateService;
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
 
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";

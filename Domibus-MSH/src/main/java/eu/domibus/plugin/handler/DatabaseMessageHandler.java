@@ -3,8 +3,9 @@ package eu.domibus.plugin.handler;
 
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
@@ -12,7 +13,9 @@ import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.exception.MessagingExceptionFactory;
-import eu.domibus.common.model.configuration.*;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Mpc;
+import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
@@ -29,13 +32,12 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.*;
+import eu.domibus.pki.CertificateService;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -46,14 +48,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -72,6 +68,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
+
+    private static final String C3URL_PROPERTY_NAME = "domibus.msh.property.c3url";
+    private static final String C3CERTIFICATE_PROPERTY_NAME = "domibus.msh.property.c3certificate";
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
@@ -141,6 +140,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    private PartyService partyService;
+
+    @Autowired
+    private CertificateService certificateService;
+
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -191,89 +199,51 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     private void updateC3(UserMessage userMessage, Party to) throws Exception {
+
+        String c3urlPropertyName = domibusPropertyProvider.getDomainProperty(C3URL_PROPERTY_NAME);
+        String c3certPropertyName = domibusPropertyProvider.getDomainProperty(C3CERTIFICATE_PROPERTY_NAME);
+
         final MessageProperties messageProperties = userMessage.getMessageProperties();
         final Set<Property> propertySet = messageProperties.getProperty();
-        if(messageProperties == null || propertySet == null) {
+        if (messageProperties == null || propertySet == null) {
             return;
         }
         final Iterator<Property> iterator = propertySet.iterator();
         while (iterator.hasNext()) {
             Property property = iterator.next();
-            if ("C3Certificate".equalsIgnoreCase(property.getName())) {
-                updateC3Certificate(to, iterator, property);
+            if (StringUtils.isNotBlank(c3certPropertyName) && c3certPropertyName.equalsIgnoreCase(property.getName())) {
+                updateC3Certificate(to.getName(), property.getValue());
+                iterator.remove();
             }
-            if ("C3URL".equalsIgnoreCase(property.getName())) {
-                updateC3URL(to, property);
+            if (StringUtils.isNotBlank(c3urlPropertyName) && c3urlPropertyName.equalsIgnoreCase(property.getName())) {
+                partyService.updatePartyEndpoint(to.getName(), property.getValue());
+                iterator.remove();
             }
-
         }
     }
 
-    private void updateC3Certificate(Party to, Iterator<Property> iterator, Property property) throws CertificateException {
-        final String value = property.getValue();
-        final byte[] decode = Base64.getDecoder().decode(value);
-        InputStream targetStream = new ByteArrayInputStream(decode);
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate certificate = (X509Certificate) factory.generateCertificate(targetStream);
-        LOG.info("Add public certificate to the truststore for party [{}]", to.getName());
+    private void updateC3Certificate(final String partyName, final String encodedCertificate) throws CertificateException {
+        X509Certificate certificate = certificateService.loadCertificateFromEncodedString(encodedCertificate);
+        LOG.info("Add public certificate to the truststore for party [{}]", partyName);
         //add certificate to Truststore
-        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, to.getName(), true);
-        LOG.info("Certificate added to the truststore for party [{}]", to.getName());
-        iterator.remove();
+        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, partyName, true);
+        LOG.info("Certificate added to the truststore for party [{}]", partyName);
     }
 
-    private void updateC3URL(Party to, Property property) {
-        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
-        if (pModeArchiveInfo == null)
-            throw new IllegalStateException("Could not update PMode parties: PMode not found!");
-
-        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
-
-        Configuration configuration;
-        try {
-            configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
-        } catch (XmlProcessingException e) {
-            LOG.error("Error reading current PMode", e);
-            throw new IllegalStateException(e);
-        }
-
-        final Parties partiesXml = configuration.getBusinessProcesses().getPartiesXml();
-        for (Party party : partiesXml.getParty()) {
-            if(party.getName().equalsIgnoreCase(to.getName())) {
-                final String C3NewURL = property.getValue();
-                LOG.info("Updating URL for party [{}] with [{}]", party.getName(), C3NewURL);
-                party.setEndpoint(C3NewURL);
-                break;
-            }
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
-        ZonedDateTime confDate = ZonedDateTime.ofInstant(rawConfiguration.getConfigurationDate().toInstant(), ZoneId.systemDefault());
-        String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
-
-        byte[] updatedPmode;
-        try {
-            updatedPmode = pModeProvider.serializePModeConfiguration(configuration);
-            pModeProvider.updatePModes(updatedPmode, updatedDescription);
-        } catch (XmlProcessingException e) {
-            LOG.error("Error writing current PMode", e);
-            throw new IllegalStateException(e);
-        }
-    }
 
     protected void validateOriginalUser(UserMessage userMessage, String authOriginalUser, List<String> recipients) {
         if (authOriginalUser != null) {
             LOG.debug("OriginalUser is [{}]", authOriginalUser);
             /* check the message belongs to the authenticated user */
             boolean found = false;
-            for(String recipient : recipients) {
+            for (String recipient : recipients) {
                 String originalUser = getOriginalUser(userMessage, recipient);
                 if (originalUser != null && originalUser.equalsIgnoreCase(authOriginalUser)) {
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 LOG.debug("User [{}] is trying to submit/access a message having as final recipients: [{}]", authOriginalUser, recipients);
                 throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
             }
@@ -354,7 +324,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
 
-        if(userMessage == null) {
+        if (userMessage == null) {
             LOG.warn("UserMessage is null");
             throw new MessageNotFoundException("UserMessage is null");
         }
@@ -417,8 +387,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             if (MessageStatus.READY_TO_PULL != messageStatus) {
                 // Sends message to the proper queue if not a message to be pulled.
                 userMessageService.scheduleSending(messageId);
-            }
-            else{
+            } else {
                 final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
                 LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
                 pullMessageService.addPullMessageLock(new PartyExtractor(to), userMessage, userMessageLog);
@@ -469,7 +438,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     private int getMaxAttempts(LegConfiguration legConfiguration) {
-        return ( legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount() ) + 1; // counting retries after the first send attempt
+        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
     }
 
     private void fillMpc(UserMessage userMessage, LegConfiguration legConfiguration, Party to) {

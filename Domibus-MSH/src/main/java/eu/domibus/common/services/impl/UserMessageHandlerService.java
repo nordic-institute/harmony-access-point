@@ -3,6 +3,9 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.party.PartyService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.common.dao.MessagingDao;
@@ -11,7 +14,6 @@ import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.ErrorHandling;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.ReplyPattern;
@@ -20,6 +22,7 @@ import eu.domibus.common.model.logging.SignalMessageLogBuilder;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -30,6 +33,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.pki.CertificateService;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.util.MessageUtil;
 import org.apache.commons.io.IOUtils;
@@ -54,7 +58,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author Thomas Dussart
@@ -67,6 +74,9 @@ public class UserMessageHandlerService {
 
     private static final String XSLT_GENERATE_AS4_RECEIPT_XSL = "xslt/GenerateAS4Receipt.xsl";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerService.class);
+
+    private static final String C3URL_PROPERTY_NAME = "domibus.msh.property.c3url";
+    private static final String C3CERTIFICATE_PROPERTY_NAME = "domibus.msh.property.c3certificate";
 
     /** to be appended to messageId when saving to DB on receiver side */
     public static final String SELF_SENDING_SUFFIX = "_1";
@@ -129,8 +139,23 @@ public class UserMessageHandlerService {
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
 
-    public SOAPMessage handleNewUserMessage(final String pmodeKey, final SOAPMessage request, final Messaging messaging,final UserMessageHandlerContext userMessageHandlerContext) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
+    @Autowired
+    protected DomainContextProvider domainProvider;
+
+    @Autowired
+    private PartyService partyService;
+
+    @Autowired
+    private CertificateService certificateService;
+
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+
+    public SOAPMessage handleNewUserMessage(final String pmodeKey, final SOAPMessage request, final Messaging messaging, final UserMessageHandlerContext userMessageHandlerContext) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         userMessageHandlerContext.setLegConfiguration(legConfiguration);
         String messageId;
@@ -165,7 +190,7 @@ public class UserMessageHandlerService {
             final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
             LOG.debug("Message duplication status:{}", messageExists);
             if (!messageExists) {
-                if(testMessage) {
+                if (testMessage) {
                     // ping messages are only stored and not notified to the plugins
                     persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, null);
                 } else {
@@ -213,7 +238,7 @@ public class UserMessageHandlerService {
     protected void checkCharset(final Messaging messaging) throws EbMS3Exception {
         LOG.debug("Checking charset for attachments");
         for (final PartInfo partInfo : messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
-            if(partInfo.getPartProperties() == null || partInfo.getPartProperties().getProperties() == null) {
+            if (partInfo.getPartProperties() == null || partInfo.getPartProperties().getProperties() == null) {
                 continue;
             }
             for (final Property property : partInfo.getPartProperties().getProperties()) {
@@ -249,7 +274,7 @@ public class UserMessageHandlerService {
     protected Boolean checkTestMessage(final LegConfiguration legConfiguration) {
         LOG.debug("Checking if it is a test message");
 
-        if(legConfiguration == null) {
+        if (legConfiguration == null) {
             return false;
         }
 
@@ -276,6 +301,15 @@ public class UserMessageHandlerService {
 
         handlePayloads(request, userMessage);
 
+        try {
+            Party to = pModeProvider.getReceiverParty(pmodeKey);
+            updateC3(userMessage, to);
+        } catch (CertificateException exc) {
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could update C3 certificate" + exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
+        }
+
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
         try {
@@ -297,7 +331,7 @@ public class UserMessageHandlerService {
         Party to = pModeProvider.getReceiverParty(pmodeKey);
         Validate.notNull(to, "Responder party was not found");
 
-        NotificationStatus notificationStatus = (legConfiguration.getErrorHandling() != null &&legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) ? NotificationStatus.REQUIRED : NotificationStatus.NOT_REQUIRED;
+        NotificationStatus notificationStatus = (legConfiguration.getErrorHandling() != null && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) ? NotificationStatus.REQUIRED : NotificationStatus.NOT_REQUIRED;
         LOG.debug("NotificationStatus [{}]", notificationStatus);
 
         userMessageLogService.save(
@@ -319,6 +353,39 @@ public class UserMessageHandlerService {
         nonRepudiationService.saveRequest(request, userMessage);
 
         return userMessage.getMessageInfo().getMessageId();
+    }
+
+
+    private void updateC3(UserMessage userMessage, Party to) throws CertificateException {
+
+        String c3urlPropertyName = domibusPropertyProvider.getDomainProperty(C3URL_PROPERTY_NAME);
+        String c3certPropertyName = domibusPropertyProvider.getDomainProperty(C3CERTIFICATE_PROPERTY_NAME);
+
+        final MessageProperties messageProperties = userMessage.getMessageProperties();
+        final Set<Property> propertySet = messageProperties.getProperty();
+        if (messageProperties == null || propertySet == null) {
+            return;
+        }
+        final Iterator<Property> iterator = propertySet.iterator();
+        while (iterator.hasNext()) {
+            Property property = iterator.next();
+            if (StringUtils.isNotBlank(c3certPropertyName) && c3certPropertyName.equalsIgnoreCase(property.getName())) {
+                updateC3Certificate(to.getName(), property.getValue());
+                iterator.remove();
+            }
+            if (StringUtils.isNotBlank(c3urlPropertyName) && c3urlPropertyName.equalsIgnoreCase(property.getName())) {
+                partyService.updatePartyEndpoint(to.getName(), property.getValue());
+                iterator.remove();
+            }
+        }
+    }
+
+    private void updateC3Certificate(final String partyName, final String encodedCertificate) throws CertificateException {
+        X509Certificate certificate = certificateService.loadCertificateFromEncodedString(encodedCertificate);
+        LOG.info("Add public certificate to the truststore for party [{}]", partyName);
+        //add certificate to Truststore
+        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, partyName, true);
+        LOG.info("Certificate added to the truststore for party [{}]", partyName);
     }
 
     /**
@@ -395,7 +462,7 @@ public class UserMessageHandlerService {
      * @param request          the incoming message
      * @param legConfiguration processing information of the message
      * @param duplicate        indicates whether or not the message is a duplicate
-     * @param selfSendingFlag indicates that the message is sent to the same Domibus instance
+     * @param selfSendingFlag  indicates that the message is sent to the same Domibus instance
      * @return the response message to the incoming request message
      * @throws EbMS3Exception if generation of receipt was not successful
      */
