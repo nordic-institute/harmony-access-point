@@ -145,7 +145,7 @@ public class AuthenticationResource {
         LOG.debug("get user - start");
         UserDetail userDetail = getLoggedUser();
 
-        return createUserRO(userDetail, userDetail.getUsername());
+        return userDetail != null ? createUserRO(userDetail, userDetail.getUsername()) : null;
     }
 
     /**

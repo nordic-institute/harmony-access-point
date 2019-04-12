@@ -16,9 +16,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
-import eu.domibus.core.crypto.spi.model.PullRequestMapping;
 import eu.domibus.core.crypto.spi.model.UserMessageMapping;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.mpc.MpcService;
@@ -272,7 +270,7 @@ public abstract class PModeProvider {
                 receiverParty = findPartyName(userMessage.getPartyInfo().getTo().getPartyId());
                 LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, receiverParty, userMessage.getPartyInfo().getTo().getPartyId());
             } catch (EbMS3Exception exc) {
-                if(isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
+                if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
                     LOG.info("Receiver party not found in pMode, extract from MPC");
                     receiverParty = mpcService.extractInitiator(userMessage.getMpc());
                 } else {
@@ -283,7 +281,7 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getCollaborationInfo().getService());
             action = findActionName(userMessage.getCollaborationInfo().getAction());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_ACTION_FOUND, action, userMessage.getCollaborationInfo().getAction());
-            if(isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
+            if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
                 mpc = mpcService.extractBaseMpc(userMessage.getMpc());
                 leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc);
             } else {
@@ -332,6 +330,8 @@ public abstract class PModeProvider {
 
     public abstract List<String> getMpcURIList();
 
+    public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
+
     protected abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception;
 
     protected abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception;
@@ -357,8 +357,21 @@ public abstract class PModeProvider {
     }
 
     public PullRequestPmodeData getPullRequestMapping(PullRequest pullRequest) throws EbMS3Exception {
-        Map<PullRequestMapping, String> mappings = new HashMap<>();
-        final Mpc mpc = findMpc(pullRequest.getMpc());
+        Mpc mpc;
+        try {
+            LOG.debug("Find the mpc based on the pullRequest mpc [{}]", pullRequest.getMpc());
+            mpc = findMpc(pullRequest.getMpc());
+        } catch (EbMS3Exception e) {
+            LOG.debug("Could not find the mpc [{}], check if base mpc should be used", pullRequest.getMpc());
+            if (mpcService.forcePullOnMpc(pullRequest.getMpc())) {
+                String mpcQualifiedName = mpcService.extractBaseMpc(pullRequest.getMpc());
+                LOG.debug("Trying base mpc [{}]", mpcQualifiedName);
+                mpc = findMpc(mpcQualifiedName);
+            } else {
+                LOG.debug("Base mpc is not to be used, rethrowing the exception", e);
+                throw e;
+            }
+        }
         return new PullRequestPmodeData(mpc.getName());
     }
 

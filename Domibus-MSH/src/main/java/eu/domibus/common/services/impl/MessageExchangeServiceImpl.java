@@ -45,6 +45,7 @@ import javax.jms.Queue;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
 import java.util.NoSuchElementException;
 
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
@@ -264,11 +265,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     protected String getPartyId(String mpc, Party initiator) {
         String partyId = null;
         if (initiator != null && initiator.getIdentifiers() != null) {
-            try {
-                partyId = initiator.getIdentifiers().stream().findFirst().get().getPartyId();
-            } catch (NoSuchElementException e) {
-                LOG.debug("Could not get partyId from initiator party");
-            }
+            Optional<Identifier> optionalParty = initiator.getIdentifiers().stream().findFirst();
+            partyId = optionalParty.isPresent() ? optionalParty.get().getPartyId() : null;
         }
         if (partyId == null && pullMessageService.allowDynamicInitiatorInPullProcess()) {
             LOG.debug("Extract partyId from mpc [{}]", mpc);
@@ -286,7 +284,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             String mpc = mpcQualifiedName;
             final Party gatewayParty = pModeProvider.getGatewayParty();
             List<Process> processes = pModeProvider.findPullProcessByMpc(mpc);
-            if (CollectionUtils.isEmpty(processes)) {
+            if (CollectionUtils.isEmpty(processes) && mpcService.forcePullOnMpc(mpc)) {
                 LOG.debug("No process corresponds to mpc:[{}]", mpc);
                 mpc = mpcService.extractBaseMpc(mpc);
                 processes = pModeProvider.findPullProcessByMpc(mpc);

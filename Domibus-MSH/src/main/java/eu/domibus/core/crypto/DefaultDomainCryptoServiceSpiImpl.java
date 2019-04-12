@@ -237,7 +237,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_TYPE, keystoreType);
-        final String keyStorePasswordProperty = Merlin.PREFIX + Merlin.KEYSTORE_PASSWORD;
+        final String keyStorePasswordProperty = Merlin.PREFIX + Merlin.KEYSTORE_PASSWORD; //NOSONAR
         result.setProperty(keyStorePasswordProperty, keystorePassword);
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS, privateKeyAlias);
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_FILE, keystoreLocation);
@@ -257,7 +257,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.TRUSTSTORE_TYPE, trustStoreType);
-        final String trustStorePasswordProperty = Merlin.PREFIX + Merlin.TRUSTSTORE_PASSWORD;
+        final String trustStorePasswordProperty = Merlin.PREFIX + Merlin.TRUSTSTORE_PASSWORD; //NOSONAR
         result.setProperty(trustStorePasswordProperty, trustStorePassword);
         result.setProperty(Merlin.PREFIX + Merlin.LOAD_CA_CERTS, "false");
         result.setProperty(Merlin.PREFIX + Merlin.TRUSTSTORE_FILE, trustStoreLocation);

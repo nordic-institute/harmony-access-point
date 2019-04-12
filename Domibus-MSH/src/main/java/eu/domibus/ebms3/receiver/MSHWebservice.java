@@ -49,7 +49,14 @@ public class MSHWebservice implements Provider<SOAPMessage> {
             ex.setMshRole(MSHRole.RECEIVING);
             throw new WebServiceException(ex);
         }
+        SOAPMessage soapMessage;
+        try {
+            soapMessage = messageHandler.processMessage(request, messaging);
+        } catch (EbMS3Exception e) {
+            LOG.warn("Error processing message!");
+            throw new WebServiceException(e);
+        }
+        return soapMessage;
 
-        return messageHandler.processMessage(request, messaging);
     }
 }

@@ -1,6 +1,8 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.common.ErrorCode;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,10 +19,17 @@ public class ReceiptLegConfigurationFactory extends AbstractMessageLegConfigurat
 
     @Override
     protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Messaging messaging) {
-        ReceiptLegConfigurationExtractor receiptLegConfigurationExtractor=null;
-        if (messaging.getSignalMessage().getReceipt() != null || CollectionUtils.isNotEmpty(messaging.getSignalMessage().getError())) {
+        ReceiptLegConfigurationExtractor receiptLegConfigurationExtractor = null;
+        if (messaging.getSignalMessage().getReceipt() != null || handleError(messaging.getSignalMessage())) {
             receiptLegConfigurationExtractor = new ReceiptLegConfigurationExtractor(soapMessage, messaging);
         }
         return receiptLegConfigurationExtractor;
+    }
+
+    protected boolean handleError(SignalMessage signalMessage) {
+        if (CollectionUtils.isEmpty(signalMessage.getError())) {
+            return false;
+        }
+        return !signalMessage.getError().stream().anyMatch(candidate -> candidate.getErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0006.getCode().getErrorCode().getErrorCodeName()));
     }
 }

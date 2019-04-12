@@ -183,7 +183,7 @@ public class IncomingPullRequestHandlerTest {
             messageExchangeService.retrieveReadyToPullUserMessageId(pullRequest.getMpc(), pullContext.getInitiator());
             times = 1;
 
-            pullRequestHandler.handlePullRequest(messageId, pullContext);
+            pullRequestHandler.handlePullRequest(messageId, pullContext, null);
             times = 1;
         }};
     }

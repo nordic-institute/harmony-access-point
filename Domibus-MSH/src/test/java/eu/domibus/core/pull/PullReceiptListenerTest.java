@@ -1,6 +1,7 @@
 package eu.domibus.core.pull;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -17,6 +18,7 @@ import org.apache.neethi.Policy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.xml.soap.SOAPMessage;
@@ -53,6 +55,9 @@ public class PullReceiptListenerTest {
 
     @Injectable
     private UserMessageHandlerService userMessageHandlerService;
+
+    @Injectable
+    UserMessageService userMessageService;
 
     @Test
     public void onMessageTest(@Mocked Message message) throws JMSException, EbMS3Exception {

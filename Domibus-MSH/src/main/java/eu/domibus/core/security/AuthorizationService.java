@@ -78,7 +78,7 @@ public class AuthorizationService {
         return authorizationServiceList.get(0);
     }
 
-    public void authorizePullRequest(SOAPMessage request, PullRequest pullRequest) {
+    public void authorizePullRequest(SOAPMessage request, PullRequest pullRequest) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }

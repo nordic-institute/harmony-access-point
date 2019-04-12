@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandlerFactory;
@@ -41,7 +42,7 @@ public class MSHWebServiceTest {
     @Test
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
                                     @Injectable Messaging messaging,
-                                    @Injectable IncomingMessageHandler messageHandler) {
+                                    @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
         new Expectations() {{
             messageUtil.getMessage(request);
             result = messaging;
@@ -59,8 +60,8 @@ public class MSHWebServiceTest {
 
     @Test(expected = WebServiceException.class)
     public void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
-                                    @Injectable Messaging messaging,
-                                    @Injectable IncomingMessageHandler messageHandler) {
+                                         @Injectable Messaging messaging,
+                                         @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
         new Expectations() {{
             messageUtil.getMessage(request);
             result = messaging;

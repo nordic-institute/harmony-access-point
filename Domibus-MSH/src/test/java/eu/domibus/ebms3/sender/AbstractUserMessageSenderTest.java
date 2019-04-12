@@ -167,10 +167,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
         }};
     }
 
@@ -219,10 +219,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
         }};
     }
 
@@ -282,10 +282,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
 
         }};
     }
@@ -376,10 +376,10 @@ public class AbstractUserMessageSenderTest {
             MessageAttempt attemptActual;
             String attemptErrorActual;
             MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
             Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
 
         }};
     }
@@ -391,8 +391,6 @@ public class AbstractUserMessageSenderTest {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
-        MessageAttempt attempt = createMessageAttempt();
-        MessageAttemptStatus attemptStatus = MessageAttemptStatus.ERROR;
         String attemptError = "OutOfMemory occurred while dispatching messages";
 
         new Expectations(abstractUserMessageSender) {{
@@ -433,7 +431,7 @@ public class AbstractUserMessageSenderTest {
             result = soapMessage;
 
             mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
-            result = new OutOfMemoryError("OutOfMemory occurred while dispatching messages");
+            result = new OutOfMemoryError(attemptError);
 
         }};
 
@@ -454,12 +452,10 @@ public class AbstractUserMessageSenderTest {
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
             MessageAttempt attemptActual;
-            String attemptErrorActual;
-            MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture(), attemptErrorActual = withCapture(), attemptStatusActual = withCapture());
-            Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptErrorActual);
-            Assert.assertEquals(attemptStatus, attemptStatusActual);
+            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
+            Assert.assertEquals(messageId, attemptActual.getMessageId());
+            Assert.assertEquals(attemptError, attemptActual.getError());
+            Assert.assertEquals(MessageAttemptStatus.ERROR, attemptActual.getStatus());
         }};
     }
 

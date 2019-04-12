@@ -1,6 +1,7 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
@@ -49,6 +50,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
+
+    @Autowired
+    protected UserMessageService userMessageService;
 
     /**
      * {@inheritDoc}
@@ -104,6 +108,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 break;
             case ABORT:
                 updateRetryLoggingService.messageFailedInANewTransaction(userMessage, userMessageLog);
+
+                if (userMessage.isUserMessageFragment()) {
+                    userMessageService.scheduleMessageFragmentSendFailed(userMessage.getMessageFragment().getGroupId(), userMessageLog.getBackend());
+                }
                 break;
         }
 

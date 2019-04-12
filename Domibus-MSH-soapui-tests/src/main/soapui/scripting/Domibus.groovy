@@ -1437,7 +1437,7 @@ class Domibus{
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagefilters -b "+context.expand( '${projectDir}')+"\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[1].contains("200 OK") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to connect to domibus."
+        assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to connect to domibus."
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1524,7 +1524,7 @@ class Domibus{
 
         commandString = "curl " + urlToDomibus(side, log, context) + "/rest/security/authentication -i -H \"Content-Type: application/json\" -X POST -d \"{\"\"\"username\"\"\":\"\"\"$userLogin\"\"\",\"\"\"password\"\"\":\"\"\"$passwordLogin\"\"\"}\" -c " + context.expand('${projectDir}') + "\\cookie.txt";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[0].contains("200 OK")),"Error:Authenticating user: Error while trying to connect to domibus."
+        assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus."
         return commandResult[0];
     }
 //---------------------------------------------------------------------------------------------------------------------------------

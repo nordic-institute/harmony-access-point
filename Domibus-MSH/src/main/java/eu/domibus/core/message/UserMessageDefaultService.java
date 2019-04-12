@@ -37,6 +37,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.DelayedDispatchMessageCreator;
 import eu.domibus.messaging.DispatchMessageCreator;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.handler.DatabaseMessageHandler;
@@ -310,13 +311,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleUserMessageFragmentFailed(String messageId) {
-        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        if (MessageStatus.SEND_ENQUEUED != messageStatus) {
-            LOG.debug("UserMessage fragment [{}] was not scheduled to be marked as failed: status is [{}]", messageId, messageStatus);
-            return;
-        }
-
+    public void scheduleSetUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
 
         final JmsMessage jmsMessage = JMSMessageBuilder
@@ -383,10 +378,37 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSendingPullReceipt(String messageId, String pmodeKey) {
+    public void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail) {
+        LOG.debug("Scheduling marking the SplitAndJoin receive failed for group [{}]", groupId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, sourceMessageId)
+                .property(UserMessageService.MSG_EBMS3_ERROR_CODE, errorCode)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey) {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .build();
+        LOG.debug("Sending message to sendPullReceiptQueue");
+        jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
+    }
+
+    @Override
+    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey, final int retryCount) {
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(MessageConstants.RETRY_COUNT, retryCount)
                 .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");

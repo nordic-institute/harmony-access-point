@@ -17,6 +17,7 @@ public interface UserMessageService {
     String COMMAND_MESSAGE_FRAGMENT_SEND_FAILED = "MessageFragmentSendFailed";
     String COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED = "SetMessageFragmentAsFailed";
     String COMMAND_SEND_SIGNAL_ERROR = "SendSignalError";
+    String COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED = "SplitAndJoinReceiveFailed";
 
 
     String MSG_SOURCE_MESSAGE_FILE = "SourceMessageFile";
@@ -43,6 +44,7 @@ public interface UserMessageService {
     /**
      * Resend a message in the status SEND_FAILURE or
      * SEND_ENQUEUED
+     *
      * @param messageId message Id of the message
      */
     void resendFailedOrSendEnqueuedMessage(final String messageId);
@@ -70,7 +72,7 @@ public interface UserMessageService {
      *
      * @param messageId
      */
-    void scheduleUserMessageFragmentFailed(String messageId);
+    void scheduleSetUserMessageFragmentAsFailed(String messageId);
 
     /**
      * Schedules the sending of the SourceMessage
@@ -114,6 +116,8 @@ public interface UserMessageService {
      */
     void scheduleSendingSignalError(String messageId, String errorCode, String errorDetail, String pmodeKey);
 
+    void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail);
+
     void scheduleSending(String messageId, Long delay);
 
     void scheduleSending(String messageId, int retryCount);
@@ -126,6 +130,16 @@ public interface UserMessageService {
      * @param pmodeKey  the pmode key of the UserMessage
      */
     void scheduleSendingPullReceipt(String messageId, String pmodeKey);
+
+    /**
+     * Schedule the sending of the asynchronous Pull Receipt (counting the retries)
+     *
+     * @param messageId MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param pmodeKey  the pmode key of the UserMessage
+     * @param retryCount the number of current attempts to send the receipt
+     *
+     */
+    void scheduleSendingPullReceipt(String messageId, String pmodeKey, int retryCount);
 
     /**
      * Gets a User Message based on the {@code messageId}
