@@ -359,13 +359,16 @@ public abstract class PModeProvider {
     public PullRequestPmodeData getPullRequestMapping(PullRequest pullRequest) throws EbMS3Exception {
         Mpc mpc;
         try {
+            LOG.debug("Find the mpc based on the pullRequest mpc [{}]", pullRequest.getMpc());
             mpc = findMpc(pullRequest.getMpc());
         } catch (EbMS3Exception e) {
+            LOG.debug("Could not find the mpc [{}], check if base mpc should be used", pullRequest.getMpc());
             if (mpcService.forcePullOnMpc(pullRequest.getMpc())) {
                 String mpcQualifiedName = mpcService.extractBaseMpc(pullRequest.getMpc());
                 LOG.debug("Trying base mpc [{}]", mpcQualifiedName);
                 mpc = findMpc(mpcQualifiedName);
             } else {
+                LOG.debug("Base mpc is not to be used, rethrowing the exception", e);
                 throw e;
             }
         }
