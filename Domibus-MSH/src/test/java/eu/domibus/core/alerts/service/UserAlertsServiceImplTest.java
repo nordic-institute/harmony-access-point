@@ -43,9 +43,6 @@ public class UserAlertsServiceImplTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private UserRoleDao userRoleDao;
-
-    @Injectable
     protected UserPasswordHistoryDao userPasswordHistoryDao;
 
     @Injectable
