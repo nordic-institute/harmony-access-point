@@ -1,11 +1,11 @@
 package eu.domibus.plugin.handler;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
@@ -26,13 +26,13 @@ import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.DuplicateMessageException;
@@ -50,7 +50,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
@@ -84,7 +83,7 @@ public class DatabaseMessageHandlerTest {
     private static final String ACTION = "TC2Leg1";
     private static final String LEG = "pushTestcase1tc2Action";
 
-    private String pModeKey = GREEN+ MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+    private String pModeKey = GREEN + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
             RED + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
             SERVICE + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
             ACTION + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
@@ -168,6 +167,9 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     protected DomainContextProvider domainProvider;
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
 
 
     protected Property createProperty(String name, String value, String type) {
@@ -1230,7 +1232,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            dmh.validateOriginalUser((UserMessage)any, anyString, (List<String>)any);
+            dmh.validateOriginalUser((UserMessage) any, anyString, (List<String>) any);
             result = new AccessDeniedException("");
         }};
 
