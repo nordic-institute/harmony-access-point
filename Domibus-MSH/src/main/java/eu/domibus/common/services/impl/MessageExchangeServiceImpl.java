@@ -14,6 +14,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
@@ -46,7 +47,6 @@ import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
-import java.util.NoSuchElementException;
 
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
@@ -176,7 +176,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         if (pullProcesses.isEmpty()) {
             LOG.trace("No pull process configured !");
         }
-        LOG.debug("DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE property read for domain[{}]", domainProvider.getCurrentDomain());
         pullProcesses.
                 stream().
                 map(Process::getResponderParties).

@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Thomas Dussart
  * @since 4.1
  * <p>
- * Helper that will record errors and success while pulling and adapt the pulling pace per domain/repsonder party.
+ * Helper that will record errors and success while pulling and adapt the pulling pace per domain/responder party.
  */
 public class DomainPullFrequencyHelper {
 
