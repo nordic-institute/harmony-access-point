@@ -30,8 +30,8 @@ data-source add \
 --password=${DB_PASS} \
 --connection-url=${JDBC_CONNECTION_URL} \
 --use-ccm=true \
---valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker \
---exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter \
+--valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.oracle.OracleValidConnectionChecker \
+--exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.oracle.OracleExceptionSorter \
 --background-validation=true \
 --min-pool-size=20 \
 --initial-pool-size=5 \
@@ -45,6 +45,7 @@ data-source enable --name=eDeliveryOracleNonXADS
 /subsystem=ee/managed-executor-service=domibusExecutorService:add(jndi-name="java:jboss/ee/concurrency/executor/DomibusExecutorService", context-service="default", hung-task-threshold="60000",  core-threads="50", max-threads=200, keepalive-time="5000")
 /subsystem=ee/managed-executor-service=quartzExecutorService:add(jndi-name="java:jboss/ee/concurrency/executor/QuartzExecutorService", context-service="default", hung-task-threshold="0", long-running-tasks="true",  core-threads="5", max-threads=25, keepalive-time="5000")
 
+/subsystem=messaging-activemq/server=default:undefine-attribute(name=jmx-management-enabled)
 /subsystem=messaging-activemq/server=default:write-attribute(name=jmx-management-enabled,value=true)
 
 /subsystem=messaging-activemq/server=default/jms-queue=DomibusBusinessMessageOutQueue:add(durable=true,entries=["java:/jms/domibus.backend.jms.outQueue","java:/jms/queue/DomibusBusinessMessageOutQueue"])
