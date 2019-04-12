@@ -18,28 +18,26 @@ import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.validators.ProcessValidator;
 import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.MessagePullDto;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.apache.commons.lang3.Validate;
-import org.hibernate.jdbc.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.model.TestClass;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
 import java.util.ArrayList;
@@ -47,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static eu.domibus.common.services.impl.MessageExchangeServiceImpl.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -94,6 +91,9 @@ public class MessageExchangeServiceImplTest {
 
     @Spy
     private ProcessValidator processValidator;
+
+    @Mock
+    private PullFrequencyHelper pullFrequencyHelper;
 
     @InjectMocks
     private MessageExchangeServiceImpl messageExchangeService;
@@ -194,8 +194,8 @@ public class MessageExchangeServiceImplTest {
     public void testInitiatePullRequest() throws Exception {
         when(pModeProvider.isConfigurationLoaded()).thenReturn(true);
         when(domainProvider.getCurrentDomain()).thenReturn(new Domain("default", "Default"));
-        when(domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE)).thenReturn(10);
-        when(domibusConfigurationService.isMultiTenantAware()).thenReturn(false);
+        when(pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle()).thenReturn(30);
+        when(pullFrequencyHelper.getPullRequestNumberForResponder("responder")).thenReturn(10);
 
         ArgumentCaptor<JmsMessage> mapArgumentCaptor = ArgumentCaptor.forClass(JmsMessage.class);
         messageExchangeService.initiatePullRequest();

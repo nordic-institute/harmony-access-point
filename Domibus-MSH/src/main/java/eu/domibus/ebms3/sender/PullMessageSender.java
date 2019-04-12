@@ -18,6 +18,7 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -95,6 +96,9 @@ public class PullMessageSender {
     @Qualifier("taskExecutor")
     private Executor executor;
 
+    @Autowired
+    private PullFrequencyHelper pullFrequencyHelper;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
@@ -116,6 +120,7 @@ public class PullMessageSender {
         boolean notifyBusinessOnError = false;
         Messaging messaging = null;
         String messageId = null;
+        Party receiverParty = null;
         try {
             final String mpc = map.getStringProperty(PullContext.MPC);
             final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
@@ -126,12 +131,13 @@ public class PullMessageSender {
             signalMessage.setPullRequest(pullRequest);
             LOG.debug("Sending pull request with mpc:[{}]", mpc);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            final Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
+            receiverParty = pModeProvider.getReceiverParty(pModeKey);
             final Policy policy = getPolicy(legConfiguration);
             LOG.trace("Build soap message");
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            pullFrequencyHelper.success(receiverParty.getName());
             messaging = messageUtil.getMessage(response);
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpc);
@@ -165,7 +171,7 @@ public class PullMessageSender {
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
             }
-            checkConnectionProblem(e);
+            checkConnectionProblem(e, receiverParty.getName());
         }
     }
 
@@ -187,9 +193,10 @@ public class PullMessageSender {
         }
     }
 
-    private void checkConnectionProblem(EbMS3Exception e) {
+    private void checkConnectionProblem(EbMS3Exception e, String receiverName) {
         if (e.getErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
             LOG.warn("ConnectionFailure ", e);
+            pullFrequencyHelper.increaseError(receiverName);
         } else {
             throw new WebServiceException(e);
         }
