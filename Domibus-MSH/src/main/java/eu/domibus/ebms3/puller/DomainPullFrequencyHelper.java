@@ -24,7 +24,7 @@ public class DomainPullFrequencyHelper {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    private Map<String, ResponderPullFrequencyConfiguration> responderPartyPullFrequencyMap = new HashMap<>();
+    private Map<String, ResponderPullFrequency> responderPartyPullFrequencyMap = new HashMap<>();
 
     private final Domain domain;
 
@@ -46,9 +46,9 @@ public class DomainPullFrequencyHelper {
         final Integer recoveringTimeInSeconds = Integer.valueOf(domibusPropertyProvider.getDomainProperty("domibus.pull.request.frequency.recovery.time"));
         final Integer numberOfErrorBeforeDecrease = Integer.valueOf(domibusPropertyProvider.getDomainProperty("domibus.pull.request.frequency.error.count"));
         if (recoveringTimeInSeconds != 0) {
-            LOG.info("Domain pull pace settings->requestPerJobCycle:[{}], recoveringTimeInSeconds:[{}], numberOfErrorBeforeDecrease:[{}]", requestPerJobCycle, recoveringTimeInSeconds, numberOfErrorBeforeDecrease);
+            LOG.debug("Domain pull pace settings->requestPerJobCycle:[{}], recoveringTimeInSeconds:[{}], numberOfErrorBeforeDecrease:[{}]", requestPerJobCycle, recoveringTimeInSeconds, numberOfErrorBeforeDecrease);
         }
-        responderPartyPullFrequencyMap.put(responderParty.getName(), new ResponderPullFrequencyConfiguration(requestPerJobCycle, recoveringTimeInSeconds, numberOfErrorBeforeDecrease));
+        responderPartyPullFrequencyMap.put(responderParty.getName(), new ResponderPullFrequency(requestPerJobCycle, recoveringTimeInSeconds, numberOfErrorBeforeDecrease,responderParty.getName()));
     }
 
     public Integer getPullRequestNumberForResponder(final String responderName) {
@@ -57,7 +57,7 @@ public class DomainPullFrequencyHelper {
 
     public int getTotalPullRequestNumberPerJobCycle() {
         int totalNumber = 0;
-        for (ResponderPullFrequencyConfiguration value : responderPartyPullFrequencyMap.values()) {
+        for (ResponderPullFrequency value : responderPartyPullFrequencyMap.values()) {
             totalNumber += value.getMaxRequestPerJobCycle();
         }
         return totalNumber;
@@ -76,7 +76,7 @@ public class DomainPullFrequencyHelper {
 
     private void traceConfiguration() {
         LOG.trace("Party map is empty:[{}]", responderPartyPullFrequencyMap.isEmpty());
-        for (Map.Entry<String, ResponderPullFrequencyConfiguration> partyDomainPullFrequencyEntry : responderPartyPullFrequencyMap.entrySet()) {
+        for (Map.Entry<String, ResponderPullFrequency> partyDomainPullFrequencyEntry : responderPartyPullFrequencyMap.entrySet()) {
             LOG.trace("Pull frequency configuration for responder:[{}] is:[{}]", partyDomainPullFrequencyEntry.getKey(), partyDomainPullFrequencyEntry.getValue());
         }
     }

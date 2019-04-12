@@ -189,37 +189,41 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             try {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 for (LegConfiguration legConfiguration : pullProcess.getLegs()) {
-                    for (Party responder : pullProcess.getResponderParties()) {
-                        String mpcQualifiedName = legConfiguration.getDefaultMpc().getQualifiedName();
-                        if (mpc != null && !mpc.equals(mpcQualifiedName)) {
-                            continue;
-                        }
-                        //@thom remove the pullcontext from here.
-                        PullContext pullContext = new PullContext(pullProcess,
-                                responder,
-                                mpcQualifiedName);
-                        MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(pullContext.getAgreement(),
-                                responder.getName(),
-                                initiator.getName(),
-                                legConfiguration.getService().getName(),
-                                legConfiguration.getAction().getName(),
-                                legConfiguration.getName());
-                        LOG.debug("messageExchangeConfiguration:[{}]", messageExchangeConfiguration);
-                        Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForResponder(responder.getName());
-                        LOG.debug("Sending:[{}] pull request for mpc:[{}] to party:[{}]", pullRequestNumberForResponder, mpcQualifiedName, responder.getName());
-                        for (int i = 0; i < pullRequestNumberForResponder; i++) {
-                            jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
-                                    .property(MPC, mpcQualifiedName)
-                                    .property(PMODE_KEY, messageExchangeConfiguration.getReversePmodeKey())
-                                    .property(PullContext.NOTIFY_BUSINNES_ON_ERROR, String.valueOf(legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()))
-                                    .build(), pullMessageQueue);
-                        }
-
-                    }
+                    preparePullRequestForResponder(mpc, initiator, pullProcess, legConfiguration);
                 }
             } catch (PModeException e) {
                 LOG.warn("Invalid pull process configuration found during pull try " + e.getMessage());
             }
+        }
+    }
+
+    private void preparePullRequestForResponder(String mpc, Party initiator, Process pullProcess, LegConfiguration legConfiguration) {
+        for (Party responder : pullProcess.getResponderParties()) {
+            String mpcQualifiedName = legConfiguration.getDefaultMpc().getQualifiedName();
+            if (mpc != null && !mpc.equals(mpcQualifiedName)) {
+                continue;
+            }
+            //@thom remove the pullcontext from here.
+            PullContext pullContext = new PullContext(pullProcess,
+                    responder,
+                    mpcQualifiedName);
+            MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(pullContext.getAgreement(),
+                    responder.getName(),
+                    initiator.getName(),
+                    legConfiguration.getService().getName(),
+                    legConfiguration.getAction().getName(),
+                    legConfiguration.getName());
+            LOG.debug("messageExchangeConfiguration:[{}]", messageExchangeConfiguration);
+            Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForResponder(responder.getName());
+            LOG.debug("Sending:[{}] pull request for mpc:[{}] to party:[{}]", pullRequestNumberForResponder, mpcQualifiedName, responder.getName());
+            for (int i = 0; i < pullRequestNumberForResponder; i++) {
+                jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
+                        .property(MPC, mpcQualifiedName)
+                        .property(PMODE_KEY, messageExchangeConfiguration.getReversePmodeKey())
+                        .property(PullContext.NOTIFY_BUSINNES_ON_ERROR, String.valueOf(legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()))
+                        .build(), pullMessageQueue);
+            }
+
         }
     }
 
@@ -232,11 +236,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 numberOfPullMpc++;
             } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try " + e.getMessage());
+                LOG.warn("Invalid pull process configuration found during pull try ",e);
             }
         }
-
-        LOG.trace("numberOfPullMpc:[{}], numberOfPullRequestPerMpc[{}],queueMessageNumber:[{}]", numberOfPullMpc, numberOfPullRequestPerMpc, queueMessageNumber);
         final int pullRequestsToSendCount = numberOfPullMpc * numberOfPullRequestPerMpc;
         final boolean shouldPause = queueMessageNumber > pullRequestsToSendCount;
         if (shouldPause) {

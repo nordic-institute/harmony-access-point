@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Thomas Dussart
  * @since 4.0
  */
-public class ResponderPullFrequencyConfiguration {
+public class ResponderPullFrequency {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResponderPullFrequencyConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResponderPullFrequency.class);
 
     private Integer maxRequestPerJobCycle;
 
@@ -33,14 +33,17 @@ public class ResponderPullFrequencyConfiguration {
 
     private AtomicInteger increment = new AtomicInteger(0);
 
+    private String responderName;
 
-    public ResponderPullFrequencyConfiguration(
+
+    public ResponderPullFrequency(
             final Integer maxRequestPerJobCycle,
             final Integer recoveringTimeInSeconds,
-            final Integer numberOfErrorToTriggerFrequencyDecrease) {
+            final Integer numberOfErrorToTriggerFrequencyDecrease, String responderName) {
         this.maxRequestPerJobCycle = maxRequestPerJobCycle;
         this.recoveringTimeInSeconds = recoveringTimeInSeconds;
         this.numberOfErrorToTriggerFrequencyDecrease = numberOfErrorToTriggerFrequencyDecrease;
+        this.responderName = responderName;
     }
 
     private synchronized void error() {
@@ -57,11 +60,14 @@ public class ResponderPullFrequencyConfiguration {
         errorCounter.set(0);
     }
 
+    /**
+     * Not need
+     */
     public void increaseErrorCounter() {
         if (recoveringTimeInSeconds != 0 && !lowCapacity.get()) {
             final int numberOfError = errorCounter.incrementAndGet();
             if (numberOfError >= numberOfErrorToTriggerFrequencyDecrease) {
-                LOG.trace("Number of error:[{}] >= number of error to trigger frequency decrease:[{}] -> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease);
+                LOG.trace("Number of pull errors:[{}] >= number of error to trigger frequency decrease:[{}] for responder:[{}]-> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease,responderName);
                 error();
             }
         }
@@ -70,20 +76,27 @@ public class ResponderPullFrequencyConfiguration {
     public Integer getMaxRequestPerJobCycle() {
         LOG.trace("recoveringTimeInSeconds:[{}], fullCapacity:[{}], low capacity:[{}], maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, fullCapacity, lowCapacity, 1);
         if (lowCapacity.get()) {
+            LOG.trace("get max pull request for Low capacity activated for responderName:[{}], pull request pace=1", responderName);
             return 1;
         }
         if (recoveringTimeInSeconds == 0 || fullCapacity.get()) {
+            if (LOG.isTraceEnabled()) {
+                if (recoveringTimeInSeconds == 0) {
+                    LOG.trace("Recovering time is 0, therefore pull frequency is set to the maximum:[{}] for responder:[{}]", maxRequestPerJobCycle, responderName);
+                } else {
+                    LOG.trace("Frequency is set to the maximum:[{}] for responder:[{}]", maxRequestPerJobCycle, responderName);
+                }
+            }
             return maxRequestPerJobCycle;
         }
         final long previousTime = executionTime.get();
         final long updatedTime = executionTime.updateAndGet(operand -> {
-            if (operand == 0 || (System.currentTimeMillis() - operand > 1000)) {
+                    if (operand == 0 || (System.currentTimeMillis() - operand > 1000)) {
                         return System.currentTimeMillis();
                     }
                     return operand;
                 }
         );
-        LOG.trace("Last frequency check was at:[{}]", previousTime);
         if (previousTime != updatedTime) {
             final int newValue = this.increment.addAndGet(1);
             final double ratio = newValue * (maxRequestPerJobCycle / Double.valueOf(recoveringTimeInSeconds));
@@ -93,9 +106,9 @@ public class ResponderPullFrequencyConfiguration {
             if (adaptableRequestPerJobCycle.get() >= maxRequestPerJobCycle) {
                 fullCapacity.set(true);
             }
-            LOG.trace("New pace:[{}]", adaptableRequestPerJobCycle.get());
+            int newPace = adaptableRequestPerJobCycle.get();
+            LOG.trace("New pull frequency pace calculate:[{}] at :[{}] for responder party:[{}]", newPace,previousTime, responderName);
         }
-
         return adaptableRequestPerJobCycle.get();
     }
 
