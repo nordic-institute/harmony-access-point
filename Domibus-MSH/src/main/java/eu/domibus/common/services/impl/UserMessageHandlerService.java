@@ -5,6 +5,7 @@ import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.PartyService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.common.dao.MessagingDao;
@@ -73,6 +74,9 @@ public class UserMessageHandlerService {
 
     private static final String XSLT_GENERATE_AS4_RECEIPT_XSL = "xslt/GenerateAS4Receipt.xsl";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerService.class);
+
+    private static final String C3URL_PROPERTY_NAME = "domibus.msh.property.c3url";
+    private static final String C3CERTIFICATE_PROPERTY_NAME = "domibus.msh.property.c3certificate";
 
     /** to be appended to messageId when saving to DB on receiver side */
     public static final String SELF_SENDING_SUFFIX = "_1";
@@ -146,6 +150,9 @@ public class UserMessageHandlerService {
 
     @Autowired
     private CertificateService certificateService;
+
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
 
 
     public SOAPMessage handleNewUserMessage(final String pmodeKey, final SOAPMessage request, final Messaging messaging, final UserMessageHandlerContext userMessageHandlerContext) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
@@ -350,21 +357,25 @@ public class UserMessageHandlerService {
 
 
     private void updateC3(UserMessage userMessage, Party to) throws CertificateException {
+
+        String c3urlPropertyName = domibusPropertyProvider.getDomainProperty(C3URL_PROPERTY_NAME);
+        String c3certPropertyName = domibusPropertyProvider.getDomainProperty(C3CERTIFICATE_PROPERTY_NAME);
+
         final MessageProperties messageProperties = userMessage.getMessageProperties();
         final Set<Property> propertySet = messageProperties.getProperty();
         if (messageProperties == null || propertySet == null) {
             return;
         }
-
         final Iterator<Property> iterator = propertySet.iterator();
         while (iterator.hasNext()) {
             Property property = iterator.next();
-            if ("C3Certificate".equalsIgnoreCase(property.getName())) {
+            if (StringUtils.isNotBlank(c3certPropertyName) && c3certPropertyName.equalsIgnoreCase(property.getName())) {
                 updateC3Certificate(to.getName(), property.getValue());
                 iterator.remove();
             }
-            if ("C3URL".equalsIgnoreCase(property.getName())) {
+            if (StringUtils.isNotBlank(c3urlPropertyName) && c3urlPropertyName.equalsIgnoreCase(property.getName())) {
                 partyService.updatePartyEndpoint(to.getName(), property.getValue());
+                iterator.remove();
             }
         }
     }

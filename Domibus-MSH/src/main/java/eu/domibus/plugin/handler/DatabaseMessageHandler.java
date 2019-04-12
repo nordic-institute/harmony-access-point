@@ -5,6 +5,7 @@ import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
@@ -67,6 +68,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
+
+    private static final String C3URL_PROPERTY_NAME = "domibus.msh.property.c3url";
+    private static final String C3CERTIFICATE_PROPERTY_NAME = "domibus.msh.property.c3certificate";
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
@@ -142,6 +146,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     private CertificateService certificateService;
 
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -192,6 +199,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     private void updateC3(UserMessage userMessage, Party to) throws Exception {
+
+        String c3urlPropertyName = domibusPropertyProvider.getDomainProperty(C3URL_PROPERTY_NAME);
+        String c3certPropertyName = domibusPropertyProvider.getDomainProperty(C3CERTIFICATE_PROPERTY_NAME);
+
         final MessageProperties messageProperties = userMessage.getMessageProperties();
         final Set<Property> propertySet = messageProperties.getProperty();
         if (messageProperties == null || propertySet == null) {
@@ -200,12 +211,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         final Iterator<Property> iterator = propertySet.iterator();
         while (iterator.hasNext()) {
             Property property = iterator.next();
-            if ("C3Certificate".equalsIgnoreCase(property.getName())) {
+            if (StringUtils.isNotBlank(c3certPropertyName) && c3certPropertyName.equalsIgnoreCase(property.getName())) {
                 updateC3Certificate(to.getName(), property.getValue());
                 iterator.remove();
             }
-            if ("C3URL".equalsIgnoreCase(property.getName())) {
+            if (StringUtils.isNotBlank(c3urlPropertyName) && c3urlPropertyName.equalsIgnoreCase(property.getName())) {
                 partyService.updatePartyEndpoint(to.getName(), property.getValue());
+                iterator.remove();
             }
         }
     }
