@@ -17,6 +17,7 @@ import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.AS4ReceiptService;
 import eu.domibus.common.services.impl.MessageRetentionService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.configuration.storage.Storage;
 import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -35,9 +36,12 @@ import eu.domibus.util.MessageUtil;
 import eu.domibus.util.SoapUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.io.FileUtils;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPException;
@@ -46,10 +50,13 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -130,6 +137,9 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Injectable
     protected MessageGroupService messageGroupService;
+
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
     public void createUserFragmentsFromSourceFile(@Injectable SOAPMessage sourceMessageRequest,
@@ -700,5 +710,103 @@ public class SplitAndJoinDefaultServiceTest {
 
             userMessageDefaultService.scheduleSendingSignalError(groupId, ebMS3ErrorCode, errorDetail, reversePmodeKey);
         }};
+    }
+
+    @Test
+    public void compressAndDecompressSourceMessage() throws IOException {
+        File sourceFile = testFolder.newFile("file.txt");
+        FileUtils.writeStringToFile(sourceFile, "mycontent", Charset.defaultCharset());
+
+        final File file = splitAndJoinDefaultService.compressSourceMessage(sourceFile.getAbsolutePath());
+        Assert.assertTrue(file.exists());
+        Assert.assertTrue(file.getAbsolutePath().endsWith(".zip"));
+        Assert.assertEquals("application/x-zip-compressed", Files.probeContentType(file.toPath()));
+    }
+
+    @Test
+    public void splitSourceMessage() throws IOException {
+        File tempFile = testFolder.newFile("file.txt");
+        final File storageDirectory = testFolder.getRoot();
+
+        new Expectations(splitAndJoinDefaultService) {{
+            splitAndJoinDefaultService.getFragmentStorageDirectory();
+            result = storageDirectory;
+        }};
+
+
+        byte[] b = new byte[2058576];
+        new Random().nextBytes(b);
+        FileUtils.writeByteArrayToFile(tempFile, b);
+
+        final List<String> fragmentFiles = splitAndJoinDefaultService.splitSourceMessage(tempFile, 1);
+        Assert.assertEquals(fragmentFiles.size(), 2);
+        Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_1")));
+        Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_2")));
+    }
+
+    @Test
+    public void createContentType() {
+        String boundary = "myboundary";
+        String start = "mystart";
+
+        final String contentType = splitAndJoinDefaultService.createContentType(boundary, start);
+        Assert.assertEquals("multipart/related; type=\"application/soap+xml\"; boundary=" + boundary + "; start=" + start + "; start-info=\"application/soap+xml\"", contentType);
+
+    }
+
+    @Test
+    public void mergeSourceFile(@Injectable MessageGroupEntity messageGroupEntity) throws IOException {
+        List<File> fragmentFilesInOrder = new ArrayList<>();
+        final File file1 = testFolder.newFile("file1.txt");
+        FileUtils.writeStringToFile(file1, "text1", Charset.defaultCharset());
+
+        final File file2 = testFolder.newFile("file2.txt");
+        FileUtils.writeStringToFile(file2, "text2", Charset.defaultCharset());
+
+        fragmentFilesInOrder.add(file1);
+        fragmentFilesInOrder.add(file2);
+        final File temporaryDirectoryLocation = testFolder.getRoot();
+
+        final File sourceFile = testFolder.newFile("sourceFile.txt");
+        String sourceFileName = sourceFile.getAbsolutePath();
+
+        new Expectations(splitAndJoinDefaultService) {{
+            domibusPropertyProvider.getProperty(Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            result = temporaryDirectoryLocation.getAbsolutePath();
+
+            splitAndJoinDefaultService.generateSourceFileName(temporaryDirectoryLocation.getAbsolutePath());
+            result = sourceFileName;
+
+            splitAndJoinDefaultService.isSourceMessageCompressed(messageGroupEntity);
+            result = false;
+
+        }};
+
+        final File result = splitAndJoinDefaultService.mergeSourceFile(fragmentFilesInOrder, messageGroupEntity);
+        final String mergedContent = FileUtils.readFileToString(result, Charset.defaultCharset());
+        Assert.assertEquals("text1text2", mergedContent);
+    }
+
+    @Test
+    public void isSourceMessageCompressed(@Injectable MessageGroupEntity messageGroupEntity) {
+        new Expectations() {{
+            messageGroupEntity.getCompressionAlgorithm();
+            result = "application/zip";
+        }};
+
+        final boolean sourceMessageCompressed = splitAndJoinDefaultService.isSourceMessageCompressed(messageGroupEntity);
+        Assert.assertTrue(sourceMessageCompressed);
+    }
+
+    @Test
+    public void decompressGzip() throws IOException {
+        final File file1 = testFolder.newFile("file1.txt");
+        final String text1 = "text1";
+        FileUtils.writeStringToFile(file1, text1, Charset.defaultCharset());
+        final File compressSourceMessage = splitAndJoinDefaultService.compressSourceMessage(file1.getAbsolutePath());
+
+        final File decompressed = testFolder.newFile("file1_decompressed.txt");
+        splitAndJoinDefaultService.decompressGzip(compressSourceMessage, decompressed);
+        Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
 }
