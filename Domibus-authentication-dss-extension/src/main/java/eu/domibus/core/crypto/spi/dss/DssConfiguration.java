@@ -198,6 +198,9 @@ public class DssConfiguration {
         for (OtherTrustedList otherTrustedList : otherTrustedLists) {
             LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
         }
+        if(otherTrustedLists.isEmpty()){
+            LOG.info("No custom trusted list configured.");
+        }
         return otherTrustedLists;
     }
 

@@ -218,7 +218,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected Long getLongInternal(String propertyName, String customValue) {
-        if(customValue != null) {
+        if (customValue != null) {
             try {
                 return Long.valueOf(customValue);
             } catch (final NumberFormatException e) {
@@ -265,8 +265,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyName(domain, propertyName);
-        return domibusProperties.containsKey(domainPropertyName);
+        boolean propertyKeyFound = domibusProperties.containsKey(propertyName);
+        if (!propertyKeyFound) {
+            final String domainPropertyName = getPropertyName(domain, propertyName);
+            propertyKeyFound = domibusProperties.containsKey(domainPropertyName);
+        }
+        return propertyKeyFound;
     }
 
     private Boolean getBooleanInternal(String propertyName, String customValue) {

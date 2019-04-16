@@ -76,12 +76,12 @@ public abstract class PropertyGroupMapper<E> {
     }
 
     private boolean propertyKeyExists(final String key) {
-        final boolean keyExistsInDomain = domibusPropertyExtService.containsDomainPropertyKey(domainContextExtService.getCurrentDomain(), key);
-        if (keyExistsInDomain) {
-            return keyExistsInDomain;
+        boolean keyExist = domibusPropertyExtService.containsDomainPropertyKey(domainContextExtService.getCurrentDomain(), key);
+        if (!keyExist) {
+            keyExist = environment.containsProperty(key);
         }
-        return environment.containsProperty(key);
-
+        LOG.trace("Checking if property:[{}] exists:[{}]", key, keyExist);
+        return keyExist;
     }
 
     private String getPropertyValue(String key) {
@@ -89,6 +89,7 @@ public abstract class PropertyGroupMapper<E> {
         if (StringUtils.isEmpty(propertyValue)) {
             propertyValue = environment.getProperty(key);
         }
+        LOG.trace("Retrieving property:[{}] with value:[{}]", key, propertyValue);
         return propertyValue;
     }
 
