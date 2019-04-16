@@ -95,6 +95,9 @@ export class DomainSelectorComponent implements OnInit {
 
     } catch (ex) { // domain not changed -> reset the combo value
       this.domainCode = this.currentDomainCode;
+      if (ex.status <= 0) {
+        this.alertService.exception('The server didn\'t respond, please try again later', ex);
+      }
     }
   }
 
