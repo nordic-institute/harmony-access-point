@@ -89,7 +89,7 @@ public class AlertResource {
         return domainTaskExecutor.submit(() -> retrieveAlerts(alertCriteria, true));
     }
 
-    private AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
+    protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
         final Long alertCount = alertService.countAlerts(alertCriteria);
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
         final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());

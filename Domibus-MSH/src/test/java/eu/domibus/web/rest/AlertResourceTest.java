@@ -1,0 +1,135 @@
+package eu.domibus.web.rest;
+
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.alerts.model.common.AlertCriteria;
+import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.core.alerts.model.common.AlertStatus;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.model.web.AlertRo;
+import eu.domibus.core.alerts.service.AlertService;
+import eu.domibus.core.csv.CsvServiceImpl;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+
+public class AlertResourceTest {
+    @Tested
+    AlertResource alertResource;
+
+    @Injectable
+    private AlertService alertService;
+
+    @Injectable
+    DateUtil dateUtil;
+
+    @Injectable
+    CsvServiceImpl csvServiceImpl;
+
+    @Injectable
+    AuthUtils authUtils;
+
+    @Injectable
+    DomainTaskExecutor domainTaskExecutor;
+
+    AlertCriteria alertCriteria;
+    List<Alert> alerts;
+
+    @Test
+    public void findAlertsTest() {
+        initAlertsData();
+
+        new Expectations() {{
+            authUtils.isSuperAdmin();
+            result = false;
+
+            alertService.countAlerts((AlertCriteria) any);
+            result = 2;
+
+            alertService.findAlerts((AlertCriteria) any);
+            result = alerts;
+        }};
+        String[] params = {"USER"};
+        AlertResult result = alertResource.findAlerts(0, 10, true, "col1", "false", null, null, null,
+                null, null, null, null, null, params, null, null, true);
+
+        Assert.assertEquals(2, result.getCount());
+        Assert.assertEquals(1, result.getAlertsEntries().size());
+        Assert.assertEquals("PASSWORD_EXPIRED", result.getAlertsEntries().get(0).getAlertType());
+    }
+
+    @Test
+    public void retrieveAlertsTest() {
+        initAlertsData();
+
+        new Expectations() {{
+            alertService.countAlerts(alertCriteria);
+            result = 2;
+
+            alertService.findAlerts(alertCriteria);
+            result = alerts;
+        }};
+
+        AlertResult result = alertResource.retrieveAlerts(alertCriteria, true);
+
+        Assert.assertEquals(2, result.getCount());
+        Assert.assertEquals(1, result.getAlertsEntries().size());
+        Assert.assertEquals(true, result.getAlertsEntries().get(0).isSuperAdmin());
+    }
+
+    private void initAlertsData() {
+        alertCriteria = new AlertCriteria();
+        Alert a = new Alert();
+        a.setAlertLevel(AlertLevel.HIGH);
+        a.setAlertStatus(AlertStatus.FAILED);
+        a.setAlertType(AlertType.PASSWORD_EXPIRED);
+        Set<Event> events = new HashSet<>();
+        events.add(new Event());
+        a.setEvents(events);
+        alerts = Arrays.asList(a);
+    }
+
+    @Test
+    public void getAlertParametersTest() {
+        List<String> result = alertResource.getAlertParameters("PASSWORD_EXPIREDxxx");
+        Assert.assertEquals(0, result.size());
+
+        result = alertResource.getAlertParameters("PASSWORD_EXPIRED");
+        Assert.assertEquals(3, result.size());
+        Assert.assertEquals("USER", result.get(0));
+    }
+
+    @Test
+    public void processAlerts() {
+        AlertRo alertRo = new AlertRo();
+        alertRo.setSuperAdmin(false);
+        alertRo.setProcessed(true);
+        AlertRo alertRo2 = new AlertRo();
+        alertRo2.setSuperAdmin(true);
+        List<AlertRo> alertRos = Arrays.asList(alertRo, alertRo2);
+
+        alertResource.processAlerts(alertRos);
+
+        new Verifications(1) {{
+            List<Alert> domainAlerts;
+            alertService.updateAlertProcessed(domainAlerts = withCapture());
+            times = 1;
+            assertEquals(1, domainAlerts.size());
+            assertEquals(true, domainAlerts.get(0).isProcessed());
+        }};
+    }
+
+}
