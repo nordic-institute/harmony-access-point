@@ -48,7 +48,9 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -720,7 +722,7 @@ public class SplitAndJoinDefaultServiceTest {
         final File file = splitAndJoinDefaultService.compressSourceMessage(sourceFile.getAbsolutePath());
         Assert.assertTrue(file.exists());
         Assert.assertTrue(file.getAbsolutePath().endsWith(".zip"));
-        Assert.assertEquals("application/x-zip-compressed", Files.probeContentType(file.toPath()));
+        Assert.assertTrue(Files.probeContentType(file.toPath()).contains("zip"));
     }
 
     @Test
@@ -780,11 +782,16 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.isSourceMessageCompressed(messageGroupEntity);
             result = false;
 
+            splitAndJoinDefaultService.mergeFiles(fragmentFilesInOrder, (OutputStream) any);
+
         }};
 
         final File result = splitAndJoinDefaultService.mergeSourceFile(fragmentFilesInOrder, messageGroupEntity);
-        final String mergedContent = FileUtils.readFileToString(result, Charset.defaultCharset());
-        Assert.assertEquals("text1text2", mergedContent);
+        new Verifications() {{
+            OutputStream outputStream = null;
+            splitAndJoinDefaultService.mergeFiles(fragmentFilesInOrder, outputStream = withCapture());
+            Assert.assertTrue(outputStream instanceof FileOutputStream);
+        }};
     }
 
     @Test
