@@ -5,16 +5,19 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.AS4ReceiptService;
 import eu.domibus.common.services.impl.MessageRetentionService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.configuration.storage.Storage;
 import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -33,9 +36,12 @@ import eu.domibus.util.MessageUtil;
 import eu.domibus.util.SoapUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.io.FileUtils;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPException;
@@ -44,9 +50,17 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -123,6 +137,9 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Injectable
     protected MessageGroupService messageGroupService;
+
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
     public void createUserFragmentsFromSourceFile(@Injectable SOAPMessage sourceMessageRequest,
@@ -232,6 +249,34 @@ public class SplitAndJoinDefaultServiceTest {
             messageGroupService.setSourceMessageId(sourceMessageId, groupId);
             incomingSourceMessageHandler.processMessage(sourceRequest, messaging);
             userMessageService.scheduleSourceMessageReceipt(sourceMessageId, reversePModeKey);
+        }};
+    }
+
+    @Test
+    public void rejoinSourceMessage1(@Injectable File sourceMessageFile,
+                                     @Injectable MessageGroupEntity messageGroupEntity) {
+        String sourceMessageId = "123";
+        String groupId = sourceMessageId;
+        String contentType = "application/xml";
+
+
+        new Expectations(splitAndJoinDefaultService) {{
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+
+            splitAndJoinDefaultService.createContentType(anyString, anyString);
+            result = contentType;
+
+            splitAndJoinDefaultService.getUserMessage(sourceMessageFile, contentType);
+        }};
+
+        splitAndJoinDefaultService.rejoinSourceMessage(groupId, sourceMessageFile);
+
+        new Verifications() {{
+            messageGroupDao.findByGroupId(groupId);
+            times = 1;
+
+            splitAndJoinDefaultService.getUserMessage(sourceMessageFile, contentType);
         }};
     }
 
@@ -381,5 +426,387 @@ public class SplitAndJoinDefaultServiceTest {
 
             Assert.assertEquals(fragmentFilesInOrder.size(), 1);
         }};
+    }
+
+
+    @Test
+    public void setSourceMessageAsFailed(@Injectable UserMessage userMessage,
+                                         @Injectable UserMessageLog messageLog) {
+        String messageId = "123";
+
+        new Expectations() {{
+            userMessage.getMessageInfo().getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = messageLog;
+        }};
+
+        splitAndJoinDefaultService.setSourceMessageAsFailed(userMessage);
+
+        new Verifications() {{
+            userMessageLogDao.findByMessageIdSafely(messageId);
+
+            updateRetryLoggingService.messageFailedInANewTransaction(userMessage, messageLog);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void setUserMessageFragmentAsFailed(@Injectable UserMessage userMessage,
+                                               @Injectable UserMessageLog messageLog) {
+        String messageId = "123";
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = messageLog;
+
+            messageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+        }};
+
+        splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
+
+        new Verifications() {{
+            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            times = 1;
+
+        }};
+    }
+
+    @Test
+    public void setUserMessageFragmentAsFailedWithOtherStatus(@Injectable UserMessage userMessage,
+                                                              @Injectable UserMessageLog messageLog) {
+        String messageId = "123";
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = messageLog;
+
+            messageLog.getMessageStatus();
+            result = MessageStatus.ACKNOWLEDGED;
+        }};
+
+        splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
+
+        new Verifications() {{
+            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            times = 0;
+
+        }};
+    }
+
+    @Test
+    public void handleExpiredMessages(@Injectable MessageGroupEntity group1) {
+        List<MessageGroupEntity> messageGroupEntities = new ArrayList<>();
+        messageGroupEntities.add(group1);
+
+        List<MessageGroupEntity> expiredGroups = new ArrayList<>();
+        expiredGroups.add(group1);
+
+        new Expectations(splitAndJoinDefaultService) {{
+            messageGroupDao.findOngoingReceivedNonExpiredOrRejected();
+            result = messageGroupEntities;
+
+            splitAndJoinDefaultService.getExpiredGroups(messageGroupEntities);
+            result = expiredGroups;
+
+            splitAndJoinDefaultService.setReceivedGroupAsExpired(group1);
+        }};
+
+        splitAndJoinDefaultService.handleExpiredMessages();
+
+        new Verifications() {{
+            splitAndJoinDefaultService.setReceivedGroupAsExpired(group1);
+            times = 1;
+
+        }};
+    }
+
+    @Test
+    public void setReceivedGroupAsExpired(@Injectable MessageGroupEntity group1) {
+        String groupId = "123";
+
+        new Expectations() {{
+            group1.getGroupId();
+            result = groupId;
+
+            group1.getSourceMessageId();
+            result = groupId;
+        }};
+
+        splitAndJoinDefaultService.setReceivedGroupAsExpired(group1);
+
+        new Verifications() {{
+            group1.setExpired(true);
+            messageGroupDao.update(group1);
+
+            userMessageService.scheduleSplitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), SplitAndJoinDefaultService.ERROR_MESSAGE_GROUP_HAS_EXPIRED);
+        }};
+    }
+
+    @Test
+    public void getExpiredGroups(@Injectable MessageGroupEntity group1) {
+        List<MessageGroupEntity> messageGroupEntities = new ArrayList<>();
+        messageGroupEntities.add(group1);
+
+        new Expectations(splitAndJoinDefaultService) {{
+            splitAndJoinDefaultService.isGroupExpired(group1);
+            result = true;
+        }};
+
+        final List<MessageGroupEntity> expiredGroups = splitAndJoinDefaultService.getExpiredGroups(messageGroupEntities);
+        assertNotNull(expiredGroups);
+        assertEquals(expiredGroups.size(), 1);
+        assertEquals(expiredGroups.iterator().next(), group1);
+
+
+    }
+
+    @Test
+    public void isGroupExpired(@Injectable MessageGroupEntity group1,
+                               @Injectable UserMessage userMessage,
+                               @Injectable MessageExchangeConfiguration userMessageExchangeContext,
+                               @Injectable LegConfiguration legConfiguration,
+                               @Mocked Timestamp timestamp) throws EbMS3Exception {
+        String sourceMessageId = "123";
+        String groupId = sourceMessageId;
+        String pmodeKey = "pModeKey";
+
+        final List<UserMessage> fragments = new ArrayList<>();
+        fragments.add(userMessage);
+
+        final LocalDateTime now = LocalDateTime.of(2019, 01, 01, 12, 10);
+        final LocalDateTime messageTime = LocalDateTime.of(2019, 01, 01, 12, 5);
+
+        new Expectations(LocalDateTime.class) {{
+            LocalDateTime.now();
+            result = now;
+
+            group1.getGroupId();
+            result = groupId;
+
+            messagingDao.findUserMessageByGroupId(groupId);
+            result = fragments;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
+            result = userMessageExchangeContext;
+
+            userMessageExchangeContext.getPmodeKey();
+            result = pmodeKey;
+
+            pModeProvider.getLegConfiguration(pmodeKey);
+            result = legConfiguration;
+
+            legConfiguration.getSplitting().getJoinInterval();
+            result = 1;
+
+            new Timestamp(userMessage.getMessageInfo().getTimestamp().getTime());
+            result = timestamp;
+
+            timestamp.toLocalDateTime();
+            result = messageTime;
+        }};
+
+        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(group1);
+        Assert.assertTrue(groupExpired);
+
+    }
+
+    @Test
+    public void messageFragmentSendFailed(@Injectable UserMessage userMessage) {
+        String sourceMessageId = "123";
+        String groupId = sourceMessageId;
+
+        final List<UserMessage> fragments = new ArrayList<>();
+        fragments.add(userMessage);
+
+        new Expectations(splitAndJoinDefaultService) {{
+            splitAndJoinDefaultService.sendSplitAndJoinFailed(groupId);
+
+            messagingDao.findUserMessageByGroupId(groupId);
+            result = fragments;
+        }};
+
+        splitAndJoinDefaultService.messageFragmentSendFailed(groupId);
+
+        new Verifications() {{
+            userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId());
+        }};
+    }
+
+    @Test
+    public void sendSplitAndJoinFailed(@Injectable UserMessage userMessage,
+                                       @Injectable MessageGroupEntity messageGroupEntity) {
+        String sourceMessageId = "123";
+        String groupId = sourceMessageId;
+
+        new Expectations() {{
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+
+            messagingDao.findUserMessageByMessageId(messageGroupEntity.getSourceMessageId());
+            result = userMessage;
+
+            splitAndJoinDefaultService.setSourceMessageAsFailed(userMessage);
+        }};
+
+        splitAndJoinDefaultService.sendSplitAndJoinFailed(groupId);
+
+        new Verifications() {{
+            messageGroupEntity.setRejected(true);
+            messageGroupDao.update(messageGroupEntity);
+
+            splitAndJoinDefaultService.setSourceMessageAsFailed(userMessage);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void splitAndJoinReceiveFailed(@Injectable UserMessage fragment,
+                                          @Injectable MessageGroupEntity messageGroupEntity,
+                                          @Injectable MessageExchangeConfiguration userMessageExchangeContext,
+                                          @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
+        String fragmentId = "456";
+        String groupId = "123";
+        final String ebMS3ErrorCode = "004";
+        final String errorDetail = "Random error";
+        String reversePmodeKey = "reverseKey";
+
+        final List<UserMessage> fragments = new ArrayList<>();
+        fragments.add(fragment);
+
+        new Expectations() {{
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+
+            messagingDao.findUserMessageByGroupId(groupId);
+            result = fragments;
+
+            fragment.getMessageInfo().getMessageId();
+            result = fragmentId;
+
+            pModeProvider.findUserMessageExchangeContext(fragment, MSHRole.RECEIVING);
+            result = userMessageExchangeContext;
+
+            userMessageExchangeContext.getReversePmodeKey();
+            result = reversePmodeKey;
+        }};
+
+
+        splitAndJoinDefaultService.splitAndJoinReceiveFailed(groupId, groupId, ebMS3ErrorCode, errorDetail);
+
+        new Verifications() {{
+            messageGroupEntity.setRejected(true);
+            messageGroupDao.update(messageGroupEntity);
+
+            List<String> messageIds = null;
+            messageRetentionService.scheduleDeleteMessages(messageIds = withCapture());
+            Assert.assertTrue(messageIds.contains(fragmentId));
+
+            userMessageDefaultService.scheduleSendingSignalError(groupId, ebMS3ErrorCode, errorDetail, reversePmodeKey);
+        }};
+    }
+
+    @Test
+    public void compressAndDecompressSourceMessage() throws IOException {
+        File sourceFile = testFolder.newFile("file.txt");
+        FileUtils.writeStringToFile(sourceFile, "mycontent", Charset.defaultCharset());
+
+        final File file = splitAndJoinDefaultService.compressSourceMessage(sourceFile.getAbsolutePath());
+        Assert.assertTrue(file.exists());
+        Assert.assertTrue(file.getAbsolutePath().endsWith(".zip"));
+        Assert.assertEquals("application/x-zip-compressed", Files.probeContentType(file.toPath()));
+    }
+
+    @Test
+    public void splitSourceMessage() throws IOException {
+        File tempFile = testFolder.newFile("file.txt");
+        final File storageDirectory = testFolder.getRoot();
+
+        new Expectations(splitAndJoinDefaultService) {{
+            splitAndJoinDefaultService.getFragmentStorageDirectory();
+            result = storageDirectory;
+        }};
+
+
+        byte[] b = new byte[2058576];
+        new Random().nextBytes(b);
+        FileUtils.writeByteArrayToFile(tempFile, b);
+
+        final List<String> fragmentFiles = splitAndJoinDefaultService.splitSourceMessage(tempFile, 1);
+        Assert.assertEquals(fragmentFiles.size(), 2);
+        Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_1")));
+        Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_2")));
+    }
+
+    @Test
+    public void createContentType() {
+        String boundary = "myboundary";
+        String start = "mystart";
+
+        final String contentType = splitAndJoinDefaultService.createContentType(boundary, start);
+        Assert.assertEquals("multipart/related; type=\"application/soap+xml\"; boundary=" + boundary + "; start=" + start + "; start-info=\"application/soap+xml\"", contentType);
+
+    }
+
+    @Test
+    public void mergeSourceFile(@Injectable MessageGroupEntity messageGroupEntity) throws IOException {
+        List<File> fragmentFilesInOrder = new ArrayList<>();
+        final File file1 = testFolder.newFile("file1.txt");
+        FileUtils.writeStringToFile(file1, "text1", Charset.defaultCharset());
+
+        final File file2 = testFolder.newFile("file2.txt");
+        FileUtils.writeStringToFile(file2, "text2", Charset.defaultCharset());
+
+        fragmentFilesInOrder.add(file1);
+        fragmentFilesInOrder.add(file2);
+        final File temporaryDirectoryLocation = testFolder.getRoot();
+
+        final File sourceFile = testFolder.newFile("sourceFile.txt");
+        String sourceFileName = sourceFile.getAbsolutePath();
+
+        new Expectations(splitAndJoinDefaultService) {{
+            domibusPropertyProvider.getProperty(Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            result = temporaryDirectoryLocation.getAbsolutePath();
+
+            splitAndJoinDefaultService.generateSourceFileName(temporaryDirectoryLocation.getAbsolutePath());
+            result = sourceFileName;
+
+            splitAndJoinDefaultService.isSourceMessageCompressed(messageGroupEntity);
+            result = false;
+
+        }};
+
+        final File result = splitAndJoinDefaultService.mergeSourceFile(fragmentFilesInOrder, messageGroupEntity);
+        final String mergedContent = FileUtils.readFileToString(result, Charset.defaultCharset());
+        Assert.assertEquals("text1text2", mergedContent);
+    }
+
+    @Test
+    public void isSourceMessageCompressed(@Injectable MessageGroupEntity messageGroupEntity) {
+        new Expectations() {{
+            messageGroupEntity.getCompressionAlgorithm();
+            result = "application/zip";
+        }};
+
+        final boolean sourceMessageCompressed = splitAndJoinDefaultService.isSourceMessageCompressed(messageGroupEntity);
+        Assert.assertTrue(sourceMessageCompressed);
+    }
+
+    @Test
+    public void decompressGzip() throws IOException {
+        final File file1 = testFolder.newFile("file1.txt");
+        final String text1 = "text1";
+        FileUtils.writeStringToFile(file1, text1, Charset.defaultCharset());
+        final File compressSourceMessage = splitAndJoinDefaultService.compressSourceMessage(file1.getAbsolutePath());
+
+        final File decompressed = testFolder.newFile("file1_decompressed.txt");
+        splitAndJoinDefaultService.decompressGzip(compressSourceMessage, decompressed);
+        Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
 }
