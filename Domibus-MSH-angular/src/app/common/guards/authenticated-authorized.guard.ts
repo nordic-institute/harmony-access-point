@@ -49,10 +49,8 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
           this.router.navigate(['/logout']);
         }
       }
-    } catch (ex) {
-      if (ex.status <= 0) {
-        this.alertService.exception('The server didn\'t respond, please try again later', ex);
-      }
+    } catch (error) {
+      this.alertService.exception('The server didn\'t respond, please try again later', error);
     }
     return canActivate;
   }
