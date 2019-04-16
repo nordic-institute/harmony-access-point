@@ -78,6 +78,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public static final String FRAGMENT_FILENAME_SEPARATOR = "_";
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinDefaultService.class);
+    public static final String ERROR_MESSAGE_GROUP_HAS_EXPIRED = "Group has expired";
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -427,7 +428,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected void setReceivedGroupAsExpired(MessageGroupEntity messageGroupEntity) {
         messageGroupEntity.setExpired(true);
         messageGroupDao.update(messageGroupEntity);
-        userMessageService.scheduleSplitAndJoinReceiveFailed(messageGroupEntity.getGroupId(), messageGroupEntity.getSourceMessageId(), ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), "Group has expired");
+        userMessageService.scheduleSplitAndJoinReceiveFailed(messageGroupEntity.getGroupId(), messageGroupEntity.getSourceMessageId(), ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), ERROR_MESSAGE_GROUP_HAS_EXPIRED);
     }
 
     protected List<MessageGroupEntity> getExpiredGroups(final List<MessageGroupEntity> receivedNonExpiredOrRejected) {

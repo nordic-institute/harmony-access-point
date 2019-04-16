@@ -545,7 +545,7 @@ public class SplitAndJoinDefaultServiceTest {
             group1.setExpired(true);
             messageGroupDao.update(group1);
 
-            userMessageService.scheduleSplitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), "Group has expired");
+            userMessageService.scheduleSplitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), SplitAndJoinDefaultService.ERROR_MESSAGE_GROUP_HAS_EXPIRED);
         }};
     }
 
