@@ -263,6 +263,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getBooleanInternal(propertyName, optionalDomainValue);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
         final String domainPropertyName = getPropertyName(domain, propertyName);
@@ -273,6 +276,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return domainPropertyKeyFound;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean containsPropertyKey(String propertyName) {
         return domibusProperties.containsKey(propertyName);
