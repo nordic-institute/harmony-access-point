@@ -37,12 +37,16 @@ public abstract class PropertyGroupMapper<E> {
 
     private final Pattern passwordPattern = Pattern.compile(".*password.*", Pattern.CASE_INSENSITIVE);
 
+    private boolean supportMultipleDomain;
+
     public PropertyGroupMapper(final DomibusPropertyExtService domibusPropertyExtService,
                                final DomainContextExtService domainContextExtService,
-                               final Environment environment) {
+                               final Environment environment,
+                               final boolean supportMultipleDomain) {
         this.domibusPropertyExtService = domibusPropertyExtService;
         this.domainContextExtService = domainContextExtService;
         this.environment = environment;
+        this.supportMultipleDomain = supportMultipleDomain;
     }
 
     protected List<E> map(String... propertyNames) {
@@ -76,7 +80,10 @@ public abstract class PropertyGroupMapper<E> {
     }
 
     private boolean propertyKeyExists(final String key) {
-        boolean keyExist = domibusPropertyExtService.containsDomainPropertyKey(domainContextExtService.getCurrentDomain(), key);
+        boolean keyExist=false;
+        if (supportMultipleDomain) {
+            keyExist=domibusPropertyExtService.containsDomainPropertyKey(domainContextExtService.getCurrentDomain(), key);
+        }
         if (!keyExist) {
             keyExist = environment.containsProperty(key);
         }
@@ -85,7 +92,10 @@ public abstract class PropertyGroupMapper<E> {
     }
 
     private String getPropertyValue(String key) {
-        String propertyValue = domibusPropertyExtService.getDomainProperty(domainContextExtService.getCurrentDomain(), key);
+        String propertyValue = null;
+        if (supportMultipleDomain) {
+            propertyValue =domibusPropertyExtService.getDomainProperty(domainContextExtService.getCurrentDomain(), key);
+        }
         if (StringUtils.isEmpty(propertyValue)) {
             propertyValue = environment.getProperty(key);
         }

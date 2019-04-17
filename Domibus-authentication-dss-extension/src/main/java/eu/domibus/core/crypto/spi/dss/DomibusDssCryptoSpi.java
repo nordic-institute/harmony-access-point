@@ -77,7 +77,9 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
         CertificateReports reports = certificateValidator.validate();
-        LOG.debug("Simple report:[{}]", reports.getXmlDetailedReport());
+        LOG.debug("Detail report:[{}]", reports.getXmlDetailedReport());
+        LOG.debug("Simple report:[{}]", reports.getXmlSimpleReport());
+        LOG.debug("Diagnostic data:[{}]", reports.getXmlDiagnosticData());
         final DetailedReport detailedReport = reports.getDetailedReportJaxb();
         final List<ConstraintInternal> constraints = constraintMapper.map();
         final boolean valid = validationReport.isValid(detailedReport, constraints);

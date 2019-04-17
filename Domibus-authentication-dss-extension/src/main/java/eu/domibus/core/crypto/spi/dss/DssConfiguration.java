@@ -75,7 +75,7 @@ public class DssConfiguration {
     private String proxyHttpsHost;
 
     @Value("${domibus.authentication.dss.proxy.https.port:0}")
-    private int proxyHttpsPort;
+    private String proxyHttpsPort;
 
     @Value("${domibus.authentication.dss.proxy.https.user:NONE}")
     private String proxyHttpsUser;
@@ -90,7 +90,7 @@ public class DssConfiguration {
     private String proxyHttpHost;
 
     @Value("${domibus.authentication.dss.proxy.http.port:0}")
-    private int proxyHttpPort;
+    private String proxyHttpPort;
 
     @Value("${domibus.authentication.dss.proxy.http.user:NONE}")
     private String proxyHttpUser;
@@ -151,13 +151,23 @@ public class DssConfiguration {
         ProxyConfig proxyConfig = new ProxyConfig();
         if (!NONE.equals(proxyHttpsHost)) {
             LOG.debug("Configuring Dss https proxy:");
-            final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost, proxyHttpsPort, proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
-            proxyConfig.setHttpsProperties(httpsProperties);
+            try {
+                int httpsPort = Integer.parseInt(proxyHttpsPort);
+                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost,httpsPort , proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
+                proxyConfig.setHttpsProperties(httpsProperties);
+            }catch (NumberFormatException n) {
+                LOG.warn("Error parsing https port config:[{}], skipping https configuration",proxyHttpsHost,n);
+            }
         }
         if (!NONE.equals(proxyHttpHost)) {
             LOG.debug("Configuring Dss http proxy:");
-            final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, proxyHttpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
-            proxyConfig.setHttpProperties(httpProperties);
+            try {
+                int httpPort = Integer.parseInt(proxyHttpPort);
+                final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, httpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
+                proxyConfig.setHttpProperties(httpProperties);
+            }catch (NumberFormatException n) {
+                LOG.warn("Error parsing http port config:[{}], skipping http configuration",proxyHttpPort,n);
+            }
         }
         dataLoader.setProxyConfig(proxyConfig);
         return dataLoader;

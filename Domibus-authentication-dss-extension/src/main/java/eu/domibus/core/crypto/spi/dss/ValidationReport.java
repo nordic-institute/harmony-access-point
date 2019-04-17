@@ -34,34 +34,37 @@ public class ValidationReport {
         //Load constraint from certificate element and prepare the all constraint list..
         final List<XmlConstraint> allConstraints = new ArrayList<>();
         if (detailedReport.
-                getCertificate() == null) {
+                getCertificate() != null) {
             allConstraints.addAll(detailedReport.
                     getCertificate().
                     getConstraint());
+            //Add constraint from xmlValidationCertificateQualification
+            allConstraints.addAll(detailedReport.
+                    getCertificate().
+                    getValidationCertificateQualification().
+                    stream().
+                    flatMap(xmlValidationCertificateQualification ->
+                            xmlValidationCertificateQualification.getConstraint().stream()).
+                    collect(Collectors.toList()));
         }
-        //Add constraint from xmlValidationCertificateQualification
-        allConstraints.addAll(detailedReport.
-                getCertificate().
-                getValidationCertificateQualification().
-                stream().
-                flatMap(xmlValidationCertificateQualification ->
-                        xmlValidationCertificateQualification.getConstraint().stream()).
-                collect(Collectors.toList()));
-        //Add constraint from XCV
-        allConstraints.addAll(detailedReport.
-                getBasicBuildingBlocks().
-                stream().
-                filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
-                flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getConstraint().stream()).
-                collect(Collectors.toList()));
-        //Add constraint from Sub XCV
-        allConstraints.addAll(detailedReport.
-                getBasicBuildingBlocks().
-                stream().
-                filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
-                flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getSubXCV().stream()).
-                flatMap(xmlSubXCV -> xmlSubXCV.getConstraint().stream()).
-                collect(Collectors.toList()));
+        if (detailedReport.
+                getBasicBuildingBlocks() != null) {
+            //Add constraint from XCV
+            allConstraints.addAll(detailedReport.
+                    getBasicBuildingBlocks().
+                    stream().
+                    filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
+                    flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getConstraint().stream()).
+                    collect(Collectors.toList()));
+            //Add constraint from Sub XCV
+            allConstraints.addAll(detailedReport.
+                    getBasicBuildingBlocks().
+                    stream().
+                    filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
+                    flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getSubXCV().stream()).
+                    flatMap(xmlSubXCV -> xmlSubXCV.getConstraint().stream()).
+                    collect(Collectors.toList()));
+        }
 
         if (LOG.isDebugEnabled()) {
             constraints.forEach(

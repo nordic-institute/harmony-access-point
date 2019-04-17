@@ -53,7 +53,7 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
                                            final DomainContextExtService domainContextExtService,
                                            final Environment environment) {
         super(domibusPropertyExtService,
-                domainContextExtService, environment);
+                domainContextExtService, environment,false);
     }
 
     public List<OtherTrustedList> map() {
