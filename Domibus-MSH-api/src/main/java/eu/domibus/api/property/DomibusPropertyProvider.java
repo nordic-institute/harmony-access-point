@@ -144,4 +144,6 @@ public interface DomibusPropertyProvider {
      * @return true if the property exists.
      */
     boolean containsDomainPropertyKey(Domain domain, String propertyName);
+
+    boolean containsPropertyKey(String propertyName);
 }

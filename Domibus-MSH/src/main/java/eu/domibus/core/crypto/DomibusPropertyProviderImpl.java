@@ -265,12 +265,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        boolean propertyKeyFound = domibusProperties.containsKey(propertyName);
-        if (!propertyKeyFound) {
-            final String domainPropertyName = getPropertyName(domain, propertyName);
-            propertyKeyFound = domibusProperties.containsKey(domainPropertyName);
+        final String domainPropertyName = getPropertyName(domain, propertyName);
+        boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
+        if (!domainPropertyKeyFound) {
+            domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
         }
-        return propertyKeyFound;
+        return domainPropertyKeyFound;
+    }
+
+    @Override
+    public boolean containsPropertyKey(String propertyName) {
+        return domibusProperties.containsKey(propertyName);
     }
 
     private Boolean getBooleanInternal(String propertyName, String customValue) {

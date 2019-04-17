@@ -29,6 +29,7 @@ public class CustomTrustedListPropertyMapperTest {
             @Mocked DomainContextExtService domainContextExtService,
             @Mocked Environment environment) {
         new Expectations() {{
+            domainContextExtService.getCurrentDomainSafely();result=null;
             environment.containsProperty("domibus.authentication.dss.custom.trusted.list.url[0]");result=true;
             environment.getProperty("domibus.authentication.dss.custom.trusted.list.url[0]");
             result = "https://s3.eu-central-1.amazonaws.com/custom-trustlist/trusted-list.xml";
@@ -55,6 +56,8 @@ public class CustomTrustedListPropertyMapperTest {
             {
                 domibusPropertyExtService.getDomainProperty((DomainDTO) any, (String) any);
                 times = 0;
+
+                domibusPropertyExtService.containsPropertyKey("domibus.authentication.dss.custom.trusted.list.url[0]");times=1;
             }
         };
     }

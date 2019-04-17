@@ -15,6 +15,7 @@ import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
+import org.apache.wss4j.dom.engine.WSSConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -256,7 +257,6 @@ public class DssConfiguration {
     public ValidationConstraintPropertyMapper contraints(DomibusPropertyExtService domibusPropertyExtService,
                                                          DomainContextExtService domainContextExtService, Environment environment) {
         return new ValidationConstraintPropertyMapper(domibusPropertyExtService, domainContextExtService, environment);
-
     }
 
     @Bean
@@ -271,6 +271,7 @@ public class DssConfiguration {
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper) {
+        WSSConfig.init();
         return new DomibusDssCryptoSpi(
                 defaultDomainCryptoService,
                 certificateVerifier,

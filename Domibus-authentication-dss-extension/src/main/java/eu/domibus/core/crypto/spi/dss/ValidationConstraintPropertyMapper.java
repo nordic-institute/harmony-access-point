@@ -34,7 +34,7 @@ public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<Cons
                                               final DomainContextExtService domainContextExtService,
                                               final Environment environment) {
         super(domibusPropertyExtService,
-                domainContextExtService, environment,true);
+                domainContextExtService, environment);
     }
 
     public List<ConstraintInternal> map() {

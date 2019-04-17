@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import com.google.common.collect.Lists;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import org.apache.commons.lang3.StringUtils;
@@ -37,16 +38,13 @@ public abstract class PropertyGroupMapper<E> {
 
     private final Pattern passwordPattern = Pattern.compile(".*password.*", Pattern.CASE_INSENSITIVE);
 
-    private boolean supportMultipleDomain;
 
     public PropertyGroupMapper(final DomibusPropertyExtService domibusPropertyExtService,
                                final DomainContextExtService domainContextExtService,
-                               final Environment environment,
-                               final boolean supportMultipleDomain) {
+                               final Environment environment) {
         this.domibusPropertyExtService = domibusPropertyExtService;
         this.domainContextExtService = domainContextExtService;
         this.environment = environment;
-        this.supportMultipleDomain = supportMultipleDomain;
     }
 
     protected List<E> map(String... propertyNames) {
@@ -80,26 +78,35 @@ public abstract class PropertyGroupMapper<E> {
     }
 
     private boolean propertyKeyExists(final String key) {
-        boolean keyExist=false;
-        if (supportMultipleDomain) {
-            keyExist=domibusPropertyExtService.containsDomainPropertyKey(domainContextExtService.getCurrentDomain(), key);
+        boolean keyExist;
+        DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
+        if(currentDomain!=null){
+            keyExist=domibusPropertyExtService.containsDomainPropertyKey(currentDomain, key);
+            LOG.trace("Checking if key:[{}] exists in domain:[{}]:[{}]",key,currentDomain,keyExist);
+        }else{
+            keyExist=domibusPropertyExtService.containsPropertyKey(key);
+            LOG.trace("Checking if key:[{}] exists in default domain configuration:[{}]",key,keyExist);
         }
         if (!keyExist) {
             keyExist = environment.containsProperty(key);
+            LOG.trace("Checking if key:[{}] exists in spring environment:[{}]",key,keyExist);
         }
-        LOG.trace("Checking if property:[{}] exists:[{}]", key, keyExist);
         return keyExist;
     }
 
     private String getPropertyValue(String key) {
         String propertyValue = null;
-        if (supportMultipleDomain) {
-            propertyValue =domibusPropertyExtService.getDomainProperty(domainContextExtService.getCurrentDomain(), key);
+        DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
+        if(currentDomain!=null){
+            propertyValue =domibusPropertyExtService.getDomainProperty(currentDomain, key);
+        }
+        else {
+            propertyValue =domibusPropertyExtService.getProperty(key);
         }
         if (StringUtils.isEmpty(propertyValue)) {
             propertyValue = environment.getProperty(key);
         }
-        LOG.trace("Retrieving property:[{}] with value:[{}]", key, propertyValue);
+        LOG.trace("Property with key:[{}] has value:[{}]", key, propertyValue);
         return propertyValue;
     }
 

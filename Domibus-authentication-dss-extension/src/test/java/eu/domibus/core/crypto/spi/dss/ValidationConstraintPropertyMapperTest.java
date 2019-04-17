@@ -30,7 +30,7 @@ public class ValidationConstraintPropertyMapperTest {
             @Mocked Environment environment) {
         new Expectations() {{
             final DomainDTO result = new DomainDTO("DE", "DEFAULT");
-            domainContextExtService.getCurrentDomain();
+            domainContextExtService.getCurrentDomainSafely();
             this.result = result;
             domibusPropertyExtService.getDomainProperty(result, "domibus.authentication.dss.constraint.name[0]");
             this.result = ADEST_IRTPTBST.name();
