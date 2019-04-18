@@ -80,6 +80,15 @@
             **/ebms3/model/configuration/**,
             **/api/usermessage/domain/**
         </sonar.exclusions>
+        <sonar.coverage.exclusions>
+            **/*DTO.java,
+            **/*Dto.java,
+            **/*RO.java,
+            **/*Ro.java,
+            **/*Exception.java,
+            **/eu/domibus/ebms3/common/model/**,
+            **/eu/domibus/api/**
+        </sonar.coverage.exclusions>
         <sonar.core.coveragePlugin>jacoco</sonar.core.coveragePlugin>
         <sonar.host.url>http://localhost:9000/sonar/</sonar.host.url>
         <sonar.ws.timeout>300</sonar.ws.timeout>
