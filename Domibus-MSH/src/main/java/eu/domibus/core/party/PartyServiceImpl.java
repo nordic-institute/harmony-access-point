@@ -29,13 +29,7 @@ import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -151,16 +145,37 @@ public class PartyServiceImpl implements PartyService {
                         stream().
                         collect(collectingAndThen(toList(), ImmutableList::copyOf));
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("     allProcesses");
+            allProcesses.forEach(process -> LOG.debug("[{}]", process));
+        }
+
         linkProcessWithPartyAsInitiator(partyMapByName, allProcesses);
 
         linkProcessWithPartyAsResponder(partyMapByName, allProcesses);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("     party");
-            parties.forEach(party -> LOG.debug("[{}]", party));
+            parties.forEach(party -> printPartyProcesses(party));
         }
 
         return parties;
+    }
+
+    protected void printPartyProcesses(Party party) {
+        LOG.debug("[{}]", party);
+        if (party == null) {
+            return;
+        }
+
+        if (party.getProcessesWithPartyAsInitiator() != null) {
+            LOG.debug("     initiator processes");
+            party.getProcessesWithPartyAsInitiator().forEach(process -> LOG.debug("[{}]", process));
+        }
+        if (party.getProcessesWithPartyAsResponder() != null) {
+            LOG.debug("     responder processes");
+            party.getProcessesWithPartyAsResponder().forEach(process -> LOG.debug("[{}]", process));
+        }
     }
 
 
