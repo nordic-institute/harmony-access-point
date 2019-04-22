@@ -4,10 +4,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.common.services.impl.PullProcessStatus;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.test.util.PojoInstaciatorUtil;
+import junit.framework.Assert;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
@@ -17,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -129,6 +133,25 @@ public class ProcessValidatorTest {
         } catch (PModeException e) {
             assertTrue(e.getMessage().contains("Invalid mep. Only one way supported"));
         }
+    }
+
+    @Test
+    public void testcheckMpcConfigurationSameSecurityPolicy() throws EbMS3Exception {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qntest]];[name:leg2,defaultMpc[name:test2,qualifiedName:qntest]]}", "responderParties{[name:resp1]}");
+        Assert.assertEquals(PullProcessStatus.ONE_MATCHING_PROCESS, processValidator.checkMpcConfigurationSameSecurityPolicy(process));
+    }
+
+    @Test
+    public void testcheckMpcConfigurationDifferentSecurityPolicy() throws EbMS3Exception {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qntest]];[name:leg2,defaultMpc[name:test2,qualifiedName:qntest]]}", "responderParties{[name:resp1]}");
+        Iterator<LegConfiguration> iterator = process.getLegs().iterator();
+        Security security1 = new Security();
+        security1.setName("eDeliveryAS4");
+        iterator.next().setSecurity(security1);
+        Security security2 = new Security();
+        security2.setName("eDeliveryAS4_BST");
+        iterator.next().setSecurity(security2);
+        Assert.assertEquals(PullProcessStatus.MULTIPLE_LEGS_DIFFERENT_SECURITY, processValidator.checkMpcConfigurationSameSecurityPolicy(process));
     }
 
     private Set<PullProcessStatus> getProcessStatuses(Process process) {

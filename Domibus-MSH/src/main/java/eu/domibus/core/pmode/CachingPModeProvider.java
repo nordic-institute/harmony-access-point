@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu, Thomas Dussart, Ioana Dragusanu
  */
 public class CachingPModeProvider extends PModeProvider {
 

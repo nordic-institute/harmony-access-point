@@ -217,7 +217,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private String getOriginalUser(UserMessage userMessage, String type) {
+    protected String getOriginalUser(UserMessage userMessage, String type) {
         if (userMessage == null || userMessage.getMessageProperties() == null || userMessage.getMessageProperties().getProperty() == null) {
             return null;
         }
