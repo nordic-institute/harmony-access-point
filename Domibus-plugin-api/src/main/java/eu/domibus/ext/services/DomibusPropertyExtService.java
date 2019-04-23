@@ -14,6 +14,8 @@ public interface DomibusPropertyExtService {
 
     boolean containsDomainPropertyKey(DomainDTO domain, String propertyName);
 
+    boolean containsPropertyKey(String propertyName);
+
     String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue);
 
     String getDomainResolvedProperty(DomainDTO domain, String propertyName);

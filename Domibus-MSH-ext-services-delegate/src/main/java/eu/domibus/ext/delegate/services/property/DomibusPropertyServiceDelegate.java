@@ -43,6 +43,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
+    public boolean containsPropertyKey(String propertyName) {
+        return domibusPropertyProvider.containsPropertyKey(propertyName);
+    }
+
+    @Override
     public String getDomainProperty(DomainDTO domainCode, String propertyName, String defaultValue) {
         final Domain domain = domainConverter.convert(domainCode, Domain.class);
         return domibusPropertyProvider.getProperty(domain, propertyName, defaultValue);

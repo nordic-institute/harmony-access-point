@@ -137,11 +137,19 @@ public interface DomibusPropertyProvider {
     Boolean getBooleanOptionalDomainProperty(String propertyName);
 
     /**
-     * Verify that a property key exists whether it is empty or not.
+     * Verify that a property key exists within a domain configuration whether it is empty or not.
+     * If not found, the property will be looked within the domibus/default-domain properties
      *
      * @param domain       the domain.
      * @param propertyName the property name.
      * @return true if the property exists.
      */
     boolean containsDomainPropertyKey(Domain domain, String propertyName);
+
+    /**
+     * Verify that a property key exists within the domibus/default-domain properties.
+     * @param propertyName the name of the property
+     * @return true if the property exists.
+     */
+    boolean containsPropertyKey(String propertyName);
 }

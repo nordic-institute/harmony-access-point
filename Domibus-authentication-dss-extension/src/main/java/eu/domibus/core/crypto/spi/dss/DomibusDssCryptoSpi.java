@@ -13,6 +13,7 @@ import eu.europa.esig.dss.x509.CertificateSource;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.CommonCertificateSource;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.engine.WSSConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         logDebugTslInfo();
         //should receive at least two certificates.
         if (certs == null || certs.length < 2) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, String.format("The signing trust chain is expected to trust anchor with DSS, but the size of the list of certificate is:[%d].", certs == null ? 0 : certs.length));
+            int chainSize = certs == null ? 0 : certs.length;
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath",new Object[]{String.format("Certificate chain expected with a minimum size of 2 but size is only:[%d]",chainSize)});
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
         //add signing certificate to DSS.
@@ -77,13 +79,17 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
         CertificateReports reports = certificateValidator.validate();
-        LOG.debug("Simple report:[{}]", reports.getXmlDetailedReport());
+        LOG.debug("Detail report:[{}]", reports.getXmlDetailedReport());
+        LOG.debug("Simple report:[{}]", reports.getXmlSimpleReport());
+        LOG.debug("Diagnostic data:[{}]", reports.getXmlDiagnosticData());
         final DetailedReport detailedReport = reports.getDetailedReportJaxb();
         final List<ConstraintInternal> constraints = constraintMapper.map();
         final boolean valid = validationReport.isValid(detailedReport, constraints);
         if (!valid) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath", new Object[]{"No trusted certs found"});
+            LOG.error("Dss triggered and error while validating the certificate chain:[{}]",reports.getXmlSimpleReport());
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath", new Object[]{"Certificate chain validation failed."});
         }
+        LOG.trace("Incoming message certificate chain has been validated by DSS.");
     }
 
     protected CertificateValidator prepareCertificateValidator(X509Certificate leafCertificate) {
@@ -111,7 +117,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         final List<X509Certificate> leafCertificate = Arrays.stream(certs).
                 filter(x509Certificate -> x509Certificate.getBasicConstraints() == -1).collect(Collectors.toList());
         if (leafCertificate.size() != 1) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Leaf certificate not found");
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath",new Object[]{"Invalid leaf certificate"});
         }
         return leafCertificate.get(0);
     }
