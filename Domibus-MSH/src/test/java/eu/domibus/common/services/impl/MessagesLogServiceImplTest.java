@@ -33,7 +33,7 @@ public class MessagesLogServiceImplTest {
     private DomainCoreConverter domainConverter;
 
     @Test
-    public void findMessageLogsTest1() {
+    public void findUserMessageLogs() {
         int page = 1, size = 20;
         String column = "col1";
         boolean asc = true;
@@ -51,7 +51,7 @@ public class MessagesLogServiceImplTest {
     }
 
     @Test
-    public void findMessageLogsTest2() {
+    public void findSignalMessageLogs() {
         int page = 1, size = 20;
         String column = "col1";
         boolean asc = true;
