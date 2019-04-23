@@ -34,6 +34,7 @@ public class MessageLogRO implements Serializable {
     private Date failed;
     private Date restored;
     private MessageSubtype messageSubtype;
+    private boolean messageFragment;
 
     public String getMessageId() {
         return messageId;
@@ -185,5 +186,13 @@ public class MessageLogRO implements Serializable {
 
     public void setMessageSubtype(MessageSubtype messageSubtype) {
         this.messageSubtype = messageSubtype;
+    }
+
+    public boolean getMessageFragment() {
+        return messageFragment;
+    }
+
+    public void setMessageFragment(boolean messageFragment) {
+        this.messageFragment = messageFragment;
     }
 }

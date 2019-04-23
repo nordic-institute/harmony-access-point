@@ -32,7 +32,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "info.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
-                "log.messageSubtype" +
+                "log.messageSubtype," +
+                "log.messageFragment" +
                 ")" + getQueryBody(filters);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
