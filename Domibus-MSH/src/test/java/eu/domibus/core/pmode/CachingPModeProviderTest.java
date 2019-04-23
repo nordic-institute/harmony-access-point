@@ -9,14 +9,13 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.util.xml.XMLUtil;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
@@ -24,6 +23,7 @@ import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.util.PojoInstaciatorUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -112,8 +112,6 @@ public class CachingPModeProviderTest {
 
     @Tested
     CachingPModeProvider cachingPModeProvider;
-
-
 
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -557,9 +555,223 @@ public class CachingPModeProviderTest {
         Assert.assertNull(agreementRef);
     }
 
+    @Test(expected = EbMS3Exception.class)
+    public void testFindPullLegExeption() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        // Given
+        configuration = loadSamplePModeConfiguration(PULL_PMODE_CONFIG_URI);
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
+            result = configuration.getBusinessProcesses().getProcesses();
+
+//            cachingPModeProvider.getProcessFromService(Ebms3Constants.TEST_SERVICE);
+//            result = getTestProcess(configuration.getBusinessProcesses().getProcesses());
+
+        }};
+
+        try {
+            String legName = cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc");
+        } catch (EbMS3Exception exc) {
+            Assert.assertTrue(ErrorCode.EbMS3ErrorCode.EBMS_0001.equals(exc.getErrorCode()));
+//            , "No Candidates for Legs found"
+            throw exc;
+
+        }
+
+
+//        Assert.assertEquals("expectedlegname", legName);
+    }
+
+    @Test
+    public void testFindPullLeg() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        // Given
+        configuration = loadSamplePModeConfiguration(PULL_PMODE_CONFIG_URI);
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
+            result = configuration.getBusinessProcesses().getProcesses();
+            cachingPModeProvider.matchAgreement((Process)any, anyString);
+            result = true;
+            cachingPModeProvider.matchInitiator((Process)any, (ProcessTypePartyExtractor)any);
+            result = true;
+            cachingPModeProvider.matchResponder((Process)any, (ProcessTypePartyExtractor)any);
+            result = true;
+            cachingPModeProvider.candidateMatches((LegConfiguration)any, anyString, anyString, anyString);
+            result = true;
+        }};
+
+        String legName = cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+        Assert.assertNotNull(legName);
+    }
+
+    @Test(expected = EbMS3Exception.class)
+    public void testFindPullLegNoCandidate() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        // Given
+        configuration = loadSamplePModeConfiguration(PULL_PMODE_CONFIG_URI);
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
+            result = configuration.getBusinessProcesses().getProcesses();
+            cachingPModeProvider.matchAgreement((Process)any, anyString);
+            result = false;
+        }};
+
+        try {
+            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+        }catch (EbMS3Exception exc) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
+            throw exc;
+        }
+
+        // exception should have been raised
+        Assert.assertFalse(true);
+    }
+
+    @Test(expected = EbMS3Exception.class)
+    public void testFindPullLegNoMatchingCandidate() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        // Given
+        configuration = loadSamplePModeConfiguration(PULL_PMODE_CONFIG_URI);
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
+            result = configuration.getBusinessProcesses().getProcesses();
+            cachingPModeProvider.matchAgreement((Process)any, anyString);
+            result = true;
+            cachingPModeProvider.matchInitiator((Process)any, (ProcessTypePartyExtractor)any);
+            result = true;
+            cachingPModeProvider.matchResponder((Process)any, (ProcessTypePartyExtractor)any);
+            result = true;
+            cachingPModeProvider.candidateMatches((LegConfiguration)any, anyString, anyString, anyString);
+            result = false;
+        }};
+
+        try {
+            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+        }catch (EbMS3Exception exc) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
+            throw exc;
+        }
+
+        // exception should have been raised
+        Assert.assertFalse(true);
+    }
+
+    @Test
+    public void testGetGatewayParty() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getParty();
+            result = configuration.getParty();
+        }};
+
+        Assert.assertEquals(configuration.getParty(), cachingPModeProvider.getGatewayParty());
+    }
+
+
+    @Test
+    public void testMatchAgreement() {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]");
+        Assert.assertTrue(cachingPModeProvider.matchAgreement(process, "a1"));
+    }
+
+    @Test
+    public void testMatchInitiator() {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "initiatorParties{[name:initiator1];[name:initiator2]}");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "initiator1");
+        Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testMatchInitiatorNot() {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "initiatorParties{[name:initiator1];[name:initiator2]}");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
+        Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testMatchInitiatorAllowEmpty() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        new Expectations() {{
+            pullMessageService.allowDynamicInitiatorInPullProcess();
+            result = true;
+        }};
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
+        Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testMatchInitiatorNotAllowEmpty() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        new Expectations() {{
+            pullMessageService.allowDynamicInitiatorInPullProcess();
+            result = false;
+        }};
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
+        Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testMatchResponder() {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "responderParties{[name:responder1];[name:responder2]}");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("responder1", null);
+        Assert.assertTrue(cachingPModeProvider.matchResponder(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testMatchResponderNot() {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "responderParties{[name:responder1];[name:responder2]}");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("nobody", null);
+        Assert.assertFalse(cachingPModeProvider.matchResponder(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testMatchResponderEmpty() {
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("nobody", null);
+        Assert.assertFalse(cachingPModeProvider.matchResponder(process, processTypePartyExtractor));
+    }
+
+    @Test
+    public void testCandidateMatches() {
+        LegConfiguration candidate = PojoInstaciatorUtil.instanciate(LegConfiguration.class, "service[name:s1]", "action[name:a1]", "defaultMpc[qualifiedName:mpc_qn]");
+        Assert.assertTrue(cachingPModeProvider.candidateMatches(candidate, "s1", "a1", "mpc_qn"));
+    }
+
+    @Test
+    public void testCandidateNotMatches() {
+        LegConfiguration candidate = PojoInstaciatorUtil.instanciate(LegConfiguration.class, "service[name:s1]", "action[name:a1]", "defaultMpc[qualifiedName:mpc_qn]");
+        Assert.assertFalse(cachingPModeProvider.candidateMatches(candidate, "s2", "a2", "mpc_qn"));
+    }
+
+    @Test
+    public void testfindMpcUri() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+        String expectedMpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpc";
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getMpcs();
+            result = configuration.getMpcs();
+        }};
+
+        String mpcURI = cachingPModeProvider.findMpcUri("defaultMpc");
+
+        Assert.assertEquals(expectedMpc, mpcURI);
+    }
+
+    @Test(expected = EbMS3Exception.class)
+    public void testfindMpcUriException() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getMpcs();
+            result = configuration.getMpcs();
+        }};
+
+        cachingPModeProvider.findMpcUri("no_mpc");
+
+        // exception is expected before this line
+        Assert.assertFalse(true);
+    }
+
+
     private Process getTestProcess(Collection<Process> processes) {
-        for(Process process : processes) {
-            if(process.getName().equals("testService")) {
+        for (Process process : processes) {
+            if (process.getName().equals("testService")) {
                 return process;
             }
         }
