@@ -32,7 +32,7 @@ import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserDomainServiceMultiDomainTest {
+public class UserDomainServiceMultiDomainImplTest {
 
     @Mock
     @Injectable
@@ -82,6 +82,22 @@ public class UserDomainServiceMultiDomainTest {
     }
 
     @Test
+    public void testGetPreferredDomainForUser() throws Exception {
+        String user = "user1";
+        String domain = "domain1";
+
+        new Expectations() {{
+            userDomainDao.findPreferredDomainByUser(user);
+            result = domain;
+        }};
+
+        String mockResult = userDomainServiceMultiDomainImpl.getPreferredDomainForUser(user);
+        String result = mockExecutorSubmit();
+
+        assertEquals(result, domain);
+    }
+
+    @Test
     public void getAllUserDomainMappingsTest() throws Exception {
         List<UserDomainEntity> userDomainEntities = new ArrayList<>();
         List<UserDomain> userDomains = new ArrayList<>();
@@ -124,6 +140,54 @@ public class UserDomainServiceMultiDomainTest {
         List<User> result = mockExecutorSubmit();
 
         Assert.assertEquals(users, result);
+    }
+
+    @Test
+    public void getAllUserNamesTest() throws Exception {
+        List<String> userNames = Arrays.asList("user1", "user2");
+
+        new Expectations() {{
+            userDomainDao.listAllUserNames();
+            result = userNames;
+        }};
+
+        List<String> mockResult = userDomainServiceMultiDomainImpl.getAllUserNames();
+        List<String> result = mockExecutorSubmit();
+
+        assertEquals(result.size(), userNames.size());
+        assertEquals(result.get(0), userNames.get(0));
+    }
+
+    @Test
+    public void setDomainForUser() throws Exception {
+        String user = "user1";
+        String domainCode = "domain1";
+
+        userDomainServiceMultiDomainImpl.setDomainForUser(user, domainCode);
+        mockExecutorSubmit();
+
+        new Verifications() {{
+            userDomainDao.setDomainByUser(user, domainCode);
+            times = 1;
+            domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void setPreferredDomainForUser() throws Exception {
+        String user = "user1";
+        String domainCode = "domain1";
+
+        userDomainServiceMultiDomainImpl.setPreferredDomainForUser(user, domainCode);
+        mockExecutorSubmit();
+
+        new Verifications() {{
+            userDomainDao.setPreferredDomainByUser(user, domainCode);
+            times = 1;
+            domibusCacheService.clearCache(DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE);
+            times = 1;
+        }};
     }
 
     private <T> T mockExecutorSubmit() throws Exception {
