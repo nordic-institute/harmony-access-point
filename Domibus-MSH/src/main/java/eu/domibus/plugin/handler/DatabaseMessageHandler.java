@@ -459,7 +459,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             errorLogDao.create(new ErrorLogEntry(ebms3Ex));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage());
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage(), p);
             errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
