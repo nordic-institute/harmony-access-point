@@ -390,15 +390,17 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
     return false;
   }
 
+  isRowDownloadButtonEnabled(row): boolean {
+    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE' && !row.messageFragment;
+  }
+
   isDownloadButtonEnabledAction(row): boolean {
-    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE';
+    return this.isRowDownloadButtonEnabled(row);
   }
 
   isDownloadButtonEnabled(): boolean {
-    if (this.selected && this.selected.length == 1 && !this.selected[0].deleted)
-      return true;
-
-    return false;
+    return (this.selected && this.selected.length == 1
+      && this.isRowDownloadButtonEnabled(this.selected[0]));
   }
 
   private downloadMessage(messageId) {

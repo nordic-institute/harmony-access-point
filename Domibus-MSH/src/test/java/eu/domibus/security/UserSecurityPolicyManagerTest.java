@@ -331,12 +331,6 @@ public class UserSecurityPolicyManagerTest {
         }};
 
         new Expectations() {{
-//            securityPolicyManager.getPasswordHistoryPolicyProperty();
-//            result = "anyProperty";
-//            domibusPropertyProvider.getIntegerOptionalDomainProperty("anyProperty");
-//            result = 0;
-//            securityPolicyManager.getUserHistoryDao();
-//            result = userPasswordHistoryDao;
             securityPolicyManager.getPasswordComplexityPatternProperty();
             result = "prop2";
             domibusPropertyProvider.getOptionalDomainProperty("prop2");

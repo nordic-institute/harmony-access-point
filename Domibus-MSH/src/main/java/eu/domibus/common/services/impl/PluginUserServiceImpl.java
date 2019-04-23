@@ -72,6 +72,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         final Domain currentDomain = domainProvider.getCurrentDomain();
 
         checkUsers(addedUsers);
+
         addedUsers.forEach(u -> insertNewUser(u, currentDomain));
 
         updatedUsers.forEach(u -> updateUser(u));
@@ -120,11 +121,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
     }
 
-    private Map<String, Object> createFilterMap(
-            AuthType authType,
-            AuthRole authRole,
-            String originalUser,
-            String userName) {
+    protected Map<String, Object> createFilterMap(AuthType authType, AuthRole authRole, String originalUser, String userName) {
         HashMap<String, Object> filters = new HashMap<>();
         if (authType != null) {
             filters.put("authType", authType.name());
@@ -137,7 +134,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         return filters;
     }
 
-    private void insertNewUser(AuthenticationEntity u, Domain domain) {
+    protected void insertNewUser(AuthenticationEntity u, Domain domain) {
         if (u.getPassword() != null) {
             u.setPassword(bcryptEncoder.encode(u.getPassword()));
         }
@@ -147,7 +144,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         userDomainService.setDomainForUser(userIdentifier, domain.getCode());
     }
 
-    private void updateUser(AuthenticationEntity modified) {
+    protected void updateUser(AuthenticationEntity modified) {
         AuthenticationEntity existing = authenticationDAO.read(modified.getEntityId());
 
         userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
@@ -166,7 +163,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         userSecurityPolicyManager.changePassword(user, newPassword);
     }
 
-    private void deleteUser(AuthenticationEntity u) {
+    protected void deleteUser(AuthenticationEntity u) {
         AuthenticationEntity entity = authenticationDAO.read(u.getEntityId());
         authenticationDAO.delete(entity);
 
