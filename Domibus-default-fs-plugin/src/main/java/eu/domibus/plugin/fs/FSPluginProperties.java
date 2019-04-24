@@ -45,7 +45,7 @@ public class FSPluginProperties {
 
     private static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "messages.received.purge.worker.cronExpression";
 
-    private static final String OUT_QUEUE_CONCURRENCY = "out.queue.concurrency";
+    private static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
 
     private static final String SEND_DELAY = "messages.send.delay";
 
