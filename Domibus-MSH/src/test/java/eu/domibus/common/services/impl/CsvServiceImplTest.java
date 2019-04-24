@@ -1,13 +1,13 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import mockit.Injectable;
 import mockit.Tested;
@@ -51,7 +51,7 @@ public class CsvServiceImplTest {
     public void testExportToCsv_NullList() throws CsvException {
         // Given
         // When
-        final String exportToCSV = csvServiceImpl.exportToCSV(null,null,null,null);
+        final String exportToCSV = csvServiceImpl.exportToCSV(null, null, null, null);
 
         // Then
         Assert.assertTrue(exportToCSV.trim().isEmpty());
@@ -77,11 +77,11 @@ public class CsvServiceImplTest {
         String csvDate = d.format(f);
 
         // When
-        final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class,null,null);
+        final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
 
         // Then
         Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Conversation Id,Message Type,Message Subtype,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored"));
-        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED,"+csvDate+",RECEIVING,1,5,"+csvDate+",conversationId,USER_MESSAGE,"+(messageSubtype!=null?messageSubtype.name():"")+","+csvDate+",originalSender,finalRecipient,refToMessageId,"+csvDate+","+csvDate));
+        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId,USER_MESSAGE," + (messageSubtype != null ? messageSubtype.name() : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
     private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, MessageSubtype messageSubtype) {
@@ -89,7 +89,7 @@ public class CsvServiceImplTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype,false);
+                "refToMessageId", date, date, messageSubtype, false, false);
         result.add(messageLog);
         return result;
     }
