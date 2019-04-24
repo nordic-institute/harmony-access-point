@@ -30,6 +30,11 @@ public class MessageFragmentSender extends AbstractUserMessageSender {
     protected void validateBeforeSending(UserMessage userMessage) {
         final String groupId = userMessage.getMessageFragment().getGroupId();
         final MessageGroupEntity groupEntity = messageGroupDao.findByGroupId(groupId);
+
+        if (groupEntity.getExpired()) {
+            throw new SplitAndJoinException("Group [" + groupId + "] is marked as expired");
+        }
+
         if (groupEntity.getRejected()) {
             throw new SplitAndJoinException("Group [" + groupId + "] is marked as rejected");
         }

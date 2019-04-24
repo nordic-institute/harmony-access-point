@@ -14,7 +14,7 @@ public interface UserMessageService {
     String COMMAND_SOURCE_MESSAGE_REJOIN = "SourceMessageRejoin";
     String COMMAND_SOURCE_MESSAGE_RECEIPT = "SourceMessageReceipt";
     String COMMAND_SOURCE_MESSAGE_REJOIN_FILE = "SourceMessageRejoinFile";
-    String COMMAND_MESSAGE_FRAGMENT_SEND_FAILED = "MessageFragmentSendFailed";
+    String COMMAND_SPLIT_AND_JOIN_SEND_FAILED = "SplitAndJoinSendFailed";
     String COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED = "SetMessageFragmentAsFailed";
     String COMMAND_SEND_SIGNAL_ERROR = "SendSignalError";
     String COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED = "SplitAndJoinReceiveFailed";
@@ -63,9 +63,8 @@ public interface UserMessageService {
      * Schedules the handling of the MessageFragment send failed event
      *
      * @param groupId
-     * @param backendName
      */
-    void scheduleMessageFragmentSendFailed(String groupId, String backendName);
+    void scheduleSplitAndJoinSendFailed(String groupId);
 
     /**
      * Schedules the marking of the UserMessageFragment as failed

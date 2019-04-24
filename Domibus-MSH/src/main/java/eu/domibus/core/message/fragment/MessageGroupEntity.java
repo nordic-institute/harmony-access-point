@@ -19,7 +19,9 @@ import java.math.BigInteger;
 @NamedQueries({
         @NamedQuery(name = "MessageGroupEntity.findByGroupId", query = "SELECT c FROM MessageGroupEntity c where c.groupId=:GROUP_ID"),
         @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole = :MSH_ROLE " +
-                "and c.fragmentCount <> c.receivedFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )")
+                "and c.fragmentCount <> c.receivedFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )"),
+        @NamedQuery(name = "MessageGroupEntity.findSendNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole = :MSH_ROLE " +
+                "and c.fragmentCount <> c.sentFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )")
 })
 public class MessageGroupEntity extends AbstractBaseEntity {
 
@@ -38,6 +40,9 @@ public class MessageGroupEntity extends AbstractBaseEntity {
 
     @Column(name = "FRAGMENT_COUNT")
     protected Long fragmentCount;
+
+    @Column(name = "SENT_FRAGMENTS")
+    protected Long sentFragments = 0L;
 
     @Column(name = "RECEIVED_FRAGMENTS")
     protected Long receivedFragments = 0L;
@@ -149,6 +154,14 @@ public class MessageGroupEntity extends AbstractBaseEntity {
         this.receivedFragments = receivedFragments;
     }
 
+    public Long getSentFragments() {
+        return sentFragments;
+    }
+
+    public void setSentFragments(Long sentFragments) {
+        this.sentFragments = sentFragments;
+    }
+
     public MSHRole getMshRole() {
         return mshRole;
     }
@@ -157,7 +170,14 @@ public class MessageGroupEntity extends AbstractBaseEntity {
         this.mshRole = mshRole;
     }
 
-    public synchronized void incrementReceivedFragments() {
+    public void incrementSentFragments() {
+        if (sentFragments == null) {
+            sentFragments = 0L;
+        }
+        sentFragments++;
+    }
+
+    public void incrementReceivedFragments() {
         if (receivedFragments == null) {
             receivedFragments = 0L;
         }
@@ -172,6 +192,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
                 .append("sourceMessageId", sourceMessageId)
                 .append("messageSize", messageSize)
                 .append("fragmentCount", fragmentCount)
+                .append("sentFragments", sentFragments)
                 .append("receivedFragments", receivedFragments)
                 .append("compressionAlgorithm", compressionAlgorithm)
                 .append("compressedMessageSize", compressedMessageSize)

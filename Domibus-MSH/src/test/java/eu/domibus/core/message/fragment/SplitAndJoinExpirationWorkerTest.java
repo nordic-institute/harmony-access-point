@@ -13,7 +13,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Cosmin Baciu
@@ -54,7 +53,7 @@ public class SplitAndJoinExpirationWorkerTest {
 
         new Verifications() {{
             authUtils.setAuthenticationToSecurityContext("splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
-            splitAndJoinService.handleExpiredMessages();
+            splitAndJoinService.handleExpiredGroups();
         }};
     }
 }

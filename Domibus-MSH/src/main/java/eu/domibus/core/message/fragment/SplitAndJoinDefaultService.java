@@ -57,7 +57,10 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -410,17 +413,55 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     @Override
-    public void handleExpiredMessages() {
-        final List<MessageGroupEntity> receivedNonExpiredOrRejected = messageGroupDao.findOngoingReceivedNonExpiredOrRejected();
-        final List<MessageGroupEntity> expiredGroups = getExpiredGroups(receivedNonExpiredOrRejected);
+    public void handleExpiredGroups() {
+        handleExpiredReceivedGroups();
+        handleExpiredSendGroups();
+    }
 
-        if (CollectionUtils.isEmpty(expiredGroups)) {
-            LOG.trace("No expired groups found");
+    protected void handleExpiredSendGroups() {
+        LOG.trace("Handling expired send groups");
+
+        final List<MessageGroupEntity> sendNonExpiredOrRejected = messageGroupDao.findOngoingSendNonExpiredOrRejected();
+        final List<MessageGroupEntity> sendExpiredGroups = getSendExpiredGroups(sendNonExpiredOrRejected);
+
+        if (CollectionUtils.isEmpty(sendExpiredGroups)) {
+            LOG.trace("No send expired groups found");
             return;
         }
-        LOG.debug("Found expired groups [{}]", expiredGroups);
-        expiredGroups.stream().forEach(messageGroupEntity -> setReceivedGroupAsExpired(messageGroupEntity));
+        LOG.debug("Found send expired groups [{}]", sendExpiredGroups);
+        sendExpiredGroups.stream().forEach(messageGroupEntity -> setSendGroupAsExpired(messageGroupEntity));
+
+        LOG.trace("Finished handling expired send groups");
     }
+
+    protected List<MessageGroupEntity> getSendExpiredGroups(final List<MessageGroupEntity> sendNonExpiredOrRejected) {
+        return sendNonExpiredOrRejected.stream().filter(messageGroupEntity -> isGroupExpired(messageGroupEntity, MSHRole.SENDING)).collect(Collectors.toList());
+    }
+
+    protected void setSendGroupAsExpired(MessageGroupEntity messageGroupEntity) {
+        LOG.debug("Setting the group [{}] as expired", messageGroupEntity.getGroupId());
+        messageGroupEntity.setExpired(true);
+        messageGroupDao.update(messageGroupEntity);
+        userMessageService.scheduleSplitAndJoinSendFailed(messageGroupEntity.getGroupId());
+    }
+
+
+    protected void handleExpiredReceivedGroups() {
+        LOG.trace("Handling expired received groups");
+
+        final List<MessageGroupEntity> receivedNonExpiredOrRejected = messageGroupDao.findOngoingReceivedNonExpiredOrRejected();
+        final List<MessageGroupEntity> receivedExpiredGroups = getReceivedExpiredGroups(receivedNonExpiredOrRejected);
+
+        if (CollectionUtils.isEmpty(receivedExpiredGroups)) {
+            LOG.trace("No received expired groups found");
+            return;
+        }
+        LOG.debug("Found received expired groups [{}]", receivedExpiredGroups);
+        receivedExpiredGroups.stream().forEach(messageGroupEntity -> setReceivedGroupAsExpired(messageGroupEntity));
+
+        LOG.trace("Finished handling expired received groups");
+    }
+
 
     protected void setReceivedGroupAsExpired(MessageGroupEntity messageGroupEntity) {
         messageGroupEntity.setExpired(true);
@@ -428,11 +469,11 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         userMessageService.scheduleSplitAndJoinReceiveFailed(messageGroupEntity.getGroupId(), messageGroupEntity.getSourceMessageId(), ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), ERROR_MESSAGE_GROUP_HAS_EXPIRED);
     }
 
-    protected List<MessageGroupEntity> getExpiredGroups(final List<MessageGroupEntity> receivedNonExpiredOrRejected) {
-        return receivedNonExpiredOrRejected.stream().filter(messageGroupEntity -> isGroupExpired(messageGroupEntity)).collect(Collectors.toList());
+    protected List<MessageGroupEntity> getReceivedExpiredGroups(final List<MessageGroupEntity> receivedNonExpiredOrRejected) {
+        return receivedNonExpiredOrRejected.stream().filter(messageGroupEntity -> isGroupExpired(messageGroupEntity, MSHRole.RECEIVING)).collect(Collectors.toList());
     }
 
-    protected boolean isGroupExpired(MessageGroupEntity messageGroupEntity) {
+    protected boolean isGroupExpired(MessageGroupEntity messageGroupEntity, MSHRole mshRole) {
         final String groupId = messageGroupEntity.getGroupId();
         final List<UserMessage> fragments = messagingDao.findUserMessageByGroupId(groupId);
         if (CollectionUtils.isEmpty(fragments)) {
@@ -441,11 +482,11 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         fragments.sort(Comparator.comparing(object -> object.getMessageInfo().getTimestamp()));
-        final UserMessage firstReceivedFragment = fragments.get(0);
+        final UserMessage firstFragment = fragments.get(0);
         MessageExchangeConfiguration userMessageExchangeContext = null;
         LegConfiguration legConfiguration = null;
         try {
-            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(firstReceivedFragment, MSHRole.RECEIVING);
+            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(firstFragment, mshRole);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
             legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
         } catch (EbMS3Exception e) {
@@ -459,19 +500,18 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
         final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime firstReceivedFragmentTime = new Timestamp(firstReceivedFragment.getMessageInfo().getTimestamp().getTime()).toLocalDateTime();
+        final LocalDateTime firstReceivedFragmentTime = new Timestamp(firstFragment.getMessageInfo().getTimestamp().getTime()).toLocalDateTime();
 
-        LOG.debug("Checking if the (current time [{}] - firstReceivedFragment time [{}]) > join interval [{}]", now, firstReceivedFragmentTime, joinInterval);
+        LOG.debug("Checking if the (current time [{}] - firstFragment time [{}]) > join interval [{}]", now, firstReceivedFragmentTime, joinInterval);
         if (Duration.between(firstReceivedFragmentTime, now).toMinutes() > joinInterval) {
             LOG.debug("Message group [{}] is expired", groupId);
             return true;
         }
         return false;
-
     }
 
     @Override
-    public void messageFragmentSendFailed(final String groupId) {
+    public void splitAndJoinSendFailed(final String groupId) {
         LOG.debug("SplitAndJoin message fragment failed for group [{}]", groupId);
 
         sendSplitAndJoinFailed(groupId);
@@ -535,6 +575,33 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
                 throw new SplitAndJoinException("Error generating the Signal SOAPMessage for SourceMessage [" + sourceMessageId + "]: could not get the MessageExchangeConfiguration", e);
             }
             userMessageDefaultService.scheduleSendingSignalError(sourceMessageId, ebMS3ErrorCode, errorDetail, userMessageExchangeContext.getReversePmodeKey());
+        }
+    }
+
+    @Override
+    public synchronized void incrementSentFragments(String groupId) {
+        LOG.debug("Incrementing the sentFragments count for group [{}]", groupId);
+
+        final MessageGroupEntity groupEntity = messageGroupDao.findByGroupId(groupId);
+        groupEntity.incrementSentFragments();
+        messageGroupDao.update(groupEntity);
+        LOG.debug("Sent fragments [{}] out of [{}] for group [{}]", groupEntity.getSentFragments(), groupEntity.getFragmentCount(), groupId);
+    }
+
+    @Override
+    public synchronized void incrementReceivedFragments(String groupId, String backendName) {
+        LOG.debug("Incrementing receivedFragments count for group [{}]", groupId);
+
+        final MessageGroupEntity groupEntity = messageGroupDao.findByGroupId(groupId);
+        groupEntity.incrementReceivedFragments();
+        messageGroupDao.update(groupEntity);
+
+        LOG.debug("Received fragments [{}] out of expected [{}] for group [{}]", groupEntity.getReceivedFragments(), groupEntity.getFragmentCount(), groupEntity.getGroupId());
+
+        if (groupEntity.getReceivedFragments().equals(groupEntity.getFragmentCount())) {
+            LOG.info("All fragment files received for group [{}], scheduling the source message rejoin", groupEntity.getGroupId());
+
+            userMessageService.scheduleSourceMessageRejoinFile(groupEntity.getGroupId(), backendName);
         }
     }
 
@@ -709,4 +776,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             }
         }
     }
+
+
 }
