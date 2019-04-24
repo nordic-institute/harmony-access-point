@@ -346,7 +346,7 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
 
   search() {
     super.setActiveFilter();
-    console.log('search by:',this.activeFilter);
+    console.log('search by:', this.activeFilter);
     this.page(0, this.rowLimiter.pageSize);
   }
 
@@ -379,19 +379,22 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   }
 
   isResendButtonEnabledAction(row): boolean {
-    return !row.deleted && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED');
+    return this.isRowResendButtonEnabled(row);
   }
 
   isResendButtonEnabled() {
-    if (this.selected && this.selected.length == 1 && !this.selected[0].deleted &&
-      (this.selected[0].messageStatus === 'SEND_FAILURE' || this.selected[0].messageStatus === 'SEND_ENQUEUED'))
-      return true;
-
-    return false;
+    return this.isOneRowSelected() && !this.selected[0].deleted
+      && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
-  isRowDownloadButtonEnabled(row): boolean {
-    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE' && !row.messageFragment;
+  private isRowResendButtonEnabled(row): boolean {
+    return !row.deleted
+      && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
+      && !this.isSplitAndJoinMessage(row);
+  }
+
+  private isSplitAndJoinMessage(row) {
+    return row.messageFragment || row.sourceMessage;
   }
 
   isDownloadButtonEnabledAction(row): boolean {
@@ -399,8 +402,15 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   }
 
   isDownloadButtonEnabled(): boolean {
-    return (this.selected && this.selected.length == 1
-      && this.isRowDownloadButtonEnabled(this.selected[0]));
+    return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
+  }
+
+  private isRowDownloadButtonEnabled(row): boolean {
+    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE' && !row.messageFragment;
+  }
+
+  private isOneRowSelected() {
+    return this.selected && this.selected.length == 1;
   }
 
   private downloadMessage(messageId) {

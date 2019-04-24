@@ -57,6 +57,8 @@ public class MessageLogInfo {
 
     private Boolean messageFragment;
 
+    private Boolean sourceMessage;
+
     public MessageLogInfo() {
     }
 
@@ -79,7 +81,8 @@ public class MessageLogInfo {
                           final Date failed,
                           final Date restored,
                           final MessageSubtype messageSubtype,
-                          final Boolean messageFragment) {
+                          final Boolean messageFragment,
+                          final Boolean sourceMessage) {
         //message log information.
         this.messageId = messageId;
         this.messageStatus = messageStatus;
@@ -103,6 +106,7 @@ public class MessageLogInfo {
         this.restored = restored;
         this.messageSubtype = messageSubtype;
         this.messageFragment = messageFragment;
+        this.sourceMessage = sourceMessage;
     }
 
 
@@ -212,6 +216,14 @@ public class MessageLogInfo {
 
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
+    }
+
+    public Boolean getSourceMessage() {
+        return sourceMessage;
+    }
+
+    public void setSourceMessage(Boolean sourceMessage) {
+        this.sourceMessage = sourceMessage;
     }
 
     @Override
