@@ -40,11 +40,13 @@ public class PModeDao extends PModeProvider {
     @Override
     public Party getGatewayParty() {
         //TODO check if it can be optimized
+        LOG.warn("Call to ~PModeDao~!");
         return configurationDAO.read().getParty();
     }
 
     @Override
     public Party getSenderParty(final String pModeKey) {
+        LOG.warn("Call to ~PModeDao~!");
 
         String senderPartyName = this.getSenderPartyNameFromPModeKey(pModeKey);
 
@@ -60,6 +62,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Party getReceiverParty(final String pModeKey) {
+        LOG.warn("Call to ~PModeDao~!");
 
         String senderPartyName = this.getReceiverPartyNameFromPModeKey(pModeKey);
 
@@ -75,6 +78,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Service getService(final String pModeKey) {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<Service> query = this.entityManager.createNamedQuery("Service.findByName", Service.class);
         query.setParameter("NAME", this.getServiceNameFromPModeKey(pModeKey)); //FIXME enable multiple ServiceTypes with the same name
         return query.getSingleResult();
@@ -82,6 +87,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Action getAction(final String pModeKey) {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<Action> query = this.entityManager.createNamedQuery("Action.findByName", Action.class);
         query.setParameter("NAME", this.getActionNameFromPModeKey(pModeKey));
         return query.getSingleResult();
@@ -89,6 +96,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Agreement getAgreement(final String pModeKey) {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<Agreement> query = this.entityManager.createNamedQuery("Agreement.findByName", Agreement.class);
         query.setParameter("NAME", this.getAgreementRefNameFromPModeKey(pModeKey));
         return query.getSingleResult();
@@ -96,6 +105,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public LegConfiguration getLegConfiguration(final String pModeKey) {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<LegConfiguration> query = this.entityManager.createNamedQuery("LegConfiguration.findByName", LegConfiguration.class);
         query.setParameter("NAME", this.getLegConfigurationNameFromPModeKey(pModeKey));
         return query.getSingleResult();
@@ -104,11 +115,15 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public void init() {
+        LOG.warn("Call to ~PModeDao~!");
+
         //nothing to init here
     }
 
     @Override
     protected String findPullLegName(final String agreementName, final String senderParty, final String receiverParty, final String service, final String action, String mpc) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         //Here we invert the parties to find leg configured for a pull.
         try {
             String legNameInPullProcess = findLegNameMepBindingAgnostic(agreementName, receiverParty, senderParty, service, action);
@@ -127,6 +142,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     protected String findLegName(final String agreementName, final String senderParty, final String receiverParty, final String service, final String action) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         try {
             //this is the normal call for a push.
             return findLegNameMepBindingAgnostic(agreementName, senderParty, receiverParty, service, action);
@@ -136,6 +153,8 @@ public class PModeDao extends PModeProvider {
     }
 
     public String findLegNameMepBindingAgnostic(String agreementName, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         LOG.debug("Finding leg name using agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]",
                 agreementName, senderParty, receiverParty, service, action);
         String namedQuery;
@@ -184,6 +203,8 @@ public class PModeDao extends PModeProvider {
     }
 
     protected String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {
             return OPTIONAL_AND_EMPTY;
         }
@@ -201,6 +222,8 @@ public class PModeDao extends PModeProvider {
     }
 
     protected String findActionName(final String action) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         if (action == null || action.isEmpty()) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Action parameter must not be null or empty", null, null);
         }
@@ -217,10 +240,14 @@ public class PModeDao extends PModeProvider {
 
     @Override
     protected Mpc findMpc(String mpcValue) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         return null;
     }
 
     protected String findServiceName(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         final String type = service.getType();
         final String value = service.getValue();
         final TypedQuery<String> query;
@@ -247,6 +274,8 @@ public class PModeDao extends PModeProvider {
     }
 
     protected String findPartyName(final Collection<PartyId> partyIds) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         Identifier identifier;
         for (final PartyId partyId : partyIds) {
             LOG.debug("Trying to find party [{}]", partyId);
@@ -281,12 +310,15 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public boolean isMpcExistant(final String mpc) {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<Integer> query = this.entityManager.createNamedQuery("Mpc.countForQualifiedName", Integer.class);
         return query.getSingleResult() > 0;
     }
 
     @Override
     public int getRetentionDownloadedByMpcName(final String mpcName) {
+        LOG.warn("Call to ~PModeDao~!");
 
         final TypedQuery<Mpc> query = entityManager.createNamedQuery("Mpc.findByName", Mpc.class);
         query.setParameter("NAME", mpcName);
@@ -303,6 +335,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
+        LOG.warn("Call to ~PModeDao~!");
 
         final TypedQuery<Mpc> query = entityManager.createNamedQuery("Mpc.findByQualifiedName", Mpc.class);
         query.setParameter("QUALIFIED_NAME", mpcURI);
@@ -319,6 +352,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public int getRetentionUndownloadedByMpcName(final String mpcName) {
+        LOG.warn("Call to ~PModeDao~!");
 
         final TypedQuery<Mpc> query = this.entityManager.createNamedQuery("Mpc.findByName", Mpc.class);
         query.setParameter("NAME", mpcName);
@@ -335,6 +369,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
+        LOG.warn("Call to ~PModeDao~!");
 
         final TypedQuery<Mpc> query = entityManager.createNamedQuery("Mpc.findByQualifiedName", Mpc.class);
         query.setParameter("QUALIFIED_NAME", mpcURI);
@@ -351,28 +386,37 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public List<String> getMpcList() {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<String> query = entityManager.createNamedQuery("Mpc.getAllNames", String.class);
         return query.getResultList();
     }
 
     @Override
     public List<String> getMpcURIList() {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<String> query = entityManager.createNamedQuery("Mpc.getAllURIs", String.class);
         return query.getResultList();
     }
 
     @Override
     public void refresh() {
+        LOG.warn("Call to ~PModeDao~!");
+
         //as we always query the DB pmodes never are stale, thus no refresh needed
     }
 
     @Override
     public boolean isConfigurationLoaded() {
+        LOG.warn("Call to ~PModeDao~!");
         return configurationDAO.configurationExists();
     }
 
     @Override
     public Role getBusinessProcessRole(String roleValue) {
+        LOG.warn("Call to ~PModeDao~!");
+
         final TypedQuery<Role> query = entityManager.createNamedQuery("Role.findByValue", Role.class);
         query.setParameter("VALUE", roleValue);
 
@@ -386,32 +430,41 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
+        LOG.warn("Call to ~PModeDao~!");
+
         return processDao.findPullProcessesByMessageContext(messageExchangeConfiguration);
     }
 
     @Override
     public List<Process> findPullProcessesByInitiator(final Party party) {
+        LOG.warn("Call to ~PModeDao~!");
+
         return processDao.findPullProcessesByInitiator(party);
     }
 
     @Override
     public List<Process> findPullProcessByMpc(final String mpc) {
+        LOG.warn("Call to ~PModeDao~!");
         return processDao.findPullProcessByMpc(mpc);
     }
 
     @Override
     public List<Process> findAllProcesses() {
+        LOG.warn("Call to ~PModeDao~!");
         return processDao.findAllProcesses();
     }
 
     @Override
     public List<Party> findAllParties() {
+        LOG.warn("Call to ~PModeDao~!");
         return partyDao.getParties();
     }
 
 
     @Override
     public List<String> findPartyIdByServiceAndAction(final String service, final String action) {
+        LOG.warn("Call to ~PModeDao~!");
+
         List<String> result = new ArrayList<>();
         LegConfiguration legConfiguration;
         // get the leg which contains the service and action
@@ -439,36 +492,48 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public String getPartyIdType(String partyIdentifier) {
+        LOG.warn("Call to ~PModeDao~!");
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String getServiceType(String serviceValue) {
+        LOG.warn("Call to ~PModeDao~!");
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String getRole(String roleType, String serviceValue) {
+        LOG.warn("Call to ~PModeDao~!");
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String getAgreementRef(String serviceValue) {
+        LOG.warn("Call to ~PModeDao~!");
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
+        LOG.warn("Call to ~PModeDao~!");
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String findMpcUri(String mpcName) throws EbMS3Exception {
+        LOG.warn("Call to ~PModeDao~!");
+
         LOG.warn("No calls expected to this class anymore");
         return null;
     }
