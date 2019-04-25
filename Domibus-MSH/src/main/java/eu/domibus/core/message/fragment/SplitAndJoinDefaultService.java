@@ -500,10 +500,10 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
         final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime firstReceivedFragmentTime = new Timestamp(firstFragment.getMessageInfo().getTimestamp().getTime()).toLocalDateTime();
+        final LocalDateTime firstFragmentTime = new Timestamp(firstFragment.getMessageInfo().getTimestamp().getTime()).toLocalDateTime();
 
-        LOG.debug("Checking if the (current time [{}] - firstFragment time [{}]) > join interval [{}]", now, firstReceivedFragmentTime, joinInterval);
-        if (Duration.between(firstReceivedFragmentTime, now).toMinutes() > joinInterval) {
+        LOG.debug("Checking if the (current time [{}] - firstFragment time [{}]) > join interval [{}]", now, firstFragmentTime, joinInterval);
+        if (Duration.between(firstFragmentTime, now).toMinutes() > joinInterval) {
             LOG.debug("Message group [{}] is expired", groupId);
             return true;
         }
