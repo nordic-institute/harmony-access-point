@@ -29,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Thomas Dussart, Ioana Dragusanu
@@ -46,27 +45,27 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     protected static final String DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK = "domibus.sender.certificate.subject.check";
 
-    private static final String DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION = "domibus.sender.trust.validation.expression";
+    protected static final String DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION = "domibus.sender.trust.validation.expression";
 
-    private static final String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
+    protected static final String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
 
     @Autowired
     private CertificateService certificateService;
 
     @Autowired
-    MessageExchangeService messageExchangeService;
+    private MessageExchangeService messageExchangeService;
 
     @Autowired
-    PModeProvider pModeProvider;
+    private PModeProvider pModeProvider;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    DomainContextProvider domainContextProvider;
+    private DomainContextProvider domainContextProvider;
 
     @Autowired
-    RegexUtil regexUtil;
+    private RegexUtil regexUtil;
 
     /**
      * {@inheritDoc}
@@ -98,7 +97,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpcQualified);
         if (pullContext == null || pullContext.getProcess() == null) {
             LOG.error("Could not extract process on mpc [{}]", mpc);
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not extract process on mpc [{}]"  + mpc);
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not extract process on mpc [{}]" + mpc);
         }
 
         if (CollectionUtils.isEmpty(pullContext.getProcess().getInitiatorParties()) ||

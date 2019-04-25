@@ -217,7 +217,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private String getOriginalUser(UserMessage userMessage, String type) {
+    protected String getOriginalUser(UserMessage userMessage, String type) {
         if (userMessage == null || userMessage.getMessageProperties() == null || userMessage.getMessageProperties().getProperty() == null) {
             return null;
         }
@@ -459,7 +459,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             errorLogDao.create(new ErrorLogEntry(ebms3Ex));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage());
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage(), p);
             errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }

@@ -21,7 +21,7 @@ import static eu.europa.esig.dss.validation.process.MessageTag.QUAL_FOR_SIGN_AT_
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class ConstraintPropertyMapperTest {
+public class ValidationConstraintPropertyMapperTest {
 
     @Test
     public void map(
@@ -30,7 +30,7 @@ public class ConstraintPropertyMapperTest {
             @Mocked Environment environment) {
         new Expectations() {{
             final DomainDTO result = new DomainDTO("DE", "DEFAULT");
-            domainContextExtService.getCurrentDomain();
+            domainContextExtService.getCurrentDomainSafely();
             this.result = result;
             domibusPropertyExtService.getDomainProperty(result, "domibus.authentication.dss.constraint.name[0]");
             this.result = ADEST_IRTPTBST.name();
@@ -63,4 +63,6 @@ public class ConstraintPropertyMapperTest {
                 anyMatch(constraintInternal -> constraintInternal.getName().equals(QUAL_FOR_SIGN_AT_CC.name()) && constraintInternal.getStatus().equals("WARNING")));
 
     }
+
+
 }

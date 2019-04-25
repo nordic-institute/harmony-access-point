@@ -73,13 +73,13 @@ public interface SplitAndJoinService {
      *
      * @param groupId
      */
-    void messageFragmentSendFailed(final String groupId);
+    void splitAndJoinSendFailed(final String groupId);
 
     /**
      * Handles the Signal error received from C3 which indicates that there was an error while rejoining the SourceMessage
      *
      * @param messageId The message ID of the SourceMessage
-     * @param error The details of the occurred error
+     * @param error     The details of the occurred error
      */
     void handleSourceMessageSignalError(final String messageId, final Error error);
 
@@ -87,7 +87,7 @@ public interface SplitAndJoinService {
      * Generates and sends the receipt associated to the SourceMessage
      *
      * @param sourceMessageId The message ID of the SourceMessage
-     * @param pModeKey The PMode key to used
+     * @param pModeKey        The PMode key to used
      */
     void sendSourceMessageReceipt(String sourceMessageId, String pModeKey);
 
@@ -102,7 +102,11 @@ public interface SplitAndJoinService {
     void splitAndJoinReceiveFailed(String groupId, final String sourceMessageId, String ebMS3ErrorCode, String errorDetail);
 
     /**
-     * Mark the received SplitAndJoin messages as expired based on the joinInterval configuration
+     * Mark the sent/received SplitAndJoin messages as expired based on the joinInterval configuration
      */
-    void handleExpiredMessages();
+    void handleExpiredGroups();
+
+    void incrementSentFragments(String groupId);
+
+    void incrementReceivedFragments(String groupId, String backendName);
 }

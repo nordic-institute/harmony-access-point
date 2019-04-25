@@ -503,7 +503,7 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    public void handleExpiredMessages(@Injectable MessageGroupEntity group1) {
+    public void handleExpiredReceivedGroups(@Injectable MessageGroupEntity group1) {
         List<MessageGroupEntity> messageGroupEntities = new ArrayList<>();
         messageGroupEntities.add(group1);
 
@@ -514,16 +514,43 @@ public class SplitAndJoinDefaultServiceTest {
             messageGroupDao.findOngoingReceivedNonExpiredOrRejected();
             result = messageGroupEntities;
 
-            splitAndJoinDefaultService.getExpiredGroups(messageGroupEntities);
+            splitAndJoinDefaultService.getReceivedExpiredGroups(messageGroupEntities);
             result = expiredGroups;
 
             splitAndJoinDefaultService.setReceivedGroupAsExpired(group1);
         }};
 
-        splitAndJoinDefaultService.handleExpiredMessages();
+        splitAndJoinDefaultService.handleExpiredReceivedGroups();
 
         new Verifications() {{
             splitAndJoinDefaultService.setReceivedGroupAsExpired(group1);
+            times = 1;
+
+        }};
+    }
+
+    @Test
+    public void handleExpiredSendGroups(@Injectable MessageGroupEntity group1) {
+        List<MessageGroupEntity> messageGroupEntities = new ArrayList<>();
+        messageGroupEntities.add(group1);
+
+        List<MessageGroupEntity> expiredGroups = new ArrayList<>();
+        expiredGroups.add(group1);
+
+        new Expectations(splitAndJoinDefaultService) {{
+            messageGroupDao.findOngoingSendNonExpiredOrRejected();
+            result = messageGroupEntities;
+
+            splitAndJoinDefaultService.getSendExpiredGroups(messageGroupEntities);
+            result = expiredGroups;
+
+            splitAndJoinDefaultService.setSendGroupAsExpired(group1);
+        }};
+
+        splitAndJoinDefaultService.handleExpiredSendGroups();
+
+        new Verifications() {{
+            splitAndJoinDefaultService.setSendGroupAsExpired(group1);
             times = 1;
 
         }};
@@ -552,16 +579,35 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
+    public void setSendGroupAsExpired(@Injectable MessageGroupEntity group1) {
+        String groupId = "123";
+
+        new Expectations() {{
+            group1.getGroupId();
+            result = groupId;
+        }};
+
+        splitAndJoinDefaultService.setSendGroupAsExpired(group1);
+
+        new Verifications() {{
+            group1.setExpired(true);
+            messageGroupDao.update(group1);
+
+            userMessageService.scheduleSplitAndJoinSendFailed(groupId);
+        }};
+    }
+
+    @Test
     public void getExpiredGroups(@Injectable MessageGroupEntity group1) {
         List<MessageGroupEntity> messageGroupEntities = new ArrayList<>();
         messageGroupEntities.add(group1);
 
         new Expectations(splitAndJoinDefaultService) {{
-            splitAndJoinDefaultService.isGroupExpired(group1);
+            splitAndJoinDefaultService.isGroupExpired(group1, MSHRole.RECEIVING);
             result = true;
         }};
 
-        final List<MessageGroupEntity> expiredGroups = splitAndJoinDefaultService.getExpiredGroups(messageGroupEntities);
+        final List<MessageGroupEntity> expiredGroups = splitAndJoinDefaultService.getReceivedExpiredGroups(messageGroupEntities);
         assertNotNull(expiredGroups);
         assertEquals(expiredGroups.size(), 1);
         assertEquals(expiredGroups.iterator().next(), group1);
@@ -571,16 +617,18 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void isGroupExpired(@Injectable MessageGroupEntity group1,
-                               @Injectable UserMessage userMessage,
+                               @Injectable UserMessage userMessageFragment,
                                @Injectable MessageExchangeConfiguration userMessageExchangeContext,
                                @Injectable LegConfiguration legConfiguration,
-                               @Mocked Timestamp timestamp) throws EbMS3Exception {
+                               @Mocked Timestamp timestamp,
+                               @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
         String sourceMessageId = "123";
         String groupId = sourceMessageId;
         String pmodeKey = "pModeKey";
+        String firstFragmentMessageId = "456";
 
         final List<UserMessage> fragments = new ArrayList<>();
-        fragments.add(userMessage);
+        fragments.add(userMessageFragment);
 
         final LocalDateTime now = LocalDateTime.of(2019, 01, 01, 12, 10);
         final LocalDateTime messageTime = LocalDateTime.of(2019, 01, 01, 12, 5);
@@ -595,7 +643,7 @@ public class SplitAndJoinDefaultServiceTest {
             messagingDao.findUserMessageByGroupId(groupId);
             result = fragments;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
+            pModeProvider.findUserMessageExchangeContext(userMessageFragment, MSHRole.RECEIVING);
             result = userMessageExchangeContext;
 
             userMessageExchangeContext.getPmodeKey();
@@ -607,14 +655,20 @@ public class SplitAndJoinDefaultServiceTest {
             legConfiguration.getSplitting().getJoinInterval();
             result = 1;
 
-            new Timestamp(userMessage.getMessageInfo().getTimestamp().getTime());
+            userMessageFragment.getMessageInfo().getMessageId();
+            result = firstFragmentMessageId;
+
+            userMessageLogDao.findByMessageId(firstFragmentMessageId);
+            result = userMessageLog;
+
+            new Timestamp(userMessageLog.getReceived().getTime());
             result = timestamp;
 
             timestamp.toLocalDateTime();
             result = messageTime;
         }};
 
-        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(group1);
+        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(group1, MSHRole.RECEIVING);
         Assert.assertTrue(groupExpired);
 
     }
@@ -634,7 +688,7 @@ public class SplitAndJoinDefaultServiceTest {
             result = fragments;
         }};
 
-        splitAndJoinDefaultService.messageFragmentSendFailed(groupId);
+        splitAndJoinDefaultService.splitAndJoinSendFailed(groupId);
 
         new Verifications() {{
             userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId());
@@ -711,6 +765,53 @@ public class SplitAndJoinDefaultServiceTest {
             Assert.assertTrue(messageIds.contains(fragmentId));
 
             userMessageDefaultService.scheduleSendingSignalError(groupId, ebMS3ErrorCode, errorDetail, reversePmodeKey);
+        }};
+    }
+
+    @Test
+    public void incrementSentFragments(@Injectable MessageGroupEntity messageGroupEntity) {
+        String groupId = "123";
+
+        new Expectations() {{
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+        }};
+
+        splitAndJoinDefaultService.incrementSentFragments(groupId);
+
+        new Verifications() {{
+            messageGroupDao.update(messageGroupEntity);
+            messageGroupEntity.incrementSentFragments();
+
+        }};
+    }
+
+    @Test
+    public void incrementReceivedFragments(@Injectable MessageGroupEntity messageGroupEntity) {
+        String groupId = "123";
+        String backendName = "mybackend";
+
+        new Expectations() {{
+            messageGroupEntity.getGroupId();
+            result = groupId;
+
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+
+            messageGroupEntity.getReceivedFragments();
+            result = 2;
+
+            messageGroupEntity.getFragmentCount();
+            result = 2;
+        }};
+
+        splitAndJoinDefaultService.incrementReceivedFragments(groupId, backendName);
+
+        new Verifications() {{
+            messageGroupEntity.incrementReceivedFragments();
+            messageGroupDao.update(messageGroupEntity);
+            userMessageService.scheduleSourceMessageRejoinFile(groupId, backendName);
+
         }};
     }
 
@@ -816,4 +917,6 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.decompressGzip(compressSourceMessage, decompressed);
         Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
+
+
 }

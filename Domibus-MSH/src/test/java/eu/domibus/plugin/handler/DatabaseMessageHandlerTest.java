@@ -1,5 +1,6 @@
 package eu.domibus.plugin.handler;
 
+import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.message.UserMessageLogService;
@@ -35,10 +36,7 @@ import eu.domibus.ebms3.common.model.Service;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.DuplicateMessageException;
-import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.messaging.PModeMismatchException;
+import eu.domibus.messaging.*;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
 import mockit.Expectations;
@@ -890,6 +888,44 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
+    public void testValidateOriginalUserOK() throws Exception {
+        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+
+        final UserMessage userMessage = createUserMessage();
+
+        List<String> recipients = new ArrayList<>();
+        recipients.add(MessageConstants.ORIGINAL_SENDER);
+        recipients.add(MessageConstants.FINAL_RECIPIENT);
+
+        dmh.validateOriginalUser(userMessage, originalUser, recipients);
+    }
+
+    @Test(expected =  AccessDeniedException.class)
+    public void testValidateOriginalUserNoFR() throws Exception {
+        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+
+        final UserMessage userMessage = createUserMessage();
+
+        List<String> recipients = new ArrayList<>();
+        recipients.add(MessageConstants.ORIGINAL_SENDER);
+
+        dmh.validateOriginalUser(userMessage, originalUser, recipients);
+    }
+
+    @Test(expected =  AccessDeniedException.class)
+    public void testValidateOriginalUserNoMatch() throws Exception {
+        String originalUser = "nobodywho";
+
+        final UserMessage userMessage = createUserMessage();
+
+        List<String> recipients = new ArrayList<>();
+        recipients.add(MessageConstants.ORIGINAL_SENDER);
+        recipients.add(MessageConstants.FINAL_RECIPIENT);
+
+        dmh.validateOriginalUser(userMessage, originalUser, recipients);
+    }
+
+    @Test
     public void testDownloadMessageOK() throws Exception {
 
         final UserMessage userMessage = createUserMessage();
@@ -1174,7 +1210,25 @@ public class DatabaseMessageHandlerTest {
                 Assert.assertNull(finalStatus);
             }};
         }
+    }
 
+    @Test
+    public void testcreateNewParty() {
+        String mpc = "mpc_qn";
+        String initiator = "initiator";
+        // Given
+        new Expectations() {{
+            messageExchangeService.extractInitiator(mpc);
+            result = initiator;
+        }};
+        Party party = dmh.createNewParty(mpc);
+        Assert.assertNotNull(party);
+        Assert.assertEquals(initiator, party.getName());
+    }
 
+    @Test
+    public void testcreateNewPartyNull() {
+        Party party = dmh.createNewParty(null);
+        Assert.assertNull(party);
     }
 }

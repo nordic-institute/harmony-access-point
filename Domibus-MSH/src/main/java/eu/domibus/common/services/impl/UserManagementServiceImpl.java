@@ -39,8 +39,6 @@ public class UserManagementServiceImpl implements UserService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceImpl.class);
 
-//    protected static final String LOGIN_SUSPENSION_TIME = "domibus.console.login.suspension.time";
-
     @Autowired
     protected UserDao userDao;
 

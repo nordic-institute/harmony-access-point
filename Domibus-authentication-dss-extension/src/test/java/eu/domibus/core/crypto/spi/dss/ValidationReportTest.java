@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -29,13 +30,22 @@ public class ValidationReportTest {
     }
 
     @Test
+    public void isValidDetailReportCertificateIsNull() {
+        ValidationReport validationReport = new ValidationReport();
+        final List<ConstraintInternal> constraints = new ArrayList<>();
+        constraints.add(new ConstraintInternal("BBB_XCV_CCCBB", "OK"));
+        constraints.add(new ConstraintInternal("BBB_XCV_ICTIVRSC", "OK"));
+        Assert.assertFalse(validationReport.isValid(new DetailedReport(), constraints));
+    }
+
+    @Test
     public void isValidAnchorAndValidityDate() throws JAXBException {
         InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
         JAXBContext jaxbContext = JAXBContext.newInstance(DetailedReport.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         final DetailedReport detailedReport = (DetailedReport) unmarshaller.unmarshal(xmlStream);
 
-        final ArrayList<ConstraintInternal> constraints = new ArrayList<>();
+        final List<ConstraintInternal> constraints = new ArrayList<>();
         constraints.add(new ConstraintInternal("BBB_XCV_CCCBB", "OK"));
         constraints.add(new ConstraintInternal("BBB_XCV_ICTIVRSC", "OK"));
         ValidationReport validationReport = new ValidationReport();

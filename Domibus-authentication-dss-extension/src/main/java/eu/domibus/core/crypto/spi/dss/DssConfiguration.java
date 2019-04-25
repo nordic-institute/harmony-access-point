@@ -15,6 +15,7 @@ import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
+import org.apache.wss4j.dom.engine.WSSConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,7 +76,7 @@ public class DssConfiguration {
     private String proxyHttpsHost;
 
     @Value("${domibus.authentication.dss.proxy.https.port:0}")
-    private int proxyHttpsPort;
+    private String proxyHttpsPort;
 
     @Value("${domibus.authentication.dss.proxy.https.user:NONE}")
     private String proxyHttpsUser;
@@ -90,7 +91,7 @@ public class DssConfiguration {
     private String proxyHttpHost;
 
     @Value("${domibus.authentication.dss.proxy.http.port:0}")
-    private int proxyHttpPort;
+    private String proxyHttpPort;
 
     @Value("${domibus.authentication.dss.proxy.http.user:NONE}")
     private String proxyHttpUser;
@@ -151,13 +152,23 @@ public class DssConfiguration {
         ProxyConfig proxyConfig = new ProxyConfig();
         if (!NONE.equals(proxyHttpsHost)) {
             LOG.debug("Configuring Dss https proxy:");
-            final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost, proxyHttpsPort, proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
-            proxyConfig.setHttpsProperties(httpsProperties);
+            try {
+                int httpsPort = Integer.parseInt(proxyHttpsPort);
+                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost,httpsPort , proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
+                proxyConfig.setHttpsProperties(httpsProperties);
+            }catch (NumberFormatException n) {
+                LOG.warn("Error parsing https port config:[{}], skipping https configuration",proxyHttpsHost,n);
+            }
         }
         if (!NONE.equals(proxyHttpHost)) {
             LOG.debug("Configuring Dss http proxy:");
-            final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, proxyHttpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
-            proxyConfig.setHttpProperties(httpProperties);
+            try {
+                int httpPort = Integer.parseInt(proxyHttpPort);
+                final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, httpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
+                proxyConfig.setHttpProperties(httpProperties);
+            }catch (NumberFormatException n) {
+                LOG.warn("Error parsing http port config:[{}], skipping http configuration",proxyHttpPort,n);
+            }
         }
         dataLoader.setProxyConfig(proxyConfig);
         return dataLoader;
@@ -197,6 +208,9 @@ public class DssConfiguration {
         }
         for (OtherTrustedList otherTrustedList : otherTrustedLists) {
             LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
+        }
+        if(otherTrustedLists.isEmpty()){
+            LOG.info("No custom trusted list configured.");
         }
         return otherTrustedLists;
     }
@@ -243,7 +257,6 @@ public class DssConfiguration {
     public ValidationConstraintPropertyMapper contraints(DomibusPropertyExtService domibusPropertyExtService,
                                                          DomainContextExtService domainContextExtService, Environment environment) {
         return new ValidationConstraintPropertyMapper(domibusPropertyExtService, domainContextExtService, environment);
-
     }
 
     @Bean
@@ -258,6 +271,8 @@ public class DssConfiguration {
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper) {
+        //needed to initialize WSS4J property bundles to have correct message in the WSSException.
+        WSSConfig.init();
         return new DomibusDssCryptoSpi(
                 defaultDomainCryptoService,
                 certificateVerifier,

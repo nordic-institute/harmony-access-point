@@ -8,6 +8,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.common.model.PartyInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -54,6 +55,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     protected UserMessageService userMessageService;
 
+    @Autowired
+    protected SplitAndJoinService splitAndJoinService;
+
     /**
      * {@inheritDoc}
      */
@@ -85,6 +89,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 switch (isOk) {
                     case OK:
                         userMessageLogService.setMessageAsAcknowledged(messageId);
+
+                        if (userMessage.isUserMessageFragment()) {
+                            splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
+                        }
                         break;
                     case WARNING:
                         userMessageLogService.setMessageAsAckWithWarnings(messageId);
@@ -110,7 +118,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 updateRetryLoggingService.messageFailedInANewTransaction(userMessage, userMessageLog);
 
                 if (userMessage.isUserMessageFragment()) {
-                    userMessageService.scheduleMessageFragmentSendFailed(userMessage.getMessageFragment().getGroupId(), userMessageLog.getBackend());
+                    userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId());
                 }
                 break;
         }

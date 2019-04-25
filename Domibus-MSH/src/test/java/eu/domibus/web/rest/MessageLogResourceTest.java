@@ -34,7 +34,6 @@ import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -343,7 +342,7 @@ public class MessageLogResourceTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype);
+                "refToMessageId", date, date, messageSubtype, false, false);
         result.add(messageLog);
         return result;
     }

@@ -1,9 +1,9 @@
 package eu.domibus.common.model.logging;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -55,6 +55,9 @@ public class MessageLogInfo {
 
     private Date restored;
 
+    private Boolean messageFragment;
+
+    private Boolean sourceMessage;
 
     public MessageLogInfo() {
     }
@@ -77,7 +80,9 @@ public class MessageLogInfo {
                           final String refToMessageId,
                           final Date failed,
                           final Date restored,
-                          final MessageSubtype messageSubtype) {
+                          final MessageSubtype messageSubtype,
+                          final Boolean messageFragment,
+                          final Boolean sourceMessage) {
         //message log information.
         this.messageId = messageId;
         this.messageStatus = messageStatus;
@@ -100,8 +105,9 @@ public class MessageLogInfo {
         this.failed = failed;
         this.restored = restored;
         this.messageSubtype = messageSubtype;
+        this.messageFragment = messageFragment;
+        this.sourceMessage = sourceMessage;
     }
-
 
 
     public String getConversationId() {
@@ -204,6 +210,22 @@ public class MessageLogInfo {
         return messageSubtype;
     }
 
+    public Boolean getMessageFragment() {
+        return messageFragment;
+    }
+
+    public void setMessageFragment(Boolean messageFragment) {
+        this.messageFragment = messageFragment;
+    }
+
+    public Boolean getSourceMessage() {
+        return sourceMessage;
+    }
+
+    public void setSourceMessage(Boolean sourceMessage) {
+        this.sourceMessage = sourceMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -232,6 +254,7 @@ public class MessageLogInfo {
                 .append(refToMessageId, that.refToMessageId)
                 .append(failed, that.failed)
                 .append(restored, that.restored)
+                .append(messageFragment, this.messageFragment)
                 .isEquals();
     }
 
@@ -257,6 +280,7 @@ public class MessageLogInfo {
                 .append(failed)
                 .append(restored)
                 .append(messageSubtype)
+                .append(messageFragment)
                 .toHashCode();
     }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import com.google.common.collect.Lists;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,7 @@ public abstract class PropertyGroupMapper<E> {
     private final Environment environment;
 
     private final Pattern passwordPattern = Pattern.compile(".*password.*", Pattern.CASE_INSENSITIVE);
+
 
     public PropertyGroupMapper(final DomibusPropertyExtService domibusPropertyExtService,
                                final DomainContextExtService domainContextExtService,
@@ -76,19 +78,35 @@ public abstract class PropertyGroupMapper<E> {
     }
 
     private boolean propertyKeyExists(final String key) {
-        final boolean keyExistsInDomain = domibusPropertyExtService.containsDomainPropertyKey(domainContextExtService.getCurrentDomain(), key);
-        if (keyExistsInDomain) {
-            return keyExistsInDomain;
+        boolean keyExist;
+        DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
+        if(currentDomain!=null){
+            keyExist=domibusPropertyExtService.containsDomainPropertyKey(currentDomain, key);
+            LOG.trace("Checking if key:[{}] exists in domain:[{}]:[{}]",key,currentDomain,keyExist);
+        }else{
+            keyExist=domibusPropertyExtService.containsPropertyKey(key);
+            LOG.trace("Checking if key:[{}] exists in default domain configuration:[{}]",key,keyExist);
         }
-        return environment.containsProperty(key);
-
+        if (!keyExist) {
+            keyExist = environment.containsProperty(key);
+            LOG.trace("Checking if key:[{}] exists in spring environment:[{}]",key,keyExist);
+        }
+        return keyExist;
     }
 
     private String getPropertyValue(String key) {
-        String propertyValue = domibusPropertyExtService.getDomainProperty(domainContextExtService.getCurrentDomain(), key);
+        String propertyValue = null;
+        DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
+        if(currentDomain!=null){
+            propertyValue =domibusPropertyExtService.getDomainProperty(currentDomain, key);
+        }
+        else {
+            propertyValue =domibusPropertyExtService.getProperty(key);
+        }
         if (StringUtils.isEmpty(propertyValue)) {
             propertyValue = environment.getProperty(key);
         }
+        LOG.trace("Property with key:[{}] has value:[{}]", key, propertyValue);
         return propertyValue;
     }
 
