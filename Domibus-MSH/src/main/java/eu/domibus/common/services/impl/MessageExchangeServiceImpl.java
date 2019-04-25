@@ -68,8 +68,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
 
-    protected static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
-
     private static final String PULL = "pull";
 
     @Autowired

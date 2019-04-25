@@ -3,6 +3,8 @@ package eu.domibus.ebms3.puller;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.model.configuration.Party;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.internal.Function;
 
@@ -18,6 +20,8 @@ import java.util.Set;
  */
 public class PullFrequencyHelper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PullFrequencyHelper.class);
+
     @Autowired
     protected DomainContextProvider domainProvider;
 
@@ -28,37 +32,46 @@ public class PullFrequencyHelper {
 
 
     public void setResponders(Set<Party> responderParties) {
+        LOG.debug("setResponders ... ");
         getDomainPullFrequencyHelper().setResponders(responderParties);
     }
 
     public int getTotalPullRequestNumberPerJobCycle() {
+        LOG.debug("getTotalPullRequestNumberPerJobCycle ... ");
         return getDomainPullFrequencyHelper().getTotalPullRequestNumberPerJobCycle();
     }
 
     public Integer getPullRequestNumberForResponder(final String responderName) {
+        LOG.debug("getPullRequestNumberForResponder ... ");
         return getDomainPullFrequencyHelper().getPullRequestNumberForResponder(responderName);
     }
 
     public void success(final String partyName) {
+        LOG.debug("success ... ");
         getDomainPullFrequencyHelper().success(partyName);
     }
 
     public void increaseError(final String partyName) {
+        LOG.debug("increaseError ... ");
         getDomainPullFrequencyHelper().increaseError(partyName);
     }
 
     private synchronized DomainPullFrequencyHelper configureNewDomain(Domain currentDomain) {
+        LOG.debug("...synchronized...[{}] configureNewDomain ... ", System.currentTimeMillis());
         DomainPullFrequencyHelper domainPullFrequencyHelper = domainPullFrequencyHelperFunction.apply(currentDomain);
         domainPullFrequencyHelperMap.put(currentDomain, domainPullFrequencyHelper);
         return domainPullFrequencyHelper;
     }
 
     private DomainPullFrequencyHelper getDomainPullFrequencyHelper() {
+        LOG.debug("getDomainPullFrequencyHelper ... ");
         Domain currentDomain = domainProvider.getCurrentDomain();
         DomainPullFrequencyHelper domainPullFrequencyHelper = domainPullFrequencyHelperMap.get(currentDomain);
         if (domainPullFrequencyHelper != null) {
+            LOG.debug("domainPullFrequencyHelper != null [{}] ... ", domainPullFrequencyHelper);
             return domainPullFrequencyHelper;
         }
+        LOG.debug("...before synchronized...[{}] configureNewDomain ... ", System.currentTimeMillis());
         return configureNewDomain(currentDomain);
     }
 

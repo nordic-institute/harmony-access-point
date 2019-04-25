@@ -40,6 +40,7 @@ public class ResponderPullFrequency {
             final Integer maxRequestPerJobCycle,
             final Integer recoveringTimeInSeconds,
             final Integer numberOfErrorToTriggerFrequencyDecrease, String responderName) {
+        LOG.debug("ResponderPullFrequency ... ");
         this.maxRequestPerJobCycle = maxRequestPerJobCycle;
         this.recoveringTimeInSeconds = recoveringTimeInSeconds;
         this.numberOfErrorToTriggerFrequencyDecrease = numberOfErrorToTriggerFrequencyDecrease;
@@ -47,6 +48,7 @@ public class ResponderPullFrequency {
     }
 
     private synchronized void error() {
+        LOG.debug("...synchronized...[{}] error ... ", System.currentTimeMillis());
         if (recoveringTimeInSeconds != 0) {
             adaptableRequestPerJobCycle.set(1);
             increment.set(0);
@@ -56,6 +58,7 @@ public class ResponderPullFrequency {
     }
 
     public void success() {
+        LOG.debug("success ... ");
         lowCapacity.compareAndSet(true, false);
         errorCounter.set(0);
     }
@@ -64,19 +67,22 @@ public class ResponderPullFrequency {
      * Not need
      */
     public void increaseErrorCounter() {
+        LOG.debug("increaseErrorCounter ... ");
         if (recoveringTimeInSeconds != 0 && !lowCapacity.get()) {
             final int numberOfError = errorCounter.incrementAndGet();
             if (numberOfError >= numberOfErrorToTriggerFrequencyDecrease) {
-                LOG.trace("Number of pull errors:[{}] >= number of error to trigger frequency decrease:[{}] for responder:[{}]-> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease,responderName);
+                LOG.debug("Number of pull errors:[{}] >= number of error to trigger frequency decrease:[{}] for responder:[{}]-> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease,responderName);
+                LOG.debug("...before synchronized...[{}] error ... ", System.currentTimeMillis());
                 error();
             }
         }
     }
 
     public Integer getMaxRequestPerJobCycle() {
-        LOG.trace("recoveringTimeInSeconds:[{}], fullCapacity:[{}], low capacity:[{}], maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, fullCapacity, lowCapacity, 1);
+        LOG.debug("getMaxRequestPerJobCycle ... ");
+        LOG.debug("recoveringTimeInSeconds:[{}], fullCapacity:[{}], low capacity:[{}], maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, fullCapacity, lowCapacity, 1);
         if (lowCapacity.get()) {
-            LOG.trace("get max pull request for Low capacity activated for responderName:[{}], pull request pace=1", responderName);
+            LOG.debug("get max pull request for Low capacity activated for responderName:[{}], pull request pace=1", responderName);
             return 1;
         }
         if (recoveringTimeInSeconds == 0 || fullCapacity.get()) {
@@ -114,6 +120,7 @@ public class ResponderPullFrequency {
 
     @Override
     public String toString() {
+        LOG.debug("toString ... ");
         return "DomainPullFrequency{" +
                 "maxRequestPerJobCycle=" + maxRequestPerJobCycle +
                 ", recoveringTimeInSeconds=" + recoveringTimeInSeconds +

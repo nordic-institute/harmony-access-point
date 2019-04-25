@@ -36,12 +36,14 @@ public class DomainPullFrequencyHelper {
         for (Party responderParty : responderParties) {
             if (responderPartyPullFrequencyMap.get(responderParty.getName()) == null) {
                 LOG.debug("Adding party:[{}] to frequency helper for domain:[{}]", responderParty.getName(), domain.getName());
+                LOG.debug("...before synchronized...[{}] addParty", System.currentTimeMillis());
                 addParty(responderParty);
             }
         }
     }
 
     private synchronized void addParty(Party responderParty) {
+        LOG.debug("...synchronized...[{}] addParty [{}]", System.currentTimeMillis(), responderParty);
         final Integer requestPerJobCycle = Integer.valueOf(domibusPropertyProvider.getDomainProperty("domibus.pull.request.send.per.job.cycle"));
         final Integer recoveringTimeInSeconds = Integer.valueOf(domibusPropertyProvider.getDomainProperty("domibus.pull.request.frequency.recovery.time"));
         final Integer numberOfErrorBeforeDecrease = Integer.valueOf(domibusPropertyProvider.getDomainProperty("domibus.pull.request.frequency.error.count"));
