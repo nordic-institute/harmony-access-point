@@ -17,6 +17,7 @@ import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -164,6 +165,14 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
                 LOG.info("Message metadata file written at: [{}]", fileObject.getName().getURI());
             }
 
+            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage);
+            if(scheduleFSMessagePayloadsSaving) {
+                //schedule thread: save payloads and mark the message as downloaded
+            } else {
+                //save payloads
+                //mark the message as downloaded
+            }
+
             //write payloads
             for (Map.Entry<String, FSPayload> entry : fsMessage.getPayloads().entrySet()) {
                 FSPayload fsPayload = entry.getValue();
@@ -182,6 +191,32 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         } catch (IOException | FSSetUpException ex) {
             throw new FSPluginException("An error occurred persisting downloaded message " + messageId, ex);
         }
+    }
+
+    protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage) {
+        final Map<String, FSPayload> payloads = fsMessage.getPayloads();
+        if (payloads == null || payloads.isEmpty()) {
+            LOG.debug("FSMessage does not have any payloads");
+            return false;
+        }
+
+        long totalPayloadLength = 0;
+        for (FSPayload fsPayload : payloads.values()) {
+            totalPayloadLength += fsPayload.getFileSize();
+        }
+
+        LOG.debug("FSMessage payloads totalPayloadLength(bytes) [{}]", totalPayloadLength);
+
+        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongDomainProperty(domain, PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
+        LOG.debug("Using configured payloadsScheduleThresholdMB [{}]", payloadsScheduleThresholdMB);
+
+        final Long payloadsScheduleThresholdBytes = payloadsScheduleThresholdMB * FileUtils.ONE_MB;
+        if (totalPayloadLength > payloadsScheduleThresholdBytes) {
+            LOG.debug("FSMessage payloads will be scheduled for saving");
+            return true;
+        }
+        return false;
+
     }
 
     private String getFileName(String contentId, FSPayload fsPayload) {
