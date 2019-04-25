@@ -80,7 +80,7 @@ public class TestService {
         XStream xstream = new XStream();
         xstream.addPermission(NoTypePermission.NONE);
         xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
-        xstream.addPermission(new ExplicitTypePermission(new Class[] {List.class, Submission.class, Submission.TypedProperty.class}));
+        xstream.addPermission(new ExplicitTypePermission(new Class[] { List.class, Submission.class, Submission.TypedProperty.class, Submission.Party.class }));
 
         Submission submission = (Submission) xstream.fromXML(testServiceFile.getInputStream());
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
