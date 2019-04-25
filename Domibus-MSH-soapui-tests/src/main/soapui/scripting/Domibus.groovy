@@ -1117,7 +1117,7 @@ class Domibus{
 
         commandString = "curl " + urlToDomibus(side, log, context) + "/rest/security/user/domain -b " + context.expand('${projectDir}') + "\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin) + "\" GET ";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[1].contains("200 OK")),"Error:getDomain: Error while trying to connect to domibus."
+        assert(commandResult[0].contains('{"code":')),"Error:getDomain: Error while trying to connect to domibus."
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1133,7 +1133,7 @@ class Domibus{
         } else {
             commandString="curl "+urlToDomibus(side, log, context)+"/rest/security/user/domain -b "+context.expand('${projectDir}')+"\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side, context, log, userLogin, passwordLogin)+"\" -X PUT -d \"\"\""+domainValue+"\"\"\"";
             commandResult = runCurlCommand(commandString, log)
-            assert(commandResult[1].contains("200 OK")||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
+            assert(commandResult[0].contains('{"entries":')||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
             debugLog("  setDomain  [][]  Domain set to $domainValue.",log)
         }
     }
@@ -1166,7 +1166,7 @@ class Domibus{
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/user/users -b "+context.expand( '${projectDir}')+"\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[1].contains("200 OK") || commandResult[1].contains("successfully")),"Error:getAdminConsoleUsers: Error while trying to connect to domibus.";
+        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:getAdminConsoleUsers: Error while trying to connect to domibus.";
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1197,7 +1197,7 @@ class Domibus{
                 debugLog("  addAdminConsoleUser  [][]  User \"$userAC\" parameters: $curlParams.", log)
                 commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand('${projectDir}') + "\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
                 commandResult = runCurlCommand(commandString, log)
-                assert(commandResult[1].contains("200 OK")||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addAdminConsoleUser: Error while trying to add a user.";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addAdminConsoleUser: Error while trying to add a user.";
                 log.info "  addAdminConsoleUser  [][]  Admin Console user \"$userAC\" added.";
             }
         } finally {
@@ -1242,7 +1242,7 @@ class Domibus{
                     curlParams = "[\n  {\n    \"userName\": \"$userAC\",\n    \"roles\": \"$roleAC\",\n    \"active\": true,\n    \"authorities\": [\n      \"$roleAC\"\n    ],\n    \"status\": \"REMOVED\",\n    \"suspended\": false,\n    \"deleted\": true\n    }\n]";
                     commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand('${projectDir}') + "\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
                     commandResult = runCurlCommand(commandString, log)
-                    assert(commandResult[1].contains("200 OK")),"Error:removeAdminConsoleUser: Error while trying to remove user $userAC.";
+                    assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:removeAdminConsoleUser: Error while trying to remove user $userAC.";
                     log.info "  removeAdminConsoleUser  [][]  User \"$userAC\" Removed."
                 } else {
                     log.info "  removeAdminConsoleUser  [][]  User \"$userAC\" was already deleted. No action needed.";
@@ -1265,7 +1265,7 @@ class Domibus{
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/plugin/users -b "+context.expand( '${projectDir}')+"\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[1].contains("200 OK") || commandResult[1].contains("successfully")),"Error:getPluginUsers: Error while trying to connect to domibus.";
+        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:getPluginUsers: Error while trying to connect to domibus.";
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1296,7 +1296,7 @@ class Domibus{
                 debugLog("  addPluginUser  [][]  curlParams: " + curlParams, log)
                 commandString = "curl " + urlToDomibus(side, log, context) + "/rest/plugin/users -b " + context.expand('${projectDir}') + "\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
                 commandResult = runCurlCommand(commandString, log)
-                assert(commandResult[1].contains("200 OK")||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
             }
         } finally {
@@ -1345,7 +1345,7 @@ class Domibus{
                 debugLog("  removePluginUser  [][]  curlParams: " + curlParams, log)
                 commandString = "curl " + urlToDomibus(side, log, context) + "/rest/plugin/users -b " + context.expand('${projectDir}') + "\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
                 commandResult = runCurlCommand(commandString, log)
-                assert(commandResult[1].contains("200 OK")||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:removePluginUser: Error while trying to remove user $userPl.";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:removePluginUser: Error while trying to remove user $userPl.";
                 log.info "  removePluginUser  [][]  Plugin user $userPl removed.";
             }
         } finally {
@@ -1506,7 +1506,7 @@ class Domibus{
                     curlParams = JsonOutput.toJson(filtersMap).toString()
                     commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagefilters -b " + context.expand('${projectDir}') + "\\cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
                     commandResult = runCurlCommand(commandString, log)
-                    assert(commandResult[1].contains("200 OK") || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus.";
+                    assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus.";
                     log.info "  setMessageFilters  [][]  Message filters update done successfully for Domibus: \"" + side + "\".";
                 }
             }
