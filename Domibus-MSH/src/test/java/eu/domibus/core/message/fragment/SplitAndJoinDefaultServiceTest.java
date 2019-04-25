@@ -617,16 +617,18 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void isGroupExpired(@Injectable MessageGroupEntity group1,
-                               @Injectable UserMessage userMessage,
+                               @Injectable UserMessage userMessageFragment,
                                @Injectable MessageExchangeConfiguration userMessageExchangeContext,
                                @Injectable LegConfiguration legConfiguration,
-                               @Mocked Timestamp timestamp) throws EbMS3Exception {
+                               @Mocked Timestamp timestamp,
+                               @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
         String sourceMessageId = "123";
         String groupId = sourceMessageId;
         String pmodeKey = "pModeKey";
+        String firstFragmentMessageId = "456";
 
         final List<UserMessage> fragments = new ArrayList<>();
-        fragments.add(userMessage);
+        fragments.add(userMessageFragment);
 
         final LocalDateTime now = LocalDateTime.of(2019, 01, 01, 12, 10);
         final LocalDateTime messageTime = LocalDateTime.of(2019, 01, 01, 12, 5);
@@ -641,7 +643,7 @@ public class SplitAndJoinDefaultServiceTest {
             messagingDao.findUserMessageByGroupId(groupId);
             result = fragments;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
+            pModeProvider.findUserMessageExchangeContext(userMessageFragment, MSHRole.RECEIVING);
             result = userMessageExchangeContext;
 
             userMessageExchangeContext.getPmodeKey();
@@ -653,7 +655,13 @@ public class SplitAndJoinDefaultServiceTest {
             legConfiguration.getSplitting().getJoinInterval();
             result = 1;
 
-            new Timestamp(userMessage.getMessageInfo().getTimestamp().getTime());
+            userMessageFragment.getMessageInfo().getMessageId();
+            result = firstFragmentMessageId;
+
+            userMessageLogDao.findByMessageId(firstFragmentMessageId);
+            result = userMessageLog;
+
+            new Timestamp(userMessageLog.getReceived().getTime());
             result = timestamp;
 
             timestamp.toLocalDateTime();
