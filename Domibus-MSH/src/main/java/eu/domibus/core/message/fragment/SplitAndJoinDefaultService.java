@@ -496,11 +496,12 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             LOG.debug("Could no find Splitting configuration");
             return false;
         }
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(firstFragment.getMessageInfo().getMessageId());
 
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
         final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime firstFragmentTime = new Timestamp(firstFragment.getMessageInfo().getTimestamp().getTime()).toLocalDateTime();
+        final LocalDateTime firstFragmentTime = new Timestamp(userMessageLog.getReceived().getTime()).toLocalDateTime();
 
         LOG.debug("Checking if the (current time [{}] - firstFragment time [{}]) > join interval [{}]", now, firstFragmentTime, joinInterval);
         if (Duration.between(firstFragmentTime, now).toMinutes() > joinInterval) {
