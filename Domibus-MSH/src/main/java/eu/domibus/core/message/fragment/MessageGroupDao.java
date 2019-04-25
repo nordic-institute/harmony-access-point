@@ -40,4 +40,10 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
         query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
         return query.getResultList();
     }
+
+    public List<MessageGroupEntity> findOngoingSendNonExpiredOrRejected() {
+        TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findSendNonExpiredOrRejected", MessageGroupEntity.class);
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
+        return query.getResultList();
+    }
 }

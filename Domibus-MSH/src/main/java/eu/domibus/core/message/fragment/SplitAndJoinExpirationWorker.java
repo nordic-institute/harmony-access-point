@@ -43,6 +43,6 @@ public class SplitAndJoinExpirationWorker extends DomibusQuartzJobBean {
             return;
         }
 
-        splitAndJoinService.handleExpiredMessages();
+        splitAndJoinService.handleExpiredGroups();
     }
 }
