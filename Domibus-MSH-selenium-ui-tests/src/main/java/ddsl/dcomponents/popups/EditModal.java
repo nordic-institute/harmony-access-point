@@ -43,9 +43,9 @@ public class EditModal extends DComponent {
 		return new DButton(driver, cancelBtn);
 	}
 
-	public String getTitle() throws Exception {
-		return new DObject(driver, title).getText();
-	}
+//	public String getTitle() throws Exception {
+//		return new DObject(driver, title).getText();
+//	}
 
 	public void clickOK() throws Exception {
 		getOkBtn().click();

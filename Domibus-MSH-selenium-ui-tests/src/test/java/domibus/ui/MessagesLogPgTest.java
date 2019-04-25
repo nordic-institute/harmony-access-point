@@ -244,7 +244,7 @@ public class MessagesLogPgTest extends BaseTest {
 		String messageRefID = Generator.randomAlphaNumeric(10);
 		String conversationID = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/doNothingSelfSending.xml", null);
+		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageID = messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID).getMessageID().get(0);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);

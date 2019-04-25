@@ -6,6 +6,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DOMIBUS_PAGES;
 import ddsl.enums.DRoles;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -233,6 +234,8 @@ public class PluginUsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
 		PluginUsersPage page = login(data.getAdminUser());
+
+//		((JavascriptExecutor) driver).executeScript("document.querySelector('#userTable').className = 'material striped ngx-datatable fixed-header scroll-horz selectable multi-selection'");
 
 		DGrid grid = page.grid();
 		grid.scrollToAndSelect("User Name", username);

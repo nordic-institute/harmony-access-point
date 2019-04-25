@@ -1,6 +1,9 @@
-package pages;
+package pages.truststore;
 
+import ddsl.dcomponents.grid.DGrid;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import ddsl.dcomponents.DomibusPage;
@@ -20,5 +23,14 @@ public class TrustStorePage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
 	}
 
+	@FindBy(css = "#errorLogTable")
+	WebElement truststoreTable;
 
+//	@FindBy(css = "#uploadbutton_id")
+//	WebElement uploadButton;
+
+
+	public DGrid grid() {
+		return new DGrid(driver, truststoreTable);
+	}
 }

@@ -70,8 +70,8 @@ public class DomibusRestClient {
 
 	private boolean isLoggedIn() {
 		WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.USERNAME));
-		String response = builder.get(ClientResponse.class).getEntity(String.class);
-		return (null != response && !response.isEmpty());
+		int response = builder.get(ClientResponse.class).getStatus();
+		return (response == 200);
 	}
 
 	private String sanitizeResponse(String response) {

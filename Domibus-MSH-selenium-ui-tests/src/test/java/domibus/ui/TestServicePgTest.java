@@ -77,6 +77,8 @@ public class TestServicePgTest extends BaseTest {
 //		soft.assertTrue(!page.getUpdateBtn().isEnabled(), "Update button is disabled until test button is clicked");
 
 		page.getTestBtn().click();
+		page.wait.forXMillis(1000);
+
 		soft.assertTrue(page.getUpdateBtn().isEnabled(), "Update button is enabled after test button is clicked");
 
 		page.wait.forXMillis(500);
