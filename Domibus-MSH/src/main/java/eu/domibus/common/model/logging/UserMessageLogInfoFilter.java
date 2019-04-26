@@ -35,13 +35,13 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.messageSubtype," +
                 "log.messageFragment," +
                 "log.sourceMessage" +
-                ")" + getQueryBody(filters);
+                ")" + getQueryBody();
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
     }
 
     public String countUserMessageLogQuery(boolean asc, Map<String, Object> filters) {
-        String query = "select count(message.id)" + getQueryBody(filters);
+        String query = "select count(message.id)" + getQueryBody();
 
         StringBuilder result = filterQuery(query, null, asc, filters);
         return result.toString();
@@ -50,10 +50,9 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     /**
      * Constructs the query body based on different conditions
      *
-     * @param filters values from GUI
      * @return String query body
      */
-    private String getQueryBody(Map<String, Object> filters) {
+    private String getQueryBody() {
         return
                 " from UserMessageLog log, " +
                         "UserMessage message " +

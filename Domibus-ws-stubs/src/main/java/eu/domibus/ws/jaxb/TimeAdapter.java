@@ -2,15 +2,13 @@ package eu.domibus.ws.jaxb;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * Custom adapter which extends {@link XmlAdapter} for {@code xsd:time} mapped to {@link LocalTime}
-
  */
 public class TimeAdapter extends XmlAdapter<String, LocalTime> {
-
-
 
     @Override
     public LocalTime unmarshal(String s) throws Exception {
@@ -27,5 +25,4 @@ public class TimeAdapter extends XmlAdapter<String, LocalTime> {
         }
         return lt.format(DateTimeFormatter.ISO_TIME);
     }
-
 }
