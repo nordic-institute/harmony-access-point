@@ -121,13 +121,13 @@ public class PartyServiceImpl implements PartyService {
         try {
             allParties = pModeProvider.findAllParties();
         } catch (IllegalStateException e) {
-            LOG.trace("findAllParties thrown: ", e);
+            LOG.trace("findAllParties thrown exception: ", e);
             return new ArrayList<>();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("linkPartyAndProcesses for party entities");
-            allParties.forEach(party -> LOG.debug("     [{}]", party));
+            LOG.debug("Linking party and processes for following parties: ");
+            allParties.forEach(party -> LOG.debug("      Party [{}]", party));
         }
 
         //create a new Party to live outside the service per existing party entity in the pmode.
@@ -146,7 +146,7 @@ public class PartyServiceImpl implements PartyService {
                         collect(collectingAndThen(toList(), ImmutableList::copyOf));
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("     allProcesses");
+            LOG.debug("Finding all processes in the pMode: ");
             allProcesses.forEach(process -> LOG.debug("[{}]", process));
         }
 
@@ -155,7 +155,7 @@ public class PartyServiceImpl implements PartyService {
         linkProcessWithPartyAsResponder(partyMapByName, allProcesses);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("     party");
+            LOG.debug("Finding all parties with initiators and responders: ");
             parties.forEach(party -> printPartyProcesses(party));
         }
 
@@ -163,17 +163,17 @@ public class PartyServiceImpl implements PartyService {
     }
 
     protected void printPartyProcesses(Party party) {
-        LOG.debug("[{}]", party);
+        LOG.debug("Party [{}]", party);
         if (party == null) {
             return;
         }
 
         if (party.getProcessesWithPartyAsInitiator() != null) {
-            LOG.debug("     initiator processes");
+            LOG.debug("     initiator processes: ");
             party.getProcessesWithPartyAsInitiator().forEach(process -> LOG.debug("[{}]", process));
         }
         if (party.getProcessesWithPartyAsResponder() != null) {
-            LOG.debug("     responder processes");
+            LOG.debug("     responder processes: ");
             party.getProcessesWithPartyAsResponder().forEach(process -> LOG.debug("[{}]", process));
         }
     }
