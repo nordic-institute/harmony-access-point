@@ -68,8 +68,8 @@ public class PluginUsersPage extends DomibusPage {
 		return new DButton(driver, deleteBtn);
 	}
 
-	public DGrid grid() {
-		return new DGrid(driver, userGridContainer);
+	public PluginUserGrid grid() {
+		return new PluginUserGrid(driver, userGridContainer);
 	}
 
 	public void newUser(String user, String role, String password, String confirmation) throws Exception {
