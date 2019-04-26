@@ -278,35 +278,35 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
     /**
-     * Check if this message is a test message
-     *
-     * @param message the message
-     * @return result of test service and action handle
+     * {@inheritDoc}
      */
     @Override
     public Boolean checkTestMessage(final UserMessage message) {
-        LOG.debug("Checking if it is a test message");
-        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(message.getCollaborationInfo().getService().getValue())
-                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(message.getCollaborationInfo().getAction());
+        return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean checkTestMessage(final String service, final String action) {
+        LOG.debug("Checking if the user message represented by the service [{}] and the action [{}] is a test message", service, action);
+
+        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(service) && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(action);
 
     }
 
     /**
-     * Check if this message is a test message
-     *
-     * @param legConfiguration the legConfiguration that matched the message
-     * @return result of test service and action handle
+     * {@inheritDoc}
      */
+    @Override
     public Boolean checkTestMessage(final LegConfiguration legConfiguration) {
-        LOG.debug("Checking if it is a test message");
-
         if (legConfiguration == null) {
+            LOG.debug("No leg configuration found");
             return false;
         }
 
-        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(legConfiguration.getService().getValue())
-                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(legConfiguration.getAction().getValue());
-
+        return checkTestMessage(legConfiguration.getService().getValue(), legConfiguration.getAction().getValue());
     }
 
     /**

@@ -10,6 +10,7 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.model.logging.MessageLog;
+import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
@@ -108,7 +109,10 @@ public class BackendNotificationService {
     private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
 
     @Autowired
-    UserMessageServiceHelper userMessageServiceHelper;
+    private UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    private UserMessageHandlerService userMessageHandlerService;
 
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
@@ -144,7 +148,7 @@ public class BackendNotificationService {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        final HashMap<String, Object> properties = new HashMap<>();
+        final Map<String, Object> properties = new HashMap<>();
         if (errorResult.getErrorCode() != null) {
             properties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
         }
@@ -170,6 +174,11 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
+        if(userMessageHandlerService.checkTestMessage(userMessage)) {
+            LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
+            return;
+        }
+
         final BackendConnector backendConnector = getBackendConnector(backendName);
         PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
         payloadSubmittedEvent.setCid(partInfo.getHref());
@@ -180,6 +189,11 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
+        if(userMessageHandlerService.checkTestMessage(userMessage)) {
+            LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
+            return;
+        }
+
         final BackendConnector backendConnector = getBackendConnector(backendName);
         PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
         payloadProcessedEvent.setCid(partInfo.getHref());
