@@ -56,7 +56,31 @@ public interface UserMessageHandlerService {
      */
     SOAPMessage handleNewSourceUserMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
 
+    /**
+     * Checks if this message is a test message.
+     *
+     * @param message the message
+     * @return result of test service and action handle
+     */
+
     Boolean checkTestMessage(UserMessage message);
+
+    /**
+     * Checks if this message is a test message.
+     *
+     * @param service the service of this user message
+     * @param action the action of this user message
+     *
+     * @return result of test service and action handle
+     */
+    Boolean checkTestMessage(String service, String action);
+
+    /**
+     * Checks if this message is a test message.
+     *
+     * @param legConfiguration the legConfiguration that matched the message
+     * @return result of test service and action handle
+     */
 
     Boolean checkTestMessage(final LegConfiguration legConfiguration);
 
