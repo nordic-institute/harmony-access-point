@@ -598,7 +598,7 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    public void getExpiredGroups(@Injectable MessageGroupEntity group1) {
+    public void getReceivedExpiredGroups(@Injectable MessageGroupEntity group1) {
         List<MessageGroupEntity> messageGroupEntities = new ArrayList<>();
         messageGroupEntities.add(group1);
 
