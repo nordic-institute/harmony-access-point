@@ -616,12 +616,12 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    public void isGroupExpired(@Injectable MessageGroupEntity group1,
-                               @Injectable UserMessage userMessageFragment,
-                               @Injectable MessageExchangeConfiguration userMessageExchangeContext,
-                               @Injectable LegConfiguration legConfiguration,
-                               @Mocked Timestamp timestamp,
-                               @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+    public void isReceivedGroupExpired(@Injectable MessageGroupEntity group1,
+                                       @Injectable UserMessage userMessageFragment,
+                                       @Injectable MessageExchangeConfiguration userMessageExchangeContext,
+                                       @Injectable LegConfiguration legConfiguration,
+                                       @Mocked Timestamp timestamp,
+                                       @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
         String sourceMessageId = "123";
         String groupId = sourceMessageId;
         String pmodeKey = "pModeKey";
@@ -670,7 +670,60 @@ public class SplitAndJoinDefaultServiceTest {
 
         final boolean groupExpired = splitAndJoinDefaultService.isReceivedGroupExpired(group1);
         Assert.assertTrue(groupExpired);
+    }
 
+    @Test
+    public void isSendGroupExpired(@Injectable MessageGroupEntity group1,
+                                   @Injectable final UserMessage sourceUserMessage,
+                                   @Injectable MessageExchangeConfiguration userMessageExchangeContext,
+                                   @Injectable LegConfiguration legConfiguration,
+                                   @Mocked Timestamp timestamp,
+                                   @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+        String sourceMessageId = "123";
+        String groupId = sourceMessageId;
+        String pmodeKey = "pModeKey";
+
+
+        final LocalDateTime now = LocalDateTime.of(2019, 01, 01, 12, 10);
+        final LocalDateTime messageTime = LocalDateTime.of(2019, 01, 01, 12, 5);
+
+        new Expectations(LocalDateTime.class) {{
+            LocalDateTime.now();
+            result = now;
+
+            group1.getGroupId();
+            result = groupId;
+
+            group1.getSourceMessageId();
+            result = sourceMessageId;
+
+            messagingDao.findUserMessageByMessageId(sourceMessageId);
+            result = sourceUserMessage;
+
+            pModeProvider.findUserMessageExchangeContext(sourceUserMessage, MSHRole.SENDING);
+            result = userMessageExchangeContext;
+
+            userMessageExchangeContext.getPmodeKey();
+            result = pmodeKey;
+
+            pModeProvider.getLegConfiguration(pmodeKey);
+            result = legConfiguration;
+
+            legConfiguration.getSplitting().getJoinInterval();
+            result = 1;
+
+            userMessageLogDao.findByMessageId(sourceMessageId);
+            result = userMessageLog;
+
+            new Timestamp(userMessageLog.getReceived().getTime());
+            result = timestamp;
+
+            timestamp.toLocalDateTime();
+            result = messageTime;
+        }};
+
+        final boolean groupExpired = splitAndJoinDefaultService.isSendGroupExpired(group1);
+        Assert.assertTrue(groupExpired);
     }
 
     @Test
@@ -917,6 +970,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.decompressGzip(compressSourceMessage, decompressed);
         Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
+
 
 
 }
