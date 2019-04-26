@@ -194,6 +194,7 @@ public abstract class PModeProvider {
         configurationRawDAO.create(configurationRaw);
 
         LOG.info("Configuration successfully updated");
+        this.refresh();
 
         // Sends a message into the topic queue in order to refresh all the singleton instances of the PModeProvider.
         signalService.signalPModeUpdate();
