@@ -603,7 +603,7 @@ public class SplitAndJoinDefaultServiceTest {
         messageGroupEntities.add(group1);
 
         new Expectations(splitAndJoinDefaultService) {{
-            splitAndJoinDefaultService.isGroupExpired(group1, MSHRole.RECEIVING);
+            splitAndJoinDefaultService.isReceivedGroupExpired(group1);
             result = true;
         }};
 
@@ -668,7 +668,7 @@ public class SplitAndJoinDefaultServiceTest {
             result = messageTime;
         }};
 
-        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(group1, MSHRole.RECEIVING);
+        final boolean groupExpired = splitAndJoinDefaultService.isReceivedGroupExpired(group1);
         Assert.assertTrue(groupExpired);
 
     }

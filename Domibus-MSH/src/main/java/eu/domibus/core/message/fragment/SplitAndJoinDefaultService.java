@@ -57,10 +57,7 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -435,7 +432,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected List<MessageGroupEntity> getSendExpiredGroups(final List<MessageGroupEntity> sendNonExpiredOrRejected) {
-        return sendNonExpiredOrRejected.stream().filter(messageGroupEntity -> isGroupExpired(messageGroupEntity, MSHRole.SENDING)).collect(Collectors.toList());
+        return sendNonExpiredOrRejected.stream().filter(messageGroupEntity -> isSendGroupExpired(messageGroupEntity)).collect(Collectors.toList());
     }
 
     protected void setSendGroupAsExpired(MessageGroupEntity messageGroupEntity) {
@@ -470,10 +467,51 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected List<MessageGroupEntity> getReceivedExpiredGroups(final List<MessageGroupEntity> receivedNonExpiredOrRejected) {
-        return receivedNonExpiredOrRejected.stream().filter(messageGroupEntity -> isGroupExpired(messageGroupEntity, MSHRole.RECEIVING)).collect(Collectors.toList());
+        return receivedNonExpiredOrRejected.stream().filter(messageGroupEntity -> isReceivedGroupExpired(messageGroupEntity)).collect(Collectors.toList());
     }
 
-    protected boolean isGroupExpired(MessageGroupEntity messageGroupEntity, MSHRole mshRole) {
+    protected boolean isSendGroupExpired(MessageGroupEntity messageGroupEntity) {
+        final String groupId = messageGroupEntity.getGroupId();
+        final String sourceMessageId = messageGroupEntity.getSourceMessageId();
+        final UserMessage sourceUserMessage = messagingDao.findUserMessageByMessageId(sourceMessageId);
+
+        LegConfiguration legConfiguration = null;
+        try {
+            MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(sourceUserMessage, MSHRole.SENDING);
+            String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
+            legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
+        } catch (EbMS3Exception e) {
+            throw new SplitAndJoinException("Error getting the pmodeKey", e);
+        }
+        if (legConfiguration.getSplitting() == null) {
+            LOG.debug("Could no find Splitting configuration");
+            return false;
+        }
+
+        //in minutes
+        final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(sourceMessageId);
+        final boolean messageExpired = isMessageExpired(sourceMessageId, userMessageLog.getReceived(), joinInterval);
+        if (messageExpired) {
+            LOG.debug("Message send group [{}] is expired", groupId);
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean isMessageExpired(final String messageId, final Date messageCreationDate, final int joinInterval) {
+        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime messageCreationTime = new Timestamp(messageCreationDate.getTime()).toLocalDateTime();
+
+        LOG.debug("Checking if the (current time [{}] - message [{}] creationTime  time [{}]) > join interval [{}]", now, messageId, messageCreationTime, joinInterval);
+        if (Duration.between(messageCreationTime, now).toMinutes() > joinInterval) {
+            LOG.debug("Message [{}] creationTime [{}] is > join interval [{}]", messageId, messageCreationTime, joinInterval);
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean isReceivedGroupExpired(MessageGroupEntity messageGroupEntity) {
         final String groupId = messageGroupEntity.getGroupId();
         final List<UserMessage> fragments = messagingDao.findUserMessageByGroupId(groupId);
         if (CollectionUtils.isEmpty(fragments)) {
@@ -486,7 +524,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         MessageExchangeConfiguration userMessageExchangeContext = null;
         LegConfiguration legConfiguration = null;
         try {
-            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(firstFragment, mshRole);
+            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(firstFragment, MSHRole.RECEIVING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
             legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
         } catch (EbMS3Exception e) {
@@ -496,16 +534,13 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             LOG.debug("Could no find Splitting configuration");
             return false;
         }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(firstFragment.getMessageInfo().getMessageId());
 
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime firstFragmentTime = new Timestamp(userMessageLog.getReceived().getTime()).toLocalDateTime();
-
-        LOG.debug("Checking if the (current time [{}] - firstFragment time [{}]) > join interval [{}]", now, firstFragmentTime, joinInterval);
-        if (Duration.between(firstFragmentTime, now).toMinutes() > joinInterval) {
-            LOG.debug("Message group [{}] is expired", groupId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(firstFragment.getMessageInfo().getMessageId());
+        final boolean messageExpired = isMessageExpired(firstFragment.getMessageInfo().getMessageId(), userMessageLog.getReceived(), joinInterval);
+        if (messageExpired) {
+            LOG.debug("Message received group [{}] is expired", groupId);
             return true;
         }
         return false;
