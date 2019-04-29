@@ -63,6 +63,36 @@
             </build>
         </profile>
         <profile>
+            <id>dss-extension</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-authentication-dss-extension</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>
+                                            src/main/assembly/authentication-dss-extension/authentication-dss-extension.xml
+                                        </descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>tomcat</id>
             <activation>
                 <activeByDefault>true</activeByDefault>

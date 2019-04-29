@@ -1,6 +1,7 @@
 package eu.domibus.core.message.fragment;
 
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -44,6 +45,7 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
     public List<MessageGroupEntity> findOngoingSendNonExpiredOrRejected() {
         TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findSendNonExpiredOrRejected", MessageGroupEntity.class);
         query.setParameter("MSH_ROLE", MSHRole.SENDING);
+        query.setParameter("SOURCE_MSG_STATUS", MessageStatus.SEND_ENQUEUED);
         return query.getResultList();
     }
 }

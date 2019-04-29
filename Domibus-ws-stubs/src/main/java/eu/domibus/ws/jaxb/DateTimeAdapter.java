@@ -6,10 +6,9 @@ import java.time.format.DateTimeFormatter;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * Custom adapter which extends {@link XmlAdapter} for {@code xsd:dateTime} mapped to {@link DateTime}
+ * Custom adapter which extends {@link XmlAdapter} for {@code xsd:dateTime} mapped to {@code LocalDateTime}
  */
 public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
-
 
     @Override
     public LocalDateTime unmarshal(String s) throws Exception {
@@ -26,5 +25,4 @@ public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
         }
         return dt.format(DateTimeFormatter.ISO_DATE_TIME);
     }
-
 }
