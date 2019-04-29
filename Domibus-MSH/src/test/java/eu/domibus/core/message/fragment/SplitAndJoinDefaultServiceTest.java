@@ -616,71 +616,72 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    public void isReceivedGroupExpired(@Injectable MessageGroupEntity group1,
-                                       @Injectable UserMessage userMessageFragment,
-                                       @Injectable MessageExchangeConfiguration userMessageExchangeContext,
-                                       @Injectable LegConfiguration legConfiguration,
-                                       @Mocked Timestamp timestamp,
-                                       @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+    public void isReceivedGroupExpired(@Injectable MessageGroupEntity group,
+                                       @Injectable UserMessage userMessageFragment) {
         String sourceMessageId = "123";
         String groupId = sourceMessageId;
-        String pmodeKey = "pModeKey";
         String firstFragmentMessageId = "456";
 
         final List<UserMessage> fragments = new ArrayList<>();
         fragments.add(userMessageFragment);
 
-        final LocalDateTime now = LocalDateTime.of(2019, 01, 01, 12, 10);
-        final LocalDateTime messageTime = LocalDateTime.of(2019, 01, 01, 12, 5);
-
-        new Expectations(LocalDateTime.class) {{
-            LocalDateTime.now();
-            result = now;
-
-            group1.getGroupId();
+        new Expectations(splitAndJoinDefaultService) {{
+            group.getGroupId();
             result = groupId;
 
             messagingDao.findUserMessageByGroupId(groupId);
             result = fragments;
 
-            pModeProvider.findUserMessageExchangeContext(userMessageFragment, MSHRole.RECEIVING);
-            result = userMessageExchangeContext;
-
-            userMessageExchangeContext.getPmodeKey();
-            result = pmodeKey;
-
-            pModeProvider.getLegConfiguration(pmodeKey);
-            result = legConfiguration;
-
-            legConfiguration.getSplitting().getJoinInterval();
-            result = 1;
-
-            userMessageFragment.getMessageInfo().getMessageId();
-            result = firstFragmentMessageId;
-
-            userMessageLogDao.findByMessageId(firstFragmentMessageId);
-            result = userMessageLog;
-
-            new Timestamp(userMessageLog.getReceived().getTime());
-            result = timestamp;
-
-            timestamp.toLocalDateTime();
-            result = messageTime;
+            splitAndJoinDefaultService.isGroupExpired((UserMessage) any, anyString);
+            result = true;
         }};
 
-        final boolean groupExpired = splitAndJoinDefaultService.isReceivedGroupExpired(group1);
+        final boolean groupExpired = splitAndJoinDefaultService.isReceivedGroupExpired(group);
         Assert.assertTrue(groupExpired);
+
+        new Verifications() {{
+            splitAndJoinDefaultService.isGroupExpired(userMessageFragment, groupId);
+        }};
     }
 
     @Test
-    public void isSendGroupExpired(@Injectable MessageGroupEntity group1,
-                                   @Injectable final UserMessage sourceUserMessage,
-                                   @Injectable MessageExchangeConfiguration userMessageExchangeContext,
-                                   @Injectable LegConfiguration legConfiguration,
-                                   @Mocked Timestamp timestamp,
-                                   @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+    public void isSendGroupExpired(@Injectable MessageGroupEntity group,
+                                   @Injectable final UserMessage sourceUserMessage) throws EbMS3Exception {
         String sourceMessageId = "123";
         String groupId = sourceMessageId;
+
+        new Expectations(splitAndJoinDefaultService) {{
+            group.getGroupId();
+            result = groupId;
+
+            group.getSourceMessageId();
+            result = sourceMessageId;
+
+            messagingDao.findUserMessageByMessageId(sourceMessageId);
+            result = sourceUserMessage;
+
+            splitAndJoinDefaultService.isGroupExpired((UserMessage) any, anyString);
+            result = true;
+        }};
+
+        final boolean groupExpired = splitAndJoinDefaultService.isSendGroupExpired(group);
+        Assert.assertTrue(groupExpired);
+
+        new Verifications() {{
+            splitAndJoinDefaultService.isGroupExpired(sourceUserMessage, groupId);
+        }};
+
+
+    }
+
+    @Test
+    public void isGroupExpired(@Injectable final UserMessage userMessage,
+                               @Injectable MessageExchangeConfiguration userMessageExchangeContext,
+                               @Injectable LegConfiguration legConfiguration,
+                               @Mocked Timestamp timestamp,
+                               @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+        String userMessageId = "123";
+        String groupId = userMessageId;
         String pmodeKey = "pModeKey";
 
 
@@ -691,16 +692,10 @@ public class SplitAndJoinDefaultServiceTest {
             LocalDateTime.now();
             result = now;
 
-            group1.getGroupId();
-            result = groupId;
+            userMessage.getMessageInfo().getMessageId();
+            result = userMessageId;
 
-            group1.getSourceMessageId();
-            result = sourceMessageId;
-
-            messagingDao.findUserMessageByMessageId(sourceMessageId);
-            result = sourceUserMessage;
-
-            pModeProvider.findUserMessageExchangeContext(sourceUserMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = userMessageExchangeContext;
 
             userMessageExchangeContext.getPmodeKey();
@@ -712,7 +707,7 @@ public class SplitAndJoinDefaultServiceTest {
             legConfiguration.getSplitting().getJoinInterval();
             result = 1;
 
-            userMessageLogDao.findByMessageId(sourceMessageId);
+            userMessageLogDao.findByMessageId(userMessageId);
             result = userMessageLog;
 
             new Timestamp(userMessageLog.getReceived().getTime());
@@ -722,8 +717,9 @@ public class SplitAndJoinDefaultServiceTest {
             result = messageTime;
         }};
 
-        final boolean groupExpired = splitAndJoinDefaultService.isSendGroupExpired(group1);
+        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(userMessage, groupId);
         Assert.assertTrue(groupExpired);
+
     }
 
     @Test
@@ -970,7 +966,6 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.decompressGzip(compressSourceMessage, decompressed);
         Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
-
 
 
 }

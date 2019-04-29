@@ -471,13 +471,14 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected boolean isSendGroupExpired(MessageGroupEntity messageGroupEntity) {
-        final String groupId = messageGroupEntity.getGroupId();
-        final String sourceMessageId = messageGroupEntity.getSourceMessageId();
-        final UserMessage sourceUserMessage = messagingDao.findUserMessageByMessageId(sourceMessageId);
+        final UserMessage sourceUserMessage = messagingDao.findUserMessageByMessageId(messageGroupEntity.getSourceMessageId());
+        return isGroupExpired(sourceUserMessage, messageGroupEntity.getGroupId());
+    }
 
+    protected boolean isGroupExpired(final UserMessage userMessage, String groupId) {
         LegConfiguration legConfiguration = null;
         try {
-            MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(sourceUserMessage, MSHRole.SENDING);
+            MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
             legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
         } catch (EbMS3Exception e) {
@@ -488,12 +489,13 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return false;
         }
 
+        final String messageId = userMessage.getMessageInfo().getMessageId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(sourceMessageId);
-        final boolean messageExpired = isMessageExpired(sourceMessageId, userMessageLog.getReceived(), joinInterval);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final boolean messageExpired = isMessageExpired(messageId, userMessageLog.getReceived(), joinInterval);
         if (messageExpired) {
-            LOG.debug("Message send group [{}] is expired", groupId);
+            LOG.debug("Message group [{}] is expired", groupId);
             return true;
         }
         return false;
@@ -521,29 +523,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         fragments.sort(Comparator.comparing(object -> object.getMessageInfo().getTimestamp()));
         final UserMessage firstFragment = fragments.get(0);
-        MessageExchangeConfiguration userMessageExchangeContext = null;
-        LegConfiguration legConfiguration = null;
-        try {
-            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(firstFragment, MSHRole.RECEIVING);
-            String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
-            legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
-        } catch (EbMS3Exception e) {
-            throw new SplitAndJoinException("Error getting the pmodeKey", e);
-        }
-        if (legConfiguration.getSplitting() == null) {
-            LOG.debug("Could no find Splitting configuration");
-            return false;
-        }
-
-        //in minutes
-        final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(firstFragment.getMessageInfo().getMessageId());
-        final boolean messageExpired = isMessageExpired(firstFragment.getMessageInfo().getMessageId(), userMessageLog.getReceived(), joinInterval);
-        if (messageExpired) {
-            LOG.debug("Message received group [{}] is expired", groupId);
-            return true;
-        }
-        return false;
+        return isGroupExpired(firstFragment, groupId);
     }
 
     @Override
