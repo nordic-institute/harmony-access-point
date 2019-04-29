@@ -1,7 +1,10 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -86,6 +89,12 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     @Autowired
     protected FSProcessFileService fsProcessFileService;
 
+    @Autowired
+    protected DomainTaskExtExecutor domainTaskExtExecutor;
+
+    @Autowired
+    private DomainExtService domainExtService;
+
     private final Map<String, Pattern> domainPatternCache = new HashMap<>();
 
     /**
@@ -126,11 +135,11 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         LOG.debug("Delivering File System Message [{}]", messageId);
         FSMessage fsMessage;
 
-        // Download message
+        // Browse message
         try {
-            fsMessage = downloadMessage(messageId, null);
+            fsMessage = browseMessage(messageId, null);
         } catch (MessageNotFoundException e) {
-            throw new FSPluginException("Unable to download message " + messageId, e);
+            throw new FSPluginException("Unable to browse message " + messageId, e);
         }
 
         //extract final recipient
@@ -165,26 +174,13 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
                 LOG.info("Message metadata file written at: [{}]", fileObject.getName().getURI());
             }
 
-            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage);
-            if(scheduleFSMessagePayloadsSaving) {
-                //schedule thread: save payloads and mark the message as downloaded
+            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage, domain);
+            if (scheduleFSMessagePayloadsSaving) {
+                LOG.debug("FSMessage payloads for message [{}] will be scheduled for saving", messageId);
+                final DomainDTO domainDTO = domainExtService.getDomain(domain);
+                domainTaskExtExecutor.submitLongRunningTask(() -> writePayloads(messageId, fsMessage, incomingFolderByMessageId), domainDTO);
             } else {
-                //save payloads
-                //mark the message as downloaded
-            }
-
-            //write payloads
-            for (Map.Entry<String, FSPayload> entry : fsMessage.getPayloads().entrySet()) {
-                FSPayload fsPayload = entry.getValue();
-                DataHandler dataHandler = fsPayload.getDataHandler();
-                String contentId = entry.getKey();
-                String fileName = getFileName(contentId, fsPayload);
-
-                try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName);
-                     FileContent fileContent = fileObject.getContent()) {
-                    dataHandler.writeTo(fileContent.getOutputStream());
-                    LOG.info("Message payload received: [{}]", fileObject.getName());
-                }
+                writePayloads(messageId, fsMessage, incomingFolderByMessageId);
             }
         } catch (JAXBException ex) {
             throw new FSPluginException("An error occurred while writing metadata for downloaded message " + messageId, ex);
@@ -193,7 +189,33 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
     }
 
-    protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage) {
+    protected void writePayloads(String messageId, FSMessage fsMessage, FileObject incomingFolderByMessageId) throws FSPluginException {
+        LOG.debug("Writing payloads for message [{}]", messageId);
+
+        //write payloads
+        for (Map.Entry<String, FSPayload> entry : fsMessage.getPayloads().entrySet()) {
+            FSPayload fsPayload = entry.getValue();
+            DataHandler dataHandler = fsPayload.getDataHandler();
+            String contentId = entry.getKey();
+            String fileName = getFileName(contentId, fsPayload);
+
+            try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName);
+                 FileContent fileContent = fileObject.getContent()) {
+                dataHandler.writeTo(fileContent.getOutputStream());
+                LOG.info("Message payload with cid [{}] received: [{}]", contentId, fileObject.getName());
+            } catch (IOException e) {
+                throw new FSPluginException("An error occurred persisting downloaded message " + messageId, e);
+            }
+        }
+        // Downloads message
+        try {
+            downloadMessage(messageId, null);
+        } catch (MessageNotFoundException e) {
+            throw new FSPluginException("Unable to download message " + messageId, e);
+        }
+    }
+
+    protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage, String domain) {
         final Map<String, FSPayload> payloads = fsMessage.getPayloads();
         if (payloads == null || payloads.isEmpty()) {
             LOG.debug("FSMessage does not have any payloads");
@@ -207,12 +229,12 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
         LOG.debug("FSMessage payloads totalPayloadLength(bytes) [{}]", totalPayloadLength);
 
-        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongDomainProperty(domain, PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
+        final Long payloadsScheduleThresholdMB = fsPluginProperties.getPayloadsScheduleThresholdMB(domain);
         LOG.debug("Using configured payloadsScheduleThresholdMB [{}]", payloadsScheduleThresholdMB);
 
         final Long payloadsScheduleThresholdBytes = payloadsScheduleThresholdMB * FileUtils.ONE_MB;
         if (totalPayloadLength > payloadsScheduleThresholdBytes) {
-            LOG.debug("FSMessage payloads will be scheduled for saving");
+            LOG.debug("FSMessage payloads size [{}] is bigger than configured payloadsScheduleThresholdBytes [{}]", totalPayloadLength, payloadsScheduleThresholdBytes);
             return true;
         }
         return false;

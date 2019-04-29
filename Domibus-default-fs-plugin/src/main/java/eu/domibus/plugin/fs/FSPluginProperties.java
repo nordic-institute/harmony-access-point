@@ -69,6 +69,8 @@ public class FSPluginProperties {
 
     private static final String ORDER = "order";
 
+    private static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
+
     @Resource(name = "fsPluginProperties")
     private Properties properties;
 
@@ -140,6 +142,17 @@ public class FSPluginProperties {
     public Integer getSentPurgeExpired(String domain) {
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
         return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
+    }
+
+    /**
+     * Gets the threshold value that will be used to schedule payloads for async saving
+     *
+     * @param domain The domain for which the value will be retrieved
+     * @return The threshold value in MB
+     */
+    public Long getPayloadsScheduleThresholdMB(String domain) {
+        String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD, "2000");
+        return StringUtils.isNotEmpty(value) ? Long.parseLong(value) : null;
     }
 
     /**
