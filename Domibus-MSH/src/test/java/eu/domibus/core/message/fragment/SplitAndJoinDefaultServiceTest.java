@@ -455,8 +455,20 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    public void setUserMessageFragmentAsFailed(@Injectable UserMessage userMessage,
-                                               @Injectable UserMessageLog messageLog) {
+    public void setUserMessageFragmentAsFailedSendEnqueued(@Injectable UserMessage userMessage,
+                                                           @Injectable UserMessageLog messageLog) {
+        setUserMessageFragmentAsFailed(userMessage, messageLog, MessageStatus.SEND_ENQUEUED);
+    }
+
+    @Test
+    public void setUserMessageFragmentAsFailedWaitingForRetry(@Injectable UserMessage userMessage,
+                                                              @Injectable UserMessageLog messageLog) {
+        setUserMessageFragmentAsFailed(userMessage, messageLog, MessageStatus.WAITING_FOR_RETRY);
+    }
+
+    @Test
+    public void setUserMessageFragmentAsFailedAcknowledged(@Injectable UserMessage userMessage,
+                                                              @Injectable UserMessageLog messageLog) {
         String messageId = "123";
         new Expectations() {{
             messagingDao.findUserMessageByMessageId(messageId);
@@ -466,7 +478,31 @@ public class SplitAndJoinDefaultServiceTest {
             result = messageLog;
 
             messageLog.getMessageStatus();
-            result = MessageStatus.SEND_ENQUEUED;
+            result = MessageStatus.ACKNOWLEDGED;
+            ;
+        }};
+
+        splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
+
+        new Verifications() {{
+            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            times = 0;
+        }};
+    }
+
+    protected void setUserMessageFragmentAsFailed(@Injectable UserMessage userMessage,
+                                                  @Injectable UserMessageLog messageLog, MessageStatus messageStatus) {
+        String messageId = "123";
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = messageLog;
+
+            messageLog.getMessageStatus();
+            result = messageStatus;
+            ;
         }};
 
         splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
@@ -474,7 +510,6 @@ public class SplitAndJoinDefaultServiceTest {
         new Verifications() {{
             updateRetryLoggingService.messageFailed(userMessage, messageLog);
             times = 1;
-
         }};
     }
 

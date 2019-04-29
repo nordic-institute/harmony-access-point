@@ -394,7 +394,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
         final MessageStatus messageStatus = messageLog.getMessageStatus();
-        if (MessageStatus.SEND_ENQUEUED != messageStatus) {
+        if (MessageStatus.ACKNOWLEDGED == messageStatus || MessageStatus.SEND_FAILURE == messageStatus) {
             LOG.debug("UserMessage fragment [{}] was not scheduled to be marked as failed: status is [{}]", messageId, messageStatus);
             return;
         }
