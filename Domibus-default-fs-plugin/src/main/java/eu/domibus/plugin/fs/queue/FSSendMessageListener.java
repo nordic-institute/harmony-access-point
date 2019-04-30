@@ -69,9 +69,9 @@ public class FSSendMessageListener implements MessageListener {
                 LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
                 return;
             }
-
         } catch (FileSystemException e) {
             LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
+            return;
         }
 
         if (domibusConfigurationExtService.isMultiTenantAware()) {
