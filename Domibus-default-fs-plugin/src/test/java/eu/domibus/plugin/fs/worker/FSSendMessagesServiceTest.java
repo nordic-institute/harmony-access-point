@@ -157,7 +157,7 @@ public class FSSendMessagesServiceTest {
         new VerificationsInOrder(1) {{
             FileObject fileActual;
             String domainActual;
-            instance.sendJMSMessageToOutQueue(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
             Assert.assertEquals(domain, domainActual);
         }};
@@ -198,7 +198,7 @@ public class FSSendMessagesServiceTest {
 
             FileObject fileActual;
             String domainActual;
-            instance.sendJMSMessageToOutQueue(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
             Assert.assertEquals(domainDefault, domainActual);
         }};
@@ -237,7 +237,7 @@ public class FSSendMessagesServiceTest {
 
             FileObject fileActual;
             String domainActual;
-            instance.sendJMSMessageToOutQueue(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
             Assert.assertEquals(domain1, domainActual);
         }};
@@ -265,7 +265,7 @@ public class FSSendMessagesServiceTest {
         new Verifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
-            instance.sendJMSMessageToOutQueue((FileObject)any, anyString);
+            instance.enqueueProcessableFile((FileObject)any, anyString);
             maxTimes = 0;
         }};
     }
