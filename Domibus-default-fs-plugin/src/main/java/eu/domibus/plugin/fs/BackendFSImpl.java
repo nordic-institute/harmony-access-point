@@ -27,6 +27,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.activation.DataHandler;
 import javax.validation.constraints.NotNull;
@@ -178,7 +180,11 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
             if (scheduleFSMessagePayloadsSaving) {
                 LOG.debug("FSMessage payloads for message [{}] will be scheduled for saving", messageId);
                 final DomainDTO domainDTO = domainExtService.getDomain(domain);
-                domainTaskExtExecutor.submitLongRunningTask(() -> writePayloads(messageId, fsMessage, incomingFolderByMessageId), domainDTO);
+                final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+                domainTaskExtExecutor.submitLongRunningTask(() -> {
+                    SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
+                    writePayloads(messageId, fsMessage, incomingFolderByMessageId);
+                }, domainDTO);
             } else {
                 writePayloads(messageId, fsMessage, incomingFolderByMessageId);
             }

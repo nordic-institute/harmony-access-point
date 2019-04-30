@@ -138,7 +138,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected PModeDefaultService pModeDefaultService;
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         checkMessageAuthorization(messageId);
 
