@@ -75,8 +75,6 @@ public class FSSendMessagesService {
     @Qualifier("fsPluginSendQueue")
     private Queue fsPluginSendQueue;
 
-    private Object lockFileSync = new Object();
-
     /**
      * Triggering the send messages means that the message files from the OUT directory
      * will be processed to be sent
@@ -329,13 +327,11 @@ public class FSSendMessagesService {
         }
 
         try {
-            synchronized (lockFileSync) {
-                if (fsFilesManager.hasLockFile(fileObject)) {
-                    LOG.debug("Skipping file [{}]: it has a lock file associated", fileName);
-                    return;
-                }
-                fsFilesManager.createLockFile(fileObject);
+            if (fsFilesManager.hasLockFile(fileObject)) {
+                LOG.debug("Skipping file [{}]: it has a lock file associated", fileName);
+                return;
             }
+            fsFilesManager.createLockFile(fileObject);
         } catch (FileSystemException e) {
             LOG.error("Exception while checking file lock: ", e);
             return;
