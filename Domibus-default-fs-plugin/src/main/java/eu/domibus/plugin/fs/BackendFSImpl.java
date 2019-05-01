@@ -252,7 +252,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         LOG.debug("Handling PayloadSubmittedEvent [{}]", event);
         try {
             FileObject fileObject = fsFilesManager.getEnsureRootLocation(event.getFileName());
-            fsFilesManager.createLockFile(fileObject);
         } catch (FileSystemException e) {
             LOG.error("Error handling PayloadSubmittedEvent", e);
         }
@@ -263,7 +262,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         LOG.debug("Handling PayloadProcessedEvent [{}]", event);
         try {
             FileObject fileObject = fsFilesManager.getEnsureRootLocation(event.getFileName());
-            fsFilesManager.deleteLockFile(fileObject);
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
         } catch (FileSystemException e) {
             LOG.error("Error handling PayloadProcessedEvent", e);

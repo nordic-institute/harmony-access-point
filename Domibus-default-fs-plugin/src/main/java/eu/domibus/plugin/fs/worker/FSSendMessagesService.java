@@ -52,10 +52,10 @@ public class FSSendMessagesService {
 
     @Autowired
     private FSPluginProperties fsPluginProperties;
-    
+
     @Autowired
     private FSFilesManager fsFilesManager;
-    
+
     @Autowired
     private FSProcessFileService fsProcessFileService;
 
@@ -84,7 +84,7 @@ public class FSSendMessagesService {
         LOG.debug("Sending file system messages...");
 
         sendMessages(null);
-        
+
         for (String domain : fsPluginProperties.getDomains()) {
             if (fsMultiTenancyService.verifyDomainExists(domain)) {
                 sendMessages(domain);
@@ -112,7 +112,7 @@ public class FSSendMessagesService {
             List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domainCode);
             LOG.debug("Processable files [{}]", processableFiles);
 
-            processableFiles.parallelStream().forEach(file -> sendJMSMessageToOutQueue(file, domainCode));
+            processableFiles.parallelStream().forEach(file -> enqueueProcessableFile(file, domainCode));
 
         } catch (FileSystemException ex) {
             LOG.error("Error sending messages", ex);
@@ -168,6 +168,11 @@ public class FSSendMessagesService {
         } finally {
             if (errorMessage != null) {
                 handleSendFailedMessage(processableFile, domain, errorMessage);
+            }
+            try {
+                fsFilesManager.deleteLockFile(processableFile);
+            } catch (FileSystemException e) {
+                LOG.error("Error deleting lock file", e);
             }
         }
     }
@@ -308,16 +313,27 @@ public class FSSendMessagesService {
     /**
      * Put a JMS message to FS Plugin Send queue
      *
-     * @param processableFile
+     * @param fileObject
      * @param domain
      */
-    protected void sendJMSMessageToOutQueue(final FileObject processableFile, final String domain) {
+    protected void enqueueProcessableFile(final FileObject fileObject, final String domain) {
 
         String fileName;
         try {
-            fileName = processableFile.getURL().getFile();
+            fileName = fileObject.getURL().getFile();
         } catch (FileSystemException e) {
             LOG.error("Exception while getting filename: ", e);
+            return;
+        }
+
+        try {
+            if (fsFilesManager.hasLockFile(fileObject)) {
+                LOG.debug("Skipping file [{}]: it has a lock file associated", fileName);
+                return;
+            }
+            fsFilesManager.createLockFile(fileObject);
+        } catch (FileSystemException e) {
+            LOG.error("Exception while checking file lock: ", e);
             return;
         }
 
