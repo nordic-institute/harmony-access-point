@@ -30,7 +30,7 @@ public class DomainContextServiceDelegate implements DomainContextExtService {
     @Override
     public DomainDTO getCurrentDomainSafely() {
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        return currentDomain!=null?domainConverter.convert(currentDomain, DomainDTO.class):null;
+        return currentDomain != null ? domainConverter.convert(currentDomain, DomainDTO.class) : null;
     }
 
     @Override
