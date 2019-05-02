@@ -42,11 +42,14 @@ import java.util.List;
  */
 @Configuration
 @PropertySource(value = "classpath:authentication-dss-extension-default.properties")
+@PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/extensions/config/authentication-dss-extension.properties")
 public class DssConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(DssConfiguration.class);
 
     private static final String NONE = "NONE";
+
+    private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
@@ -105,7 +108,7 @@ public class DssConfiguration {
     @Value("${domibus.authentication.dss.refresh.cron}")
     private String dssRefreshCronExpression;
 
-    @Value("${domibus.authentication.dss.enable.custom.trusted.list.for.multitenant}")
+    @Value("${" + DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT + "}")
     private boolean enableDssCustomTrustedListForMultiTenant;
 
     @Value("${domibus.authentication.dss.exception.on.missing.revocation.data}")
@@ -202,7 +205,7 @@ public class DssConfiguration {
             if (enableDssCustomTrustedListForMultiTenant) {
                 LOG.warn("Configured custom trusted lists are shared by all tenants.");
             } else {
-                LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[domibus.enable.dss.custom.trusted.list.for.multitenant] to change that behavior");
+                LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[{}] to change that behavior", DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT);
                 return Lists.newArrayList();
             }
         }
