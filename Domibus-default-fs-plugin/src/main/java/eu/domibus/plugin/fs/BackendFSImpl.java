@@ -221,6 +221,13 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
     }
 
+    /**
+     * Checks if the message payloads will be scheduled(async) or directly(sync) saved
+     *
+     * @param fsMessage The message payloads to be checked
+     * @param domain The current domain
+     * @return true if the payloads will be scheduled for saving
+     */
     protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage, String domain) {
         final Map<String, FSPayload> payloads = fsMessage.getPayloads();
         if (payloads == null || payloads.isEmpty()) {

@@ -151,8 +151,8 @@ public class FSPluginProperties {
      * @return The threshold value in MB
      */
     public Long getPayloadsScheduleThresholdMB(String domain) {
-        String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD, "2000");
-        return StringUtils.isNotEmpty(value) ? Long.parseLong(value) : null;
+        String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD, "1000");
+        return Long.parseLong(value);
     }
 
     /**

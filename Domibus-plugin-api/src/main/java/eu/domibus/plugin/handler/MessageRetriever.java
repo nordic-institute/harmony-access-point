@@ -28,7 +28,7 @@ public interface MessageRetriever {
 
 
     /**
-     * Browse he message with the corresponding messageId
+     * Browse the message with the corresponding messageId
      *
      * @param messageId the messageId of the message to browse
      * @return the message object with the given messageId
