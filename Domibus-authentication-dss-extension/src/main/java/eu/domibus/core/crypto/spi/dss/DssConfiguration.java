@@ -42,6 +42,7 @@ import java.util.List;
  */
 @Configuration
 @PropertySource(value = "classpath:authentication-dss-extension-default.properties")
+@PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/extensions/config/authentication-dss-extension.properties")
 public class DssConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(DssConfiguration.class);
@@ -202,7 +203,7 @@ public class DssConfiguration {
             if (enableDssCustomTrustedListForMultiTenant) {
                 LOG.warn("Configured custom trusted lists are shared by all tenants.");
             } else {
-                LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[domibus.enable.dss.custom.trusted.list.for.multitenant] to change that behavior");
+                LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[domibus.authentication.dss.enable.custom.trusted.list.for.multitenant] to change that behavior");
                 return Lists.newArrayList();
             }
         }
