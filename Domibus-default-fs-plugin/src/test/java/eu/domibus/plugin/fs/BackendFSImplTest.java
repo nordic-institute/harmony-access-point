@@ -1,10 +1,7 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
@@ -80,6 +77,9 @@ public class BackendFSImplTest {
 
     @Injectable
     protected FSProcessFileService fsProcessFileService;
+
+    @Injectable
+    protected DomainTaskExtExecutor domainTaskExtExecutor;
 
     @Injectable
     String name = "fsplugin";
@@ -182,6 +182,9 @@ public class BackendFSImplTest {
 
     private void expectationsDeliverMessage(String domain, UserMessage userMessage, Map<String, FSPayload> fsPayloads) throws MessageNotFoundException, FileSystemException {
         new Expectations(1, backendFS) {{
+            backendFS.browseMessage(messageId, null);
+            result = new FSMessage(fsPayloads, userMessage);
+
             backendFS.downloadMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
@@ -274,7 +277,7 @@ public class BackendFSImplTest {
     public void testDeliverMessage_MessageNotFound(@Injectable final FSMessage fsMessage) throws MessageNotFoundException {
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new MessageNotFoundException("message not found");
         }};
 
@@ -292,7 +295,7 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             fsFilesManager.setUpFileSystem(null);
@@ -313,7 +316,7 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             fsFilesManager.setUpFileSystem(null);
