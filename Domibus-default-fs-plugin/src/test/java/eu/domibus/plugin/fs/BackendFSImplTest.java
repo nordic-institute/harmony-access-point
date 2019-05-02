@@ -648,21 +648,6 @@ public class BackendFSImplTest {
 
 
     @Test
-    public void payloadSubmittedEvent(@Injectable PayloadSubmittedEvent event,
-                                      @Injectable FileObject fileObject) throws FileSystemException {
-        new Expectations() {{
-            fsFilesManager.getEnsureRootLocation(event.getFileName());
-            result = fileObject;
-        }};
-
-        backendFS.payloadSubmittedEvent(event);
-
-        new Verifications() {{
-            fsFilesManager.createLockFile(fileObject);
-        }};
-    }
-
-    @Test
     public void payloadProcessedEvent(@Injectable PayloadProcessedEvent event,
                                       @Injectable FileObject fileObject) throws FileSystemException {
         new Expectations() {{
@@ -673,7 +658,6 @@ public class BackendFSImplTest {
         backendFS.payloadProcessedEvent(event);
 
         new Verifications() {{
-            fsFilesManager.deleteLockFile(fileObject);
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
         }};
     }
