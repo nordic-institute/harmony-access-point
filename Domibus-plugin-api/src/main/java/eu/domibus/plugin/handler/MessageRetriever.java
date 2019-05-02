@@ -12,7 +12,7 @@ import java.util.List;
  * Implementations of this interface handle the retrieval of messages from
  * Domibus to the backend.
  *
- * @author Christian Koch, Stefan Mueller
+ * @author Christian Koch, Stefan Mueller, Cosmin Baciu
  * @since 3.0
  */
 public interface MessageRetriever {
@@ -25,6 +25,16 @@ public interface MessageRetriever {
      * @throws MessageNotFoundException if the message could not be found
      */
     Submission downloadMessage(String messageId) throws MessageNotFoundException;
+
+
+    /**
+     * Browse he message with the corresponding messageId
+     *
+     * @param messageId the messageId of the message to browse
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission browseMessage(String messageId) throws MessageNotFoundException;
 
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
