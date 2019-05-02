@@ -1096,59 +1096,80 @@ public class UserMessageHandlerServiceImplTest {
 
     @Test
     public void testHandleMessageFragmentWithGroupAlreadyExisting(@Injectable UserMessage userMessage,
-                                          @Injectable MessageFragmentType messageFragmentType,
-                                          @Injectable MessageGroupEntity messageGroupEntity) throws EbMS3Exception {
+                                                                  @Injectable MessageFragmentType messageFragmentType,
+                                                                  @Injectable MessageGroupEntity messageGroupEntity,
+                                                                  @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         new Expectations(userMessageHandlerService) {{
             messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
             result = messageGroupEntity;
 
-            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
             userMessageHandlerService.addPartInfoFromFragment(userMessage, messageFragmentType);
         }};
 
-        userMessageHandlerService.handleMessageFragment(userMessage, messageFragmentType);
+        userMessageHandlerService.handleMessageFragment(userMessage, messageFragmentType, legConfiguration);
 
         new Verifications() {{
             messageGroupDao.create(messageGroupEntity);
             times = 0;
 
-            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
             times = 1;
         }};
     }
 
     @Test
     public void testHandleMessageFragmentWithGroupAlreadyExisting(@Injectable UserMessage userMessage,
-                                                                  @Injectable MessageFragmentType messageFragmentType) throws EbMS3Exception {
+                                                                  @Injectable MessageFragmentType messageFragmentType,
+                                                                  @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         new Expectations(userMessageHandlerService) {{
             messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
             result = null;
 
-            userMessageHandlerService.validateUserMessageFragment(userMessage, null, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, null, messageFragmentType, legConfiguration);
             userMessageHandlerService.addPartInfoFromFragment(userMessage, messageFragmentType);
         }};
 
-        userMessageHandlerService.handleMessageFragment(userMessage, messageFragmentType);
+        userMessageHandlerService.handleMessageFragment(userMessage, messageFragmentType, legConfiguration);
 
         new Verifications() {{
             messageGroupDao.create((MessageGroupEntity) any);
 
-            userMessageHandlerService.validateUserMessageFragment(userMessage, null, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, null, messageFragmentType, legConfiguration);
             times = 1;
         }};
     }
 
     @Test
+    public void testValidateUserMessageFragmentWithNoSplittingConfigured(@Injectable UserMessage userMessage,
+                                                                   @Injectable MessageFragmentType messageFragmentType,
+                                                                   @Injectable MessageGroupEntity messageGroupEntity,
+                                                                   @Injectable LegConfiguration legConfiguration) {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = null;
+        }};
+
+        try {
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
+            fail("Not possible to use SplitAndJoin without PMode leg configuration");
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0002);
+        }
+    }
+
+    @Test
     public void testValidateUserMessageFragmentWithDatabaseStorage(@Injectable UserMessage userMessage,
-                                                @Injectable MessageFragmentType messageFragmentType,
-                                                @Injectable MessageGroupEntity messageGroupEntity)  {
+                                                                   @Injectable MessageFragmentType messageFragmentType,
+                                                                   @Injectable MessageGroupEntity messageGroupEntity,
+                                                                   @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
             storageProvider.idPayloadsPersistenceInDatabaseConfigured();
             result = true;
         }};
 
         try {
-            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin with database payloads");
         } catch (EbMS3Exception e) {
             Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0002);
@@ -1157,8 +1178,9 @@ public class UserMessageHandlerServiceImplTest {
 
     @Test
     public void testValidateUserMessageFragmentWithRejectedGroup(@Injectable UserMessage userMessage,
-                                                                   @Injectable MessageFragmentType messageFragmentType,
-                                                                   @Injectable MessageGroupEntity messageGroupEntity)  {
+                                                                 @Injectable MessageFragmentType messageFragmentType,
+                                                                 @Injectable MessageGroupEntity messageGroupEntity,
+                                                                 @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
             storageProvider.idPayloadsPersistenceInDatabaseConfigured();
             result = false;
@@ -1168,7 +1190,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
         } catch (EbMS3Exception e) {
             Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0040);
         }
@@ -1176,8 +1198,9 @@ public class UserMessageHandlerServiceImplTest {
 
     @Test
     public void testValidateUserMessageFragmentWithWrongFragmentsCount(@Injectable UserMessage userMessage,
-                                                                 @Injectable MessageFragmentType messageFragmentType,
-                                                                 @Injectable MessageGroupEntity messageGroupEntity)  {
+                                                                       @Injectable MessageFragmentType messageFragmentType,
+                                                                       @Injectable MessageGroupEntity messageGroupEntity,
+                                                                       @Injectable LegConfiguration legConfiguration) {
 
         long totalFragmentCount = 5;
         new Expectations() {{
@@ -1195,7 +1218,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
         } catch (EbMS3Exception e) {
             Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0048);
         }
