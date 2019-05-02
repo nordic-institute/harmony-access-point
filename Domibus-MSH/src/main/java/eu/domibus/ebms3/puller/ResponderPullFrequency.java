@@ -56,8 +56,11 @@ public class ResponderPullFrequency {
     }
 
     public void success() {
-        lowCapacity.compareAndSet(true, false);
-        errorCounter.set(0);
+        boolean changed = lowCapacity.compareAndSet(true, false);
+        if(changed) {
+            LOG.trace("Low capacity switched from tru to false, error counter is reset.");
+            errorCounter.set(0);
+        }
     }
 
     /**
@@ -79,16 +82,15 @@ public class ResponderPullFrequency {
             LOG.trace("get max pull request for Low capacity activated for responderName:[{}], pull request pace=1", responderName);
             return 1;
         }
-        if (recoveringTimeInSeconds == 0 || fullCapacity.get()) {
-            if (LOG.isTraceEnabled()) {
-                if (recoveringTimeInSeconds == 0) {
-                    LOG.trace("Recovering time is 0, therefore pull frequency is set to the maximum:[{}] for responder:[{}]", maxRequestPerJobCycle, responderName);
-                } else {
-                    LOG.trace("Frequency is set to the maximum:[{}] for responder:[{}]", maxRequestPerJobCycle, responderName);
-                }
-            }
+        if (recoveringTimeInSeconds == 0) {
+            fullCapacity.compareAndSet(false,true);
+            LOG.trace("Recovering time is 0 therefore set full capacity:[{}] for responder:[{}]", fullCapacity, responderName);
+        }
+        if(fullCapacity.get()){
+            LOG.trace("Max request per job for responder:[{}] is:[{}] ", responderName,maxRequestPerJobCycle);
             return maxRequestPerJobCycle;
         }
+
         final long previousTime = executionTime.get();
         final long updatedTime = executionTime.updateAndGet(operand -> {
                     if (operand == 0 || (System.currentTimeMillis() - operand > 1000)) {
