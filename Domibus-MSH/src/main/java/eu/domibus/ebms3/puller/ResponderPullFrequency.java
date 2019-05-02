@@ -58,7 +58,7 @@ public class ResponderPullFrequency {
     public void success() {
         boolean changed = lowCapacity.compareAndSet(true, false);
         if(changed) {
-            LOG.trace("Low capacity switched from tru to false, error counter is reset.");
+            LOG.trace("Low capacity switched from true to false, error counter is reset.");
             errorCounter.set(0);
         }
     }
