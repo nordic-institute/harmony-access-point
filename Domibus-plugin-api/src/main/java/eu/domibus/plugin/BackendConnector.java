@@ -53,6 +53,18 @@ public interface BackendConnector<U, T> {
     T downloadMessage(final String messageId, final T target) throws MessageNotFoundException;
 
     /**
+     * Browses the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
+     * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
+     * factory (i.e. a JMS session).
+     *
+     * @param messageId the messageId of the message to browse
+     * @param target    the target object to be filled.
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message was not found
+     */
+    T browseMessage(final String messageId, final T target) throws MessageNotFoundException;
+
+    /**
      * provides a list of messageIds which have not been downloaded yet. Only available for Mode.PULL plugins
      *
      * @return a list of messages that have not been downloaded yet.
