@@ -135,4 +135,12 @@ public class DomibusLogger extends CategoryLogger {
     public Map<String, String> getCopyOfContextMap() {
         return MDC.getCopyOfContextMap();
     }
+
+    /**
+     * Sets the MDC context map with the provided one. For more info see javadoc {@link MDC#setContextMap(java.util.Map)}
+     * @param newContextMap
+     */
+    public void setContextMap(Map<String, String> newContextMap) {
+        MDC.setContextMap(newContextMap);
+    }
 }
