@@ -188,12 +188,12 @@ public class AuthenticationResourceTest {
             result = authentication;
 
             authentication.getPrincipal();
-            result =  userDetail;
+            result = userDetail;
 
         }};
 
         //tested method
-        UserDetail userDetai1Actual =  authenticationResource.getLoggedUser();
+        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
         Assert.assertEquals(userDetail, userDetai1Actual);
     }
 
@@ -214,7 +214,7 @@ public class AuthenticationResourceTest {
         }};
 
         //tested method
-        UserDetail userDetai1Actual =  authenticationResource.getLoggedUser();
+        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
         Assert.assertNull(userDetai1Actual);
     }
 
@@ -252,6 +252,23 @@ public class AuthenticationResourceTest {
             cookieClearingLogoutHandler.logout(request, response, null);
             securityContextLogoutHandler.logout(request, response, authentication);
         }};
+    }
+
+    @Test
+    public void testGetUsername(final @Mocked UserDetail userDetail) {
+        final String userName = "toto";
+
+        new Expectations(authenticationResource) {{
+            authenticationResource.getLoggedUser();
+            result = userDetail;
+
+            userDetail.getUsername();
+            result = userName;
+        }};
+
+        //tested method
+        final String userNameActual = authenticationResource.getUsername();
+        Assert.assertEquals(userName, userNameActual);
     }
 
 }
