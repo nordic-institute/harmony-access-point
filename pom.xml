@@ -83,6 +83,7 @@
         <sonar.coverage.exclusions>
             **/*DTO.java,
             **/*Dto.java,
+            **/*Entity.java,
             **/*RO.java,
             **/*Ro.java,
             **/*Exception.java,
