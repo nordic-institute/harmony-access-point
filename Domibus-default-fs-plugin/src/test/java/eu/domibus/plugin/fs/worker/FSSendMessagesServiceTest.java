@@ -270,4 +270,24 @@ public class FSSendMessagesServiceTest {
         }};
     }
 
+    @Test
+    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
+        final String domain = null; //root
+        final String errorMessage = "mock error";
+        final FileObject processableFile = metadataFile;
+        new Expectations(1, instance) {{
+            fsFilesManager.setUpFileSystem(domain);
+            result = rootDir;
+
+            fsPluginProperties.isFailedActionArchive(domain);
+            result = true;
+        }};
+
+        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
+
+        new Verifications() {{
+            fsFilesManager.createFile((FileObject)any, anyString, anyString);
+        }};
+    }
+
 }
