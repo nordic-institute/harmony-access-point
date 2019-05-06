@@ -53,7 +53,7 @@ public class PullRequestHandlerImplTest {
     MessageAttemptService messageAttemptService;
 
     @Injectable
-    RetryService retryService;
+    RetryDefaultService retryService;
 
     @Injectable
     ReliabilityService reliabilityService;

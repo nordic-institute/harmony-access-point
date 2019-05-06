@@ -24,7 +24,7 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SendRetryWorker.class);
 
     @Autowired
-    protected RetryService retryService;
+    protected RetryDefaultService retryService;
 
     @Autowired
     protected AuthUtils authUtils;

@@ -3,12 +3,10 @@ package eu.domibus.ebms3.sender;
 import eu.domibus.api.jms.DomibusJMSException;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.logging.UserMessageLog;
@@ -17,7 +15,6 @@ import eu.domibus.core.pull.MessagingLockDao;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -36,12 +33,9 @@ import java.util.List;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-public class RetryService {
+public class RetryDefaultService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetryService.class);
-
-    @Autowired
-    private BackendNotificationService backendNotificationService;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetryDefaultService.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -51,13 +45,14 @@ public class RetryService {
     private Queue dispatchQueue;
 
     @Autowired
+    @Qualifier("sendLargeMessageQueue")
+    private Queue sendLargeMessageQueue;
+
+    @Autowired
     UserMessageService userMessageService;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
-
-    @Autowired
-    private UserMessageLogService userMessageLogService;
 
     @Autowired
     private MessagingDao messagingDao;
@@ -67,9 +62,6 @@ public class RetryService {
 
     @Autowired
     private JMSManager jmsManager;
-
-    @Autowired
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Autowired
     private MessagingLockDao messagingLockDao;
@@ -123,17 +115,41 @@ public class RetryService {
         if (messageIdsToSend.isEmpty()) {
             return result;
         }
-        LOG.debug("Messages to be retried [{}]", messageIdsToSend);
-        final List<String> queuedMessages = getQueuedMessages();
+        LOG.trace("Found candidate messages to be retried [{}]", messageIdsToSend);
+        final List<String> queuedMessages = getAllQueuedMessages();
+        LOG.trace("Found queuedMessages [{}]", queuedMessages);
+
         messageIdsToSend.removeAll(queuedMessages);
+        LOG.trace("After filtering the following messages will to be retried [{}]", messageIdsToSend);
         return messageIdsToSend;
     }
 
-    protected List<String> getQueuedMessages() {
+    protected List<String> getAllQueuedMessages() {
+        final List<String> result = new ArrayList<>();
+        final List<String> queuedMessages = getQueuedMessages(dispatchQueue);
+        if (queuedMessages != null) {
+            LOG.trace("Adding messages [{}]", queuedMessages);
+            result.addAll(queuedMessages);
+        }
+
+        final List<String> queuedMessageFragments = getQueuedMessages(sendLargeMessageQueue);
+        if (queuedMessageFragments != null) {
+            LOG.trace("Adding message fragments [{}]", queuedMessageFragments);
+            result.addAll(queuedMessageFragments);
+        }
+
+        return result;
+    }
+
+
+    protected List<String> getQueuedMessages(Queue dispatchQueue) {
         List<String> result = new ArrayList<>();
         try {
-            final List<JmsMessage> jmsMessages = jmsManager.browseClusterMessages(dispatchQueue.getQueueName());
+            final String queueName = dispatchQueue.getQueueName();
+            LOG.trace("Getting queued messages from queue [{}]", queueName);
+            final List<JmsMessage> jmsMessages = jmsManager.browseClusterMessages(queueName);
             if (jmsMessages == null) {
+                LOG.trace("No queued messages found in queue [{}]", queueName);
                 return result;
             }
             for (JmsMessage jmsMessage : jmsMessages) {

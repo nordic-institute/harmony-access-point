@@ -2,14 +2,13 @@ package eu.domibus.core.pull;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.ebms3.sender.RetryService;
+import eu.domibus.ebms3.sender.RetryDefaultService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.quartz.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -22,7 +21,7 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(PullRetryWorker.class);
 
     @Autowired
-    protected RetryService retryService;
+    protected RetryDefaultService retryService;
 
 
     @Autowired

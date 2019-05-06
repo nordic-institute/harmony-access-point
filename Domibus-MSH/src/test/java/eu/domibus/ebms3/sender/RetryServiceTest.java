@@ -39,7 +39,7 @@ public class RetryServiceTest {
     private static List<String> RETRY_MESSAGEIDS = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "queued456@domibus.eu", "expired123@domibus.eu");
 
     @Tested
-    private RetryService retryService;
+    private RetryDefaultService retryService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -49,6 +49,9 @@ public class RetryServiceTest {
 
     @Injectable
     private Queue sendMessageQueue;
+
+    @Injectable
+    private Queue sendLargeMessageQueue;
 
     @Injectable
     UserMessageService userMessageService;
@@ -91,13 +94,13 @@ public class RetryServiceTest {
     }
 
     @Test
-    public void getQueuedMessagesTest() {
+    public void getQueuedMessagesTest(@Injectable Queue queue) {
         new NonStrictExpectations() {{
             jmsManager.browseClusterMessages(anyString);
             result = getQueuedMessages();
         }};
 
-        List<String> result = retryService.getQueuedMessages();
+        List<String> result = retryService.getQueuedMessages(queue);
         assertEquals(3, result.size());
     }
 
