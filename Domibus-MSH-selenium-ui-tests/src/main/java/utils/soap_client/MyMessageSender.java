@@ -1,5 +1,6 @@
 package utils.soap_client;
 
+import com.sun.xml.internal.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.webService.generated.*;
@@ -62,7 +63,8 @@ public class MyMessageSender {
 	private static class Helper {
         private static JAXBContext jaxbMessagingContext;
         private static JAXBContext jaxbWebserviceContext;
-        private static MessageFactory messageFactory = new com.sun.xml.internal.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl();
+//        private static MessageFactory messageFactory = new com.sun.xml.internal.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl();
+        private static MessageFactory messageFactory = new SOAPMessageFactory1_2Impl();
         private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
         static {

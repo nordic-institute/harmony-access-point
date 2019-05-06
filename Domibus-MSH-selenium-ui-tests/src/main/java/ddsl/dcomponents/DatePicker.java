@@ -35,5 +35,12 @@ public class DatePicker extends DComponent {
 		pickerInput.fill(date);
 	}
 
+	public String getSelectedDate(){
+//		return input.getAttribute("value").trim();
+		return new DInput(driver, input).getText();
+	}
 
+	public void clearSelectedDate() throws Exception{
+		new DInput(driver, input).clear();
+	}
 }

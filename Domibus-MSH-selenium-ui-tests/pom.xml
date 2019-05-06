@@ -16,20 +16,13 @@
 	<name>Domibus MSH Selenium UI Tests</name>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+
 	</properties>
 
 
 	<dependencies>
 
 		<!--USED ONLY FOR SOAP REQUEST CLASSES-->
-		<dependency>
-			<groupId>eu.domibus</groupId>
-			<artifactId>domibus-ws-stubs</artifactId>
-			<version>4.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.bluecatcode.junit</groupId>
 			<artifactId>junit-4.10-extended</artifactId>
@@ -52,16 +45,16 @@
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
 			<artifactId>activemq-core</artifactId>
-			<version>5.7.0</version>
+			<version>${activemq.version}</version>
 		</dependency>
 
 		<!--**************************************-->
 		<!--FOR DATA DRIVEN TESTS-->
-<!--		<dependency>-->
-<!--			<groupId>com.opencsv</groupId>-->
-<!--			<artifactId>opencsv</artifactId>-->
-<!--			<version>4.0</version>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>com.opencsv</groupId>-->
+		<!--			<artifactId>opencsv</artifactId>-->
+		<!--			<version>4.0</version>-->
+		<!--		</dependency>-->
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
 		<dependency>
@@ -69,7 +62,6 @@
 			<artifactId>commons-csv</artifactId>
 			<version>1.5</version>
 		</dependency>
-
 
 
 		<!--**************************************-->
@@ -127,15 +119,16 @@
 			<version>2.0-m02</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.sun.xml.ws</groupId>
-			<artifactId>jaxws-rt</artifactId>
-			<version>2.3.2</version>
-		</dependency>
-
 	</dependencies>
 
-
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 	<profiles>
 		<profile>
 			<id>local</id>

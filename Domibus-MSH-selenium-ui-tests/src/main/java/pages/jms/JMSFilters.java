@@ -1,12 +1,10 @@
 package pages.jms;
 
-import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
 import ddsl.dcomponents.DatePicker;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
-import org.apache.poi.util.StringUtil;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -80,22 +78,18 @@ public class JMSFilters extends DomibusPage {
 	public int selectQueueWithMessages() throws Exception{
 		Select qSelect = getJmsQueueSelect();
 		List<String> queues = qSelect.getOptionsTexts();
-		String optionToSelect = StringUtils.EMPTY;
+
 		int noOfMessages = 0;
 		for (String queue : queues) {
 			String striped  = queue.substring(queue.indexOf("(")+1, queue.indexOf(")")).trim();
 			int noOfMess = Integer.valueOf(striped);
 			if(noOfMess>0){
-				optionToSelect = queue;
+				qSelect.selectOptionByText(queue);
 				noOfMessages = noOfMess;
 				break;
 			}
 		}
 
-		if(optionToSelect.isEmpty()){	return 0;}
-		else {
-			qSelect.selectOptionByText(optionToSelect);
-		}
 		return noOfMessages;
 	}
 
