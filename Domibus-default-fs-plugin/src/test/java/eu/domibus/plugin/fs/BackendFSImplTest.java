@@ -662,6 +662,7 @@ public class BackendFSImplTest {
 
         new Verifications() {{
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+            fsFilesManager.deleteLockFile(fileObject);
         }};
     }
 }

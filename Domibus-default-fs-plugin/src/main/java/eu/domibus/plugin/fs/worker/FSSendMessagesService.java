@@ -169,15 +169,16 @@ public class FSSendMessagesService {
             if (errorMessage != null) {
                 handleSendFailedMessage(processableFile, domain, errorMessage);
             }
-            try {
-                fsFilesManager.deleteLockFile(processableFile);
-            } catch (FileSystemException e) {
-                LOG.error("Error deleting lock file", e);
-            }
         }
     }
 
     public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
+        try {
+            fsFilesManager.deleteLockFile(processableFile);
+        } catch (FileSystemException e) {
+            LOG.error("Error deleting lock file", e);
+        }
+
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain)) {
             if (processableFile != null) {
                 String baseName = processableFile.getName().getBaseName();
