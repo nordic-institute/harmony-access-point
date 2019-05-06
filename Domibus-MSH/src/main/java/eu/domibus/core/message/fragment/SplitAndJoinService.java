@@ -71,9 +71,10 @@ public interface SplitAndJoinService {
     /**
      * Marks all the MessageFragment messages associated to a specific group as failed, including the SourceMessage
      *
-     * @param groupId
+     * @param groupId The groupId for which the failure will be performed
+     * @param errorDetail The error detail
      */
-    void splitAndJoinSendFailed(final String groupId);
+    void splitAndJoinSendFailed(final String groupId, final String errorDetail);
 
     /**
      * Handles the Signal error received from C3 which indicates that there was an error while rejoining the SourceMessage

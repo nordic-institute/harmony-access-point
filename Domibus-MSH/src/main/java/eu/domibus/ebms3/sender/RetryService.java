@@ -109,7 +109,7 @@ public class RetryService {
             updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
 
             if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId());
+                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
             }
             return true;
         }

@@ -6,6 +6,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -13,6 +14,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.common.services.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.AS4ReceiptService;
 import eu.domibus.common.services.impl.MessageRetentionService;
@@ -43,6 +45,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -139,6 +142,9 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Injectable
     protected MessageGroupService messageGroupService;
+
+    @Injectable
+    protected ErrorService errorService;
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -449,7 +455,7 @@ public class SplitAndJoinDefaultServiceTest {
         new Verifications() {{
             userMessageLogDao.findByMessageIdSafely(messageId);
 
-            updateRetryLoggingService.messageFailedInANewTransaction(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog);
             times = 1;
         }};
     }
@@ -628,7 +634,7 @@ public class SplitAndJoinDefaultServiceTest {
             group1.setExpired(true);
             messageGroupDao.update(group1);
 
-            userMessageService.scheduleSplitAndJoinSendFailed(groupId);
+            userMessageService.scheduleSplitAndJoinSendFailed(groupId, anyString);
         }};
     }
 
@@ -772,7 +778,7 @@ public class SplitAndJoinDefaultServiceTest {
             result = fragments;
         }};
 
-        splitAndJoinDefaultService.splitAndJoinSendFailed(groupId);
+        splitAndJoinDefaultService.splitAndJoinSendFailed(groupId, "Send failed");
 
         new Verifications() {{
             userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId());
