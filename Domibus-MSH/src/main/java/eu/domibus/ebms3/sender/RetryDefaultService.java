@@ -144,10 +144,10 @@ public class RetryDefaultService implements RetryService {
     }
 
 
-    protected List<String> getQueuedMessages(Queue dispatchQueue) {
+    protected List<String> getQueuedMessages(Queue queue) {
         List<String> result = new ArrayList<>();
         try {
-            final String queueName = dispatchQueue.getQueueName();
+            final String queueName = queue.getQueueName();
             LOG.trace("Getting queued messages from queue [{}]", queueName);
             final List<JmsMessage> jmsMessages = jmsManager.browseClusterMessages(queueName);
             if (jmsMessages == null) {
