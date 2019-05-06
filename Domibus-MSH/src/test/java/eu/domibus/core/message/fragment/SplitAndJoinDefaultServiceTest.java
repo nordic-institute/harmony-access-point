@@ -14,6 +14,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.common.services.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.AS4ReceiptService;
 import eu.domibus.common.services.impl.MessageRetentionService;
@@ -143,7 +144,7 @@ public class SplitAndJoinDefaultServiceTest {
     protected MessageGroupService messageGroupService;
 
     @Injectable
-    protected ErrorLogDao errorLogDao;
+    protected ErrorService errorService;
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -454,7 +455,7 @@ public class SplitAndJoinDefaultServiceTest {
         new Verifications() {{
             userMessageLogDao.findByMessageIdSafely(messageId);
 
-            updateRetryLoggingService.messageFailedInANewTransaction(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog);
             times = 1;
         }};
     }
