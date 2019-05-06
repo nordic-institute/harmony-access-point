@@ -33,7 +33,7 @@ import java.util.List;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-public class RetryDefaultService {
+public class RetryDefaultService implements RetryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetryDefaultService.class);
 
@@ -72,6 +72,7 @@ public class RetryDefaultService {
     @Autowired
     UpdateRetryLoggingService updateRetryLoggingService;
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void enqueueMessages() {
         final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyQueued();
@@ -164,6 +165,7 @@ public class RetryDefaultService {
     /**
      * Method call by job to reset waiting_for_receipt messages into ready to pull.
      */
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void resetWaitingForReceiptPullMessages() {
         final List<MessagingLock> messagesToReset = messagingLockDao.findWaitingForReceipt();
@@ -176,6 +178,7 @@ public class RetryDefaultService {
     /**
      * Method call by job to to expire messages that could not be delivered in the configured time range..
      */
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void bulkExpirePullMessages() {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
@@ -188,6 +191,7 @@ public class RetryDefaultService {
     /**
      * Method call by job to to delete messages marked as failed.
      */
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
