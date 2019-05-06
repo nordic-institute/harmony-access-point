@@ -72,7 +72,7 @@
 
             <!-- FSPlugin queues -->
             <queue id="fsPluginSendQueue"
-                   physicalName="${fsplugin.send.queue}"/>
+                   physicalName="${fsplugin.send.queue:domibus.fsplugin.send.queue}"/>
 
             <!-- Internal queues of JMS backend plugin -->
             <queue id="jmsPluginToBackendQueue"
