@@ -320,11 +320,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     @Override
     public void payloadSubmittedEvent(PayloadSubmittedEvent event) {
         LOG.debug("Handling PayloadSubmittedEvent [{}]", event);
-        try {
-            FileObject fileObject = fsFilesManager.getEnsureRootLocation(event.getFileName());
-        } catch (FileSystemException e) {
-            LOG.error("Error handling PayloadSubmittedEvent", e);
-        }
     }
 
     @Override
