@@ -6,6 +6,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -43,6 +44,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -139,6 +141,9 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Injectable
     protected MessageGroupService messageGroupService;
+
+    @Injectable
+    protected ErrorLogDao errorLogDao;
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -628,7 +633,7 @@ public class SplitAndJoinDefaultServiceTest {
             group1.setExpired(true);
             messageGroupDao.update(group1);
 
-            userMessageService.scheduleSplitAndJoinSendFailed(groupId);
+            userMessageService.scheduleSplitAndJoinSendFailed(groupId, anyString);
         }};
     }
 
@@ -772,7 +777,7 @@ public class SplitAndJoinDefaultServiceTest {
             result = fragments;
         }};
 
-        splitAndJoinDefaultService.splitAndJoinSendFailed(groupId);
+        splitAndJoinDefaultService.splitAndJoinSendFailed(groupId, "Send failed");
 
         new Verifications() {{
             userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId());

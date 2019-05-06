@@ -73,7 +73,7 @@ public interface SplitAndJoinService {
      *
      * @param groupId
      */
-    void splitAndJoinSendFailed(final String groupId);
+    void splitAndJoinSendFailed(final String groupId, final String errorDetail);
 
     /**
      * Handles the Signal error received from C3 which indicates that there was an error while rejoining the SourceMessage
