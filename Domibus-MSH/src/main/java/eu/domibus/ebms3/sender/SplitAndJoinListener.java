@@ -110,7 +110,8 @@ public class SplitAndJoinListener implements MessageListener {
                 //for SplitAndJoin the groupId is identical with the SourceMessage id
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, groupId);
 
-                splitAndJoinService.splitAndJoinSendFailed(groupId);
+                final String errorDetail = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_DETAIL);
+                splitAndJoinService.splitAndJoinSendFailed(groupId, errorDetail);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED)) {
                 final String messageId = message.getStringProperty(UserMessageService.MSG_USER_MESSAGE_ID);
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

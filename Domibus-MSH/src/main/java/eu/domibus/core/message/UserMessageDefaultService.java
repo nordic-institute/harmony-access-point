@@ -298,13 +298,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSplitAndJoinSendFailed(String groupId) {
+    public void scheduleSplitAndJoinSendFailed(String groupId, String errorDetail) {
         LOG.debug("Scheduling marking the group [{}] as failed", groupId);
 
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_SEND_FAILED)
                 .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }
