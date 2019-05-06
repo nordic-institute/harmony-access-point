@@ -26,6 +26,7 @@ Domibus 4.1
 - Save message for pulling when mpc attribute is provided
 - Implemented default authorization spi
 - Added domain properties domibus.sender.trust.validation.expression to validate the certificate subject
+- Added new plugin notifications types for UserMessage fragments
 Domibus 4.0.2
 - Improved the logging in the Default JMS Plugin
 - Allow sending an XML payload in the Soap body
