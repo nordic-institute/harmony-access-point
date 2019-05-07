@@ -113,11 +113,14 @@ public class FSSendMessagesServiceTest {
     public void test_SendMessages_Root_Domain1() {
         final String domain1 = "DOMAIN1";
         new Expectations(instance) {{
-            fsPluginProperties.getDomains();
-            result = Collections.singletonList(domain1);
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = false;
 
-            fsMultiTenancyService.verifyDomainExists(domain1);
-            result = true;
+//            fsPluginProperties.getDomains();
+//            result = Collections.singletonList(domain1);
+//
+//            fsMultiTenancyService.verifyDomainExists(domain1);
+//            result = true;
 
         }};
 
@@ -127,7 +130,7 @@ public class FSSendMessagesServiceTest {
         new FullVerifications(instance) {{
             instance.sendMessages(null);
 
-            instance.sendMessages(domain1);
+//            instance.sendMessages(domain1);
         }};
     }
 
@@ -165,7 +168,6 @@ public class FSSendMessagesServiceTest {
 
     @Test
     public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
-        final String domain = null; //root
         final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
         new Expectations(1, instance) {{
             domibusConfigurationExtService.isMultiTenantAware();
@@ -191,7 +193,7 @@ public class FSSendMessagesServiceTest {
         }};
 
         //tested method
-        instance.sendMessages(domain);
+        instance.sendMessages(domainDefault);
 
         new VerificationsInOrder(1) {{
             authenticationExtService.basicAuthenticate(anyString, anyString);

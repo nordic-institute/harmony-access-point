@@ -104,14 +104,13 @@ public class FSSendMessagesService {
         }
     }
 
-    protected void sendMessages(String domain) {
+    protected void sendMessages(final String domainCode) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            authenticateForDomain(domain);
+            authenticateForDomain(domainCode);
         }
 
         FileObject[] contentFiles = null;
-        final String domainCode = domain;
-        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
+        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domainCode);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
@@ -125,7 +124,7 @@ public class FSSendMessagesService {
         } catch (FileSystemException ex) {
             LOG.error("Error sending messages", ex);
         } catch (FSSetUpException ex) {
-            LOG.error("Error setting up folders for domain: " + domain, ex);
+            LOG.error("Error setting up folders for domain: " + domainCode, ex);
         } finally {
             if (contentFiles != null) {
                 fsFilesManager.closeAll(contentFiles);
