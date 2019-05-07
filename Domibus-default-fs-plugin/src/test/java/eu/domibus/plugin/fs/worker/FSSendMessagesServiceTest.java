@@ -27,7 +27,6 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno, Catalin Enache
@@ -133,9 +132,9 @@ public class FSSendMessagesServiceTest {
 
         new FullVerifications(instance) {{
             instance.sendMessages(domain0);
-            times=1;
+            times = 1;
             instance.sendMessages(domain1);
-            times=1;
+            times = 1;
         }};
     }
 
@@ -155,7 +154,7 @@ public class FSSendMessagesServiceTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{metadataFile, contentFile};
 
-            instance.canReadFileSafely((FileObject)any, anyString);
+            instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
         }};
 
@@ -164,10 +163,8 @@ public class FSSendMessagesServiceTest {
 
         new VerificationsInOrder(1) {{
             FileObject fileActual;
-            String domainActual;
-            instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
-            Assert.assertEquals(domain, domainActual);
         }};
     }
 
@@ -193,7 +190,7 @@ public class FSSendMessagesServiceTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{metadataFile, contentFile};
 
-            instance.canReadFileSafely((FileObject)any, anyString);
+            instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
         }};
 
@@ -204,10 +201,8 @@ public class FSSendMessagesServiceTest {
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
             FileObject fileActual;
-            String domainActual;
-            instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
-            Assert.assertEquals(domainDefault, domainActual);
         }};
     }
 
@@ -233,7 +228,7 @@ public class FSSendMessagesServiceTest {
             fsPluginProperties.getAuthenticationPassword(anyString);
             result = "pass1";
 
-            instance.canReadFileSafely((FileObject)any, anyString);
+            instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
         }};
 
@@ -243,10 +238,8 @@ public class FSSendMessagesServiceTest {
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
             FileObject fileActual;
-            String domainActual;
-            instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
-            Assert.assertEquals(domain1, domainActual);
         }};
     }
 
@@ -272,7 +265,7 @@ public class FSSendMessagesServiceTest {
         new Verifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
-            instance.enqueueProcessableFile((FileObject)any, anyString);
+            instance.enqueueProcessableFile((FileObject) any);
             maxTimes = 0;
         }};
     }
@@ -293,7 +286,7 @@ public class FSSendMessagesServiceTest {
         instance.handleSendFailedMessage(processableFile, domain, errorMessage);
 
         new Verifications() {{
-            fsFilesManager.createFile((FileObject)any, anyString, anyString);
+            fsFilesManager.createFile((FileObject) any, anyString, anyString);
         }};
     }
 

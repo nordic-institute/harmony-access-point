@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -120,7 +121,8 @@ public class FSSendMessagesService {
             List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domain);
             LOG.debug("Processable files [{}]", processableFiles);
 
-            processableFiles.stream().forEach(file -> enqueueProcessableFile(file, domain));
+            Map<String, String> context = LOG.getCopyOfContextMap();
+            processableFiles.parallelStream().forEach(file -> enqueueProcessableFileWithContext(file, context));
 
         } catch (FileSystemException ex) {
             LOG.error("Error sending messages", ex);
@@ -319,13 +321,18 @@ public class FSSendMessagesService {
         return true;
     }
 
+    private void enqueueProcessableFileWithContext(final FileObject fileObject, final Map<String, String> context) {
+        LOG.setContextMap(context);
+
+        this.enqueueProcessableFile(fileObject);
+    }
+
     /**
      * Put a JMS message to FS Plugin Send queue
      *
      * @param fileObject
-     * @param domain
      */
-    protected void enqueueProcessableFile(final FileObject fileObject, final String domain) {
+    protected void enqueueProcessableFile(final FileObject fileObject) {
 
         String fileName;
         try {
@@ -348,7 +355,6 @@ public class FSSendMessagesService {
 
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
                 create().
-                property(MessageConstants.DOMAIN, domain).
                 property(MessageConstants.FILE_NAME, fileName).
                 build();
 
