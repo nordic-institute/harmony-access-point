@@ -322,7 +322,9 @@ public class FSSendMessagesService {
     }
 
     private void enqueueProcessableFileWithContext(final FileObject fileObject, final Map<String, String> context) {
-        LOG.setContextMap(context);
+        if (context != null) {
+            LOG.setContextMap(context);
+        }
 
         this.enqueueProcessableFile(fileObject);
     }
