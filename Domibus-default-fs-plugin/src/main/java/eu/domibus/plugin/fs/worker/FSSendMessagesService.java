@@ -112,7 +112,7 @@ public class FSSendMessagesService {
             List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domainCode);
             LOG.debug("Processable files [{}]", processableFiles);
 
-            processableFiles.parallelStream().forEach(file -> enqueueProcessableFile(file, domainCode));
+            processableFiles.stream().forEach(file -> enqueueProcessableFile(file, domainCode));
 
         } catch (FileSystemException ex) {
             LOG.error("Error sending messages", ex);
@@ -174,7 +174,9 @@ public class FSSendMessagesService {
 
     public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
         try {
-            fsFilesManager.deleteLockFile(processableFile);
+            if (processableFile != null) {
+                fsFilesManager.deleteLockFile(processableFile);
+            }
         } catch (FileSystemException e) {
             LOG.error("Error deleting lock file", e);
         }
