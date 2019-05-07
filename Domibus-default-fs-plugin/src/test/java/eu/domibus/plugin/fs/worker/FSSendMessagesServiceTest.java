@@ -111,7 +111,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void test_SendMessages_Root_Domain1() { 
+    public void test_SendMessages_Root_Domain1() {
         final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
         final String domain1 = "DOMAIN1";
         new Expectations(instance) {{

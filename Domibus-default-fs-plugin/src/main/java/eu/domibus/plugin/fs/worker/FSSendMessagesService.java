@@ -87,44 +87,45 @@ public class FSSendMessagesService {
 
         if (!domibusConfigurationExtService.isMultiTenantAware()) {
             sendMessagesSafely(null);
-        } else {
-            for (String domain : fsPluginProperties.getDomains()) {
-                if (fsMultiTenancyService.verifyDomainExists(domain)) {
-                    sendMessagesSafely(domain);
-                }
+            return;
+        }
+        for (String domain : fsPluginProperties.getDomains()) {
+            if (fsMultiTenancyService.verifyDomainExists(domain)) {
+                sendMessagesSafely(domain);
             }
         }
+
     }
 
     protected void sendMessagesSafely(String domain) {
         try {
             sendMessages(domain);
         } catch (AuthenticationExtException ex) {
-            LOG.error("Authentication error for domain [{}]", domain);
+            LOG.error("Authentication error for domain [{}]", domain, ex);
         }
     }
 
-    protected void sendMessages(final String domainCode) {
+    protected void sendMessages(final String domain) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            authenticateForDomain(domainCode);
+            authenticateForDomain(domain);
         }
 
         FileObject[] contentFiles = null;
-        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domainCode);
+        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
             LOG.trace("{}", contentFiles);
 
-            List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domainCode);
+            List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domain);
             LOG.debug("Processable files [{}]", processableFiles);
 
-            processableFiles.stream().forEach(file -> enqueueProcessableFile(file, domainCode));
+            processableFiles.stream().forEach(file -> enqueueProcessableFile(file, domain));
 
         } catch (FileSystemException ex) {
             LOG.error("Error sending messages", ex);
         } catch (FSSetUpException ex) {
-            LOG.error("Error setting up folders for domain: " + domainCode, ex);
+            LOG.error("Error setting up folders for domain: " + domain, ex);
         } finally {
             if (contentFiles != null) {
                 fsFilesManager.closeAll(contentFiles);
@@ -180,10 +181,12 @@ public class FSSendMessagesService {
     }
 
     public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
+        if (processableFile == null) {
+            LOG.warn("ProcessableFile is null.");
+            return;
+        }
         try {
-            if (processableFile != null) {
-                fsFilesManager.deleteLockFile(processableFile);
-            }
+            fsFilesManager.deleteLockFile(processableFile);
         } catch (FileSystemException e) {
             LOG.error("Error deleting lock file", e);
         }
@@ -252,7 +255,7 @@ public class FSSendMessagesService {
     }
 
 
-    private List<FileObject> filterProcessableFiles(FileObject[] files, String domainCode) {
+    private List<FileObject> filterProcessableFiles(FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
         // locked file names
@@ -273,7 +276,7 @@ public class FSSendMessagesService {
                     // exclude locked files:
                     && !lockedFileNames.stream().anyMatch(fname -> fname.equals(baseName))
                     // exclude files that are (or could be) in use by other processes:
-                    && canReadFileSafely(file, domainCode)) {
+                    && canReadFileSafely(file, domain)) {
 
                 filteredFiles.add(file);
             }
@@ -283,7 +286,7 @@ public class FSSendMessagesService {
     }
 
 
-    protected boolean canReadFileSafely(FileObject fileObject, String domainCode) {
+    protected boolean canReadFileSafely(FileObject fileObject, String domain) {
         String filePath = fileObject.getName().getPath();
 
         // firstly try to lock the file
@@ -305,7 +308,7 @@ public class FSSendMessagesService {
         // it is probable that some process is still writing in the file
 
         try {
-            long delta = fsPluginProperties.getSendDelay(domainCode);
+            long delta = fsPluginProperties.getSendDelay(domain);
             long fileTime = fileObject.getContent().getLastModifiedTime();
             long currentTime = new java.util.Date().getTime();
             if (fileTime > currentTime - delta) {
