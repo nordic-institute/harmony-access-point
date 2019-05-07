@@ -76,6 +76,8 @@ public class PullReceiptListener implements MessageListener {
     @Counter(OUTGOING_PULL_RECEIPT)
     public void onMessage(final Message message) {
         try {
+            LOG.clearCustomKeys();
+
             String domainCode = null;
             try {
                 domainCode = message.getStringProperty(MessageConstants.DOMAIN);
