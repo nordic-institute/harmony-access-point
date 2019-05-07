@@ -83,11 +83,13 @@ public class FSSendMessagesService {
     public void sendMessages() {
         LOG.debug("Sending file system messages...");
 
-        sendMessages(null);
-
-        for (String domain : fsPluginProperties.getDomains()) {
-            if (fsMultiTenancyService.verifyDomainExists(domain)) {
-                sendMessages(domain);
+        if (!domibusConfigurationExtService.isMultiTenantAware()) {
+            sendMessages(null);
+        } else {
+            for (String domain : fsPluginProperties.getDomains()) {
+                if (fsMultiTenancyService.verifyDomainExists(domain)) {
+                    sendMessages(domain);
+                }
             }
         }
     }
