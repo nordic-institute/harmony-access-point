@@ -26,6 +26,7 @@ import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -110,27 +111,31 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void test_SendMessages_Root_Domain1() {
+    public void test_SendMessages_Root_Domain1() { 
+        final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
         final String domain1 = "DOMAIN1";
         new Expectations(instance) {{
             domibusConfigurationExtService.isMultiTenantAware();
-            result = false;
+            result = true;
 
-//            fsPluginProperties.getDomains();
-//            result = Collections.singletonList(domain1);
-//
-//            fsMultiTenancyService.verifyDomainExists(domain1);
-//            result = true;
+            fsPluginProperties.getDomains();
+            result = Arrays.asList(domain0, domain1);
 
+            fsMultiTenancyService.verifyDomainExists(domain0);
+            result = true;
+
+            fsMultiTenancyService.verifyDomainExists(domain1);
+            result = true;
         }};
 
         //tested method
         instance.sendMessages();
 
         new FullVerifications(instance) {{
-            instance.sendMessages(null);
-
-//            instance.sendMessages(domain1);
+            instance.sendMessages(domain0);
+            times=1;
+            instance.sendMessages(domain1);
+            times=1;
         }};
     }
 
