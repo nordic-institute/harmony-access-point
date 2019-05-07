@@ -34,7 +34,7 @@ public class DomainServiceImpl implements DomainService {
         return domainDao.findAll();
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE, key = "#p0")
+    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
     @Override
     public Domain getDomain(String code) {
         final List<Domain> domains = getDomains();
