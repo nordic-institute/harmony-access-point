@@ -110,9 +110,12 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void test_SendMessages_Root_Domain1() {
+    public void test_SendMessages_Multitenancy_Domain1() {
         final String domain1 = "DOMAIN1";
         new Expectations(instance) {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+
             fsPluginProperties.getDomains();
             result = Collections.singletonList(domain1);
 
@@ -125,15 +128,13 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages();
 
         new FullVerifications(instance) {{
-            instance.sendMessages(null);
-
             instance.sendMessages(domain1);
         }};
     }
 
     @Test
     public void testSendMessages_RootDomain_NoMultitenancy() throws MessagingProcessingException, FileSystemException, FSSetUpException {
-        final String domain = null; //root
+        final String domain = FSSendMessagesService.DEFAULT_DOMAIN; //root
         new Expectations(1, instance) {{
             domibusConfigurationExtService.isMultiTenantAware();
             result = false;
@@ -164,18 +165,11 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
-        final String domain = null; //root
+    public void test_SendMessages_RootDomain() throws FileSystemException, FSSetUpException {
         final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
         new Expectations(1, instance) {{
             domibusConfigurationExtService.isMultiTenantAware();
-            result = true;
-
-            fsPluginProperties.getAuthenticationUser(domainDefault);
-            result = "user1";
-
-            fsPluginProperties.getAuthenticationPassword(domainDefault);
-            result = "pass1";
+            result = false;
 
             fsFilesManager.setUpFileSystem(domainDefault);
             result = rootDir;
@@ -191,11 +185,9 @@ public class FSSendMessagesServiceTest {
         }};
 
         //tested method
-        instance.sendMessages(domain);
+        instance.sendMessages(domainDefault);
 
         new VerificationsInOrder(1) {{
-            authenticationExtService.basicAuthenticate(anyString, anyString);
-
             FileObject fileActual;
             String domainActual;
             instance.enqueueProcessableFile(fileActual = withCapture(), domainActual = withCapture());
@@ -272,7 +264,7 @@ public class FSSendMessagesServiceTest {
 
     @Test
     public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
-        final String domain = null; //root
+        final String domain = FSSendMessagesService.DEFAULT_DOMAIN; //root
         final String errorMessage = "mock error";
         final FileObject processableFile = metadataFile;
         new Expectations(1, instance) {{
