@@ -3,6 +3,8 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
+import eu.domibus.ext.exceptions.AuthenticationExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -84,23 +86,27 @@ public class FSSendMessagesService {
         LOG.debug("Sending file system messages...");
 
         if (!domibusConfigurationExtService.isMultiTenantAware()) {
-            sendMessages(null);
+            sendMessagesSafely(null);
         } else {
             for (String domain : fsPluginProperties.getDomains()) {
                 if (fsMultiTenancyService.verifyDomainExists(domain)) {
-                    sendMessages(domain);
+                    sendMessagesSafely(domain);
                 }
             }
         }
     }
 
+    protected void sendMessagesSafely(String domain) {
+        try {
+            sendMessages(domain);
+        } catch (AuthenticationExtException ex) {
+            LOG.error("Authentication error for domain [{}]", domain);
+        }
+    }
+
     protected void sendMessages(String domain) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            if (domain == null) {
-                domain = DEFAULT_DOMAIN;
-            }
-
-            checkAuthenticationMultitenancy(domain);
+            authenticateForDomain(domain);
         }
 
         FileObject[] contentFiles = null;
@@ -132,20 +138,20 @@ public class FSSendMessagesService {
      *
      * @param domain
      */
-    public void checkAuthenticationMultitenancy(String domain) {
-        String authenticationUser = fsPluginProperties.getAuthenticationUser(domain);
-        if (authenticationUser == null) {
+    public void authenticateForDomain(String domain) throws AuthenticationExtException {
+        String user = fsPluginProperties.getAuthenticationUser(domain);
+        if (user == null) {
             LOG.error("Authentication User not defined for domain [{}]", domain);
-            return;
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "Authentication User not defined for domain [" + domain + "]");
         }
 
-        String authenticationPassword = fsPluginProperties.getAuthenticationPassword(domain);
-        if (authenticationPassword == null) {
+        String password = fsPluginProperties.getAuthenticationPassword(domain);
+        if (password == null) {
             LOG.error("Authentication Password not defined for domain [{}]", domain);
-            return;
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "Authentication Password not defined for domain [" + domain + "]");
         }
 
-        authenticationExtService.basicAuthenticate(authenticationUser, authenticationPassword);
+        authenticationExtService.basicAuthenticate(user, password);
     }
 
     /**
