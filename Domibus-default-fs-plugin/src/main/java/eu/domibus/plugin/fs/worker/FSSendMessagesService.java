@@ -182,7 +182,7 @@ public class FSSendMessagesService {
 
     public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
         if (processableFile == null) {
-            LOG.warn("ProcessableFile is null.");
+            LOG.error("The send failed message file was not found in domain [{}]", domain);
             return;
         }
         try {
@@ -192,32 +192,28 @@ public class FSSendMessagesService {
         }
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain)) {
-            if (processableFile != null) {
-                String baseName = processableFile.getName().getBaseName();
-                String errorFileName = FSFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
+            String baseName = processableFile.getName().getBaseName();
+            String errorFileName = FSFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
 
-                String processableFileMessageURI = processableFile.getParent().getName().getPath();
-                String failedDirectoryLocation = FSFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
-                FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
+            String processableFileMessageURI = processableFile.getParent().getName().getPath();
+            String failedDirectoryLocation = FSFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
+            FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
 
-                try {
-                    if (fsPluginProperties.isFailedActionDelete(domain)) {
-                        // Delete
-                        fsFilesManager.deleteFile(processableFile);
-                        LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
-                    } else if (fsPluginProperties.isFailedActionArchive(domain)) {
-                        // Archive
-                        String archivedFileName = FSFileNameHelper.stripStatusSuffix(baseName);
-                        FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
-                        fsFilesManager.moveFile(processableFile, archivedFile);
-                        LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
-                    }
-                } finally {
-                    // Create error file
-                    fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
+            try {
+                if (fsPluginProperties.isFailedActionDelete(domain)) {
+                    // Delete
+                    fsFilesManager.deleteFile(processableFile);
+                    LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
+                } else if (fsPluginProperties.isFailedActionArchive(domain)) {
+                    // Archive
+                    String archivedFileName = FSFileNameHelper.stripStatusSuffix(baseName);
+                    FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
+                    fsFilesManager.moveFile(processableFile, archivedFile);
+                    LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
                 }
-            } else {
-                LOG.error("The send failed message file [{}] was not found in domain [{}]", processableFile, domain);
+            } finally {
+                // Create error file
+                fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
             }
         } catch (IOException e) {
             throw new FSPluginException("Error handling the send failed message file " + processableFile, e);
