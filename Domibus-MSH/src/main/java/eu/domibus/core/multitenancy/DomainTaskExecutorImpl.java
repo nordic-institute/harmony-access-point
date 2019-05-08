@@ -66,6 +66,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     protected void submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task for domain [{}]", domain);
+
         final DomainRunnable domainRunnable = new DomainRunnable(domainContextProvider, domain, task);
         submitRunnable(taskExecutor, domainRunnable, waitForTask, timeout, timeUnit);
     }

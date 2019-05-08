@@ -140,6 +140,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
+        LOG.info("Downloading message with id [{}]", messageId);
+
         checkMessageAuthorization(messageId);
 
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
@@ -170,6 +172,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Override
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
+        LOG.info("Browsing message with id [{}]", messageId);
+
         checkMessageAuthorization(messageId);
 
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
@@ -180,7 +184,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
         }
-        LOG.info("Downloading message with id [{}]", messageId);
+
         String originalUser = authUtils.getOriginalUserFromSecurityContext();
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
