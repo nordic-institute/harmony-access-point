@@ -50,6 +50,8 @@ public class SplitAndJoinListener implements MessageListener {
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void onMessage(final Message message) {
         try {
+            LOG.clearCustomKeys();
+
             String domainCode = null;
             try {
                 domainCode = message.getStringProperty(MessageConstants.DOMAIN);

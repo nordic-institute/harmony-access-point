@@ -108,6 +108,8 @@ public class PullMessageSender {
         if (domibusInitializationHelper.isNotReady()) {
             return;
         }
+        LOG.clearCustomKeys();
+
         String domainCode;
         try {
             domainCode = map.getStringProperty(MessageConstants.DOMAIN);
