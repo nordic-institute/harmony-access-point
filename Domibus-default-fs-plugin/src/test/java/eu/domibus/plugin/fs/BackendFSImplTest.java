@@ -153,7 +153,7 @@ public class BackendFSImplTest {
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, payloadFileName, dataHandler));
 
-        expectationsDeliverMessage(null, userMessage, fsPayloads);
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         backendFS.deliverMessage(messageId);
 
@@ -192,7 +192,7 @@ public class BackendFSImplTest {
             result = rootDir;
 
             domibusConfigurationExtService.isMultiTenantAware();
-            result = (domain != null);
+            result = false;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
@@ -239,7 +239,7 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", messageHandler));
         fsPayloads.put("cid:invoice", new FSPayload(TEXT_XML, "invoice.xml", invoiceHandler));
 
-        expectationsDeliverMessage(null, userMessage, fsPayloads);
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         //tested method
         backendFS.deliverMessage(messageId);
@@ -298,7 +298,7 @@ public class BackendFSImplTest {
             backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsFilesManager.setUpFileSystem(null);
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = new FSSetUpException("Test-forced exception");
         }};
 
@@ -319,7 +319,7 @@ public class BackendFSImplTest {
             backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsFilesManager.setUpFileSystem(null);
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
@@ -371,6 +371,36 @@ public class BackendFSImplTest {
         new VerificationsInOrder(1) {{
             fsFilesManager.renameFile(contentFile, "content_" + messageId + ".xml.SEND_ENQUEUED");
         }};
+    }
+
+    @Test
+    public void testGetFSPluginDomainMultitenanncy(@Injectable FSMessage fsMessage) {
+        final String mydomain = "mydomain";
+
+        new Expectations() {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+
+            domainContextExtService.getCurrentDomain().getCode();
+            result = mydomain;
+        }};
+
+        final String fsPluginDomain = backendFS.getFSPluginDomain(fsMessage);
+        Assert.assertEquals(mydomain, fsPluginDomain);
+    }
+
+    @Test
+    public void testGetFSPluginDomainNonMultitenanncy(@Injectable FSMessage fsMessage) {
+        new Expectations(backendFS) {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = false;
+
+            backendFS.resolveDomain(fsMessage);
+            result = null;
+        }};
+
+        final String fsPluginDomain = backendFS.getFSPluginDomain(fsMessage);
+        Assert.assertEquals(FSSendMessagesService.DEFAULT_DOMAIN, fsPluginDomain);
     }
 
     @Test

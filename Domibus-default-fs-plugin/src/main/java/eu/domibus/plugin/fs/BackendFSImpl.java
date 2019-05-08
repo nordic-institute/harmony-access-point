@@ -151,16 +151,8 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
 
-        // get multiTenantAware
-        boolean multiTenantAware = domibusConfigurationExtService.isMultiTenantAware();
-
-        // get domain info
-        String domain;
-        if (multiTenantAware) {
-            domain = domainContextExtService.getCurrentDomain().getCode();
-        } else {
-            domain = resolveDomain(fsMessage);
-        }
+        String domain = getFSPluginDomain(fsMessage);
+        LOG.debug("Using FS Plugin domain [{}]", domain);
 
         // Persist message
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -195,6 +187,30 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
     }
 
+    protected String getFSPluginDomain(FSMessage fsMessage) {
+        LOG.trace("Getting FSPluginDomain");
+
+        // get multiTenantAware
+        boolean multiTenantAware = domibusConfigurationExtService.isMultiTenantAware();
+        LOG.trace("Is Domibus running in multitenancy mode? [{}]", multiTenantAware);
+
+        // get domain info
+        String domain;
+        if (multiTenantAware) {
+            domain = domainContextExtService.getCurrentDomain().getCode();
+            LOG.trace("Getting current domain [{}]", domain);
+        } else {
+            domain = resolveDomain(fsMessage);
+            if (StringUtils.isEmpty(domain)) {
+                LOG.debug("Using default domain: no configured domain found");
+                domain = FSSendMessagesService.DEFAULT_DOMAIN;
+            }
+        }
+        LOG.trace("FSPluginDomain is [{}]", domain);
+
+        return domain;
+    }
+
     protected void writePayloads(String messageId, FSMessage fsMessage, FileObject incomingFolderByMessageId) throws FSPluginException {
         LOG.debug("Writing payloads for message [{}]", messageId);
 
@@ -225,7 +241,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
      * Checks if the message payloads will be scheduled(async) or directly(sync) saved
      *
      * @param fsMessage The message payloads to be checked
-     * @param domain The current domain
+     * @param domain    The current domain
      * @return true if the payloads will be scheduled for saving
      */
     protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage, String domain) {
@@ -275,14 +291,16 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         return extension;
     }
 
-    private String resolveDomain(FSMessage fsMessage) {
+    protected String resolveDomain(FSMessage fsMessage) {
         CollaborationInfo collaborationInfo = fsMessage.getMetadata().getCollaborationInfo();
         String service = collaborationInfo.getService().getValue();
         String action = collaborationInfo.getAction();
         return resolveDomain(service, action);
     }
 
-    String resolveDomain(String service, String action) {
+    protected String resolveDomain(String service, String action) {
+        LOG.debug("Resolving domain for service [{}] and action [{}]", service, action);
+
         String serviceAction = service + "#" + action;
         List<String> domains = fsPluginProperties.getDomains();
         for (String domain : domains) {
@@ -290,10 +308,12 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
             if (domainExpressionPattern != null) {
                 boolean domainMatches = domainExpressionPattern.matcher(serviceAction).matches();
                 if (domainMatches) {
+                    LOG.debug("Resolved domain [{}] for service [{}] and action [{}]", domain, service, action);
                     return domain;
                 }
             }
         }
+        LOG.debug("No domain configured for service [{}] and action [{}]", service, action);
         return null;
     }
 
