@@ -80,9 +80,7 @@ public class MessageLogInfo {
                           final String refToMessageId,
                           final Date failed,
                           final Date restored,
-                          final MessageSubtype messageSubtype,
-                          final Boolean messageFragment,
-                          final Boolean sourceMessage) {
+                          final MessageSubtype messageSubtype) {
         //message log information.
         this.messageId = messageId;
         this.messageStatus = messageStatus;
@@ -105,6 +103,33 @@ public class MessageLogInfo {
         this.failed = failed;
         this.restored = restored;
         this.messageSubtype = messageSubtype;
+    }
+
+    public MessageLogInfo(final String messageId,
+                          final MessageStatus messageStatus,
+                          final NotificationStatus notificationStatus,
+                          final MSHRole mshRole,
+                          final MessageType messageType,
+                          final Date deleted,
+                          final Date received,
+                          final int sendAttempts,
+                          final int sendAttemptsMax,
+                          final Date nextAttempt,
+                          final String conversationId,
+                          final String fromPartyId,
+                          final String toPartyId,
+                          final String originalSender,
+                          final String finalRecipient,
+                          final String refToMessageId,
+                          final Date failed,
+                          final Date restored,
+                          final MessageSubtype messageSubtype,
+                          final Boolean messageFragment,
+                          final Boolean sourceMessage) {
+        this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
+                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
+                originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
+
         this.messageFragment = messageFragment;
         this.sourceMessage = sourceMessage;
     }
