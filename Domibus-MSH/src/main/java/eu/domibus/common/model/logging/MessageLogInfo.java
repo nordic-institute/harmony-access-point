@@ -62,6 +62,7 @@ public class MessageLogInfo {
     public MessageLogInfo() {
     }
 
+    //constructor for signal messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,
                           final NotificationStatus notificationStatus,
@@ -81,7 +82,6 @@ public class MessageLogInfo {
                           final Date failed,
                           final Date restored,
                           final MessageSubtype messageSubtype) {
-        //message log information.
         this.messageId = messageId;
         this.messageStatus = messageStatus;
         this.notificationStatus = notificationStatus;
@@ -99,12 +99,12 @@ public class MessageLogInfo {
         this.originalSender = originalSender;
         this.finalRecipient = finalRecipient;
         this.refToMessageId = refToMessageId;
-        // rest of message log information.
         this.failed = failed;
         this.restored = restored;
         this.messageSubtype = messageSubtype;
     }
 
+    //constructor for user messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,
                           final NotificationStatus notificationStatus,
