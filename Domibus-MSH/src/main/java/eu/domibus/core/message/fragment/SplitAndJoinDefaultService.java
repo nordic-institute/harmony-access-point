@@ -14,7 +14,9 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
+import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.common.services.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.*;
 import eu.domibus.configuration.storage.Storage;
@@ -142,6 +144,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     @Autowired
     protected MessageGroupService messageGroupService;
+
+    @Autowired
+    protected ErrorService errorService;
 
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
@@ -374,7 +379,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
             return;
         }
-        updateRetryLoggingService.messageFailedInANewTransaction(userMessage, messageLog);
+        updateRetryLoggingService.messageFailed(userMessage, messageLog);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -439,7 +444,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         LOG.debug("Setting the group [{}] as expired", messageGroupEntity.getGroupId());
         messageGroupEntity.setExpired(true);
         messageGroupDao.update(messageGroupEntity);
-        userMessageService.scheduleSplitAndJoinSendFailed(messageGroupEntity.getGroupId());
+        userMessageService.scheduleSplitAndJoinSendFailed(messageGroupEntity.getGroupId(), String.format("Message group [%s] has expired", messageGroupEntity.getGroupId()));
     }
 
 
@@ -527,13 +532,15 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     @Override
-    public void splitAndJoinSendFailed(final String groupId) {
-        LOG.debug("SplitAndJoin message fragment failed for group [{}]", groupId);
+    public void splitAndJoinSendFailed(final String groupId, final String errorDetail) {
+        LOG.debug("SplitAndJoin send failed for group [{}]", groupId);
 
         sendSplitAndJoinFailed(groupId);
 
         final List<UserMessage> groupUserMessages = messagingDao.findUserMessageByGroupId(groupId);
         groupUserMessages.stream().forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId()));
+
+        createLogEntry(groupId, errorDetail);
     }
 
 
@@ -555,6 +562,12 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         final UserMessage sourceUserMessage = messagingDao.findUserMessageByMessageId(messageGroupEntity.getSourceMessageId());
         setSourceMessageAsFailed(sourceUserMessage);
+    }
+
+    protected void createLogEntry(String sourceMessageId, String errorDetail) {
+        LOG.debug("Creating error entry for message [{}]", sourceMessageId);
+        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(MSHRole.SENDING, sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
+        errorService.createErrorLog(errorLogEntry);
     }
 
     @Transactional

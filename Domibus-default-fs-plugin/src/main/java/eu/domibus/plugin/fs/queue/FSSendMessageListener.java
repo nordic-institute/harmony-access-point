@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs.queue;
 
+import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,7 +41,7 @@ public class FSSendMessageListener implements MessageListener {
     @Autowired
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class})
     @Override
     public void onMessage(Message message) {
         LOG.debug("received message on fsPluginSendQueue");
@@ -75,11 +76,7 @@ public class FSSendMessageListener implements MessageListener {
         }
 
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            if (domain == null) {
-                domain = FSSendMessagesService.DEFAULT_DOMAIN;
-            }
-
-            fsSendMessagesService.checkAuthenticationMultitenancy(domain);
+            fsSendMessagesService.authenticateForDomain(domain);
         }
 
         //process the file
