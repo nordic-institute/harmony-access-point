@@ -291,7 +291,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         return extension;
     }
 
-    private String resolveDomain(FSMessage fsMessage) {
+    protected String resolveDomain(FSMessage fsMessage) {
         CollaborationInfo collaborationInfo = fsMessage.getMetadata().getCollaborationInfo();
         String service = collaborationInfo.getService().getValue();
         String action = collaborationInfo.getAction();
