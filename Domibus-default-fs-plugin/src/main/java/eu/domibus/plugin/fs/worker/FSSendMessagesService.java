@@ -86,10 +86,6 @@ public class FSSendMessagesService {
     public void sendMessages() {
         LOG.debug("Sending file system messages...");
 
-        if (!domibusConfigurationExtService.isMultiTenantAware()) {
-            sendMessagesSafely(null);
-            return;
-        }
         for (String domain : fsPluginProperties.getDomains()) {
             if (fsMultiTenancyService.verifyDomainExists(domain)) {
                 sendMessagesSafely(domain);
@@ -107,6 +103,8 @@ public class FSSendMessagesService {
     }
 
     protected void sendMessages(final String domain) {
+        LOG.debug("Sending messages for domain [{}]", domain);
+
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             authenticateForDomain(domain);
         }
@@ -132,6 +130,7 @@ public class FSSendMessagesService {
             if (contentFiles != null) {
                 fsFilesManager.closeAll(contentFiles);
             }
+            LOG.debug("Finished sending messages for domain [{}]", domain);
         }
     }
 
