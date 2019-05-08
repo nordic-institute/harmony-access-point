@@ -367,7 +367,7 @@ public class FSPluginProperties {
         return result;
     }
 
-    private List<String> readDomains() {
+    protected List<String> readDomains() {
         List<String> tempDomains = new ArrayList<>();
 
         for (String propName : properties.stringPropertyNames()) {
