@@ -121,6 +121,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             pluginUserPasswordManager.validatePasswordExpired(user.getUserName(), isDefaultPassword, passwordChangeDate);
             return false;
         } catch (CredentialsExpiredException ex) {
+            LOG.trace("Credentials expired for user [{}]", user.getUserName(), e);
             return true;
         }
     }

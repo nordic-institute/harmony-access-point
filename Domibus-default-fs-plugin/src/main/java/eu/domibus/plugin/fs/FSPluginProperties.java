@@ -13,7 +13,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
  * File System Plugin Properties
- *
+ * <p>
  * All the plugin configurable properties must be accessed and handled through this component.
  *
  * @author @author FERNANDES Henrique, GONCALVES Bruno
@@ -228,7 +228,6 @@ public class FSPluginProperties {
      * Returns the payload identifier for messages belonging to a particular domain or the default payload identifier if none is defined.
      *
      * @param domain the domain property qualifier; {@code null} for the non-multitenant default domain
-     *
      * @return The identifier used to reference payloads of messages belonging to a particular domain.
      */
     public String getPayloadId(String domain) {
@@ -336,7 +335,6 @@ public class FSPluginProperties {
     }
 
 
-
     private String getDomainProperty(String domain, String propertyName, String defaultValue) {
         String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
         if (properties.containsKey(domainFullPropertyName)) {
@@ -350,7 +348,7 @@ public class FSPluginProperties {
         if (properties.containsKey(domainFullPropertyName)) {
             return properties.getProperty(domainFullPropertyName, defaultValue);
         }
-        if(DEFAULT_DOMAIN.equals(domain)) {
+        if (DEFAULT_DOMAIN.equals(domain)) {
             return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
         }
         // cannot use default values
@@ -369,7 +367,7 @@ public class FSPluginProperties {
         return result;
     }
 
-    private List<String> readDomains() {
+    protected List<String> readDomains() {
         List<String> tempDomains = new ArrayList<>();
 
         for (String propName : properties.stringPropertyNames()) {
@@ -380,6 +378,10 @@ public class FSPluginProperties {
                 }
             }
         }
+        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
+            tempDomains.add(DEFAULT_DOMAIN);
+        }
+
 
         Collections.sort(tempDomains, (domain1, domain2) -> {
             Integer domain1Order = getOrder(domain1);

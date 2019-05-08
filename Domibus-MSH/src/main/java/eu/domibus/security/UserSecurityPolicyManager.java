@@ -111,20 +111,23 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
+    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     public void validatePasswordExpired(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
+        LOG.debug("Validating if password expired for user [{}]", userName);
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
-        LOG.debug("Password expiration policy for user [{}] : {} days", userName, maxPasswordAgeInDays);
+        LOG.debug("Password expiration policy for user [{}] : [{}] days", userName, maxPasswordAgeInDays);
 
         if (maxPasswordAgeInDays <= 0) {
+            LOG.debug("Configured maxPasswordAgeInDays is <=0, password not expired");
             return;
         }
 
         LocalDate expirationDate = passwordChangeDate == null ? LocalDate.now() : passwordChangeDate.plusDays(maxPasswordAgeInDays).toLocalDate();
 
         if (expirationDate.isBefore(LocalDate.now())) {
-            LOG.debug("Password expired for user [{}]", userName);
+            LOG.debug("Password expired for user [{}]: expirationDate [{}] < now", userName, expirationDate);
             throw new CredentialsExpiredException(CREDENTIALS_EXPIRED);
         }
     }
@@ -156,7 +159,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         LocalDate expirationDate = passwordDate.plusDays(maxPasswordAgeInDays);
         LocalDate today = LocalDate.now();
         int daysUntilExpiration = (int) ChronoUnit.DAYS.between(today, expirationDate);
-        
+
         LOG.debug("Password policy: days until expiration for user [{}] : {} days", userName, daysUntilExpiration);
 
         if (0 <= daysUntilExpiration && daysUntilExpiration <= warningDaysBeforeExpiration) {
