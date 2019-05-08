@@ -84,8 +84,13 @@ public class RetryService {
     public void enqueueMessages() {
         final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyQueued();
         for (final String messageId : messagesNotAlreadyQueued) {
-            if (!failIfExpired(messageId)) {
-                userMessageService.scheduleSending(messageId);
+            try {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+                if (!failIfExpired(messageId)) {
+                    userMessageService.scheduleSending(messageId);
+                }
+            } finally {
+                LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
             }
         }
     }

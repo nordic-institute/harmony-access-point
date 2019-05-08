@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
@@ -37,6 +38,7 @@ public class FSProcessFileService {
     @Autowired
     private FSPluginProperties fsPluginProperties;
 
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional(propagation = Propagation.SUPPORTS)
     public void processFile(FileObject processableFile, String domain) throws FileSystemException, JAXBException, MessagingProcessingException {
         LOG.debug("processFile start for file: {}", processableFile);
@@ -57,6 +59,8 @@ public class FSProcessFileService {
                 fsPayloads.put(payloadId, fsPayload);
                 FSMessage message = new FSMessage(fsPayloads, metadata);
                 String messageId = backendFSPlugin.submit(message);
+
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
                 LOG.info("Message [{}] submitted: [{}]", messageId, processableFile.getName());
 
             } else {
