@@ -3,6 +3,8 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
+import eu.domibus.ext.exceptions.AuthenticationExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -34,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -52,10 +55,10 @@ public class FSSendMessagesService {
 
     @Autowired
     private FSPluginProperties fsPluginProperties;
-    
+
     @Autowired
     private FSFilesManager fsFilesManager;
-    
+
     @Autowired
     private FSProcessFileService fsProcessFileService;
 
@@ -83,36 +86,43 @@ public class FSSendMessagesService {
     public void sendMessages() {
         LOG.debug("Sending file system messages...");
 
-        sendMessages(null);
-        
+        if (!domibusConfigurationExtService.isMultiTenantAware()) {
+            sendMessagesSafely(null);
+            return;
+        }
         for (String domain : fsPluginProperties.getDomains()) {
             if (fsMultiTenancyService.verifyDomainExists(domain)) {
-                sendMessages(domain);
+                sendMessagesSafely(domain);
             }
+        }
+
+    }
+
+    protected void sendMessagesSafely(String domain) {
+        try {
+            sendMessages(domain);
+        } catch (AuthenticationExtException ex) {
+            LOG.error("Authentication error for domain [{}]", domain, ex);
         }
     }
 
-    protected void sendMessages(String domain) {
+    protected void sendMessages(final String domain) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            if (domain == null) {
-                domain = DEFAULT_DOMAIN;
-            }
-
-            checkAuthenticationMultitenancy(domain);
+            authenticateForDomain(domain);
         }
 
         FileObject[] contentFiles = null;
-        final String domainCode = domain;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
             LOG.trace("{}", contentFiles);
 
-            List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domainCode);
+            List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domain);
             LOG.debug("Processable files [{}]", processableFiles);
 
-            processableFiles.parallelStream().forEach(file -> sendJMSMessageToOutQueue(file, domainCode));
+            Map<String, String> context = LOG.getCopyOfContextMap();
+            processableFiles.parallelStream().forEach(file -> enqueueProcessableFileWithContext(file, context));
 
         } catch (FileSystemException ex) {
             LOG.error("Error sending messages", ex);
@@ -130,20 +140,20 @@ public class FSSendMessagesService {
      *
      * @param domain
      */
-    public void checkAuthenticationMultitenancy(String domain) {
-        String authenticationUser = fsPluginProperties.getAuthenticationUser(domain);
-        if (authenticationUser == null) {
+    public void authenticateForDomain(String domain) throws AuthenticationExtException {
+        String user = fsPluginProperties.getAuthenticationUser(domain);
+        if (user == null) {
             LOG.error("Authentication User not defined for domain [{}]", domain);
-            return;
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "Authentication User not defined for domain [" + domain + "]");
         }
 
-        String authenticationPassword = fsPluginProperties.getAuthenticationPassword(domain);
-        if (authenticationPassword == null) {
+        String password = fsPluginProperties.getAuthenticationPassword(domain);
+        if (password == null) {
             LOG.error("Authentication Password not defined for domain [{}]", domain);
-            return;
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "Authentication Password not defined for domain [" + domain + "]");
         }
 
-        authenticationExtService.basicAuthenticate(authenticationUser, authenticationPassword);
+        authenticationExtService.basicAuthenticate(user, password);
     }
 
     /**
@@ -173,33 +183,39 @@ public class FSSendMessagesService {
     }
 
     public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
+        if (processableFile == null) {
+            LOG.error("The send failed message file was not found in domain [{}]", domain);
+            return;
+        }
+        try {
+            fsFilesManager.deleteLockFile(processableFile);
+        } catch (FileSystemException e) {
+            LOG.error("Error deleting lock file", e);
+        }
+
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain)) {
-            if (processableFile != null) {
-                String baseName = processableFile.getName().getBaseName();
-                String errorFileName = FSFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
+            String baseName = processableFile.getName().getBaseName();
+            String errorFileName = FSFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
 
-                String processableFileMessageURI = processableFile.getParent().getName().getPath();
-                String failedDirectoryLocation = FSFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
-                FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
+            String processableFileMessageURI = processableFile.getParent().getName().getPath();
+            String failedDirectoryLocation = FSFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
+            FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
 
-                try {
-                    if (fsPluginProperties.isFailedActionDelete(domain)) {
-                        // Delete
-                        fsFilesManager.deleteFile(processableFile);
-                        LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
-                    } else if (fsPluginProperties.isFailedActionArchive(domain)) {
-                        // Archive
-                        String archivedFileName = FSFileNameHelper.stripStatusSuffix(baseName);
-                        FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
-                        fsFilesManager.moveFile(processableFile, archivedFile);
-                        LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
-                    }
-                } finally {
-                    // Create error file
-                    fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
+            try {
+                if (fsPluginProperties.isFailedActionDelete(domain)) {
+                    // Delete
+                    fsFilesManager.deleteFile(processableFile);
+                    LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
+                } else if (fsPluginProperties.isFailedActionArchive(domain)) {
+                    // Archive
+                    String archivedFileName = FSFileNameHelper.stripStatusSuffix(baseName);
+                    FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
+                    fsFilesManager.moveFile(processableFile, archivedFile);
+                    LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
                 }
-            } else {
-                LOG.error("The send failed message file [{}] was not found in domain [{}]", processableFile, domain);
+            } finally {
+                // Create error file
+                fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
             }
         } catch (IOException e) {
             throw new FSPluginException("Error handling the send failed message file " + processableFile, e);
@@ -237,7 +253,7 @@ public class FSSendMessagesService {
     }
 
 
-    private List<FileObject> filterProcessableFiles(FileObject[] files, String domainCode) {
+    private List<FileObject> filterProcessableFiles(FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
         // locked file names
@@ -258,7 +274,7 @@ public class FSSendMessagesService {
                     // exclude locked files:
                     && !lockedFileNames.stream().anyMatch(fname -> fname.equals(baseName))
                     // exclude files that are (or could be) in use by other processes:
-                    && canReadFileSafely(file, domainCode)) {
+                    && canReadFileSafely(file, domain)) {
 
                 filteredFiles.add(file);
             }
@@ -268,7 +284,7 @@ public class FSSendMessagesService {
     }
 
 
-    protected boolean canReadFileSafely(FileObject fileObject, String domainCode) {
+    protected boolean canReadFileSafely(FileObject fileObject, String domain) {
         String filePath = fileObject.getName().getPath();
 
         // firstly try to lock the file
@@ -290,7 +306,7 @@ public class FSSendMessagesService {
         // it is probable that some process is still writing in the file
 
         try {
-            long delta = fsPluginProperties.getSendDelay(domainCode);
+            long delta = fsPluginProperties.getSendDelay(domain);
             long fileTime = fileObject.getContent().getLastModifiedTime();
             long currentTime = new java.util.Date().getTime();
             if (fileTime > currentTime - delta) {
@@ -305,25 +321,42 @@ public class FSSendMessagesService {
         return true;
     }
 
+    private void enqueueProcessableFileWithContext(final FileObject fileObject, final Map<String, String> context) {
+        if (context != null) {
+            LOG.setContextMap(context);
+        }
+
+        this.enqueueProcessableFile(fileObject);
+    }
+
     /**
      * Put a JMS message to FS Plugin Send queue
      *
-     * @param processableFile
-     * @param domain
+     * @param fileObject
      */
-    protected void sendJMSMessageToOutQueue(final FileObject processableFile, final String domain) {
+    protected void enqueueProcessableFile(final FileObject fileObject) {
 
         String fileName;
         try {
-            fileName = processableFile.getURL().getFile();
+            fileName = fileObject.getURL().getFile();
         } catch (FileSystemException e) {
             LOG.error("Exception while getting filename: ", e);
             return;
         }
 
+        try {
+            if (fsFilesManager.hasLockFile(fileObject)) {
+                LOG.debug("Skipping file [{}]: it has a lock file associated", fileName);
+                return;
+            }
+            fsFilesManager.createLockFile(fileObject);
+        } catch (FileSystemException e) {
+            LOG.error("Exception while checking file lock: ", e);
+            return;
+        }
+
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
                 create().
-                property(MessageConstants.DOMAIN, domain).
                 property(MessageConstants.FILE_NAME, fileName).
                 build();
 

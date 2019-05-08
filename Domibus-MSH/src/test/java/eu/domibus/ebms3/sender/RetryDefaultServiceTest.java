@@ -20,26 +20,30 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.messaging.MessageConstants;
-import mockit.*;
+import mockit.Injectable;
+import mockit.NonStrictExpectations;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
-public class RetryServiceTest {
+public class RetryDefaultServiceTest {
 
     private static List<String> QUEUED_MESSAGEIDS = Arrays.asList("queued123@domibus.eu", "queued456@domibus.eu", "queued789@domibus.eu");
     private static List<String> RETRY_MESSAGEIDS = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "queued456@domibus.eu", "expired123@domibus.eu");
 
     @Tested
-    private RetryService retryService;
+    private RetryDefaultService retryService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -49,6 +53,9 @@ public class RetryServiceTest {
 
     @Injectable
     private Queue sendMessageQueue;
+
+    @Injectable
+    private Queue sendLargeMessageQueue;
 
     @Injectable
     UserMessageService userMessageService;
@@ -82,7 +89,7 @@ public class RetryServiceTest {
 
     private List<JmsMessage> getQueuedMessages() {
         List<JmsMessage> jmsMessages = new ArrayList<>();
-        for(String messageId : QUEUED_MESSAGEIDS) {
+        for (String messageId : QUEUED_MESSAGEIDS) {
             JmsMessage jmsMessage = new JmsMessage();
             jmsMessage.setProperty(MessageConstants.MESSAGE_ID, messageId);
             jmsMessages.add(jmsMessage);
@@ -91,30 +98,59 @@ public class RetryServiceTest {
     }
 
     @Test
-    public void getQueuedMessagesTest() {
+    public void getQueuedMessagesTest(@Injectable Queue queue) throws JMSException {
+        final List<JmsMessage> jmsMessages = getQueuedMessages();
+
+        String myQueue = "myQueue";
         new NonStrictExpectations() {{
-            jmsManager.browseClusterMessages(anyString);
-            result = getQueuedMessages();
+            queue.getQueueName();
+            result = myQueue;
+
+            jmsManager.browseClusterMessages(myQueue);
+            result = jmsMessages;
         }};
 
-        List<String> result = retryService.getQueuedMessages();
+        List<String> result = retryService.getQueuedMessages(queue);
         assertEquals(3, result.size());
     }
 
     @Test
-    public void getMessagesNotAlreadyQueuedTest() {
-        List<String> expectedMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
-        new NonStrictExpectations() {{
+    public void getMessagesNotAlreadyQueuedWithAlreadyQueuedMessagesTest() {
+        List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
+        List<String> queuedMessageIds = Arrays.asList("retry123@domibus.eu");
+
+        new NonStrictExpectations(retryService) {{
             userMessageLogDao.findRetryMessages();
-            result = new ArrayList<>(RETRY_MESSAGEIDS);
-            jmsManager.browseClusterMessages(anyString);
-            result = getQueuedMessages();
+            result = new ArrayList<>(retryMessageIds);
+
+            retryService.getAllQueuedMessages();
+            result = queuedMessageIds;
+
         }};
 
         List<String> result = retryService.getMessagesNotAlreadyQueued();
+        assertEquals(result.size(), 2);
 
-        assertFalse(result.contains("queued456@domibus.eu"));
-        assertEquals(expectedMessageIds, result);
+        assertFalse(result.contains("retry123@domibus.eu"));
+    }
+
+    @Test
+    public void getMessagesNotAlreadyQueuedWithNoAlreadyQueuedMessagesTest() {
+        List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
+
+        new NonStrictExpectations(retryService) {{
+            userMessageLogDao.findRetryMessages();
+            result = new ArrayList<>(retryMessageIds);
+
+            retryService.getAllQueuedMessages();
+            result = new ArrayList<>();
+
+        }};
+
+        List<String> result = retryService.getMessagesNotAlreadyQueued();
+        assertEquals(result.size(), 3);
+
+        assertEquals(result, retryMessageIds);
     }
 
     @Test
@@ -137,17 +173,18 @@ public class RetryServiceTest {
             result = userMessageLog;
             updateRetryLoggingService.isExpired((LegConfiguration) any, userMessageLog);
             result = true;
-            updateRetryLoggingService.isExpired((LegConfiguration) any, (UserMessageLog) any );
+            updateRetryLoggingService.isExpired((LegConfiguration) any, (UserMessageLog) any);
             result = false;
         }};
         assertTrue(retryService.failIfExpired("expired123@domibus.eu"));
         assertFalse(retryService.failIfExpired("retry123@domibus.eu"));
 
-        for(String messageId : messagesNotAlreadyQueued) {
+        for (String messageId : messagesNotAlreadyQueued) {
             retryService.failIfExpired(messageId);
         }
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog); times = 2; // one outside for and one in for
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            times = 2; // one outside for and one in for
         }};
     }
 }

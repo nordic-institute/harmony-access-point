@@ -1,12 +1,11 @@
 package eu.domibus.plugin.fs.queue;
 
-import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -42,7 +41,7 @@ public class FSSendMessageListener implements MessageListener {
     @Autowired
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class})
     @Override
     public void onMessage(Message message) {
         LOG.debug("received message on fsPluginSendQueue");
@@ -58,39 +57,31 @@ public class FSSendMessageListener implements MessageListener {
             return;
         }
 
-        if (StringUtils.isNotBlank(fileName)) {
-            FileObject fileObject = null;
-            try {
-                FileSystemManager fileSystemManager = getVFSManager();
-                fileObject = fileSystemManager.resolveFile(fileName);
-                if (!fileObject.exists()) {
-                    LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
-                    return;
-                }
-                if (fsFilesManager.hasLockFile(fileObject)) {
-                    LOG.debug("Skipping file [{}]: it has a lock file associated", fileName);
-                    return;
-                }
-
-
-            } catch (FileSystemException e) {
-                LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
-            }
-
-            if (domibusConfigurationExtService.isMultiTenantAware()) {
-                if (domain == null) {
-                    domain = FSSendMessagesService.DEFAULT_DOMAIN;
-                }
-
-                fsSendMessagesService.checkAuthenticationMultitenancy(domain);
-            }
-
-            //process the file
-            LOG.debug("now send the file: {}", fileObject);
-            fsSendMessagesService.processFileSafely(fileObject, domain);
-        } else {
+        if (StringUtils.isBlank(fileName)) {
             LOG.error("Error while consuming JMS message: [{}] fileName empty.", message);
+            return;
         }
+        
+        FileObject fileObject = null;
+        try {
+            FileSystemManager fileSystemManager = getVFSManager();
+            fileObject = fileSystemManager.resolveFile(fileName);
+            if (!fileObject.exists()) {
+                LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
+                return;
+            }
+        } catch (FileSystemException e) {
+            LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
+            return;
+        }
+
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            fsSendMessagesService.authenticateForDomain(domain);
+        }
+
+        //process the file
+        LOG.debug("now send the file: {}", fileObject);
+        fsSendMessagesService.processFileSafely(fileObject, domain);
     }
 
     protected FileSystemManager getVFSManager() throws FileSystemException {

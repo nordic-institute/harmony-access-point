@@ -26,7 +26,7 @@ import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno, Catalin Enache
@@ -111,23 +111,30 @@ public class FSSendMessagesServiceTest {
 
     @Test
     public void test_SendMessages_Root_Domain1() {
+        final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
         final String domain1 = "DOMAIN1";
         new Expectations(instance) {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+
             fsPluginProperties.getDomains();
-            result = Collections.singletonList(domain1);
+            result = Arrays.asList(domain0, domain1);
+
+            fsMultiTenancyService.verifyDomainExists(domain0);
+            result = true;
 
             fsMultiTenancyService.verifyDomainExists(domain1);
             result = true;
-
         }};
 
         //tested method
         instance.sendMessages();
 
         new FullVerifications(instance) {{
-            instance.sendMessages(null);
-
+            instance.sendMessages(domain0);
+            times = 1;
             instance.sendMessages(domain1);
+            times = 1;
         }};
     }
 
@@ -147,7 +154,7 @@ public class FSSendMessagesServiceTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{metadataFile, contentFile};
 
-            instance.canReadFileSafely((FileObject)any, anyString);
+            instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
         }};
 
@@ -156,16 +163,13 @@ public class FSSendMessagesServiceTest {
 
         new VerificationsInOrder(1) {{
             FileObject fileActual;
-            String domainActual;
-            instance.sendJMSMessageToOutQueue(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
-            Assert.assertEquals(domain, domainActual);
         }};
     }
 
     @Test
     public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
-        final String domain = null; //root
         final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
         new Expectations(1, instance) {{
             domibusConfigurationExtService.isMultiTenantAware();
@@ -186,21 +190,19 @@ public class FSSendMessagesServiceTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{metadataFile, contentFile};
 
-            instance.canReadFileSafely((FileObject)any, anyString);
+            instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
         }};
 
         //tested method
-        instance.sendMessages(domain);
+        instance.sendMessages(domainDefault);
 
         new VerificationsInOrder(1) {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
             FileObject fileActual;
-            String domainActual;
-            instance.sendJMSMessageToOutQueue(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
-            Assert.assertEquals(domainDefault, domainActual);
         }};
     }
 
@@ -226,7 +228,7 @@ public class FSSendMessagesServiceTest {
             fsPluginProperties.getAuthenticationPassword(anyString);
             result = "pass1";
 
-            instance.canReadFileSafely((FileObject)any, anyString);
+            instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
         }};
 
@@ -236,10 +238,8 @@ public class FSSendMessagesServiceTest {
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
             FileObject fileActual;
-            String domainActual;
-            instance.sendJMSMessageToOutQueue(fileActual = withCapture(), domainActual = withCapture());
+            instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
-            Assert.assertEquals(domain1, domainActual);
         }};
     }
 
@@ -265,8 +265,28 @@ public class FSSendMessagesServiceTest {
         new Verifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
-            instance.sendJMSMessageToOutQueue((FileObject)any, anyString);
+            instance.enqueueProcessableFile((FileObject) any);
             maxTimes = 0;
+        }};
+    }
+
+    @Test
+    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
+        final String domain = null; //root
+        final String errorMessage = "mock error";
+        final FileObject processableFile = metadataFile;
+        new Expectations(1, instance) {{
+            fsFilesManager.setUpFileSystem(domain);
+            result = rootDir;
+
+            fsPluginProperties.isFailedActionArchive(domain);
+            result = true;
+        }};
+
+        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
+
+        new Verifications() {{
+            fsFilesManager.createFile((FileObject) any, anyString, anyString);
         }};
     }
 

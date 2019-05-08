@@ -10,6 +10,7 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.model.logging.MessageLog;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
@@ -174,7 +175,7 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if(userMessageHandlerService.checkTestMessage(userMessage)) {
+        if (userMessageHandlerService.checkTestMessage(userMessage)) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
             return;
         }
@@ -189,7 +190,7 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if(userMessageHandlerService.checkTestMessage(userMessage)) {
+        if (userMessageHandlerService.checkTestMessage(userMessage)) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
             return;
         }
@@ -366,16 +367,20 @@ public class BackendNotificationService {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        final String backendName = userMessageLogDao.findBackendForMessageId(messageId);
-        notify(messageId, backendName, NotificationType.MESSAGE_SEND_SUCCESS);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
+        if (userMessageLog.getMessageFragment()) {
+            notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
+        }
+
+        notify(messageId, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
         uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void notifyOfMessageStatusChange(MessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-
+    public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
             eventService.enqueueMessageEvent(messageLog.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole());
@@ -394,7 +399,12 @@ public class BackendNotificationService {
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
         final Map<String, Object> messageProperties = getMessageProperties(messageLog, newStatus, changeTimestamp);
-        notify(messageLog.getMessageId(), messageLog.getBackend(), NotificationType.MESSAGE_STATUS_CHANGE, messageProperties);
+        NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
+        if (messageLog.getMessageFragment()) {
+            notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
+        }
+
+        notify(messageLog.getMessageId(), messageLog.getBackend(), notificationType, messageProperties);
     }
 
     protected Map<String, Object> getMessageProperties(MessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {

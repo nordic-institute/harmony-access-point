@@ -2,6 +2,7 @@ package eu.domibus.common.model.logging;
 
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageType;
+import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -47,7 +48,7 @@ public class UserMessageLog extends MessageLog {
     }
 
     public Boolean getSourceMessage() {
-        return sourceMessage;
+        return BooleanUtils.toBoolean(sourceMessage);
     }
 
     public void setSourceMessage(Boolean sourceMessage) {
@@ -55,7 +56,7 @@ public class UserMessageLog extends MessageLog {
     }
 
     public Boolean getMessageFragment() {
-        return messageFragment;
+        return BooleanUtils.toBoolean(messageFragment);
     }
 
     public void setMessageFragment(Boolean messageFragment) {

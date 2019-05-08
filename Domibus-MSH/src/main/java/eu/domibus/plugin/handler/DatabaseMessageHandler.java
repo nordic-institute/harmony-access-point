@@ -5,7 +5,10 @@ import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.*;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.common.ErrorResult;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -47,7 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -136,31 +138,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected PModeDefaultService pModeDefaultService;
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
-        }
-        LOG.info("Downloading message with id [{}]", messageId);
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
-        String displayUser = originalUser == null ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
+        checkMessageAuthorization(messageId);
 
-        UserMessage userMessage;
-        try {
-            LOG.debug("Searching message with id [{}]", messageId);
-            userMessage = messagingDao.findUserMessageByMessageId(messageId);
-            // Authorization check
-            validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-
-            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
-            if (userMessageLog == null) {
-                throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-            }
-        } catch (final NoResultException nrEx) {
-            LOG.debug(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR, nrEx);
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
         userMessageLogService.setMessageAsDownloaded(messageId);
         // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
@@ -184,6 +166,39 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
         }
         return transformer.transformFromMessaging(userMessage);
+    }
+
+    @Override
+    public Submission browseMessage(String messageId) throws MessageNotFoundException {
+        checkMessageAuthorization(messageId);
+
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        return transformer.transformFromMessaging(userMessage);
+    }
+
+    protected void checkMessageAuthorization(String messageId) throws MessageNotFoundException {
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
+        LOG.info("Downloading message with id [{}]", messageId);
+        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        String displayUser = originalUser == null ? "super user" : originalUser;
+        LOG.debug("Authorized as [{}]", displayUser);
+
+        try {
+            LOG.debug("Searching message with id [{}]", messageId);
+            UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+            // Authorization check
+            validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+
+            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            if (userMessageLog == null) {
+                throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+            }
+        } catch (final NoResultException nrEx) {
+            LOG.debug(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR, nrEx);
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
     }
 
     protected void validateOriginalUser(UserMessage userMessage, String authOriginalUser, List<String> recipients) {

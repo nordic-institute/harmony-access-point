@@ -3,6 +3,8 @@ package eu.domibus.api.multitenancy;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
+import java.util.Map;
+
 /**
  * Wrapper for the Runnable class to be executed. Catches any exception and executes the error handler if defined.
  *
@@ -15,19 +17,28 @@ public class LongTaskRunnable implements Runnable {
 
     protected Runnable runnable;
     protected Runnable errorHandler;
+    protected Map<String, String> copyOfContextMap;
 
     public LongTaskRunnable(final Runnable runnable, Runnable errorHandler) {
         this.runnable = runnable;
         this.errorHandler = errorHandler;
+        this.copyOfContextMap = LOG.getCopyOfContextMap();
     }
 
     public LongTaskRunnable(final Runnable runnable) {
         this.runnable = runnable;
+        this.copyOfContextMap = LOG.getCopyOfContextMap();
     }
 
     @Override
     public void run() {
         try {
+            if (copyOfContextMap != null) {
+                LOG.trace("Setting MDC context map");
+                LOG.setContextMap(copyOfContextMap);
+                LOG.trace("Finished setting MDC context map");
+            }
+
             LOG.trace("Start executing task");
             runnable.run();
             LOG.trace("Finished executing task");
@@ -37,6 +48,8 @@ public class LongTaskRunnable implements Runnable {
             executeErrorHandler();
         }
     }
+
+
 
     protected void executeErrorHandler() {
         if (errorHandler == null) {
