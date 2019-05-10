@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -35,7 +34,7 @@ public class FSPurgeFailedServiceTest {
     private FSFilesManager fsFilesManager;
 
     @Injectable
-    private FSMultiTenancyService fsMultiTenancyService;
+    private FSDomainService fsMultiTenancyService;
 
     @Injectable
     private DomibusConfigurationExtService domibusConfigurationExtService;

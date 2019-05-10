@@ -34,7 +34,7 @@ public class FSPurgeSentServiceTest {
     private FSFilesManager fsFilesManager;
 
     @Injectable
-    private FSMultiTenancyService fsMultiTenancyService;
+    private FSDomainService fsMultiTenancyService;
 
     @Injectable
     private DomibusConfigurationExtService domibusConfigurationExtService;

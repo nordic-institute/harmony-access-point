@@ -69,7 +69,7 @@ public class FSSendMessagesService {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
-    private FSMultiTenancyService fsMultiTenancyService;
+    private FSDomainService fsDomainService;
 
     @Autowired
     private JMSExtService jmsExtService;
@@ -87,7 +87,7 @@ public class FSSendMessagesService {
         LOG.debug("Sending file system messages...");
 
         for (String domain : fsPluginProperties.getDomains()) {
-            if (fsMultiTenancyService.verifyDomainExists(domain)) {
+            if (fsDomainService.verifyDomainExists(domain)) {
                 sendMessagesSafely(domain);
             }
         }
