@@ -20,20 +20,18 @@ public class FSMultiTenancyService {
     private DomainExtService domainExtService;
 
     /**
-     * This method return true if, and only if, we are in Multi Tenancy configuration and {#domain} is
-     * configured
+     * This method returns true if {#domain} is configured.
+     *
+     *
      * @param domain Domain name
-     * @return true if we are in Multi Tenancy configuration and domain is configured. Otherwise it can
-     * return false (if we are not in Multi Tenancy configuration) or FSSetUpException (if the domain was
+     * @return true if we are in Multi Tenancy configuration and domain is configured, or if we are in Single Tenancy
+     * configuration and the domain is the DEFAULT_DOMAIN. Otherwise it throws FSSetUpException (if the domain was
      * not configured)
      */
     public boolean verifyDomainExists(String domain) {
-        if(domibusConfigurationExtService.isMultiTenantAware()) {
-            if (domainExtService.getDomain(domain) == null) {
-                throw new FSSetUpException("Domain " + domain + " not configured in Domibus");
-            }
-            return true;
+        if (domainExtService.getDomain(domain) == null) {
+            throw new FSSetUpException("Domain " + domain + " not configured in Domibus");
         }
-        return false;
+        return true;
     }
 }
