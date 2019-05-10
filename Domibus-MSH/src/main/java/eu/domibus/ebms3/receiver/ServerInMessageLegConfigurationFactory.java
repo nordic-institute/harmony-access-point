@@ -29,12 +29,16 @@ public class ServerInMessageLegConfigurationFactory implements MessageLegConfigu
     @Autowired
     private ReceiptLegConfigurationFactory receiptLegConfigurationFactory;
 
+    @Autowired
+    private ErrorSignalConfigurationFactory errorSignalConfigurationFactory;
+
 
     @PostConstruct
     void init(){
         userMessageLegConfigurationFactory.
                 chain(pullRequestLegConfigurationFactory).
-                chain(receiptLegConfigurationFactory);
+                chain(receiptLegConfigurationFactory).
+                chain(errorSignalConfigurationFactory);
 
     }
     @Override
