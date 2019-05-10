@@ -23,15 +23,13 @@ public abstract class FSAbstractPurgeService {
     protected FSFilesManager fsFilesManager;
 
     @Autowired
-    protected FSMultiTenancyService multiTenancyService;
+    protected FSDomainService multiTenancyService;
 
     /**
      * Triggering the purge means that the message files from the target directory
      * older than X seconds will be removed
      */
     public void purgeMessages() {
-        purgeMessages(null);
-
         for (String domain : fsPluginProperties.getDomains()) {
             if (multiTenancyService.verifyDomainExists(domain)) {
                 purgeMessages(domain);
@@ -45,7 +43,7 @@ public abstract class FSAbstractPurgeService {
                 FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {
 
             contentFiles = findAllDescendants(targetFolder);
-            LOG.debug("{}", contentFiles);
+            LOG.debug("Found files [{}]", contentFiles);
             
             Integer expirationLimit = getExpirationLimit(domain);
 

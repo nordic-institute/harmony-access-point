@@ -171,6 +171,8 @@ public class FSFilesManager {
 
 
     public FileObject renameFile(FileObject file, String newFileName) throws FileSystemException {
+        LOG.debug("Renaming file [{}] to [{}]", file.getName().getPath(), newFileName);
+
         FileObject newFile = resolveSibling(file, newFileName);
         file.moveTo(newFile);
 
@@ -190,6 +192,7 @@ public class FSFilesManager {
             try (FileContent fileContent = file.getContent()) {
                 long currentTimeMillis = System.currentTimeMillis();
                 fileContent.setLastModifiedTime(currentTimeMillis);
+                LOG.debug("Forced LastModifiedTime to [{}]", currentTimeMillis);
             }
         }
     }

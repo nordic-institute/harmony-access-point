@@ -2,20 +2,17 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.AbstractBackendConnector;
-import eu.domibus.plugin.fs.ebms3.CollaborationInfo;
 import eu.domibus.plugin.fs.ebms3.Property;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
@@ -35,9 +32,10 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static eu.domibus.common.MessageStatus.*;
 
@@ -80,12 +78,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     private FSPluginProperties fsPluginProperties;
 
     @Autowired
-    private DomibusConfigurationExtService domibusConfigurationExtService;
-
-    @Autowired
-    private DomainContextExtService domainContextExtService;
-
-    @Autowired
     private FSSendMessagesService fsSendMessagesService;
 
     @Autowired
@@ -95,9 +87,8 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     protected DomainTaskExtExecutor domainTaskExtExecutor;
 
     @Autowired
-    private DomainExtService domainExtService;
+    protected FSDomainService fsDomainService;
 
-    private final Map<String, Pattern> domainPatternCache = new HashMap<>();
 
     /**
      * Creates a new <code>BackendFSImpl</code>.
@@ -151,11 +142,11 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
 
-        String domain = getFSPluginDomain(fsMessage);
-        LOG.debug("Using FS Plugin domain [{}]", domain);
+        String fsPluginDomain = fsDomainService.getFSPluginDomain(fsMessage);
+        LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
 
         // Persist message
-        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
+        try (FileObject rootDir = fsFilesManager.setUpFileSystem(fsPluginDomain);
              FileObject incomingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
              FileObject incomingFolderByRecipient = fsFilesManager.getEnsureChildFolder(incomingFolder, finalRecipientFolder);
              FileObject incomingFolderByMessageId = fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageId)) {
@@ -168,10 +159,11 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
                 LOG.info("Message metadata file written at: [{}]", fileObject.getName().getURI());
             }
 
-            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage, domain);
+            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage, fsPluginDomain);
             if (scheduleFSMessagePayloadsSaving) {
                 LOG.debug("FSMessage payloads for message [{}] will be scheduled for saving", messageId);
-                final DomainDTO domainDTO = domainExtService.getDomain(domain);
+
+                final DomainDTO domainDTO = fsDomainService.fsDomainToDomibusDomain(fsPluginDomain);
                 final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
                 domainTaskExtExecutor.submitLongRunningTask(() -> {
                     SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
@@ -187,29 +179,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
     }
 
-    protected String getFSPluginDomain(FSMessage fsMessage) {
-        LOG.trace("Getting FSPluginDomain");
-
-        // get multiTenantAware
-        boolean multiTenantAware = domibusConfigurationExtService.isMultiTenantAware();
-        LOG.trace("Is Domibus running in multitenancy mode? [{}]", multiTenantAware);
-
-        // get domain info
-        String domain;
-        if (multiTenantAware) {
-            domain = domainContextExtService.getCurrentDomain().getCode();
-            LOG.trace("Getting current domain [{}]", domain);
-        } else {
-            domain = resolveDomain(fsMessage);
-            if (StringUtils.isEmpty(domain)) {
-                LOG.debug("Using default domain: no configured domain found");
-                domain = FSSendMessagesService.DEFAULT_DOMAIN;
-            }
-        }
-        LOG.trace("FSPluginDomain is [{}]", domain);
-
-        return domain;
-    }
 
     protected void writePayloads(String messageId, FSMessage fsMessage, FileObject incomingFolderByMessageId) throws FSPluginException {
         LOG.debug("Writing payloads for message [{}]", messageId);
@@ -291,51 +260,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         return extension;
     }
 
-    protected String resolveDomain(FSMessage fsMessage) {
-        CollaborationInfo collaborationInfo = fsMessage.getMetadata().getCollaborationInfo();
-        String service = collaborationInfo.getService().getValue();
-        String action = collaborationInfo.getAction();
-        return resolveDomain(service, action);
-    }
-
-    protected String resolveDomain(String service, String action) {
-        LOG.debug("Resolving domain for service [{}] and action [{}]", service, action);
-
-        String serviceAction = service + "#" + action;
-        List<String> domains = fsPluginProperties.getDomains();
-        for (String domain : domains) {
-            Pattern domainExpressionPattern = getDomainPattern(domain);
-            if (domainExpressionPattern != null) {
-                boolean domainMatches = domainExpressionPattern.matcher(serviceAction).matches();
-                if (domainMatches) {
-                    LOG.debug("Resolved domain [{}] for service [{}] and action [{}]", domain, service, action);
-                    return domain;
-                }
-            }
-        }
-        LOG.debug("No domain configured for service [{}] and action [{}]", service, action);
-        return null;
-    }
-
-    private Pattern getDomainPattern(String domain) {
-        if (domainPatternCache.containsKey(domain)) {
-            return domainPatternCache.get(domain);
-        } else {
-            String domainExpression = fsPluginProperties.getExpression(domain);
-            Pattern domainExpressionPattern = null;
-            if (StringUtils.isNotEmpty(domainExpression)) {
-                try {
-                    domainExpressionPattern = Pattern.compile(domainExpression);
-                } catch (PatternSyntaxException e) {
-                    LOG.warn("Invalid domain expression for " + domain, e);
-                }
-            }
-
-            // domainExpressionPattern may be null, we should still cache null and return it
-            domainPatternCache.put(domain, domainExpressionPattern);
-            return domainExpressionPattern;
-        }
-    }
 
     @Override
     public void payloadSubmittedEvent(PayloadSubmittedEvent event) {
@@ -411,6 +335,8 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     }
 
     private void handleSentMessage(String domain, String messageId) {
+        LOG.debug("Preparing to handle sent message using domain [{}] and messageId [{}]", domain, messageId);
+
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFileMessage = findMessageFile(outgoingFolder, messageId)) {
@@ -442,6 +368,8 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     }
 
     private FileObject findMessageFile(FileObject parentDir, String messageId) throws FileSystemException {
+        LOG.debug("Finding message file in directory [{}] for message [{}]", parentDir.getName().getPath(), messageId);
+
         FileObject[] files = fsFilesManager.findAllDescendantFiles(parentDir);
         try {
             FileObject targetFile = null;
@@ -449,6 +377,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
                 String baseName = file.getName().getBaseName();
                 if (FSFileNameHelper.isMessageRelated(baseName, messageId)) {
                     targetFile = file;
+                    LOG.debug("Found message file [{}] for message [{}]", targetFile.getName().getPath(), messageId);
                     break;
                 }
             }
@@ -460,26 +389,15 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
     @Override
     public void messageStatusChanged(MessageStatusChangeEvent event) {
+        LOG.debug("Handling messageStatusChanged event");
+
+        Map<String, Object> properties = event.getProperties();
+        String service = (String) properties.get("service");
+        String action = (String) properties.get("action");
+        String domain = fsDomainService.getFSPluginDomain(service, action);
+
         String messageId = event.getMessageId();
-
-        // get multiTenantAware
-        boolean multiTenantAware = domibusConfigurationExtService.isMultiTenantAware();
-
-        // get domain info
-        String domain;
-        if (multiTenantAware) {
-            domain = domainContextExtService.getCurrentDomain().getCode();
-        } else {
-
-            Map<String, Object> properties = event.getProperties();
-            String service = (String) properties.get("service");
-            String action = (String) properties.get("action");
-
-            domain = resolveDomain(service, action);
-        }
-
-        LOG.debug("Message [{}] changed status from [{}] to [{}] in domain [{}]",
-                messageId, event.getFromStatus(), event.getToStatus(), domain);
+        LOG.debug("Message [{}] changed status from [{}] to [{}] in domain [{}]", messageId, event.getFromStatus(), event.getToStatus(), domain);
 
         if (isSendingEvent(event)) {
             renameMessageFile(domain, messageId, event.getToStatus());
@@ -503,6 +421,8 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     }
 
     private void renameMessageFile(String domain, String messageId, MessageStatus status) {
+        LOG.debug("Preparing to rename file using domain [{}], messageId [{}] and messageStatus [{}]", domain, messageId, status);
+
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFile = findMessageFile(outgoingFolder, messageId)) {

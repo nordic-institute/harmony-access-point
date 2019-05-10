@@ -23,7 +23,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 public class FSMultiTenancyServiceTest {
 
     @Tested
-    private FSMultiTenancyService multiTenancyService;
+    private FSDomainService multiTenancyService;
 
     @Injectable
     private DomibusConfigurationExtService domibusConfigurationExtService;
