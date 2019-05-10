@@ -53,7 +53,7 @@ public class FSSendMessagesServiceTest {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    private FSMultiTenancyService fsMultiTenancyService;
+    private FSDomainService fsMultiTenancyService;
 
     @Injectable
     private JMSExtService jmsExtService;
