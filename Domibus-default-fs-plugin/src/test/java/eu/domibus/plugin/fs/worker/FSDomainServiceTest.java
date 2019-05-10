@@ -6,6 +6,7 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSMessage;
 import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.exception.FSSetUpException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -17,6 +18,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
  * @author Cosmin Baciu
@@ -41,17 +44,47 @@ public class FSDomainServiceTest {
     FSDomainService fsDomainService;
 
     @Test
-    public void verifyDomainExists() {
+    public void testVerifyDomainExistsNonMultitenant() {
+        new Expectations() {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = false;
+        }};
+
+        boolean verifyDomainExists = fsDomainService.verifyDomainExists("domain");
+
+        Assert.assertTrue(verifyDomainExists);
     }
 
     @Test
-    public void getFSPluginDomain() {
+    public void testVerifyDomainExistsMultitenantOk() {
+        new Expectations() {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+            domainExtService.getDomain(DEFAULT_DOMAIN);
+            result = new DomainDTO(DEFAULT_DOMAIN, "Default");
+        }};
+
+        boolean verifyDomainExists = fsDomainService.verifyDomainExists(DEFAULT_DOMAIN);
+
+        Assert.assertTrue(verifyDomainExists);
     }
 
     @Test
-    public void getFSPluginDomain1() {
-    }
+    public void testVerifyDomainExistsMultitenantException() {
+        new Expectations() {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+            domainExtService.getDomain(DEFAULT_DOMAIN);
+            result = null;
+        }};
 
+        try {
+            fsDomainService.verifyDomainExists(DEFAULT_DOMAIN);
+        } catch (FSSetUpException ex) {
+            return;
+        }
+        Assert.fail();
+    }
 
     @Test
     public void testGetFSPluginDomainNonMultitenanncy(@Injectable FSMessage fsMessage) {
