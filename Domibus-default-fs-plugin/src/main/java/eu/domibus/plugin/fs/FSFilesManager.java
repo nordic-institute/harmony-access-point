@@ -192,7 +192,7 @@ public class FSFilesManager {
             try (FileContent fileContent = file.getContent()) {
                 long currentTimeMillis = System.currentTimeMillis();
                 fileContent.setLastModifiedTime(currentTimeMillis);
-                LOG.debug("Forced LastModifiedTime to [{}]", currentTimeMillis);
+                LOG.debug("Forced LastModifiedTime for file [{}] to [{}]", file.getName().getPath(), currentTimeMillis);
             }
         }
     }
