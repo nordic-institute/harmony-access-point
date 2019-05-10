@@ -184,6 +184,19 @@ public class DynamicDiscoveryServiceOASISTest {
    @Test
     public void testProxyConfigured() throws Exception {
         // Given
+       new MockUp<DefaultProxy>() {
+           void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
+               Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is not empty",
+                       invocation.getInvocationCount() == 1
+                               && "192.168.0.0".equals(serverAddress)
+                               && 1234 == serverPort
+                               && "proxyUser".equals(user)
+                               && "proxyPassword".equals(password)
+                               && "host1,host2".equals(nonProxyHosts)
+               );
+           }
+       };
+
         new Expectations(dynamicDiscoveryServiceOASIS) {{
             DomibusProxy domibusProxy = new DomibusProxy();
             domibusProxy.setEnabled(true);
@@ -191,13 +204,51 @@ public class DynamicDiscoveryServiceOASISTest {
             domibusProxy.setHttpProxyPort(1234);
             domibusProxy.setHttpProxyUser("proxyUser");
             domibusProxy.setHttpProxyPassword("proxyPassword");
+            domibusProxy.setNonProxyHosts("host1,host2");
 
             domibusProxyService.getDomibusProxy();
             result = domibusProxy;
 
             domibusProxyService.useProxy();
             result = true;
+        }};
 
+        //when
+        DefaultProxy defaultProxy = dynamicDiscoveryServiceOASIS.getConfiguredProxy();
+
+        //then
+        Assert.assertNotNull(defaultProxy);
+    }
+   @Test
+    public void testProxyConfigured_emptyProxyUser() throws Exception {
+        // Given
+       new MockUp<DefaultProxy>() {
+           void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
+               Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is empty",
+                       invocation.getInvocationCount() == 1
+                               && "192.168.0.0".equals(serverAddress)
+                               && 1234 == serverPort
+                               && user == null
+                               && password == null
+                               && "host1,host2".equals(nonProxyHosts)
+               );
+           }
+       };
+
+        new Expectations(dynamicDiscoveryServiceOASIS) {{
+            DomibusProxy domibusProxy = new DomibusProxy();
+            domibusProxy.setEnabled(true);
+            domibusProxy.setHttpProxyHost("192.168.0.0");
+            domibusProxy.setHttpProxyPort(1234);
+            domibusProxy.setHttpProxyUser("");
+            domibusProxy.setHttpProxyPassword("proxyPassword");
+            domibusProxy.setNonProxyHosts("host1,host2");
+
+            domibusProxyService.getDomibusProxy();
+            result = domibusProxy;
+
+            domibusProxyService.useProxy();
+            result = true;
         }};
 
         //when
