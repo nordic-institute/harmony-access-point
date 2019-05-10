@@ -16,7 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -72,11 +74,17 @@ public class FSPurgeFailedServiceTest {
 
     @Test
     public void testPurgeMessages() throws FileSystemException, FSSetUpException {
+        final List<String> domains = new ArrayList<>();
+        domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
+
         new Expectations(1, instance) {{
             fsPluginProperties.getDomains();
-            result = Collections.emptyList();
+            result = domains;
 
-            fsFilesManager.setUpFileSystem(null);
+            fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
+            result = true;
+
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.FAILED_FOLDER);
@@ -85,7 +93,7 @@ public class FSPurgeFailedServiceTest {
             fsFilesManager.findAllDescendantFiles(failedFolder);
             result = new FileObject[]{ recentFile, oldFile };
 
-            fsPluginProperties.getFailedPurgeExpired(null);
+            fsPluginProperties.getFailedPurgeExpired(FSSendMessagesService.DEFAULT_DOMAIN);
             result = 20;
         }};
 
