@@ -406,7 +406,8 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   }
 
   private isRowDownloadButtonEnabled(row): boolean {
-    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE' && !row.messageFragment;
+    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
+      && !this.isSplitAndJoinMessage(row);
   }
 
   private isOneRowSelected() {
