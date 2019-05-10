@@ -136,7 +136,7 @@ public class PullReceiptListener implements MessageListener {
             }
         } catch (final JMSException | EbMS3Exception e) {
             LOG.error("Error processing JMS message", e);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error processing JMS message", e.getCause());
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error processing JMS message", e);
         }
 
         LOG.trace("[PullReceiptListener] ~~~ The end of onMessage ~~~");
