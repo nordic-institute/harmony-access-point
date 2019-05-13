@@ -6,8 +6,8 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.AgreementRef;
@@ -212,7 +212,7 @@ public class CachingPModeProvider extends PModeProvider {
                                     || (StringUtils.equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() == null)
                                     // Please notice that this is only for backward compatibility and will be removed ASAP!
                                     || (StringUtils.equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() != null && StringUtils.isEmpty(process.getAgreement().getValue()))
-                                    ) {
+                            ) {
                                 /**
                                  * The Process is a candidate because either has an Agreement and its name matches the Agreement name found previously
                                  * or it has no Agreement configured and the Agreement name was not indicated in the submitted message.
@@ -293,7 +293,7 @@ public class CachingPModeProvider extends PModeProvider {
                     if (identifier.getPartyIdType() != null) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
-
+                    LOG.trace("Find party name for type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
                     if (StringUtils.equalsIgnoreCase(partyIdType, identifierPartyIdType) && StringUtils.equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
                         return party.getName();
                     }

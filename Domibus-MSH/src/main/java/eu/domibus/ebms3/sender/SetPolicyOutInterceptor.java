@@ -7,6 +7,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.ebms3.receiver.MessageBusProperty;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -61,6 +62,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
         LOG.debug("SetPolicyOutInterceptor");
         final String pModeKey = (String) message.getContextualProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
         LOG.debug("Using pmodeKey [{}]", pModeKey);
+        message.getExchange().put(MessageBusProperty.PMODE_KEY.name(), pModeKey);
         message.getInterceptorChain().add(new PrepareAttachmentInterceptor());
 
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
