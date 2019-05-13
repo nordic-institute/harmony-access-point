@@ -325,7 +325,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         UserMessage userMessage = messaging.getUserMessage();
 
         if (messageFragmentType != null) {
-            handleMessageFragment(messaging.getUserMessage(), messageFragmentType);
+            handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
         }
 
         handlePayloads(request, userMessage);
@@ -403,10 +403,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
 
-    protected void handleMessageFragment(UserMessage userMessage, MessageFragmentType messageFragmentType) throws EbMS3Exception {
+    protected void handleMessageFragment(UserMessage userMessage, MessageFragmentType messageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
         userMessage.setSplitAndJoin(true);
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
-        validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType);
+
+        validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
 
         if (messageGroupEntity == null) {
             LOG.debug("Creating messageGroupEntity");
@@ -434,9 +435,16 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         addPartInfoFromFragment(userMessage, messageFragmentType);
     }
 
-    protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, MessageFragmentType messageFragmentType) throws EbMS3Exception {
+    protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, MessageFragmentType messageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
+        if (legConfiguration.getSplitting() == null) {
+            LOG.error("No splitting configuration found on leg [{}]", legConfiguration.getName());
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "No splitting configuration found", userMessage.getMessageInfo().getMessageId(), null);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
+        }
+
         if (storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
-            LOG.error("SplitAndJoin feature needs payload storage on the file system");
+            LOG.error("SplitAndJoin feature works only with payload storage configured on the file system");
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;

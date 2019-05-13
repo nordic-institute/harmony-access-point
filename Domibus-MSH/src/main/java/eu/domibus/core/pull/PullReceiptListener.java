@@ -6,6 +6,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
@@ -31,6 +33,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.xml.soap.SOAPMessage;
 import java.util.List;
+
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
 
 /**
  * @author idragusa
@@ -68,8 +72,12 @@ public class PullReceiptListener implements MessageListener {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Timer(OUTGOING_PULL_RECEIPT)
+    @Counter(OUTGOING_PULL_RECEIPT)
     public void onMessage(final Message message) {
         try {
+            LOG.clearCustomKeys();
+
             String domainCode = null;
             try {
                 domainCode = message.getStringProperty(MessageConstants.DOMAIN);
@@ -128,7 +136,7 @@ public class PullReceiptListener implements MessageListener {
             }
         } catch (final JMSException | EbMS3Exception e) {
             LOG.error("Error processing JMS message", e);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error processing JMS message", e.getCause());
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error processing JMS message", e);
         }
 
         LOG.trace("[PullReceiptListener] ~~~ The end of onMessage ~~~");

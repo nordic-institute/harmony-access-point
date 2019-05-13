@@ -12,7 +12,8 @@ public enum MetricNames {
     OUTGOING_USER_MESSAGE,
     INCOMING_PULL_REQUEST,
     INCOMING_PULL_REQUEST_RECEIPT,
-    OUTGOING_PULL_REQUEST;
+    OUTGOING_PULL_REQUEST,
+    OUTGOING_PULL_RECEIPT;
 
     public String getCounterName() {
         return this.name().toUpperCase() + "_counter";

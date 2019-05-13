@@ -72,7 +72,7 @@
 
             <!-- FSPlugin queues -->
             <queue id="fsPluginSendQueue"
-                   physicalName="${fsplugin.send.queue}"/>
+                   physicalName="${fsplugin.send.queue:domibus.fsplugin.send.queue}"/>
 
             <!-- Internal queues of JMS backend plugin -->
             <queue id="jmsPluginToBackendQueue"
@@ -143,6 +143,7 @@
                             <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
                             <redeliveryPolicy queue="domibus.internal.alert.queue" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="domibus.internal.ui.replication.queue" maximumRedeliveries="1" redeliveryDelay="10000"/>
+                            <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
                         </redeliveryPolicyEntries>
                     </redeliveryPolicyMap>
                 </redeliveryPolicyMap>

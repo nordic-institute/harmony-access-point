@@ -100,8 +100,6 @@
         <!-- Please keep in sync with CXF version -->
         <wss4j.ws.security.common>2.2.2</wss4j.ws.security.common>
         <dss.version>5.4</dss.version>
-        <!--Statistics properties -->
-        <metrics.version>4.0.2</metrics.version>
         <!--Uumds properties-->
         <nimbus-jose-jwt.version>5.4</nimbus-jose-jwt.version>
         <!--Please keep those two dependencies version aligned with transitive dependency-->
@@ -622,19 +620,6 @@
                 <version>${dropwizard.metrics.version}</version>
             </dependency>
             <!-- End Miscellaneous -->
-
-            <!-- Dropwizard -->
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <!-- End Dropwizard -->
 
             <!-- IAM dependencies -->
             <dependency>

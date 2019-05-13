@@ -179,11 +179,14 @@ public class SubmissionAS4Transformer {
                 properties.add(new Submission.TypedProperty(property.getName(), property.getValue(), property.getType()));
             }
         }
+        final Submission.Payload payload = new Submission.Payload(partInfo.getHref(), partInfo.getPayloadDatahandler(), properties, partInfo.isInBody(), null, null);
         if (partInfo.getFileName() != null) {
             final String fileNameWithoutPath = FilenameUtils.getName(partInfo.getFileName());
-            properties.add(new Submission.TypedProperty("FileName",  fileNameWithoutPath, null));
+            properties.add(new Submission.TypedProperty("FileName", fileNameWithoutPath, null));
+
+            payload.setFilepath(partInfo.getFileName());
         }
-        result.addPayload(partInfo.getHref(), partInfo.getPayloadDatahandler(), properties, partInfo.isInBody(), null, null);
+        result.addPayload(payload);
     }
 
     private String generateConversationId() {

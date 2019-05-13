@@ -92,7 +92,7 @@ public class UpdateRetryLoggingService {
             messageFailed(userMessage, userMessageLog);
 
             if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId());
+                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
             }
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
@@ -141,12 +141,12 @@ public class UpdateRetryLoggingService {
         updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT);
     }
 
-    public void updateNextAttemptAndNotify(LegConfiguration legConfiguration, MessageStatus messageStatus, MessageLog userMessageLog) {
+    public void updateNextAttemptAndNotify(LegConfiguration legConfiguration, MessageStatus messageStatus, UserMessageLog userMessageLog) {
         updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
         saveAndNotify(messageStatus, userMessageLog);
     }
 
-    public void saveAndNotify(MessageStatus messageStatus, MessageLog userMessageLog) {
+    public void saveAndNotify(MessageStatus messageStatus, UserMessageLog userMessageLog) {
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, messageStatus, new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(messageStatus);
         LOG.debug("Updating status to [{}]", userMessageLog.getMessageStatus());

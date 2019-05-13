@@ -60,11 +60,12 @@ public interface UserMessageService {
     void scheduleSending(String messageId);
 
     /**
-     * Schedules the handling of the MessageFragment send failed event
+     * Schedules the handling of the SplitAndJoin send failed event
      *
-     * @param groupId
+     * @param groupId The groupId for which the failure will be triggered
+     * @param errorDetail The error detail
      */
-    void scheduleSplitAndJoinSendFailed(String groupId);
+    void scheduleSplitAndJoinSendFailed(String groupId, String errorDetail);
 
     /**
      * Schedules the marking of the UserMessageFragment as failed

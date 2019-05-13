@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.activation.DataHandler;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -203,6 +204,10 @@ public class FSMessageTransformer
             final String fileName = extractPayloadProperty(payload, PAYLOAD_PROPERTY_FILE_NAME);
 
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
+            if (StringUtils.isNotEmpty(payload.getFilepath())) {
+                fsPayload.setFilePath(payload.getFilepath());
+                fsPayload.setFileSize(new File(payload.getFilepath()).length());
+            }
             result.put(payload.getContentId(), fsPayload);
         }
         return result;

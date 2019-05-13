@@ -1,15 +1,13 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.handler.MessagePuller;
@@ -80,6 +78,12 @@ public class BackendFSImplTest {
 
     @Injectable
     protected FSProcessFileService fsProcessFileService;
+
+    @Injectable
+    protected DomainTaskExtExecutor domainTaskExtExecutor;
+
+    @Injectable
+    protected FSDomainService fsDomainService;
 
     @Injectable
     String name = "fsplugin";
@@ -153,7 +157,7 @@ public class BackendFSImplTest {
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, payloadFileName, dataHandler));
 
-        expectationsDeliverMessage(null, userMessage, fsPayloads);
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         backendFS.deliverMessage(messageId);
 
@@ -182,14 +186,17 @@ public class BackendFSImplTest {
 
     private void expectationsDeliverMessage(String domain, UserMessage userMessage, Map<String, FSPayload> fsPayloads) throws MessageNotFoundException, FileSystemException {
         new Expectations(1, backendFS) {{
+            backendFS.browseMessage(messageId, null);
+            result = new FSMessage(fsPayloads, userMessage);
+
             backendFS.downloadMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = (domain != null);
+            fsDomainService.getFSPluginDomain((FSMessage) any);
+            result = FSSendMessagesService.DEFAULT_DOMAIN;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
@@ -236,7 +243,7 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", messageHandler));
         fsPayloads.put("cid:invoice", new FSPayload(TEXT_XML, "invoice.xml", invoiceHandler));
 
-        expectationsDeliverMessage(null, userMessage, fsPayloads);
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         //tested method
         backendFS.deliverMessage(messageId);
@@ -274,7 +281,7 @@ public class BackendFSImplTest {
     public void testDeliverMessage_MessageNotFound(@Injectable final FSMessage fsMessage) throws MessageNotFoundException {
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new MessageNotFoundException("message not found");
         }};
 
@@ -292,10 +299,13 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsFilesManager.setUpFileSystem(null);
+            fsDomainService.getFSPluginDomain((FSMessage) any);
+            result = FSSendMessagesService.DEFAULT_DOMAIN;
+
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = new FSSetUpException("Test-forced exception");
         }};
 
@@ -313,14 +323,19 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsFilesManager.setUpFileSystem(null);
+            fsDomainService.getFSPluginDomain((FSMessage) any);
+            result = FSSendMessagesService.DEFAULT_DOMAIN;
+
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
+
+
         }};
 
         backendFS.deliverMessage(messageId);
@@ -370,103 +385,6 @@ public class BackendFSImplTest {
         }};
     }
 
-    @Test
-    public void testResolveDomain_1() {
-        String serviceDomain1 = "ODRDocumentInvoiceService123";
-        String actionDomain1 = "PrintA";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "ODRDocumentInvoiceService.*#Print.?";
-        }};
-
-        String result = backendFS.resolveDomain(serviceDomain1, actionDomain1);
-        Assert.assertEquals("DOMAIN1", result);
-    }
-
-    @Test
-    public void testResolveDomain_2() {
-        String serviceDomain2 = "BRISReceptionService";
-        String actionDomain2 = "SendEmailAction";
-        String actionDomain2a = "ReceiveBillAction";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN2");
-            result = "BRISReceptionService#.*";
-        }};
-
-        String result = backendFS.resolveDomain(serviceDomain2, actionDomain2);
-        Assert.assertEquals("DOMAIN2", result);
-
-        result = backendFS.resolveDomain(serviceDomain2, actionDomain2a);
-        Assert.assertEquals("DOMAIN2", result);
-    }
-
-    @Test
-    public void testResolveDomain_WithoutMatch() {
-        String serviceDomain1 = "ODRDocumentInvoiceService123";
-        String actionDomain1 = "PrintA";
-
-        String serviceWithoutMatch = "FSService123";
-        String actionWithoutMatch = "SomeAction";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "ODRDocumentInvoiceService.*#Print.?";
-
-            fsPluginProperties.getExpression("DOMAIN2");
-            result = "BRISReceptionService#.*";
-        }};
-
-        String result = backendFS.resolveDomain(serviceWithoutMatch, actionWithoutMatch);
-        Assert.assertNull(result);
-
-        result = backendFS.resolveDomain(serviceDomain1, actionWithoutMatch);
-        Assert.assertNull(result);
-
-        result = backendFS.resolveDomain(serviceWithoutMatch, actionDomain1);
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testResolveDomain_bdxNoprocessTC1Leg1() {
-        String service = "bdx:noprocess";
-        String action = "TC1Leg1";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "bdx:noprocess#TC1Leg1";
-        }};
-
-        String result = backendFS.resolveDomain(service, action);
-        Assert.assertEquals("DOMAIN1", result);
-    }
 
     @Test
     public void testMessageStatusChanged_SendSuccessDelete() throws FileSystemException {
@@ -659,6 +577,7 @@ public class BackendFSImplTest {
 
         new Verifications() {{
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+            fsFilesManager.deleteLockFile(fileObject);
         }};
     }
 }
