@@ -42,7 +42,6 @@ Domibus 4.1-RC1 (from 4.0.2):
                                          .............................
                                          <destinations>
                                              .............................
-                                              <queue id="sendPullReceiptQueue" physicalName="domibus.internal.pull.receipt.queue"/>
                                               <queue id="sendLargeMessageQueue" physicalName="domibus.internal.largeMessage.queue"/>
                                               <queue id="splitAndJoinQueue" physicalName="domibus.internal.splitAndJoin.queue"/>
                                               <queue id="retentionMessageQueue" physicalName="domibus.internal.retentionMessage.queue"/>
