@@ -18,25 +18,26 @@ import javax.annotation.PostConstruct;
  */
 
 @Component
-@Qualifier("serverInMessageLegConfigurationFactory")
+@Qualifier("clientInMessageLegConfigurationFactory")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ServerInMessageLegConfigurationFactory implements MessageLegConfigurationFactory {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInMessageLegConfigurationFactory.class);
+public class ClientInMessageLegConfigurationFactory implements MessageLegConfigurationFactory {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ClientInMessageLegConfigurationFactory.class);
 
     @Autowired
     private UserMessageLegConfigurationFactory userMessageLegConfigurationFactory;
 
     @Autowired
-    private PullRequestLegConfigurationFactory pullRequestLegConfigurationFactory;
+    private ClientInReceiptLegConfigurationFactory clientInReceiptLegConfigurationFactory;
 
     @Autowired
-    private ServerInReceiptLegConfigurationFactory serverInReceiptLegConfigurationFactory;
+    private ErrorSignalConfigurationFactory errorSignalConfigurationFactory;
+
 
     @PostConstruct
     void init() {
         userMessageLegConfigurationFactory.
-                chain(pullRequestLegConfigurationFactory).
-                chain(serverInReceiptLegConfigurationFactory);
+                chain(clientInReceiptLegConfigurationFactory).
+                chain(errorSignalConfigurationFactory);
 
     }
 

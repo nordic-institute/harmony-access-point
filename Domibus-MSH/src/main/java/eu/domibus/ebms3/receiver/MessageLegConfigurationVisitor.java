@@ -32,4 +32,8 @@ class MessageLegConfigurationVisitor {
         receiptMessagePolicyInSetup.setpModeProvider(pModeProvider);
         receiptMessagePolicyInSetup.setMessageExchangeService(messageExchangeService);
     }
+
+    void visit(ErrorSignalLegConfigurationExtractor errorSignalLegConfigurationExtractor) {
+        errorSignalLegConfigurationExtractor.setpModeProvider(pModeProvider);
+    }
 }

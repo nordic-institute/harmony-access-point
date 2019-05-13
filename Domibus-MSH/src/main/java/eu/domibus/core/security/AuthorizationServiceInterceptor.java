@@ -26,6 +26,12 @@ public class AuthorizationServiceInterceptor extends ServiceInterceptor {
     @Around(value = "execution(public * eu.domibus.core.security.AuthorizationService.*(..))")
     @Override
     public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        if(LOG.isTraceEnabled()){
+            for (Object arg : args) {
+                LOG.trace("Method argument:[{}]",arg);
+            }
+        }
         return super.intercept(joinPoint);
     }
 
