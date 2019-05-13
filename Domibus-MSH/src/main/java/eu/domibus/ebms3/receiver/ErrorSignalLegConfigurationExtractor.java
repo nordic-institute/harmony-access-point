@@ -5,11 +5,12 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 /**
  * @author Thomas Dussart
- * @since 3.3
+ * @since 4.1
  */
 
 public class ErrorSignalLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
@@ -27,7 +28,7 @@ public class ErrorSignalLegConfigurationExtractor extends AbstractSignalLegConfi
 
     @Override
     public LegConfiguration process() throws EbMS3Exception {
-        Object pmode_key = message.getExchange().get(MessageBusProperty.PMODE_KEY.name());
+        Object pmode_key = message.getExchange().get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
         LOG.trace("Extracting pmode key:[{}] from synchronous error signal in order to load the policy.", pmode_key);
         if (pmode_key == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Pmode key for synchronous error signal is null", getMessageId(), null);

@@ -58,7 +58,7 @@
     <bean id="setPolicyInInterceptorServer" class="eu.domibus.ebms3.receiver.SetPolicyInServerInterceptor">
         <property name="messageLegConfigurationFactory" ref="serverInMessageLegConfigurationFactory"/>
     </bean>
-    <bean id="setPolicyInInterceptorClient" class="eu.domibus.ebms3.receiver.SetPolicyInClienInterceptor">
+    <bean id="setPolicyInInterceptorClient" class="eu.domibus.ebms3.receiver.SetPolicyInClientInterceptor">
         <property name="messageLegConfigurationFactory" ref="clientInMessageLegConfigurationFactory"/>
     </bean>
 
