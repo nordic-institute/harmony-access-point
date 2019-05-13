@@ -1,53 +1,50 @@
-Domibus 4.1 (from 4.0.2):
-                - replace current logback.xml with the new version of logback.xml keeping existing packages to be logged
-                - [Recommended] Remove domibus.msh.retry.tolerance from domibus.properties, if set. The property is not used anymore.
+Domibus 4.1-RC1 (from 4.0.2):
+                - Run the appropriate DB migration script(mysql5innoDb-4.0.2-to-4.1-RC1-migration.ddl for MySQL or oracle10g-4.0.2-to-4.1-RC1-migration.ddl for Oracle)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                - Replace the current logback.xml file with the newer version optionally keeping the existing configuration
+                - In case you are using multitenancy please make the following modifications:
+                            - replace old logback.xml with the newer version optionally keeping the existing configuration
+                            and uncomment the specific sections for multitenancy
+                            - replace each domain-name_logback.xml file with the newer version optionally keeping the existing configuration
+                            - add a configuration file of type domain_name-logback.xml for domain 'default' - it's mandatory
                 - [WebLogic only]
                    o in case the probe URL is used, the new probe URL is /domibus/services/msh
                    o execute the WLST API script(from "\conf\domibus\scripts\upgrades") 4.0.2-to-4.1-RC1-WeblogicSingleServer.properties for single server deployment or 4.0.2-to-4.1-RC1-WeblogicCluster.properties for cluster deployment
                 - [Wildfly only]
                    o in case the probe URL is used, the new probe URL is /domibus/services/msh
                    o in file "cef_edelivery_path\domibus\standalone\configuration\standalone-full.xml":
-                        - add the following queues in the destination section
-                                    .............................
-                                    <jms-destinations>
-                                        .............................
-                                         <jms-queue name="DomibusPullReceiptQueue">
-                                             <entry name="java:/jms/domibus.internal.pull.receipt.queue"/>
-                                             <entry name="java:/jms/queue/DomibusPullReceiptQueue"/>
-                                             <durable>true</durable>
-                                         </jms-queue>
-                                        .............................
-                                    </jms-destinations>
-                                    .............................
-                         -  in the address-settings section
-                                 o add the following address-setting configurations:
-                                        .............................
-                                        <address-settings>
-                                            .............................
-                                            <address-setting match="jms.queue.DomibusPullReceiptQueue">
-                                                <expiry-address>jms.queue.ExpiryQueue</expiry-address>
-                                                 <redelivery-delay>1000</redelivery-delay>
-                                                 <max-delivery-attempts>3</max-delivery-attempts>
-                                              </address-setting>
-                                            .............................
-                                        </address-settings>
-                                        .............................
-               - (Optional)
-                   o rename the property "message.retention.downloaded.max.delete" to "domibus.retentionWorker.message.retention.downloaded.max.delete" in your domibus.properties file. If the property is not defined, do nothing. Default value "50" has not been changed.
-                   o rename the property "message.retention.not_downloaded.max.delete" to "domibus.retentionWorker.message.retention.not_downloaded.max.delete" in your domibus.properties file. If the property is not defined, do nothing. Default value "50" has not been changed.
-                In case you are using multitenancy please make the following modifications:
-                    - replace old logback.xml with the new version of logback.xml keeping existing packages to be logged
-                    and uncomment the proper sections for multitenancy
-                    - replace each domain-name_logback.xml file with the newer version and keep existing packages for logging
-                    - add a configuration file of type domain_name-logback.xml for domain 'default' - it's mandatory
+                        - add the following queues
+                            .............................
+                            <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
+                                <server name="default">
+                                .............................
+                                 <address-setting name="jms.queue.DomibusSendLargeMessageQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="0"/>
+                                 <address-setting name="jms.queue.DomibusSplitAndJoinQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="60000" max-delivery-attempts="3"/>
+                                 <address-setting name="jms.queue.DomibusPullReceiptQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="3"/>
+                                 <address-setting name="jms.queue.DomibusRetentionMessageQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="10000" max-delivery-attempts="0"/>
+                                 <address-setting name="jms.queue.DomibusFSPluginSendQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
+
+                                <jms-queue name="DomibusSendLargeMessageQueue" entries="java:/jms/domibus.internal.largeMessage.queue java:/jms/queue/DomibusSendLargeMessageQueue" durable="true"/>
+                                <jms-queue name="DomibusSplitAndJoinQueue" entries="java:/jms/domibus.internal.splitAndJoin.queue java:/jms/queue/DomibusSplitAndJoinQueue" durable="true"/>
+                                <jms-queue name="DomibusPullReceiptQueue" entries="java:/jms/domibus.internal.pull.receipt.queue java:/jms/queue/DomibusPullReceiptQueue" durable="true"/>
+                                <jms-queue name="DomibusRetentionMessageQueue" entries="java:/jms/domibus.internal.retentionMessage.queue java:/jms/queue/DomibusRetentionMessageQueue" durable="true"/>
+                                <jms-queue name="DomibusFSPluginSendQueue" entries="java:/jms/domibus.fsplugin.send.queue java:/jms/queue/DomibusFSPluginSendQueue" durable="true"/>
+                                .............................
+                                </server>
+                            </subsystem>
+                            .............................
                - [Tomcat only]
                     o in file "cef_edelivery_path\domibus\conf\domibus\internal\activemq.xml":
                               - in the destinations section add the following queues:
                                          .............................
                                          <destinations>
                                              .............................
-                                              <queue id="sendPullReceiptQueue"
-                                                                 physicalName="domibus.internal.pull.receipt.queue"/>
+                                              <queue id="sendPullReceiptQueue" physicalName="domibus.internal.pull.receipt.queue"/>
+                                              <queue id="sendLargeMessageQueue" physicalName="domibus.internal.largeMessage.queue"/>
+                                              <queue id="splitAndJoinQueue" physicalName="domibus.internal.splitAndJoin.queue"/>
+                                              <queue id="retentionMessageQueue" physicalName="domibus.internal.retentionMessage.queue"/>
+                                              <queue id="sendPullReceiptQueue" physicalName="domibus.internal.pull.receipt.queue"/>
+                                              <queue id="fsPluginSendQueue" physicalName="${fsplugin.send.queue:domibus.fsplugin.send.queue}"/>
                                              .............................
                                          </destinations>
                                          .............................
@@ -56,10 +53,17 @@ Domibus 4.1 (from 4.0.2):
                                          <redeliveryPolicyEntries>
                                              .............................
                                              <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
+                                             <redeliveryPolicy queue="domibus.internal.largeMessage.queue" maximumRedeliveries="0"/>
+                                             <redeliveryPolicy queue="domibus.internal.splitAndJoin.queue" maximumRedeliveries="3"/>
+                                             <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
+                                             <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
                                              .............................
                                          </redeliveryPolicyEntries>
                                          .............................
-
+               - (Optional)
+                   o rename the property "message.retention.downloaded.max.delete" to "domibus.retentionWorker.message.retention.downloaded.max.delete" in your domibus.properties file. If the property is not defined, do nothing. Default value "50" has not been changed.
+                   o rename the property "message.retention.not_downloaded.max.delete" to "domibus.retentionWorker.message.retention.not_downloaded.max.delete" in your domibus.properties file. If the property is not defined, do nothing. Default value "50" has not been changed.
+               - [Recommended] Remove domibus.msh.retry.tolerance from domibus.properties, if set. The property is not used anymore.
 Domibus 4.0.2 (from 4.0.1):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
 Domibus 4.0.1 (from 4.0.0):
