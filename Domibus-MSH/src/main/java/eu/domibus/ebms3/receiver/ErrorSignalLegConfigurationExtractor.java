@@ -1,10 +1,8 @@
 package eu.domibus.ebms3.receiver;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -16,11 +14,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 
 public class ErrorSignalLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
 
-    private MessagingDao messagingDao;
-
     private PModeProvider pModeProvider;
-
-    private MessageExchangeService messageExchangeService;
 
     public ErrorSignalLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
         super(message, messaging);
@@ -55,16 +49,7 @@ public class ErrorSignalLegConfigurationExtractor extends AbstractSignalLegConfi
         visitor.visit(this);
     }
 
-
-    public void setMessagingDao(MessagingDao messagingDao) {
-        this.messagingDao = messagingDao;
-    }
-
     public void setpModeProvider(PModeProvider pModeProvider) {
         this.pModeProvider = pModeProvider;
-    }
-
-    public void setMessageExchangeService(MessageExchangeService messageExchangeService) {
-        this.messageExchangeService = messageExchangeService;
     }
 }
