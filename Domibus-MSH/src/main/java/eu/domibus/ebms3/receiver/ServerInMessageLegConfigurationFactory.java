@@ -33,12 +33,13 @@ public class ServerInMessageLegConfigurationFactory implements MessageLegConfigu
     private ServerInReceiptLegConfigurationFactory serverInReceiptLegConfigurationFactory;
 
     @PostConstruct
-    void init(){
+    void init() {
         userMessageLegConfigurationFactory.
                 chain(pullRequestLegConfigurationFactory).
                 chain(serverInReceiptLegConfigurationFactory);
 
     }
+
     @Override
     public LegConfigurationExtractor extractMessageConfiguration(SoapMessage soapMessage, Messaging messaging) {
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);
