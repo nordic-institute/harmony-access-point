@@ -54,9 +54,9 @@ Domibus 4.1-RC1 (from 4.0.2):
                                          .............................
                                          <redeliveryPolicyEntries>
                                              .............................
-                                             <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
                                              <redeliveryPolicy queue="domibus.internal.largeMessage.queue" maximumRedeliveries="0"/>
                                              <redeliveryPolicy queue="domibus.internal.splitAndJoin.queue" maximumRedeliveries="3"/>
+                                             <redeliveryPolicy queue="domibus.internal.retentionMessage.queue" maximumRedeliveries="0"/>
                                              <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
                                              <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
                                              .............................
