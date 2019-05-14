@@ -1,11 +1,13 @@
 package eu.domibus.security;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
+import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.dao.security.UserPasswordHistoryDao;
 import eu.domibus.common.model.security.UserEntityBase;
@@ -54,6 +56,8 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     @Autowired
     protected DomainService domainService;
 
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
 
     // abstract methods
     protected abstract String getPasswordComplexityPatternProperty();
@@ -289,4 +293,14 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(users);
     }
 
+    public void validateUniqueUser(UserBase user) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());
+
+            if (domain != null) {
+                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists in the " + domain + " domain.";
+                throw new UserManagementException(errorMessage);
+            }
+        }
+    }
 }
