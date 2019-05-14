@@ -1,6 +1,6 @@
 package eu.domibus.security;
 
-import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
@@ -51,6 +51,9 @@ public class ConsoleUserSecurityPolicyManagerTest {
 
     @Injectable
     DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     @Tested
     ConsoleUserSecurityPolicyManager userSecurityPolicyManager;
