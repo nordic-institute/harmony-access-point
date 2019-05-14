@@ -1,7 +1,12 @@
-Domibus 4.1
+Domibus 4.1-RC1
+- Implement the Split And Join feature
+- Implement EU Login Support
+- Integrate DSS library
+- Support for WebLogic 12.2.x
 - Remove support for Wildfly 9
 - Add drop wizard statistics to Domibus.
 - Add new authentication module using the DSS library.
+- Multitenancy - Posibility to sort the list of tenants
 - Add pull pace control on sender side in case of receiver triggering exception.
 - Add a new path:${domibus.config.location}/extensions/lib for loading identity and authorization extensions.
 - Upgrade the Tomcat distribution to 8.5.38
@@ -27,6 +32,25 @@ Domibus 4.1
 - Implemented default authorization spi
 - Added domain properties domibus.sender.trust.validation.expression to validate the certificate subject
 - Added new plugin notifications types for UserMessage fragments
+- Plugin Users: add/update/remove operations on PluginUsers should appear in Audit
+- Configuration of the standalone WildFly server using the WildFly configuration scripting language instead of XML manipulation
+- UI admin console: confirmation message on the Plugin Users page
+- User related alerts should also be sent to the user
+- Domibus GUI - add the posibility to hide Domain selector for some pages
+- When C3 receives a message, check that the sender certificate used for the signature belongs to the party present in the from field
+- Sidebar disappears when user presses Esc
+- Possibility to upload a PKCS12 truststore
+- Alerts management for super users
+- Customize the Connection header in HTTP connection between C2 and C3
+- Remove the retry tolerance mechanism
+- File System Plugin sends files while being copied
+- FS Plugin: Possibilitty to configure the cid and part info properties
+- Update the BouncyCastle in the jboss-deployment-structure.xml
+- Missing message ID information in some domibus logs
+- Transaction timeout when FS Plugin downloads large files
+- Harmonise the context path across the supported servers
+- Upgrade several libraries to the latest version
+- Domibus MSH Service should return a text on GET
 Domibus 4.0.2
 - Improved the logging in the Default JMS Plugin
 - Allow sending an XML payload in the Soap body
