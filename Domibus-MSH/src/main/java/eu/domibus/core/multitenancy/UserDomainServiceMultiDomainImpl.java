@@ -138,25 +138,5 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
             return null;
         });
     }
-
-    /**
-     * Retrieves all users from general schema
-     */
-    @Override
-    public List<String> getAllUserNames() {
-        LOG.debug("Get all users from general schema");
-
-        return domainTaskExecutor.submit(() -> userDomainDao.listAllUserNames());
-    }
-
-    @Override
-    public List<UserDomain> getAllUserDomainMappings() {
-        LOG.debug("Get all users from general schema");
-
-        return domainTaskExecutor.submit(() -> {
-            List<UserDomainEntity> userDomains = userDomainDao.listAllUsers();
-            return domainCoreConverter.convert(userDomains, UserDomain.class);
-        });
-    }
-
+    
 }
