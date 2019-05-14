@@ -20,7 +20,7 @@ public class SetPolicyOutInterceptorServer extends SetPolicyOutInterceptor {
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
         Object messageType = message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
-        if(MessageType.USER_MESSAGE.equals(messageType)){
+        if (MessageType.USER_MESSAGE.equals(messageType)) {
             super.handleMessage(message);
         }
     }

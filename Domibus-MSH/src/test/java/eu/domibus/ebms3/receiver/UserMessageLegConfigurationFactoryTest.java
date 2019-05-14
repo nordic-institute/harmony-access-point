@@ -23,7 +23,7 @@ public class UserMessageLegConfigurationFactoryTest {
         UserMessageLegConfigurationFactory userMessageLegConfigurationFactory = new UserMessageLegConfigurationFactory();
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);
         userMessageLegConfigurationFactory.setMessageLegConfigurationVisitor(mock);
-        userMessageLegConfigurationFactory.chain(new PullRequestLegConfigurationFactory()).chain(new ReceiptLegConfigurationFactory());
+        userMessageLegConfigurationFactory.chain(new PullRequestLegConfigurationFactory()).chain(new ServerInReceiptLegConfigurationFactory());
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);
         assertTrue(legConfigurationExtractor instanceof UserMessageLegConfigurationExtractor);
         Mockito.verify(mock,Mockito.times(1)).visit(Mockito.any(UserMessageLegConfigurationExtractor.class));
@@ -42,7 +42,7 @@ public class UserMessageLegConfigurationFactoryTest {
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);
         PullRequestLegConfigurationFactory pullRequestLegConfigurationFactory = new PullRequestLegConfigurationFactory();
         pullRequestLegConfigurationFactory.setMessageLegConfigurationVisitor(mock);
-        userMessageLegConfigurationFactory.chain(pullRequestLegConfigurationFactory).chain(new ReceiptLegConfigurationFactory());
+        userMessageLegConfigurationFactory.chain(pullRequestLegConfigurationFactory).chain(new ServerInReceiptLegConfigurationFactory());
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);
         assertTrue(legConfigurationExtractor instanceof PullRequestLegConfigurationExtractor);
         Mockito.verify(mock,Mockito.times(0)).visit(Mockito.any(UserMessageLegConfigurationExtractor.class));
@@ -60,9 +60,9 @@ public class UserMessageLegConfigurationFactoryTest {
         UserMessageLegConfigurationFactory userMessageLegConfigurationFactory = new UserMessageLegConfigurationFactory();
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);
         PullRequestLegConfigurationFactory pullRequestLegConfigurationFactory = new PullRequestLegConfigurationFactory();
-        ReceiptLegConfigurationFactory receiptLegConfigurationFactory = new ReceiptLegConfigurationFactory();
-        receiptLegConfigurationFactory.setMessageLegConfigurationVisitor(mock);
-        userMessageLegConfigurationFactory.chain(pullRequestLegConfigurationFactory).chain(receiptLegConfigurationFactory);
+        ServerInReceiptLegConfigurationFactory serverInReceiptLegConfigurationFactory = new ServerInReceiptLegConfigurationFactory();
+        serverInReceiptLegConfigurationFactory.setMessageLegConfigurationVisitor(mock);
+        userMessageLegConfigurationFactory.chain(pullRequestLegConfigurationFactory).chain(serverInReceiptLegConfigurationFactory);
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);
         assertTrue(legConfigurationExtractor instanceof ReceiptLegConfigurationExtractor);
         Mockito.verify(mock,Mockito.times(0)).visit(Mockito.any(UserMessageLegConfigurationExtractor.class));

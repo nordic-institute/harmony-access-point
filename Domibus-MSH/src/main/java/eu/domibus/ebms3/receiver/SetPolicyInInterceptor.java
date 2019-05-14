@@ -55,7 +55,7 @@ import java.util.Set;
  * @author Christian Koch, Stefan Mueller
  * @since 3.0
  */
-public class SetPolicyInInterceptor extends AbstractSoapInterceptor {
+public abstract class SetPolicyInInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInInterceptor.class);
 

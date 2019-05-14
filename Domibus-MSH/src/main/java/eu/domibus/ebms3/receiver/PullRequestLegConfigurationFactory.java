@@ -7,8 +7,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @Component
 @Qualifier("pullRequestLegConfigurationFactory")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PullRequestLegConfigurationFactory extends AbstractMessageLegConfigurationFactory {
 
     private final static Logger LOG = DomibusLoggerFactory.getLogger(PullRequestLegConfigurationFactory.class);

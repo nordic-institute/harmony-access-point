@@ -6,7 +6,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 /**
  * @author Thomas Dussart
  * @since 3.3
- *
  */
 //@thom test this hierarchy of class
 public interface LegConfigurationExtractor {
