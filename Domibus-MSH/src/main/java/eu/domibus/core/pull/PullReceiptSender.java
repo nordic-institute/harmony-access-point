@@ -51,7 +51,7 @@ public class PullReceiptSender {
         }
     }
 
-    private void handleDispatchReceiptResult(SOAPMessage acknowledgementResult) throws EbMS3Exception {
+    protected void handleDispatchReceiptResult(SOAPMessage acknowledgementResult) throws EbMS3Exception {
         if (acknowledgementResult == null) {
             LOG.debug("acknowledgementResult is null, as expected. No errors were reported");
             return;
@@ -68,7 +68,6 @@ public class PullReceiptSender {
             EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(error.getErrorCode()), error.getErrorDetail(), error.getRefToMessageInError(), null);
             ebMS3Ex.setMshRole(MSHRole.RECEIVING);
             throw ebMS3Ex;
-
         }
     }
 }
