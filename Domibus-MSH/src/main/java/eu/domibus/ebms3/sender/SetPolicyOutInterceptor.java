@@ -61,6 +61,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
         LOG.debug("SetPolicyOutInterceptor");
         final String pModeKey = (String) message.getContextualProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
         LOG.debug("Using pmodeKey [{}]", pModeKey);
+        message.getExchange().put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         message.getInterceptorChain().add(new PrepareAttachmentInterceptor());
 
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
