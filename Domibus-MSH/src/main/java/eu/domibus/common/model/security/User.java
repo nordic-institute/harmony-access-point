@@ -94,6 +94,11 @@ public class User extends UserEntityBaseImpl implements UserEntityBase {
         this.setPasswordChangeDate(LocalDateTime.now());
     }
 
+    @Override
+    public String getUniqueIdentifier() {
+        return getUserName();
+    }
+
     public Collection<UserRole> getRoles() {
         return Collections.unmodifiableSet(roles);
     }
