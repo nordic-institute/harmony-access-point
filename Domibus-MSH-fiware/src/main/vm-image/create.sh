@@ -116,7 +116,7 @@ sudo chmod 755 /etc/init.d/domibus
 sudo ln -s /etc/init.d/domibus /etc/rc1.d/K99domibus
 sudo ln -s /etc/init.d/domibus /etc/rc2.d/S99domibus
 
-sudo bash -c 'cat << EOF > /etc/systemd/system/domibus.service
+sudo bash -c 'cat << EOF > /lib/systemd/system/domibus.service
 [Unit]
 Description = Domibus daemon
 After=mysql.service
@@ -131,8 +131,7 @@ Alias=domibus.service
 
 EOF'
 
-#sudo systemctl daemon reload
-#sudo systemctl enable domibus
+sudo systemctl enable domibus
 
 ######### Start the service #########
 cd $CATALINA_HOME
