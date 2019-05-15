@@ -152,7 +152,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
             truststore.store(fileOutputStream, getTrustStorePassword().toCharArray());
         } catch (FileNotFoundException ex) {
-            //we address this exception separately to drop the original message because it contains the full truststore file path
+            LOG.error("Could not persist truststore:", ex);
+            //we address this exception separately 
+            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
             throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
         } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
             throw new CryptoException("Could not persist truststore:", e);
