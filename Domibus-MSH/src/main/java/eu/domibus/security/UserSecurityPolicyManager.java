@@ -293,6 +293,9 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(users);
     }
 
+    /**
+     * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
+     */
     public void validateUniqueUser(UserBase user) {
         if (domibusConfigurationService.isMultiTenantAware()) {
             String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());

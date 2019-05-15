@@ -17,7 +17,7 @@ public interface UserBase {
     void setPassword(String password);
 
     /**
-     * Property is used to treat polymorphically console Name property. Implemented differently for plugin users
+     * Property is used to treat polymorphically console and plugin users from the "unicity in all domains" point of view.
      */
     String getUniqueIdentifier();
 }

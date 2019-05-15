@@ -55,6 +55,9 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
         this.setPasswordChangeDate(LocalDateTime.now());
     }
 
+    /**
+     * It returns the Name property or certificateId, depending on the identification type
+     */
     @Override
     public String getUniqueIdentifier() {
         if (StringUtils.isNotBlank(getUserName())) {
