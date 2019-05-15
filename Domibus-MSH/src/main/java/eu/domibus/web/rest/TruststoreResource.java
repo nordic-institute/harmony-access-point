@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -60,7 +60,9 @@ public class TruststoreResource {
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+        rootCause = rootCause == null ? ex : rootCause;
+        return errorHandlerService.createResponse(rootCause, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
