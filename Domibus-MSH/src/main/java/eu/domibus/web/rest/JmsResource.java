@@ -95,7 +95,7 @@ public class JmsResource {
                 Map<String, JMSDestination> destinations = jmsManager.getDestinations();
                 String destName = request.getDestination();
                 if (!destinations.values().stream().anyMatch(dest -> dest.getName().equals(destName))) {
-                    throw new IllegalArgumentException("Cannot find destination [" + destName + "].");
+                    throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
                 }
                 jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
             } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
