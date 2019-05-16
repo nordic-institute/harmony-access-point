@@ -2,6 +2,7 @@ package eu.domibus.ebms3.puller;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.logging.DomibusLogger;
@@ -31,7 +32,7 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         try {
             if (!authUtils.isUnsecureLoginAllowed()) {
-                authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
+                authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password", AuthRole.ROLE_AP_ADMIN);
             }
             messageExchangeService.initiatePullRequest();
         } catch (PModeException e) {

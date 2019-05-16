@@ -12,7 +12,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 /**
  * @author Thomas Dussart
  * @since 3.3
- *
+ * <p>
  * Loading legconfiguration for an incoming usermessage.
  */
 

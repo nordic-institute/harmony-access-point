@@ -680,6 +680,7 @@
 
         <addColumn tableName="TB_USER_AUD">
             <column name="USER_DELETED" type="BOOLEAN"></column>
+            <column name="DELETED_MOD" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
 

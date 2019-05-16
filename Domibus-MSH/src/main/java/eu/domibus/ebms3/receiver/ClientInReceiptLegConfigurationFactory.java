@@ -13,16 +13,16 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-@Qualifier("userMessageLegConfigurationFactory")
+@Qualifier("clientInReceiptLegConfigurationFactory")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UserMessageLegConfigurationFactory extends AbstractMessageLegConfigurationFactory {
+public class ClientInReceiptLegConfigurationFactory extends AbstractMessageLegConfigurationFactory {
 
     @Override
     protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Messaging messaging) {
-        LegConfigurationExtractor legConfigurationExtractor = null;
-        if (messaging.getUserMessage() != null) {
-            legConfigurationExtractor = new UserMessageLegConfigurationExtractor(soapMessage, messaging);
+        ReceiptLegConfigurationExtractor receiptLegConfigurationExtractor = null;
+        if (messaging.getSignalMessage().getReceipt() != null) {
+            receiptLegConfigurationExtractor = new ReceiptLegConfigurationExtractor(soapMessage, messaging);
         }
-        return legConfigurationExtractor;
+        return receiptLegConfigurationExtractor;
     }
 }
