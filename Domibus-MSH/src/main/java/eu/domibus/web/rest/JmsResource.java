@@ -15,12 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.Date;
@@ -95,13 +92,12 @@ public class JmsResource {
             String[] ids = messageIds.toArray(new String[0]);
 
             if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
-
                 Map<String, JMSDestination> destinations = jmsManager.getDestinations();
-                if (!destinations.containsKey(request.getDestination())) {
-                    throw new IllegalArgumentException("Unknown destination");
+                String destName = request.getDestination();
+                if (!destinations.values().stream().anyMatch(dest -> dest.getName().equals(destName))) {
+                    throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
                 }
                 jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
-
             } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
                 jmsManager.deleteMessages(request.getSource(), ids);
             }
