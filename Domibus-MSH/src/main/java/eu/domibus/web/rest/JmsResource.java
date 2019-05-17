@@ -11,6 +11,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -94,7 +95,7 @@ public class JmsResource {
             if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
                 Map<String, JMSDestination> destinations = jmsManager.getDestinations();
                 String destName = request.getDestination();
-                if (!destinations.values().stream().anyMatch(dest -> dest.getName().equals(destName))) {
+                if (!destinations.values().stream().anyMatch(dest -> StringUtils.equals(destName, dest.getName()))) {
                     throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
                 }
                 jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);

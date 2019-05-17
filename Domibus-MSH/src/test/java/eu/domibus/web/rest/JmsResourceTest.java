@@ -118,7 +118,7 @@ public class JmsResourceTest {
     @Test
     public void testActionMove() {
         SortedMap<String, JMSDestination> dests = new TreeMap<>();
-        dests.put("domibus.queue1", new JMSDestination());
+        dests.put("domibus.queue1", new JMSDestination() {{ setName("domibus.queue1"); }});
         new Expectations() {{
             jmsManager.getDestinations();
             result = dests;
