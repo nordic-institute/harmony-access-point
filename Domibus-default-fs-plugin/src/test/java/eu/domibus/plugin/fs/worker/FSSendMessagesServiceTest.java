@@ -369,4 +369,25 @@ public class FSSendMessagesServiceTest {
         boolean actualRes = instance.checkHasWriteLock(contentFile);
         Assert.assertEquals(true, actualRes);
     }
+
+    @Test
+    public void testClearObservedFiles() throws InterruptedException {
+        final String domain = "default";
+
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 1000;
+            fsPluginProperties.getSendWorkerInterval(domain);
+            result = 3000;
+        }};
+        instance.checkSizeChangedRecently(contentFile, domain);
+
+        //tested method
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        Thread.sleep(8000);
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(0, instance.observedFilesInfo.size());
+    }
 }

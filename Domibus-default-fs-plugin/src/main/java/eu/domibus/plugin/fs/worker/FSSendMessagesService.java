@@ -75,7 +75,7 @@ public class FSSendMessagesService {
     @Qualifier("fsPluginSendQueue")
     private Queue fsPluginSendQueue;
 
-    private Map<String, FileInfo> observedFilesInfo = new HashMap<>();
+    protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
 
     /**
      * Triggering the send messages means that the message files from the OUT directory
@@ -337,13 +337,15 @@ public class FSSendMessagesService {
         return false;
     }
 
-    private void clearObservedFiles(String domain) {
+    protected void clearObservedFiles(String domain) {
+        LOG.debug("Starting to clear the observed files for domain [{}]", domain);
         long delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
         long currentTime = new Date().getTime();
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
             if (fileInfo.domain.equals(domain) && ((currentTime - fileInfo.modified) > delta)) {
+                LOG.debug("File [{}] is old and will be removed from the map", key);
                 observedFilesInfo.remove(key);
             }
         }
