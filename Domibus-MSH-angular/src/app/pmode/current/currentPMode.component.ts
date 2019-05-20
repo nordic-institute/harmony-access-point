@@ -40,13 +40,13 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
    * @param {MdDialog} dialog Object used for opening dialogs
    */
-  constructor (private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
   }
 
   /**
    * NgOnInit method
    */
-  ngOnInit () {
+  ngOnInit() {
     this.getCurrentEntry();
   }
 
@@ -54,7 +54,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Gets all the PMode
    * @returns {Observable<Response>}
    */
-  getResultObservable (): Observable<Response> {
+  getResultObservable(): Observable<Response> {
     return this.http.get(CurrentPModeComponent.PMODE_URL + '/list')
       .publishReplay(1).refCount();
   }
@@ -62,7 +62,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Gets the current PMode entry
    */
-  getCurrentEntry () {
+  getCurrentEntry() {
     if (!isNullOrUndefined(CurrentPModeComponent.PMODE_URL)) {
       this.pModeContentsDirty = false;
       this.http.get(CurrentPModeComponent.PMODE_URL + '/current').subscribe(res => {
@@ -80,7 +80,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Get Request for the Active PMode XML
    */
-  getActivePMode () {
+  getActivePMode() {
     if (!isNullOrUndefined(CurrentPModeComponent.PMODE_URL) && this.current !== undefined) {
       this.pModeContentsDirty = false;
       this.http.get(CurrentPModeComponent.PMODE_URL + '/' + this.current.id + '?noAudit=true ').subscribe(res => {
@@ -98,7 +98,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Method called when Upload button is clicked
    */
-  upload () {
+  upload() {
     this.dialog.open(PmodeUploadComponent)
       .afterClosed().subscribe(() => {
       this.getCurrentEntry();
@@ -109,7 +109,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Method called when Download button or icon is clicked
    * @param id The id of the selected entry on the DB
    */
-  download (pmode) {
+  download(pmode) {
     if (this.pModeExists) {
       this.http.get(CurrentPModeComponent.PMODE_URL + '/' + pmode.id).subscribe(res => {
         const uploadDateStr = DateFormatService.format(new Date(pmode.configurationDate));
@@ -125,11 +125,15 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Method called when 'Save' button is clicked
    */
-  save () {
+  save() {
     this.uploadPmodeContent();
   }
 
-  private uploadPmodeContent () {
+  private uploadPmodeContent() {
+    if (!this.pModeContents || !this.pModeContents.trim()) {
+      this.alertService.error('Cannot save an empty pMode!');
+      return;
+    }
     this.dialog.open(PmodeUploadComponent, {
       data: {pModeContents: this.pModeContents}
     }).afterClosed().subscribe(result => {
@@ -142,7 +146,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Method called when 'Cancel' button is clicked
    */
-  cancel () {
+  cancel() {
     this.dialog.open(CancelDialogComponent)
       .afterClosed().subscribe(response => {
       if (response) {
@@ -155,15 +159,16 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Method that checks if 'Save' button should be enabled
    * @returns {boolean} true, if button can be enabled; and false, otherwise
    */
-  canSave (): boolean {
-    return this.pModeExists && this.pModeContentsDirty;
+  canSave(): boolean {
+    return this.pModeExists && this.pModeContentsDirty
+      && (!!this.pModeContents && !!this.pModeContents.trim());
   }
 
   /**
    * Method that checks if 'Cancel' button should be enabled
    * @returns {boolean} true, if button can be enabled; and false, otherwise
    */
-  canCancel (): boolean {
+  canCancel(): boolean {
     return this.pModeExists && this.pModeContentsDirty;
   }
 
@@ -171,7 +176,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Method that checks if 'Upload' button should be enabled
    * @returns {boolean} true, if button can be enabled; and false, otherwise
    */
-  canUpload (): boolean {
+  canUpload(): boolean {
     return !this.pModeExists || !this.pModeContentsDirty;
   }
 
@@ -179,14 +184,14 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Method that checks if 'Download' button should be enabled
    * @returns {boolean} true, if button can be enabled; and false, otherwise
    */
-  canDownload (): boolean {
+  canDownload(): boolean {
     return this.pModeExists && !this.pModeContentsDirty;
   }
 
   /**
    * Method called when the pmode text is changed by the user
    */
-  textChanged () {
+  textChanged() {
     this.pModeContentsDirty = true;
   }
 
@@ -195,7 +200,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Downloader for the XML file
    * @param data
    */
-  private static downloadFile (data: any, date: string) {
+  private static downloadFile(data: any, date: string) {
     const blob = new Blob([data], {type: 'text/xml'});
     let filename = 'PMode';
     if (date !== '') {
@@ -209,7 +214,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * IsDirty method used for the IsDirtyOperations
    * @returns {boolean}
    */
-  isDirty (): boolean {
+  isDirty(): boolean {
     return this.canCancel();
   }
 }
