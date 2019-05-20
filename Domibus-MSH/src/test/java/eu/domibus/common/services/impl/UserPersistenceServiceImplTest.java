@@ -1,5 +1,6 @@
 package eu.domibus.common.services.impl;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -49,7 +50,7 @@ public class UserPersistenceServiceImplTest {
     private UserDomainService userDomainService;
 
     @Injectable
-    private ConsoleUserSecurityPolicyManager policyManager;
+    private ConsoleUserSecurityPolicyManager securityPolicyManager;
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -62,7 +63,6 @@ public class UserPersistenceServiceImplTest {
 
     @Autowired
     private DomainCoreConverter domainConverter2;
-
 
     @Tested
     private UserPersistenceServiceImpl userPersistenceService;
@@ -123,8 +123,6 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
 
         new Expectations() {{
-            userDomainService.getAllUserDomainMappings();
-            result = new ArrayList<>();
             domainConverter.convert(addedUser, User.class);
             result = addedUserUntity;
         }};
@@ -150,7 +148,6 @@ public class UserPersistenceServiceImplTest {
         UserDomain existingUser = new UserDomain();
         existingUser.setUserName(testUsername);
         existingUser.setDomain(testDomain);
-        List<UserDomain> existingUsers = Arrays.asList(existingUser);
 
         eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
             setUserName(testUsername);
@@ -160,8 +157,8 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
 
         new Expectations() {{
-            userDomainService.getAllUserDomainMappings();
-            result = existingUsers;
+            securityPolicyManager.validateUniqueUser(addedUser);
+            result = new UserManagementException("");
         }};
 
         userPersistenceService.insertNewUsers(addedUsers);
@@ -188,9 +185,9 @@ public class UserPersistenceServiceImplTest {
         userPersistenceService.updateUsers(users, true);
 
         new Verifications() {{
-            policyManager.applyLockingPolicyOnUpdate(user);
+            securityPolicyManager.applyLockingPolicyOnUpdate(user);
             times = 1;
-            policyManager.changePassword(userEntity, user.getPassword());
+            securityPolicyManager.changePassword(userEntity, user.getPassword());
             times = 1;
             userEntity.setEmail(user.getEmail());
             times = 1;
@@ -252,7 +249,7 @@ public class UserPersistenceServiceImplTest {
         userPersistenceService.changePassword(userName, currentPassword, newPassword);
 
         new VerificationsInOrder() {{
-            policyManager.changePassword(userEntity, newPassword);
+            securityPolicyManager.changePassword(userEntity, newPassword);
             times = 1;
             userDao.update(userEntity);
             times = 1;

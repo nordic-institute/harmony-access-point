@@ -67,16 +67,4 @@ public class UserDomainServiceSingleDomainImpl implements UserDomainService {
         return;
     }
 
-    /**
-     * Retrieves all users from general schema.
-     * In single domain mode, this is always an empty list.
-     */
-    @Override
-    public List<String> getAllUserNames() {
-        return new ArrayList<>(0);
-    }
-    @Override
-    public List<UserDomain> getAllUserDomainMappings() {
-        return new ArrayList<>(0);
-    }
 }
