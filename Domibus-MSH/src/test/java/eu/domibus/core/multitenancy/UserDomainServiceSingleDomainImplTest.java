@@ -33,15 +33,4 @@ public class UserDomainServiceSingleDomainImplTest {
         Assert.assertEquals(0, users.size());
     }
 
-    @Test
-    public void getAllUserNames() {
-        List<String> names = userDomainServiceSingleDomainImpl.getAllUserNames();
-        Assert.assertEquals(0, names.size());
-    }
-
-    @Test
-    public void getAllUserDomainMappings() {
-        List<UserDomain> domains = userDomainServiceSingleDomainImpl.getAllUserDomainMappings();
-        Assert.assertEquals(0, domains.size());
-    }
 }

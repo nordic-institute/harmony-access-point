@@ -93,6 +93,11 @@ public class User implements UserBase {
         this.password = password;
     }
 
+    @Override
+    public String getUniqueIdentifier() {
+        return getUserName();
+    }
+
     public boolean isSuspended() {
         return suspended;
     }

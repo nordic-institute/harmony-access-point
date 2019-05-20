@@ -1,11 +1,15 @@
 package eu.domibus.security;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.user.UserManagementException;
+import eu.domibus.api.user.UserState;
 import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
 import eu.domibus.common.dao.security.UserDao;
 import eu.domibus.common.model.security.User;
@@ -18,6 +22,7 @@ import mockit.*;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -65,6 +70,9 @@ public class UserSecurityPolicyManagerTest {
 
     @Injectable
     private MultiDomainAlertConfigurationService alertConfigurationService;
+
+    @Injectable
+    protected DomibusConfigurationService domibusConfigurationService;
 
     @Tested
     UserSecurityPolicyManager securityPolicyManager;
@@ -462,5 +470,30 @@ public class UserSecurityPolicyManagerTest {
         assertEquals((long)0, (long)user1.getAttemptCount());
         assertEquals(null, user1.getSuspensionDate());
 
+    }
+
+    @Test(expected = UserManagementException.class)
+    public void validateUniqueUserShouldFailIfUsernameAlreadyExists() {
+        String testUsername = "testUsername";
+        String testDomain = "testDomain";
+
+        UserDomain existingUser = new UserDomain();
+        existingUser.setUserName(testUsername);
+        existingUser.setDomain(testDomain);
+
+        eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
+            setUserName(testUsername);
+            setActive(true);
+            setStatus(UserState.NEW.name());
+        }};
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            userDomainService.getDomainForUser(testUsername);
+            result = testDomain;
+        }};
+
+        securityPolicyManager.validateUniqueUser(addedUser);
     }
 }

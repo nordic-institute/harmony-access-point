@@ -98,31 +98,6 @@ public class UserDomainServiceMultiDomainImplTest {
     }
 
     @Test
-    public void getAllUserDomainMappingsTest() throws Exception {
-        List<UserDomainEntity> userDomainEntities = new ArrayList<>();
-        List<UserDomain> userDomains = new ArrayList<>();
-
-        new Expectations() {{
-            userDomainDao.listAllUsers();
-            result = userDomainEntities;
-            domainCoreConverter.convert(userDomainEntities, UserDomain.class);
-            result = userDomains;
-        }};
-
-        List<UserDomain> mockResult = userDomainServiceMultiDomainImpl.getAllUserDomainMappings();
-        List<UserDomain> result = mockExecutorSubmit();
-
-        new Verifications() {{
-            userDomainDao.listAllUsers();
-            times = 1;
-            domainCoreConverter.convert((List<UserDomain>) any, UserDomain.class);
-            times = 1;
-
-            Assert.assertEquals(userDomains, result);
-        }};
-    }
-
-    @Test
     public void testGetSuperUsers() throws Exception {
         eu.domibus.common.model.security.User userEntity = new eu.domibus.common.model.security.User();
         List<eu.domibus.common.model.security.User> userEntities = Arrays.asList(userEntity);
@@ -140,22 +115,6 @@ public class UserDomainServiceMultiDomainImplTest {
         List<User> result = mockExecutorSubmit();
 
         Assert.assertEquals(users, result);
-    }
-
-    @Test
-    public void getAllUserNamesTest() throws Exception {
-        List<String> userNames = Arrays.asList("user1", "user2");
-
-        new Expectations() {{
-            userDomainDao.listAllUserNames();
-            result = userNames;
-        }};
-
-        List<String> mockResult = userDomainServiceMultiDomainImpl.getAllUserNames();
-        List<String> result = mockExecutorSubmit();
-
-        assertEquals(result.size(), userNames.size());
-        assertEquals(result.get(0), userNames.get(0));
     }
 
     @Test
