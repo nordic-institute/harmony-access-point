@@ -319,7 +319,7 @@ public class FSSendMessagesService {
 
             FileInfo fileInfo = observedFilesInfo.get(key);
             if (fileInfo == null || fileInfo.size != currentFileSize) {
-                observedFilesInfo.put(key, new FileInfo(currentFileSize, currentTime));
+                observedFilesInfo.put(key, new FileInfo(currentFileSize, currentTime, domain));
                 LOG.debug("Could not read file [{}] because its size has changed recently", filePath);
                 return true;
             }
@@ -338,12 +338,12 @@ public class FSSendMessagesService {
     }
 
     private void clearObservedFiles(String domain) {
-        long delta = fsPluginProperties.getSendWorkerInterval(domain);
+        long delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
         long currentTime = new Date().getTime();
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
-            if (currentTime - fileInfo.modified > delta * 3) {
+            if (fileInfo.domain.equals(domain) && ((currentTime - fileInfo.modified) > delta)) {
                 observedFilesInfo.remove(key);
             }
         }
@@ -432,10 +432,12 @@ public class FSSendMessagesService {
     static class FileInfo {
         public long size;
         public long modified;
+        public String domain;
 
-        public FileInfo(long size, long modified) {
+        public FileInfo(long size, long modified, String domain) {
             this.size = size;
             this.modified = modified;
+            this.domain = domain;
         }
     }
 }
