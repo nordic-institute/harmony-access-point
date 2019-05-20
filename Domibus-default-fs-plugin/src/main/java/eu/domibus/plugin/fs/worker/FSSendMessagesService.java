@@ -307,12 +307,13 @@ public class FSSendMessagesService {
     }
 
     protected boolean checkSizeChangedRecently(FileObject fileObject, String domain) {
-        // if the file size has changed recently,
-        // probably some process is still writing to the file
+        long delta = fsPluginProperties.getSendDelay(domain);
+        //disable check if delay is 0
+        if (delta == 0) {
+            return false;
+        }
         String filePath = fileObject.getName().getPath();
         String key = filePath;
-
-        long delta = fsPluginProperties.getSendDelay(domain);
         try {
             long currentFileSize = fileObject.getContent().getSize();
             long currentTime = new Date().getTime();
@@ -325,6 +326,7 @@ public class FSSendMessagesService {
             }
 
             long elapsed = currentTime - fileInfo.modified; // time passed since last size change
+            // if the file size has changed recently, probably some process is still writing to the file
             if (elapsed < delta) {
                 LOG.debug("Could not read file [{}] because its size has changed recently: [{}] ms", filePath, elapsed);
                 return true;
@@ -338,7 +340,8 @@ public class FSSendMessagesService {
     }
 
     protected void clearObservedFiles(String domain) {
-        LOG.debug("Starting to clear the observed files for domain [{}]", domain);
+        LOG.trace("Starting clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
+
         long delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
         long currentTime = new Date().getTime();
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
@@ -349,16 +352,21 @@ public class FSSendMessagesService {
                 observedFilesInfo.remove(key);
             }
         }
+
+        LOG.trace("Ending clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
     }
 
     protected boolean checkTimestampChangedRecently(FileObject fileObject, String domain) {
-        // if the file timestamp is very recent,
-        // it is probable that some process is still writing in the file
-        String filePath = fileObject.getName().getPath();
         long delta = fsPluginProperties.getSendDelay(domain);
+        //disable check if delay is 0
+        if (delta == 0) {
+            return false;
+        }
+        String filePath = fileObject.getName().getPath();
         try {
             long fileTime = fileObject.getContent().getLastModifiedTime();
             long elapsed = new Date().getTime() - fileTime; // time passed since last file change
+            // if the file timestamp is very recent it is probable that some process is still writing in the file
             if (elapsed < delta) {
                 LOG.debug("Could not read file [{}] because it is too recent: [{}] ms", filePath, elapsed);
                 return true;
