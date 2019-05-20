@@ -3,6 +3,7 @@ package eu.domibus.core.security;
 import eu.domibus.common.model.common.RevisionLogicalName;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.common.model.security.UserEntityBaseImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
@@ -52,6 +53,17 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
     public void setPassword(String password) {
         this.password = password;
         this.setPasswordChangeDate(LocalDateTime.now());
+    }
+
+    /**
+     * It returns the Name property or certificateId, depending on the identification type
+     */
+    @Override
+    public String getUniqueIdentifier() {
+        if (StringUtils.isNotBlank(getUserName())) {
+            return getUserName();
+        }
+        return getCertificateId();
     }
 
     public String getCertificateId() {
