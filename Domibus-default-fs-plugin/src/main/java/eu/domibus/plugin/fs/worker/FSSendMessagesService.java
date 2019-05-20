@@ -285,18 +285,24 @@ public class FSSendMessagesService {
 
 
     protected boolean canReadFileSafely(FileObject fileObject, String domain) {
+        String filePath = fileObject.getName().getPath();
+
         if (checkSizeChangedRecently(fileObject, domain)) {
+            LOG.debug("Could not read file [{}] because its size has changed recently.", filePath);
             return false;
         }
 
         if (checkTimestampChangedRecently(fileObject, domain)) {
+            LOG.debug("Could not read file [{}] because its timestamp has changed recently.", filePath);
             return false;
         }
 
         if (checkHasWriteLock(fileObject)) {
+            LOG.debug("Could not read file [{}] because it has a write lock.", filePath);
             return false;
         }
 
+        LOG.debug("Could read file [{}] successfully.", filePath);
         return true;
     }
 
