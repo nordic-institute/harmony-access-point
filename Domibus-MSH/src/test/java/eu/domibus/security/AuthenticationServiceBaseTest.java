@@ -45,11 +45,6 @@ public class AuthenticationServiceBaseTest {
     @Test
     public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked UserDetail userDetail) {
         final String domainCode = "domain1";
-        final Domain domain1 = new Domain("domain1", "domain 1");
-        final Domain domain2 = new Domain("domain2", "domain 2");
-        List<Domain> domains = new ArrayList<>();
-        domains.add(domain1);
-        domains.add(domain2);
 
         new Expectations() {{
             domainService.getDomains();
