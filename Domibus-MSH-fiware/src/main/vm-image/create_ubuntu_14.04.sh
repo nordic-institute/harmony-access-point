@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+### This script creates a Domibus image based on Ubuntu 14.04 ###
+
 export DEBIAN_FRONTEND=noninteractive
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 localhost $(hostname)/g" /etc/hosts
 sudo apt-get update -q

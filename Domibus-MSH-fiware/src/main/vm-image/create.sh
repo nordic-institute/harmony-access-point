@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+### This script creates a Domibus image based on Ubuntu 18.04 ###
+
 export DEBIAN_FRONTEND=noninteractive
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 localhost $(hostname)/g" /etc/hosts
 sudo apt-get update -q
@@ -66,9 +68,6 @@ sudo tar xzf data.tgz
 ########## Create domibus tables ########
 mysql -h localhost -u root --password=root domibus < $TOMCAT_FULL_DISTRIBUTION/sql-scripts/mysql5innoDb-4.0.ddl
 mysql -h localhost -u root --password=root domibus < $TOMCAT_FULL_DISTRIBUTION/sql-scripts/mysql5innoDb-4.0-data.ddl
-###### TEMPORARY FIX UNTIL THE SCRIPTS WORK WITH MySql 5.6 #####
-#mysql -h localhost -u root --password=root domibus < data/mysql5innoDb-4.0.ddl
-#mysql -h localhost -u root --password=root domibus < data/mysql5innoDb-4.0-data.ddl
 
 sudo sed -i 's/gateway_truststore.jks/ceftestparty9gwtruststore.jks/g' $CATALINA_HOME/conf/domibus/domibus.properties
 sudo sed -i 's/gateway_keystore.jks/ceftestparty9gwkeystore.jks/g' $CATALINA_HOME/conf/domibus/domibus.properties
