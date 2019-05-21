@@ -49,6 +49,8 @@ public class FSPluginProperties {
 
     private static final String SEND_DELAY = "messages.send.delay";
 
+    private static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
+
     private static final String USER = "messages.user";
 
     private static final String PAYLOAD_ID = "messages.payload.id";
@@ -300,6 +302,15 @@ public class FSPluginProperties {
     public Integer getSendDelay(String domain) {
         String value = getDomainProperty(domain, SEND_DELAY, null);
         return getInteger(value, 2000);
+    }
+
+    /**
+     * @param domain The domain property qualifier
+     * @return send worker interval in milliseconds
+     */
+    public Integer getSendWorkerInterval(String domain) {
+        String value = getDomainProperty(domain, SEND_WORKER_INTERVAL, null);
+        return getInteger(value, 10000);
     }
 
     /**

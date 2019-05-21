@@ -33,10 +33,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -78,6 +75,8 @@ public class FSSendMessagesService {
     @Qualifier("fsPluginSendQueue")
     private Queue fsPluginSendQueue;
 
+    protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
+
     /**
      * Triggering the send messages means that the message files from the OUT directory
      * will be processed to be sent
@@ -89,9 +88,10 @@ public class FSSendMessagesService {
         for (String domain : fsPluginProperties.getDomains()) {
             if (fsDomainService.verifyDomainExists(domain)) {
                 sendMessagesSafely(domain);
+
+                clearObservedFiles(domain);
             }
         }
-
     }
 
     protected void sendMessagesSafely(String domain) {
@@ -119,6 +119,7 @@ public class FSSendMessagesService {
             List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domain);
             LOG.debug("Processable files [{}]", processableFiles);
 
+            //we send the thread context manually since it will be lost in threads created by parallel stream
             Map<String, String> context = LOG.getCopyOfContextMap();
             processableFiles.parallelStream().forEach(file -> enqueueProcessableFileWithContext(file, context));
 
@@ -286,38 +287,113 @@ public class FSSendMessagesService {
     protected boolean canReadFileSafely(FileObject fileObject, String domain) {
         String filePath = fileObject.getName().getPath();
 
+        if (checkSizeChangedRecently(fileObject, domain)) {
+            LOG.debug("Could not process file [{}] because its size has changed recently.", filePath);
+            return false;
+        }
+
+        if (checkTimestampChangedRecently(fileObject, domain)) {
+            LOG.debug("Could not process file [{}] because its timestamp has changed recently.", filePath);
+            return false;
+        }
+
+        if (checkHasWriteLock(fileObject)) {
+            LOG.debug("Could not process file [{}] because it has a write lock.", filePath);
+            return false;
+        }
+
+        LOG.debug("Could read file [{}] successfully.", filePath);
+        return true;
+    }
+
+    protected boolean checkSizeChangedRecently(FileObject fileObject, String domain) {
+        long delta = fsPluginProperties.getSendDelay(domain);
+        //disable check if delay is 0
+        if (delta == 0) {
+            return false;
+        }
+        String filePath = fileObject.getName().getPath();
+        String key = filePath;
+        try {
+            long currentFileSize = fileObject.getContent().getSize();
+            long currentTime = new Date().getTime();
+
+            FileInfo fileInfo = observedFilesInfo.get(key);
+            if (fileInfo == null || fileInfo.size != currentFileSize) {
+                observedFilesInfo.put(key, new FileInfo(currentFileSize, currentTime, domain));
+                LOG.debug("Could not process file [{}] because its size has changed recently", filePath);
+                return true;
+            }
+
+            long elapsed = currentTime - fileInfo.modified; // time passed since last size change
+            // if the file size has changed recently, probably some process is still writing to the file
+            if (elapsed < delta) {
+                LOG.debug("Could not process file [{}] because its size has changed recently: [{}] ms", filePath, elapsed);
+                return true;
+            }
+        } catch (FileSystemException e) {
+            LOG.warn("Could not determine file info for file [{}] ", filePath, e);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected void clearObservedFiles(String domain) {
+        LOG.trace("Starting clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
+
+        long delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
+        long currentTime = new Date().getTime();
+        String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
+        for (String key : keys) {
+            FileInfo fileInfo = observedFilesInfo.get(key);
+            if (fileInfo.domain.equals(domain) && ((currentTime - fileInfo.modified) > delta)) {
+                LOG.debug("File [{}] is old and will be removed from the map", key);
+                observedFilesInfo.remove(key);
+            }
+        }
+
+        LOG.trace("Ending clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
+    }
+
+    protected boolean checkTimestampChangedRecently(FileObject fileObject, String domain) {
+        long delta = fsPluginProperties.getSendDelay(domain);
+        //disable check if delay is 0
+        if (delta == 0) {
+            return false;
+        }
+        String filePath = fileObject.getName().getPath();
+        try {
+            long fileTime = fileObject.getContent().getLastModifiedTime();
+            long elapsed = new Date().getTime() - fileTime; // time passed since last file change
+            // if the file timestamp is very recent it is probable that some process is still writing in the file
+            if (elapsed < delta) {
+                LOG.debug("Could not process file [{}] because it is too recent: [{}] ms", filePath, elapsed);
+                return true;
+            }
+        } catch (FileSystemException e) {
+            LOG.warn("Could not determine file date for file [{}] ", filePath, e);
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean checkHasWriteLock(FileObject fileObject) {
         // firstly try to lock the file
         // if this fails, it means that another process has an explicit lock on the file
-
+        String filePath = fileObject.getName().getPath();
         try (RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
              FileChannel fileChannel = raf.getChannel();
              FileLock lock = fileChannel.tryLock(0, 0, true)) {
             if (lock == null) {
                 LOG.debug("Could not acquire lock on file [{}] ", filePath);
-                return false;
+                return true;
             }
         } catch (Exception e) {
             LOG.debug("Could not acquire lock on file [{}] ", filePath, e);
-            return false; // something else went wrong
+            return true;
         }
-
-        // if the file timestamp is very recent,
-        // it is probable that some process is still writing in the file
-
-        try {
-            long delta = fsPluginProperties.getSendDelay(domain);
-            long fileTime = fileObject.getContent().getLastModifiedTime();
-            long currentTime = new java.util.Date().getTime();
-            if (fileTime > currentTime - delta) {
-                LOG.debug("Could not read file [{}] because it is too recent: [{}] ms", filePath, currentTime - fileTime);
-                return false;
-            }
-        } catch (FileSystemException e) {
-            LOG.warn("Could not determine file date for file [{}] ", filePath, e);
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     private void enqueueProcessableFileWithContext(final FileObject fileObject, final Map<String, String> context) {
