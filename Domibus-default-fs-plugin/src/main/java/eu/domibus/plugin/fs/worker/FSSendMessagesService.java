@@ -288,17 +288,17 @@ public class FSSendMessagesService {
         String filePath = fileObject.getName().getPath();
 
         if (checkSizeChangedRecently(fileObject, domain)) {
-            LOG.debug("Could not read file [{}] because its size has changed recently.", filePath);
+            LOG.debug("Could not process file [{}] because its size has changed recently.", filePath);
             return false;
         }
 
         if (checkTimestampChangedRecently(fileObject, domain)) {
-            LOG.debug("Could not read file [{}] because its timestamp has changed recently.", filePath);
+            LOG.debug("Could not process file [{}] because its timestamp has changed recently.", filePath);
             return false;
         }
 
         if (checkHasWriteLock(fileObject)) {
-            LOG.debug("Could not read file [{}] because it has a write lock.", filePath);
+            LOG.debug("Could not process file [{}] because it has a write lock.", filePath);
             return false;
         }
 
@@ -321,14 +321,14 @@ public class FSSendMessagesService {
             FileInfo fileInfo = observedFilesInfo.get(key);
             if (fileInfo == null || fileInfo.size != currentFileSize) {
                 observedFilesInfo.put(key, new FileInfo(currentFileSize, currentTime, domain));
-                LOG.debug("Could not read file [{}] because its size has changed recently", filePath);
+                LOG.debug("Could not process file [{}] because its size has changed recently", filePath);
                 return true;
             }
 
             long elapsed = currentTime - fileInfo.modified; // time passed since last size change
             // if the file size has changed recently, probably some process is still writing to the file
             if (elapsed < delta) {
-                LOG.debug("Could not read file [{}] because its size has changed recently: [{}] ms", filePath, elapsed);
+                LOG.debug("Could not process file [{}] because its size has changed recently: [{}] ms", filePath, elapsed);
                 return true;
             }
         } catch (FileSystemException e) {
@@ -368,7 +368,7 @@ public class FSSendMessagesService {
             long elapsed = new Date().getTime() - fileTime; // time passed since last file change
             // if the file timestamp is very recent it is probable that some process is still writing in the file
             if (elapsed < delta) {
-                LOG.debug("Could not read file [{}] because it is too recent: [{}] ms", filePath, elapsed);
+                LOG.debug("Could not process file [{}] because it is too recent: [{}] ms", filePath, elapsed);
                 return true;
             }
         } catch (FileSystemException e) {
@@ -439,15 +439,4 @@ public class FSSendMessagesService {
         jmsExtService.sendMessageToQueue(jmsMessage, fsPluginSendQueue);
     }
 
-    static class FileInfo {
-        public long size;
-        public long modified;
-        public String domain;
-
-        public FileInfo(long size, long modified, String domain) {
-            this.size = size;
-            this.modified = modified;
-            this.domain = domain;
-        }
-    }
 }
