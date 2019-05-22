@@ -1,7 +1,7 @@
 Scripts for creation of a Domibus-4.0 image on the Fiware Lab.
 
-Desired name for the new image: Domibus-4.0
-Base image: base_ubuntu_14.04
+Desired name for the new image: domibus-r4.0_u18
+Base image: base_ubuntu_18.04
 Required flavor: m1.medium
 Port 8080 has to be opened externally.
 
