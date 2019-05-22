@@ -15,4 +15,9 @@ public interface UserBase {
     void setActive(boolean active);
 
     void setPassword(String password);
+
+    /**
+     * Property is used to treat polymorphically console and plugin users from the "unicity in all domains" point of view.
+     */
+    String getUniqueIdentifier();
 }

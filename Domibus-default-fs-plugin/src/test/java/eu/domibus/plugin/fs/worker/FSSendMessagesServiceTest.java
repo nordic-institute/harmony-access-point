@@ -290,4 +290,104 @@ public class FSSendMessagesServiceTest {
         }};
     }
 
+    @Test
+    public void testCanReadFileSafely() {
+        String domain = "domain1";
+        new Expectations(1, instance) {{
+            instance.checkSizeChangedRecently(contentFile, domain);
+            result = false;
+            instance.checkTimestampChangedRecently(contentFile, domain);
+            result = false;
+            instance.checkHasWriteLock(contentFile);
+            result = false;
+        }};
+
+        //tested method
+        boolean actualRes = instance.canReadFileSafely(contentFile, domain);
+
+        Assert.assertEquals(true, actualRes);
+    }
+
+    @Test
+    public void testCanReadFileSafelyFalse() {
+        String domain = "domain1";
+        new Expectations(1, instance) {{
+            instance.checkSizeChangedRecently(contentFile, domain);
+            result = false;
+            instance.checkTimestampChangedRecently(contentFile, domain);
+            result = true;
+        }};
+
+        //tested method
+        boolean actualRes = instance.canReadFileSafely(contentFile, domain);
+
+        Assert.assertEquals(false, actualRes);
+    }
+
+    @Test
+    public void testCheckSizeChangedRecently() throws InterruptedException {
+        final String domain = "default";
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 2000;
+        }};
+
+        //tested method
+        boolean actualRes = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes);
+        Thread.sleep(1000);
+        boolean actualRes2 = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes2);
+        Thread.sleep(4000);
+        boolean actualRes3 = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(false, actualRes3);
+    }
+
+    @Test
+    public void testCheckTimestampChangedRecently() throws InterruptedException {
+        final String domain = "default";
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 2000;
+        }};
+
+        //tested method
+        boolean actualRes = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes);
+        Thread.sleep(1000);
+        boolean actualRes2 = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes2);
+        Thread.sleep(4000);
+        boolean actualRes3 = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(false, actualRes3);
+    }
+
+    @Test
+    public void testCheckHasWriteLock() throws InterruptedException, FileSystemException {
+        final String domain = "default";
+        //tested method
+        boolean actualRes = instance.checkHasWriteLock(contentFile);
+        Assert.assertEquals(true, actualRes);
+    }
+
+    @Test
+    public void testClearObservedFiles() throws InterruptedException {
+        final String domain = "default";
+
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 1000;
+            fsPluginProperties.getSendWorkerInterval(domain);
+            result = 3000;
+        }};
+        instance.checkSizeChangedRecently(contentFile, domain);
+
+        //tested method
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        Thread.sleep(8000);
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(0, instance.observedFilesInfo.size());
+    }
 }

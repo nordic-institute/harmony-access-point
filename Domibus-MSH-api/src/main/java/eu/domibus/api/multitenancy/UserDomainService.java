@@ -21,8 +21,4 @@ public interface UserDomainService {
     void deleteDomainForUser(String user);
 
     List<User> getSuperUsers();
-
-    List<String> getAllUserNames();
-
-    List<UserDomain> getAllUserDomainMappings();
 }

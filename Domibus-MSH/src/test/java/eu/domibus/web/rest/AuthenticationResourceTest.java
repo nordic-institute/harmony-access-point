@@ -2,8 +2,8 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.security.User;
@@ -26,6 +26,17 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -159,4 +170,105 @@ public class AuthenticationResourceTest {
         assertEquals(loggedUser.isDefaultPasswordUsed(), false);
 
     }
+
+    @Test
+    public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        final UserDetail userDetail = new UserDetail("username", "password", authorities);
+
+        new Expectations(authenticationResource) {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = authentication;
+
+            authentication.getPrincipal();
+            result = userDetail;
+
+        }};
+
+        //tested method
+        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
+        Assert.assertEquals(userDetail, userDetai1Actual);
+    }
+
+    @Test
+    public void testGetLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext) {
+
+        new Expectations(authenticationResource) {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = null;
+
+        }};
+
+        //tested method
+        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
+        Assert.assertNull(userDetai1Actual);
+    }
+
+    @Test
+    public void testLogout_PrincipalExists(final @Mocked HttpServletRequest request, final @Mocked HttpServletResponse response,
+                                           final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication,
+                                           final @Mocked CookieClearingLogoutHandler cookieClearingLogoutHandler,
+                                           final @Mocked SecurityContextLogoutHandler securityContextLogoutHandler) {
+
+        new Expectations(authenticationResource) {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = authentication;
+
+            new CookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN");
+            result = cookieClearingLogoutHandler;
+
+            new SecurityContextLogoutHandler();
+            result = securityContextLogoutHandler;
+
+
+        }};
+
+
+        //tested method
+        authenticationResource.logout(request, response);
+
+        new FullVerifications(authenticationResource) {{
+            cookieClearingLogoutHandler.logout(request, response, null);
+            securityContextLogoutHandler.logout(request, response, authentication);
+        }};
+    }
+
+    @Test
+    public void testGetUsername(final @Mocked UserDetail userDetail) {
+        final String userName = "toto";
+
+        new Expectations(authenticationResource) {{
+            authenticationResource.getLoggedUser();
+            result = userDetail;
+
+            userDetail.getUsername();
+            result = userName;
+        }};
+
+        //tested method
+        final String userNameActual = authenticationResource.getUsername();
+        Assert.assertEquals(userName, userNameActual);
+    }
+
 }

@@ -40,11 +40,12 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   loading: boolean;
   areFiltersPersisted: boolean;
   dirty: boolean;
+  routingCriterias = ['from', 'to', 'action', 'service'];
 
-  constructor (private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
   }
 
-  ngOnInit () {
+  ngOnInit() {
     this.rows = [];
     this.selected = [];
 
@@ -65,7 +66,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.getBackendFiltersInfo();
   }
 
-  getBackendFiltersInfo () {
+  getBackendFiltersInfo() {
     this.dirty = false;
     this.getMessageFilterEntries().subscribe((result: MessageFilterResult) => {
 
@@ -100,47 +101,21 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  getMessageFilterEntries (): Observable<MessageFilterResult> {
+  getMessageFilterEntries(): Observable<MessageFilterResult> {
     return this.http.get(MessageFilterComponent.MESSAGE_FILTER_URL).map((response: Response) =>
       response.json()
     );
   }
 
-  createValueProperty (cell, newProp, row) {
-    switch (cell) {
-      case 'from':
-        this.rows[row].from = newProp;
-        break;
-      case 'to':
-        this.rows[row].to = newProp;
-        break;
-      case 'action':
-        this.rows[row].action = newProp;
-        break;
-      case 'service':
-        this.rows[row].service = newProp;
-        break;
-    }
+  createValueProperty(prop, newPropValue, row) {
+    this.rows[row][prop] = newPropValue;
   }
 
-  buttonNew () {
+  buttonNew() {
     let formRef: MdDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
     formRef.afterClosed().subscribe(result => {
       if (result == true) {
-        let routingCriterias: Array<RoutingCriteriaEntry> = [];
-        if (!isNullOrUndefined(formRef.componentInstance.from) && formRef.componentInstance.from != '') {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'from', formRef.componentInstance.from));
-        }
-        if (!isNullOrUndefined(formRef.componentInstance.to) && formRef.componentInstance.to != '') {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'to', formRef.componentInstance.to));
-        }
-        if (!isNullOrUndefined(formRef.componentInstance.action) && formRef.componentInstance.action != '') {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'action', formRef.componentInstance.action));
-        }
-        if (!isNullOrUndefined(formRef.componentInstance.service) && formRef.componentInstance.service != '') {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'service', formRef.componentInstance.service));
-        }
-        let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, formRef.componentInstance.plugin, routingCriterias, false);
+        let backendEntry = this.createEntry(formRef);
         if (this.findRowsIndex(backendEntry) == -1) {
           this.rows.push(backendEntry);
 
@@ -152,10 +127,10 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private findRowsIndex (backendEntry: BackendFilterEntry): number {
+  private findRowsIndex(backendEntry: BackendFilterEntry): number {
     for (let i = 0; i < this.rows.length; i++) {
       let currentRow = this.rows[i];
-      if (currentRow.backendName === backendEntry.backendName 
+      if (currentRow.backendName === backendEntry.backendName
         && this.compareRoutingCriterias(backendEntry.routingCriterias, currentRow.routingCriterias)) {
         return i;
       }
@@ -163,7 +138,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     return -1;
   }
 
-  private compareRoutingCriterias (criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
+  private compareRoutingCriterias(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
     let found: boolean = true;
     for (let entry of criteriasA) {
       found = found && this.findRoutingCriteria(entry, criteriasB);
@@ -174,7 +149,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     return found;
   }
 
-  private findRoutingCriteria (toFind: RoutingCriteriaEntry, routingCriterias: RoutingCriteriaEntry[]): boolean {
+  private findRoutingCriteria(toFind: RoutingCriteriaEntry, routingCriterias: RoutingCriteriaEntry[]): boolean {
     for (let entry of routingCriterias) {
       if (entry.name === toFind.name && entry.expression === toFind.expression) {
         return true;
@@ -183,7 +158,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     return toFind.expression === '' && routingCriterias.length == 0;
   }
 
-  buttonEditAction (row) {
+  buttonEditAction(row) {
     let formRef: MdDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
@@ -192,31 +167,18 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
     formRef.afterClosed().subscribe(result => {
       if (result == true) {
-        let routingCriterias: Array<RoutingCriteriaEntry> = [];
-        if (!isNullOrUndefined(formRef.componentInstance.from)) {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'from', formRef.componentInstance.from));
-        }
-        if (!isNullOrUndefined(formRef.componentInstance.to)) {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'to', formRef.componentInstance.to));
-        }
-        if (!isNullOrUndefined(formRef.componentInstance.action)) {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'action', formRef.componentInstance.action));
-        }
-        if (!isNullOrUndefined(formRef.componentInstance.service)) {
-          routingCriterias.push(new RoutingCriteriaEntry(0, 'service', formRef.componentInstance.service));
-        }
-        let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, formRef.componentInstance.plugin, routingCriterias, false);
+        let backendEntry = this.createEntry(formRef);
         let backendEntryPos = this.findRowsIndex(backendEntry);
         if (backendEntryPos == -1) {
           this.updateSelectedPlugin(formRef.componentInstance.plugin);
-          this.updateSelectedFrom(formRef.componentInstance.from);
-          this.updateSelectedTo(formRef.componentInstance.to);
-          this.updateSelectedAction(formRef.componentInstance.action);
-          this.updateSelectedService(formRef.componentInstance.service);
+
+          for (var criteria of this.routingCriterias) {
+            this.updateSelectedProperty(criteria, formRef.componentInstance[criteria]);
+          }
 
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
-          if (this.findRowsIndex(backendEntry) != this.rowNumber) {
+          if (backendEntryPos != this.rowNumber) {
             this.alertService.error('Impossible to insert a duplicate entry');
           }
         }
@@ -224,7 +186,20 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private deleteRoutingCriteria (rc: string) {
+  private createEntry(formRef: MdDialogRef<EditMessageFilterComponent>) {
+    let routingCriterias: Array<RoutingCriteriaEntry> = [];
+
+    for (var criteria of this.routingCriterias) {
+      if (!!formRef.componentInstance[criteria]) {
+        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, formRef.componentInstance[criteria]));
+      }
+    }
+
+    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, formRef.componentInstance.plugin, routingCriterias, false);
+    return backendEntry;
+  }
+
+  private deleteRoutingCriteria(rc: string) {
     let numRoutingCriterias = this.rows[this.rowNumber].routingCriterias.length;
     for (let i = 0; i < numRoutingCriterias; i++) {
       let routCriteria = this.rows[this.rowNumber].routingCriterias[i];
@@ -235,7 +210,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     }
   }
 
-  private createRoutingCriteria (rc: string, value: string) {
+  private createRoutingCriteria(rc: string, value: string) {
     if (value.length == 0) {
       return;
     }
@@ -244,75 +219,27 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.createValueProperty(rc, newRC, this.rowNumber);
   }
 
-  private updateSelectedTo (value: string) {
-    if (!isNullOrUndefined(this.rows[this.rowNumber].to)) {
-      if (value.length == 0) {
-        // delete
-        this.deleteRoutingCriteria('to');
-        this.rows[this.rowNumber].to.expression = '';
-      } else {
-        // update
-        this.rows[this.rowNumber].to.expression = value;
-      }
-    } else {
-      // create
-      this.createRoutingCriteria('to', value);
-    }
-  }
-
-  private updateSelectedPlugin (value: string) {
+  private updateSelectedPlugin(value: string) {
     this.rows[this.rowNumber].backendName = value;
   }
 
-  private updateSelectedFrom (value: string) {
-    if (!isNullOrUndefined(this.rows[this.rowNumber].from)) {
+  private updateSelectedProperty(prop: string, value: string) {
+    if (!isNullOrUndefined(this.rows[this.rowNumber][prop])) {
       if (value.length == 0) {
         // delete
-        this.deleteRoutingCriteria('from');
-        this.rows[this.rowNumber].from.expression = '';
+        this.deleteRoutingCriteria(prop);
+        this.rows[this.rowNumber][prop].expression = '';
       } else {
         // update
-        this.rows[this.rowNumber].from.expression = value;
+        this.rows[this.rowNumber][prop].expression = value;
       }
     } else {
       // create
-      this.createRoutingCriteria('from', value);
+      this.createRoutingCriteria(prop, value);
     }
   }
 
-  private updateSelectedAction (value: string) {
-    if (!isNullOrUndefined(this.rows[this.rowNumber].action)) {
-      if (value.length == 0) {
-        // delete
-        this.deleteRoutingCriteria('action');
-        this.rows[this.rowNumber].action.expression = '';
-      } else {
-        // update
-        this.rows[this.rowNumber].action.expression = value;
-      }
-    } else {
-      // create
-      this.createRoutingCriteria('action', value);
-    }
-  }
-
-  private updateSelectedService (value: string) {
-    if (!isNullOrUndefined(this.rows[this.rowNumber].service)) {
-      if (value.length == 0) {
-        // delete
-        this.deleteRoutingCriteria('service');
-        this.rows[this.rowNumber].service.expression = '';
-      } else {
-        // update
-        this.rows[this.rowNumber].service.expression = value;
-      }
-    } else {
-      // create
-      this.createRoutingCriteria('service', value);
-    }
-  }
-
-  private disableSelectionAndButtons () {
+  private disableSelectionAndButtons() {
     this.selected = [];
     this.enableMoveDown = false;
     this.enableMoveUp = false;
@@ -322,7 +249,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
   }
 
-  saveAsCSV () {
+  saveAsCSV() {
     if (this.isDirty()) {
       this.saveDialog(true);
     } else {
@@ -330,7 +257,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     }
   }
 
-  cancelDialog () {
+  cancelDialog() {
     let dialogRef = this.dialog.open(CancelDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -340,20 +267,18 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  saveDialog (withDownloadCSV: boolean) {
-    let headers = new Headers({'Content-Type': 'application/json'});
-    let dialogRef = this.dialog.open(SaveDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
+  saveDialog(withDownloadCSV: boolean) {
+    this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
       if (result) {
         this.disableSelectionAndButtons();
-        this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, JSON.stringify(this.rows), {headers: headers}).subscribe(res => {
+        this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).subscribe(res => {
           this.alertService.success('The operation \'update message filters\' completed successfully.', false);
           this.getBackendFiltersInfo();
           if (withDownloadCSV) {
             DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
           }
         }, err => {
-          this.alertService.error('The operation \'update message filters\' not completed successfully.', false);
+          this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
         });
       } else {
         if (withDownloadCSV) {
@@ -363,15 +288,15 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  buttonDeleteAction (row) {
+  buttonDeleteAction(row) {
     this.deleteItems([row]);
   }
 
-  buttonDelete () {
+  buttonDelete() {
     this.deleteItems(this.selected);
   }
 
-  private deleteItems (items: any[]) {
+  private deleteItems(items: any[]) {
     this.setDirty(true);
 
     this.enableDelete = false;
@@ -388,7 +313,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.selected = [];
   }
 
-  private moveUpInternal (rowNumber) {
+  private moveUpInternal(rowNumber) {
     if (rowNumber < 1) {
       return;
     }
@@ -408,18 +333,18 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.setDirty(true);
   }
 
-  buttonMoveUpAction (row) {
+  buttonMoveUpAction(row) {
     this.moveUpInternal(row.$$index);
     setTimeout(() => {
       document.getElementById('pluginRow' + (row.$$index) + '_id').click();
     }, 50);
   }
 
-  buttonMoveUp () {
+  buttonMoveUp() {
     this.buttonMoveUpAction(this.selected[0]);
   }
 
-  private moveDownInternal (rowNumber) {
+  private moveDownInternal(rowNumber) {
     if (rowNumber > this.rows.length - 1) {
       return;
     }
@@ -440,18 +365,18 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.setDirty(true);
   }
 
-  buttonMoveDownAction (row) {
+  buttonMoveDownAction(row) {
     this.moveDownInternal(row.$$index);
     setTimeout(() => {
       document.getElementById('pluginRow' + (row.$$index) + '_id').click();
     }, 50);
   }
 
-  buttonMoveDown () {
+  buttonMoveDown() {
     this.buttonMoveDownAction(this.selected[0]);
   }
 
-  onSelect ({selected}) {
+  onSelect({selected}) {
     if (isNullOrUndefined(selected) || selected.length == 0) {
       // unselect
       this.enableMoveDown = false;
@@ -473,17 +398,17 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableEdit = selected.length == 1;
   }
 
-  isDirty (): boolean {
+  isDirty(): boolean {
     return this.enableCancel;
   }
 
-  setDirty (itemValue: boolean) {
+  setDirty(itemValue: boolean) {
     this.dirty = this.dirty || itemValue;
     this.enableSave = this.dirty;
     this.enableCancel = this.dirty;
   }
 
-  onActivate (event) {
+  onActivate(event) {
     if ('dblclick' === event.type) {
       this.buttonEditAction(event.row);
     }
