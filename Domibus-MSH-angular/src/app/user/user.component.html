@@ -37,7 +37,7 @@
 
   <div class="group-filter-button">
     <span class="row-button">
-    <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
+    <app-row-limiter [pageSizes]="rowLimiter.pageSizes" [onPageSizeChanging]="onPageSizeChanging"
                      (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
     </span>
     <span class="column-filter-button">
@@ -109,7 +109,7 @@
   <table class="group-action-button">
     <tr>
       <td>
-        <button id="userCancelButton" md-raised-button (click)="cancelDialog()" color="primary"
+        <button id="userCancelButton" md-raised-button (click)="cancel()" color="primary"
                 [disabled]="!enableCancel" button-click-behaviour>
           <md-icon>cancel</md-icon>
           <span>Cancel</span>

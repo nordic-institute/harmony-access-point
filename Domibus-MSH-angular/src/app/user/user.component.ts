@@ -353,9 +353,9 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
   }
 
-  cancelDialog() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
+  cancel() {
+    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
+      if (yes) {
         this.disableSelectionAndButtons();
         this.users = [];
         this.getUsers();
@@ -416,8 +416,26 @@ export class UserComponent implements OnInit, DirtyOperations {
     return this.enableCancel;
   }
 
-  changePageSize(newPageLimit: number) {
+  async checkIsDirty(): Promise<boolean> {
+    if (!this.isDirty()) {
+      return Promise.resolve(true);
+    }
+
+    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
+    return Promise.resolve(ok);
+  }
+
+  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
+  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
+    const isDirty = await this.checkIsDirty();
+    const canChangePage = !isDirty;
+    return canChangePage;
+  };
+
+  async changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;
+    this.disableSelectionAndButtons();
+    this.users = [];
     this.getUsers();
   }
 
