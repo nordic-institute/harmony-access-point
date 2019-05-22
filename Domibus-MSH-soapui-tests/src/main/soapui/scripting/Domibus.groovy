@@ -54,7 +54,7 @@ class Domibus{
         this.messageExchange = messageExchange
         this.context = context
         this.allDomainsProperties = parseDomainProperties(context.expand('${#Project#allDomainsProperties}'))
-        this.thirdGateway = context.expand('${#Project#thirdGateway}')
+       this.thirdGateway = context.expand('${#Project#thirdGateway}')
         this.blueDomainID = context.expand('${#Project#defaultBlueDomainID}')
         this.redDomainID = context.expand('${#Project#defaultRedDomainId}')
         this.greenDomainID = context.expand('${#Project#defaultGreenDomainID}')
@@ -92,7 +92,7 @@ class Domibus{
         def domPropMap = jsonSlurper.parseText(allDomainsPropertiesString)
         assert domPropMap != null
         // it’s possible that the response wasn’t in proper JSON format and is deserialized as empty
-        assert!domPropMap.isEmpty()
+        assert !domPropMap.isEmpty()
 
         debugLog("  parseDomainProperties  [][]  Mandatory logs are: ${mandatoryProperties}.", log)
 
@@ -104,6 +104,28 @@ class Domibus{
         debugLog("  parseDomainProperties  [][]  DONE.", log)
         return domPropMap
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+// Update Number of Domains for each site base on 
+// -------------------------------------------------------------------------------------------------------------------------------
+def updateNumberOfDomain() {
+     def numOfDomain = 0 
+     ["C2", "C3", "Third"].each {site -> 
+     	 numOfDomain=findNumberOfDomain(site) 
+     	 debugLog("For ${site} number of defined additional domain is: ${numOfDomain}", log) 
+     	 context.testCase.testSuite.project.setPropertyValue("multitenancyMode${site}", numOfDomain as String)
+     }
+}
+
+
+def findNumberOfDomain(String inputSite) {
+	 def count=0
+      debugLog( "  findNumberOfDomain  [][]  for site ID: ${inputSite}", log)
+       allDomainsProperties.each { domain, properties ->
+            if ((properties["site"].toLowerCase() == inputSite.toLowerCase()) && (properties["domNo"] != 0)) 
+                 count++
+        }
+        return count
+}
 
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  DB Functions
@@ -1798,6 +1820,28 @@ static def void addPluginCredentialsIfNeeded(context, log, messageMap, String pr
         messageMap.setStringProperty("username", u)
         messageMap.setStringProperty("password", p)
     }
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// Support fast failure approche and cancel execution when one of the smoke tests fail.
+
+static def void initSmokeTestsResult(testSuite, log) {
+	debugLog("  ====  Calling \"initSmokeTestsResult\".", log) 
+	testSuite.setPropertyValue("TestSuiteSmokeTestsResult", "OK")
+}
+
+static def void checkSmokeTestsResult(testRunner, testCase, log) {
+	debugLog("  ====  Calling \"checkSmokeTestsResult\".", log) 
+	if (testRunner.getStatus().toString() == "FAILED") {
+		testCase.testSuite.setPropertyValue("TestSuiteSmokeTestsResult", "FAILED")
+		debugLog("One of smoke tests failed. Now would cancel execution of all other test cases in current test suite.", log)
+		}
+}
+
+static def void checkIfAnySmokeTestsFailed(testRunner, testCase, log) {
+	debugLog("  ====  Calling \"checkIfAnySmokeTestsFailed\".", log) 
+	if (testCase.testSuite.getPropertyValue("TestSuiteSmokeTestsResult") == "FAILED") 
+		testRunner.cancel( "DB cleaning script failed. Aborting whole test suite run." )
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
