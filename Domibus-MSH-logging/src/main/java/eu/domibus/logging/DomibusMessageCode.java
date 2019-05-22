@@ -10,7 +10,7 @@ import eu.domibus.logging.api.MessageCode;
 public enum DomibusMessageCode implements MessageCode {
 
     BUS_MESSAGE_RECEIVED("BUS-001", "Message successfully received from [{}] to [{}]"),
-    BUS_MESSAGE_RECEIVE_FAILED("BUS-002", "Failed to receive message"),
+    BUS_MESSAGE_RECEIVE_FAILED("BUS-002", "Failed to receive message from [{}] to [{}]"),
     BUS_MESSAGE_VALIDATION_FAILED("BUS-003", "Failed to validate message"),
     BUS_BACKEND_NOTIFICATION_FAILED("BUS-004", "Failed to notify backend for incoming message"),
     BUS_MESSAGE_CHARSET_INVALID("BUS-005", "Invalid charset [{}] used"),
@@ -42,7 +42,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_LEG_NAME_NOT_FOUND("BUS-031", "Leg name not found found for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]"),
     BUS_MESSAGE_SEND_INITIATION("BUS-032", "Preparing to send message"),
     BUS_MESSAGE_SEND_SUCCESS("BUS-033", "Message sent successfully [{}] from [{}] to [{}]"),
-    BUS_MESSAGE_SEND_FAILURE("BUS-034", "Message send failure"),
+    BUS_MESSAGE_SEND_FAILURE("BUS-034", "Message sending from [{}] to [{}] failed"),
     BUS_MESSAGE_ATTACHMENT_NOT_FOUND("BUS-035", "No Attachment found for cid [{}]"),
     BUS_MULTIPLE_PART_INFO_REFERENCING_SOAP_BODY("BUS-036", "More than one Partinfo referencing the soap body found"),
     BUS_PAYLOAD_PROFILE_VALIDATION_SKIP("BUS-037", "Payload profile validation skipped: payload profile is not defined for leg [{}]"),
@@ -72,6 +72,10 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MESSAGE_RECEIVED_PAYLOAD_SIZE("BUS-061", "Received payload with cid [{}] for message [{}] of size [{}] (in bytes)"),
     BUS_MESSAGE_SENDING_PAYLOAD_SIZE("BUS-062", "Saved payload with cid [{}] for message [{}] of size [{}] (in bytes) for sending"),
     BUS_MESSAGE_STATUS_CHANGED("BUS-063", "Notifying about message status change from [{}] to [{}]"),
+    BUS_MESSAGE_SUBMITTED("BUS-064", "Message submitted"),
+    BUS_MESSAGE_SUBMIT_FAILED("BUS-065", "Message submission failed"),
+    BUS_MESSAGE_RETRIEVED("BUS-066", "Message retrieved"),
+    BUS_MESSAGE_RETRIEVE_FAILED("BUS-067", "Message retrieval failed"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

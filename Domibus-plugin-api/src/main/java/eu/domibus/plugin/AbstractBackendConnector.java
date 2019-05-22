@@ -4,6 +4,7 @@ import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
@@ -59,11 +60,21 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
-            return this.messageSubmitter.submit(messageData, this.getName());
+            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            if (StringUtils.isNotBlank(messageId)) {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            }
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
+            return messageId;
         } catch (IllegalArgumentException iaEx) {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED);
             throw new TransformationException(iaEx);
         } catch (IllegalStateException ise) {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED);
             throw new PModeMismatchException(ise);
+        } catch (MessagingProcessingException mpEx) {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED);
+            throw mpEx;
         }
     }
 

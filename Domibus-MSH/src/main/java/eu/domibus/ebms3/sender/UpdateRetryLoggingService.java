@@ -114,7 +114,7 @@ public class UpdateRetryLoggingService {
     }
 
     protected void messageFailed(UserMessage userMessage, final String messageId, NotificationStatus notificationStatus, boolean isTestMessage, String backendName) {
-        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE);
+        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFrom().getFirstPartyId(), userMessage.getPartyInfo().getTo().getFirstPartyId());
         if (NotificationStatus.REQUIRED.equals(notificationStatus) && !isTestMessage) {
             LOG.info("Notifying backend for message failure");
             backendNotificationService.notifyOfSendFailure(userMessage);
