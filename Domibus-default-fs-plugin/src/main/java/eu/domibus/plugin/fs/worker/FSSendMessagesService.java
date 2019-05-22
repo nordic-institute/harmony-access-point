@@ -319,13 +319,13 @@ public class FSSendMessagesService {
             long currentTime = new Date().getTime();
 
             FileInfo fileInfo = observedFilesInfo.get(key);
-            if (fileInfo == null || fileInfo.size != currentFileSize) {
+            if (fileInfo == null || fileInfo.getSize() != currentFileSize) {
                 observedFilesInfo.put(key, new FileInfo(currentFileSize, currentTime, domain));
                 LOG.debug("Could not process file [{}] because its size has changed recently", filePath);
                 return true;
             }
 
-            long elapsed = currentTime - fileInfo.modified; // time passed since last size change
+            long elapsed = currentTime - fileInfo.getModified(); // time passed since last size change
             // if the file size has changed recently, probably some process is still writing to the file
             if (elapsed < delta) {
                 LOG.debug("Could not process file [{}] because its size has changed recently: [{}] ms", filePath, elapsed);
@@ -342,12 +342,12 @@ public class FSSendMessagesService {
     protected void clearObservedFiles(String domain) {
         LOG.trace("Starting clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
 
-        long delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
+        int delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
         long currentTime = new Date().getTime();
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
-            if (fileInfo.domain.equals(domain) && ((currentTime - fileInfo.modified) > delta)) {
+            if (fileInfo.getDomain().equals(domain) && ((currentTime - fileInfo.getModified()) > delta)) {
                 LOG.debug("File [{}] is old and will be removed from the map", key);
                 observedFilesInfo.remove(key);
             }
