@@ -432,7 +432,7 @@ export class UserComponent implements OnInit, DirtyOperations {
     return canChangePage;
   };
 
-  async changePageSize(newPageLimit: number) {
+  changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;
     this.disableSelectionAndButtons();
     this.users = [];
