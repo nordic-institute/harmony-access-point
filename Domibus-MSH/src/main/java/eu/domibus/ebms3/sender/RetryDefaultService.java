@@ -61,9 +61,6 @@ public class RetryDefaultService implements RetryService {
     private PullMessageService pullMessageService;
 
     @Autowired
-    private JMSManager jmsManager;
-
-    @Autowired
     private MessagingLockDao messagingLockDao;
 
     @Autowired

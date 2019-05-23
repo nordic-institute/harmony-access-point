@@ -20,10 +20,7 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Injectable;
-import mockit.NonStrictExpectations;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,11 +111,9 @@ public class RetryDefaultServiceTest {
 
     @Test
     public void failIfExpiredTest(@Injectable UserMessage userMessage) throws EbMS3Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             userMessageLogDao.findRetryMessages();
             result = new ArrayList<>(RETRY_MESSAGEIDS);
-            jmsManager.browseClusterMessages(anyString);
-            result = getQueuedMessages();
         }};
 
         List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();

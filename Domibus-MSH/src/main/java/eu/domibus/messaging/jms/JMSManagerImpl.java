@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,7 +97,7 @@ public class JMSManagerImpl implements JMSManager {
         return sortQueues(queues);
     }
 
-//         in case of cluster environments, we reverse the name of the queue with the cluster name so that the ordering shows all logical queues grouped:
+    //         in case of cluster environments, we reverse the name of the queue with the cluster name so that the ordering shows all logical queues grouped:
 //         Cluster1@inQueueX
 //         Cluster2@inQueueX
 //         Cluster1@inQueueY
@@ -137,6 +136,7 @@ public class JMSManagerImpl implements JMSManager {
         return jmsMessageMapper.convert(messagesSPI);
     }
 
+    @Override
     public String getDomainSelector(String selector) {
         if (!domibusConfigurationService.isMultiTenantAware()) {
             return selector;
@@ -154,12 +154,6 @@ public class JMSManagerImpl implements JMSManager {
             result = selector + " AND " + domainClause;
         }
         return result;
-    }
-
-    @Override
-    public List<JmsMessage> browseClusterMessages(String source) {
-        final String domainSelector = getDomainSelector(null);
-        return browseClusterMessages(source, domainSelector);
     }
 
     @Override
