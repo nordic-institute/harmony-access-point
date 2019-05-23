@@ -98,56 +98,15 @@ public class RetryDefaultServiceTest {
     }
 
     @Test
-    public void getQueuedMessagesTest(@Injectable Queue queue) throws JMSException {
-        final List<JmsMessage> jmsMessages = getQueuedMessages();
-
-        String myQueue = "myQueue";
-        new NonStrictExpectations() {{
-            queue.getQueueName();
-            result = myQueue;
-
-            jmsManager.browseClusterMessages(myQueue);
-            result = jmsMessages;
-        }};
-
-        List<String> result = retryService.getQueuedMessages(queue);
-        assertEquals(3, result.size());
-    }
-
-    @Test
-    public void getMessagesNotAlreadyQueuedWithAlreadyQueuedMessagesTest() {
-        List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
-        List<String> queuedMessageIds = Arrays.asList("retry123@domibus.eu");
-
-        new NonStrictExpectations(retryService) {{
-            userMessageLogDao.findRetryMessages();
-            result = new ArrayList<>(retryMessageIds);
-
-            retryService.getAllQueuedMessages();
-            result = queuedMessageIds;
-
-        }};
-
-        List<String> result = retryService.getMessagesNotAlreadyQueued();
-        assertEquals(result.size(), 2);
-
-        assertFalse(result.contains("retry123@domibus.eu"));
-    }
-
-    @Test
     public void getMessagesNotAlreadyQueuedWithNoAlreadyQueuedMessagesTest() {
         List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
 
         new NonStrictExpectations(retryService) {{
             userMessageLogDao.findRetryMessages();
             result = new ArrayList<>(retryMessageIds);
-
-            retryService.getAllQueuedMessages();
-            result = new ArrayList<>();
-
         }};
 
-        List<String> result = retryService.getMessagesNotAlreadyQueued();
+        List<String> result = retryService.getMessagesNotAlreadyScheduled();
         assertEquals(result.size(), 3);
 
         assertEquals(result, retryMessageIds);
@@ -162,7 +121,7 @@ public class RetryDefaultServiceTest {
             result = getQueuedMessages();
         }};
 
-        List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyQueued();
+        List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
 
         final UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setSendAttempts(2);

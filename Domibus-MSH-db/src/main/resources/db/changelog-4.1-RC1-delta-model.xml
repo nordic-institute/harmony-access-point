@@ -247,5 +247,10 @@
         </createIndex>
 
     </changeSet>
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-4399">
+        <addColumn tableName="TB_MESSAGE_LOG">
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

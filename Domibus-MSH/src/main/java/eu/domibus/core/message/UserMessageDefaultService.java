@@ -286,15 +286,17 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected void scheduleSending(String messageId, JmsMessage jmsMessage) {
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
 
-        if (userMessage.isSplitAndJoin()) {
+        if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
         } else {
             LOG.debug("Sending message to sendMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
         }
+        userMessageLog.setScheduled(true);
+        userMessageLogDao.update(userMessageLog);
     }
 
     @Override

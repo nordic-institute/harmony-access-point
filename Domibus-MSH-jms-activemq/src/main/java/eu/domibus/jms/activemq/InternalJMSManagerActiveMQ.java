@@ -110,10 +110,12 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     protected Map<String, ObjectName> getQueueMap() {
-        if (queueMap != null) {
+        if (queueMap != null && queueMap.size() > 0) {
+            LOG.trace("Getting queueMap from memory");
             return queueMap;
         }
 
+        LOG.trace("Getting the queueMap using JMX");
         queueMap = new HashMap<>();
         for (ObjectName name : brokerViewMBean.getQueues()) {
             QueueViewMBean queueMbean = getQueueViewMBean(name);
