@@ -2,27 +2,20 @@ import {Component, OnInit} from '@angular/core';
 
 /**
  * Base class for components that display a list of items that can be filtered
- * It is an embrion; more common functionality will be added in time
+ * It is an embryo; more common functionality will be added in time
  *
  * @since 4.1
  */
 
-@Component({
-  moduleId: module.id,
-  selector: 'filtered-list',
-  template: '',
-})
-
-export class FilterableListComponent implements OnInit {
+export abstract class FilterableListComponent implements OnInit {
   public filter: any;
   public activeFilter: any;
 
-  constructor() {
-  }
-
-  ngOnInit() {
+  protected constructor() {
     this.filter = {};
   }
+
+  ngOnInit() {}
 
   /**
    * The method takes the filter params set through widgets and copies them to the active params
@@ -42,6 +35,5 @@ export class FilterableListComponent implements OnInit {
     this.filter = {};
     Object.assign(this.filter, this.activeFilter);
   }
-
 
 }

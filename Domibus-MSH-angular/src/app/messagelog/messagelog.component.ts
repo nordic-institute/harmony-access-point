@@ -13,7 +13,11 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {isNullOrUndefined} from 'util';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import FilterableListMixin from '../common/filterable-list.mixin';
+import SortableListMixin from '../common/sortable-list.mixin';
+import BaseListComponent from '../common/base-list.component';
+import mix from '../common/mixin.utils';
+import {SortableFilterableListComponent} from '../common/sortable-filterable-list.component';
 
 @Component({
   moduleId: module.id,
@@ -22,8 +26,9 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   styleUrls: ['./messagelog.component.css']
 })
 
-export class MessageLogComponent extends FilterableListComponent implements OnInit {
-
+//export class MessageLogComponent extends SortableListMixin(FilterableListMixin(BaseListComponent)) implements OnInit {
+//export class MessageLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
+export class MessageLogComponent extends SortableFilterableListComponent implements OnInit {
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
@@ -35,7 +40,6 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   @ViewChild('list') list: DatatableComponent;
 
   columnPicker: ColumnPickerBase;
-  rowLimiter: RowLimiterBase;
 
   selected: any[];
 
@@ -47,8 +51,6 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   rows: any[];
   count: number;
   offset: number;
-  orderBy: string;
-  asc: boolean;
 
   mshRoles: Array<String>;
   msgTypes: Array<String>;
@@ -69,8 +71,6 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   }
 
   async ngOnInit() {
-    super.ngOnInit();
-
     this.columnPicker = new ColumnPickerBase();
     this.rowLimiter = new RowLimiterBase();
 
@@ -281,6 +281,9 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
       );
   }
 
+  /**
+   * The method is the actual implementation of the abstract method declared in the base abstract class
+   */
   page(offset, pageSize) {
     this.loading = true;
     super.resetFilters();
@@ -325,13 +328,6 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
 
   onPage(event) {
     this.page(event.offset, event.pageSize);
-  }
-
-  onSort(event) {
-    this.orderBy = event.column.prop;
-    this.asc = (event.newValue === 'desc') ? false : true;
-
-    this.page(this.offset, this.rowLimiter.pageSize);
   }
 
   onActivate(event) {
