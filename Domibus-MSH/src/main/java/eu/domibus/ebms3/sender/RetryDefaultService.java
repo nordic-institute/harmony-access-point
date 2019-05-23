@@ -61,9 +61,6 @@ public class RetryDefaultService implements RetryService {
     private PullMessageService pullMessageService;
 
     @Autowired
-    private JMSManager jmsManager;
-
-    @Autowired
     private MessagingLockDao messagingLockDao;
 
     @Autowired
@@ -75,7 +72,7 @@ public class RetryDefaultService implements RetryService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void enqueueMessages() {
-        final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyQueued();
+        final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
         for (final String messageId : messagesNotAlreadyQueued) {
             try {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
@@ -115,57 +112,17 @@ public class RetryDefaultService implements RetryService {
         return false;
     }
 
-    protected List<String> getMessagesNotAlreadyQueued() {
+    protected List<String> getMessagesNotAlreadyScheduled() {
         List<String> result = new ArrayList<>();
 
         final List<String> messageIdsToSend = userMessageLogDao.findRetryMessages();
         if (messageIdsToSend.isEmpty()) {
+            LOG.trace("No message found to be resend");
             return result;
         }
-        LOG.trace("Found candidate messages to be retried [{}]", messageIdsToSend);
-        final List<String> queuedMessages = getAllQueuedMessages();
-        LOG.trace("Found queuedMessages [{}]", queuedMessages);
+        LOG.trace("Found messages to be send [{}]", messageIdsToSend);
 
-        messageIdsToSend.removeAll(queuedMessages);
-        LOG.trace("After filtering the following messages will to be retried [{}]", messageIdsToSend);
         return messageIdsToSend;
-    }
-
-    protected List<String> getAllQueuedMessages() {
-        final List<String> result = new ArrayList<>();
-        final List<String> queuedMessages = getQueuedMessages(dispatchQueue);
-        if (queuedMessages != null) {
-            LOG.trace("Adding messages [{}]", queuedMessages);
-            result.addAll(queuedMessages);
-        }
-
-        final List<String> queuedMessageFragments = getQueuedMessages(sendLargeMessageQueue);
-        if (queuedMessageFragments != null) {
-            LOG.trace("Adding message fragments [{}]", queuedMessageFragments);
-            result.addAll(queuedMessageFragments);
-        }
-
-        return result;
-    }
-
-
-    protected List<String> getQueuedMessages(Queue queue) {
-        List<String> result = new ArrayList<>();
-        try {
-            final String queueName = queue.getQueueName();
-            LOG.trace("Getting queued messages from queue [{}]", queueName);
-            final List<JmsMessage> jmsMessages = jmsManager.browseClusterMessages(queueName);
-            if (jmsMessages == null) {
-                LOG.trace("No queued messages found in queue [{}]", queueName);
-                return result;
-            }
-            for (JmsMessage jmsMessage : jmsMessages) {
-                result.add(jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID));
-            }
-            return result;
-        } catch (JMSException e) {
-            throw new DomibusJMSException(e);
-        }
     }
 
     /**

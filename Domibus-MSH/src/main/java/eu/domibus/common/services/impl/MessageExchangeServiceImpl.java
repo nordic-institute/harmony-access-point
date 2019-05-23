@@ -117,7 +117,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private PullFrequencyHelper pullFrequencyHelper;
 
 
-
     /**
      * {@inheritDoc}
      */
@@ -175,6 +174,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         LOG.trace("Initiating pull requests:");
         if (pullProcesses.isEmpty()) {
             LOG.trace("No pull process configured !");
+            return;
         }
         pullProcesses.
                 stream().
@@ -236,7 +236,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 numberOfPullMpc++;
             } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try ",e);
+                LOG.warn("Invalid pull process configuration found during pull try ", e);
             }
         }
         final int pullRequestsToSendCount = numberOfPullMpc * numberOfPullRequestPerMpc;

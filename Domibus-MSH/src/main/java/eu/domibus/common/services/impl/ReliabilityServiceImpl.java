@@ -6,7 +6,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.logging.MessageLog;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.common.model.PartyInfo;
@@ -82,7 +82,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         LOG.debug("Start changeMessageStatusAndNotify");
 
         final Boolean isTestMessage = userMessageHandlerService.checkTestMessage(legConfiguration);
-        final MessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
 
         switch (reliabilityCheckSuccessful) {
             case OK:

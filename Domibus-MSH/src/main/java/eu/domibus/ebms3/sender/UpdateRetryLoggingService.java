@@ -84,6 +84,10 @@ public class UpdateRetryLoggingService {
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
         LOG.debug("Updating sendAttempts to [{}]", userMessageLog.getSendAttempts());
         userMessageLog.setNextAttempt(getScheduledStartDate(userMessageLog)); // this is needed for the first computation of "next attempt" if receiver is down
+
+        userMessageLog.setScheduled(false);
+        LOG.debug("Scheduled flag for message [{}] has been reset to false", messageId);
+
         userMessageLogDao.update(userMessageLog);
         if (hasAttemptsLeft(userMessageLog, legConfiguration) && !userMessageLog.isTestMessage()) {
             updateNextAttemptAndNotify(legConfiguration, messageStatus, userMessageLog);

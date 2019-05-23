@@ -4,7 +4,6 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 
 /**
@@ -34,14 +33,6 @@ public interface JMSManager {
     JmsMessage getMessage(String source, String messageId);
 
     /**
-     * Operation to browse all messages in a JMS source.
-     *
-     * @param source queue or topic
-     * @return a list of JmsMessage
-     */
-    List<JmsMessage> browseClusterMessages(String source);
-
-    /**
      * Operation to browse a JMS source with restrictions given by the selector.
      *
      * @param source   queue or topic
@@ -49,7 +40,6 @@ public interface JMSManager {
      * @return a list of JmsMessage
      */
     List<JmsMessage> browseClusterMessages(String source, String selector);
-
 
     /**
      * Operation to browse a JMS source with restrictions given by the parameters.
@@ -67,9 +57,10 @@ public interface JMSManager {
 
     /**
      * Send a basic pojo to a destination. it will be serialize to json and added to the queue.
-     * @param message the pojo to be serialized to json.
+     *
+     * @param message     the pojo to be serialized to json.
      * @param destination the destination where the message should be send.
-     * @param selector a jms selector so that the message is retrieved by the correct jms listener.
+     * @param selector    a jms selector so that the message is retrieved by the correct jms listener.
      */
     void convertAndSendToQueue(Object message, Queue destination, String selector);
 
@@ -83,8 +74,9 @@ public interface JMSManager {
 
     /**
      * It sends a JMS message to {@code destination} topic but it marks to not be executed by origin server
-     * @param message JMS message
-     * @param destination JMS topic
+     *
+     * @param message       JMS message
+     * @param destination   JMS topic
      * @param excludeOrigin default to false
      */
     void sendMessageToTopic(JmsMessage message, Topic destination, boolean excludeOrigin);

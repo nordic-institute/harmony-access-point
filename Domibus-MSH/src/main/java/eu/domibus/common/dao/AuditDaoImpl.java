@@ -6,7 +6,7 @@ import eu.domibus.common.model.audit.MessageAudit;
 import eu.domibus.common.model.audit.PModeAudit;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;

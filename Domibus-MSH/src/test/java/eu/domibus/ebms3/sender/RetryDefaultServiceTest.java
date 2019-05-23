@@ -20,10 +20,7 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Injectable;
-import mockit.NonStrictExpectations;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,56 +95,15 @@ public class RetryDefaultServiceTest {
     }
 
     @Test
-    public void getQueuedMessagesTest(@Injectable Queue queue) throws JMSException {
-        final List<JmsMessage> jmsMessages = getQueuedMessages();
-
-        String myQueue = "myQueue";
-        new NonStrictExpectations() {{
-            queue.getQueueName();
-            result = myQueue;
-
-            jmsManager.browseClusterMessages(myQueue);
-            result = jmsMessages;
-        }};
-
-        List<String> result = retryService.getQueuedMessages(queue);
-        assertEquals(3, result.size());
-    }
-
-    @Test
-    public void getMessagesNotAlreadyQueuedWithAlreadyQueuedMessagesTest() {
-        List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
-        List<String> queuedMessageIds = Arrays.asList("retry123@domibus.eu");
-
-        new NonStrictExpectations(retryService) {{
-            userMessageLogDao.findRetryMessages();
-            result = new ArrayList<>(retryMessageIds);
-
-            retryService.getAllQueuedMessages();
-            result = queuedMessageIds;
-
-        }};
-
-        List<String> result = retryService.getMessagesNotAlreadyQueued();
-        assertEquals(result.size(), 2);
-
-        assertFalse(result.contains("retry123@domibus.eu"));
-    }
-
-    @Test
     public void getMessagesNotAlreadyQueuedWithNoAlreadyQueuedMessagesTest() {
         List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
 
         new NonStrictExpectations(retryService) {{
             userMessageLogDao.findRetryMessages();
             result = new ArrayList<>(retryMessageIds);
-
-            retryService.getAllQueuedMessages();
-            result = new ArrayList<>();
-
         }};
 
-        List<String> result = retryService.getMessagesNotAlreadyQueued();
+        List<String> result = retryService.getMessagesNotAlreadyScheduled();
         assertEquals(result.size(), 3);
 
         assertEquals(result, retryMessageIds);
@@ -155,14 +111,12 @@ public class RetryDefaultServiceTest {
 
     @Test
     public void failIfExpiredTest(@Injectable UserMessage userMessage) throws EbMS3Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             userMessageLogDao.findRetryMessages();
             result = new ArrayList<>(RETRY_MESSAGEIDS);
-            jmsManager.browseClusterMessages(anyString);
-            result = getQueuedMessages();
         }};
 
-        List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyQueued();
+        List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
 
         final UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setSendAttempts(2);
