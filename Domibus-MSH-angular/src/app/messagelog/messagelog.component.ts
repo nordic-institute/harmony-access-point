@@ -13,11 +13,10 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {isNullOrUndefined} from 'util';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
-import FilterableListMixin from '../common/filterable-list.mixin';
-import SortableListMixin from '../common/sortable-list.mixin';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import BaseListComponent from '../common/base-list.component';
-import mix from '../common/mixin.utils';
-import {SortableFilterableListComponent} from '../common/sortable-filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
 
 @Component({
   moduleId: module.id,
@@ -26,9 +25,7 @@ import {SortableFilterableListComponent} from '../common/sortable-filterable-lis
   styleUrls: ['./messagelog.component.css']
 })
 
-//export class MessageLogComponent extends SortableListMixin(FilterableListMixin(BaseListComponent)) implements OnInit {
-//export class MessageLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
-export class MessageLogComponent extends SortableFilterableListComponent implements OnInit {
+export class MessageLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
