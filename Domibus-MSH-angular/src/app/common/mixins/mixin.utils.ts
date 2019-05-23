@@ -1,18 +1,17 @@
 /**
- * Base class for components that display a list of items that can be ordered and paged
- * It is an embryo; more common functionality will be added in time
+ * A helper class that's a bit nicer when applying multiple mixins
  *
  * @since 4.1
  */
 
-let mix = (superclass: { new(): any }) => new MixinBuilder(superclass);
+let mix = (superclass: { new(...args): any }) => new MixinBuilder(superclass);
 
 class MixinBuilder {
   constructor(public superclass) {
     this.superclass = superclass;
   }
 
-  with(...mixins): { new(): any } {
+  with(...mixins): { new(...args): any } {
     return mixins.reduce((c, mixin) => mixin(c), this.superclass);
   }
 }
