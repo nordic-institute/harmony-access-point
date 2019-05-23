@@ -4,8 +4,9 @@
  *
  * @since 4.1
  */
+import {Constructable} from '../base-list.component';
 
-let FilterableListMixin = (superclass: { new(...args): any }) => class extends superclass {
+let FilterableListMixin = (superclass: Constructable) => class extends superclass {
   public filter: any;
   public activeFilter: any;
 

@@ -4,9 +4,16 @@
  *
  * @since 4.1
  */
+export interface Constructable {
+  new (...args);
+}
 
-export default class BaseListComponent {
-  constructor(...args) {
+function ConstructableDecorator(constructor: Constructable) {
+}
+
+@ConstructableDecorator
+export default class BaseListComponent{
+  constructor() {
   }
 };
 

@@ -1,4 +1,5 @@
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
+import {Constructable} from '../base-list.component';
 
 /**
  * A mixin for components that display a list of items that can be ordered
@@ -7,7 +8,7 @@ import {RowLimiterBase} from '../row-limiter/row-limiter-base';
  * @since 4.1
  */
 
-let SortableListMixin = (superclass: { new(...args): any }) => class extends superclass {
+let SortableListMixin = (superclass: Constructable) => class extends superclass {
   public orderBy: string;
   public asc: boolean;
   public rowLimiter: RowLimiterBase;
