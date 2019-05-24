@@ -10,7 +10,9 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Md2Datepicker} from 'md2';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -19,7 +21,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   styleUrls: ['./errorlog.component.css']
 })
 
-export class ErrorLogComponent extends FilterableListComponent implements OnInit {
+export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase()
   rowLimiter: RowLimiterBase = new RowLimiterBase()

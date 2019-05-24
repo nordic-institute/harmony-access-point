@@ -1,10 +1,10 @@
 import {Constructable} from '../base-list.component';
 
 /**
- * A helper class that's a bit nicer when applying multiple mixins
- *
+ * @author Ion Perpegel
  * @since 4.1
- */
+ * A helper class that's a bit nicer when applying multiple mixins
+ * */
 
 let mix = (superclass: Constructable) => new MixinBuilder(superclass);
 

@@ -5,7 +5,9 @@ import {Headers, Http, Response, URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs';
 import {LoggingLevelResult} from './logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 /**
  * @author Catalin Enache
@@ -18,7 +20,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   styleUrls: ['./logging.component.css']
 })
 
-export class LoggingComponent extends FilterableListComponent implements OnInit {
+export class LoggingComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
   static readonly LOGGING_URL: string = 'rest/logging/loglevel';
   static readonly RESET_LOGGING_URL: string = 'rest/logging/reset';
 

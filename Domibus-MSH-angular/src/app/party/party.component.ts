@@ -12,7 +12,9 @@ import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
 import {Http} from '@angular/http';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -26,7 +28,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   styleUrls: ['./party.component.css']
 })
 
-export class PartyComponent extends FilterableListComponent implements OnInit, DirtyOperations {
+export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
   rows: PartyResponseRo[];
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
