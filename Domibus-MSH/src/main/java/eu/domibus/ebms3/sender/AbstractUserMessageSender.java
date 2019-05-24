@@ -125,7 +125,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
                 messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
             } catch (ChainCertificateInvalidException cciEx) {
-                getLog().securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx, null);
+                getLog().securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx);
                 attempt.setError(cciEx.getMessage());
                 attempt.setStatus(MessageAttemptStatus.ABORT);
                 // this flag is used in the finally clause

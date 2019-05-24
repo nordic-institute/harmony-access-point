@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import junit.framework.Assert;
+import org.junit.Assert;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;

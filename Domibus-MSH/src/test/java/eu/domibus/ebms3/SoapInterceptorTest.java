@@ -13,35 +13,30 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.attachment.AttachmentDeserializer;
-import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.binding.soap.saaj.SAAJStreamWriter;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
 import org.apache.cxf.bus.managers.PhaseManagerImpl;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.*;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.wss4j.policy.SPConstants;
 import org.junit.Before;
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.*;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
@@ -76,7 +71,7 @@ public class SoapInterceptorTest {
             message.addAttachmentPart(attachmentPart);
         }
 
-        final String soapEnvelopeString = IOUtils.toString(messageImpl.getContent(InputStream.class));
+        final String soapEnvelopeString = IOUtils.toString(messageImpl.getContent(InputStream.class), StandardCharsets.UTF_8);
         final SOAPMessage soapMessage = new SoapUtil().createSOAPMessage(soapEnvelopeString);
         final SOAPElement next = (SOAPElement) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         message.getSOAPHeader().addChildElement(next);

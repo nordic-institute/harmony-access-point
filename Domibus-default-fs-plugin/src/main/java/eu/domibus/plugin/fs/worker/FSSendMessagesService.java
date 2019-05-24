@@ -114,7 +114,7 @@ public class FSSendMessagesService {
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            LOG.trace("{}", contentFiles);
+            LOG.trace("Found descendant files [{}] for output folder [{}]", contentFiles, outgoingFolder.getName().getPath());
 
             List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domain);
             LOG.debug("Processable files [{}]", processableFiles);

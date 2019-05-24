@@ -13,6 +13,7 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -123,7 +124,7 @@ public class FSMessageTransformerTest {
 
         FSPayload fSPayload = fsMessage.getPayloads().get(CONTENT_ID);
         Assert.assertEquals(APPLICATION_XML, fSPayload.getMimeType());
-        Assert.assertEquals(payloadContent, IOUtils.toString(fSPayload.getDataHandler().getInputStream()));
+        Assert.assertEquals(payloadContent, IOUtils.toString(fSPayload.getDataHandler().getInputStream(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -179,7 +180,7 @@ public class FSMessageTransformerTest {
 
         DataHandler payloadDatahandler = submissionPayload.getPayloadDatahandler();
         Assert.assertEquals(APPLICATION_XML, payloadDatahandler.getContentType());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream()));
+        Assert.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream(), StandardCharsets.UTF_8));
     }
 
     protected void assertTransformPayloadInfo(Submission submission) {
@@ -236,7 +237,7 @@ public class FSMessageTransformerTest {
 
         DataHandler payloadDatahandler = submissionPayload.getPayloadDatahandler();
         Assert.assertEquals(APPLICATION_XML, payloadDatahandler.getContentType());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream()));
+        Assert.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream(), StandardCharsets.UTF_8));
 
     }
 

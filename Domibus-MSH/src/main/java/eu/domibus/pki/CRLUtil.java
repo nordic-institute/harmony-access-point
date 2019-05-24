@@ -39,7 +39,9 @@ public class CRLUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLUtil.class);
 
-    /** LDAP attribute for CRL */
+    /**
+     * LDAP attribute for CRL
+     */
     private static final String LDAP_CRL_ATTRIBUTE = "certificateRevocationList;binary";
 
     @Autowired
@@ -48,14 +50,13 @@ public class CRLUtil {
     /**
      * Entry point for downloading certificates from either http(s), classpath source or LDAP
      *
-     * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
-     * @see CRLUtil#downloadCRLfromLDAP(String)
-     *
      * @param crlURL the CRL url
      * @return {@link X509CRL} certificate to download
      * @throws DomibusCRLException runtime exception in case of error
+     * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
+     * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    @Cacheable(value = "crlByCert",  key = "#crlURL")
+    @Cacheable(value = "crlByCert", key = "#crlURL")
     public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);
@@ -81,15 +82,11 @@ public class CRLUtil {
             throw new DomibusCRLException("Could not get the CRL for distribution point [" + crlURL + "]");
         }
 
-        InputStream crlStream = null;
-        try {
-            crlStream = getCrlInputStream(url);
+        try (InputStream crlStream = getCrlInputStream(url)) {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return (X509CRL) cf.generateCRL(crlStream);
         } catch (final Exception exc) {
             throw new DomibusCRLException("Can not download CRL from pki distribution point: " + crlURL, exc);
-        } finally {
-            IOUtils.closeQuietly(crlStream);
         }
     }
 
@@ -98,10 +95,8 @@ public class CRLUtil {
      * Downloads CRL from an ldap:// address e.g. ldap://ldap.example.com/dc=identity-ca,dc=example,dc=com
      *
      * @param ldapURL ldap url address to download from
-     *
      * @return {@link X509CRL} the certificate
      * @throws DomibusCRLException runtime exception in case of error
-
      */
     X509CRL downloadCRLfromLDAP(String ldapURL) throws DomibusCRLException {
         LOG.debug("Downloading CRL from LDAP url [{}]", ldapURL);
@@ -157,7 +152,6 @@ public class CRLUtil {
      * If the CRL distribution point extension is unavailable, returns an empty list.
      *
      * @param cert a X509 certificate
-     *
      * @return the list of CRL urls of this certificate
      */
     public List<String> getCrlDistributionPoints(X509Certificate cert) {
@@ -165,28 +159,26 @@ public class CRLUtil {
         if (crldpExt == null) {
             return new ArrayList<>();
         }
-        ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crldpExt));
+
         ASN1Primitive derObjCrlDP = null;
-        try {
+        try (ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crldpExt))) {
             derObjCrlDP = oAsnInStream.readObject();
         } catch (IOException e) {
             throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
-        } finally {
-            IOUtils.closeQuietly(oAsnInStream);
         }
+
         DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
         byte[] crldpExtOctets = dosCrlDP.getOctets();
-        ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets));
+
         ASN1Primitive derObj2 = null;
-        try {
+        try(ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
             derObj2 = oAsnInStream2.readObject();
         } catch (IOException e) {
             throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
-        } finally {
-            IOUtils.closeQuietly(oAsnInStream2);
         }
+
         CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
-        List<String> crlUrls = new ArrayList<String>();
+        List<String> crlUrls = new ArrayList<>();
         for (DistributionPoint dp : distPoint.getDistributionPoints()) {
             DistributionPointName dpn = dp.getDistributionPoint();
             // Look for URIs in fullName

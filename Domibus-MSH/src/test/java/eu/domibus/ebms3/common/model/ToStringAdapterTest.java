@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 import javax.xml.transform.TransformerException;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,7 +26,7 @@ public class ToStringAdapterTest {
     public void testToStringToNode() throws IOException, TransformerException {
 
         final String receiptPath = "dataset/as4/MSHAS4Response.xml";
-        String receipt = IOUtils.toString(new ClassPathResource(receiptPath).getInputStream());
+        String receipt = IOUtils.toString(new ClassPathResource(receiptPath).getInputStream(), StandardCharsets.UTF_8);
 
         Node node = toStringAdapter.stringToNode(receipt);
         Node resultNode = toStringAdapter.stringToNode(toStringAdapter.nodeToString(node));
