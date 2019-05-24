@@ -86,7 +86,6 @@ import {DefaultPasswordGuard} from './security/defaultPassword.guard';
 import {SanitizeHtmlPipe} from './common/sanitizeHtml.pipe';
 import {LoggingComponent} from './logging/logging.component';
 import {ChangePasswordComponent} from './security/change-password/change-password.component';
-import {FilterableListComponent} from './common/filterable-list.component';
 import {AuthExternalProviderGuard} from "./common/guards/auth-external-provider.guard";
 import {LogoutAuthExtProviderComponent} from "./security/logout/logout.components";
 import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
@@ -147,7 +146,6 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     PartyIdentifierDetailsComponent,
     LoggingComponent,
     ChangePasswordComponent,
-    FilterableListComponent,
     LogoutAuthExtProviderComponent,
     NotAuthorizedComponent
   ],
@@ -174,7 +172,6 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     EditcertificatepluginuserFormComponent,
     PartyIdentifierDetailsComponent,
     ChangePasswordComponent,
-    FilterableListComponent
   ],
   imports: [
     BrowserModule,
@@ -224,7 +221,7 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
       useClass: GlobalErrorHandler
     },
     UserService,
-    UserValidatorService
+    UserValidatorService,
   ],
   bootstrap: [AppComponent]
 })

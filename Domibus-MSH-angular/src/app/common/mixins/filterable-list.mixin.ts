@@ -1,26 +1,17 @@
-import {Component, OnInit} from '@angular/core';
-
 /**
- * Base class for components that display a list of items that can be filtered
- * It is an embrion; more common functionality will be added in time
- *
+ * @author Ion Perpegel
  * @since 4.1
+ * A mixin for components that display a list of items that can be filtered
+ * More common functionality will be added in time
  */
+import {Constructable} from '../base-list.component';
 
-@Component({
-  moduleId: module.id,
-  selector: 'filtered-list',
-  template: '',
-})
-
-export class FilterableListComponent implements OnInit {
+let FilterableListMixin = (superclass: Constructable) => class extends superclass {
   public filter: any;
   public activeFilter: any;
 
-  constructor() {
-  }
-
-  ngOnInit() {
+  constructor(...args) {
+    super(...args);
     this.filter = {};
   }
 
@@ -43,5 +34,6 @@ export class FilterableListComponent implements OnInit {
     Object.assign(this.filter, this.activeFilter);
   }
 
+};
 
-}
+export default FilterableListMixin;

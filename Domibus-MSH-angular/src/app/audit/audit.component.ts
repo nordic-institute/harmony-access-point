@@ -7,7 +7,9 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {Observable} from 'rxjs/Observable';
 import {AlertComponent} from '../common/alert/alert.component';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -22,7 +24,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
-export class AuditComponent extends FilterableListComponent implements OnInit {
+export class AuditComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
 
   @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithActionMapTpl') rowWithActionMapTpl: TemplateRef<any>;

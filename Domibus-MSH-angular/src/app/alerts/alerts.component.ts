@@ -11,7 +11,9 @@ import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.compo
 import {MdDialog} from '@angular/material';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -19,7 +21,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   providers: []
 })
 
-export class AlertsComponent extends FilterableListComponent implements OnInit {
+export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';

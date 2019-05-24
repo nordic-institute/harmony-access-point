@@ -14,14 +14,16 @@ import {UserState} from '../user/user';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {DownloadService} from '../common/download.service';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 @Component({
   templateUrl: './pluginuser.component.html',
   styleUrls: ['./pluginuser.component.css'],
   providers: [PluginUserService, UserService]
 })
-export class PluginUserComponent extends FilterableListComponent implements OnInit, DirtyOperations {
+export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
   @ViewChild('activeTpl') activeTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
