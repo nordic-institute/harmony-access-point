@@ -1,8 +1,5 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.jms.DomibusJMSException;
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -17,14 +14,12 @@ import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +65,7 @@ public class RetryDefaultService implements RetryService {
     UpdateRetryLoggingService updateRetryLoggingService;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void enqueueMessages() {
         final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
         for (final String messageId : messagesNotAlreadyQueued) {
