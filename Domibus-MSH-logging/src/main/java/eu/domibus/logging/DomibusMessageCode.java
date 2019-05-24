@@ -10,7 +10,7 @@ import eu.domibus.logging.api.MessageCode;
 public enum DomibusMessageCode implements MessageCode {
 
     BUS_MESSAGE_RECEIVED("BUS-001", "Message successfully received from [{}] to [{}]"),
-    BUS_MESSAGE_RECEIVE_FAILED("BUS-002", "Failed to receive message from [{}] to [{}]"),
+    BUS_MESSAGE_RECEIVE_FAILED("BUS-002", "Failed to receive message from [{}] to [{}]"), // TODO
     BUS_MESSAGE_VALIDATION_FAILED("BUS-003", "Failed to validate message"),
     BUS_BACKEND_NOTIFICATION_FAILED("BUS-004", "Failed to notify backend for incoming message"),
     BUS_MESSAGE_CHARSET_INVALID("BUS-005", "Invalid charset [{}] used"),
@@ -76,6 +76,11 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MESSAGE_SUBMIT_FAILED("BUS-065", "Message submission failed"),
     BUS_MESSAGE_RETRIEVED("BUS-066", "Message retrieved"),
     BUS_MESSAGE_RETRIEVE_FAILED("BUS-067", "Message retrieval failed"),
+    BUS_TEST_MESSAGE_RECEIVED("BUS-068", "Test message successfully received from [{}] to [{}]"),
+    BUS_TEST_MESSAGE_RECEIVE_FAILED("BUS-069", "Failed to receive test message from [{}] to [{}]"), // TODO
+    BUS_TEST_MESSAGE_SEND_INITIATION("BUS-070", "Preparing to send test message from [{}] to [{}]"),  // TODO
+    BUS_TEST_MESSAGE_SEND_SUCCESS("BUS-071", "Test message sent successfully [{}] from [{}] to [{}]"),
+    BUS_TEST_MESSAGE_SEND_FAILURE("BUS-072", "Test message sending from [{}] to [{}] failed"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),
