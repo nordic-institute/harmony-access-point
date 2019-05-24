@@ -142,6 +142,12 @@ public class JMSManagerActiveMQTest {
     public void testGetQueueMapWhenAlreadyInstantiated(final @Mocked ObjectName objectName,
                                                        final @Injectable QueueViewMBean queueMbean,
                                                        final @Injectable Map<String, ObjectName> queueMap) throws Exception {
+        new Expectations() {{
+            queueMap.size();
+            result= 2;
+        }};
+
+
         Map<String, ObjectName> returnedQueueMap = jmsManagerActiveMQ.getQueueMap();
         assertEquals(returnedQueueMap, queueMap);
 
