@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author musatmi, idragusa
@@ -43,7 +44,7 @@ public abstract class AbstractValidatorTest {
 
     protected String getResourceAsString(String resourceName) throws IOException {
         ClassPathResource json = new ClassPathResource(this.getClass().getPackage().getName().replaceAll("\\.","\\/") + "/" + resourceName);
-        return IOUtils.toString(json.getInputStream());
+        return IOUtils.toString(json.getInputStream(), StandardCharsets.UTF_8);
     }
 
 }

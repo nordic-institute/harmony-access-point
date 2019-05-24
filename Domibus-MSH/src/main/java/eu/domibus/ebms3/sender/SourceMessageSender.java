@@ -110,7 +110,7 @@ public class SourceMessageSender implements MessageSender {
                 messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
                 messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
             } catch (ChainCertificateInvalidException cciEx) {
-                LOG.securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx, null);
+                LOG.securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx);
                 attemptError = cciEx.getMessage();
                 attemptStatus = MessageAttemptStatus.ABORT;
                 LOG.error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);

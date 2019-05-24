@@ -10,7 +10,7 @@ import eu.domibus.common.model.configuration.Security;
 import eu.domibus.common.services.impl.PullProcessStatus;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.test.util.PojoInstaciatorUtil;
-import junit.framework.Assert;
+import org.junit.Assert;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;

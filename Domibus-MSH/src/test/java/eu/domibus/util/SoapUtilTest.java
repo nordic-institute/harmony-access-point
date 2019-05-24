@@ -1,7 +1,6 @@
 package eu.domibus.util;
 
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
-import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -19,6 +18,7 @@ import javax.xml.soap.*;
 import javax.xml.transform.dom.DOMSource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author idragusa
@@ -30,7 +30,7 @@ public class SoapUtilTest {
     @Test
     public void getRawXMLMessageTest() throws Exception {
 
-        final String expectedRawMessage =  FileUtils.readFileToString(new File("target/test-classes/dataset/as4/RawXMLMessage.xml"));
+        final String expectedRawMessage =  FileUtils.readFileToString(new File("target/test-classes/dataset/as4/RawXMLMessage.xml"), StandardCharsets.UTF_8);
 
         SOAPMessage soapMessage = SoapUtilTest.createSOAPMessage("SOAPMessage.xml");
         String rawXMLMessage = new SoapUtil().getRawXMLMessage(soapMessage);
