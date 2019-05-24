@@ -8,7 +8,7 @@ export interface Constructable {
   new (...args);
 }
 
-function ConstructableDecorator(constructor: Constructable) {
+export function ConstructableDecorator(constructor: Constructable) {
 }
 
 @ConstructableDecorator
