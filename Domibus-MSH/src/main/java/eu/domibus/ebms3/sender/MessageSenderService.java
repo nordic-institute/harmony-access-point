@@ -4,6 +4,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,6 +41,8 @@ public class MessageSenderService  {
     @Autowired
     MessageSenderFactory messageSenderFactory;
 
+    @Autowired
+    protected UserMessageHandlerService userMessageHandlerService;
 
     public void sendUserMessage(final String messageId, int retryCount) {
         final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
@@ -61,7 +64,8 @@ public class MessageSenderService  {
 
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION);
+        final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION);
         messageSender.sendMessage(userMessage);
     }
 }
