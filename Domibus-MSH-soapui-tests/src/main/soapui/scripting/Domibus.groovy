@@ -1845,5 +1845,62 @@ static def void checkIfAnySmokeTestsFailed(testRunner, testCase, log) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
+// Start/Stop rest mock service selected by name.
+
+static def void stopRestMockService(String restMockServiceName,log,testRunner) {
+	log.info("  ====  Calling \"stopRestMockService\".");
+	debugLog("  stopRestMockService  [][]  Rest mock service name:"+restMockServiceName,log);
+	def mockService=null; def mockRunner=null;
+	try{
+		mockService=testRunner.testCase.testSuite.project.getRestMockServiceByName(restMockServiceName);
+	}
+	catch (Exception ex) {
+            log.error "  stopRestMockService  [][]  Can't find rest mock service called: "+restMockServiceName;
+            assert 0,"Exception occurred: " + ex;
+    }
+	mockRunner=mockService.getMockRunner();
+	if(mockRunner!=null){
+		mockRunner.stop();
+	}
+	log.info ("  stopRestMockService  [][]  Rest mock service "+restMockServiceName+" is stopped.");
+}
+
+
+static def void stopAllRestMockService(log,testRunner) {
+	log.info("  ====  Calling \"stopAllRestMockService\".");
+    def project=testRunner.testCase.testSuite.project;
+	def restMockServicesCount=project.getRestMockServiceCount();
+    def restMockServiceName=null;
+	for (i in 0..(restMockServicesCount-1)){
+		// Stop each rest mock service
+		restMockServiceName=project.getRestMockServiceAt(i).getName();
+		debugLog("  stopAllRestMockService  [][]  Stopping Rest service: "+restMockServiceName,log);
+		stopRestMockService(restMockServiceName,log,testRunner);
+		i++;
+	}
+	log.info ("  stopAllRestMockService  [][]  All rest mock services are stopped.");
+}
+
+static def void startRestMockService(String restMockServiceName,log,testRunner,stopAll=1) {
+	log.info("  ====  Calling \"startRestMockService\".");
+	debugLog("  startRestMockService  [][]  Rest mock service name:"+restMockServiceName,log);
+	if(stopAll==1){
+		stopAllRestMockService(log,testRunner);
+	}else{
+		stopRestMockService(restMockServiceName,log,testRunner);
+	}
+	def mockService=null; 
+	try{
+		mockService=testRunner.testCase.testSuite.project.getRestMockServiceByName(restMockServiceName);
+	}
+	catch (Exception ex) {
+            log.error "  startRestMockService  [][]  Can't find rest mock service called: "+restMockServiceName;
+            assert 0,"Exception occurred: " + ex;
+    }
+	mockService.start();
+	log.info ("  startRestMockService  [][]  Rest mock service "+restMockServiceName+" is running.");
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
 } // Domibus class end
 

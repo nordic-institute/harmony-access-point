@@ -329,16 +329,6 @@
             <artifactId>opencsv</artifactId>
         </dependency>
 
-        <!-- Dropwizard -->
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-servlets</artifactId>
-        </dependency>
-
         <!-- Json web token -->
         <dependency>
             <groupId>com.nimbusds</groupId>
@@ -425,18 +415,17 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- End Test dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Dropwizard -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-servlets</artifactId>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
@@ -446,7 +435,8 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-servlets</artifactId>
         </dependency>
-        <!-- End Test dependencies -->
+        <!-- End Dropwizard -->
+
     </dependencies>
 
     <build>

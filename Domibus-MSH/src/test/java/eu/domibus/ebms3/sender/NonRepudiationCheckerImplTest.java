@@ -17,6 +17,8 @@ import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -81,7 +83,7 @@ public class NonRepudiationCheckerImplTest {
     }
 
     protected NodeList getNonRepudiationListFromResponse(String path) throws Exception {
-        SOAPMessage response = new SoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream()));
+        SOAPMessage response = new SoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream(), StandardCharsets.UTF_8));
         return nonRepudiationChecker.getNonRepudiationNodeList(response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN).item(0));
     }
 
