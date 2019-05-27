@@ -178,7 +178,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 
 	@Test(description = "MSGF-7", groups = {"multiTenancy", "singleTenancy"})
-	public void editAndCancel() throws Exception {
+	public void editAndCa1ncel() throws Exception {
 //		Create a filter to edit
 		String actionName = Generator.randomAlphaNumeric(5);
 		rest.createMessageFilter(actionName, null);
@@ -296,9 +296,6 @@ public class MessageFilterPgTest extends BaseTest {
 
 		index = page.grid().scrollTo("Action", actionName);
 		soft.assertTrue(index == -1, "Filter found in grid after Save");
-
-//		Delete created filter
-//		rest.deleteMessageFilter(actionName, null);
 
 		soft.assertAll();
 

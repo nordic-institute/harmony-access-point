@@ -11,7 +11,7 @@ import pages.login.LoginPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import utils.Generator;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +68,7 @@ public class UsersPgTest extends BaseTest {
 		soft.assertEquals(username, um.getUserNameInput().getText(), "Usernames match");
 		soft.assertEquals(DRoles.USER, um.getRoleSelect().getSelectedValue(), "Roles match");
 
-		if (PROPERTIES.IS_MULTI_DOMAIN) {
+		if (data.isIsMultiDomain()) {
 			soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
 		}
 		soft.assertAll();
@@ -143,7 +143,6 @@ public class UsersPgTest extends BaseTest {
 		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
 
 		page.grid().waitForRowsToLoad();
-		page.wait.forXMillis(500);
 
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
 
@@ -377,7 +376,6 @@ public class UsersPgTest extends BaseTest {
 		um.clickOK();
 
 		page.saveAndConfirm();
-		page.wait.forXMillis(500);
 
 		page.getSandwichMenu().logout();
 		LoginPage loginPage = new LoginPage(driver);
@@ -387,7 +385,6 @@ public class UsersPgTest extends BaseTest {
 		soft.assertTrue(loginPage.getAlertArea().isError(), "Error message shown");
 		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.MSG_2_2, "Correct error message is shown");
 
-		page.wait.forXMillis(500);
 
 		loginPage.login(data.getAdminUser());
 		loginPage.getSidebar().gGoToPage(DOMIBUS_PAGES.USERS);
@@ -399,7 +396,6 @@ public class UsersPgTest extends BaseTest {
 		um.getActiveChk().check();
 		um.clickOK();
 		page.saveAndConfirm();
-		page.wait.forXMillis(500);
 
 		page.getSandwichMenu().logout();
 		loginPage.login(username, data.getDefaultTestPass());
@@ -428,7 +424,6 @@ public class UsersPgTest extends BaseTest {
 
 			um.clickOK();
 			page.saveAndConfirm();
-			page.wait.forXMillis(500);
 
 			page.getSandwichMenu().logout();
 			LoginPage loginPage = new LoginPage(driver);
@@ -460,7 +455,6 @@ public class UsersPgTest extends BaseTest {
 
 			um.clickOK();
 			page.getSaveBtn().click();
-			page.wait.forXMillis(500);
 
 			soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
 			soft.assertEquals(page.getAlertArea().getAlertMessage(), "Duplicate user name for user: " + username + ".", "Correct message displayed");
@@ -551,28 +545,6 @@ public class UsersPgTest extends BaseTest {
 	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadUserList() throws Exception {
 		throw new SkipException("Implementation of test not finished");
-//		List<String> domains = new ArrayList<>();
-//		if(PROPERTIES.IS_MULTI_DOMAIN){
-//			domains = rest.getDomainNames();
-//		}
-//
-//		SoftAssert soft = new SoftAssert();
-//
-//		LoginPage loginPage = new LoginPage(driver);
-//		loginPage.login(data.getAdminUser());
-//		loginPage.sidebar.goToPage(UsersPage.class);
-//
-//		int i=0;
-//		do {
-//			UsersPage page = new UsersPage(driver);
-//			page.waitForXMillis(500);
-//			if(PROPERTIES.IS_MULTI_DOMAIN){
-//				page.pageHeader.getDomainSelector().selectOptionByText(domains.get(i));
-//			}
-//			i++;
-//		}while (i<domains.size());
-//
-//		soft.assertAll();
 	}
 
 

@@ -1,7 +1,6 @@
 package pages.pmode;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
@@ -10,7 +9,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.Generator;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
@@ -20,7 +19,7 @@ import utils.PROPERTIES;
 public class PartyIdentifierModal extends DomibusPage {
 	public PartyIdentifierModal(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
 	@FindBy(css = "md-dialog-content > form > button:nth-child(2)")

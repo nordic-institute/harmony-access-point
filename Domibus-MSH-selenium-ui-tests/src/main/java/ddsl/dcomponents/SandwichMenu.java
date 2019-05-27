@@ -11,14 +11,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class SandwichMenu extends DComponent {
 
-	private final int miniWaitTime = 200;
+
+	private WebDriverWait localWait = wait.webDriverWait;
 
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
@@ -34,25 +34,28 @@ public class SandwichMenu extends DComponent {
 	By logoutLnk = By.id("logout_id");
 
 
-	public DButton getExpandButton() {
-		wait.forXMillis(miniWaitTime);
-		return new DButton(driver, driver.findElement(expandButton));
+//	public DButton getExpandButton() throws Exception {
+//		expandMenu();
+//		localWait.until(ExpectedConditions.presenceOfElementLocated(expandButton));
+//		return new DButton(driver, driver.findElement(expandButton));
+//	}
+//
+	public String getCurrentUserID() throws Exception{
+		expandMenu();
+		localWait.until(ExpectedConditions.presenceOfElementLocated(currentUserID));
+		return driver.findElement(currentUserID).getText().trim();
 	}
-
-	public DObject getCurrentUserID() {
-		wait.forXMillis(miniWaitTime);
-		return new DObject(driver, driver.findElement(currentUserID));
-	}
-
-	public DLink getLogoutLnk() {
-		wait.forXMillis(miniWaitTime);
-		return new DLink(driver, driver.findElement(logoutLnk));
-	}
+//
+//	public DLink getLogoutLnk() throws Exception {
+//		expandMenu();
+//		localWait.until(ExpectedConditions.presenceOfElementLocated(logoutLnk));
+//		return new DLink(driver, driver.findElement(logoutLnk));
+//	}
 
 	private boolean isMenuExpanded() throws Exception {
-		wait.forXMillis(miniWaitTime);
 		try {
-			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
+//			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
+			driver.findElement(menuContainer);
 			return true;
 		} catch (Exception e) {
 		}
@@ -60,9 +63,8 @@ public class SandwichMenu extends DComponent {
 	}
 
 	private void expandMenu() throws Exception {
-		wait.forXMillis(miniWaitTime);
 		if (isMenuExpanded()) return;
-		getExpandButton().click();
+		driver.findElement(expandButton).click();
 		try {
 			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
 		} catch (Exception e) {
@@ -71,33 +73,26 @@ public class SandwichMenu extends DComponent {
 	}
 
 	private void contractMenu() throws Exception {
-		wait.forXMillis(miniWaitTime);
 		if (!isMenuExpanded()) return;
 		clickVoidSpace();
 	}
 
 	public boolean isLoggedIn() throws Exception {
-
-		wait.forXMillis(miniWaitTime);
 		expandMenu();
-		wait.forXMillis(300);
-		boolean toReturn = !getCurrentUserID().getText().equalsIgnoreCase("Not logged in");
+
+		boolean toReturn = !driver.findElement(currentUserID).getText().equalsIgnoreCase("Not logged in");
 		log.info("User login status is: " + toReturn);
 
 		contractMenu();
-		wait.forXMillis(300);
 		return toReturn;
 	}
 
 	public void logout() throws Exception {
 
-		wait.forXMillis(miniWaitTime);
-
 		expandMenu();
 		log.info("Logging out...");
-		getLogoutLnk().click();
+		driver.findElement(logoutLnk).click();
 		contractMenu();
-		wait.forXMillis(300);
 		wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 

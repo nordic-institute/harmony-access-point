@@ -6,7 +6,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -19,7 +19,7 @@ import utils.PROPERTIES;
 public class DatePicker extends DComponent {
 	public DatePicker(WebDriver driver, WebElement container) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(container, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
 	private final String dateFormat = "dd/MM/yyyy HH:mm";
@@ -36,8 +36,7 @@ public class DatePicker extends DComponent {
 	}
 
 	public String getSelectedDate(){
-//		return input.getAttribute("value").trim();
-		return new DInput(driver, input).getText();
+		return new DInput(driver, input).getText().trim();
 	}
 
 	public void clearSelectedDate() throws Exception{

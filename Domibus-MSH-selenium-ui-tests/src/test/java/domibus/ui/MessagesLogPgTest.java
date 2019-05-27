@@ -6,21 +6,17 @@ import ddsl.enums.DOMIBUS_PAGES;
 import ddsl.enums.DRoles;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import org.w3c.dom.Document;
 import pages.messages.MessageDetailsModal;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import pages.messages.SearchFilters;
 import utils.Generator;
-import utils.soap_client.MyMessageConstants;
+import utils.soap_client.MessageConstants;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +63,6 @@ public class MessagesLogPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
-//		page.wait.forXMillis(5000);
 
 		page.refreshPage();
 		page.grid().scrollToAndSelect("Message Id", messID);
@@ -176,13 +171,13 @@ public class MessagesLogPgTest extends BaseTest {
 		SearchFilters filters = page.getFilters();
 
 		filters.getAdvancedSearchExpandLnk().click();
-		filters.getFromPartyInput().fill(MyMessageConstants.From_Party_Id);
-		filters.getToPartyInput().fill(MyMessageConstants.To_Party_Id);
-		filters.getFinalRecipientInput().fill(MyMessageConstants.Final_Recipient);
-		filters.getOriginalSenderInput().fill(MyMessageConstants.Original_Sender);
+		filters.getFromPartyInput().fill(MessageConstants.From_Party_Id);
+		filters.getToPartyInput().fill(MessageConstants.To_Party_Id);
+		filters.getFinalRecipientInput().fill(MessageConstants.Final_Recipient);
+		filters.getOriginalSenderInput().fill(MessageConstants.Original_Sender);
 		filters.getConversationIDInput().fill(conversationID);
 		filters.getReferenceMessageIDInput().fill(messageRefID);
-		filters.getApRoleSelect().selectOptionByText(MyMessageConstants.AP_Role);
+		filters.getApRoleSelect().selectOptionByText(MessageConstants.AP_Role);
 
 		filters.getSearchButton().click();
 
@@ -192,11 +187,11 @@ public class MessagesLogPgTest extends BaseTest {
 			String messID = modal.getValue("Message ID");
 			soft.assertEquals(modal.getValue("Conversation Id"), conversationID, messID + " - check conversation id");
 			soft.assertEquals(modal.getValue("Ref To Message Id"), messageRefID, messID + " - check Ref To Message Id");
-			soft.assertEquals(modal.getValue("From Party Id"), MyMessageConstants.From_Party_Id, messID + " - check From Party Id");
-			soft.assertEquals(modal.getValue("To Party Id"), MyMessageConstants.To_Party_Id, messID + " - check To Party Id");
-			soft.assertEquals(modal.getValue("Original Sender"), MyMessageConstants.Original_Sender, messID + " - check Original Sender");
-			soft.assertEquals(modal.getValue("Final Recipient"), MyMessageConstants.Final_Recipient, messID + " - check Final Recipient");
-			soft.assertEquals(modal.getValue("AP Role"), MyMessageConstants.AP_Role, messID + " - check AP Role");
+			soft.assertEquals(modal.getValue("From Party Id"), MessageConstants.From_Party_Id, messID + " - check From Party Id");
+			soft.assertEquals(modal.getValue("To Party Id"), MessageConstants.To_Party_Id, messID + " - check To Party Id");
+			soft.assertEquals(modal.getValue("Original Sender"), MessageConstants.Original_Sender, messID + " - check Original Sender");
+			soft.assertEquals(modal.getValue("Final Recipient"), MessageConstants.Final_Recipient, messID + " - check Final Recipient");
+			soft.assertEquals(modal.getValue("AP Role"), MessageConstants.AP_Role, messID + " - check AP Role");
 
 			page.clickVoidSpace();
 		}
@@ -220,15 +215,11 @@ public class MessagesLogPgTest extends BaseTest {
 		page.getFilters().getMessageIDInput().fill("testEmptyGrid");
 		page.getFilters().getSearchButton().click();
 
-		page.wait.forXMillis(300);
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
 
-//		--------------------------------------------------
-//		TODO: when there is time replace this with an empty search
+//		when there is time replace this with an empty search
 		page.refreshPage();
-
-//		--------------------------------------------------
 
 		soft.assertEquals(page.grid().getRowsNo(), gridRows, "Empty search resets grid to original state (2)");
 		soft.assertEquals(page.grid().getPagination().getTotalItems(), allRows, "Empty search resets grid to original state (2)");
@@ -265,7 +256,7 @@ public class MessagesLogPgTest extends BaseTest {
 		soft.assertTrue(foundMessfile, "Found file containing message content");
 		soft.assertTrue(foundXMLfile, "Found file containing message properties");
 
-		soft.assertEquals(zipContent.get("message"), MyMessageConstants.Message_Content, "Correct message content is downloaded");
+		soft.assertEquals(zipContent.get("message"), MessageConstants.Message_Content, "Correct message content is downloaded");
 
 		String xmlString = zipContent.get("message.xml");
 		MessageDetailsModal modal = new MessageDetailsModal(driver);
@@ -307,8 +298,7 @@ public class MessagesLogPgTest extends BaseTest {
 		boolean statusChanged = false;
 		int c=0;
 		while(c<20) {
-			page.wait.forXMillis(100);
-//			page.refreshPage();
+
 			HashMap<String, String> info = page.grid().getRowInfo("Message Id", messageID);
 			if(info.get("Message Status").equalsIgnoreCase("SEND_ENQUEUED")
 			|| info.get("Message Status").equalsIgnoreCase("WAITING_FOR_RETRY")){

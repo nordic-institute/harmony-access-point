@@ -136,7 +136,9 @@ public class LoginPgTest extends BaseTest {
 		toUpdate.put("active", "true");
 		rest.updateUser(username, toUpdate);
 
-		page.wait.forXMillis(300);
+//		wait required because the unlock is done trough REST API
+		page.wait.forXMillis(500);
+
 		page.login(username, data.getDefaultTestPass());
 		soft.assertTrue(new DomibusPage(driver).getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 

@@ -8,7 +8,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import ddsl.dcomponents.DomibusPage;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -21,7 +21,7 @@ import utils.PROPERTIES;
 public class PModeCurrentPage extends DomibusPage {
 	public PModeCurrentPage(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
 	@FindBy(id = "pmodetextarea_id")

@@ -56,12 +56,11 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "PU-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickRow() throws Exception {
 
-//		throw new SkipException("Test cannot run because of bug in FirefoxDriver https://github.com/mozilla/geckodriver/issues/661");
-
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		SoftAssert soft = new SoftAssert();
+
 //		login with Admin and go to plugin users page
 		PluginUsersPage page = login(data.getAdminUser());
 		page.refreshPage();
@@ -134,7 +133,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
-		page.wait.forXMillis(300);
+		page.clickVoidSpace();
 
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
@@ -215,8 +214,6 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid");
 
 		page.getSaveBtn().click();
-//		there should be confirmation as in all the other pages :(
-//		new Dialog(driver).confirm();
 
 		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid after Save");
 
@@ -235,7 +232,6 @@ public class PluginUsersPgTest extends BaseTest {
 //		login with Admin and go to plugin users page
 		PluginUsersPage page = login(data.getAdminUser());
 
-//		((JavascriptExecutor) driver).executeScript("document.querySelector('#userTable').className = 'material striped ngx-datatable fixed-header scroll-horz selectable multi-selection'");
 
 		DGrid grid = page.grid();
 		grid.scrollToAndSelect("User Name", username);
@@ -338,15 +334,6 @@ public class PluginUsersPgTest extends BaseTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 
-//		BUG HAS BEEN REPORTED
-
-//		pum.getUserNameInput().fill("#@$%^");
-//		String errMess = pum.getUsernameErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.USERNAME_VALIDATION_MESSAGE, "Username not valid 1 (invalid characters)");
-//
-//		pum.getUserNameInput().fill("a");
-//		errMess = pum.getUsernameErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.USERNAME_VALIDATION_MESSAGE, "Username not valid 2 (too short)");
 
 		pum.getUserNameInput().clear();
 		String errMess = pum.getUsernameErrMess().getText();

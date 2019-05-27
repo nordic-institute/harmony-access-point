@@ -5,7 +5,7 @@ package utils.soap_client;
  * @description:
  * @since 4.1
  */
-public class MyMessageConstants {
+public class MessageConstants {
 
 	public static final String From_Party_Id = "domibus-blue";
 	public static final String To_Party_Id = "domibus-red";

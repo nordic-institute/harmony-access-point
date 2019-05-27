@@ -1,19 +1,16 @@
 package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.enums.DOMIBUS_PAGES;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import pages.login.LoginPage;
-import pages.plugin_users.PluginUsersPage;
 import rest.DomibusRestClient;
 import utils.DriverManager;
-import utils.PROPERTIES;
-import utils.TestDataProvider;
+import utils.TestRunData;
 import utils.customReporter.ExcelTestReporter;
-import utils.soap_client.MyMessageSender;
+import utils.soap_client.DomibusC1;
 
 import java.util.HashMap;
 
@@ -26,9 +23,9 @@ import java.util.HashMap;
 public class BaseTest {
 
 	public static WebDriver driver;
-	public static TestDataProvider data = new TestDataProvider();
+	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
-	public static MyMessageSender messageSender = new MyMessageSender();
+	public static DomibusC1 messageSender = new DomibusC1();
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -41,7 +38,7 @@ public class BaseTest {
 	public void beforeClass(){
 		log.info("-------- Starting -------");
 		driver = DriverManager.getDriver();
-		driver.get(PROPERTIES.UI_BASE_URL);
+		driver.get(data.getUiBaseUrl());
 	}
 
 
@@ -80,6 +77,9 @@ public class BaseTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		loginPage.waitForTitle();
+
 		return new DomibusPage(driver);
 	}
 

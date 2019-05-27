@@ -142,7 +142,7 @@ public class JMSMessPgTest extends BaseTest {
 			page.grid().selectRow(0);
 			page.getDeleteButton().click();
 			page.getSaveButton().click();
-//			new Dialog(driver).confirm();
+
 			soft.assertTrue(page.grid().scrollTo("ID", rowInfo2.get("ID"))<0, "Message NOT present in the grid after delete operation");
 
 		}

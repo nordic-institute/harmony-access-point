@@ -5,6 +5,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author Catalin Comanici
@@ -16,14 +18,10 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 public class DriverManager {
 
 	public static WebDriver getDriver() {
-//		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
-//		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
-//		WebDriver driver = new FirefoxDriver();
-//		driver.manage().window().maximize();
-//		return driver;
 
 		WebDriver driver = new ChromeDriver();
 		driver.manage().window().maximize();
+//		driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
 
 		return driver;
 	}

@@ -17,13 +17,6 @@ import java.util.List;
 
 public class TestServicePgTest extends BaseTest {
 
-//	protected DomibusPage login(HashMap<String, String> user) throws Exception {
-//		LoginPage loginPage = new LoginPage(driver);
-//		loginPage.login(user);
-//		new DomibusPage(driver).getSidebar().getPageLnk(DOMIBUS_PAGES.TEST_SERVICE).click();
-//		return null;
-//	}
-
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -37,7 +30,10 @@ public class TestServicePgTest extends BaseTest {
 		}
 
 		rest.uploadPMode("pmodes/pmode-invalid_process.xml", null);
+
+//		wait is required because PMode is updated trough REST API
 		page.wait.forXMillis(500);
+
 		page.refreshPage();
 		soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state (2)");
 
@@ -73,15 +69,12 @@ public class TestServicePgTest extends BaseTest {
 
 		soft.assertTrue(page.getTestBtn().isEnabled(), "Test button is enabled after picking a party to test");
 
-//		Bug already posted
-//		soft.assertTrue(!page.getUpdateBtn().isEnabled(), "Update button is disabled until test button is clicked");
-
 		page.getTestBtn().click();
-		page.wait.forXMillis(1000);
+
+		page.waitForEchoRequestData();
 
 		soft.assertTrue(page.getUpdateBtn().isEnabled(), "Update button is enabled after test button is clicked");
 
-		page.wait.forXMillis(500);
 
 		soft.assertTrue(page.getToParty().getText().equalsIgnoreCase("domibus-blue"), "Correct party is listed");
 		soft.assertTrue(!page.getToAccessPoint().getText().isEmpty(), "To access point contains data");

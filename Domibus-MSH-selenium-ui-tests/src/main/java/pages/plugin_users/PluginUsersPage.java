@@ -1,14 +1,13 @@
 package pages.plugin_users;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -21,7 +20,7 @@ import utils.PROPERTIES;
 public class PluginUsersPage extends DomibusPage {
 	public PluginUsersPage(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
 	public PluginUsersFilterArea filters = new PluginUsersFilterArea(driver);

@@ -1,20 +1,17 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.popups.EditModal;
+import ddsl.dcomponents.popups.InfoModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
-import pages.plugin_users.PluginUserModal;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,13 +27,13 @@ public class DGrid extends DComponent {
 	public DGrid(WebDriver driver, WebElement container) {
 		super(driver);
 		log.info("init grid ...");
-		PageFactory.initElements(new AjaxElementLocatorFactory(container, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
 	@FindBy(css = "span.datatable-header-cell-wrapper > span")
 	protected List<WebElement> gridHeaders;
 
-	@FindBy(css = "datatable-body-row > div.datatable-row-center.datatable-row-group")
+	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
 	protected List<WebElement> gridRows;
 
 	protected By cellSelector = By.tagName("datatable-body-cell");
@@ -75,6 +72,7 @@ public class DGrid extends DComponent {
 		log.info("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
 			new DObject(driver, gridRows.get(rowNumber)).click();
+			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
 		}
 	}
 
@@ -139,7 +137,6 @@ public class DGrid extends DComponent {
 	public void scrollToAndSelect(String columnName, String value) throws Exception {
 		int index = scrollTo(columnName, value);
 		selectRow(index);
-		wait.forXMillis(300);
 	}
 
 	public HashMap<String, String> getRowInfo(int rowNumber) throws Exception {
@@ -174,10 +171,13 @@ public class DGrid extends DComponent {
 	public void scrollToAndDoubleClick(String columnName, String value) throws Exception {
 		int index = scrollTo(columnName, value);
 		doubleClickRow(index);
+
+//		necessary wait if the method is to remain generic
+//		otherwise we need to know what modal is going to be opened so we know what to expect
 		wait.forXMillis(1000);
 	}
 
-	public List<HashMap<String, String>> getAllRowInfo() throws Exception{
+	public List<HashMap<String, String>> getAllRowInfo() throws Exception {
 		List<HashMap<String, String>> allRowInfo = new ArrayList<>();
 
 		Pagination pagination = getPagination();
@@ -187,8 +187,11 @@ public class DGrid extends DComponent {
 			for (int i = 0; i < getRowsNo(); i++) {
 				allRowInfo.add(getRowInfo(i));
 			}
-			if(pagination.hasNextPage()){
-				pagination.goToNextPage();}else {break;}
+			if (pagination.hasNextPage()) {
+				pagination.goToNextPage();
+			} else {
+				break;
+			}
 		} while (true);
 		return allRowInfo;
 	}

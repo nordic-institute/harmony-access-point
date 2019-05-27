@@ -10,7 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -23,7 +23,7 @@ import utils.PROPERTIES;
 public class UserModal extends EditModal {
 	public UserModal(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		wait.forElementToBeVisible(okBtn);
 	}
 
@@ -54,8 +54,7 @@ public class UserModal extends EditModal {
 	private WebElement usernameErrMess;
 	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
 	private WebElement emailErrMess;
-	//	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(3) > div")
-//	private WebElement roleErrMess;
+
 	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
 	private WebElement passErrMess;
 	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
@@ -98,7 +97,7 @@ public class UserModal extends EditModal {
 		getConfirmationInput().fill(confirmation);
 	}
 
-	public boolean isLoaded() {
+	public boolean isLoaded() throws Exception{
 		return (getUserNameInput().isPresent()
 				&& getPasswordInput().isPresent()
 				&& getRoleSelect().isDisplayed()

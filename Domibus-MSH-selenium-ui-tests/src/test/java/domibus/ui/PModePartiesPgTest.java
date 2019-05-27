@@ -45,7 +45,6 @@ public class PModePartiesPgTest extends BaseTest {
 
 		List<HashMap<String, String>> partyInfo = page.grid().getAllRowInfo();
 		soft.assertTrue(partyInfo.size()==2, "Grid contains both the parties described in PMode file");
-//		TODO: add checks that the info listed is the same as in file
 
 		soft.assertTrue(!page.getCancelButton().isEnabled(), "Cancel button is NOT enabled");
 		soft.assertTrue(!page.getSaveButton().isEnabled(), "Save button is NOT enabled");
@@ -241,7 +240,6 @@ public class PModePartiesPgTest extends BaseTest {
 		modal.clickOK();
 		page.getCancelButton().click();
 
-//		new Dialog(driver).confirm();
 
 		soft.assertTrue(page.grid().scrollTo(partyName, newPatyName) < 0, "New name is NOT visible in grid");
 		soft.assertTrue(page.grid().scrollTo(endpoint, "http://" + newPatyName+".com") < 0, "New endpoint is NOT visible in grid");

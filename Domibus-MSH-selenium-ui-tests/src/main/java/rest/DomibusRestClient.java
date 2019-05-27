@@ -10,14 +10,12 @@ import com.sun.jersey.multipart.file.FileDataBodyPart;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import utils.PROPERTIES;
-import utils.TestDataProvider;
+import utils.TestRunData;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import java.io.*;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -34,9 +32,9 @@ import java.util.Map;
 
 public class DomibusRestClient {
 
-	private static Client client = Client.create();
-	private static WebResource resource = client.resource(PROPERTIES.UI_BASE_URL);
-	private static TestDataProvider dataProvider = new TestDataProvider();
+	private Client client = Client.create();
+	private TestRunData data = new TestRunData();
+	private WebResource resource = client.resource(data.getUiBaseUrl());
 
 	private List<NewCookie> cookies;
 	private String token;
@@ -50,7 +48,7 @@ public class DomibusRestClient {
 			return;
 		}
 
-		HashMap<String, String> user = dataProvider.getAdminUser();
+		HashMap<String, String> user = data.getAdminUser();
 		cookies = login();
 
 		if (null != cookies) {
@@ -84,7 +82,6 @@ public class DomibusRestClient {
 
 		if (null != cookies) {
 			for (NewCookie cookie : cookies) {
-//				builder = builder.cookie(cookie.toCookie());
 				builder = builder.cookie(
 						new Cookie(cookie.getName(),
 						cookie.getValue(),
@@ -103,7 +100,7 @@ public class DomibusRestClient {
 	}
 
 	public List<NewCookie> login() {
-		HashMap<String, String> adminUser = dataProvider.getAdminUser();
+		HashMap<String, String> adminUser = data.getAdminUser();
 		HashMap<String, String> params = new HashMap<>();
 		params.put("username", adminUser.get("username"));
 		params.put("password", adminUser.get("pass"));
@@ -173,7 +170,7 @@ public class DomibusRestClient {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource(filePath).getFile());
 		FileDataBodyPart filePart = new FileDataBodyPart("file", file);
-		FormDataMultiPart multipartEntity = new FormDataMultiPart(); //.bodyPart(filePart).;
+		FormDataMultiPart multipartEntity = new FormDataMultiPart();
 		for (String s : fields.keySet()) {
 			multipartEntity.field(s, fields.get(s));
 		}
@@ -190,7 +187,6 @@ public class DomibusRestClient {
 		WebResource.Builder builder = decorateBuilder(resource);
 
 		return builder
-//				.accept(MediaType.APPLICATION_JSON)
 				.type(MediaType.APPLICATION_JSON)
 				.put(ClientResponse.class, params);
 	}
@@ -285,7 +281,7 @@ public class DomibusRestClient {
 	}
 
 	public void updateUser(String username, HashMap<String, String> toUpdate) {
-		HashMap<String, String> adminUser = dataProvider.getAdminUser();
+		HashMap<String, String> adminUser = data.getAdminUser();
 		JSONObject user = null;
 
 		try {
@@ -348,8 +344,10 @@ public class DomibusRestClient {
 		List<String> toReturn = new ArrayList<>();;
 		try {
 			JSONArray domainArray = getDomains();
-			for (int i = 0; i < domainArray.length(); i++) {
-				toReturn.add(domainArray.getJSONObject(i).getString("code"));
+			if (null != domainArray) {
+				for (int i = 0; i < domainArray.length(); i++) {
+					toReturn.add(domainArray.getJSONObject(i).getString("code"));
+				}
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

@@ -3,21 +3,23 @@ package ddsl.dcomponents;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
@@ -28,7 +30,7 @@ public class Select extends DComponent {
 	public Select(WebDriver driver, WebElement container) {
 		super(driver);
 		log.info("initialize select");
-		PageFactory.initElements(new AjaxElementLocatorFactory(container, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 
 		this.selectContainer = container;
 		extractOptionIDs();
@@ -44,75 +46,89 @@ public class Select extends DComponent {
 	@FindBy(css = "span.md2-select-value")
 	protected WebElement selectedOptionValue;
 
-	private void expand() {
-		try {
-			new DButton(driver, expandBtn).click();
-		} catch (Exception e) {
-		}
+	private DObject getSelectContainer() {
+		return new DObject(driver, selectContainer);
 	}
+	public DButton getExpandBtn() {
+		return new DButton(driver, expandBtn);
+	}
+	private DObject getSelectedOptionElement() {
+		return new DObject(driver, selectedOptionValue);
+	}
+	public String getSelectedValue() throws Exception{return getSelectedOptionElement().getText();}
 
 	private void extractOptionIDs() {
 		wait.forElementToBeVisible(selectContainer);
 		wait.forAttributeNotEmpty(selectContainer, "aria-owns");
+
+//		necessary hardcoded wait due to the way the option IDs are populated in the select
+		wait.forXMillis(300);
+
 		String[] idsAttributes = selectContainer.getAttribute("aria-owns").trim().split(" ");
 		optionIDs.addAll(Arrays.asList(idsAttributes));
+
+		System.out.println("getTextraw = " + selectContainer.getAttribute("aria-owns").trim());
+		System.out.println("idsArr = " + idsAttributes);
+		System.out.println("optionids = " + optionIDs);
+
+
 		log.info("option ids identified");
 	}
 
-	public boolean isDisplayed() {
-		return (expandBtn.isDisplayed());
+	public boolean isDisplayed() throws Exception{
+		return getExpandBtn().isEnabled();
 	}
 
+	public void expand() throws Exception{
+		getExpandBtn().click();
+	}
 
-	protected List<WebElement> getOptionElements() {
-
-		log.info("searching options for select");
+	protected List<DObject> getOptionElements() throws Exception {
 		expand();
-		List<WebElement> options = new ArrayList<WebElement>();
+		List<DObject> optionObj = new ArrayList<>();
 
 		for (int i = 0; i < optionIDs.size(); i++) {
-			options.add(driver.findElement(By.id(optionIDs.get(i))));
+			String optionId = optionIDs.get(i);
+			WebElement option = driver.findElement(By.id(optionId));
+			optionObj.add(new DObject(driver, option));
 		}
-		return options;
+		return optionObj;
 	}
 
-	public boolean selectOptionByText(String text) throws Exception {
+	public boolean selectOptionByText(String text) throws Exception{
+		List<DObject> optionObj = getOptionElements();
 
-		log.info("selecting option with text");
-		List<String> texts = getOptionsTexts();
-		List<WebElement> options = getOptionElements();
+		wait.forElementToHaveText(optionObj.get(optionObj.size()-1).element);
 
-		int index = texts.indexOf(text);
-		if (index == -1) {
-			return false;
+		for (DObject dObject : optionObj) {
+
+			if(dObject.getText().equalsIgnoreCase(text)){
+				dObject.click();
+				return true;
+			}
 		}
-		options.get(index).click();
-		return true;
+
+		return false;
 	}
 
 	public boolean selectOptionByIndex(int index) throws Exception {
-
-		log.info("selecting option by index");
-		List<WebElement> options = getOptionElements();
-
-		if (index >= options.size()) {
+		if (index >= optionIDs.size() || index<0) {
 			return false;
 		}
 
-		options.get(index).click();
+		getOptionElements().get(index).click();
 		return true;
 	}
 
-	public String getSelectedValue() throws Exception {
-		return new DObject(driver, selectedOptionValue).getText();
-	}
 
-	public List<String> getOptionsTexts() throws Exception {
-		List<WebElement> options = getOptionElements();
+	public List<String> getOptionsTexts() throws Exception{
 		List<String> texts = new ArrayList<>();
-		for (WebElement option : options) {
-			texts.add(option.getText().trim());
+		List<DObject> options = new ArrayList<>();
+
+		for (int i = 0; i < options.size(); i++) {
+			texts.add(options.get(i).getText());
 		}
+
 		return texts;
 	}
 }
