@@ -16,12 +16,13 @@ import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.pki.CertificateService;
 import eu.domibus.util.RegexUtilImpl;
-import junit.framework.Assert;
+
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

@@ -29,6 +29,7 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -179,7 +180,7 @@ public class BackendFSImplTest {
         FileObject payloadFile = files[1];
 
         Assert.assertEquals(payloadFileName, payloadFile.getName().getBaseName());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream()));
+        Assert.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream(), StandardCharsets.UTF_8));
         payloadFile.delete();
         payloadFile.close();
     }
@@ -263,14 +264,14 @@ public class BackendFSImplTest {
         FileObject fileMessage0 = files[1];
         Assert.assertEquals("message.xml",
                 fileMessage0.getName().getBaseName());
-        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream()));
+        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage0.delete();
         fileMessage0.close();
 
         FileObject fileMessage1 = files[2];
         Assert.assertEquals("invoice.xml",
                 fileMessage1.getName().getBaseName());
-        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream()));
+        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage1.delete();
         fileMessage1.close();
 

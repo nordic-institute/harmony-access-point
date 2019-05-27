@@ -2,14 +2,13 @@ package eu.domibus.common.util;
 
 import eu.domibus.proxy.DomibusProxy;
 import eu.domibus.proxy.DomibusProxyService;
-import eu.domibus.proxy.DomibusProxyServiceImpl;
-import junit.framework.Assert;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
