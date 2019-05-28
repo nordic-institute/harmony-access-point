@@ -271,7 +271,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.refreshDestinations();
       },
       error => {
-        this.alertService.error('An error occured while loading the JMS messages. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide (Error Status: ' + error.status + ')');
+        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
         this.loading = false;
       }
     );

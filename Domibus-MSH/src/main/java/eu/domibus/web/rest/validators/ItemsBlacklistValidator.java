@@ -26,22 +26,12 @@ public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsNotBlac
         return ItemsNotBlacklisted.MESSAGE;
     }
 
-    public boolean isValid(List<String> value) {
-        if (ArrayUtils.isEmpty(blacklist)) {
-            return true;
-        }
-        if (CollectionUtils.isEmpty(value)) {
+    public boolean isValid(List<String> list) {
+        if (CollectionUtils.isEmpty(list)) {
             return true;
         }
 
-        return value.stream().allMatch(el -> this.isValid(el));
+        return list.stream().allMatch(el -> super.isStringValid(el));
     }
 
-    private boolean isValid(String value) {
-        if (Strings.isNullOrEmpty(value)) {
-            return true;
-        }
-
-        return !Arrays.stream(blacklist).anyMatch(el -> value.contains(el.toString()));
-    }
 }

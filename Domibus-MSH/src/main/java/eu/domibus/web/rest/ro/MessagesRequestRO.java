@@ -1,22 +1,20 @@
 package eu.domibus.web.rest.ro;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import eu.domibus.web.rest.JmsResource;
-import eu.domibus.web.rest.validators.NotBlacklisted;
+import eu.domibus.web.rest.validators.PropsNotBlacklisted;
 
 import java.util.Date;
 
 /**
  * Created by musatmi on 15/05/2017.
  */
+@PropsNotBlacklisted
 public class MessagesRequestRO {
 
     private String source;
-    @NotBlacklisted
     private String jmsType;
-
     private Date fromDate;
     private Date toDate;
+    //@NotBlacklisted
     private String selector;
 
     public String getSource() {

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
 /**
  * Custom validator that checks that the value does not contain any char from the blacklist
@@ -20,13 +21,12 @@ import java.lang.annotation.Annotation;
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
 
     //private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
+    protected Character[] blacklist = null;
 
     public static final String BLACKLIST_PROPERTY = "domibus.userInput.blackList";
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
-
-    Character[] blacklist = null;
 
     public void init() {
         if (blacklist == null) {
@@ -44,7 +44,21 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     @Override
     public boolean isValid(T value, ConstraintValidatorContext context) {
-        return isValid(value);
+        if (ArrayUtils.isEmpty(blacklist)) {
+            return true;
+        }
+        if (value == null) {
+            return true;
+        }
+
+        boolean isValid = isValid(value);
+        if (!isValid) {
+            //disable existing violation message
+            context.disableDefaultConstraintViolation();
+            //build new violation message and add it
+            context.buildConstraintViolationWithTemplate(getErrorMessage()).addConstraintViolation();
+        }
+        return isValid;
     }
 
     public void validate(T value) {
@@ -55,15 +69,13 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     protected abstract String getErrorMessage();
 
-    public boolean isValid(T value) {
-        if (ArrayUtils.isEmpty(blacklist)) {
-            return true;
-        }
-        if (value == null) {
+    public abstract boolean isValid(T value);
+
+    protected boolean isStringValid(String value) {
+        if (Strings.isNullOrEmpty(value)) {
             return true;
         }
 
-        return false;
+        return !Arrays.stream(blacklist).anyMatch(el -> value.contains(el.toString()));
     }
-
 }
