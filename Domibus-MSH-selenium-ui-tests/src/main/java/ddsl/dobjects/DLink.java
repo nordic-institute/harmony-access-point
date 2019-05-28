@@ -27,7 +27,7 @@ public class DLink extends DObject {
 
 	public String getLinkTarget() throws Exception {
 		if (isPresent()) {
-			return element.getAttribute("href").trim();
+			return element.getAttribute("href");
 		}
 		throw new DObjectNotPresentException();
 	}

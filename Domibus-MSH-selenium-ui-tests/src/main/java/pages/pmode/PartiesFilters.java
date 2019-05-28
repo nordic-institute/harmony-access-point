@@ -9,7 +9,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
@@ -22,7 +21,7 @@ public class PartiesFilters extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	public enum ROLE {I, R, IR;}
+	public enum PROCESS_ROLE {I, R, IR;}
 
 	@FindBy(id = "name_id")
 	WebElement nameInput;
@@ -62,7 +61,7 @@ public class PartiesFilters extends DomibusPage {
 		return new DButton(driver, searchButton);
 	}
 
-	public void filter(String name, String endpoint, String partyID, String process, ROLE role) throws Exception{
+	public void filter(String name, String endpoint, String partyID, String process, PROCESS_ROLE role) throws Exception{
 		getNameInput().fill(name);
 		getEndpointInput().fill(endpoint);
 		getPartyIDInput().fill(partyID);

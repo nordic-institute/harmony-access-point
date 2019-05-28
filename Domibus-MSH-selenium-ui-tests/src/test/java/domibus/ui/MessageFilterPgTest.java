@@ -178,7 +178,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 
 	@Test(description = "MSGF-7", groups = {"multiTenancy", "singleTenancy"})
-	public void editAndCa1ncel() throws Exception {
+	public void editAndCancel() throws Exception {
 //		Create a filter to edit
 		String actionName = Generator.randomAlphaNumeric(5);
 		rest.createMessageFilter(actionName, null);

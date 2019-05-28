@@ -32,11 +32,10 @@ public class PluginUserGrid extends DGrid {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 
-		Robot robot;
 		Point coordinates = gridRows.get(rowNumber).getLocation();
 
 		try {
-			robot = new Robot();
+			Robot robot = new Robot();
 			robot.mouseMove(coordinates.getX()+50,coordinates.getY()+120);
 
 			robot.mousePress(mask);
@@ -59,11 +58,10 @@ public class PluginUserGrid extends DGrid {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 
-		Robot robot;
 		Point coordinates = gridRows.get(rowNumber).getLocation();
 
 		try {
-			robot = new Robot();
+			Robot robot = new Robot();
 			robot.mouseMove(coordinates.getX()+50,coordinates.getY()+120);
 
 			robot.mousePress(mask);

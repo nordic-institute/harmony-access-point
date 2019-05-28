@@ -34,27 +34,14 @@ public class SandwichMenu extends DComponent {
 	By logoutLnk = By.id("logout_id");
 
 
-//	public DButton getExpandButton() throws Exception {
-//		expandMenu();
-//		localWait.until(ExpectedConditions.presenceOfElementLocated(expandButton));
-//		return new DButton(driver, driver.findElement(expandButton));
-//	}
-//
 	public String getCurrentUserID() throws Exception{
 		expandMenu();
 		localWait.until(ExpectedConditions.presenceOfElementLocated(currentUserID));
 		return driver.findElement(currentUserID).getText().trim();
 	}
-//
-//	public DLink getLogoutLnk() throws Exception {
-//		expandMenu();
-//		localWait.until(ExpectedConditions.presenceOfElementLocated(logoutLnk));
-//		return new DLink(driver, driver.findElement(logoutLnk));
-//	}
 
 	private boolean isMenuExpanded() throws Exception {
 		try {
-//			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
 			driver.findElement(menuContainer);
 			return true;
 		} catch (Exception e) {

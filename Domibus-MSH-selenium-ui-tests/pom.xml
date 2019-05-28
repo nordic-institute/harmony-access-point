@@ -29,7 +29,7 @@
 		<jersey-multipart_version>1.19.4</jersey-multipart_version>
 		<json_version>20080701</json_version>
 		<javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
-		<domibus-client-example_version>4.1-RC1-SNAPSHOT</domibus-client-example_version>
+		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
 	</properties>
 
 	<dependencies>
@@ -109,12 +109,12 @@
 			<version>${javax.ws.rs-api_version}</version>
 		</dependency>
 
+
 		<dependency>
 			<groupId>eu.domibus</groupId>
-			<artifactId>domibus-client-example</artifactId>
-			<version>${domibus-client-example_version}</version>
+			<artifactId>domibus-ws-stubs</artifactId>
+			<version>${domibus-ws-stubs_version}</version>
 		</dependency>
-
 
 	</dependencies>
 
@@ -134,33 +134,33 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 
-				<build>
-					<plugins>
+			<build>
+				<plugins>
 
-						<plugin>
-							<artifactId>maven-surefire-plugin</artifactId>
-							<!--<version>2.22.1</version>-->
-							<configuration>
-								<failIfNoTests>true</failIfNoTests>
-								<groups>multiTenancy,independent</groups>
-								<environmentVariables>
-									<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
-								</environmentVariables>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<!--<version>2.22.1</version>-->
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<groups>singleTenancy</groups>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
+							</environmentVariables>
 
-							</configuration>
-						</plugin>
+						</configuration>
+					</plugin>
 
 
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-compiler-plugin</artifactId>
-							<configuration>
-								<compilerVersion>1.8</compilerVersion>
-							</configuration>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+						</configuration>
 
-						</plugin>
-					</plugins>
-				</build>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
 
