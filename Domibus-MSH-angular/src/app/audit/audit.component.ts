@@ -51,8 +51,6 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   }
 
   ngOnInit() {
-    super.ngOnInit();
-
 // --- lets init the component's data ---
     this.existingUsers = [];
     const userObservable = this.userService.getUserNames();
