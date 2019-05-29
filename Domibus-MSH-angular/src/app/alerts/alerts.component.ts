@@ -248,7 +248,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     }, (error: any) => {
       console.log('error getting the alerts:' + error);
       this.loading = false;
-      this.alertService.error('Error occurred:' + error);
+      this.alertService.exception('Error occurred:', error);
     });
   }
 

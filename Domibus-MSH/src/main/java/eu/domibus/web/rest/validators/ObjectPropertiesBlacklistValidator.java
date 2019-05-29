@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * Custom validator for classes that checks if all properties of type String and List[String]
- *  do not contain any char from the blacklist
+ * do not contain any char from the blacklist
  *
  * @author Ion Perpegel
  * @since 4.1
@@ -32,7 +32,7 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
     @Override
     public boolean isValid(Object obj) {
         List<Field> stringFields = Arrays.stream(obj.getClass().getDeclaredFields())
-                .filter(field -> field.getType() == String.class || isStringList(field))
+                .filter(field -> isString(field) || isStringList(field) || isStringArray(field))
                 .collect(Collectors.toList());
         stringFields.forEach(field -> field.setAccessible(true));
         return stringFields.stream().allMatch(field -> isFieldValid(obj, field));
@@ -52,15 +52,23 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
             return true;
         }
         boolean isValid;
-        if (val instanceof String) {
+        if (isString(field)) {
             isValid = super.isValidValue((String) val);
-        } else {
+        } else if (isStringList(field)) {
             isValid = super.isValidValue((List<String>) val);
+        } else if (isStringArray(field)) {
+            isValid = super.isValidValue((String[]) val);
+        } else {
+            return true;
         }
         if (!isValid) {
             message = String.format(PropsNotBlacklisted.MESSAGE, field.getName());
         }
         return isValid;
+    }
+
+    private boolean isString(Field field) {
+        return field.getType().equals(String.class);
     }
 
     private boolean isStringList(Field field) {
@@ -71,5 +79,9 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
             return args.length == 1 && args[0].getTypeName().equals(String.class.getTypeName());
         }
         return false;
+    }
+
+    private boolean isStringArray(Field field) {
+        return field.getType().equals(String[].class);
     }
 }

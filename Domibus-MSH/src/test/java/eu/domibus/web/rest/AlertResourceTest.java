@@ -12,6 +12,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -19,6 +20,7 @@ import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.xml.bind.ValidationException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +51,7 @@ public class AlertResourceTest {
     List<Alert> alerts;
 
     @Test
-    public void findAlertsTest() {
+    public void findAlertsTest() throws ValidationException {
         initAlertsData();
 
         new Expectations() {{
@@ -63,8 +65,13 @@ public class AlertResourceTest {
             result = alerts;
         }};
         String[] params = {"USER"};
-        AlertResult result = alertResource.findAlerts(0, 10, true, "col1", "false", null, null, null,
-                null, null, null, null, null, params, null, null, true);
+        AlertFilterRequestRO req = new AlertFilterRequestRO(){{
+            setColumn("col1");
+            setProcessed("false");
+            setParameters(params);
+            setDomainAlerts(true);
+        }};
+        AlertResult result = alertResource.findAlerts(req, null);
 
         Assert.assertEquals(2, result.getCount());
         Assert.assertEquals(1, result.getAlertsEntries().size());

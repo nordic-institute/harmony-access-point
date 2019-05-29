@@ -83,12 +83,16 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public abstract boolean isValid(T value);
 
-    public boolean isValidValue(List<String> list) {
-        if (CollectionUtils.isEmpty(list)) {
+    public boolean isValidValue(List<String> values) {
+        if (CollectionUtils.isEmpty(values)) {
             return true;
         }
 
-        return list.stream().allMatch(el -> isValidValue(el));
+        return values.stream().allMatch(el -> isValidValue(el));
+    }
+
+    protected boolean isValidValue(String[] values) {
+        return isValidValue(Arrays.asList(values));
     }
 
     protected boolean isValidValue(String value) {
@@ -102,6 +106,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         if (Strings.isNullOrEmpty(value)) {
             return true;
         }
+
         boolean res = value.chars().mapToObj(c -> (char) c).allMatch(el -> whitelist.contains(el));
         return res;
     }
@@ -117,4 +122,5 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         boolean res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el));
         return res;
     }
+
 }

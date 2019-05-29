@@ -9,6 +9,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+
+import javax.xml.bind.ValidationException;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -40,5 +45,14 @@ public class ErrorHandlerService {
             ex = rootCause == null ? ex : rootCause;
         }
         return new ResponseEntity(new ErrorRO(ex.getMessage()), headers, status);
+    }
+
+    public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {
+        if(bindingResult.hasErrors()) {
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            String res = errors.stream().map(err -> err.getDefaultMessage())
+                    .reduce("", (subtotal, msg) -> subtotal + msg);
+            throw new ValidationException(res);
+        }
     }
 }

@@ -44,7 +44,6 @@ public class JmsResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
-
     @RequestMapping(value = {"/destinations"}, method = GET)
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
