@@ -13,7 +13,7 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.criteria.AuditCriteria;
+import eu.domibus.web.rest.ro.AuditCriteria;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

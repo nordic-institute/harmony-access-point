@@ -8,6 +8,8 @@ import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import mockit.Expectations;
@@ -17,6 +19,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -46,6 +49,8 @@ public class ErrorLogResourceTest {
     @Injectable
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
+    @Injectable
+    private ErrorHandlerService errorHandlerService;
 
     @Test
     public void testGetErrorLog() {
@@ -71,9 +76,9 @@ public class ErrorLogResourceTest {
         }};
 
         // When
-        ErrorLogResultRO errorLogResultRO = errorLogResource.getErrorLog(1, 10, "messageId", true,
-                null, null, null, null,
-                null, null, null, null, null);
+        ErrorLogResultRO errorLogResultRO = errorLogResource.getErrorLog(new ErrorLogFilterRequestRO() {{
+            setOrderBy("messageId");
+        }}, null);
 
         // Then
         Assert.assertNotNull(errorLogResultRO);
@@ -122,27 +127,29 @@ public class ErrorLogResourceTest {
             errorLogCsvServiceImpl.getMaxNumberRowsToExport();
             result = 10000;
 
-            errorLogDao.findPaged(anyInt,anyInt,anyString,anyBoolean, (HashMap<String, Object>) any);
+            errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
 
             domainConverter.convert(errorLogEntries, ErrorLogRO.class);
             result = errorLogROEntries;
 
-            errorLogCsvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>)any, (List<String>)any);
+            errorLogCsvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +
                     signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
-                    errorDetailStr + "," + date + "," + date+System.lineSeparator();
+                    errorDetailStr + "," + date + "," + date + System.lineSeparator();
         }};
 
         // When
-        final ResponseEntity<String> csv = errorLogResource.getCsv("timestamp", false,null, null, null, null, null,
-                null, null, null, null);
+        final ResponseEntity<String> csv = errorLogResource.getCsv(new ErrorLogFilterRequestRO() {{
+            setOrderBy("timestamp");
+            setAsc(false);
+        }}, null);
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
         Assert.assertEquals(CSV_TITLE +
-                signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
-                errorDetailStr + "," + date + "," + date+System.lineSeparator(),
+                        signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
+                        errorDetailStr + "," + date + "," + date + System.lineSeparator(),
                 csv.getBody());
     }
 }

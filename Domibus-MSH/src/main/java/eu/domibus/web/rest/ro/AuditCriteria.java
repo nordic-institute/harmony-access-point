@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.criteria;
+package eu.domibus.web.rest.ro;
 
 import eu.domibus.web.rest.validators.PropsNotBlacklisted;
 import org.springframework.context.annotation.PropertySource;

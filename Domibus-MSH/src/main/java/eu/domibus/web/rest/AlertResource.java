@@ -72,7 +72,7 @@ public class AlertResource {
     }
 
     @GetMapping
-    public AlertResult findAlerts(@Valid AlertFilterRequestRO request, BindingResult bindingResult) throws ValidationException {
+    public AlertResult findAlerts(@Valid AlertFilterRequestRO request, BindingResult bindingResult) {
         errorHandlerService.processBindingResultErrors(bindingResult);
 
         AlertCriteria alertCriteria = getAlertCriteria(request);
@@ -145,7 +145,7 @@ public class AlertResource {
     }
 
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request, BindingResult bindingResult) throws ValidationException {
+    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request, BindingResult bindingResult)  {
         errorHandlerService.processBindingResultErrors(bindingResult);
 
         request.setPage(0);

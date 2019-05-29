@@ -164,22 +164,4 @@ public class AlertFilterRequestRO implements Serializable {
         this.domainAlerts = domainAlerts;
     }
 
-//    @RequestParam(value = "page", defaultValue = "0") int page,
-//    @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-//    @RequestParam(value = "asc", defaultValue = "true") Boolean ask,
-//    @RequestParam(value = "orderBy", required = false) String column,
-//    @RequestParam(value = "processed", required = false) String processed,
-//    @RequestParam(value = "alertType", required = false) String alertType,
-//    @RequestParam(value = "alertStatus", required = false) String alertStatus,
-//    @RequestParam(value = "alertId", required = false) Integer alertId,
-//    @RequestParam(value = "alertLevel", required = false) String alertLevel,
-//    @RequestParam(value = "creationFrom", required = false) String creationFrom,
-//    @RequestParam(value = "creationTo", required = false) String creationTo,
-//    @RequestParam(value = "reportingFrom", required = false) String reportingFrom,
-//    @RequestParam(value = "reportingTo", required = false) String reportingTo,
-//    @RequestParam(value = "parameters", required = false) String[] parameters,
-//    @RequestParam(value = "dynamicFrom", required = false) String dynamicFrom,
-//    @RequestParam(value = "dynamicTo", required = false) String dynamicTo,
-//    @RequestParam(value = "domainAlerts", required = false, defaultValue = "false") Boolean domainAlerts
-
 }

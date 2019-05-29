@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
-import javax.xml.bind.ValidationException;
+import javax.validation.ValidationException;
 import java.util.List;
 
 /**

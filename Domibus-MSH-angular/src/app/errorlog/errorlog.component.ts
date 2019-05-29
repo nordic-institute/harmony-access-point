@@ -195,7 +195,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     }, (error: any) => {
       console.log('error getting the error log:' + error);
       this.loading = false;
-      this.alertService.error('Error occured:' + error);
+      this.alertService.exception('Error occured:', error);
     });
 
   }

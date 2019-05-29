@@ -6,7 +6,7 @@ import eu.domibus.api.audit.AuditLog;
 import eu.domibus.common.model.common.ModificationType;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.web.rest.criteria.AuditCriteria;
+import eu.domibus.web.rest.ro.AuditCriteria;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
