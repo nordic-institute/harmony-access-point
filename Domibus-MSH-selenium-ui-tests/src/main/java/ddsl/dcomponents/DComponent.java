@@ -1,10 +1,12 @@
 package ddsl.dcomponents;
 
 import ddsl.dobjects.DWait;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.TestRunData;
 
 
 /**
@@ -19,6 +21,7 @@ public class DComponent {
 	protected WebDriver driver;
 	public DWait wait;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
+	protected TestRunData data = new TestRunData();
 
 	public DComponent(WebDriver driver) {
 		this.driver = driver;
@@ -26,12 +29,13 @@ public class DComponent {
 	}
 
 	public void clickVoidSpace() {
+		By selector = By.cssSelector("[class*=\"overlay-backdrop\"]");
 		try {
-			wait.forXMillis(500);
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
-			wait.forXMillis(500);
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {	}
+
+		wait.forElementToBeGone(driver.findElement(selector));
+
 	}
 
 }

@@ -10,7 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -23,7 +23,7 @@ import utils.PROPERTIES;
 public class TestServicePage extends DomibusPage {
 	public TestServicePage(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
 	@FindBy(id = "receiverPartyId_id")
@@ -114,8 +114,12 @@ public class TestServicePage extends DomibusPage {
 		);
 	}
 
+	public void waitForEchoRequestData(){
+		wait.forAttributeToContain(toAccessPoint, "value", "http");
+	}
 
-	public boolean isLoaded() {
+
+	public boolean isLoaded() throws Exception{
 		return (getPartySelector().isDisplayed()
 				&& getTestBtn().isPresent()
 				&& getUpdateBtn().isPresent()

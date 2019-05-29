@@ -6,6 +6,8 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DOMIBUS_PAGES;
 import ddsl.enums.DRoles;
+import org.openqa.selenium.JavascriptExecutor;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -27,10 +29,15 @@ import java.util.List;
 
 public class PluginUsersPgTest extends BaseTest {
 
-	protected PluginUsersPage login(HashMap<String, String> user) throws Exception {
+	protected PluginUsersPage login(HashMap<String, String> user){
+		System.out.println("login started");
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(user);
-		new DomibusPage(driver).getSidebar().getPageLnk(DOMIBUS_PAGES.PLUGIN_USERS).click();
+		try {
+			loginPage.login(user);
+			new DomibusPage(driver).getSidebar().getPageLnk(DOMIBUS_PAGES.PLUGIN_USERS).click();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return new PluginUsersPage(driver);
 	}
 
@@ -48,18 +55,20 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "PU-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickRow() throws Exception {
+
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		SoftAssert soft = new SoftAssert();
+
 //		login with Admin and go to plugin users page
 		PluginUsersPage page = login(data.getAdminUser());
+		page.refreshPage();
 
-		DGrid grid = page.grid();
-		int index = grid.scrollTo("User Name", username);
-		HashMap<String, String> row = grid.getRowInfo(index);
+		int index = page.grid().scrollTo("User Name", username);
+		HashMap<String, String> row = page.grid().getRowInfo(index);
 
-		grid.scrollToAndDoubleClick("User Name", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 
 		PluginUserModal pum = new PluginUserModal(driver);
@@ -123,13 +132,16 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is enabled after new user creation");
 
 		page.getSaveBtn().click();
-//		new Dialog(driver).confirm();
+		new Dialog(driver).confirm();
+		page.clickVoidSpace();
 
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
 
 		int index = page.grid().scrollTo("User Name", username);
 		soft.assertTrue(index > -1, "Created user present in grid");
+
+
 
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled after new user persisted");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled after new user persisted");
@@ -152,7 +164,8 @@ public class PluginUsersPgTest extends BaseTest {
 		DGrid grid = page.grid();
 		int index = grid.scrollTo("User Name", username);
 
-		grid.scrollToAndDoubleClick("User Name", username);
+		grid.scrollToAndSelect("User Name", username);
+		page.getEditBtn().click();
 
 		PluginUserModal pum = new PluginUserModal(driver);
 
@@ -201,8 +214,6 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid");
 
 		page.getSaveBtn().click();
-//		there should be confirmation as in all the other pages :(
-//		new Dialog(driver).confirm();
 
 		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid after Save");
 
@@ -213,12 +224,14 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "PU-7", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndCancel() throws Exception {
+		System.out.println("method started");
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
 		PluginUsersPage page = login(data.getAdminUser());
+
 
 		DGrid grid = page.grid();
 		grid.scrollToAndSelect("User Name", username);
@@ -321,15 +334,6 @@ public class PluginUsersPgTest extends BaseTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 
-//		BUG HAS BEEN REPORTED
-
-//		pum.getUserNameInput().fill("#@$%^");
-//		String errMess = pum.getUsernameErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.USERNAME_VALIDATION_MESSAGE, "Username not valid 1 (invalid characters)");
-//
-//		pum.getUserNameInput().fill("a");
-//		errMess = pum.getUsernameErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.USERNAME_VALIDATION_MESSAGE, "Username not valid 2 (too short)");
 
 		pum.getUserNameInput().clear();
 		String errMess = pum.getUsernameErrMess().getText();
@@ -361,6 +365,7 @@ public class PluginUsersPgTest extends BaseTest {
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
 
+		page.clickVoidSpace();
 
 		soft.assertAll();
 	}
@@ -422,7 +427,7 @@ public class PluginUsersPgTest extends BaseTest {
 				break;
 			}
 		}
-		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), domain1);
+		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), rest.getDomainCodeForName(domain1));
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
@@ -449,6 +454,7 @@ public class PluginUsersPgTest extends BaseTest {
 		PluginUsersPage page = login(data.getAdminUser());
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
@@ -477,6 +483,7 @@ public class PluginUsersPgTest extends BaseTest {
 		PluginUsersPage page = login(data.getAdminUser());
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
@@ -505,6 +512,7 @@ public class PluginUsersPgTest extends BaseTest {
 		PluginUsersPage page = login(data.getAdminUser());
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
@@ -525,6 +533,7 @@ public class PluginUsersPgTest extends BaseTest {
 		PluginUsersPage page = login(data.getAdminUser());
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),

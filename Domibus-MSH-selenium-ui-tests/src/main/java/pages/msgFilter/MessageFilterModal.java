@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -22,7 +22,7 @@ import utils.PROPERTIES;
 public class MessageFilterModal extends EditModal {
 	public MessageFilterModal(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		log.info("Filter details popup initialized");
 	}
 
