@@ -1,24 +1,20 @@
 package eu.domibus.web.rest.ro;
 
 import eu.domibus.web.rest.validators.ItemsNotBlacklisted;
-import eu.domibus.web.rest.validators.NotBlacklisted;
+import eu.domibus.web.rest.validators.PropsNotBlacklisted;
 
 import java.util.List;
 
 /**
  * Created by musatmi on 15/05/2017.
  */
+@PropsNotBlacklisted
 public class MessagesActionRequestRO {
 
-    @NotBlacklisted
     private String source;
-    @NotBlacklisted
     private String type;
-    @NotBlacklisted
     private String content;
-    @NotBlacklisted
     private String destination;
-    @ItemsNotBlacklisted
     private List<String> selectedMessages;
     private Action action;
 

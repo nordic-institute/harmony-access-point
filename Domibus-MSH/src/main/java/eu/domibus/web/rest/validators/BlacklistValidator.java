@@ -13,16 +13,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class BlacklistValidator extends BaseBlacklistValidator<NotBlacklisted, String> {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(BlacklistValidator.class);
-    private String message = NotBlacklisted.MESSAGE;
-
     @Override
     protected String getErrorMessage() {
-        return message;
+        return NotBlacklisted.MESSAGE;
     }
 
     public boolean isValid(String value) {
-        return super.isStringValid(value);
+        return super.isValidValue(value);
     }
 
 }

@@ -2,6 +2,7 @@ package eu.domibus.web.rest.validators;
 
 import com.google.common.base.Strings;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Custom validator that checks that the value does not contain any char from the blacklist
@@ -27,6 +29,8 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
+    private ConstraintValidatorContext context;
+    private ConstraintValidatorContext context1;
 
     public void init() {
         if (blacklist == null) {
@@ -71,11 +75,20 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public abstract boolean isValid(T value);
 
-    protected boolean isStringValid(String value) {
+    protected boolean isValidValue(String value) {
         if (Strings.isNullOrEmpty(value)) {
             return true;
         }
 
         return !Arrays.stream(blacklist).anyMatch(el -> value.contains(el.toString()));
     }
+
+    public boolean isValidValue(List<String> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return true;
+        }
+
+        return list.stream().allMatch(el -> isValidValue(el));
+    }
+
 }

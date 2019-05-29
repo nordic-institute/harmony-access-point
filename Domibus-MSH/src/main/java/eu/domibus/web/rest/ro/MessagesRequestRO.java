@@ -14,7 +14,6 @@ public class MessagesRequestRO {
     private String jmsType;
     private Date fromDate;
     private Date toDate;
-    //@NotBlacklisted
     private String selector;
 
     public String getSource() {

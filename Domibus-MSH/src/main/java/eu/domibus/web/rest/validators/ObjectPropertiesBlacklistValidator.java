@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,25 +31,44 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
     @Override
     public boolean isValid(Object obj) {
         List<Field> stringFields = Arrays.stream(obj.getClass().getDeclaredFields())
-                .filter(field -> field.getType() == String.class).collect(Collectors.toList());
+                .filter(field -> field.getType() == String.class || isStringList(field))
+                .collect(Collectors.toList());
         stringFields.forEach(field -> field.setAccessible(true));
         return stringFields.stream().allMatch(field -> isFieldValid(obj, field));
     }
 
-    private String getValueSafely(Object obj, Field field) {
+    private Object getValueSafely(Object obj, Field field) {
         try {
-            return (String) field.get(obj);
+            return field.get(obj);
         } catch (IllegalAccessException e) {
             return null;
         }
     }
 
     protected boolean isFieldValid(Object obj, Field field) {
-        String val = getValueSafely(obj, field);
-        boolean isValid = super.isStringValid(val);
+        Object val = getValueSafely(obj, field);
+        if (val == null) {
+            return true;
+        }
+        boolean isValid;
+        if (val instanceof String) {
+            isValid = super.isValidValue((String) val);
+        } else {
+            isValid = super.isValidValue((List<String>) val);
+        }
         if (!isValid) {
             message = String.format(PropsNotBlacklisted.MESSAGE, field.getName());
         }
         return isValid;
+    }
+
+    private boolean isStringList(Field field) {
+        Type type = field.getGenericType();
+        if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) type;
+            Type[] args = pt.getActualTypeArguments();
+            return args.length == 1 && args[0].getTypeName().equals(String.class.getTypeName());
+        }
+        return false;
     }
 }
