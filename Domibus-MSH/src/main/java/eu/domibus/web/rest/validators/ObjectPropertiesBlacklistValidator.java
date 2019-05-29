@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Custom validator that checks that the value does not contain any char from the blacklist
+ * Custom validator for classes that checks if all properties of type String and List[String]
+ *  do not contain any char from the blacklist
  *
  * @author Ion Perpegel
  * @since 4.1
@@ -45,7 +46,7 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
         }
     }
 
-    protected boolean isFieldValid(Object obj, Field field) {
+    private boolean isFieldValid(Object obj, Field field) {
         Object val = getValueSafely(obj, field);
         if (val == null) {
             return true;

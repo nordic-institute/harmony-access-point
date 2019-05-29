@@ -11,32 +11,40 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Custom validator that checks that the value does not contain any char from the blacklist
+ * The base, abstract class for custom validators that check that the value does not contain any char from the blacklist
  *
  * @author Ion Perpegel
  * @since 4.1
  */
 @Component
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
-
     //private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
-    protected Character[] blacklist = null;
 
+    protected Set<Character> whitelist = null;
+    protected Set<Character> blacklist = null;
+
+    public static final String WHITELIST_PROPERTY = "domibus.userInput.whiteList";
     public static final String BLACKLIST_PROPERTY = "domibus.userInput.blackList";
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
-    private ConstraintValidatorContext context;
-    private ConstraintValidatorContext context1;
 
     public void init() {
+        if (whitelist == null) {
+            String propValue = domibusPropertyProvider.getProperty(WHITELIST_PROPERTY);
+            if (!Strings.isNullOrEmpty(propValue)) {
+                whitelist = new HashSet<>(Arrays.asList(ArrayUtils.toObject(propValue.toCharArray())));
+            }
+        }
         if (blacklist == null) {
-            String blacklistValue = domibusPropertyProvider.getProperty(BLACKLIST_PROPERTY);
-            if (!Strings.isNullOrEmpty(blacklistValue)) {
-                this.blacklist = ArrayUtils.toObject(blacklistValue.toCharArray());
+            String propValue = domibusPropertyProvider.getProperty(BLACKLIST_PROPERTY);
+            if (!Strings.isNullOrEmpty(propValue)) {
+                this.blacklist = new HashSet<>(Arrays.asList(ArrayUtils.toObject(propValue.toCharArray())));
             }
         }
     }
@@ -48,10 +56,10 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     @Override
     public boolean isValid(T value, ConstraintValidatorContext context) {
-        if (ArrayUtils.isEmpty(blacklist)) {
+        if (value == null) {
             return true;
         }
-        if (value == null) {
+        if (CollectionUtils.isEmpty(blacklist) && CollectionUtils.isEmpty(whitelist)) {
             return true;
         }
 
@@ -75,14 +83,6 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public abstract boolean isValid(T value);
 
-    protected boolean isValidValue(String value) {
-        if (Strings.isNullOrEmpty(value)) {
-            return true;
-        }
-
-        return !Arrays.stream(blacklist).anyMatch(el -> value.contains(el.toString()));
-    }
-
     public boolean isValidValue(List<String> list) {
         if (CollectionUtils.isEmpty(list)) {
             return true;
@@ -91,4 +91,30 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return list.stream().allMatch(el -> isValidValue(el));
     }
 
+    protected boolean isValidValue(String value) {
+        return isWhiteListValid(value) && isBlackListValid(value);
+    }
+
+    protected boolean isWhiteListValid(String value) {
+        if (whitelist == null) {
+            return true;
+        }
+        if (Strings.isNullOrEmpty(value)) {
+            return true;
+        }
+        boolean res = value.chars().mapToObj(c -> (char) c).allMatch(el -> whitelist.contains(el));
+        return res;
+    }
+
+    protected boolean isBlackListValid(String value) {
+        if (blacklist == null) {
+            return true;
+        }
+        if (Strings.isNullOrEmpty(value)) {
+            return true;
+        }
+
+        boolean res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el));
+        return res;
+    }
 }
