@@ -8,6 +8,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.TestRunData;
 
+import java.util.Calendar;
+
 
 /**
  * @author Catalin Comanici
@@ -62,20 +64,30 @@ public class DWait {
 	}
 
 	public void forElementToBe(WebElement element) {
-		int secs = 0;
-		while (secs < data.getTIMEOUT() * 10) {
-			try {
-				if (null != element.getText()) {
-					break;
-				}
-			} catch (Exception e) {
+
+		webDriverWait.until(new ExpectedCondition<Boolean>() {
+			@NullableDecl
+			@Override
+			public Boolean apply(@NullableDecl WebDriver driver) {
+				return element != null;
 			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-			secs++;
-		}
+		});
+
+//		int secs = 0;
+//		while (secs < data.getTIMEOUT() * 10) {
+//			try {
+//				if (null != element.getText()) {
+//					break;
+//				}
+//
+//			} catch (Exception e) {
+//			}
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//			}
+//			secs++;
+//		}
 	}
 
 	public void forAttributeToContain(WebElement element, String attributeName, String value) {

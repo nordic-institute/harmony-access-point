@@ -145,7 +145,7 @@
 							<groups>singleTenancy</groups>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
-								<runBrowser>firefox</runBrowser>
+								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
 
 						</configuration>
