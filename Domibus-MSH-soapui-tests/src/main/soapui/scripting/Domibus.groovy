@@ -1866,9 +1866,9 @@ static def updateAuthenticationForTestSuite(filterForTestSuite, context, log, en
     context.testCase.testSuite.project.getTestSuiteList().each { testSuite ->
             if (testSuite.getLabel() =~ filterForTestSuite) {
                 debugLog("test suite: " + testSuite.getLabel(), log)
-                testSuite.getTestCaseList().each { testCase ->
+                testSuite.getTestCaseList().findAll{ ! it.isDisabled() }.each { testCase ->
                         debugLog("test label:" + testCase.getLabel(), log)
-                         testCase.getTestStepList().each { testStep ->
+                         testCase.getTestStepList().findAll{ ! it.isDisabled() }.each { testStep ->
                             if (testStep instanceof com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequestStep) {
                                 debugLog("Ammending test step: " + testStep.name, log)
                                 def httpRequest = testStep.getHttpRequest()
