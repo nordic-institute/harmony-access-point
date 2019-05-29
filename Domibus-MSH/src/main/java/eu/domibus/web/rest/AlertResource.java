@@ -15,17 +15,17 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
+import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.util.AbstractMap.SimpleImmutableEntry;
@@ -58,41 +58,14 @@ public class AlertResource {
     @Autowired
     private ErrorHandlerService errorHandlerService;
 
+    @Autowired
+    ObjectPropertiesBlacklistValidator blacklistValidator;
 
-    //    public AlertResult findAlerts(@RequestParam(value = "page", defaultValue = "0") int page,
-//                                  @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-//                                  @RequestParam(value = "asc", defaultValue = "true") Boolean ask,
-//                                  @RequestParam(value = "orderBy", required = false) String column,
-//                                  @RequestParam(value = "processed", required = false) String processed,
-//                                  @RequestParam(value = "alertType", required = false) String alertType,
-//                                  @RequestParam(value = "alertStatus", required = false) String alertStatus,
-//                                  @RequestParam(value = "alertId", required = false) Integer alertId,
-//                                  @RequestParam(value = "alertLevel", required = false) String alertLevel,
-//                                  @RequestParam(value = "creationFrom", required = false) String creationFrom,
-//                                  @RequestParam(value = "creationTo", required = false) String creationTo,
-//                                  @RequestParam(value = "reportingFrom", required = false) String reportingFrom,
-//                                  @RequestParam(value = "reportingTo", required = false) String reportingTo,
-//                                  @RequestParam(value = "parameters", required = false) String[] parameters,
-//                                  @RequestParam(value = "dynamicFrom", required = false) String dynamicaPropertyFrom,
-//                                  @RequestParam(value = "dynamicTo", required = false) String dynamicaPropertyTo,
-//                                  @RequestParam(value = "domainAlerts", required = false, defaultValue = "false") Boolean domainAlerts) {
-//            AlertCriteria alertCriteria = getAlertCriteria(
-//            page,
-//            pageSize,
-//            ask,
-//            column,
-//            processed,
-//            alertType,
-//            alertStatus,
-//            alertId,
-//            alertLevel,
-//            creationFrom,
-//            creationTo,
-//            reportingFrom,
-//            reportingTo,
-//            parameters,
-//            dynamicaPropertyFrom,
-//            dynamicaPropertyTo);
+    @PostConstruct
+    public void init() {
+        blacklistValidator.init();
+    }
+
     @GetMapping
     public AlertResult findAlerts(@Valid AlertFilterRequestRO request, BindingResult bindingResult) throws ValidationException {
         errorHandlerService.processBindingResultErrors(bindingResult);
@@ -105,7 +78,6 @@ public class AlertResource {
 
         return domainTaskExecutor.submit(() -> retrieveAlerts(alertCriteria, true));
     }
-
 
 
     protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
@@ -157,6 +129,8 @@ public class AlertResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
+        alertRos.forEach(alert->blacklistValidator.validate(alert));
+
         final List<Alert> domainAlerts = alertRos.stream().filter(Objects::nonNull).filter(alertRo -> !alertRo.isSuperAdmin()).map(this::toAlert).collect(Collectors.toList());
         final List<Alert> superAlerts = alertRos.stream().filter(Objects::nonNull).filter(AlertRo::isSuperAdmin).map(this::toAlert).collect(Collectors.toList());
         alertService.updateAlertProcessed(domainAlerts);
@@ -164,41 +138,8 @@ public class AlertResource {
     }
 
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
-//    public ResponseEntity<String> getCsv(@RequestParam(value = "page", defaultValue = "0") int page,
-//                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-//                                         @RequestParam(value = "asc", defaultValue = "true") Boolean ask,
-//                                         @RequestParam(value = "orderBy", required = false) String column,
-//                                         @RequestParam(value = "processed", required = false) String processed,
-//                                         @RequestParam(value = "alertType", required = false) String alertType,
-//                                         @RequestParam(value = "alertStatus", required = false) String alertStatus,
-//                                         @RequestParam(value = "alertId", required = false) Integer alertId,
-//                                         @RequestParam(value = "alertLevel", required = false) String alertLevel,
-//                                         @RequestParam(value = "creationFrom", required = false) String creationFrom,
-//                                         @RequestParam(value = "creationTo", required = false) String creationTo,
-//                                         @RequestParam(value = "reportingFrom", required = false) String reportingFrom,
-//                                         @RequestParam(value = "reportingTo", required = false) String reportingTo,
-//                                         @RequestParam(value = "parameters", required = false) String[] nonDateDynamicParameters,
-//                                         @RequestParam(value = "dynamicFrom", required = false) String dynamicaPropertyFrom,
-//                                         @RequestParam(value = "dynamicTo", required = false) String dynamicaPropertyTo,
-//                                         @RequestParam(value = "domainAlerts", required = false, defaultValue = "false") Boolean domainAlerts) {
-//        AlertCriteria alertCriteria = getAlertCriteria(
-//                0,
-//                csvServiceImpl.getMaxNumberRowsToExport(),
-//                ask,
-//                column,
-//                processed,
-//                alertType,
-//                alertStatus,
-//                alertId,
-//                alertLevel,
-//                creationFrom,
-//                creationTo,
-//                reportingFrom,
-//                reportingTo,
-//                nonDateDynamicParameters,
-//                dynamicaPropertyFrom,
-//                dynamicaPropertyTo);
+    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request, BindingResult bindingResult) throws ValidationException {
+        errorHandlerService.processBindingResultErrors(bindingResult);
 
         request.setPage(0);
         request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
@@ -244,10 +185,6 @@ public class AlertResource {
         return alertRoList;
     }
 
-    //    private AlertCriteria getAlertCriteria(int page, int pageSize, Boolean ask, String column, String
-//            processed, String alertType, String alertStatus, Integer alertId, String alertLevel, String creationFrom, String
-//           creationTo, String reportingFrom, String reportingTo, String[] parameters, String dynamicaPropertyFrom, String
-//           dynamicaPropertyTo) {
     private AlertCriteria getAlertCriteria(AlertFilterRequestRO request) {
         AlertCriteria alertCriteria = new AlertCriteria();
         alertCriteria.setPage(request.getPage());

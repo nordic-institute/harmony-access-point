@@ -340,7 +340,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
       super.resetFilters();
       // todo: add dynamic params for csv filtering, if requested
-      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createStaticSearchParams().toString());
+      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?'
+        + this.createSearchParams().toString());
     }
   }
 
@@ -358,7 +359,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     const dialogRef = this.dialog.open(SaveDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.http.put(AlertsComponent.ALERTS_URL, JSON.stringify(this.rows), {headers: new Headers({'Content-Type': 'application/json'})}).subscribe(() => {
+        this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
           this.alertService.success('The operation \'update alerts\' completed successfully.', false);
           this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
           this.isDirty = false;
@@ -366,7 +367,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
             DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
           }
         }, err => {
-          this.alertService.error('The operation \'update alerts\' not completed successfully (' + err.status + ').', false);
+          this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
           this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
         });
       } else {
