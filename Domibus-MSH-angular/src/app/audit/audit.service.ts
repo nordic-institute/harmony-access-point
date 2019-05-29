@@ -49,10 +49,10 @@ export class AuditService {
       result += 'action=' + auditCriteria.action + '&';
     }
     if(!isNullOrUndefined(auditCriteria.from)) {
-      result += 'from=' + auditCriteria.from.getTime() + '&';
+      result += 'from=' + auditCriteria.from.toISOString() + '&';
     }
     if(!isNullOrUndefined(auditCriteria.to)) {
-      result += 'to=' + auditCriteria.to.getTime() + '&';
+      result += 'to=' + auditCriteria.to.toISOString() + '&';
     }
     return result;
   }

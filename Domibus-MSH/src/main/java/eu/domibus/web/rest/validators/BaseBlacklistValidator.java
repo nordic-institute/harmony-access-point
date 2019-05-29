@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The base, abstract class for custom validators that check that the value does not contain any char from the blacklist
@@ -93,6 +90,10 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     protected boolean isValidValue(String[] values) {
         return isValidValue(Arrays.asList(values));
+    }
+
+    protected boolean isValidValue(Set<String> values) {
+        return isValidValue(new ArrayList<>(values));
     }
 
     protected boolean isValidValue(String value) {

@@ -1,5 +1,9 @@
 package eu.domibus.web.rest.criteria;
 
+import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 import java.util.Set;
 
@@ -9,6 +13,7 @@ import java.util.Set;
  *
  * Criteria class to filter the audit logs.
  */
+@PropsNotBlacklisted
 public class AuditCriteria {
 
     /**
@@ -29,11 +34,13 @@ public class AuditCriteria {
     /**
      * Date from which we want to retrieve audit logs.
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date from;
 
     /**
      * Date to which we want to retrieve audit logs.
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date to;
 
     /**

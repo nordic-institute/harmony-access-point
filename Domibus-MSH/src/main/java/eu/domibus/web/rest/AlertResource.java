@@ -15,6 +15,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
+import eu.domibus.web.rest.validators.BlacklistValidator;
 import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -59,10 +60,14 @@ public class AlertResource {
     private ErrorHandlerService errorHandlerService;
 
     @Autowired
-    ObjectPropertiesBlacklistValidator blacklistValidator;
+    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
+
+    @Autowired
+    BlacklistValidator blacklistValidator;
 
     @PostConstruct
     public void init() {
+        objectBlacklistValidator.init();
         blacklistValidator.init();
     }
 
@@ -111,6 +116,8 @@ public class AlertResource {
 
     @GetMapping(path = "/params")
     public List<String> getAlertParameters(@RequestParam(value = "alertType") String aType) {
+        blacklistValidator.validate(aType);
+
         AlertType alertType;
         try {
             alertType = AlertType.valueOf(aType);
@@ -129,7 +136,7 @@ public class AlertResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        alertRos.forEach(alert->blacklistValidator.validate(alert));
+        alertRos.forEach(alert->objectBlacklistValidator.validate(alert));
 
         final List<Alert> domainAlerts = alertRos.stream().filter(Objects::nonNull).filter(alertRo -> !alertRo.isSuperAdmin()).map(this::toAlert).collect(Collectors.toList());
         final List<Alert> superAlerts = alertRos.stream().filter(Objects::nonNull).filter(AlertRo::isSuperAdmin).map(this::toAlert).collect(Collectors.toList());

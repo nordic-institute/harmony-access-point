@@ -9,10 +9,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Custom validator for classes that checks if all properties of type String and List[String]
+ * Custom validator for classes that checks if all properties of type String and collections of String
  * do not contain any char from the blacklist
  *
  * @author Ion Perpegel
@@ -32,7 +33,7 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
     @Override
     public boolean isValid(Object obj) {
         List<Field> stringFields = Arrays.stream(obj.getClass().getDeclaredFields())
-                .filter(field -> isString(field) || isStringList(field) || isStringArray(field))
+                .filter(field -> isString(field) || isStringList(field) || isStringArray(field) || isStringSet(field))
                 .collect(Collectors.toList());
         stringFields.forEach(field -> field.setAccessible(true));
         return stringFields.stream().allMatch(field -> isFieldValid(obj, field));
@@ -58,6 +59,8 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
             isValid = super.isValidValue((List<String>) val);
         } else if (isStringArray(field)) {
             isValid = super.isValidValue((String[]) val);
+        } else if (isStringSet(field)) {
+            isValid = super.isValidValue((Set<String>) val);
         } else {
             return true;
         }
@@ -72,6 +75,24 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
     }
 
     private boolean isStringList(Field field) {
+        if (!field.getType().equals(List.class)) {
+            return false;
+        }
+        return isGenericOfString(field);
+    }
+
+    private boolean isStringSet(Field field) {
+        if (!field.getType().equals(Set.class)) {
+            return false;
+        }
+        return isGenericOfString(field);
+    }
+
+    private boolean isStringArray(Field field) {
+        return field.getType().equals(String[].class);
+    }
+
+    private boolean isGenericOfString(Field field) {
         Type type = field.getGenericType();
         if (type instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) type;
@@ -79,9 +100,5 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
             return args.length == 1 && args[0].getTypeName().equals(String.class.getTypeName());
         }
         return false;
-    }
-
-    private boolean isStringArray(Field field) {
-        return field.getType().equals(String[].class);
     }
 }
