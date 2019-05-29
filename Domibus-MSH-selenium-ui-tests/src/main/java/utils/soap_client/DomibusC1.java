@@ -1,7 +1,7 @@
 package utils.soap_client;
 
 
-import com.sun.xml.internal.ws.developer.JAXWSProperties;
+//import com.sun.xml.internal.ws.developer.JAXWSProperties;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.webService.generated.BackendInterface;
@@ -84,7 +84,8 @@ public class DomibusC1 {
 		}
 
 		Map<String, Object> ctxt = bindingProvider.getRequestContext();
-		ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+//		ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+		ctxt.put("com.sun.xml.internal.ws.transport.http.client.streaming.chunk.size", 8192);
 		//enable MTOM
 		SOAPBinding binding = (SOAPBinding) bindingProvider.getBinding();
 		binding.setMTOMEnabled(true);
