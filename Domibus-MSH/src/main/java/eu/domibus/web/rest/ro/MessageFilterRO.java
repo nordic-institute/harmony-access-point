@@ -1,6 +1,7 @@
 package eu.domibus.web.rest.ro;
 
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.web.rest.validators.PropsNotBlacklisted;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @author Tiago Miguel
  * @since 3.3
  */
+@PropsNotBlacklisted
 public class MessageFilterRO implements Serializable {
 
     private int entityId;

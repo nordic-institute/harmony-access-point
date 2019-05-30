@@ -9,18 +9,15 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
+import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,19 +39,22 @@ public class MessageFilterResource {
     @Autowired
     private MessageFilterCsvServiceImpl messageFilterCsvServiceImpl;
 
-    protected Pair<List<MessageFilterRO>,Boolean> getBackendFiltersInformation() {
+    @Autowired
+    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
+
+    protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
         boolean areFiltersPersisted = true;
         List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
         List<MessageFilterRO> messageFilterResultROS = coreConverter.convert(backendFilters, MessageFilterRO.class);
         for (MessageFilterRO messageFilter : messageFilterResultROS) {
-            if(messageFilter.getEntityId() == 0) {
+            if (messageFilter.getEntityId() == 0) {
                 messageFilter.setPersisted(false);
                 areFiltersPersisted = false;
             } else {
                 messageFilter.setPersisted(true);
             }
         }
-        return new ImmutablePair<>(messageFilterResultROS,areFiltersPersisted);
+        return new ImmutablePair<>(messageFilterResultROS, areFiltersPersisted);
     }
 
     @GetMapping
@@ -69,6 +69,11 @@ public class MessageFilterResource {
 
     @PutMapping
     public void updateMessageFilters(@RequestBody List<MessageFilterRO> messageFilterROS) {
+        messageFilterROS.forEach(el -> {
+            objectBlacklistValidator.validate(el);
+            el.getRoutingCriterias().forEach(crit -> objectBlacklistValidator.validate(crit));
+        });
+
         List<BackendFilter> backendFilters = coreConverter.convert(messageFilterROS, BackendFilter.class);
         routingService.updateBackendFilters(backendFilters);
     }
