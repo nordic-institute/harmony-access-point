@@ -37,9 +37,9 @@ class Domibus{
     static def DEFAULT_LOG_LEVEL = 1;
     static def DEFAULT_PASSWORD = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
     static def SUPER_USER="super";
-    static def SUPER_USER_PWD="Domibus-123";
+    static def SUPER_USER_PWD="123456";
     static def DEFAULT_ADMIN_USER="admin";
-    static def DEFAULT_ADMIN_USER_PWD="Domibus-123";
+    static def DEFAULT_ADMIN_USER_PWD="123456";
     static def TRUSTSTORE_PASSWORD="test123";
     static def MAX_LOGIN_BEFORE_LOCK = 5;
     static def XSFRTOKEN_C2=null;
@@ -1543,7 +1543,7 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 
-        commandString = "curl " + urlToDomibus(side, log, context) + "/rest/security/authentication -i -H \"Content-Type: application/json\" -X POST -d \"{\"\"\"username\"\"\":\"\"\"$userLogin\"\"\",\"\"\"password\"\"\":\"\"\"$passwordLogin\"\"\"}\" -c " + context.expand('${projectDir}') + "\\cookie.txt";
+        commandString = "curl " + urlToDomibus(side, log, context) + "/rest/security/authentication -i -H \"Content-Type: application/json\" -X POST -d \'{\"username\":\"$userLogin\",\"password\":\"$passwordLogin\"}\' -c " + context.expand('${projectDir}') + "\\cookie.txt";
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus."
         return commandResult[0];
