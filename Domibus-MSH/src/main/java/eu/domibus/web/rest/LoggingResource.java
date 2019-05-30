@@ -6,14 +6,19 @@ import eu.domibus.core.logging.LoggingService;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.LoggingLevelResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/rest/logging")
+@Validated
 public class LoggingResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResource.class);
 
@@ -35,6 +41,8 @@ public class LoggingResource {
     @Autowired
     private LoggingService loggingService;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler({LoggingException.class})
@@ -50,7 +58,7 @@ public class LoggingResource {
      * @return response of the operation
      */
     @PostMapping(value = "/loglevel")
-    public ResponseEntity<String> setLogLevel(@RequestBody LoggingLevelRO request) {
+    public ResponseEntity<String> setLogLevel(@RequestBody @Valid LoggingLevelRO request) {
         final String name = request.getName();
         final String level = request.getLevel();
 
@@ -67,20 +75,16 @@ public class LoggingResource {
     }
 
     @GetMapping(value = "/loglevel")
-    public ResponseEntity<LoggingLevelResultRO> getLogLevel(@RequestParam(value = "loggerName", defaultValue = "eu.domibus", required = false) String loggerName,
-                                                            @RequestParam(value = "showClasses", defaultValue = "false", required = false) boolean showClasses,
-                                                            @RequestParam(value = "page", defaultValue = "0") int page,
-                                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                                            @RequestParam(value = "orderBy", required = false) String column,
-                                                            @RequestParam(value = "asc", defaultValue = "true") boolean asc) {
-
+    public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request, BindingResult bindingResult) {
+        errorHandlerService.processBindingResultErrors(bindingResult);
 
         final LoggingLevelResultRO resultRO = new LoggingLevelResultRO();
-        List<LoggingLevelRO> loggingEntries = domainConverter.convert(loggingService.getLoggingLevel(loggerName, showClasses), LoggingLevelRO.class);
+        List<LoggingLevelRO> loggingEntries = domainConverter.
+                convert(loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses()), LoggingLevelRO.class);
 
         int count = loggingEntries.size();
-        int fromIndex = pageSize * page;
-        int toIndex = fromIndex + pageSize;
+        int fromIndex = request.getPageSize() * request.getPage();
+        int toIndex = fromIndex + request.getPageSize();
         if (toIndex > count) {
             toIndex = count;
         }
@@ -89,12 +93,12 @@ public class LoggingResource {
 
         //add the filter
         HashMap<String, Object> filter = new HashMap<>();
-        filter.put("loggerName", loggerName);
-        filter.put("showClasses", showClasses);
+        filter.put("loggerName", request.getLoggerName());
+        filter.put("showClasses", request.isShowClasses());
         resultRO.setFilter(filter);
 
-        resultRO.setPage(page);
-        resultRO.setPageSize(pageSize);
+        resultRO.setPage(request.getPage());
+        resultRO.setPageSize(request.getPageSize());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

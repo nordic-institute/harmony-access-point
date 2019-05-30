@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.PropsNotBlacklisted;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @author Catalin Enache
  * @since 4.1
  */
+@PropsNotBlacklisted
 public class LoggingLevelRO implements Serializable {
 
     private String name;
