@@ -80,20 +80,15 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public abstract boolean isValid(T value);
 
-    public boolean isValidValue(List<String> values) {
+    protected boolean isValidValue(Collection<String> values) {
         if (CollectionUtils.isEmpty(values)) {
             return true;
         }
-
         return values.stream().allMatch(el -> isValidValue(el));
     }
 
     protected boolean isValidValue(String[] values) {
         return isValidValue(Arrays.asList(values));
-    }
-
-    protected boolean isValidValue(Set<String> values) {
-        return isValidValue(new ArrayList<>(values));
     }
 
     protected boolean isValidValue(String value) {

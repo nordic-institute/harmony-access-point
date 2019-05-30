@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.ItemsNotBlacklisted;
 import eu.domibus.web.rest.validators.PropsNotBlacklisted;
 
 import java.util.List;

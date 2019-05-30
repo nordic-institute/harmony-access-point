@@ -433,7 +433,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.rows = newRows;
       },
       error => {
-        this.alertService.error('The operation \'move messages\' could not be completed: ' + error);
+        this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
       }
     )
   }

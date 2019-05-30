@@ -8,8 +8,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +33,7 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
     @Override
     public boolean isValid(Object obj) {
         List<Field> stringFields = Arrays.stream(obj.getClass().getDeclaredFields())
-                .filter(field -> isString(field) || isStringList(field) || isStringArray(field) || isStringSet(field))
+                .filter(field -> isString(field) || isStringArray(field) || isStringCollection(field))
                 .collect(Collectors.toList());
         stringFields.forEach(field -> field.setAccessible(true));
         return stringFields.stream().allMatch(field -> isFieldValid(obj, field));
@@ -55,12 +55,10 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
         boolean isValid;
         if (isString(field)) {
             isValid = super.isValidValue((String) val);
-        } else if (isStringList(field)) {
-            isValid = super.isValidValue((List<String>) val);
         } else if (isStringArray(field)) {
             isValid = super.isValidValue((String[]) val);
-        } else if (isStringSet(field)) {
-            isValid = super.isValidValue((Set<String>) val);
+        } else if (isStringCollection(field)) {
+            isValid = super.isValidValue((Collection<String>) val);
         } else {
             return true;
         }
@@ -74,15 +72,8 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
         return field.getType().equals(String.class);
     }
 
-    private boolean isStringList(Field field) {
-        if (!field.getType().equals(List.class)) {
-            return false;
-        }
-        return isGenericOfString(field);
-    }
-
-    private boolean isStringSet(Field field) {
-        if (!field.getType().equals(Set.class)) {
+    private boolean isStringCollection(Field field) {
+        if (!Collection.class.isAssignableFrom(field.getType())) {
             return false;
         }
         return isGenericOfString(field);
