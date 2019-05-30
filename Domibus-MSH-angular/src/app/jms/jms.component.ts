@@ -258,8 +258,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.http.post('rest/jms/messages', {
       source: this.activeFilter.source,
       jmsType: this.activeFilter.jmsType,
-      fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
-      toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
+      fromDate: this.activeFilter.fromDate,
+      toDate: this.activeFilter.toDate,
+      // fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
+      // toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
       selector: this.activeFilter.selector,
     }).subscribe(
       (response: Response) => {
@@ -462,10 +464,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       result += 'jmsType=' + this.activeFilter.jmsType + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.fromDate)) {
-      result += 'fromDate=' + this.activeFilter.fromDate.getTime() + '&';
+      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.toDate)) {
-      result += 'toDate=' + this.activeFilter.toDate.getTime() + '&';
+      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.selector)) {
       result += 'selector=' + this.activeFilter.selector + '&';

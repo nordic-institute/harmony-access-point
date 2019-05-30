@@ -13,11 +13,13 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.AuditCriteria;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,6 +61,9 @@ public class AuditResource {
     @Autowired
     CsvServiceImpl csvServiceImpl;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
     /**
      * Entry point of the Audit rest service to list the system audit logs.
      *
@@ -66,7 +71,7 @@ public class AuditResource {
      * @return an audit list.
      */
     @RequestMapping(value = {"/list"}, method = RequestMethod.POST)
-    public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditCriteria auditCriteria) {
+    public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
         LOG.debug("Audit criteria received:" + auditCriteria.toString());
 
         List<AuditLog> sourceList = auditService.listAudit(
@@ -83,7 +88,7 @@ public class AuditResource {
 
 
     @RequestMapping(value = {"/count"}, method = RequestMethod.POST)
-    public Long countAudits(@RequestBody @Valid AuditCriteria auditCriteria) {
+    public Long countAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),
@@ -127,7 +132,9 @@ public class AuditResource {
      * @return CSV file with the contents of Audit table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(@Valid AuditCriteria auditCriteria) {
+    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria, BindingResult bindingResult) {
+        errorHandlerService.processBindingResultErrors(bindingResult);
+
         String resultText;
         auditCriteria.setStart(0);
         auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());

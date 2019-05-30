@@ -14,7 +14,7 @@ import java.util.Set;
  * Criteria class to filter the audit logs.
  */
 @PropsNotBlacklisted
-public class AuditCriteria {
+public class AuditFilterRequestRO {
 
     /**
      * Type of audit.
@@ -111,7 +111,7 @@ public class AuditCriteria {
 
     @Override
     public String toString() {
-        return "AuditCriteria{" +
+        return "AuditFilterRequestRO{" +
                 "auditTargetName=" + auditTargetName +
                 ", action=" + action +
                 ", user=" + user +

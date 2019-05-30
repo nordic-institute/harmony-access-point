@@ -1,6 +1,7 @@
 package eu.domibus.web.rest.ro;
 
 import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -8,11 +9,13 @@ import java.util.Date;
  * Created by musatmi on 15/05/2017.
  */
 @PropsNotBlacklisted
-public class MessagesRequestRO {
+public class JmsFilterRequestRO {
 
     private String source;
     private String jmsType;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date fromDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
     private String selector;
 

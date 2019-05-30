@@ -10,18 +10,22 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,6 +48,9 @@ public class JmsResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
     @RequestMapping(value = {"/destinations"}, method = GET)
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
@@ -62,9 +69,8 @@ public class JmsResource {
         }
     }
 
-
     @RequestMapping(value = {"/messages"}, method = POST)
-    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid MessagesRequestRO request) {
+    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid JmsFilterRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
         try {
@@ -118,29 +124,21 @@ public class JmsResource {
     /**
      * This method returns a CSV file with the contents of JMS Messages table
      *
-     * @param source   queue or topic
-     * @param jmsType  type of the JMS message
-     * @param fromDate starting date
-     * @param toDate   ending date
-     * @param selector jms selector (additional search criteria)
      * @return CSV file with the contents of JMS Messages table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(
-            @RequestParam(value = "source") String source,
-            @RequestParam(value = "jmsType", required = false) String jmsType,
-            @RequestParam(value = "fromDate", required = false) Long fromDate,
-            @RequestParam(value = "toDate", required = false) Long toDate,
-            @RequestParam(value = "selector", required = false) String selector) {
+    public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request, BindingResult bindingResult) {
+        errorHandlerService.processBindingResultErrors(bindingResult);
+
         String resultText;
 
         // get list of messages
         final List<JmsMessage> jmsMessageList = jmsManager.browseMessages(
-                source,
-                jmsType,
-                fromDate == null ? null : new Date(fromDate),
-                toDate == null ? null : new Date(toDate),
-                selector)
+                request.getSource(),
+                request.getJmsType(),
+                request.getFromDate(),
+                request.getToDate(),
+                request.getSelector())
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
 
