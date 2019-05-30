@@ -8,6 +8,7 @@ import java.util.Set;
  * @author Thomas Dussart
  * @since 4.0
  */
+
 public class PartyResponseRo {
 
     private Integer entityId;

@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
@@ -16,7 +15,10 @@ import eu.domibus.core.party.IdentifierRo;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.pki.CertificateService;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -25,11 +27,9 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -62,6 +62,12 @@ public class PartyResourceTest {
     @Injectable
     private CertificateService certificateService;
 
+    @Injectable
+    private ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
+
     @Test
     public void listParties() throws Exception {
         final String name = "name";
@@ -87,18 +93,17 @@ public class PartyResourceTest {
             partyResource.flattenProcesses(withAny(new ArrayList<>()));
 
         }};
-
-        partyResource.listParties(name, endPoint, partyId, processName, pageStart, pageSize);
+        partyResource.listParties(new PartyFilterRequestRO() {{
+            setName(name);
+            setEndPoint(endPoint);
+            setPartyId(partyId);
+            setProcess(processName);
+            setPageStart(pageStart);
+            setPageSize(pageSize);
+        }}, null);
 
         new Verifications() {{
-
-            partyService.getParties(
-                    name,
-                    endPoint,
-                    partyId,
-                    processName,
-                    pageStart,
-                    pageSize);
+            partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
             times = 1;
 
             partyResource.flattenIdentifiers(partyResponseRos);
@@ -242,16 +247,21 @@ public class PartyResourceTest {
         String process = null;
         List<PartyResponseRo> partyResponseRoList = new ArrayList<>();
         String mockCsvResult = "csv";
+        PartyFilterRequestRO req = new PartyFilterRequestRO();
+        req.setName(name);
+        req.setEndPoint(endpoint);
+        req.setPartyId(partyId);
+        req.setProcess(process);
 
         new Expectations(partyResource) {{
-            partyResource.listParties(name, endpoint, partyId, process, anyInt, anyInt);
+            partyResource.listParties(req, null);
             result = partyResponseRoList;
             csvServiceImpl.exportToCSV(partyResponseRoList, PartyResponseRo.class, (Map<String, String>) any, (List<String>) any);
             result = mockCsvResult;
         }};
 
         // When
-        final ResponseEntity<String> csv = partyResource.getCsv(name, endpoint, partyId, process);
+        final ResponseEntity<String> csv = partyResource.getCsv(req, null);
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());

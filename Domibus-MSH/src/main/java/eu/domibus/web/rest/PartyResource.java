@@ -14,13 +14,20 @@ import eu.domibus.core.party.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateService;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.*;
@@ -32,6 +39,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(value = "/rest/party")
+@Validated
 public class PartyResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
@@ -49,41 +57,34 @@ public class PartyResource {
     @Autowired
     private CertificateService certificateService;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
+    @Autowired
+    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
+
+    @PostConstruct
+    public void init() {
+        objectBlacklistValidator.init();
+    }
+
     @GetMapping(value = {"/list"})
-    public List<PartyResponseRo> listParties(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "endPoint", required = false) String endPoint,
-            @RequestParam(value = "partyId", required = false) String partyId,
-            @RequestParam(value = "process", required = false) String process,
-            @RequestParam(value = "pageStart", defaultValue = "0") int pageStart,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
-    ) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Searching party with parameters");
-            LOG.debug("name [{}]", name);
-            LOG.debug("endPoint [{}]", endPoint);
-            LOG.debug("partyId [{}]", partyId);
-            LOG.debug("processName [{}]", process);
-            LOG.debug("pageStart [{}]", pageStart);
-            LOG.debug("pageSize [{}]", pageSize);
-        }
+    public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request, BindingResult bindingResult)
+    {
+        errorHandlerService.processBindingResultErrors(bindingResult);
 
         // basic user input sanitizing; pageSize = 0 means no pagination.
-        if (pageStart <= 0) {
-            pageStart = 0;
+        if (request.getPageStart() <= 0) {
+            request.setPageStart(0);
         }
-        if (pageSize <= 0) {
-            pageSize = Integer.MAX_VALUE;
+        if (request.getPageSize() <= 0) {
+            request.setPageSize(Integer.MAX_VALUE);
         }
+        LOG.debug("Searching party with parameters name [{}], endPoint [{}], partyId [{}], processName [{}], pageStart [{}], pageSize [{}]",
+                request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize());
 
         List<PartyResponseRo> partyResponseRos = domainConverter.convert(
-                partyService.getParties(
-                        name,
-                        endPoint,
-                        partyId,
-                        process,
-                        pageStart,
-                        pageSize),
+                partyService.getParties(request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize()),
                 PartyResponseRo.class);
 
         flattenIdentifiers(partyResponseRos);
@@ -109,19 +110,16 @@ public class PartyResource {
     /**
      * This method returns a CSV file with the contents of Party table
      *
-     * @param name     the party name
-     * @param endPoint the party endpoint
-     * @param partyId  the party id
-     * @param process  a process associated with the party
      * @return CSV file with the contents of Party table
      */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@RequestParam(value = "name", required = false) String name,
-                                         @RequestParam(value = "endPoint", required = false) String endPoint,
-                                         @RequestParam(value = "partyId", required = false) String partyId,
-                                         @RequestParam(value = "process", required = false) String process) {
+    public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request, BindingResult bindingResult) {
+        errorHandlerService.processBindingResultErrors(bindingResult);
+
+        request.setPageStart(0);
+        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
         String resultText;
-        final List<PartyResponseRo> partyResponseRoList = listParties(name, endPoint, partyId, process, 0, csvServiceImpl.getMaxNumberRowsToExport());
+        final List<PartyResponseRo> partyResponseRoList = listParties(request, bindingResult);
 
         try {
             resultText = csvServiceImpl.exportToCSV(partyResponseRoList, PartyResponseRo.class,
@@ -138,6 +136,8 @@ public class PartyResource {
 
     @RequestMapping(value = {"/update"}, method = RequestMethod.PUT)
     public ResponseEntity updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
+        partiesRo.forEach(el->objectBlacklistValidator.validate(el));
+
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
         List<Party> partyList = domainConverter.convert(partiesRo, Party.class);
@@ -272,10 +272,10 @@ public class PartyResource {
     @PutMapping(value = "/{partyName}/certificate")
     public TrustStoreRO convertCertificateContent(@PathVariable(name = "partyName") String partyName,
                                                   @RequestBody CertificateContentRo certificate) {
-
         if (certificate == null) {
             throw new IllegalArgumentException("certificate parameter must be provided");
         }
+
 
         String content = certificate.getContent();
         LOG.debug("certificate base 64 received [{}] ", content);
