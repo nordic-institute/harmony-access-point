@@ -110,7 +110,7 @@ def updateNumberOfDomain() {
      def numOfDomain = 0 
      ["C2", "C3", "Third"].each {site -> 
      	 numOfDomain=findNumberOfDomain(site) 
-     	 debugLog("For ${site} number of defined additional domain is: ${numOfDomain}", log) 
+     	 log.info "For ${site} number of defined additional domain is: ${numOfDomain}"
      	 context.testCase.testSuite.project.setPropertyValue("multitenancyMode${site}", numOfDomain as String)
      }
 }
@@ -1861,7 +1861,7 @@ static def updateAuthenticationForTestSuite(filterForTestSuite, context, log, en
     if (enableAuthentication)
         log.info "Activating for all SOAP requests Basic Preemptive authentication in test suite ${filterForTestSuite} and endpoint matching pattern ${endpointPattern}.  Previously defined usernames and password would be used."
     else
-        log.info "Disabling authentication fro all SOAP requests  in test suite ${filterForTestSuite}."
+        log.info "Disabling authentication for all SOAP requests in test suite ${filterForTestSuite} and endpoint matching pattern ${endpointPattern}."
 
     context.testCase.testSuite.project.getTestSuiteList().each { testSuite ->
             if (testSuite.getLabel() =~ filterForTestSuite) {
