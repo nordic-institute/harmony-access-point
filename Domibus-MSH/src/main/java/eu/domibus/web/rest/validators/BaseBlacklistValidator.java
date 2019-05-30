@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Validation;
+import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
@@ -72,7 +74,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public void validate(T value) {
         if (!isValid(value)) {
-            throw new IllegalArgumentException(getErrorMessage());
+            throw new ValidationException(getErrorMessage());
         }
     }
 

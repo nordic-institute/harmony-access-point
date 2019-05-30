@@ -1,8 +1,5 @@
 package eu.domibus.web.rest.validators;
 
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,14 +11,15 @@ import java.util.List;
  * @since 4.1
  */
 @Component
-public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsNotBlacklisted, List<String>> {
+public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsNotBlacklisted, String[]> {
 
     @Override
     protected String getErrorMessage() {
         return ItemsNotBlacklisted.MESSAGE;
     }
 
-    public boolean isValid(List<String> value) {
+    @Override
+    public boolean isValid(String[] value) {
         return super.isValidValue(value);
     }
 
