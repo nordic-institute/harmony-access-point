@@ -34,10 +34,10 @@ export class TestServiceComponent implements OnInit {
 
   sender: string;
 
-  constructor (private http: Http, private alertService: AlertService) {
+  constructor(private http: Http, private alertService: AlertService) {
   }
 
-  ngOnInit () {
+  ngOnInit() {
     this.filter = {};
     this.receiverParties = [];
     this.buttonDisabled = true;
@@ -50,40 +50,40 @@ export class TestServiceComponent implements OnInit {
     this.getSenderParty();
   }
 
-  test () {
+  test() {
     this.clearInfo();
     if (this.isPModeDaoOrCachingPModeProvider()) {
       const payload = {sender: this.sender, receiver: this.filter.receiverPartyId};
       this.http.post(TestServiceComponent.TEST_SERVICE_URL, payload)
         .subscribe(
           () => this.onChangeParties(),
-          () => this.alertService.error('Problems while submitting test')
+          (err) => this.alertService.exception('Problems while submitting test', err)
         );
     } else if (this.isDynamicDiscoveryPModeProvider()) {
       const payload = {sender: this.sender, receiver: this.filter.finalRecipient, receiverType: this.filter.finalRecipientType};
       this.http.post(TestServiceComponent.TEST_SERVICE_SUBMIT_DYNAMICDISCOVERY_URL, payload)
         .subscribe(
           () => this.onChangeInfo(),
-          () => this.alertService.error('Problems while submitting test')
+          (err) => this.alertService.exception('Problems while submitting test', err)
         );
     }
   }
 
-  private isPModeDaoOrCachingPModeProvider () {
+  private isPModeDaoOrCachingPModeProvider() {
     return (!isNullOrUndefined(this.filter.receiverPartyId) && (this.filter.receiverPartyId.length > 0));
   }
 
-  private isDynamicDiscoveryPModeProvider () {
+  private isDynamicDiscoveryPModeProvider() {
     return (!isNullOrUndefined(this.filter.finalRecipient) && (this.filter.finalRecipient.length > 0) &&
       !isNullOrUndefined(this.filter.finalRecipientType) && (this.filter.finalRecipientType.length > 0));
   }
 
-  private disableButtonAndClearInfo () {
+  private disableButtonAndClearInfo() {
     this.buttonDisabled = true;
     this.clearInfo();
   }
 
-  onChangeParties () {
+  onChangeParties() {
     if (this.isPModeDaoOrCachingPModeProvider()) {
       this.buttonDisabled = false;
       this.clearInfo();
@@ -93,7 +93,7 @@ export class TestServiceComponent implements OnInit {
     }
   }
 
-  onChangeInfo () {
+  onChangeInfo() {
     if (this.isDynamicDiscoveryPModeProvider()) {
       this.buttonDisabled = false;
       this.clearInfo();
@@ -102,7 +102,7 @@ export class TestServiceComponent implements OnInit {
     }
   }
 
-  update () {
+  update() {
     if (this.isDynamicDiscoveryPModeProvider()) {
       this.getLastSentRequest(this.filter.finalRecipient);
     } else if (this.isPModeDaoOrCachingPModeProvider()) {
@@ -112,12 +112,12 @@ export class TestServiceComponent implements OnInit {
     }
   }
 
-  clearInfo () {
+  clearInfo() {
     this.messageInfoSent = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false);
     this.messageInfoReceived = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false);
   }
 
-  getSenderParty () {
+  getSenderParty() {
     this.sender = '';
     this.http.get(TestServiceComponent.TEST_SERVICE_SENDER_URL).subscribe(res => {
       this.sender = res.json();
@@ -126,7 +126,7 @@ export class TestServiceComponent implements OnInit {
     });
   }
 
-  getReceiverParties () {
+  getReceiverParties() {
     this.receiverParties = [];
     this.http.get(TestServiceComponent.TEST_SERVICE_PARTIES_URL).subscribe(res => {
       if (!isNullOrUndefined(res) && res.json() && res.json().length) {
@@ -141,38 +141,42 @@ export class TestServiceComponent implements OnInit {
     });
   }
 
-  getLastSentRequest (partyId: string) {
+  getLastSentRequest(partyId: string) {
     let searchParams: URLSearchParams = new URLSearchParams();
     searchParams.set('partyId', partyId);
-    this.http.get(TestServiceComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {search: searchParams}).subscribe(res => {
-      const result = res.json();
-      if (!isNullOrUndefined(result)) {
-        this.alertService.clearAlert();
-        this.messageInfoSent.toPartyId = result.partyId;
-        this.messageInfoSent.finalRecipient = result.accessPoint;
-        this.messageInfoSent.receivedTo = new Date(result.timeReceived);
-        this.messageInfoSent.messageId = result.messageId;
+    this.http.get(TestServiceComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {search: searchParams})
+      .subscribe(res => {
+        const result = res.json();
+        if (!isNullOrUndefined(result)) {
+          this.alertService.clearAlert();
+          this.messageInfoSent.toPartyId = result.partyId;
+          this.messageInfoSent.finalRecipient = result.accessPoint;
+          this.messageInfoSent.receivedTo = new Date(result.timeReceived);
+          this.messageInfoSent.messageId = result.messageId;
 
-        this.getLastReceivedRequest(partyId, result.messageId);
-      }
-    }, () => {
-      this.alertService.error(`No information found for Test Messages of PartyId '${partyId}'`);
-    });
+          this.getLastReceivedRequest(partyId, result.messageId);
+        }
+      }, (err) => {
+        this.alertService.exception(`No information found for Last Sent Test Messages of PartyId '${partyId}'`, err);
+      });
   }
 
-  getLastReceivedRequest (partyId: string, userMessageId: string) {
+  getLastReceivedRequest(partyId: string, userMessageId: string) {
     let searchParams: URLSearchParams = new URLSearchParams();
     searchParams.set('partyId', partyId);
     searchParams.set('userMessageId', userMessageId);
-    this.http.get(TestServiceComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {search: searchParams}).subscribe(res => {
-      const result = res.json();
-      if (!isNullOrUndefined(result)) {
-        this.messageInfoReceived.fromPartyId = partyId;
-        this.messageInfoReceived.originalSender = result.accessPoint;
-        this.messageInfoReceived.receivedFrom = new Date(result.timeReceived);
-        this.messageInfoReceived.messageId = result.messageId;
-      }
-    });
+    this.http.get(TestServiceComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {search: searchParams})
+      .subscribe(res => {
+        const result = res.json();
+        if (!isNullOrUndefined(result)) {
+          this.messageInfoReceived.fromPartyId = partyId;
+          this.messageInfoReceived.originalSender = result.accessPoint;
+          this.messageInfoReceived.receivedFrom = new Date(result.timeReceived);
+          this.messageInfoReceived.messageId = result.messageId;
+        }
+      }, (err) => {
+        this.alertService.exception(`No information found for Last Received Test Messages of PartyId '${partyId}'`, err);
+      });
   }
 
 }
