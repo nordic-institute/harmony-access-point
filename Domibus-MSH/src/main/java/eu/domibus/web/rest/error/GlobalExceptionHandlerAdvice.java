@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 @RequestMapping(produces = "application/vnd.error+json")
-public class RestControllerAdvice extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RestControllerAdvice.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalExceptionHandlerAdvice.class);
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
