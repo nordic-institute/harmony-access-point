@@ -14,19 +14,15 @@ import eu.domibus.core.party.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateService;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
@@ -58,8 +54,7 @@ public class PartyResource {
     private CertificateService certificateService;
 
     @GetMapping(value = {"/list"})
-    public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request)
-    {
+    public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request) {
         // basic user input sanitizing; pageSize = 0 means no pagination.
         if (request.getPageStart() <= 0) {
             request.setPageStart(0);
