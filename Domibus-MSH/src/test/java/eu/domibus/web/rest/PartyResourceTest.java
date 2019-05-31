@@ -63,9 +63,6 @@ public class PartyResourceTest {
     private CertificateService certificateService;
 
     @Injectable
-    private ErrorHandlerService errorHandlerService;
-
-    @Injectable
     ObjectPropertiesBlacklistValidator objectBlacklistValidator;
 
     @Test
@@ -100,7 +97,7 @@ public class PartyResourceTest {
             setProcess(processName);
             setPageStart(pageStart);
             setPageSize(pageSize);
-        }}, null);
+        }});
 
         new Verifications() {{
             partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
@@ -254,14 +251,14 @@ public class PartyResourceTest {
         req.setProcess(process);
 
         new Expectations(partyResource) {{
-            partyResource.listParties(req, null);
+            partyResource.listParties(req);
             result = partyResponseRoList;
             csvServiceImpl.exportToCSV(partyResponseRoList, PartyResponseRo.class, (Map<String, String>) any, (List<String>) any);
             result = mockCsvResult;
         }};
 
         // When
-        final ResponseEntity<String> csv = partyResource.getCsv(req, null);
+        final ResponseEntity<String> csv = partyResource.getCsv(req);
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());

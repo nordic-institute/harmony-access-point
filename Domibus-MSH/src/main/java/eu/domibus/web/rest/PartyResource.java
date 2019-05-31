@@ -58,9 +58,6 @@ public class PartyResource {
     private CertificateService certificateService;
 
     @Autowired
-    private ErrorHandlerService errorHandlerService;
-
-    @Autowired
     ObjectPropertiesBlacklistValidator objectBlacklistValidator;
 
     @PostConstruct
@@ -69,10 +66,8 @@ public class PartyResource {
     }
 
     @GetMapping(value = {"/list"})
-    public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request, BindingResult bindingResult)
+    public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request)
     {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
         // basic user input sanitizing; pageSize = 0 means no pagination.
         if (request.getPageStart() <= 0) {
             request.setPageStart(0);
@@ -113,13 +108,11 @@ public class PartyResource {
      * @return CSV file with the contents of Party table
      */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
         request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
         String resultText;
-        final List<PartyResponseRo> partyResponseRoList = listParties(request, bindingResult);
+        final List<PartyResponseRo> partyResponseRoList = listParties(request);
 
         try {
             resultText = csvServiceImpl.exportToCSV(partyResponseRoList, PartyResponseRo.class,

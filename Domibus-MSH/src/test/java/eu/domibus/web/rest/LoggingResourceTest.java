@@ -38,9 +38,6 @@ public class LoggingResourceTest {
     @Injectable
     private LoggingService loggingService;
 
-    @Injectable
-    private ErrorHandlerService errorHandlerService;
-
     @Test
     public void testSetLogLevel(final @Mocked LoggingLevelRO loggingLevelRO) {
         final String name = "eu.domibus";
@@ -104,7 +101,7 @@ public class LoggingResourceTest {
                     setShowClasses(showClasses);
                     setPageSize(2);
                     setAsc(false);
-                }}, null);
+                }});
 
         Assert.assertNotNull(result.getBody().getLoggingEntries());
         List<LoggingLevelRO> loggingEntries = result.getBody().getLoggingEntries();

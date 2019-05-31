@@ -61,9 +61,6 @@ public class AuditResource {
     @Autowired
     CsvServiceImpl csvServiceImpl;
 
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
-
     /**
      * Entry point of the Audit rest service to list the system audit logs.
      *
@@ -132,9 +129,7 @@ public class AuditResource {
      * @return CSV file with the contents of Audit table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
         String resultText;
         auditCriteria.setStart(0);
         auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());

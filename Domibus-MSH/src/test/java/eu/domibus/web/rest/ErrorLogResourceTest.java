@@ -49,9 +49,6 @@ public class ErrorLogResourceTest {
     @Injectable
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
-    @Injectable
-    private ErrorHandlerService errorHandlerService;
-
     @Test
     public void testGetErrorLog() {
         // Given
@@ -78,7 +75,7 @@ public class ErrorLogResourceTest {
         // When
         ErrorLogResultRO errorLogResultRO = errorLogResource.getErrorLog(new ErrorLogFilterRequestRO() {{
             setOrderBy("messageId");
-        }}, null);
+        }});
 
         // Then
         Assert.assertNotNull(errorLogResultRO);
@@ -143,7 +140,7 @@ public class ErrorLogResourceTest {
         final ResponseEntity<String> csv = errorLogResource.getCsv(new ErrorLogFilterRequestRO() {{
             setOrderBy("timestamp");
             setAsc(false);
-        }}, null);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());

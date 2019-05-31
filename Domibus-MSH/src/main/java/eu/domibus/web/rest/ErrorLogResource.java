@@ -56,13 +56,8 @@ public class ErrorLogResource {
     @Autowired
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
-
     @RequestMapping(method = RequestMethod.GET)
-    public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
         LOGGER.debug("Getting error log");
         HashMap<String, Object> filters = createFilterMap(request);
         ErrorLogResultRO result = new ErrorLogResultRO();
@@ -91,9 +86,7 @@ public class ErrorLogResource {
      * @return CSV file with the contents of Error Log table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
         ErrorLogResultRO result = new ErrorLogResultRO();
 
         HashMap<String, Object> filters = createFilterMap(request);

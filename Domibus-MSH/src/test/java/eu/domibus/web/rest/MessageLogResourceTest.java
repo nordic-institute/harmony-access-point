@@ -116,9 +116,6 @@ public class MessageLogResourceTest {
         });
     }
 
-    @Injectable
-    private ErrorHandlerService errorHandlerService;
-
     @Test
     public void testMessageLog() {
         // Given
@@ -177,7 +174,7 @@ public class MessageLogResourceTest {
             setOrderBy("received");
             setMessageType(messageType);
             setMessageSubtype(messageSubtype);
-        }}, null);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
@@ -203,7 +200,7 @@ public class MessageLogResourceTest {
             setOrderBy("received");
             setMessageType(messageType);
             setMessageSubtype(messageSubtype);
-        }}, null);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
@@ -226,7 +223,7 @@ public class MessageLogResourceTest {
         ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId(partyId);
-                }}, null);
+                }});
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
@@ -243,9 +240,10 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(new LatestOutgoingMessageRequestRO() {{
-            setPartyId("test");
-        }}, null);
+        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+                new LatestOutgoingMessageRequestRO() {{
+                    setPartyId("test");
+                }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestSent.getStatusCode());
@@ -274,7 +272,7 @@ public class MessageLogResourceTest {
                 new LatestIncomingMessageRequestRO() {{
                     setPartyId(partyId);
                     setUserMessageId(userMessageId);
-                }}, null);
+                }});
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
@@ -297,7 +295,7 @@ public class MessageLogResourceTest {
                 new LatestIncomingMessageRequestRO() {{
                     setPartyId("test");
                     setUserMessageId("test");
-                }}, null);
+                }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestReceived.getStatusCode());
@@ -345,8 +343,7 @@ public class MessageLogResourceTest {
             setMessageId("MessageId");
             setMessageType(messageType);
             setMessageSubtype(messageSubtype);
-        }}, null);
-
+        }});
     }
 
     /**

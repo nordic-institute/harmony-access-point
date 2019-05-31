@@ -48,9 +48,6 @@ public class JmsResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
-
     @RequestMapping(value = {"/destinations"}, method = GET)
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
@@ -127,9 +124,7 @@ public class JmsResource {
      * @return CSV file with the contents of JMS Messages table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request) {
         String resultText;
 
         // get list of messages

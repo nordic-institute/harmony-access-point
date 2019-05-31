@@ -83,9 +83,6 @@ public class MessageLogResource {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
-
     Date defaultFrom, defaultTo;
 
     @PostConstruct
@@ -100,9 +97,7 @@ public class MessageLogResource {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public MessageLogResultRO getMessageLog(@Valid MessageLogFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public MessageLogResultRO getMessageLog(@Valid MessageLogFilterRequestRO request) {
         LOG.debug("Getting message log");
 
         //creating the filters
@@ -158,9 +153,7 @@ public class MessageLogResource {
      * @return CSV file with the contents of Messages table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(@Valid MessageLogFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<String> getCsv(@Valid MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
 
         filters.put(RECEIVED_FROM_STR, dateUtil.fromString(request.getReceivedFrom()));
@@ -193,9 +186,7 @@ public class MessageLogResource {
     }
 
     @RequestMapping(value = "test/outgoing/latest", method = RequestMethod.GET)
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) {
         String partyId = request.getPartyId();
         LOG.debug("Getting last sent test message for partyId='{}'", partyId);
 
@@ -228,9 +219,7 @@ public class MessageLogResource {
     }
 
     @RequestMapping(value = "test/incoming/latest", method = RequestMethod.GET)
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) {
         String partyId = request.getPartyId();
         String userMessageId = request.getUserMessageId();
         LOG.debug("Getting last received test message from partyId='{}'", partyId);

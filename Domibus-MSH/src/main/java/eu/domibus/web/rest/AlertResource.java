@@ -15,7 +15,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
-import eu.domibus.web.rest.validators.BlacklistValidator;
+import eu.domibus.web.rest.ro.AlertResult;
 import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
-import javax.xml.bind.ValidationException;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,24 +56,15 @@ public class AlertResource {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    private ErrorHandlerService errorHandlerService;
-
-    @Autowired
     ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-
-    @Autowired
-    BlacklistValidator blacklistValidator;
 
     @PostConstruct
     public void init() {
         objectBlacklistValidator.init();
-        blacklistValidator.init();
     }
 
     @GetMapping
-    public AlertResult findAlerts(@Valid AlertFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public AlertResult findAlerts(@Valid AlertFilterRequestRO request) {
         AlertCriteria alertCriteria = getAlertCriteria(request);
 
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
@@ -116,8 +106,6 @@ public class AlertResource {
 
     @GetMapping(path = "/params")
     public List<String> getAlertParameters(@RequestParam(value = "alertType") String aType) {
-        blacklistValidator.validate(aType);
-
         AlertType alertType;
         try {
             alertType = AlertType.valueOf(aType);
@@ -145,9 +133,7 @@ public class AlertResource {
     }
 
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request, BindingResult bindingResult)  {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request)  {
         request.setPage(0);
         request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);

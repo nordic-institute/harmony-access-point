@@ -13,6 +13,7 @@ import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
+import eu.domibus.web.rest.ro.AlertResult;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -71,7 +72,7 @@ public class AlertResourceTest {
             setParameters(params);
             setDomainAlerts(true);
         }};
-        AlertResult result = alertResource.findAlerts(req, null);
+        AlertResult result = alertResource.findAlerts(req);
 
         Assert.assertEquals(2, result.getCount());
         Assert.assertEquals(1, result.getAlertsEntries().size());

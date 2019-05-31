@@ -41,9 +41,6 @@ public class LoggingResource {
     @Autowired
     private LoggingService loggingService;
 
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
-
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler({LoggingException.class})
     public ErrorRO handleLoggingException(Exception ex) {
@@ -75,9 +72,7 @@ public class LoggingResource {
     }
 
     @GetMapping(value = "/loglevel")
-    public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request, BindingResult bindingResult) {
-        errorHandlerService.processBindingResultErrors(bindingResult);
-
+    public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request) {
         final LoggingLevelResultRO resultRO = new LoggingLevelResultRO();
         List<LoggingLevelRO> loggingEntries = domainConverter.
                 convert(loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses()), LoggingLevelRO.class);
