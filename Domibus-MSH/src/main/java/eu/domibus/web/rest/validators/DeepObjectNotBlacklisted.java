@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Constraint(validatedBy = ObjectPropertiesBlacklistValidator.class)
 @Documented
-public @interface PropsNotBlacklisted {
+public @interface DeepObjectNotBlacklisted {
 
     static String MESSAGE = "Blacklisted character detected in property: %s ";
 

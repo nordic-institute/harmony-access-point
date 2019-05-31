@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
-import java.net.HttpURLConnection;
 import java.util.Map;
 
 /**
@@ -41,8 +40,9 @@ public class RestParametersValidationInterceptor extends HandlerInterceptorAdapt
             validate(request.getParameterMap(), response);
             return true;
         } catch (ValidationException ex) {
-            response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
             throw ex;
+        } catch (Exception ex) {
+            return true;
         }
     }
 
