@@ -16,12 +16,12 @@ import java.util.Map;
 /**
  * @author Ion Perpegel
  * @since 4.1
- * A Spring interceptor that ensures that the request parameters of a REST GET call does not contain blacklisted chars
+ * A Spring interceptor that ensures that the request parameters of a REST call does not contain blacklisted chars
  */
 @ControllerAdvice(annotations = RestController.class)
-public class RestParametersValidationInterceptor extends HandlerInterceptorAdapter {
+public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdapter {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(RestParametersValidationInterceptor.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(RestQueryParamsValidationInterceptor.class);
 
     @PostConstruct
     public void init() {
@@ -33,12 +33,13 @@ public class RestParametersValidationInterceptor extends HandlerInterceptorAdapt
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!request.getMethod().equals("GET")) {
+
+        Map<String, String[]> queryParams = request.getParameterMap();
+        if (queryParams == null || queryParams.isEmpty()) {
             return true;
         }
-
         try {
-            validate(request.getParameterMap(), response);
+            validate(queryParams, response);
             return true;
         } catch (ValidationException ex) {
             throw ex;
@@ -50,7 +51,7 @@ public class RestParametersValidationInterceptor extends HandlerInterceptorAdapt
     private void validate(Map<String, String[]> parameterMap, HttpServletResponse response) {
         parameterMap.forEach((key, val) -> {
             if (!blacklistValidator.isValid(val)) {
-                throw new ValidationException(String.format(PropsNotBlacklisted.MESSAGE, key));
+                throw new ValidationException(String.format("Blacklisted character detected in the query parameter: %s", key));
             }
         });
     }
