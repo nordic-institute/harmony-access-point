@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * Criteria class to filter the audit logs.
  */
-@PropsNotBlacklisted
+
 public class AuditFilterRequestRO {
 
     /**

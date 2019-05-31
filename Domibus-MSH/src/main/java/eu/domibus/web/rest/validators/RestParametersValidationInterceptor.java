@@ -16,6 +16,7 @@ import java.util.Map;
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * A Spring interceptor that ensures that the request parameters of a REST GET call does not contain blacklisted chars 
  */
 @ControllerAdvice(annotations = RestController.class)
 public class RestParametersValidationInterceptor extends HandlerInterceptorAdapter {

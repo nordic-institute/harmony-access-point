@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.Serializable;
@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author Ion Perpegel
  * @since 4.1
  */
-@PropsNotBlacklisted
+
 public class PartyFilterRequestRO implements Serializable {
     private String name;
     private String endPoint;

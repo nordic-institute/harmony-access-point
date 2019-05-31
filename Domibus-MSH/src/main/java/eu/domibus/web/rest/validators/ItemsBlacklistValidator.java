@@ -2,10 +2,8 @@ package eu.domibus.web.rest.validators;
 
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
- * Custom validator that checks that the value does not contain any char from the blacklist
+ * Custom validator that checks that all Strings in the array do not contain any char from the blacklist
  *
  * @author Ion Perpegel
  * @since 4.1

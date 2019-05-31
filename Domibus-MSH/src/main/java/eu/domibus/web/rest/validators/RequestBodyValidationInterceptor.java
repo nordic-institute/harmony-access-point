@@ -15,6 +15,7 @@ import java.lang.reflect.Type;
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * A Spring interceptor that ensures that the request body of a REST call does not contain blacklisted chars in any of its String properties
  */
 @ControllerAdvice(annotations = RestController.class)
 public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {

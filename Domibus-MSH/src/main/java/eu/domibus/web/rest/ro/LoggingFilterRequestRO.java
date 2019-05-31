@@ -2,7 +2,7 @@ package eu.domibus.web.rest.ro;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @author Ion Perpegel
  * @since 4.1
  */
-@PropsNotBlacklisted
+
 public class LoggingFilterRequestRO implements Serializable {
 
     private int page = 0;

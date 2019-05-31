@@ -5,7 +5,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+
 
 import java.io.Serializable;
 
@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Ion Perpegel
  * @since 4.1
  */
-@PropsNotBlacklisted
+
 public class MessageLogFilterRequestRO implements Serializable {
     private int page = 0;
     private int pageSize = 10;

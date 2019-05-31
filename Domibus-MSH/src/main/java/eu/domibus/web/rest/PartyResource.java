@@ -57,14 +57,6 @@ public class PartyResource {
     @Autowired
     private CertificateService certificateService;
 
-    @Autowired
-    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-
-    @PostConstruct
-    public void init() {
-        objectBlacklistValidator.init();
-    }
-
     @GetMapping(value = {"/list"})
     public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request)
     {
@@ -129,8 +121,6 @@ public class PartyResource {
 
     @RequestMapping(value = {"/update"}, method = RequestMethod.PUT)
     public ResponseEntity updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
-        partiesRo.forEach(el->objectBlacklistValidator.validate(el));
-
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
         List<Party> partyList = domainConverter.convert(partiesRo, Party.class);

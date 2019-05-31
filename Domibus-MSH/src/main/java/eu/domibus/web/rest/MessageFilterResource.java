@@ -39,9 +39,6 @@ public class MessageFilterResource {
     @Autowired
     private MessageFilterCsvServiceImpl messageFilterCsvServiceImpl;
 
-    @Autowired
-    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-
     protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
         boolean areFiltersPersisted = true;
         List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
@@ -69,11 +66,6 @@ public class MessageFilterResource {
 
     @PutMapping
     public void updateMessageFilters(@RequestBody List<MessageFilterRO> messageFilterROS) {
-        messageFilterROS.forEach(el -> {
-            objectBlacklistValidator.validate(el);
-            el.getRoutingCriterias().forEach(crit -> objectBlacklistValidator.validate(crit));
-        });
-
         List<BackendFilter> backendFilters = coreConverter.convert(messageFilterROS, BackendFilter.class);
         routingService.updateBackendFilters(backendFilters);
     }

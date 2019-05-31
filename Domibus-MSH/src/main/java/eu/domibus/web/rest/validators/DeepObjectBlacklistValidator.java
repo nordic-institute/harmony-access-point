@@ -56,19 +56,18 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
         } else if (obj instanceof List<?>) {
             List<?> list = ((List<?>) obj);
             for (int i = 0; i < list.size(); i++) {
-                doValidate(list.get(i), path + "[" + i + "]");
+                doValidate(list.get(i), path + "[" + (i + 1) + "]");
             }
         } else if (obj instanceof Iterable<?>) {
-            ((Iterable<?>) obj).forEach(el -> doValidate(el, path + "->one of the elements"));
+            ((Iterable<?>) obj).forEach(el -> doValidate(el, path + "[one of the elements]"));
         } else if (obj instanceof Map<?, ?>) {
-            ((Map<?, ?>) obj).forEach((key, val) -> doValidate(val, path + "->key"));
+            ((Map<?, ?>) obj).forEach((key, val) -> doValidate(val, path + "[" + key + "]"));
         } else if (!isPrimitive(obj)) {
             ReflectionUtils.doWithFields(obj.getClass(),
                     field -> {
                         if (!field.isAccessible()) {
                             field.setAccessible(true);
                         }
-
                         Object value = ReflectionUtils.getField(field, obj);
                         doValidate(value, path + "->" + field.getName());
                     },

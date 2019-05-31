@@ -1,13 +1,13 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+
 
 import java.util.List;
 
 /**
  * Created by musatmi on 15/05/2017.
  */
-@PropsNotBlacklisted
+
 public class MessagesActionRequestRO {
 
     private String source;

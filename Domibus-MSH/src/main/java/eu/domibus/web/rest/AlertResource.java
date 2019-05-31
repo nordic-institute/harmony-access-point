@@ -55,14 +55,6 @@ public class AlertResource {
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
-    @Autowired
-    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-
-    @PostConstruct
-    public void init() {
-        objectBlacklistValidator.init();
-    }
-
     @GetMapping
     public AlertResult findAlerts(@Valid AlertFilterRequestRO request) {
         AlertCriteria alertCriteria = getAlertCriteria(request);
@@ -124,8 +116,6 @@ public class AlertResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        alertRos.forEach(alert->objectBlacklistValidator.validate(alert));
-
         final List<Alert> domainAlerts = alertRos.stream().filter(Objects::nonNull).filter(alertRo -> !alertRo.isSuperAdmin()).map(this::toAlert).collect(Collectors.toList());
         final List<Alert> superAlerts = alertRos.stream().filter(Objects::nonNull).filter(AlertRo::isSuperAdmin).map(this::toAlert).collect(Collectors.toList());
         alertService.updateAlertProcessed(domainAlerts);

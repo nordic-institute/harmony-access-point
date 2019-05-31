@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.PropsNotBlacklisted;
+
 
 import java.io.Serializable;
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Ion Perpegel
  * @since 4.1
  */
-@PropsNotBlacklisted
+
 public class AlertFilterRequestRO implements Serializable {
     private int page = 0;
     private int pageSize = 10;
