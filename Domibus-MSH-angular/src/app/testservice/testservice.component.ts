@@ -157,7 +157,7 @@ export class TestServiceComponent implements OnInit {
           this.getLastReceivedRequest(partyId, result.messageId);
         }
       }, (err) => {
-        this.alertService.exception(`No information found for Last Sent Test Messages of PartyId '${partyId}'`, err);
+        this.alertService.exception(`Error retrieving Last Sent Test Messages for PartyId '${partyId}'`, err);
       });
   }
 
@@ -175,7 +175,7 @@ export class TestServiceComponent implements OnInit {
           this.messageInfoReceived.messageId = result.messageId;
         }
       }, (err) => {
-        this.alertService.exception(`No information found for Last Received Test Messages of PartyId '${partyId}'`, err);
+        this.alertService.exception(`Error retrieving Last Received Test Messages for PartyId '${partyId}'`, err);
       });
   }
 

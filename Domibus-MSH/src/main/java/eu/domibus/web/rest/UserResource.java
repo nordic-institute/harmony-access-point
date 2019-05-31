@@ -29,8 +29,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +44,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping(value = "/rest/user")
+@Validated
 public class UserResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
@@ -104,7 +107,7 @@ public class UserResource {
     }
 
     @RequestMapping(value = {"/users"}, method = RequestMethod.PUT)
-    public void updateUsers(@RequestBody List<UserResponseRO> userROS) {
+    public void updateUsers(@RequestBody @Valid List<UserResponseRO> userROS) {
         LOG.debug("Update Users was called: " + userROS);
         validateUsers(userROS);
         updateUserRoles(userROS);
