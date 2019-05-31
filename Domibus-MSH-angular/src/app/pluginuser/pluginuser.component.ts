@@ -127,7 +127,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
       this.setColumnPicker();
     } catch (err) {
-      this.alertService.error(err);
+      this.alertService.exception("Error getting plugi-users:", err);
       this.loading = false;
     }
   }
