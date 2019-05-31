@@ -1544,9 +1544,9 @@ def findNumberOfDomain(String inputSite) {
         def commandResult = null;
 
         commandString = "curl " + urlToDomibus(side, log, context) + 
-		"/rest/security/authentication -v -i -H 'Content-Type:application/json' -X POST -d '{\"username\":\"$userLogin\",\"password\":\"$passwordLogin\"}' -c " + 
+		"/rest/security/authentication -v -i -H Content-Type:application/json -X POST -d '{\"username\":\"$userLogin\",\"password\":\"$passwordLogin\"}' -c " + 
 		context.expand('${projectDir}') + File.separator + "cookie.txt";
-		
+	
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus."
         return commandResult[0];
