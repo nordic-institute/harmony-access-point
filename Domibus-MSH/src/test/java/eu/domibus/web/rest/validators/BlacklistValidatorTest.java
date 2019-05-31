@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.ValidationException;
 
 public class BlacklistValidatorTest {
 
@@ -74,7 +75,7 @@ public class BlacklistValidatorTest {
         try {
             blacklistValidator.validate(invalidValue);
             Assert.fail("Should throw for invalid values");
-        } catch(IllegalArgumentException ex) {
+        } catch(ValidationException ex) {
         }
     }
 }

@@ -9,6 +9,7 @@ import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
 import eu.domibus.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
+import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -44,6 +45,8 @@ public class MessageFilterResourceTest {
     @Injectable
     MessageFilterCsvServiceImpl csvService;
 
+    @Injectable
+    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
 
     @Test
     public void testGetMessageFilterPersisted() {
