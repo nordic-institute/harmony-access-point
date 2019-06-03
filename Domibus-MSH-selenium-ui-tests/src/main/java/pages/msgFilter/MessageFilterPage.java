@@ -97,6 +97,7 @@ public class MessageFilterPage extends DomibusPage {
 	}
 
 	public void saveAndConfirmChanges() throws Exception {
+		wait.forElementToBeEnabled(saveBtn);
 		getSaveBtn().click();
 		log.info("saving");
 		new Dialog(driver).confirm();

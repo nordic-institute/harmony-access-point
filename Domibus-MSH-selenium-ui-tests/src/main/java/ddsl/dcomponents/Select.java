@@ -75,6 +75,7 @@ public class Select extends DComponent {
 	}
 
 	public void expand() throws Exception{
+		clickVoidSpace();
 		getExpandBtn().click();
 	}
 
@@ -118,7 +119,7 @@ public class Select extends DComponent {
 
 	public List<String> getOptionsTexts() throws Exception{
 		List<String> texts = new ArrayList<>();
-		List<DObject> options = new ArrayList<>();
+		List<DObject> options = getOptionElements();
 
 		for (int i = 0; i < options.size(); i++) {
 			texts.add(options.get(i).getText());

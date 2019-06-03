@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMessModal;
 import pages.jms.JMSMonitoringPage;
+import pages.jms.JMSMoveMessageModal;
 
 import java.util.HashMap;
 
@@ -160,8 +161,10 @@ public class JMSMessPgTest extends BaseTest {
 		if(noOfMessages>0) {
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().selectRow(0);
+			page.getMoveButton().click();
 
-
+			JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
+//			modal.
 
 		}
 
