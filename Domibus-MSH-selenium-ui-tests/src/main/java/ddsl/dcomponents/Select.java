@@ -67,11 +67,6 @@ public class Select extends DComponent {
 		String[] idsAttributes = selectContainer.getAttribute("aria-owns").trim().split(" ");
 		optionIDs.addAll(Arrays.asList(idsAttributes));
 
-		System.out.println("getTextraw = " + selectContainer.getAttribute("aria-owns").trim());
-		System.out.println("idsArr = " + idsAttributes);
-		System.out.println("optionids = " + optionIDs);
-
-
 		log.info("option ids identified");
 	}
 
