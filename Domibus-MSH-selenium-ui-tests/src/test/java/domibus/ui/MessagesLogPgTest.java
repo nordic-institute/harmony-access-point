@@ -402,10 +402,6 @@ public class MessagesLogPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-
-
-
-
 	private HashMap<String, String> unzip(String zipFilePath) throws Exception {
 
 		String destDir = zipFilePath.replaceAll(".zip", "");

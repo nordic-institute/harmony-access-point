@@ -46,6 +46,9 @@ public class Select extends DComponent {
 	@FindBy(css = "span.md2-select-value")
 	protected WebElement selectedOptionValue;
 
+	@FindBy(css = "[class*=\"select-content ng-trigger ng-trigger-fadeInContent\"]")
+	protected WebElement optionContainer;
+
 	private DObject getSelectContainer() {
 		return new DObject(driver, selectContainer);
 	}
@@ -75,8 +78,11 @@ public class Select extends DComponent {
 	}
 
 	public void expand() throws Exception{
-		clickVoidSpace();
-		getExpandBtn().click();
+		try {
+			getExpandBtn().click();
+		} catch (Exception e) {
+
+		}
 	}
 
 	protected List<DObject> getOptionElements() throws Exception {
