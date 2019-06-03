@@ -136,7 +136,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         } else {
             senderPartyName = getSenderPartyName(message);
         }
-        LOG.info("Validating sender certificate for party [{}]", senderPartyName);
         X509Certificate certificate = getSenderCertificate(message);
 
         if (!checkCertificateValidity(certificate, senderPartyName, isPullMessage)) {
@@ -148,6 +147,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     protected Boolean checkCertificateValidity(X509Certificate certificate, String sender, boolean isPullMessage) {
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING)) {
+            LOG.info("Validating sender certificate for party [{}]", sender);
             try {
                 if (!certificateService.isCertificateValid(certificate)) {
                     LOG.error("Cannot receive message: sender certificate is not valid or it has been revoked [" + sender + "]");

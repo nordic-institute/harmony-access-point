@@ -301,12 +301,13 @@ public class DomibusDataLoader implements DataLoader {
 
         ProxyProperties proxyProps = null;
         if (proxyHTTPS) {
-            LOG.debug("Use proxy https parameters");
+            LOG.debug("Use proxy https parametersfor request to url:[{}]",url);
             proxyProps = proxyConfig.getHttpsProperties();
         } else if (proxyHTTP) {
-            LOG.debug("Use proxy http parameters");
+            LOG.debug("Use proxy http parameters for request to url:[{}]",url);
             proxyProps = proxyConfig.getHttpProperties();
         } else {
+            LOG.debug("No proxy for request to url:[{}]",url);
             return httpClientBuilder;
         }
 
@@ -504,6 +505,7 @@ public class DomibusDataLoader implements DataLoader {
             return readHttpResponse(httpResponse);
 
         } catch (URISyntaxException | IOException e) {
+            LOG.error("Error "+e);
             throw new DSSException("Unable to process GET call for url '" + url + "'", e);
         } finally {
             try {
