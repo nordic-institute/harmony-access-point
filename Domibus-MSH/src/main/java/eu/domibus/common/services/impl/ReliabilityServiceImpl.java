@@ -106,7 +106,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 messagingDao.clearPayloadData(messageId);
                 final PartyInfo partyInfo = userMessage.getPartyInfo();
-                LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS, messageId, partyInfo.getFrom().getFirstPartyId(), partyInfo.getTo().getFirstPartyId());
+                LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS, partyInfo.getFrom().getFirstPartyId(), partyInfo.getTo().getFirstPartyId());
                 break;
             case WAITING_FOR_CALLBACK:
                 updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(messageId, legConfiguration);

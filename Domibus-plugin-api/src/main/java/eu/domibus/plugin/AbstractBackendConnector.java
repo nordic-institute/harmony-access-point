@@ -67,13 +67,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
         } catch (IllegalArgumentException iaEx) {
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED);
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, iaEx);
             throw new TransformationException(iaEx);
         } catch (IllegalStateException ise) {
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED);
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, ise);
             throw new PModeMismatchException(ise);
         } catch (MessagingProcessingException mpEx) {
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED);
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, mpEx);
             throw mpEx;
         }
     }
@@ -83,12 +83,20 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Transactional(propagation = Propagation.REQUIRED)
     public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        }
 
-        T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
-        lister.removeFromPending(messageId);
+        try {
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+            lister.removeFromPending(messageId);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
-        return t;
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+            return t;
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
     }
 
     @Override

@@ -187,11 +187,16 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message");
-        MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
+        LOG.debug("Downloading message [{}]", messageId);
+        try {
+            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
-        return result;
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+            return result;
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
     }
 
     private class DownloadMessageCreator implements MessageCreator {

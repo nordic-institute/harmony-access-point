@@ -65,7 +65,7 @@ public class MessageSenderService  {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
-        LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION);
+        LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION, userMessage.getPartyInfo().getFrom().getFirstPartyId(), userMessage.getPartyInfo().getTo().getFirstPartyId());
         messageSender.sendMessage(userMessage);
     }
 }
