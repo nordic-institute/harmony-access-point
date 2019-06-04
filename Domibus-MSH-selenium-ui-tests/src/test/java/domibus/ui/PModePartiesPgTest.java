@@ -97,6 +97,8 @@ public class PModePartiesPgTest extends BaseTest {
 		page.filters().getPartyIDInput().fill(firstParty.get(partyID));
 		page.filters().getSearchButton().click();
 
+		page.grid().waitForRowsToLoad();
+
 		soft.assertEquals(page.grid().getRowsNo(), 1, "1 rows returned");
 		soft.assertEquals(page.grid().getRowInfo(0).get(partyName), firstParty.get(partyName), "first party is returned");
 

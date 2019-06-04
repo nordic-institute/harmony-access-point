@@ -148,7 +148,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "PU-5", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndCancel() throws Exception {
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
@@ -186,7 +186,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "PU-6", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C8";
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 

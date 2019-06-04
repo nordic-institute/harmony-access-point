@@ -66,6 +66,8 @@ public class JMSMessPgTest extends BaseTest {
 			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo));
 			page.filters().getJmsSearchButton().click();
 
+			page.grid().waitForRowsToLoad();
+
 			soft.assertTrue(page.grid().getRowsNo()==1, "One message is listed, the one that was on first position before");
 
 		}
@@ -115,7 +117,7 @@ public class JMSMessPgTest extends BaseTest {
 			page.filters().getJmsSearchButton().click();
 			page.grid().waitForRowsToLoad();
 
-			soft.assertEquals(page.grid().getRowsNo(), noOfMessages, "All messages are listed");
+			soft.assertEquals(page.grid().getAllRowInfo().size(), noOfMessages, "All messages are listed");
 
 		}
 
@@ -164,9 +166,13 @@ public class JMSMessPgTest extends BaseTest {
 			page.getMoveButton().click();
 
 			JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
-//			modal.
+			modal.getQueueSelect().selectOptionByIndex(5);
+
+			modal.getCancelBtn().click();
 
 		}
+
+		page.wait.forXMillis(10000);
 
 		soft.assertAll();
 	}

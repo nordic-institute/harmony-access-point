@@ -286,6 +286,8 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageID =  messageSender.sendMessage(user, data.getDefaultTestPass(), null, null).getMessageID().get(0);
 
+		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
+
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
