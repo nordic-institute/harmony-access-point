@@ -263,7 +263,8 @@ public class DomibusTSLValidationJob {
                     parseResult = parseLOTL(europeanModel);
                     europeanModel.setParseResult(parseResult);
                 } catch (Exception e) {
-                    LOG.error("Unable to parse the LOTL : " + e.getMessage(), e);
+                    LOG.warn("Unable to parse the LOTL:[{}]",e.getMessage());
+                    LOG.debug("Unable to parse the LOTL",e);
                     return;
                 }
             }
