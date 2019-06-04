@@ -1,9 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-
-
 import java.io.Serializable;
 
 /**

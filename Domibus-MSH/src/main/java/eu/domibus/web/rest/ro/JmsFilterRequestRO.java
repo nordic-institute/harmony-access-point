@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;

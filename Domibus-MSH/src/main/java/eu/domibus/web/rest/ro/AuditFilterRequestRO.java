@@ -1,7 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -10,7 +8,7 @@ import java.util.Set;
 /**
  * @author Thomas Dussart
  * @since 4.0
- *
+ * <p>
  * Criteria class to filter the audit logs.
  */
 

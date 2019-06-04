@@ -6,7 +6,6 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
 
-
 import java.io.Serializable;
 
 /**

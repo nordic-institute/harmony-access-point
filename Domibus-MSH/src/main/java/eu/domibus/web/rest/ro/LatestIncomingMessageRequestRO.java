@@ -1,7 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-
-
 import java.io.Serializable;
 
 /**

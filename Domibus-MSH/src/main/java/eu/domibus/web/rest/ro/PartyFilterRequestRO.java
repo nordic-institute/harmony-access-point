@@ -1,8 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.io.Serializable;
 
 /**
