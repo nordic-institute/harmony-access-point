@@ -301,13 +301,12 @@ public class DomibusDataLoader implements DataLoader {
 
         ProxyProperties proxyProps = null;
         if (proxyHTTPS) {
-            LOG.debug("Use proxy https parametersfor request to url:[{}]",url);
+            LOG.debug("Use proxy https parameters");
             proxyProps = proxyConfig.getHttpsProperties();
         } else if (proxyHTTP) {
-            LOG.debug("Use proxy http parameters for request to url:[{}]",url);
+            LOG.debug("Use proxy http parameters");
             proxyProps = proxyConfig.getHttpProperties();
         } else {
-            LOG.debug("No proxy for request to url:[{}]",url);
             return httpClientBuilder;
         }
 
@@ -327,6 +326,7 @@ public class DomibusDataLoader implements DataLoader {
         // TODO SSL peer shut down incorrectly when protocol is https
         final HttpHost proxy = new HttpHost(proxyHost, proxyPort, Protocol.HTTP.getName());
 
+        LOG.debug("Exclued hosts:[{}]",proxyExcludedHosts);
         if (Utils.isStringNotEmpty(proxyExcludedHosts)) {
             final String[] hosts = proxyExcludedHosts.split("[,; ]");
 
@@ -338,7 +338,9 @@ public class DomibusDataLoader implements DataLoader {
 
                     if ((hosts != null) && (hostname != null)) {
                         for (String h : hosts) {
+                            LOG.debug("Comparing excluded host:[{}] with trusted list host:[{}]",h,hostname);
                             if (hostname.equalsIgnoreCase(h)) {
+                                LOG.debug("Excludeding proxy for host:[{}]",hostname);
                                 // bypass proxy for that hostname
                                 return new HttpRoute(host);
                             }
@@ -505,7 +507,6 @@ public class DomibusDataLoader implements DataLoader {
             return readHttpResponse(httpResponse);
 
         } catch (URISyntaxException | IOException e) {
-            LOG.error("Error "+e);
             throw new DSSException("Unable to process GET call for url '" + url + "'", e);
         } finally {
             try {
