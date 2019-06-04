@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -19,6 +21,7 @@ import java.lang.reflect.Type;
  */
 @ControllerAdvice(annotations = RestController.class)
 public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(RequestBodyValidationInterceptor.class);
 
     @PostConstruct
     public void init() {
@@ -39,12 +42,16 @@ public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
     }
 
     protected Object handleRequestBody(Object body) {
+        LOG.debug("Validate body:[{}]", body);
         try {
             blacklistValidator.validate(body);
+            LOG.debug("Body:[{}] is valid", body);
             return body;
         } catch (ValidationException ex) {
+            LOG.debug("Body:[{}] is invalid: [{}]", body, ex);
             throw ex;
         } catch (Exception ex) {
+            LOG.debug("Unexpected exception caught [{}] when validating body: [{}]. Request will be processed downhill.", ex, body);
             return body;
         }
     }

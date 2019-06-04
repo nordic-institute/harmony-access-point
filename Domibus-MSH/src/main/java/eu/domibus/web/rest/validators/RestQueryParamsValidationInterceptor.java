@@ -33,21 +33,25 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
         Map<String, String[]> queryParams = request.getParameterMap();
         return handleQueryParams(queryParams);
     }
 
     protected boolean handleQueryParams(Map<String, String[]> queryParams) {
+        LOG.debug("Validate query params:[{}]", queryParams);
         if (queryParams == null || queryParams.isEmpty()) {
+            LOG.debug("Query params are empty, exiting.");
             return true;
         }
         try {
             validate(queryParams);
+            LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {
+            LOG.debug("Query params:[{}] are invalid: [{}]", queryParams, ex);
             throw ex;
         } catch (Exception ex) {
+            LOG.debug("Unexpected exception caught [{}] when validating query params [{}]. Request will be processed downhill.", ex, queryParams);
             return true;
         }
     }

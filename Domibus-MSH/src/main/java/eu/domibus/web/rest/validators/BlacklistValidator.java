@@ -1,11 +1,9 @@
 package eu.domibus.web.rest.validators;
 
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
- * Custom validator that checks that the value does not contain any char from the blacklist
+ * Custom validator that checks that the value does not contain any char from the blacklist but only chars from the whitelist
  *
  * @author Ion Perpegel
  * @since 4.1

@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * Custom validator for classes that checks if all properties of type String and collections of String
- * do not contain any char from the blacklist
+ * do not contain any char from the blacklist but only chars from the whitelist
  *
  * @author Ion Perpegel
  * @since 4.1
@@ -34,35 +34,45 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
 
     @Override
     public boolean isValid(Object obj) {
+        LOG.debug("Validating recursively the object properties [{}]", obj);
         try {
             doValidate(obj, "root");
+            LOG.debug("All object properties [{}] are valid.", obj);
             return true;
         } catch (ValidationException ex) {
+            LOG.debug("At least one of the object properties [{}] is not valid.", obj);
             return false;
         }
     }
 
     protected void doValidate(Object obj, String path) {
         if (obj == null) {
+            LOG.debug("Object [{}] to validate is null, exiting.", path);
             return;
         }
         if (obj instanceof String) {
+            LOG.debug("Validating object String property [{}]:[{}]", path, obj);
             if (!isValidValue((String) obj)) {
-                message = String.format(PropsNotBlacklisted.MESSAGE, path);
+                message = String.format(ObjectPropertiesNotBlacklisted.MESSAGE, path);
                 throw new ValidationException(message);
             }
         } else if (obj instanceof Object[]) {
+            LOG.debug("Validating object array property [{}]:[{}]", path, obj);
             doValidate(Arrays.asList((Object[]) obj), path);
         } else if (obj instanceof List<?>) {
+            LOG.debug("Validating object List property [{}]:[{}]", path, obj);
             List<?> list = ((List<?>) obj);
             for (int i = 0; i < list.size(); i++) {
                 doValidate(list.get(i), path + "[" + (i + 1) + "]");
             }
         } else if (obj instanceof Iterable<?>) {
+            LOG.debug("Validating object Iterable property [{}]:[{}]", path, obj);
             ((Iterable<?>) obj).forEach(el -> doValidate(el, path + "[one of the elements]"));
         } else if (obj instanceof Map<?, ?>) {
+            LOG.debug("Validating object Map property [{}]:[{}]", path, obj);
             ((Map<?, ?>) obj).forEach((key, val) -> doValidate(val, path + "[" + key + "]"));
         } else if (!isPrimitive(obj)) {
+            LOG.debug("Validating all object non-primitive properties [{}]:[{}]", path, obj);
             ReflectionUtils.doWithFields(obj.getClass(),
                     field -> {
                         if (!field.isAccessible()) {
@@ -85,6 +95,4 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
         Class<?> cls = obj.getClass();
         return cls.equals(Date.class) || cls.equals(LocalDate.class) || cls.equals(LocalDateTime.class);
     }
-    //field.getAnnotationsByType(EscapeHTML.class).length > 0 &&
-    //String.class.isAssignableFrom(field.getType())
 }

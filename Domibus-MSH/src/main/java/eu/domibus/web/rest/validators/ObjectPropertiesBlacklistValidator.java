@@ -14,16 +14,16 @@ import java.util.stream.Collectors;
 
 /**
  * Custom validator for classes that checks if all properties of type String and collections of String
- * do not contain any char from the blacklist
+ * do not contain any char from the blacklist but only from whitelist. It is not recursive.
  *
  * @author Ion Perpegel
  * @since 4.1
  */
 @Component
-public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<PropsNotBlacklisted, Object> {
+public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<ObjectPropertiesNotBlacklisted, Object> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectPropertiesBlacklistValidator.class);
-    private String message = PropsNotBlacklisted.MESSAGE;
+    private String message = ObjectPropertiesNotBlacklisted.MESSAGE;
 
     @Override
     protected String getErrorMessage() {
@@ -63,7 +63,7 @@ public class ObjectPropertiesBlacklistValidator extends BaseBlacklistValidator<P
             return true;
         }
         if (!isValid) {
-            message = String.format(PropsNotBlacklisted.MESSAGE, field.getName());
+            message = String.format(ObjectPropertiesNotBlacklisted.MESSAGE, field.getName());
         }
         return isValid;
     }
