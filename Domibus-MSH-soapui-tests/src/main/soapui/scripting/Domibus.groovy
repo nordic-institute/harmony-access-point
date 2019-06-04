@@ -1544,7 +1544,7 @@ def findNumberOfDomain(String inputSite) {
         def commandResult = null;
 
         commandString = ["curl", "-v", "-i", "-H",  '\"Content-Type:application/json\"', 
-						"-d", '{\"username\":\"$userLogin\",\"password\":\"$passwordLogin\"}'", 
+						"-d", '{\"username\":\"$userLogin\",\"password\":\"$passwordLogin\"}', 
 						"-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
 						urlToDomibus(side, log, context) + "/rest/security/authentication"]
 	
