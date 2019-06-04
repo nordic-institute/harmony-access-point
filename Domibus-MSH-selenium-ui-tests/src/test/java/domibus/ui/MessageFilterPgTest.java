@@ -212,6 +212,7 @@ public class MessageFilterPgTest extends BaseTest {
 	public void editAndSave() throws Exception {
 		//		Create a filter to edit
 		String actionName = Generator.randomAlphaNumeric(5);
+		String newActionValue = Generator.randomAlphaNumeric(5);
 		rest.createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
@@ -223,16 +224,20 @@ public class MessageFilterPgTest extends BaseTest {
 		page.getEditBtn().click();
 
 		MessageFilterModal modal = new MessageFilterModal(driver);
-		modal.getActionInput().fill("newActionValue");
+		modal.getActionInput().fill(newActionValue);
+
+//		necesary because somehow typing doesn't finish the word otherwise
+		modal.wait.forXMillis(200);
+
 		modal.clickOK();
 
 		page.saveAndConfirmChanges();
 
 		HashMap<String, String> row = page.grid().getRowInfo(index);
-		soft.assertEquals(row.get("Action"), "newActionValue", "Edited values are saved");
+		soft.assertEquals(row.get("Action"), newActionValue, "Edited values are saved");
 
 //		Delete created filter
-		rest.deleteMessageFilter(actionName, null);
+		rest.deleteMessageFilter(newActionValue, null);
 
 		soft.assertAll();
 	}

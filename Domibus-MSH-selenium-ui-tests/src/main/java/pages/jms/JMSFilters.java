@@ -93,4 +93,37 @@ public class JMSFilters extends DomibusPage {
 		return noOfMessages;
 	}
 
+	public int selectQueueWithMessagesNotDLQ() throws Exception{
+		Select qSelect = getJmsQueueSelect();
+		List<String> queues = qSelect.getOptionsTexts();
+
+		int noOfMessages = 0;
+		for (String queue : queues) {
+			String striped  = queue.substring(queue.indexOf("(")+1, queue.indexOf(")")).trim();
+			int noOfMess = Integer.valueOf(striped);
+			if(noOfMess>0 && !queue.contains("DLQ")){
+				qSelect.selectOptionByText(queue);
+				noOfMessages = noOfMess;
+				break;
+			}
+		}
+
+		return noOfMessages;
+	}
+
+	public void selectDLQQueue() throws Exception{
+		Select qSelect = getJmsQueueSelect();
+		List<String> queues = qSelect.getOptionsTexts();
+
+		for (String queue : queues) {
+			if(queue.contains("DLQ")){
+				qSelect.selectOptionByText(queue);
+				return;
+			}
+		}
+		throw new RuntimeException(new Exception("DLQ queue not found"));
+	}
+
+
+
 }

@@ -23,6 +23,8 @@ public class MessageFilterModal extends EditModal {
 	public MessageFilterModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+//		wait.forElementToBeEnabled(actionInput);
+		wait.forElementToBeEnabled(serviceInput);
 		log.info("Filter details popup initialized");
 	}
 

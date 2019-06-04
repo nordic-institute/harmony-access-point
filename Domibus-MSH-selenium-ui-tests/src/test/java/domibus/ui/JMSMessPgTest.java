@@ -153,13 +153,13 @@ public class JMSMessPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "JMS-7", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "JMS-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void moveMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessages();
+		int noOfMessages = page.filters().selectQueueWithMessagesNotDLQ();
 		if(noOfMessages>0) {
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().selectRow(0);
@@ -168,7 +168,7 @@ public class JMSMessPgTest extends BaseTest {
 			JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
 			modal.getQueueSelect().selectOptionByIndex(5);
 
-			modal.getCancelBtn().click();
+			modal.clickCancel();
 
 		}
 
