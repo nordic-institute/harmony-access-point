@@ -21,7 +21,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface ObjectPropertiesNotBlacklisted {
 
-    static String MESSAGE = "Blacklisted character detected in property: %s ";
+    static String MESSAGE = "Forbidden character detected in property: %s ";
 
     String message() default MESSAGE;
 

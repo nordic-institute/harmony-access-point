@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ import java.util.Set;
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
 
-    protected Set<Character> whitelist = null;
+    protected String whitelist = null;
     protected Set<Character> blacklist = null;
 
     public static final String WHITELIST_PROPERTY = "domibus.userInput.whiteList";
@@ -42,7 +43,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             String propValue = domibusPropertyProvider.getProperty(WHITELIST_PROPERTY);
             LOG.debug("Read the whitelist property: [{}]", propValue);
             if (!Strings.isNullOrEmpty(propValue)) {
-                whitelist = new HashSet<>(Arrays.asList(ArrayUtils.toObject(propValue.toCharArray())));
+                whitelist = propValue;
             }
         }
         if (blacklist == null) {
@@ -64,7 +65,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         if (value == null) {
             return true;
         }
-        if (CollectionUtils.isEmpty(blacklist) && CollectionUtils.isEmpty(whitelist)) {
+        if (CollectionUtils.isEmpty(blacklist) && StringUtils.isEmpty(whitelist)) {
             LOG.debug("Exit validation as blacklist and whitelist are both empty");
             return true;
         }
@@ -126,7 +127,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             return true;
         }
 
-        boolean res = value.chars().mapToObj(c -> (char) c).allMatch(el -> whitelist.contains(el));
+        boolean res = value.matches(whitelist);
         LOG.debug("Validated value [{}] for whitelist and the outcome is [{}]", value, res);
         return res;
     }

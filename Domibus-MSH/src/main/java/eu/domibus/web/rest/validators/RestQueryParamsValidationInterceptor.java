@@ -59,7 +59,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
     private void validate(Map<String, String[]> parameterMap) {
         parameterMap.forEach((key, val) -> {
             if (!blacklistValidator.isValid(val)) {
-                throw new ValidationException(String.format("Blacklisted character detected in the query parameter: %s", key));
+                throw new ValidationException(String.format("Forbidden character detected in the query parameter: %s", key));
             }
         });
     }

@@ -22,7 +22,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface NotBlacklisted {
 
-    static String MESSAGE = "Blacklisted character detected.";
+    static String MESSAGE = "Forbidden character detected.";
 
     String message() default MESSAGE;
 
