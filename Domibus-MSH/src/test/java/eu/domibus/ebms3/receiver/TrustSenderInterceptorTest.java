@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
@@ -108,7 +109,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
             result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
             result = X_509_V_3;
-            certificateService.isCertificateValid((X509Certificate) any);
+            certificateService.isCertificateChainValid((List<Certificate>) any);
             result = false;
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = true;
@@ -138,7 +139,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         }};
         testHandleMessage(doc, trustoreFilename, trustorePassword);
         new Verifications() {{
-            certificateService.isCertificateValid((X509Certificate) any);
+            certificateService.isCertificateChainValid((List<Certificate>) any);
             times = 0;
         }};
     }
@@ -186,30 +187,36 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     public void testCheckCertificateValidityEnabled() throws Exception {
         final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
         final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, new DateTime().minusDays(2).toDate(), new DateTime().minusDays(1).toDate(), null);
+        List<Certificate> certificateChain = new ArrayList<>();
+        certificateChain.add(certificate);
+        List<Certificate> expiredCertificateChain = new ArrayList<>();
+        expiredCertificateChain.add(expiredCertificate);
 
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = true;
-            certificateService.isCertificateValid(certificate);
+            certificateService.isCertificateChainValid(certificateChain);
             result = true;
-            certificateService.isCertificateValid(expiredCertificate);
+            certificateService.isCertificateChainValid(expiredCertificateChain);
             result = false;
 
         }};
 
-        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(certificate, "test sender", false));
-        Assert.assertFalse(trustSenderInterceptor.checkCertificateValidity(expiredCertificate, "test sender", false));
+        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(certificateChain, "test sender", false));
+        Assert.assertFalse(trustSenderInterceptor.checkCertificateValidity(expiredCertificateChain, "test sender", false));
     }
 
     @Test
     public void testCheckCertificateValidityDisabled() throws Exception {
         final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, new DateTime().minusDays(2).toDate(), new DateTime().minusDays(1).toDate(), null);
+        List<Certificate> expiredCertificateChain = new ArrayList<>();
+        expiredCertificateChain.add(expiredCertificate);
 
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = false;
         }};
-        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(expiredCertificate, "test sender", false));
+        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(expiredCertificateChain, "test sender", false));
     }
 
     @Test
