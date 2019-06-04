@@ -35,6 +35,10 @@ public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
 
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+        return handleRequestBody(body);
+    }
+
+    protected Object handleRequestBody(Object body) {
         try {
             blacklistValidator.validate(body);
             return body;

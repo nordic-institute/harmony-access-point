@@ -42,7 +42,7 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
         }
     }
 
-    private void doValidate(Object obj, String path) {
+    protected void doValidate(Object obj, String path) {
         if (obj == null) {
             return;
         }

@@ -35,11 +35,15 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         Map<String, String[]> queryParams = request.getParameterMap();
+        return handleQueryParams(queryParams);
+    }
+
+    protected boolean handleQueryParams(Map<String, String[]> queryParams) {
         if (queryParams == null || queryParams.isEmpty()) {
             return true;
         }
         try {
-            validate(queryParams, response);
+            validate(queryParams);
             return true;
         } catch (ValidationException ex) {
             throw ex;
@@ -48,7 +52,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
     }
 
-    private void validate(Map<String, String[]> parameterMap, HttpServletResponse response) {
+    private void validate(Map<String, String[]> parameterMap) {
         parameterMap.forEach((key, val) -> {
             if (!blacklistValidator.isValid(val)) {
                 throw new ValidationException(String.format("Blacklisted character detected in the query parameter: %s", key));
