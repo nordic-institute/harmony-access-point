@@ -1542,10 +1542,10 @@ def findNumberOfDomain(String inputSite) {
         debugLog("  ====  Calling \"fetchCookieHeader\".", log)
         def commandString = null;
         def commandResult = null;
-
-        commandString = ["curl", "-v", "-i", "-H",  '\"Content-Type:application/json\"', 
-						"-d", '{\"username\":\"$userLogin\",\"password\":\"$passwordLogin\"}', 
-						"-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+		def json = '{\"username\":\"' + "${userLogin}" + '"==\",\"password\":\"' + "${passwordLogin}" + '\"}'
+	
+        commandString = ["curl", "-v", "-i", "-H",  "Content-Type:application/json", 
+						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
 						urlToDomibus(side, log, context) + "/rest/security/authentication"]
 	
         commandResult = runCurlCommand(commandString, log)
