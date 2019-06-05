@@ -15,6 +15,8 @@
   }, {
     "name" : "monitoring"
   }, {
+    "name" : "pmode"
+  }, {
     "name" : "usermessage"
   } ],
   "schemes" : [ "http", "https" ],
@@ -310,6 +312,33 @@
           "basicAuth" : [ ]
         } ]
       }
+    },
+    "/ext/pmode/{id}" : {
+      "get" : {
+        "tags" : [ "pmode" ],
+        "summary" : "Get PMode file",
+        "description" : "Retrieve the PMode file of specified id",
+        "operationId" : "downloadPMode",
+        "produces" : [ "application/xml" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Resource"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
     }
   },
   "securityDefinitions" : {
@@ -387,6 +416,9 @@
           "type" : "string"
         }
       }
+    },
+    "InputStream" : {
+      "type" : "object"
     },
     "MessageAcknowledgementDTO" : {
       "type" : "object",
@@ -571,6 +603,37 @@
         },
         "type" : {
           "type" : "string"
+        }
+      }
+    },
+    "Resource" : {
+      "type" : "object",
+      "properties" : {
+        "url" : {
+          "type" : "string",
+          "format" : "url"
+        },
+        "file" : {
+          "type" : "file"
+        },
+        "open" : {
+          "type" : "boolean"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "inputStream" : {
+          "$ref" : "#/definitions/InputStream"
         }
       }
     },
