@@ -81,7 +81,7 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
                         Object value = ReflectionUtils.getField(field, obj);
                         doValidate(value, path + "->" + field.getName());
                     },
-                    field -> true
+                    field -> (field.getAnnotation(SkipBlacklistValidation.class) == null)
             );
         }
     }
