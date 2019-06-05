@@ -1213,7 +1213,7 @@ def findNumberOfDomain(String inputSite) {
             } else {
                 debugLog("  addAdminConsoleUser  [][]  Users list before the update: " + usersMap, log)
                 debugLog("  addAdminConsoleUser  [][]  Prepare user \"$userAC\" details to be added.", log)
-                curlParams = "[\n  {\n    \"roles\": \"$userRole\",\n    \"userName\": \"$userAC\",\n    \"password\": \"$passwordAC\",\n    \"status\": \"NEW\",\n    \"active\": true,\n    \"suspended\": false,\n    \"authorities\": [],\n    \"deleted\": false\n    }\n]";
+                curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
                 debugLog("  addAdminConsoleUser  [][]  Inserting user \"$userAC\" in list.", log)
                 debugLog("  addAdminConsoleUser  [][]  User \"$userAC\" parameters: $curlParams.", log)
                 commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
@@ -1315,7 +1315,9 @@ def findNumberOfDomain(String inputSite) {
                 curlParams = "[\n  {\n    \"status\": \"NEW\",\n    \"userName\": \"$userPl\",\n    \"authenticationType\": \"BASIC\",\n" + ((originalUser != null && originalUser != "") ? "    \"originalUser\": \"$originalUser\",\n" : "") + "    \"authRoles\": \"$userRole\",\n    \"password\": \"$passwordPl\",\n    \"active\": \"true\"\n  }\n]";
                 debugLog("  addPluginUser  [][]  Inserting user $userPl in the list.", log)
                 debugLog("  addPluginUser  [][]  curlParams: " + curlParams, log)
-                commandString = "curl " + urlToDomibus(side, log, context) + "/rest/plugin/users -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+                commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "\"Content-Type: application/json\"", "-H","\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\",
+								"-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log), "--trace-ascii", "-"]
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
@@ -1545,7 +1547,7 @@ def findNumberOfDomain(String inputSite) {
 		def json = '{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}'
 	
         commandString = ["curl", "-i", "-H",  "Content-Type: application/json", 
-						"-d", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
 						urlToDomibus(side, log, context) + "/rest/security/authentication", "--trace-ascii", "-"]
 	
         commandResult = runCurlCommand(commandString, log)
@@ -1596,11 +1598,14 @@ def findNumberOfDomain(String inputSite) {
 //---------------------------------------------------------------------------------------------------------------------------------
         static def formatJsonForCurl(String input, log) {
         debugLog("  ====  Calling \"formatJsonForCurl\".", log)
-        def intermediate = null;
-        assert(input != null),"Error:formatJsonForCurl: input string is null.";
-        assert(input.contains("[") && input.contains("]")),"Error:formatJsonForCurl: input string is corrupted.";
-        intermediate = input.substring(input.indexOf("[") + 1, input.lastIndexOf("]")).replace("\"", "\"\"\"")
-        return "[\"" + intermediate + "\"]";
+		if (System.properties['os.name'].toLowerCase().contains('windows')) {
+			def intermediate = null;
+			assert(input != null),"Error:formatJsonForCurl: input string is null.";
+			assert(input.contains("[") && input.contains("]")),"Error:formatJsonForCurl: input string is corrupted.";
+			intermediate = input.substring(input.indexOf("[") + 1, input.lastIndexOf("]")).replace("\"", "\"\"\"")
+			return "[\"" + intermediate + "\"]"
+		}
+		return "'" + input + "'"
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         static def computePathRessources(String type, String extension, context, log) {
