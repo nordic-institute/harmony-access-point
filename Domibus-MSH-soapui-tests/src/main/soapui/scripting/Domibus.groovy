@@ -1136,9 +1136,14 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 
-        commandString = "curl " + urlToDomibus(side, log, context) + "/rest/security/user/domain -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin) + "\" GET ";
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+						"-H", "\"Content-Type: application/json\"",
+						"-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin) + "\"",
+						"-v"]
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains('{"code":')),"Error:getDomain: Error while trying to connect to domibus."
+		debugLog("  ====  END \"getDomain\".", log)
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1147,16 +1152,22 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 
-        assert(userLogin==SUPER_USER),"Error:getDomains: To manipulate domains, login must be done with user: \"$SUPER_USER\"."
+        assert(userLogin==SUPER_USER),"Error:setDomain: To manipulate domains, login must be done with user: \"$SUPER_USER\"."
         debugLog("  setDomain  [][]  Set domain for Domibus $side.", log)
         if (domainValue == getDomainName(getDomain(side, context, log), log)) {
             debugLog("  setDomain  [][]  Requested domain is equal to the current value: no action needed", log)
         } else {
-            commandString="curl "+urlToDomibus(side, log, context)+"/rest/security/user/domain -b "+context.expand('${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side, context, log, userLogin, passwordLogin)+"\" -X PUT -d \"\"\""+domainValue+"\"\"\"";
+            commandString=["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+						"-H", "\"Content-Type: application/json\"",
+						"-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin) + "\"",
+						"-X", "PUT",
+						"-d", "\"\"" + domainValue + "\"\"\""]
             commandResult = runCurlCommand(commandString, log)
             assert(commandResult[0].contains('{"entries":')||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
             debugLog("  setDomain  [][]  Domain set to $domainValue.",log)
         }
+		debugLog("  ====  END \"setDomain\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     // Return number of domains
@@ -1260,8 +1271,8 @@ def findNumberOfDomain(String inputSite) {
                 assert(roleAC != null),"Error:removeAdminConsoleUser: Error while fetching the role of user \"$userAC\".";
                 assert(userDeleted != null),"Error:removeAdminConsoleUser: Error while fetching the \"deleted\" status of user \"$userAC\".";
                 if (userDeleted == false) {
-                    curlParams = "[\n  {\n    \"userName\": \"$userAC\",\n    \"roles\": \"$roleAC\",\n    \"active\": true,\n    \"authorities\": [\n      \"$roleAC\"\n    ],\n    \"status\": \"REMOVED\",\n    \"suspended\": false,\n    \"deleted\": true\n    }\n]";
-                    commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+                    curlParams = "[ { \"userName\": \"$userAC\", \"roles\": \"$roleAC\", \"active\": true, \"authorities\": [ \"$roleAC\" ], \"status\": \"REMOVED\", \"suspended\": false, \"deleted\": true } ]"
+                    commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/user/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"", "-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log)]
                     commandResult = runCurlCommand(commandString, log)
                     assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:removeAdminConsoleUser: Error while trying to remove user $userAC.";
                     log.info "  removeAdminConsoleUser  [][]  User \"$userAC\" Removed."
@@ -1284,7 +1295,11 @@ def findNumberOfDomain(String inputSite) {
 
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
-        commandString="curl "+urlToDomibus(side, log, context)+"/rest/plugin/users -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H 'Content-Type: application/json' -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
+        commandString=["curl", urlToDomibus(side, log, context) + "/rest/plugin/users",
+					   "--cookie", context.expand( '${projectDir}')+ File.separator + "cookie.txt",
+					   "-H", 'Content-Type: application/json',
+					   "-H", "\"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\"",
+					   "-v"]
         commandResult = runCurlCommand(commandString, log)
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:getPluginUsers: Error while trying to connect to domibus.";
         return commandResult[0].substring(5)
@@ -1301,7 +1316,7 @@ def findNumberOfDomain(String inputSite) {
         def curlParams=null;
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
-
+		
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
@@ -1312,12 +1327,18 @@ def findNumberOfDomain(String inputSite) {
             } else {
                 debugLog("  addPluginUser  [][]  Users list before the update: " + usersMap, log)
                 debugLog("  addPluginUser  [][]  Prepare user $userPl details to be added.", log)
-                curlParams = "[\n  {\n    \"status\": \"NEW\",\n    \"userName\": \"$userPl\",\n    \"authenticationType\": \"BASIC\",\n" + ((originalUser != null && originalUser != "") ? "    \"originalUser\": \"$originalUser\",\n" : "") + "    \"authRoles\": \"$userRole\",\n    \"password\": \"$passwordPl\",\n    \"active\": \"true\"\n  }\n]";
+                curlParams = "[ { \"status\": \"NEW\", \"userName\": \"$userPl\", \"authenticationType\": \"BASIC\", " + 
+							((originalUser != null && originalUser != "") ? " \"originalUser\": \"$originalUser\", " : "") + 
+							" \"authRoles\": \"$userRole\", \"password\": \"$passwordPl\", \"active\": \"true\" } ]";
                 debugLog("  addPluginUser  [][]  Inserting user $userPl in the list.", log)
                 debugLog("  addPluginUser  [][]  curlParams: " + curlParams, log)
-                commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-								"-H", "\"Content-Type: application/json\"", "-H","\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"",
-								"-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log), "--trace-ascii", "-"]
+                commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "\"Content-Type: application/json\"",
+								"-H","\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"",
+								"-X", "PUT", 
+								"--data-binary", formatJsonForCurl(curlParams, log), 
+								"--trace-ascii", "-"]
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
@@ -1545,6 +1566,8 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 		def json = '{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}'
+		
+		if (System.properties['os.name'].toLowerCase().contains('windows')) json = json.replace("\"", "\\\"")
 	
         commandString = ["curl", "-i", "-H",  "Content-Type: application/json", 
 						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
@@ -1598,6 +1621,7 @@ def findNumberOfDomain(String inputSite) {
 //---------------------------------------------------------------------------------------------------------------------------------
         static def formatJsonForCurl(String input, log) {
         debugLog("  ====  Calling \"formatJsonForCurl\".", log)
+		debugLog("  +++++++++++ Runned on: " + System.properties['os.name'], log)
 		if (System.properties['os.name'].toLowerCase().contains('windows')) {
 			def intermediate = null;
 			assert(input != null),"Error:formatJsonForCurl: input string is null.";
@@ -1817,6 +1841,8 @@ static def String urlToDomibus(side, log, context) {
     return context.expand("\${#Project#${propName}}")
 }
 
+//---------------------------------------------------------------------------------------------------------------------------------
+// This method support JMS project
 static def void addPluginCredentialsIfNeeded(context, log, messageMap, String propPluginUsername = defaultPluginAdminC2Default, String propPluginPassword = defaultAdminDefaultPassword) {
     debugLog("  ====  Calling \"addPluginCredentialsIfNeeded\".", log)
     def unsecureLoginAllowed = context.expand("\${#Project#unsecureLoginAllowed}").toLowerCase()
