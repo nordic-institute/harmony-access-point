@@ -80,6 +80,19 @@ public class CertificateServiceImpl implements CertificateService {
     private PModeProvider pModeProvider;
 
     @Override
+    public boolean isCertificateChainValid(List<? extends Certificate> certificateChain) {
+        for (Certificate certificate : certificateChain) {
+            boolean certificateValid = isCertificateValid((X509Certificate)certificate);
+            if (!certificateValid) {
+                LOG.warn("Sender certificate not valid [{}]", certificate);
+                return false;
+            }
+            LOG.debug("Sender certificate valid [{}]", certificate);
+        }
+        return true;
+    }
+
+    @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class)
     public boolean isCertificateChainValid(KeyStore trustStore, String alias) throws DomibusCertificateException {
         X509Certificate[] certificateChain = null;
