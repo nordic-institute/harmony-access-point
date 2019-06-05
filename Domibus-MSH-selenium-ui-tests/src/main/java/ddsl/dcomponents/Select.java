@@ -43,7 +43,7 @@ public class Select extends DComponent {
 	@FindBy(css = "span[class*=\"select-arrow\"]")
 	protected WebElement expandBtn;
 
-	@FindBy(css = "span.md2-select-value")
+	@FindBy(css = "span[class*=\"-select-value\"]")
 	protected WebElement selectedOptionValue;
 
 	@FindBy(css = "[class*=\"select-content ng-trigger ng-trigger-fadeInContent\"]")

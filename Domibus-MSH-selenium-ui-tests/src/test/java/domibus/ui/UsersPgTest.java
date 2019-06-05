@@ -489,7 +489,7 @@ public class UsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-14", groups = {"multiTenancy"})
 	public void duplicateUserVSPluginUser() throws Exception {
 
 		String username = Generator.randomAlphaNumeric(9);
@@ -509,6 +509,8 @@ public class UsersPgTest extends BaseTest {
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
 		String expectedMessage = String.format(DMessages.DUPLICATE_USER_, username, "default");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
+
+		rest.deletePluginUser(username, null);
 
 		soft.assertAll();
 	}

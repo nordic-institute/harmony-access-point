@@ -97,7 +97,7 @@ public class ErrorLogPage extends DomibusPage {
 
 
 	public boolean isLoaded() throws Exception {
-		return (searchButton.isEnabled()
+		return (getSearchButton().isEnabled()
 				&& getMessageIDInput().isEnabled()
 				&& getSignalMessIDInput().isEnabled());
 	}

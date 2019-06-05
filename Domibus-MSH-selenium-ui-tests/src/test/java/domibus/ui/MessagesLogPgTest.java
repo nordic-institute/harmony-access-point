@@ -122,6 +122,7 @@ public class MessagesLogPgTest extends BaseTest {
 
 		page.getFilters().getMessageIDInput().fill(messageIDs.get(0));
 		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
 
 		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
 
@@ -180,6 +181,7 @@ public class MessagesLogPgTest extends BaseTest {
 		filters.getApRoleSelect().selectOptionByText(MessageConstants.AP_Role);
 
 		filters.getSearchButton().click();
+		page.grid().waitForRowsToLoad();
 
 		for (int i = 0; i < page.grid().getRowsNo(); i++) {
 			page.grid().doubleClickRow(i);
@@ -214,7 +216,7 @@ public class MessagesLogPgTest extends BaseTest {
 
 		page.getFilters().getMessageIDInput().fill("testEmptyGrid");
 		page.getFilters().getSearchButton().click();
-
+		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
 

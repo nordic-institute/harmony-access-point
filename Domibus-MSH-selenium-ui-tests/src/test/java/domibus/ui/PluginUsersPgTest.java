@@ -542,7 +542,7 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "PU-17", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-17", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnSameDomain() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
