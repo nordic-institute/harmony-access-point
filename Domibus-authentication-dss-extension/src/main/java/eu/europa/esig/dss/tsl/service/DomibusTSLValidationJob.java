@@ -55,7 +55,7 @@ import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
  */
 public class DomibusTSLValidationJob {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TSLValidationJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DomibusTSLValidationJob.class);
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
