@@ -150,14 +150,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     const searchParams = this.createStaticSearchParams();
 
     if (this.dynamicFilters.length > 0) {
-      let d: string[] = [];
-      for (let i = 0; i < this.dynamicFilters.length; i++) {
-        d[i] = '';
+      for (let filter of this.dynamicFilters) {
+        searchParams.append('parameters', filter);
       }
-      for (let filter in this.dynamicFilters) {
-        d[filter] = this.dynamicFilters[filter];
-      }
-      searchParams.set('parameters', d.toString());
     }
 
     if (this.alertTypeWithDate) {
