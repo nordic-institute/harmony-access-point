@@ -1316,7 +1316,7 @@ def findNumberOfDomain(String inputSite) {
                 debugLog("  addPluginUser  [][]  Inserting user $userPl in the list.", log)
                 debugLog("  addPluginUser  [][]  curlParams: " + curlParams, log)
                 commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-								"-H", "\"Content-Type: application/json\"", "-H","\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\",
+								"-H", "\"Content-Type: application/json\"", "-H","\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"",
 								"-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log), "--trace-ascii", "-"]
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
