@@ -110,7 +110,6 @@ public class PullRequestHandler {
                 }
                 LOG.info("Initiator is [{}]", initiatorPartyName);
 
-                // we could skip this verification as we already accepted a signed pull request with this certificate
                 messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
                 messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
                 leg = pullContext.filterLegOnMpc();
