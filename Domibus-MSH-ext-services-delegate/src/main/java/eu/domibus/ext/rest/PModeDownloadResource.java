@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +29,8 @@ public class PModeDownloadResource {
 
     @ApiOperation(value = "Get PMode file", notes = "Retrieve the PMode file of specified id",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = "application/xml")
-    public ResponseEntity<? extends Resource> downloadPMode(@PathVariable(value = "id") int id) {
+    @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") int id) {
         LOG.debug("downloadPMode -> start");
         final byte[] rawConfiguration = pModeExtService.getPModeFile(id);
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
@@ -44,7 +43,7 @@ public class PModeDownloadResource {
             status = HttpStatus.NO_CONTENT;
         }
         return ResponseEntity.status(status)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_XML_VALUE))
                 .header("content-disposition", "attachment; filename=Pmodes.xml")
                 .body(resource);
     }
