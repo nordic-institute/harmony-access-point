@@ -313,6 +313,25 @@
         } ]
       }
     },
+    "/ext/pmode/current" : {
+      "get" : {
+        "tags" : [ "pmode" ],
+        "summary" : "Get current PMode info",
+        "description" : "Retrieve the current PMode file information",
+        "operationId" : "getCurrentPMode",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/PModeArchiveInfoDTO"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/pmode/{id}" : {
       "get" : {
         "tags" : [ "pmode" ],
@@ -523,6 +542,25 @@
         }
       }
     },
+    "PModeArchiveInfoDTO" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "configurationDate" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "username" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        }
+      }
+    },
     "PartInfoDTO" : {
       "type" : "object",
       "properties" : {
@@ -626,11 +664,11 @@
           "type" : "string",
           "format" : "uri"
         },
-        "filename" : {
-          "type" : "string"
-        },
         "readable" : {
           "type" : "boolean"
+        },
+        "filename" : {
+          "type" : "string"
         },
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
