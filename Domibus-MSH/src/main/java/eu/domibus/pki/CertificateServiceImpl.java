@@ -84,7 +84,7 @@ public class CertificateServiceImpl implements CertificateService {
         for (Certificate certificate : certificateChain) {
             boolean certificateValid = isCertificateValid((X509Certificate)certificate);
             if (!certificateValid) {
-                LOG.info("Sender certificate not valid [{}]", certificate);
+                LOG.warn("Sender certificate not valid [{}]", certificate);
                 return false;
             }
             LOG.debug("Sender certificate valid [{}]", certificate);
