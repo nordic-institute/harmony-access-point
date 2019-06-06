@@ -326,7 +326,7 @@ public class DomibusDataLoader implements DataLoader {
         // TODO SSL peer shut down incorrectly when protocol is https
         final HttpHost proxy = new HttpHost(proxyHost, proxyPort, Protocol.HTTP.getName());
 
-        LOG.debug("Exclued hosts:[{}]",proxyExcludedHosts);
+        LOG.debug("Excluded hosts:[{}]", proxyExcludedHosts);
         if (Utils.isStringNotEmpty(proxyExcludedHosts)) {
             final String[] hosts = proxyExcludedHosts.split("[,; ]");
 
@@ -338,9 +338,9 @@ public class DomibusDataLoader implements DataLoader {
 
                     if ((hosts != null) && (hostname != null)) {
                         for (String h : hosts) {
-                            LOG.debug("Comparing excluded host:[{}] with trusted list host:[{}]",h,hostname);
+                            LOG.debug("Comparing excluded host:[{}] with trusted list host:[{}]", h, hostname);
                             if (hostname.equalsIgnoreCase(h)) {
-                                LOG.debug("Excludeding proxy for host:[{}]",hostname);
+                                LOG.debug("Excluding proxy for host:[{}]", hostname);
                                 // bypass proxy for that hostname
                                 return new HttpRoute(host);
                             }

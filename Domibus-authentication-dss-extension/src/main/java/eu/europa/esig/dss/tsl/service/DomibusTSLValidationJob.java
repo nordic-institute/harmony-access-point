@@ -1,55 +1,26 @@
-/**
- * DSS - Digital Signature Services
- * Copyright (C) 2015 European Commission, provided under the CEF programme
- *
- * This file is part of the "DSS - Digital Signature Services" project.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
 package eu.europa.esig.dss.tsl.service;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import eu.europa.esig.dss.DSSDocument;
 import eu.europa.esig.dss.DSSException;
 import eu.europa.esig.dss.FileDocument;
 import eu.europa.esig.dss.client.http.DataLoader;
-import eu.europa.esig.dss.tsl.OtherTrustedList;
-import eu.europa.esig.dss.tsl.TSLLoaderResult;
-import eu.europa.esig.dss.tsl.TSLParserResult;
-import eu.europa.esig.dss.tsl.TSLPointer;
-import eu.europa.esig.dss.tsl.TSLValidationModel;
-import eu.europa.esig.dss.tsl.TSLValidationResult;
+import eu.europa.esig.dss.tsl.*;
 import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.x509.CertificateToken;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
+ * @author Thomas Dussart
+ * @since 4.1
  * This class is job class which allows to launch TSL loading/parsing/validation. An instance of this class can be
  * injected in a Spring quartz job.
  */
@@ -96,8 +67,7 @@ public class DomibusTSLValidationJob {
     /**
      * This method allows to set the LOTL country code
      *
-     * @param lotlCode
-     *            the country code (EU in European Union)
+     * @param lotlCode the country code (EU in European Union)
      */
     public void setLotlCode(String lotlCode) {
         this.lotlCode = lotlCode;
@@ -106,8 +76,7 @@ public class DomibusTSLValidationJob {
     /**
      * This method allows to set the LOTL URL
      *
-     * @param lotlUrl
-     *            the LOTL Url
+     * @param lotlUrl the LOTL Url
      */
     public void setLotlUrl(String lotlUrl) {
         this.lotlUrl = lotlUrl;
@@ -125,8 +94,7 @@ public class DomibusTSLValidationJob {
     /**
      * This method allows to set the Official Journal URL (where the trusted certificates are listed)
      *
-     * @param ojUrl
-     *            the Official Journal URL
+     * @param ojUrl the Official Journal URL
      */
     public void setOjUrl(String ojUrl) {
         this.ojUrl = ojUrl;
@@ -151,8 +119,7 @@ public class DomibusTSLValidationJob {
     /**
      * This parameter allows to add non EU trusted lists.
      *
-     * @param otherTrustedLists
-     *            a list of additional trusted lists to be supported
+     * @param otherTrustedLists a list of additional trusted lists to be supported
      */
     public void setOtherTrustedLists(List<OtherTrustedList> otherTrustedLists) {
         this.otherTrustedLists = otherTrustedLists;
@@ -263,8 +230,8 @@ public class DomibusTSLValidationJob {
                     parseResult = parseLOTL(europeanModel);
                     europeanModel.setParseResult(parseResult);
                 } catch (Exception e) {
-                    LOG.warn("Unable to parse the LOTL:[{}]",e.getMessage());
-                    LOG.debug("Unable to parse the LOTL",e);
+                    LOG.warn("Unable to parse the LOTL:[{}]", e.getMessage());
+                    LOG.debug("Unable to parse the LOTL", e);
                     return;
                 }
             }
@@ -293,7 +260,7 @@ public class DomibusTSLValidationJob {
             }
 
             analyzeCountryPointers(parseResult.getPointers(), newLotl);
-        }finally {
+        } finally {
             repository.synchronize();
         }
         LOG.debug("TSL Validation Job is finishing ...");
@@ -379,7 +346,6 @@ public class DomibusTSLValidationJob {
      * This method checks if the OJ url is still correct. If not, the DSS keystore is outdated.
      *
      * @param parseResult
-     *
      * @return
      */
     private boolean isLatestOjKeystore(TSLParserResult parseResult) {

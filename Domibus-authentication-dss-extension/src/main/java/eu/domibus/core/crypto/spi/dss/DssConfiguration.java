@@ -12,7 +12,6 @@ import eu.europa.esig.dss.tsl.OtherTrustedList;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
@@ -158,10 +157,10 @@ public class DssConfiguration {
             LOG.debug("Configuring Dss https proxy:");
             try {
                 int httpsPort = Integer.parseInt(proxyHttpsPort);
-                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost,httpsPort , proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
+                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost, httpsPort, proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
                 proxyConfig.setHttpsProperties(httpsProperties);
-            }catch (NumberFormatException n) {
-                LOG.warn("Error parsing https port config:[{}], skipping https configuration",proxyHttpsHost,n);
+            } catch (NumberFormatException n) {
+                LOG.warn("Error parsing https port config:[{}], skipping https configuration", proxyHttpsHost, n);
             }
         }
         if (!NONE.equals(proxyHttpHost)) {
@@ -170,8 +169,8 @@ public class DssConfiguration {
                 int httpPort = Integer.parseInt(proxyHttpPort);
                 final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, httpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
                 proxyConfig.setHttpProperties(httpProperties);
-            }catch (NumberFormatException n) {
-                LOG.warn("Error parsing http port config:[{}], skipping http configuration",proxyHttpPort,n);
+            } catch (NumberFormatException n) {
+                LOG.warn("Error parsing http port config:[{}], skipping http configuration", proxyHttpPort, n);
             }
         }
         dataLoader.setProxyConfig(proxyConfig);
@@ -213,7 +212,7 @@ public class DssConfiguration {
         for (OtherTrustedList otherTrustedList : otherTrustedLists) {
             LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
         }
-        if(otherTrustedLists.isEmpty()){
+        if (otherTrustedLists.isEmpty()) {
             LOG.info("No custom trusted list configured.");
         }
         return otherTrustedLists;
