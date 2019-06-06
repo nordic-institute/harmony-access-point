@@ -15,6 +15,8 @@
   }, {
     "name" : "monitoring"
   }, {
+    "name" : "pmode"
+  }, {
     "name" : "usermessage"
   } ],
   "schemes" : [ "http", "https" ],
@@ -310,6 +312,52 @@
           "basicAuth" : [ ]
         } ]
       }
+    },
+    "/ext/pmode/current" : {
+      "get" : {
+        "tags" : [ "pmode" ],
+        "summary" : "Get current PMode info",
+        "description" : "Retrieve the current PMode file information",
+        "operationId" : "getCurrentPMode",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/PModeArchiveInfoDTO"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/pmode/{id}" : {
+      "get" : {
+        "tags" : [ "pmode" ],
+        "summary" : "Get PMode file",
+        "description" : "Retrieve the PMode file of specified id",
+        "operationId" : "downloadPMode",
+        "produces" : [ "application/xml" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Resource"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
     }
   },
   "securityDefinitions" : {
@@ -387,6 +435,9 @@
           "type" : "string"
         }
       }
+    },
+    "InputStream" : {
+      "type" : "object"
     },
     "MessageAcknowledgementDTO" : {
       "type" : "object",
@@ -491,6 +542,25 @@
         }
       }
     },
+    "PModeArchiveInfoDTO" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "configurationDate" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "username" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        }
+      }
+    },
     "PartInfoDTO" : {
       "type" : "object",
       "properties" : {
@@ -571,6 +641,37 @@
         },
         "type" : {
           "type" : "string"
+        }
+      }
+    },
+    "Resource" : {
+      "type" : "object",
+      "properties" : {
+        "url" : {
+          "type" : "string",
+          "format" : "url"
+        },
+        "file" : {
+          "type" : "file"
+        },
+        "open" : {
+          "type" : "boolean"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "filename" : {
+          "type" : "string"
+        },
+        "inputStream" : {
+          "$ref" : "#/definitions/InputStream"
         }
       }
     },

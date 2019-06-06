@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.domain.LegConfiguration;
@@ -38,6 +39,17 @@ public class PModeDefaultService implements PModeService {
         eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity = pModeProvider.getLegConfiguration(pModeKey);
         return convert(legConfigurationEntity);
     }
+
+    @Override
+    public byte[] getPModeFile(int id) {
+        return pModeProvider.getPModeFile(id);
+    }
+
+    @Override
+    public PModeArchiveInfo getCurrentPMode() {
+        return pModeProvider.getCurrentPmode();
+    }
+
 
     protected LegConfiguration convert(eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) {
         if (legConfigurationEntity == null) {

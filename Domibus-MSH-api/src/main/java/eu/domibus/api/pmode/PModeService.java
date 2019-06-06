@@ -9,4 +9,8 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 public interface PModeService {
 
     LegConfiguration getLegConfiguration(String messageId) throws PModeException;
+
+    byte[] getPModeFile(int id);
+
+    PModeArchiveInfo getCurrentPMode();
 }
