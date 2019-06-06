@@ -104,7 +104,6 @@ public class DGrid extends DComponent {
 		} catch (Exception e) {
 
 		}
-//		wait.forElementToBeVisible(gridHeaders.get(0));
 	}
 
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {

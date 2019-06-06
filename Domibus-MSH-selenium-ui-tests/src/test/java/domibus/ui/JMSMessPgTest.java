@@ -1,9 +1,11 @@
 package domibus.ui;
 
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.enums.DMessages;
 import ddsl.enums.DOMIBUS_PAGES;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMessModal;
@@ -11,6 +13,7 @@ import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Catalin Comanici
@@ -36,7 +39,7 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessages();
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 		if(noOfMessages>0) {
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().doubleClickRow(0);
@@ -58,7 +61,7 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessages();
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 		if(noOfMessages>0) {
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 
@@ -81,7 +84,7 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessages();
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 		if(noOfMessages>0) {
 			String endDate = page.filters().getJmsToDatePicker().getSelectedDate();
 			page.filters().getJmsFromDatePicker().selectDate(endDate);
@@ -102,7 +105,7 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessages();
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 		if(noOfMessages>0) {
 			String endDate = page.filters().getJmsToDatePicker().getSelectedDate();
 			page.filters().getJmsFromDatePicker().selectDate(endDate);
@@ -131,7 +134,7 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessages();
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 		if(noOfMessages>0) {
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().selectRow(0);
@@ -153,26 +156,65 @@ public class JMSMessPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "JMS-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "JMS-7", groups = {"multiTenancy", "singleTenancy"})
 	public void moveMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().selectQueueWithMessagesNotDLQ();
+		page.grid().waitForRowsToLoad();
+		List<HashMap<String, String>> dlqMessages = page.grid().getAllRowInfo();
+
+
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+		page.grid().waitForRowsToLoad();
+
+		String queuename = page.filters().getJmsQueueSelect().getSelectedValue();
+
 		if(noOfMessages>0) {
-			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().selectRow(0);
 			page.getMoveButton().click();
 
 			JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
-			modal.getQueueSelect().selectOptionByIndex(5);
-
+			modal.getQueueSelect().selectDLQQueue();
 			modal.clickCancel();
 
-		}
+			soft.assertEquals(noOfMessages, page.grid().getPagination().getTotalItems(), "Number of messages in current queue is not changed");
 
-		page.wait.forXMillis(10000);
+			page.filters().getJmsQueueSelect().selectDLQQueue();
+			page.grid().waitForRowsToLoad();
+
+			soft.assertEquals(dlqMessages.size(), page.grid().getPagination().getTotalItems(), "Number of messages in DLQ message queue is not changed");
+
+			page.filters().getJmsQueueSelect().selectOptionByText(queuename);
+			page.grid().waitForRowsToLoad();
+
+			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
+			page.grid().selectRow(0);
+			page.getMoveButton().click();
+
+			modal.getQueueSelect().selectDLQQueue();
+			modal.clickOK();
+
+			page.grid().waitForRowsToLoad();
+
+			soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
+			soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.JMS_MOVE_MESSAGE_SUCCESS, "Correct message is shown");
+
+			soft.assertTrue(page.grid().getPagination().getTotalItems() == noOfMessages-1, "Queue has one less message");
+
+			page.filters().getJmsQueueSelect().selectDLQQueue();
+			page.grid().waitForRowsToLoad();
+
+			soft.assertEquals(dlqMessages.size()+1, page.grid().getRowsNo(), "DQL queue has one more message after the move");
+
+			int index = page.grid().scrollTo("ID", rowInfo.get("ID"));
+
+			soft.assertTrue(index > -1, "DQL queue contains the new message");
+		}
+		else {
+			throw new SkipException("Not enough messages in any of the queues to run test");
+		}
 
 		soft.assertAll();
 	}

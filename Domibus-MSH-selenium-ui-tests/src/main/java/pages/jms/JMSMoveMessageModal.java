@@ -2,6 +2,7 @@ package pages.jms;
 
 import ddsl.dcomponents.Select;
 import ddsl.dcomponents.popups.EditModal;
+import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -28,12 +29,18 @@ public class JMSMoveMessageModal extends EditModal {
 	@FindBy(id = "jmsqueuedestination_id")
 	protected WebElement queueSelect;
 
-	public Select getQueueSelect() {
-		return new Select(driver, queueSelect);
+	public JMSSelect getQueueSelect() {
+		return new JMSSelect(driver, queueSelect);
 	}
 
+	@Override
+	public DButton getOkBtn() {
+		return new DButton(driver, okBtn);
+	}
 
-
+	@Override
+	public DButton getCancelBtn() {	return new DButton(driver, cancelBtn);
+	}
 
 
 }

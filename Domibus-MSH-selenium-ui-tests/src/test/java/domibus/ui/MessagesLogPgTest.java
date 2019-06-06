@@ -34,8 +34,6 @@ import java.util.zip.ZipInputStream;
  */
 public class MessagesLogPgTest extends BaseTest {
 
-	private HashMap<String, String> createdPluginUsers = new HashMap<>();
-
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception{
 		SoftAssert soft = new SoftAssert();
@@ -58,7 +56,7 @@ public class MessagesLogPgTest extends BaseTest {
 		String user = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null).getMessageID().get(0);
+		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
@@ -80,7 +78,7 @@ public class MessagesLogPgTest extends BaseTest {
 		String user = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null).getMessageID().get(0);
+		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
@@ -110,7 +108,7 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 		List<String> messageIDs = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
-			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), null, null).getMessageID().get(0));
+			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), null, null));
 		}
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
@@ -161,7 +159,7 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 		List<String> messageIDs = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
-			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID).getMessageID().get(0));
+			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID));
 		}
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
@@ -238,7 +236,7 @@ public class MessagesLogPgTest extends BaseTest {
 		String conversationID = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageID = messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID).getMessageID().get(0);
+		String messageID = messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
@@ -286,7 +284,7 @@ public class MessagesLogPgTest extends BaseTest {
 		String user = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageID =  messageSender.sendMessage(user, data.getDefaultTestPass(), null, null).getMessageID().get(0);
+		String messageID =  messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
 
 		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
@@ -330,12 +328,12 @@ public class MessagesLogPgTest extends BaseTest {
 		String userDomain = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(userDomain, DRoles.ADMIN, data.getDefaultTestPass(),domain);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
-		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null).getMessageID().get(0);
+		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null);
 
 		String userDefault = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(userDefault, DRoles.ADMIN, data.getDefaultTestPass(),null);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null).getMessageID().get(0);
+		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null);
 
 		String userAdmin = Generator.randomAlphaNumeric(10);
 		rest.createUser(userAdmin, DRoles.ADMIN, data.getDefaultTestPass(), domain);
@@ -376,12 +374,12 @@ public class MessagesLogPgTest extends BaseTest {
 		String userDomain = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(userDomain, DRoles.ADMIN, data.getDefaultTestPass(),domain);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
-		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null).getMessageID().get(0);
+		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null);
 
 		String userDefault = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(userDefault, DRoles.ADMIN, data.getDefaultTestPass(),null);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null).getMessageID().get(0);
+		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
 

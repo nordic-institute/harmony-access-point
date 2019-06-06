@@ -96,6 +96,8 @@ public class SideNavigation extends DComponent {
 
 	public DLink getPageLnk(DOMIBUS_PAGES page) throws Exception {
 
+		wait.forElementToHaveText(sideBar);
+
 		log.info("Get link to " + page.name());
 		switch (page) {
 			case MESSAGES:

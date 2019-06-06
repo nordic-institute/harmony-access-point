@@ -34,8 +34,12 @@ import java.util.Map;
 public class DomibusC1 {
 	private static final Log LOG = LogFactory.getLog(DomibusC1.class);
 
-	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_submitRequest.xml";
-	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_messaging.xml";
+//	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_submitRequest.xml";
+//	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_messaging.xml";
+
+	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/main/resources/eu/domibus/example/ws/submitMessage_submitRequest.xml";
+	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/main/resources/eu/domibus/example/ws/submitMessage_messaging.xml";
+
 	private static final String DEFAULT_WEBSERVICE_LOCATION = new TestRunData().getUiBaseUrl() + "services/backend?wsdl";
 
 	private static JAXBContext jaxbMessagingContext;
@@ -109,7 +113,7 @@ public class DomibusC1 {
 	}
 
 
-	public SubmitResponse sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception {
+	public String sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception {
 		BackendInterface backendInterface = getPort(pluginU, password);
 
 
@@ -128,7 +132,11 @@ public class DomibusC1 {
 
 		SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
 
-		return result;
+		if (null != result.getMessageID()){
+			return result.getMessageID().get(0);
+		}
+
+		throw new RuntimeException("Could not send message");
 	}
 
 
