@@ -1327,9 +1327,9 @@ def findNumberOfDomain(String inputSite) {
             } else {
                 debugLog("  addPluginUser  [][]  Users list before the update: " + usersMap, log)
                 debugLog("  addPluginUser  [][]  Prepare user $userPl details to be added.", log)
-                curlParams = "[ { \"status\": \"NEW\", \"userName\": \"$userPl\", \"authenticationType\": \"BASIC\", " + 
-							((originalUser != null && originalUser != "") ? " \"originalUser\": \"$originalUser\", " : "") + 
-							" \"authRoles\": \"$userRole\", \"password\": \"$passwordPl\", \"active\": \"true\" } ]";
+                curlParams = '[ { \"status\": \"NEW\", \"userName\": \"' + "${userPl}" + '\", \"authenticationType\": \"BASIC\", ' + 
+							((originalUser != null && originalUser != "") ? ' \"originalUser\": \"' + "${originalUser}" + '\", ' : '') + 
+							' \"authRoles\": \"' + "${userRole}" + '\", \"password\": \"' + "${passwordPl}" + '\", \"active\": \"true\" } ]'
                 debugLog("  addPluginUser  [][]  Inserting user $userPl in the list.", log)
                 debugLog("  addPluginUser  [][]  curlParams: " + curlParams, log)
                 commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
@@ -1338,7 +1338,7 @@ def findNumberOfDomain(String inputSite) {
 								"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
-								"--trace-ascii", "-"]
+								"-v"]
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
@@ -1619,7 +1619,7 @@ def findNumberOfDomain(String inputSite) {
         assert(false), "returnXsfrToken: Error while retrieving XSFRTOKEN ..."
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-        static def formatJsonForCurl(String input, log) {
+        static def formatJsonForCurl(input, log) {
         debugLog("  ====  Calling \"formatJsonForCurl\".", log)
 		debugLog("  +++++++++++ Runned on: " + System.properties['os.name'], log)
 		if (System.properties['os.name'].toLowerCase().contains('windows')) {
@@ -1627,9 +1627,9 @@ def findNumberOfDomain(String inputSite) {
 			assert(input != null),"Error:formatJsonForCurl: input string is null.";
 			assert(input.contains("[") && input.contains("]")),"Error:formatJsonForCurl: input string is corrupted.";
 			intermediate = input.substring(input.indexOf("[") + 1, input.lastIndexOf("]")).replace("\"", "\"\"\"")
-			return "[\"" + intermediate + "\"]"
+			return "[" + intermediate + "]"
 		}
-		return "'" + input + "'"
+		return input
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         static def computePathRessources(String type, String extension, context, log) {
