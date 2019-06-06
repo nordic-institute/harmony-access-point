@@ -1,8 +1,5 @@
 package ddsl.dcomponents;
 
-import ddsl.dobjects.DButton;
-import ddsl.dobjects.DLink;
-import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -18,7 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class SandwichMenu extends DComponent {
 
 
-	private WebDriverWait localWait = wait.webDriverWait;
+	private WebDriverWait localWait = wait.defaultWait;
 
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
@@ -53,7 +50,7 @@ public class SandwichMenu extends DComponent {
 		if (isMenuExpanded()) return;
 		driver.findElement(expandButton).click();
 		try {
-			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
+			wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -80,7 +77,7 @@ public class SandwichMenu extends DComponent {
 		log.info("Logging out...");
 		driver.findElement(logoutLnk).click();
 		contractMenu();
-		wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 
 

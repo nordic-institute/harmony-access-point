@@ -292,6 +292,7 @@ public class MessagesLogPgTest extends BaseTest {
 		MessagesPage page = new MessagesPage(driver);
 
 		page.grid().scrollToAndSelect("Message Id", messageID);
+
 		page.getResendButton().click();
 
 		MessageResendModal modal = new MessageResendModal(driver);

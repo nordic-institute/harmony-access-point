@@ -8,7 +8,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import ddsl.dcomponents.DomibusPage;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import utils.TestRunData;
 
 import java.util.HashMap;
 
@@ -80,7 +79,7 @@ public class LoginPage extends DomibusPage {
 		password.sendKeys(pass);
 		loginBtn.click();
 
-		wait.webDriverWait.until(ExpectedConditions.or(
+		wait.defaultWait.until(ExpectedConditions.or(
 				ExpectedConditions.visibilityOf(pageTitle),
 				ExpectedConditions.visibilityOf(getAlertArea().alertMessage)
 		));
@@ -99,6 +98,8 @@ public class LoginPage extends DomibusPage {
 	}
 
 	public void login(HashMap<String, String> user) throws Exception {
+
+		wait.longWaitforElementToBe(loginBtn);
 
 		log.info("Login started");
 		new DInput(driver, username).fill(user.get("username"));
