@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.*;
         propOrder = {"messageInfo", "partyInfo", "collaborationInfo", "messageProperties", "payloadInfo"})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
-public class UserMessage extends AbstractBaseEntity implements UserMessageExtensionMethods {
+public class UserMessage extends AbstractBaseEntity {
 
     @XmlElement(name = "MessageInfo", required = true)
     @OneToOne(cascade = CascadeType.ALL)
@@ -302,8 +302,17 @@ public class UserMessage extends AbstractBaseEntity implements UserMessageExtens
                 .toString();
     }
 
-    @Override
-    public UserMessage getUserMessage() {
-        return this;
+    public String getFromFirstPartyId() {
+        if (getPartyInfo() != null && getPartyInfo().getFrom() != null) {
+            return getPartyInfo().getFrom().getFirstPartyId();
+        }
+        return null;
+    }
+
+    public String getToFirstPartyId() {
+        if (getPartyInfo() != null && getPartyInfo().getTo() != null) {
+            return getPartyInfo().getTo().getFirstPartyId();
+        }
+        return null;
     }
 }
