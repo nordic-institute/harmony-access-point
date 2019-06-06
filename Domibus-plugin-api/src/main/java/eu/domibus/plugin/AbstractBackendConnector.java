@@ -5,6 +5,7 @@ import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
@@ -57,6 +58,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Override
     // The following does not have effect at this level since the transaction would have already been rolled back!
     // @Transactional(noRollbackFor = {IllegalArgumentException.class, IllegalStateException.class})
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
@@ -81,6 +83,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {

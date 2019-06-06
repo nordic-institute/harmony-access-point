@@ -151,7 +151,7 @@ public class PullMessageSender {
             LOG.trace("handle message");
             Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
             userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
-            final PartyInfo partyInfo = messaging.getUserMessage().getPartyInfo();
+
             LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
                     messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
             String sendMessageId = messageId;
