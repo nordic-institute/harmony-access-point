@@ -29,11 +29,12 @@ import java.util.Set;
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
 
-    protected String whitelist = null;
-    protected Set<Character> blacklist = null;
-
     public static final String WHITELIST_PROPERTY = "domibus.userInput.whiteList";
     public static final String BLACKLIST_PROPERTY = "domibus.userInput.blackList";
+
+    protected String whitelist = null;
+    protected Set<Character> blacklist = null;
+    protected CustomBlacklistValidation customAnnotation;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
@@ -127,7 +128,14 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             return true;
         }
 
-        boolean res = value.matches(whitelist);
+        boolean res;
+        if (customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
+            res = value.matches(whitelist)
+                    || value.chars().mapToObj(c -> (char) c).map(c -> c.toString())
+                    .allMatch(el -> el.matches(whitelist) || customAnnotation.permitted().contains(el));
+        } else {
+            res = value.matches(whitelist);
+        }
         LOG.debug("Validated value [{}] for whitelist and the outcome is [{}]", value, res);
         return res;
     }
@@ -143,7 +151,13 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             return true;
         }
 
-        boolean res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el));
+        boolean res;
+        if (customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
+            res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el)
+                    && !customAnnotation.permitted().contains(el.toString()));
+        } else {
+            res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el));
+        }
         LOG.debug("Validated value [{}] for blacklist and the outcome is [{}]", value, res);
         return res;
     }

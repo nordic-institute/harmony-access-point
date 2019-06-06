@@ -50,6 +50,9 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
             LOG.debug("Object [{}] to validate is null, exiting.", path);
             return;
         }
+        if (obj.getClass().getAnnotation(SkipBlacklistValidation.class) != null) {
+            return;
+        }
         if (obj instanceof String) {
             LOG.debug("Validating object String property [{}]:[{}]", path, obj);
             if (!isValidValue((String) obj)) {
@@ -79,6 +82,7 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
                             field.setAccessible(true);
                         }
                         Object value = ReflectionUtils.getField(field, obj);
+                        this.customAnnotation = field.getAnnotation(CustomBlacklistValidation.class);
                         doValidate(value, path + "->" + field.getName());
                     },
                     field -> (field.getAnnotation(SkipBlacklistValidation.class) == null)

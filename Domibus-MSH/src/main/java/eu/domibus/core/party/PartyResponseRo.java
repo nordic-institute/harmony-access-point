@@ -1,5 +1,6 @@
 package eu.domibus.core.party;
 
+import eu.domibus.web.rest.validators.CustomBlacklistValidation;
 import eu.domibus.web.rest.validators.SkipBlacklistValidation;
 
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.Set;
  * @author Thomas Dussart
  * @since 4.0
  */
-
 public class PartyResponseRo {
 
     private Integer entityId;
@@ -21,7 +21,7 @@ public class PartyResponseRo {
 
     protected String userName;
 
-    @SkipBlacklistValidation
+    @CustomBlacklistValidation(permitted = ":/")
     protected String endpoint;
 
     private String joinedIdentifiers;
@@ -29,9 +29,9 @@ public class PartyResponseRo {
     @SkipBlacklistValidation
     private String joinedProcesses;
 
-    private List<ProcessRo> processesWithPartyAsInitiator =new ArrayList<>();
+    private List<ProcessRo> processesWithPartyAsInitiator = new ArrayList<>();
 
-    private List<ProcessRo> processesWithPartyAsResponder =new ArrayList<>();
+    private List<ProcessRo> processesWithPartyAsResponder = new ArrayList<>();
 
     protected String certificateContent;
 
@@ -110,6 +110,7 @@ public class PartyResponseRo {
     public String getCertificateContent() {
         return certificateContent;
     }
+
     public void setCertificateContent(String certificateContent) {
         this.certificateContent = certificateContent;
     }

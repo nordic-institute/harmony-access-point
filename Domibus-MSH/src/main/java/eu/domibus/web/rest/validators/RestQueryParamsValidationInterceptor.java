@@ -1,16 +1,19 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -33,8 +36,27 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (shouldSkipValidation((HandlerMethod) handler)) {
+            return true;
+        }
+
         Map<String, String[]> queryParams = request.getParameterMap();
         return handleQueryParams(queryParams);
+    }
+
+    private boolean shouldSkipValidation(HandlerMethod handler) {
+        HandlerMethod method = handler;
+        SkipBlacklistValidation skipAnnot = method.getMethodAnnotation(SkipBlacklistValidation.class);
+        if (skipAnnot != null) {
+            return true;
+        }
+        if (ArrayUtils.isNotEmpty(method.getMethodParameters())) {
+            boolean skip = Arrays.stream(method.getMethodParameters()).anyMatch(param -> param.getParameterAnnotation(SkipBlacklistValidation.class) != null);
+            if (skip) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected boolean handleQueryParams(Map<String, String[]> queryParams) {

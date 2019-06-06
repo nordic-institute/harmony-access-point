@@ -3,16 +3,16 @@ package eu.domibus.web.rest.validators;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Annotation for custom validator that checks that the value does not contain any char from the blacklist
+ * Annotation used for disabling the blacklist validation
  *
  * @author Ion Perpegel
  * since 4.1
  */
-@Target({FIELD})
+@Target({FIELD, PARAMETER, TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface SkipBlacklistValidation {
 }
