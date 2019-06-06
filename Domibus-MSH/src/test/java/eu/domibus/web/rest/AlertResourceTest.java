@@ -48,9 +48,6 @@ public class AlertResourceTest {
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
 
-    @Injectable
-    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-    
     AlertCriteria alertCriteria;
     List<Alert> alerts;
 

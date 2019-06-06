@@ -43,9 +43,6 @@ public class MessageFilterResourceTest {
     @Injectable
     MessageFilterCsvServiceImpl csvService;
 
-    @Injectable
-    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-
     @Test
     public void testGetMessageFilterPersisted() {
         MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO(0);

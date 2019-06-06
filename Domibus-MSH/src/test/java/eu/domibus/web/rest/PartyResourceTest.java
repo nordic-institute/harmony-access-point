@@ -60,9 +60,6 @@ public class PartyResourceTest {
     @Injectable
     private CertificateService certificateService;
 
-    @Injectable
-    ObjectPropertiesBlacklistValidator objectBlacklistValidator;
-
     @Test
     public void listParties() throws Exception {
         final String name = "name";
