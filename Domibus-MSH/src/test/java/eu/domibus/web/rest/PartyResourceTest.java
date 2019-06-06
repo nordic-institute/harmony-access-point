@@ -17,7 +17,6 @@ import eu.domibus.core.party.ProcessRo;
 import eu.domibus.pki.CertificateService;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

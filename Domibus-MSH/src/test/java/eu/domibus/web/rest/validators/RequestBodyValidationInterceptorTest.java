@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.validators;
 
-import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -9,22 +8,16 @@ import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.converter.HttpMessageConverter;
 
 import javax.validation.ValidationException;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
 
 public class RequestBodyValidationInterceptorTest {
     @Tested
     RequestBodyValidationInterceptor requestBodyValidationInterceptor;
 
     @Injectable
-    DeepObjectBlacklistValidator blacklistValidator;
+    ObjectBlacklistValidator blacklistValidator;
 
     @Test
     public void handleQueryParamsTestValid() {

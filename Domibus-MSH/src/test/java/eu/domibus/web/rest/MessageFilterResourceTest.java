@@ -9,7 +9,6 @@ import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
 import eu.domibus.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
-import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -23,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Tiago Miguel

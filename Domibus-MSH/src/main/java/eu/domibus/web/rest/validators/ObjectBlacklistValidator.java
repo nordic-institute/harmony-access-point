@@ -22,10 +22,10 @@ import java.util.Map;
  * @since 4.1
  */
 @Component
-public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObjectNotBlacklisted, Object> {
+public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectNotBlacklisted, Object> {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DeepObjectBlacklistValidator.class);
-    private String message = DeepObjectNotBlacklisted.MESSAGE;
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
+    private String message = ObjectNotBlacklisted.MESSAGE;
 
     @Override
     protected String getErrorMessage() {
@@ -56,7 +56,7 @@ public class DeepObjectBlacklistValidator extends BaseBlacklistValidator<DeepObj
         if (obj instanceof String) {
             LOG.debug("Validating object String property [{}]:[{}]", path, obj);
             if (!isValidValue((String) obj)) {
-                message = String.format(ObjectPropertiesNotBlacklisted.MESSAGE, path);
+                message = String.format(ObjectNotBlacklisted.MESSAGE, path);
                 throw new ValidationException(message);
             }
         } else if (obj instanceof Object[]) {

@@ -29,7 +29,7 @@ public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
     }
 
     @Autowired
-    DeepObjectBlacklistValidator blacklistValidator;
+    ObjectBlacklistValidator blacklistValidator;
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {

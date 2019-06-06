@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-public class DeepObjectBlacklistValidatorTest {
+public class ObjectBlacklistValidatorTest {
     @Tested
-    DeepObjectBlacklistValidator blacklistValidator;
+    ObjectBlacklistValidator blacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;

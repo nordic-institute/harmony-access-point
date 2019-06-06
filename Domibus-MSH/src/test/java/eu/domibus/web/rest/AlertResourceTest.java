@@ -14,7 +14,6 @@ import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
-import eu.domibus.web.rest.validators.ObjectPropertiesBlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
