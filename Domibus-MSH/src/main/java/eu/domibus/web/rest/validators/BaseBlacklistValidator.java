@@ -20,10 +20,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The base, abstract class for custom validators that check that the value does not contain any char from the blacklist and contain only chars from whitelist
- *
  * @author Ion Perpegel
  * @since 4.1
+ *
+ *  * The base, abstract class that contains common code for all the blacklist/whitelist validators
+ *  * Basically, it check that the value/values/object properties of the REST model do not contain any char from the blacklist and contain only chars from whitelist
  */
 @Component
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
@@ -34,7 +35,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     protected String whitelist = null;
     protected Set<Character> blacklist = null;
-    protected CustomBlacklistValidation customAnnotation;
+    protected CustomNotBlacklisted customAnnotation;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;

@@ -50,7 +50,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectNotBl
             LOG.debug("Object [{}] to validate is null, exiting.", path);
             return;
         }
-        if (obj.getClass().getAnnotation(SkipBlacklistValidation.class) != null) {
+        if (obj.getClass().getAnnotation(SkipNotBlacklisted.class) != null) {
             return;
         }
         if (obj instanceof String) {
@@ -82,10 +82,10 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectNotBl
                             field.setAccessible(true);
                         }
                         Object value = ReflectionUtils.getField(field, obj);
-                        this.customAnnotation = field.getAnnotation(CustomBlacklistValidation.class);
+                        this.customAnnotation = field.getAnnotation(CustomNotBlacklisted.class);
                         doValidate(value, path + "->" + field.getName());
                     },
-                    field -> (field.getAnnotation(SkipBlacklistValidation.class) == null)
+                    field -> (field.getAnnotation(SkipNotBlacklisted.class) == null)
             );
         }
     }
