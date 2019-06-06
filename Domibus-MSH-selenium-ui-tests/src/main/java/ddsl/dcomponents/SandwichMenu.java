@@ -11,12 +11,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class SandwichMenu extends DComponent {
+
+
+	private WebDriverWait localWait = wait.webDriverWait;
+
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
 		log.info("sandwich menu init");
@@ -31,21 +34,15 @@ public class SandwichMenu extends DComponent {
 	By logoutLnk = By.id("logout_id");
 
 
-	public DButton getExpandButton() {
-		return new DButton(driver, driver.findElement(expandButton));
-	}
-
-	public DObject getCurrentUserID() {
-		return new DObject(driver, driver.findElement(currentUserID));
-	}
-
-	public DLink getLogoutLnk() {
-		return new DLink(driver, driver.findElement(logoutLnk));
+	public String getCurrentUserID() throws Exception{
+		expandMenu();
+		localWait.until(ExpectedConditions.presenceOfElementLocated(currentUserID));
+		return driver.findElement(currentUserID).getText().trim();
 	}
 
 	private boolean isMenuExpanded() throws Exception {
 		try {
-			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
+			driver.findElement(menuContainer);
 			return true;
 		} catch (Exception e) {
 		}
@@ -54,7 +51,7 @@ public class SandwichMenu extends DComponent {
 
 	private void expandMenu() throws Exception {
 		if (isMenuExpanded()) return;
-		getExpandButton().click();
+		driver.findElement(expandButton).click();
 		try {
 			wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(menuContainer));
 		} catch (Exception e) {
@@ -70,7 +67,7 @@ public class SandwichMenu extends DComponent {
 	public boolean isLoggedIn() throws Exception {
 		expandMenu();
 
-		boolean toReturn = !getCurrentUserID().getText().equalsIgnoreCase("Not logged in");
+		boolean toReturn = !driver.findElement(currentUserID).getText().equalsIgnoreCase("Not logged in");
 		log.info("User login status is: " + toReturn);
 
 		contractMenu();
@@ -78,10 +75,12 @@ public class SandwichMenu extends DComponent {
 	}
 
 	public void logout() throws Exception {
+
 		expandMenu();
 		log.info("Logging out...");
-		getLogoutLnk().click();
+		driver.findElement(logoutLnk).click();
 		contractMenu();
+		wait.webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 
 

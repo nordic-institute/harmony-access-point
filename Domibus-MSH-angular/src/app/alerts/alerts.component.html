@@ -183,6 +183,10 @@
     <span class="text-select">{{value| domibusDate: dateFormat}}</span>
   </ng-template>
 
+  <ng-template #rowWithSpaceAfterCommaTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value.join(', ')}}</span>
+  </ng-template>
+
   <div class="group-action-button">
     <button id="alertsCancelButton" md-raised-button color="primary" (click)="cancel()"
             [disabled]="!isDirty" button-click-behaviour>

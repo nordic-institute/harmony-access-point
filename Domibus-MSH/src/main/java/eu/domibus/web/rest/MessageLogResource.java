@@ -13,6 +13,7 @@ import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagesLogService;
 import eu.domibus.core.csv.CsvCustomColumns;
+import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
@@ -39,7 +40,6 @@ import javax.annotation.PostConstruct;
 import javax.persistence.NoResultException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -242,7 +242,7 @@ public class MessageLogResource {
         String resultText;
         try {
             resultText = csvServiceImpl.exportToCSV(resultList, MessageLogInfo.class,
-                    CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(), new ArrayList<>());
+                    CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(), CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems());
         } catch (CsvException e) {
             LOG.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
