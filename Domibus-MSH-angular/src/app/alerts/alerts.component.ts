@@ -5,7 +5,7 @@ import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
-import {Http, URLSearchParams, Response, Headers} from '@angular/http';
+import {Headers, Http, Response, URLSearchParams} from '@angular/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {MdDialog} from '@angular/material';
@@ -31,6 +31,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   @ViewChild('rowProcessed') rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -93,7 +94,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Alert Status', width: 50},
       {name: 'Creation Time', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time', cellTemplate: this.rowWithDateFormatTpl, width: 155},
-      {name: 'Parameters', sortable: false},
+      {name: 'Parameters', cellTemplate: this.rowWithSpaceAfterCommaTpl, sortable: false},
       {name: 'Sent Attempts', width: 50, prop: 'attempts',},
       {name: 'Max Attempts', width: 50},
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},

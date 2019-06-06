@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -105,11 +106,11 @@ public class Event {
 
     @Override
     public String toString() {
-        return "Event{" +
-                "entityId=" + entityId +
-                ", reportingTime=" + reportingTime +
-                ", type='" + type + '\'' +
-                ", properties=" + properties +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("entityId", entityId)
+                .append("reportingTime", reportingTime)
+                .append("type", type)
+                .append("properties", properties)
+                .toString();
     }
 }

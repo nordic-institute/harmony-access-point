@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -147,16 +149,16 @@ public class Alert {
 
     @Override
     public String toString() {
-        return "Alert{" +
-                "entityId=" + entityId +
-                ", processed=" + processed +
-                ", processedTime=" + processedTime +
-                ", alertType=" + alertType +
-                ", reportingTime=" + reportingTime +
-                ", attempts=" + attempts +
-                ", maxAttempts=" + maxAttempts +
-                ", reportingTimeFailure=" + reportingTimeFailure +
-                ", events=" + events +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("entityId", entityId)
+                .append("processed", processed)
+                .append("processedTime", processedTime)
+                .append("alertType", alertType)
+                .append("reportingTime", reportingTime)
+                .append("attempts", attempts)
+                .append("maxAttempts", maxAttempts)
+                .append("reportingTimeFailure", reportingTimeFailure)
+                .append("events", events)
+                .toString();
     }
 }

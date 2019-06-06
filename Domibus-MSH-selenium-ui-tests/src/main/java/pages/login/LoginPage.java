@@ -7,8 +7,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import ddsl.dcomponents.DomibusPage;
-import utils.PROPERTIES;
-import utils.TestDataProvider;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.TestRunData;
 
 import java.util.HashMap;
 
@@ -27,7 +27,7 @@ public class LoginPage extends DomibusPage {
 
 		log.info(".... init");
 
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
 	@FindBy(id = "username_id")
@@ -79,12 +79,17 @@ public class LoginPage extends DomibusPage {
 		password.clear();
 		password.sendKeys(pass);
 		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
+
+		wait.webDriverWait.until(ExpectedConditions.or(
+				ExpectedConditions.visibilityOf(pageTitle),
+				ExpectedConditions.visibilityOf(getAlertArea().alertMessage)
+		));
+
 		log.info("Login action done");
 	}
 
 	public void login(String userRole) throws Exception {
-		HashMap<String, String> user = new TestDataProvider().getUser(userRole);
+		HashMap<String, String> user = data.getUser(userRole);
 		log.info("Login started");
 		new DInput(driver, username).fill(user.get("username"));
 		new DInput(driver, password).fill(user.get("pass"));

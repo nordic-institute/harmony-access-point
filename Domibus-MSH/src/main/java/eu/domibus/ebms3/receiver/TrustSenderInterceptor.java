@@ -136,28 +136,25 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         } else {
             senderPartyName = getSenderPartyName(message);
         }
-        X509Certificate certificate = getSenderCertificate(message);
+        LOG.info("Validating sender certificate for party [{}]", senderPartyName);
+        List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
-        if (!checkCertificateValidity(certificate, senderPartyName, isPullMessage)) {
+        if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
             EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender [" + senderPartyName + "] certificate is not valid or has been revoked", messageId, null);
             ebMS3Ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ebMS3Ex);
         }
     }
 
-    protected Boolean checkCertificateValidity(X509Certificate certificate, String sender, boolean isPullMessage) {
+    protected Boolean checkCertificateValidity(List<? extends Certificate> certificateChain, String sender, boolean isPullMessage) {
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING)) {
-            LOG.info("Validating sender certificate for party [{}]", sender);
+            LOG.debug("Validating sender certificate chain on receiving [{}]", certificateChain);
             try {
-                if (!certificateService.isCertificateValid(certificate)) {
+                if (!certificateService.isCertificateChainValid(certificateChain)) {
                     LOG.error("Cannot receive message: sender certificate is not valid or it has been revoked [" + sender + "]");
                     return false;
                 }
-                if (isPullMessage) {
-                    LOG.info("[Pulling] - Sender certificate exists and is valid [" + sender + "]");
-                } else {
-                    LOG.info("Sender certificate exists and is valid [" + sender + "]");
-                }
+                LOG.info("[Pull:{}] - Sender certificate exists and is valid [{}]", isPullMessage, sender);
             } catch (DomibusCertificateException dce) {
                 LOG.error("Could not verify if the certificate chain is valid for alias " + sender, dce);
                 return false;
@@ -198,7 +195,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         return contents.get(1);
     }
 
-    protected X509Certificate getSenderCertificate(SoapMessage msg) {
+    protected List<? extends Certificate> getSenderCertificateChain(SoapMessage msg) {
         boolean utWithCallbacks = MessageUtils.getContextualBoolean(msg, "ws-security.validate.token", true);
         super.translateProperties(msg);
         CXFRequestData requestData = new CXFRequestData();
@@ -234,7 +231,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                     throw new SoapFault("CertificateException: Could not extract the certificate for validation", version.getSender());
                 }
                 addSerializedCertificateToMessage(msg, certificateChain, CertificateExchangeType.KEY_INFO);
-                return (X509Certificate) certificateChain.get(0);
+                return certificateChain;
             } else {
                 BinarySecurityTokenReference binarySecurityTokenReference = (BinarySecurityTokenReference) tokenReference;
                 final List<? extends Certificate> certificateChain = getCertificateFromBinarySecurityToken(securityHeader, binarySecurityTokenReference);
@@ -243,7 +240,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                 if (certificate == null) {
                     throw new SoapFault("CertificateException: Could not extract the certificate for validation", version.getSender());
                 }
-                return (X509Certificate) certificate;
+                return certificateChain;
             }
         } catch (CertificateException certEx) {
             throw new SoapFault("CertificateException", certEx, version.getSender());

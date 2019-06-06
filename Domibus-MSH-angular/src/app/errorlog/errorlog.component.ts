@@ -61,8 +61,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   }
 
   ngOnInit() {
-    super.ngOnInit();
-
     this.columnPicker.allColumns = [
       {
         name: 'Signal Message Id',

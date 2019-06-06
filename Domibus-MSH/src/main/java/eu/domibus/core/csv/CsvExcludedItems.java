@@ -10,7 +10,8 @@ public enum CsvExcludedItems {
     PARTY_RESOURCE(new String[]{"entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"}),
     JMS_RESOURCE(new String[]{"PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId"}),
     AUDIT_RESOURCE(new String[]{"revisionId"}),
-    TRUSTSTORE_RESOURCE(new String[]{"fingerprints"});
+    TRUSTSTORE_RESOURCE(new String[]{"fingerprints"}),
+    MESSAGE_LOG_RESOURCE(new String[]{"sourceMessage", "messageFragment"});
 
 
     private String[] excludedItems;
