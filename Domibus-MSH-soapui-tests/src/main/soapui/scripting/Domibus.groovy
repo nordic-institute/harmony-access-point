@@ -1334,8 +1334,8 @@ def findNumberOfDomain(String inputSite) {
                 debugLog("  addPluginUser  [][]  curlParams: " + curlParams, log)
                 commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
 								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-								"-H", "\"Content-Type: application/json\"",
-								"-H","\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"",
+								"-H", "Content-Type: application/json",
+								"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"--trace-ascii", "-"]
