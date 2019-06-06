@@ -5,6 +5,7 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.ServerInfoExtService;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
@@ -31,6 +32,9 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -123,11 +127,22 @@ public class DssConfiguration {
     }
 
     @Bean
-    public TSLRepository tslRepository(TrustedListsCertificateSource trustedListSource) {
+    public TSLRepository tslRepository(TrustedListsCertificateSource trustedListSource, ServerInfoExtService serverInfoExtService) {
         LOG.debug("Dss trusted list cache path:[{}]", dssCachePath);
+        Path dssPerNodePath = Paths.get(dssCachePath + File.separator + serverInfoExtService.getNodeName());
+        if (!Files.exists(dssPerNodePath)) {
+            try {
+                LOG.debug("Cacge directory does not exists, creating path:[{}]", dssCachePath);
+                Files.createDirectories(dssPerNodePath);
+            } catch (IOException e) {
+                LOG.error("Error create dss cache path:[{}], impossible to configure DSS correctly", dssPerNodePath.toAbsolutePath(), e);
+            }
+        }
         TSLRepository tslRepository = new TSLRepository();
         tslRepository.setTrustedListsCertificateSource(trustedListSource);
-        tslRepository.setCacheDirectoryPath(dssCachePath);
+        String cacheDirectoryPath = dssPerNodePath.toAbsolutePath().toString();
+        LOG.debug("Dss configure with cache path:[{}]", cacheDirectoryPath);
+        tslRepository.setCacheDirectoryPath(cacheDirectoryPath + File.separator);
         return tslRepository;
     }
 
