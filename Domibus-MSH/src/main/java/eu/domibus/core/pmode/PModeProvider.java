@@ -261,8 +261,8 @@ public abstract class PModeProvider {
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getFirstPartyId());
-        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getTo().getFirstPartyId());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getFromFirstPartyId());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getToFirstPartyId());
         LOG.putMDC(DomibusLogger.MDC_SERVICE, userMessage.getCollaborationInfo().getService().getValue());
         LOG.putMDC(DomibusLogger.MDC_ACTION, userMessage.getCollaborationInfo().getAction());
 

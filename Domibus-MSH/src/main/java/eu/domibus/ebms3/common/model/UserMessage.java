@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.*;
         propOrder = {"messageInfo", "partyInfo", "collaborationInfo", "messageProperties", "payloadInfo"})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
-public class UserMessage extends AbstractBaseEntity {
+public class UserMessage extends AbstractBaseEntity implements UserMessageExtensionMethods {
 
     @XmlElement(name = "MessageInfo", required = true)
     @OneToOne(cascade = CascadeType.ALL)
@@ -302,4 +302,8 @@ public class UserMessage extends AbstractBaseEntity {
                 .toString();
     }
 
+    @Override
+    public UserMessage getUserMessage() {
+        return this;
+    }
 }
