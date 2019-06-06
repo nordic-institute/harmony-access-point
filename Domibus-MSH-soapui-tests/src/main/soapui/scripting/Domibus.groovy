@@ -1138,8 +1138,8 @@ def findNumberOfDomain(String inputSite) {
 
         commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
 						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", 
-						"-H", "\"Content-Type: application/json\"",
-						"-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin) + "\"",
+						"-H", "Content-Type: application/json",
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-v"]
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains('{"code":')),"Error:getDomain: Error while trying to connect to domibus."
@@ -1159,10 +1159,10 @@ def findNumberOfDomain(String inputSite) {
         } else {
             commandString=["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
 						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", 
-						"-H", "\"Content-Type: application/json\"",
-						"-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin) + "\"",
+						"-H", "Content-Type: application/json",
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-X", "PUT",
-						"-d", "\"\"" + domainValue + "\"\"\""]
+						"--data-binary", "\"\"" + domainValue + "\"\"\""]
             commandResult = runCurlCommand(commandString, log)
             assert(commandResult[0].contains('{"entries":')||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
             debugLog("  setDomain  [][]  Domain set to $domainValue.",log)
