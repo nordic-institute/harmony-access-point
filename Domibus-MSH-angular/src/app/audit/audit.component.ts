@@ -107,9 +107,9 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-      this.rows = response;
-      this.loading = false;
-    },
+        this.rows = response;
+        this.loading = false;
+      },
       error => {
         this.alertService.exception('Could not load audits: ', error);
         this.loading = false;
