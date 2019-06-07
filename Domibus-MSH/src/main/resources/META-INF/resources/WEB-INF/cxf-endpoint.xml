@@ -15,36 +15,43 @@
 
     <cxf:bus>
         <cxf:inInterceptors>
-            <ref bean="logInbound"/>
+<!--            <ref bean="logInbound"/>-->
         </cxf:inInterceptors>
         <cxf:outInterceptors>
-            <ref bean="logOutbound"/>
+<!--            <ref bean="logOutbound"/>-->
             <ref bean="attachmentCleanupInterceptor"/>
         </cxf:outInterceptors>
         <cxf:outFaultInterceptors>
             <ref bean="attachmentCleanupInterceptor"/>
         </cxf:outFaultInterceptors>
         <cxf:features>
-            <cxf:logging/>
+            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+                <property name="sender" ref="loggingSender"/>
+            </bean>
         </cxf:features>
     </cxf:bus>
 
-    <!--Message logger configuration-->
-    <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor">
-        <property name="prettyLogging" value="true"/>
-        <property name="showBinaryContent" value="false"/>
-        <property name="before" value="eu.domibus.ebms3.receiver.SetPolicyInInterceptor"/>
+
+    <bean id="loggingSender" class="eu.domibus.logging.DomibusLoggingEventSender">
+        <property name="printPayload" value="false"/>
     </bean>
+
+    <!--Message logger configuration-->
+<!--    <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor">-->
+<!--        <property name="prettyLogging" value="true"/>-->
+<!--        <property name="showBinaryContent" value="false"/>-->
+<!--        <property name="before" value="eu.domibus.ebms3.receiver.SetPolicyInInterceptor"/>-->
+<!--    </bean>-->
 
     <bean id="domibusReadyInterceptor" class="eu.domibus.ebms3.receiver.DomibusReadyInterceptor">
         <property name="before" value="eu.domibus.ebms3.receiver.SetPolicyInInterceptor"/>
     </bean>
 
-    <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor">
-        <property name="prettyLogging" value="true"/>
-        <property name="showBinaryContent" value="false"/>
-        <property name="after" value="org.apache.cxf.ws.policy.PolicyVerificationOutInterceptor.class"/>
-    </bean>
+<!--    <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor">-->
+<!--        <property name="prettyLogging" value="true"/>-->
+<!--        <property name="showBinaryContent" value="false"/>-->
+<!--        <property name="after" value="org.apache.cxf.ws.policy.PolicyVerificationOutInterceptor.class"/>-->
+<!--    </bean>-->
 
     <bean id="trustSenderInterceptor" class="eu.domibus.ebms3.receiver.TrustSenderInterceptor">
         <property name="crypto" ref="Wss4JMultiDomainCryptoProvider"/>
