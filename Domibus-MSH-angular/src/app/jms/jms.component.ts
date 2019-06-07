@@ -176,9 +176,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     result.subscribe(
       (destinations) => {
         for (const key in destinations) {
-          const queue = this.queues.find(el => el.name === key);
+          var src = destinations[key];
+          const queue = this.queues.find(el => el.name === src.name);
           if (queue) {
-            Object.assign(queue, destinations[key]);
+            Object.assign(queue, src);
           }
         }
       }

@@ -15,7 +15,7 @@ local <wsse:BinarySecurityToken> element or a remote data source that contains t
                     <sp:InitiatorToken>
                         <wsp:Policy>
                             <sp:X509Token
-                                    sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+                                    sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Always">
                                 <wsp:Policy>
                                     <sp:WssX509PkiPathV1Token11/>
                                 </wsp:Policy>
@@ -25,7 +25,7 @@ local <wsse:BinarySecurityToken> element or a remote data source that contains t
                     <sp:RecipientToken>
                         <wsp:Policy>
                             <sp:X509Token
-                                    sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+                                    sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Always">
                                 <wsp:Policy>
                                     <sp:WssX509PkiPathV1Token11/>
                                 </wsp:Policy>

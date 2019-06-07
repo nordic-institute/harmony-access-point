@@ -11,7 +11,7 @@ import pages.login.LoginPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import utils.Generator;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,9 +68,30 @@ public class UsersPgTest extends BaseTest {
 		soft.assertEquals(username, um.getUserNameInput().getText(), "Usernames match");
 		soft.assertEquals(DRoles.USER, um.getRoleSelect().getSelectedValue(), "Roles match");
 
-		if (PROPERTIES.IS_MULTI_DOMAIN) {
+		if (data.isIsMultiDomain()) {
 			soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
 		}
+		soft.assertAll();
+	}
+
+	@Test(description = "USR-1.2", groups = {"multiTenancy", "singleTenancy"})
+	public void openModalDeletedUser() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		loginAndGoToUsersPage(data.getAdminUser());
+		String username = Generator.randomAlphaNumeric(10);
+		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		rest.deleteUser(username, null);
+
+		UsersPage page = new UsersPage(driver);
+		page.refreshPage();
+
+//		DoubleClick on the row doesn't work as expected due to the fact that not the whole area is clickable
+//		This is circumvented for the time being by clicking the Edit button
+		page.grid().scrollToAndSelect("Username", username);
+		soft.assertTrue(!page.getEditBtn().isEnabled(), "Edit button is not enabled for deleted users!");
+		soft.assertTrue(!page.getDeleteBtn().isEnabled(), "Delete button is not enabled for deleted users!");
+
+
 		soft.assertAll();
 	}
 
@@ -355,7 +376,6 @@ public class UsersPgTest extends BaseTest {
 		um.clickOK();
 
 		page.saveAndConfirm();
-		page.wait.forXMillis(500);
 
 		page.getSandwichMenu().logout();
 		LoginPage loginPage = new LoginPage(driver);
@@ -365,7 +385,6 @@ public class UsersPgTest extends BaseTest {
 		soft.assertTrue(loginPage.getAlertArea().isError(), "Error message shown");
 		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.MSG_2_2, "Correct error message is shown");
 
-		page.wait.forXMillis(500);
 
 		loginPage.login(data.getAdminUser());
 		loginPage.getSidebar().gGoToPage(DOMIBUS_PAGES.USERS);
@@ -377,7 +396,6 @@ public class UsersPgTest extends BaseTest {
 		um.getActiveChk().check();
 		um.clickOK();
 		page.saveAndConfirm();
-		page.wait.forXMillis(500);
 
 		page.getSandwichMenu().logout();
 		loginPage.login(username, data.getDefaultTestPass());
@@ -406,7 +424,6 @@ public class UsersPgTest extends BaseTest {
 
 			um.clickOK();
 			page.saveAndConfirm();
-			page.wait.forXMillis(500);
 
 			page.getSandwichMenu().logout();
 			LoginPage loginPage = new LoginPage(driver);
@@ -438,7 +455,6 @@ public class UsersPgTest extends BaseTest {
 
 			um.clickOK();
 			page.getSaveBtn().click();
-			page.wait.forXMillis(500);
 
 			soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
 			soft.assertEquals(page.getAlertArea().getAlertMessage(), "Duplicate user name for user: " + username + ".", "Correct message displayed");
@@ -467,7 +483,8 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), "Duplicate user name for user: " + username + ".", "Correct message displayed");
+		String expectedError = String.format(DMessages.DUPLICATE_USER_, username, domains.get(1));
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedError, "Correct message is displayed");
 
 		soft.assertAll();
 	}
@@ -490,7 +507,8 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), "Duplicate user name for user: " + username + ".", "Correct message displayed");
+		String expectedMessage = String.format(DMessages.DUPLICATE_USER_, username, "default");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		soft.assertAll();
 	}
@@ -517,7 +535,9 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), "Duplicate user name for user: " + username + ".", "Correct message displayed");
+
+		String expectedMessage = String.format(DMessages.DUPLICATE_USER_, username, domains.get(1));
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		soft.assertAll();
 	}
@@ -525,28 +545,6 @@ public class UsersPgTest extends BaseTest {
 	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadUserList() throws Exception {
 		throw new SkipException("Implementation of test not finished");
-//		List<String> domains = new ArrayList<>();
-//		if(PROPERTIES.IS_MULTI_DOMAIN){
-//			domains = rest.getDomainNames();
-//		}
-//
-//		SoftAssert soft = new SoftAssert();
-//
-//		LoginPage loginPage = new LoginPage(driver);
-//		loginPage.login(data.getAdminUser());
-//		loginPage.sidebar.goToPage(UsersPage.class);
-//
-//		int i=0;
-//		do {
-//			UsersPage page = new UsersPage(driver);
-//			page.waitForXMillis(500);
-//			if(PROPERTIES.IS_MULTI_DOMAIN){
-//				page.pageHeader.getDomainSelector().selectOptionByText(domains.get(i));
-//			}
-//			i++;
-//		}while (i<domains.size());
-//
-//		soft.assertAll();
 	}
 
 

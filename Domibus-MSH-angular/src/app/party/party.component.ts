@@ -54,8 +54,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   }
 
   async ngOnInit() {
-    super.ngOnInit();
-
     this.isBusy = false;
     this.rows = [];
     this.allRows = [];
