@@ -46,12 +46,12 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     private boolean shouldSkipValidation(HandlerMethod handler) {
         HandlerMethod method = handler;
-        SkipNotBlacklisted skipAnnot = method.getMethodAnnotation(SkipNotBlacklisted.class);
+        SkipWhiteListed skipAnnot = method.getMethodAnnotation(SkipWhiteListed.class);
         if (skipAnnot != null) {
             return true;
         }
         if (ArrayUtils.isNotEmpty(method.getMethodParameters())) {
-            boolean skip = Arrays.stream(method.getMethodParameters()).anyMatch(param -> param.getParameterAnnotation(SkipNotBlacklisted.class) != null);
+            boolean skip = Arrays.stream(method.getMethodParameters()).anyMatch(param -> param.getParameterAnnotation(SkipWhiteListed.class) != null);
             if (skip) {
                 return true;
             }

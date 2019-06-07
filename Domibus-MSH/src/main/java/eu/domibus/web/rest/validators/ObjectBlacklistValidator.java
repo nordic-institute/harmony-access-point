@@ -22,10 +22,10 @@ import java.util.Map;
  * @since 4.1
  */
 @Component
-public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectNotBlacklisted, Object> {
+public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhiteListed, Object> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
-    private String message = ObjectNotBlacklisted.MESSAGE;
+    private String message = ObjectWhiteListed.MESSAGE;
 
     @Override
     protected String getErrorMessage() {
@@ -50,13 +50,13 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectNotBl
             LOG.debug("Object [{}] to validate is null, exiting.", path);
             return;
         }
-        if (obj.getClass().getAnnotation(SkipNotBlacklisted.class) != null) {
+        if (obj.getClass().getAnnotation(SkipWhiteListed.class) != null) {
             return;
         }
         if (obj instanceof String) {
             LOG.debug("Validating object String property [{}]:[{}]", path, obj);
             if (!isValidValue((String) obj)) {
-                message = String.format(ObjectNotBlacklisted.MESSAGE, path);
+                message = String.format(ObjectWhiteListed.MESSAGE, path);
                 throw new ValidationException(message);
             }
         } else if (obj instanceof Object[]) {
@@ -82,10 +82,10 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectNotBl
                             field.setAccessible(true);
                         }
                         Object value = ReflectionUtils.getField(field, obj);
-                        this.customAnnotation = field.getAnnotation(CustomNotBlacklisted.class);
+                        this.customAnnotation = field.getAnnotation(CustomWhiteListed.class);
                         doValidate(value, path + "->" + field.getName());
                     },
-                    field -> (field.getAnnotation(SkipNotBlacklisted.class) == null)
+                    field -> (field.getAnnotation(SkipWhiteListed.class) == null)
             );
         }
     }

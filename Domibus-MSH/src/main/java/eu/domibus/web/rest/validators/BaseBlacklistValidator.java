@@ -8,7 +8,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -22,11 +21,10 @@ import java.util.Set;
 /**
  * @author Ion Perpegel
  * @since 4.1
- *
- *  * The base, abstract class that contains common code for all the blacklist/whitelist validators
- *  * Basically, it check that the value/values/object properties of the REST model do not contain any char from the blacklist and contain only chars from whitelist
+ * <p>
+ * * The base, abstract class that contains common code for all the blacklist/whitelist validators
+ * * Basically, it check that the value/values/object properties of the REST model do not contain any char from the blacklist and contain only chars from whitelist
  */
-@Component
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
 
@@ -35,7 +33,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     protected String whitelist = null;
     protected Set<Character> blacklist = null;
-    protected CustomNotBlacklisted customAnnotation;
+    protected CustomWhiteListed customAnnotation;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;

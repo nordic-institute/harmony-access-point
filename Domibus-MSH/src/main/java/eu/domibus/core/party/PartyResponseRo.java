@@ -1,7 +1,7 @@
 package eu.domibus.core.party;
 
-import eu.domibus.web.rest.validators.CustomNotBlacklisted;
-import eu.domibus.web.rest.validators.SkipNotBlacklisted;
+import eu.domibus.web.rest.validators.CustomWhiteListed;
+import eu.domibus.web.rest.validators.SkipWhiteListed;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,12 @@ public class PartyResponseRo {
 
     protected String userName;
 
-    @CustomNotBlacklisted(permitted = ":/")
+    @CustomWhiteListed(permitted = ":/")
     protected String endpoint;
 
     private String joinedIdentifiers;
 
-    @SkipNotBlacklisted
+    @SkipWhiteListed
     private String joinedProcesses;
 
     private List<ProcessRo> processesWithPartyAsInitiator = new ArrayList<>();

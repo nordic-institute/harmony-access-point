@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
  * @since 4.1
  */
 @Component
-public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsNotBlacklisted, String[]> {
+public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsWhiteListed, String[]> {
 
     @Override
     protected String getErrorMessage() {
-        return ItemsNotBlacklisted.MESSAGE;
+        return ItemsWhiteListed.MESSAGE;
     }
 
     @Override

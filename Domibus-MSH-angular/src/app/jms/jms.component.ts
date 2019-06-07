@@ -260,8 +260,6 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       jmsType: this.activeFilter.jmsType,
       fromDate: this.activeFilter.fromDate,
       toDate: this.activeFilter.toDate,
-      // fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
-      // toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
       selector: this.activeFilter.selector,
     }).subscribe(
       (response: Response) => {

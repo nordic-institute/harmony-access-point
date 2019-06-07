@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
  * It heavily relies on the base class
  */
 @Component
-public class BlacklistValidator extends BaseBlacklistValidator<NotBlacklisted, String> {
+public class BlacklistValidator extends BaseBlacklistValidator<WhiteListed, String> {
 
     @Override
     protected String getErrorMessage() {
-        return NotBlacklisted.MESSAGE;
+        return WhiteListed.MESSAGE;
     }
 
     public boolean isValid(String value) {

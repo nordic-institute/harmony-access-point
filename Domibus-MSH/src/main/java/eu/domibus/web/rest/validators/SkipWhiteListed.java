@@ -14,5 +14,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target({FIELD, PARAMETER, TYPE, METHOD})
 @Retention(RUNTIME)
-public @interface SkipNotBlacklisted {
+public @interface SkipWhiteListed {
 }

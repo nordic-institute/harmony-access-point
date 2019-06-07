@@ -39,7 +39,7 @@ public class ItemsBlacklistValidatorTest {
     @Test
     public void testGetErrorMessage() {
         String actual = blacklistValidator.getErrorMessage();
-        Assert.assertEquals(ItemsNotBlacklisted.MESSAGE, actual);
+        Assert.assertEquals(ItemsWhiteListed.MESSAGE, actual);
     }
 
 }

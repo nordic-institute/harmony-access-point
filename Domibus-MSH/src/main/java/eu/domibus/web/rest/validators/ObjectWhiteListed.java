@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Constraint(validatedBy = ObjectBlacklistValidator.class)
 @Documented
-public @interface ObjectNotBlacklisted {
+public @interface ObjectWhiteListed {
 
     static String MESSAGE = "Forbidden character detected in property: %s ";
 
