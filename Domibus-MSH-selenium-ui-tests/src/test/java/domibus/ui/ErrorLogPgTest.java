@@ -1,15 +1,12 @@
 package domibus.ui;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import org.testng.SkipException;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.errorLog.ErrorLogPage;
-import pages.login.LoginPage;
 
 import java.util.HashMap;
 
@@ -26,7 +23,7 @@ public class ErrorLogPgTest extends BaseTest {
 	@Test(description = "ERRLOG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openErrorLogPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.ERROR_LOG);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
 
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 
@@ -39,7 +36,7 @@ public class ErrorLogPgTest extends BaseTest {
 	public void filterErrorLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.ERROR_LOG);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
 
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 
@@ -67,7 +64,7 @@ public class ErrorLogPgTest extends BaseTest {
 	public void paginationTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.ERROR_LOG);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
 
 		ErrorLogPage page = new ErrorLogPage(driver);
 

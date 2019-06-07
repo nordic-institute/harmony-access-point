@@ -1,12 +1,9 @@
 package domibus.ui;
 
-import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
-import ddsl.enums.DOMIBUS_PAGES;
-import org.apache.poi.util.StringUtil;
+import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.PModeCurrentPage;
 import pages.pmode.PModePartiesPage;
 import pages.pmode.PartyModal;
 import utils.Generator;
@@ -34,7 +31,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -62,7 +59,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -84,7 +81,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/multipleParties.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -112,7 +109,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/multipleParties.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -138,7 +135,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/multipleParties.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -168,7 +165,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/multipleParties.xml", null);
 		String newPatyName = Generator.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -197,7 +194,7 @@ public class PModePartiesPgTest extends BaseTest {
 		String newPatyName = Generator.randomAlphaNumeric(5);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -227,7 +224,7 @@ public class PModePartiesPgTest extends BaseTest {
 		String newPatyName = Generator.randomAlphaNumeric(5);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -259,7 +256,7 @@ public class PModePartiesPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingSelfSending.xml", domainCode);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
 
 		PModePartiesPage page = new PModePartiesPage(driver);
 

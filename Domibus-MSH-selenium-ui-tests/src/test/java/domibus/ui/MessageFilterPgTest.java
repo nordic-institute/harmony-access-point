@@ -1,9 +1,9 @@
 package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.enums.DOMIBUS_PAGES;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ddsl.dcomponents.popups.Dialog;
+import ddsl.enums.DMessages;
+import ddsl.enums.PAGES;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -30,7 +30,7 @@ public class MessageFilterPgTest extends BaseTest {
 	private void login() throws Exception {
 		new LoginPage(driver)
 				.login(data.getAdminUser());
-		new DomibusPage(driver).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGE_FILTER);
+		new DomibusPage(driver).getSidebar().gGoToPage(PAGES.MESSAGE_FILTER);
 	}
 
 	@Test(description = "MSGF-1", groups = {"multiTenancy", "singleTenancy"})
@@ -306,7 +306,6 @@ public class MessageFilterPgTest extends BaseTest {
 
 	}
 
-
 	@Test(description = "MSGF-11", groups = {"multiTenancy"})
 	public void filtersNotVisibleOnWrongDomains() throws Exception {
 //		Create a filter to check on Default domain
@@ -338,5 +337,232 @@ public class MessageFilterPgTest extends BaseTest {
 
 		soft.assertAll();
 	}
+
+	@Test(description = "MSGF-12", groups = {"multiTenancy", "singleTenancy"})
+	public void doubleClickRow() throws Exception {
+		//		Create a filter to edit
+		String actionName = Generator.randomAlphaNumeric(5);
+		rest.createMessageFilter(actionName, null);
+
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+		page.refreshPage();
+
+		int index = page.grid().scrollTo("Action", actionName);
+		HashMap<String, String> rowInfo = page.grid().getRowInfo(index);
+		page.grid().doubleClickRow(index);
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		soft.assertTrue(modal.isLoaded(), "Double-clicking a row opens the edit message filter modal");
+
+		soft.assertEquals(rowInfo.get("Plugin"), modal.getPluginSelect().getSelectedValue(), "Value for PLUGIN is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("From"), modal.getFromInput().getText(), "Value for FROM is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("To"), modal.getToInput().getText(), "Value for TO is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("Action"), modal.getActionInput().getText(), "Value for ACTION is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("Service"), modal.getServiceInput().getText(), "Value for SERVICE is the same in grid and modal");
+
+//		Delete created filter
+		rest.deleteMessageFilter(actionName, null);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSGF-13", groups = {"multiTenancy", "singleTenancy"})
+	public void doubleClickEditAndCancel() throws Exception {
+//		Create a filter to edit
+		String actionName = Generator.randomAlphaNumeric(5);
+		rest.createMessageFilter(actionName, null);
+
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+		page.refreshPage();
+
+		int index = page.grid().scrollTo("Action", actionName);
+		HashMap<String, String> rowInfo = page.grid().getRowInfo(index);
+		page.grid().doubleClickRow(index);
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		soft.assertTrue(modal.isLoaded(), "Double-clicking a row opens the edit message filter modal");
+
+		String partyString = Generator.randomAlphaNumeric(5) +":"+ Generator.randomAlphaNumeric(5);
+		modal.getFromInput().fill(partyString);
+		modal.getToInput().fill(partyString);
+		modal.getActionInput().fill(partyString);
+		modal.getServiceInput().fill(partyString);
+
+		modal.clickCancel();
+
+		page.grid().waitForRowsToLoad();
+
+		HashMap<String, String> rowInfo2 = page.grid().getRowInfo(index);
+
+		soft.assertEquals(rowInfo.get("Plugin"), rowInfo2.get("Plugin"), "Value for PLUGIN is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("From"), rowInfo2.get("From"), "Value for FROM is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("To"), rowInfo2.get("To"), "Value for TO is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("Action"), rowInfo2.get("Action"), "Value for ACTION is the same in grid and modal");
+		soft.assertEquals(rowInfo.get("Service"), rowInfo2.get("Service"), "Value for SERVICE is the same in grid and modal");
+
+
+//		Delete created filter
+		rest.deleteMessageFilter(actionName, null);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSGF-14", groups = {"multiTenancy", "singleTenancy"})
+	public void doubleClickEditAndSave() throws Exception {
+//		Create a filter to edit
+		String actionName = Generator.randomAlphaNumeric(5);
+		rest.createMessageFilter(actionName, null);
+
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+		page.refreshPage();
+
+		int index = page.grid().scrollTo("Action", actionName);
+		page.grid().doubleClickRow(index);
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		soft.assertTrue(modal.isLoaded(), "Double-clicking a row opens the edit message filter modal");
+
+		String partyString = Generator.randomAlphaNumeric(5) +":"+ Generator.randomAlphaNumeric(5);
+		modal.getFromInput().fill(partyString);
+		modal.getToInput().fill(partyString);
+		modal.getActionInput().fill(partyString);
+		modal.getServiceInput().fill(partyString);
+
+		modal.clickOK();
+
+		page.grid().waitForRowsToLoad();
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+		page.grid().waitForRowsToLoad();
+
+		HashMap<String, String> rowInfo = page.grid().getRowInfo(index);
+
+		soft.assertEquals(rowInfo.get("From"), partyString, "Value for FROM is changed");
+		soft.assertEquals(rowInfo.get("To"), partyString, "Value for TO is changed");
+		soft.assertEquals(rowInfo.get("Action"), partyString, "Value for ACTION is changed");
+		soft.assertEquals(rowInfo.get("Service"), partyString, "Value for SERVICE is changed");
+
+
+//		Delete created filter
+		rest.deleteMessageFilter(partyString, null);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSGF-15", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateFilter() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = new MessageFilterPage(driver);
+
+
+		page.getNewBtn().click();
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		soft.assertTrue(modal.isLoaded(), "New button opens the new/edit message filter modal");
+
+		String partyString = Generator.randomAlphaNumeric(5) +":"+ Generator.randomAlphaNumeric(5);
+		modal.getFromInput().fill(partyString);
+		modal.getToInput().fill(partyString);
+		modal.getActionInput().fill(partyString);
+		modal.getServiceInput().fill(partyString);
+
+		modal.clickOK();
+
+		page.grid().waitForRowsToLoad();
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+		page.grid().waitForRowsToLoad();
+
+
+		page.getNewBtn().click();
+
+		modal = new MessageFilterModal(driver);
+		soft.assertTrue(modal.isLoaded(), "New button opens the new/edit message filter modal");
+
+		modal.getFromInput().fill(partyString);
+		modal.getToInput().fill(partyString);
+		modal.getActionInput().fill(partyString);
+		modal.getServiceInput().fill(partyString);
+
+		modal.clickOK();
+
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.DUPLICATE_MESSAGE_FILTER_ERROR,  "Page shows error");
+
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
+
+
+//		Delete created filter
+		rest.deleteMessageFilter(partyString, null);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSGF-16", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateEmptyFilter() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+
+
+		page.getNewBtn().click();
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		soft.assertTrue(modal.isLoaded(), "New button opens the new/edit message filter modal");
+
+		modal.clickOK();
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.DUPLICATE_MESSAGE_FILTER_ERROR,  "Page shows error");
+
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSGF-17", groups = {"multiTenancy", "singleTenancy"})
+	public void editToDuplicate() throws Exception {
+//		Create a filter to edit
+		String actionName = Generator.randomAlphaNumeric(5);
+		String anotherActionName = Generator.randomAlphaNumeric(5);
+		rest.createMessageFilter(actionName, null);
+		rest.createMessageFilter(anotherActionName, null);
+
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+		page.refreshPage();
+
+		int index = page.grid().scrollTo("Action", actionName);
+		page.grid().selectRow(index);
+		page.getEditBtn().click();
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		modal.getActionInput().fill(anotherActionName);
+
+		modal.clickOK();
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.DUPLICATE_MESSAGE_FILTER_ERROR,  "Page shows error");
+
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
+
+		soft.assertAll();
+
+
+//		Delete created filter
+		rest.deleteMessageFilter(actionName, null);
+		rest.deleteMessageFilter(anotherActionName, null);
+
+		soft.assertAll();
+	}
+
+
 
 }

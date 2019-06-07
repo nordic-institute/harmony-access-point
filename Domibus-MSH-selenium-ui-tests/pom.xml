@@ -147,7 +147,12 @@
 								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
 								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
-
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
 						</configuration>
 					</plugin>
 					<plugin>
@@ -176,6 +181,12 @@
 								<propertiesFile>./src/main/resources/equality-e2-s.properties</propertiesFile>
 								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
 
 						</configuration>
 					</plugin>

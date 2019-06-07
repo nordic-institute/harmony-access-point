@@ -2,7 +2,7 @@ package domibus.ui;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -37,7 +37,7 @@ public class MessagesLogPgTest extends BaseTest {
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page elements are loaded");
@@ -58,7 +58,7 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 
@@ -80,7 +80,7 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		DGrid grid = page.grid();
@@ -111,7 +111,7 @@ public class MessagesLogPgTest extends BaseTest {
 			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), null, null));
 		}
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		DGrid grid = page.grid();
@@ -137,7 +137,7 @@ public class MessagesLogPgTest extends BaseTest {
 	public void openAdvancedMessageFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		page.getFilters().getAdvancedSearchExpandLnk().click();
@@ -162,7 +162,7 @@ public class MessagesLogPgTest extends BaseTest {
 			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID));
 		}
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		DGrid grid = page.grid();
@@ -206,7 +206,7 @@ public class MessagesLogPgTest extends BaseTest {
 	public void filterEmptyGrid() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		int gridRows = page.grid().getRowsNo();
@@ -238,7 +238,7 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageID = messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		page.grid().scrollToAndDoubleClick("Message Id", messageID);
@@ -288,11 +288,13 @@ public class MessagesLogPgTest extends BaseTest {
 
 		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		page.grid().scrollToAndSelect("Message Id", messageID);
 
+
+		page.wait.forElementToBeEnabled(page.getResendButton().element);
 		page.getResendButton().click();
 
 		MessageResendModal modal = new MessageResendModal(driver);
@@ -339,14 +341,14 @@ public class MessagesLogPgTest extends BaseTest {
 		String userAdmin = Generator.randomAlphaNumeric(10);
 		rest.createUser(userAdmin, DRoles.ADMIN, data.getDefaultTestPass(), domain);
 
-		login(userAdmin, data.getDefaultTestPass()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(userAdmin, data.getDefaultTestPass()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Domain admin sees the domain message (1)");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)<0, "Domain admin does NOT see the default domain message (2)");
 
 		page.getSandwichMenu().logout();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)<0, "Super admin does NOT see the domain message while on the default domain (3)" );
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)>=0, "Super admin sees the default domain message when on default domain (4)");
@@ -382,7 +384,7 @@ public class MessagesLogPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.grid().scrollToAndSelect("Message Id", messageIDDefault);

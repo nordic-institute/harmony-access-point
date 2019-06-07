@@ -1,16 +1,12 @@
 package domibus.ui;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import org.openqa.selenium.JavascriptExecutor;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.login.LoginPage;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
 import utils.Generator;
@@ -33,7 +29,7 @@ public class PluginUsersPgTest extends BaseTest {
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -52,7 +48,7 @@ public class PluginUsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -80,7 +76,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 // 		login and go to users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -111,7 +107,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 // 		login and go to users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -154,7 +150,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -192,7 +188,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -229,7 +225,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -257,7 +253,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -282,7 +278,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -304,7 +300,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -335,7 +331,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -386,7 +382,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -442,7 +438,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -464,7 +460,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -495,7 +491,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -526,7 +522,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -549,7 +545,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -576,7 +572,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 

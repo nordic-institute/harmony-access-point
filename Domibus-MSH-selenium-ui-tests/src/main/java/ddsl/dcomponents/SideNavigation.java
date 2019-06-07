@@ -2,7 +2,7 @@ package ddsl.dcomponents;
 
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -94,7 +94,7 @@ public class SideNavigation extends DComponent {
 		}
 	}
 
-	public DLink getPageLnk(DOMIBUS_PAGES page) throws Exception {
+	public DLink getPageLnk(PAGES page) throws Exception {
 
 		wait.forElementToHaveText(sideBar);
 
@@ -138,7 +138,7 @@ public class SideNavigation extends DComponent {
 		wait.forElementToBeClickable(messagesLnk);
 		List<String> links = new ArrayList<>();
 
-		for (DOMIBUS_PAGES domibus_page : DOMIBUS_PAGES.values()) {
+		for (PAGES domibus_page : PAGES.values()) {
 			DLink link = getPageLnk(domibus_page);
 			try {
 				if (link.isEnabled()) {
@@ -152,43 +152,43 @@ public class SideNavigation extends DComponent {
 
 	}
 
-	public void gGoToPage(DOMIBUS_PAGES page) throws Exception {
+	public void gGoToPage(PAGES page) throws Exception {
 		log.info("Navigating to " + page.name());
 		getPageLnk(page).click();
 	}
 
 	public boolean isUserState() throws Exception {
-		return (getPageLnk(DOMIBUS_PAGES.MESSAGES).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.ERROR_LOG).isPresent()
+		return (getPageLnk(PAGES.MESSAGES).isPresent()
+				&& getPageLnk(PAGES.ERROR_LOG).isPresent()
 
-				&& !getPageLnk(DOMIBUS_PAGES.MESSAGE_FILTER).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.PMODE_CURRENT).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.PMODE_ARCHIVE).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.PMODE_PARTIES).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.JMS_MONITORING).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.TRUSTSTORE).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.USERS).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.PLUGIN_USERS).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.AUDIT).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.ALERTS).isPresent()
-				&& !getPageLnk(DOMIBUS_PAGES.TEST_SERVICE).isPresent()
+				&& !getPageLnk(PAGES.MESSAGE_FILTER).isPresent()
+				&& !getPageLnk(PAGES.PMODE_CURRENT).isPresent()
+				&& !getPageLnk(PAGES.PMODE_ARCHIVE).isPresent()
+				&& !getPageLnk(PAGES.PMODE_PARTIES).isPresent()
+				&& !getPageLnk(PAGES.JMS_MONITORING).isPresent()
+				&& !getPageLnk(PAGES.TRUSTSTORE).isPresent()
+				&& !getPageLnk(PAGES.USERS).isPresent()
+				&& !getPageLnk(PAGES.PLUGIN_USERS).isPresent()
+				&& !getPageLnk(PAGES.AUDIT).isPresent()
+				&& !getPageLnk(PAGES.ALERTS).isPresent()
+				&& !getPageLnk(PAGES.TEST_SERVICE).isPresent()
 		);
 	}
 
 	public boolean isAdminState() throws Exception {
-		return (getPageLnk(DOMIBUS_PAGES.MESSAGES).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.ERROR_LOG).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.MESSAGE_FILTER).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.PMODE_CURRENT).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.PMODE_ARCHIVE).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.PMODE_PARTIES).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.JMS_MONITORING).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.TRUSTSTORE).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.USERS).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.PLUGIN_USERS).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.AUDIT).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.ALERTS).isPresent()
-				&& getPageLnk(DOMIBUS_PAGES.TEST_SERVICE).isPresent()
+		return (getPageLnk(PAGES.MESSAGES).isPresent()
+				&& getPageLnk(PAGES.ERROR_LOG).isPresent()
+				&& getPageLnk(PAGES.MESSAGE_FILTER).isPresent()
+				&& getPageLnk(PAGES.PMODE_CURRENT).isPresent()
+				&& getPageLnk(PAGES.PMODE_ARCHIVE).isPresent()
+				&& getPageLnk(PAGES.PMODE_PARTIES).isPresent()
+				&& getPageLnk(PAGES.JMS_MONITORING).isPresent()
+				&& getPageLnk(PAGES.TRUSTSTORE).isPresent()
+				&& getPageLnk(PAGES.USERS).isPresent()
+				&& getPageLnk(PAGES.PLUGIN_USERS).isPresent()
+				&& getPageLnk(PAGES.AUDIT).isPresent()
+				&& getPageLnk(PAGES.ALERTS).isPresent()
+				&& getPageLnk(PAGES.TEST_SERVICE).isPresent()
 		);
 	}
 
