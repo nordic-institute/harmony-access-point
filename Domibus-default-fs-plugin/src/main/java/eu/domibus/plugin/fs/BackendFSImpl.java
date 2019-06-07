@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.AbstractBackendConnector;
@@ -132,12 +133,14 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         try {
             fsMessage = browseMessage(messageId, null);
         } catch (MessageNotFoundException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, e);
             throw new FSPluginException("Unable to browse message " + messageId, e);
         }
 
         //extract final recipient
         final String finalRecipient = getFinalRecipient(fsMessage.getMetadata());
         if (StringUtils.isBlank(finalRecipient)) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED);
             throw new FSPluginException("Unable to extract finalRecipient from message " + messageId);
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
@@ -173,8 +176,10 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
                 writePayloads(messageId, fsMessage, incomingFolderByMessageId);
             }
         } catch (JAXBException ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw new FSPluginException("An error occurred while writing metadata for downloaded message " + messageId, ex);
         } catch (IOException | FSSetUpException ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw new FSPluginException("An error occurred persisting downloaded message " + messageId, ex);
         }
     }
@@ -195,6 +200,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
                 dataHandler.writeTo(fileContent.getOutputStream());
                 LOG.info("Message payload with cid [{}] received: [{}]", contentId, fileObject.getName());
             } catch (IOException e) {
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, e);
                 throw new FSPluginException("An error occurred persisting downloaded message " + messageId, e);
             }
         }
