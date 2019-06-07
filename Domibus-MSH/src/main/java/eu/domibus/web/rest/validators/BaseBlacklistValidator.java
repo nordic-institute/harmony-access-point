@@ -33,7 +33,6 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     protected String whitelist = null;
     protected Set<Character> blacklist = null;
-    protected CustomWhiteListed customAnnotation;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
@@ -111,12 +110,16 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     }
 
     protected boolean isValidValue(String value) {
-        boolean res = isWhiteListValid(value) && isBlackListValid(value);
+        return isValidValue(value, null);
+    }
+
+    protected boolean isValidValue(String value, CustomWhiteListed customAnnotation) {
+        boolean res = isWhiteListValid(value, customAnnotation) && isBlackListValid(value, customAnnotation);
         LOG.debug("Validated value [{}] and the outcome is [{}]", value, res);
         return res;
     }
 
-    protected boolean isWhiteListValid(String value) {
+    protected boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation) {
         LOG.debug("Validating value [{}] in whitelist", value);
         if (whitelist == null) {
             LOG.debug("Whitelist is empty, exiting");
@@ -139,7 +142,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return res;
     }
 
-    protected boolean isBlackListValid(String value) {
+    protected boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {
         LOG.debug("Validating value [{}] in blacklist", value);
         if (blacklist == null) {
             LOG.debug("Blacklist is empty, exiting");

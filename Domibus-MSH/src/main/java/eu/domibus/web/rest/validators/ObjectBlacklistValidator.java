@@ -36,7 +36,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
     public boolean isValid(Object obj) {
         LOG.debug("Validating recursively the object properties [{}]", obj);
         try {
-            doValidate(obj, "root");
+            doValidate(obj, "root", null);
             LOG.debug("All object properties [{}] are valid.", obj);
             return true;
         } catch (ValidationException ex) {
@@ -45,7 +45,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
         }
     }
 
-    protected void doValidate(Object obj, String path) {
+    protected void doValidate(Object obj, String path, CustomWhiteListed customAnnotation) {
         if (obj == null) {
             LOG.debug("Object [{}] to validate is null, exiting.", path);
             return;
@@ -55,25 +55,25 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
         }
         if (obj instanceof String) {
             LOG.debug("Validating object String property [{}]:[{}]", path, obj);
-            if (!isValidValue((String) obj)) {
+            if (!isValidValue((String) obj, customAnnotation)) {
                 message = String.format(ObjectWhiteListed.MESSAGE, path);
                 throw new ValidationException(message);
             }
         } else if (obj instanceof Object[]) {
             LOG.debug("Validating object array property [{}]:[{}]", path, obj);
-            doValidate(Arrays.asList((Object[]) obj), path);
+            doValidate(Arrays.asList((Object[]) obj), path, customAnnotation);
         } else if (obj instanceof List<?>) {
             LOG.debug("Validating object List property [{}]:[{}]", path, obj);
             List<?> list = ((List<?>) obj);
             for (int i = 0; i < list.size(); i++) {
-                doValidate(list.get(i), path + "[" + (i + 1) + "]");
+                doValidate(list.get(i), path + "[" + (i + 1) + "]", customAnnotation);
             }
         } else if (obj instanceof Iterable<?>) {
             LOG.debug("Validating object Iterable property [{}]:[{}]", path, obj);
-            ((Iterable<?>) obj).forEach(el -> doValidate(el, path + "[one of the elements]"));
+            ((Iterable<?>) obj).forEach(el -> doValidate(el, path + "[one of the elements]", customAnnotation));
         } else if (obj instanceof Map<?, ?>) {
             LOG.debug("Validating object Map property [{}]:[{}]", path, obj);
-            ((Map<?, ?>) obj).forEach((key, val) -> doValidate(val, path + "[" + key + "]"));
+            ((Map<?, ?>) obj).forEach((key, val) -> doValidate(val, path + "[" + key + "]", customAnnotation));
         } else if (!isPrimitive(obj)) {
             LOG.debug("Validating all object non-primitive properties [{}]:[{}]", path, obj);
             ReflectionUtils.doWithFields(obj.getClass(),
@@ -82,8 +82,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
                             field.setAccessible(true);
                         }
                         Object value = ReflectionUtils.getField(field, obj);
-                        this.customAnnotation = field.getAnnotation(CustomWhiteListed.class);
-                        doValidate(value, path + "->" + field.getName());
+                        doValidate(value, path + "->" + field.getName(), field.getAnnotation(CustomWhiteListed.class));
                     },
                     field -> (field.getAnnotation(SkipWhiteListed.class) == null)
             );
