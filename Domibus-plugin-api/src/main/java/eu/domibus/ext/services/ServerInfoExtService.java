@@ -4,5 +4,5 @@ public interface ServerInfoExtService {
     /**
      * @return the name of the current node.
      */
-    public String getNodeName();
+    String getNodeName();
 }

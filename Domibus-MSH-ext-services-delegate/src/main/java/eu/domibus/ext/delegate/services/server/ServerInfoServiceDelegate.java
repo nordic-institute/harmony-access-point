@@ -12,6 +12,6 @@ public class ServerInfoServiceDelegate implements ServerInfoExtService {
     private ServerInfoService serverInfoService;
 
     public String getNodeName() {
-        return serverInfoService.getUniqueServerName();
+        return serverInfoService.getServerName();
     }
 }
