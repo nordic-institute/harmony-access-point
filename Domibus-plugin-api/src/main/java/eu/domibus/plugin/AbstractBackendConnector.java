@@ -58,14 +58,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Override
     // The following does not have effect at this level since the transaction would have already been rolled back!
     // @Transactional(noRollbackFor = {IllegalArgumentException.class, IllegalStateException.class})
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             final String messageId = this.messageSubmitter.submit(messageData, this.getName());
-            if (StringUtils.isNotBlank(messageId)) {
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            }
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
         } catch (IllegalArgumentException iaEx) {
