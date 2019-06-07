@@ -80,16 +80,16 @@ public abstract class PropertyGroupMapper<E> {
     private boolean propertyKeyExists(final String key) {
         boolean keyExist;
         DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
-        if(currentDomain!=null){
-            keyExist=domibusPropertyExtService.containsDomainPropertyKey(currentDomain, key);
-            LOG.trace("Checking if key:[{}] exists in domain:[{}]:[{}]",key,currentDomain,keyExist);
-        }else{
-            keyExist=domibusPropertyExtService.containsPropertyKey(key);
-            LOG.trace("Checking if key:[{}] exists in default domain configuration:[{}]",key,keyExist);
+        if (currentDomain != null) {
+            keyExist = domibusPropertyExtService.containsDomainPropertyKey(currentDomain, key);
+            LOG.trace("Checking if key:[{}] exists in domain:[{}]:[{}]", key, currentDomain, keyExist);
+        } else {
+            keyExist = domibusPropertyExtService.containsPropertyKey(key);
+            LOG.trace("Checking if key:[{}] exists in default domain configuration:[{}]", key, keyExist);
         }
         if (!keyExist) {
             keyExist = environment.containsProperty(key);
-            LOG.trace("Checking if key:[{}] exists in spring environment:[{}]",key,keyExist);
+            LOG.trace("Checking if key:[{}] exists in spring environment:[{}]", key, keyExist);
         }
         return keyExist;
     }
@@ -97,11 +97,10 @@ public abstract class PropertyGroupMapper<E> {
     private String getPropertyValue(String key) {
         String propertyValue = null;
         DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
-        if(currentDomain!=null){
-            propertyValue =domibusPropertyExtService.getDomainProperty(currentDomain, key);
-        }
-        else {
-            propertyValue =domibusPropertyExtService.getProperty(key);
+        if (currentDomain != null) {
+            propertyValue = domibusPropertyExtService.getDomainProperty(currentDomain, key);
+        } else {
+            propertyValue = domibusPropertyExtService.getProperty(key);
         }
         if (StringUtils.isEmpty(propertyValue)) {
             propertyValue = environment.getProperty(key);

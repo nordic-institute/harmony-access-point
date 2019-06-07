@@ -11,8 +11,8 @@ import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 import eu.europa.esig.dss.tsl.OtherTrustedList;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
@@ -172,10 +172,10 @@ public class DssConfiguration {
             LOG.debug("Configuring Dss https proxy:");
             try {
                 int httpsPort = Integer.parseInt(proxyHttpsPort);
-                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost,httpsPort , proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
+                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost, httpsPort, proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
                 proxyConfig.setHttpsProperties(httpsProperties);
-            }catch (NumberFormatException n) {
-                LOG.warn("Error parsing https port config:[{}], skipping https configuration",proxyHttpsHost,n);
+            } catch (NumberFormatException n) {
+                LOG.warn("Error parsing https port config:[{}], skipping https configuration", proxyHttpsHost, n);
             }
         }
         if (!NONE.equals(proxyHttpHost)) {
@@ -184,8 +184,8 @@ public class DssConfiguration {
                 int httpPort = Integer.parseInt(proxyHttpPort);
                 final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, httpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
                 proxyConfig.setHttpProperties(httpProperties);
-            }catch (NumberFormatException n) {
-                LOG.warn("Error parsing http port config:[{}], skipping http configuration",proxyHttpPort,n);
+            } catch (NumberFormatException n) {
+                LOG.warn("Error parsing http port config:[{}], skipping http configuration", proxyHttpPort, n);
             }
         }
         dataLoader.setProxyConfig(proxyConfig);
@@ -227,16 +227,16 @@ public class DssConfiguration {
         for (OtherTrustedList otherTrustedList : otherTrustedLists) {
             LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
         }
-        if(otherTrustedLists.isEmpty()){
+        if (otherTrustedLists.isEmpty()) {
             LOG.info("No custom trusted list configured.");
         }
         return otherTrustedLists;
     }
 
     @Bean
-    public TSLValidationJob tslValidationJob(DataLoader dataLoader, TSLRepository tslRepository, KeyStoreCertificateSource ojContentKeyStore, List<OtherTrustedList> otherTrustedLists) {
+    public DomibusTSLValidationJob tslValidationJob(DataLoader dataLoader, TSLRepository tslRepository, KeyStoreCertificateSource ojContentKeyStore, List<OtherTrustedList> otherTrustedLists) {
         LOG.info("Configuring DSS lotl with url:[{}],schema uri:[{}],country code:[{}],oj url:[{}]", currentLotlUrl, lotlSchemeUri, lotlCountryCode, currentOjUrl);
-        TSLValidationJob validationJob = new TSLValidationJob();
+        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob();
         validationJob.setDataLoader(dataLoader);
         validationJob.setRepository(tslRepository);
         validationJob.setLotlUrl(currentLotlUrl);

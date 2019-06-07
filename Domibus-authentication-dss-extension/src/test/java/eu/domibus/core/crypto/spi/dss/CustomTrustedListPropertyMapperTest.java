@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.env.Environment;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 
 /**
@@ -29,35 +28,42 @@ public class CustomTrustedListPropertyMapperTest {
             @Mocked DomainContextExtService domainContextExtService,
             @Mocked Environment environment) {
         new Expectations() {{
-            domainContextExtService.getCurrentDomainSafely();result=null;
-            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.url[0]");result=true;
+            domainContextExtService.getCurrentDomainSafely();
+            result = null;
+            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.url[0]");
+            result = true;
             environment.getProperty("domibus.authentication.dss.custom.trusted.list.url[0]");
             result = "https://s3.eu-central-1.amazonaws.com/custom-trustlist/trusted-list.xml";
 
-            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.keystore.type[0]");result=true;
+            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.keystore.type[0]");
+            result = true;
             environment.getProperty("domibus.authentication.dss.custom.trusted.list.keystore.type[0]");
             result = "JKS";
 
-            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.keystore.path[0]");result=true;
+            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.keystore.path[0]");
+            result = true;
             environment.getProperty("domibus.authentication.dss.custom.trusted.list.keystore.path[0]");
             result = "C:\\pki\\test.jks";
 
-            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.keystore.password[0]");result=true;
+            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.keystore.password[0]");
+            result = true;
             environment.getProperty("domibus.authentication.dss.custom.trusted.list.keystore.password[0]");
             result = "localdemo";
 
-            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.country.code[0]");result=true;
+            environment.containsProperty("domibus.authentication.dss.custom.trusted.list.country.code[0]");
+            result = true;
             environment.getProperty("domibus.authentication.dss.custom.trusted.list.country.code[0]");
             result = "CX";
         }};
         List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService, domainContextExtService, environment).map();
-        Assert.assertEquals(0,otherTrustedLists.size());
+        Assert.assertEquals(0, otherTrustedLists.size());
         new Verifications() {
             {
                 domibusPropertyExtService.getDomainProperty((DomainDTO) any, (String) any);
                 times = 0;
 
-                domibusPropertyExtService.containsPropertyKey("domibus.authentication.dss.custom.trusted.list.url[0]");times=1;
+                domibusPropertyExtService.containsPropertyKey("domibus.authentication.dss.custom.trusted.list.url[0]");
+                times = 1;
             }
         };
     }
