@@ -12,12 +12,18 @@ import java.lang.management.ManagementFactory;
 public class ServerInfoServiceImpl implements ServerInfoService {
 
     @Override
-    public String getUniqueServerName() {
+    public String getServerName() {
+        System.getProperties();
         return ManagementFactory.getRuntimeMXBean().getName();
     }
 
     @Override
-    public String getServerName() {
-        return getUniqueServerName().split("@")[1];
+    public String getNodeName() {
+        return null;
+    }
+
+    @Override
+    public String getHumanReadableServerName() {
+        return getServerName().split("@")[1];
     }
 }

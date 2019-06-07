@@ -118,7 +118,7 @@ public class AlertServiceImpl implements AlertService {
         next.getProperties().forEach((key, value) -> mailModel.put(key, value.getValue().toString()));
         mailModel.put(ALERT_LEVEL, read.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, read.getReportingTime().toString());
-        mailModel.put(SERVER_NAME, serverInfoService.getServerName());
+        mailModel.put(SERVER_NAME, serverInfoService.getHumanReadableServerName());
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }

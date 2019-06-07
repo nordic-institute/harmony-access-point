@@ -9,15 +9,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServerInfoServiceImpl implements ServerInfoService {
 
-    private static final String WEBLOGIC_NAME = "weblogic.Name";
-
-    @Override
-    public String getUniqueServerName() {
-        return System.getProperty(WEBLOGIC_NAME);
-    }
+    private static final String SERVER_NAME = "weblogic.Name";
 
     @Override
     public String getServerName() {
-        return getUniqueServerName();
+        return System.getProperty(SERVER_NAME);
+    }
+
+    @Override
+    public String getNodeName() {
+        return getServerName();
+    }
+
+    @Override
+    public String getHumanReadableServerName() {
+        return getServerName();
     }
 }

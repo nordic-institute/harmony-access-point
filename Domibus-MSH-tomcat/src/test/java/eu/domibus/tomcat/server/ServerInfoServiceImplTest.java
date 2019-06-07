@@ -18,7 +18,7 @@ public class ServerInfoServiceImplTest {
 
     @Test
     public void testGetUniqueServerName() {
-        final String serverUniqueName = serverInfoService.getUniqueServerName();
+        final String serverUniqueName = serverInfoService.getServerName();
         Assert.assertNotNull(serverUniqueName);
         Assert.assertTrue(serverUniqueName.contains("@"));
     }
@@ -26,7 +26,7 @@ public class ServerInfoServiceImplTest {
     @Test
     public void testGetServerName() {
 
-        final String serverName = serverInfoService.getServerName();
+        final String serverName = serverInfoService.getHumanReadableServerName();
         Assert.assertNotNull(serverName);
         Assert.assertFalse(serverName.contains("@"));
     }

@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Quartz scheduler starter class which:
@@ -70,6 +68,16 @@ public class DomibusQuartzStarter {
                 LOG.error("Could not initialize the Quartz Scheduler for domain [{}]", domain, e);
             }
         }
+
+        Properties properties = System.getProperties();
+
+        LinkedHashMap<String, String> collect = properties.entrySet().stream()
+                .collect(Collectors.toMap(k -> (String) k.getKey(), e -> (String) e.getValue()))
+                .entrySet().stream().sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        collect.forEach((k, v) -> System.out.println(k + ":" + v));
     }
 
     @PreDestroy

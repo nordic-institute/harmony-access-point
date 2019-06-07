@@ -14,12 +14,20 @@ public interface ServerInfoService {
      *
      * @return unique server name
      */
-    String getUniqueServerName();
+    String getServerName();
+
+    /**
+     * Returns the node server name
+     *
+     * To be used in a cluster environment - instead of {@code getServerName}
+     * @return
+     */
+    String getNodeName();
 
     /**
      * Returns the server name
      *
      * @return server name
      */
-    String getServerName();
+    String getHumanReadableServerName();
 }
