@@ -41,11 +41,13 @@ public class LoggingResource {
     @Autowired
     private LoggingService loggingService;
 
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @Autowired
+    protected ErrorHandlerService errorHandlerService;
+
     @ExceptionHandler({LoggingException.class})
-    public ErrorRO handleLoggingException(Exception ex) {
+    public ResponseEntity<ErrorRO> handleLoggingException(LoggingException ex) {
         LOG.error(ex.getMessage(), ex);
-        return new ErrorRO(ex.getMessage());
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     /**
