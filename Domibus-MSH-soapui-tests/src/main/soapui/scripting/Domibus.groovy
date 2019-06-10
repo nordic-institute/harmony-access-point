@@ -1340,7 +1340,7 @@ def findNumberOfDomain(String inputSite) {
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
                 commandResult = runCurlCommand(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user. outputCatcher="+ commandResult[0] + "\n\n errorCatcher=" + commandResult[1];
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
             }
         } finally {
