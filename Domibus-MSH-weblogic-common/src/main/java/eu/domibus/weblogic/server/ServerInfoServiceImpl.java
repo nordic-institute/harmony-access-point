@@ -16,13 +16,4 @@ public class ServerInfoServiceImpl implements ServerInfoService {
         return System.getProperty(SERVER_NAME);
     }
 
-    @Override
-    public String getNodeName() {
-        return getServerName();
-    }
-
-    @Override
-    public String getHumanReadableServerName() {
-        return getServerName();
-    }
 }
