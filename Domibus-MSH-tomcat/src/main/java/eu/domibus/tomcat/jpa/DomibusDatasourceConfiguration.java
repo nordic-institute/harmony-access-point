@@ -30,6 +30,7 @@ public class DomibusDatasourceConfiguration {
     public AtomikosDataSourceBean domibusXADatasource() {
         AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
         dataSource.setUniqueResourceName("domibusJDBC-XA");
+
         final String xaDataSourceClassName = domibusPropertyProvider.getProperty("domibus.datasource.xa.xaDataSourceClassName");
         dataSource.setXaDataSourceClassName(xaDataSourceClassName);
         dataSource.setXaProperties(xaProperties());
@@ -39,6 +40,16 @@ public class DomibusDatasourceConfiguration {
         dataSource.setMaxPoolSize(maxPoolSize);
         final Integer maxLifeTime = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxLifetime");
         dataSource.setMaxLifetime(maxLifeTime);
+
+        final Integer borrowConnectionTimeout = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.borrowConnectionTimeout");
+        dataSource.setBorrowConnectionTimeout(borrowConnectionTimeout);
+        final Integer reapTimeout = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.reapTimeout");
+        dataSource.setReapTimeout(reapTimeout);
+        final Integer maxIdleTime = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxIdleTime");
+        dataSource.setMaxIdleTime(maxIdleTime);
+        final Integer maintenanceInterval = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maintenanceInterval");
+        dataSource.setMaintenanceInterval(maintenanceInterval);
+        
         return dataSource;
     }
 
