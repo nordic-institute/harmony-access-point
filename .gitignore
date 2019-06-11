@@ -8,6 +8,9 @@
 
 ## soapUI test reports ##
 
+## soapUI test execution cookie ##
+Domibus-MSH-soapui-tests/src/main/soapui/cookie.txt
+
 ## Maven output folder ##
 target/
 
