@@ -1,20 +1,11 @@
 package eu.domibus.web.rest.error;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.rest.ErrorRO;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PolicyServiceImpl;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.Bus;
-import org.apache.neethi.Policy;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ion Perpegel
@@ -34,11 +24,18 @@ public class ErrorHandlerServiceTest {
     @Tested
     ErrorHandlerService errorHandlerService;
 
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Test
     public void testCreateResponseWithStatus() {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorMessage = "Error occurred";
         Exception ex = new Exception(errorMessage);
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
+            result = true;
+        }};
 
         ResponseEntity<ErrorRO> result = errorHandlerService.createResponse(ex, status);
 
@@ -51,6 +48,10 @@ public class ErrorHandlerServiceTest {
     public void testCreateResponse() {
         String errorMessage = "Error occurred";
         Exception ex = new Exception(errorMessage);
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
+            result = true;
+        }};
 
         ResponseEntity<ErrorRO> result = errorHandlerService.createResponse(ex);
 
