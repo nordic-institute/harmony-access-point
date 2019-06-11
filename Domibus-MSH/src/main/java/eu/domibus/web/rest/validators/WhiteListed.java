@@ -16,18 +16,18 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Ion Perpegel
  * since 4.1
  */
-@Target({ FIELD, PARAMETER })
+@Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
 @Constraint(validatedBy = BlacklistValidator.class)
 @Documented
-public @interface NotBlacklisted {
+public @interface WhiteListed {
 
-    static String MESSAGE = "Blacklisted character detected.";
+    static String MESSAGE = "Forbidden character detected.";
 
     String message() default MESSAGE;
 
-    Class<?>[] groups() default { };
+    Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default { };
+    Class<? extends Payload>[] payload() default {};
 
 }

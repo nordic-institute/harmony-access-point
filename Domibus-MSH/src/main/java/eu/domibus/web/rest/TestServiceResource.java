@@ -8,7 +8,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -19,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/rest/testservice")
+@Validated
 public class TestServiceResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestServiceResource.class);
@@ -41,13 +45,13 @@ public class TestServiceResource {
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public String submitTest(@RequestBody TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
+    public String submitTest(@RequestBody @Valid TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
         return testService.submitTest(testServiceRequestRO.getSender(),  testServiceRequestRO.getReceiver());
     }
 
     @RequestMapping(value = "dynamicdiscovery", method = RequestMethod.POST)
     @ResponseBody
-    public String submitTestDynamicDiscovery(@RequestBody TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
+    public String submitTestDynamicDiscovery(@RequestBody @Valid TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
         return testService.submitTestDynamicDiscovery(testServiceRequestRO.getSender(),  testServiceRequestRO.getReceiver(), testServiceRequestRO.getReceiverType());
     }
 }

@@ -33,6 +33,10 @@
             <mvc:exclude-mapping path="/rest/application/**"/>
             <bean class="eu.domibus.web.security.DefaultPasswordInterceptor" />
         </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/rest/**"/>
+            <bean class="eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor" />
+        </mvc:interceptor>
     </mvc:interceptors>
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">

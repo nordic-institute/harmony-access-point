@@ -1,4 +1,6 @@
-package eu.domibus.web.rest.criteria;
+package eu.domibus.web.rest.ro;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.Set;
@@ -6,10 +8,11 @@ import java.util.Set;
 /**
  * @author Thomas Dussart
  * @since 4.0
- *
+ * <p>
  * Criteria class to filter the audit logs.
  */
-public class AuditCriteria {
+
+public class AuditFilterRequestRO {
 
     /**
      * Type of audit.
@@ -29,11 +32,13 @@ public class AuditCriteria {
     /**
      * Date from which we want to retrieve audit logs.
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date from;
 
     /**
      * Date to which we want to retrieve audit logs.
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date to;
 
     /**
@@ -104,7 +109,7 @@ public class AuditCriteria {
 
     @Override
     public String toString() {
-        return "AuditCriteria{" +
+        return "AuditFilterRequestRO{" +
                 "auditTargetName=" + auditTargetName +
                 ", action=" + action +
                 ", user=" + user +

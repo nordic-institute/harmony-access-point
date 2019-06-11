@@ -121,7 +121,7 @@ public class PModeResourceTest {
         MultipartFile file = new MockMultipartFile("filename", new byte[]{});
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmodes(file, "description");
+        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -135,7 +135,7 @@ public class PModeResourceTest {
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmodes(file, "description");
+        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -154,7 +154,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmodes(file, "description");
+        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -174,7 +174,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmodes(file, "description");
+        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -196,7 +196,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmodes(file, "description");
+        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -216,7 +216,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmodes(file, "description");
+        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -232,7 +232,7 @@ public class PModeResourceTest {
         final ArrayList<String> emptyList = new ArrayList<>();
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePmodes(emptyList);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePModes(emptyList);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -248,7 +248,7 @@ public class PModeResourceTest {
         stringList.add("2");
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePmodes(stringList);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePModes(stringList);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -269,7 +269,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePmodes(stringList);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePModes(stringList);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);

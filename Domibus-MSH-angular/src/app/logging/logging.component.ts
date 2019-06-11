@@ -123,7 +123,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
     }, (error: any) => {
       console.log('error getting the error log:' + error);
       this.loading = false;
-      this.alertService.error('Error occurred:' + error);
+      this.alertService.exception('Error occurred:', error);
     });
 
   }
@@ -155,7 +155,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
           this.page(this.offset, this.rowLimiter.pageSize);
         },
         error => {
-          this.alertService.error('An error occurred while setting logging level (Error Status: ' + error.status + ')');
+          this.alertService.exception('An error occurred while setting logging level: ',  error);
           this.loading = false;
         }
       );
@@ -170,7 +170,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
         this.page(this.offset, this.rowLimiter.pageSize);
       },
       error => {
-        this.alertService.error('An error occurred while resetting logging (Error Status: ' + error.status + ')');
+        this.alertService.exception('An error occurred while resetting logging: ', error);
         this.loading = false;
       }
     );

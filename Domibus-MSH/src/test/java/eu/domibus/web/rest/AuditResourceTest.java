@@ -6,7 +6,7 @@ import eu.domibus.api.audit.AuditLog;
 import eu.domibus.common.model.common.ModificationType;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.web.rest.criteria.AuditCriteria;
+import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class AuditResourceTest {
 
     @Test
     public void listAudits() throws Exception {
-        AuditCriteria auditCriteria = buildCriteria();
+        AuditFilterRequestRO auditCriteria = buildCriteria();
         List<AuditLog> result = Lists.newArrayList(new AuditLog());
         when(auditService.listAudit(
                 auditCriteria.getAuditTargetName(),
@@ -63,7 +63,7 @@ public class AuditResourceTest {
 
     @Test
     public void countAudits() {
-        AuditCriteria auditCriteria = buildCriteria();
+        AuditFilterRequestRO auditCriteria = buildCriteria();
         auditResource.countAudits(auditCriteria);
         verify(auditService, Mockito.times(1)).countAudit(
                 auditCriteria.getAuditTargetName(),
@@ -74,10 +74,10 @@ public class AuditResourceTest {
 
     }
 
-    private AuditCriteria buildCriteria() {
+    private AuditFilterRequestRO buildCriteria() {
         Date from = new Date();
         Date to = new Date(from.getTime() + 1000);
-        AuditCriteria auditCriteria = new AuditCriteria();
+        AuditFilterRequestRO auditCriteria = new AuditFilterRequestRO();
         auditCriteria.setAuditTargetName(Sets.newHashSet("User", "Pmode"));
         auditCriteria.setAction(Sets.newHashSet("Created"));
         auditCriteria.setUser(Sets.newHashSet("Admin"));

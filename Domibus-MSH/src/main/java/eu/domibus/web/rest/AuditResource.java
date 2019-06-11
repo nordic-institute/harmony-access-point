@@ -13,14 +13,24 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.criteria.AuditCriteria;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +41,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(value = "/rest/audit")
+@Validated
 public class AuditResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditResource.class);
@@ -57,11 +68,9 @@ public class AuditResource {
      * @return an audit list.
      */
     @RequestMapping(value = {"/list"}, method = RequestMethod.POST)
-    public List<AuditResponseRo> listAudits(@RequestBody AuditCriteria auditCriteria) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Audit criteria received:");
-            LOG.debug(auditCriteria.toString());
-        }
+    public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
+        LOG.debug("Audit criteria received:" + auditCriteria.toString());
+
         List<AuditLog> sourceList = auditService.listAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),
@@ -76,7 +85,7 @@ public class AuditResource {
 
 
     @RequestMapping(value = {"/count"}, method = RequestMethod.POST)
-    public Long countAudits(@RequestBody AuditCriteria auditCriteria) {
+    public Long countAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),
@@ -95,7 +104,7 @@ public class AuditResource {
      */
     private Set<String> changeActionType(Set<String> actions) {
         Set<String> modificationTypes = new HashSet<>();
-        if(actions == null || actions.isEmpty()) {
+        if (actions == null || actions.isEmpty()) {
             return modificationTypes;
         }
         actions.forEach(action -> {
@@ -115,32 +124,13 @@ public class AuditResource {
 
     /**
      * This method returns a CSV file with the contents of Audit table
-     * @param auditTargetName the type of audit.
-     * @param user the user that performed the audited action.
-     * @param action the type of action linked with audit.
-     * @param from the date from which we want to retrieve audit logs.
-     * @param to the date to which we want to retrieve audit logs.
      *
+     * @param auditCriteria same filter criteria as in filter method
      * @return CSV file with the contents of Audit table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(
-            @RequestParam(value = "auditTargetName", required = false) Set<String> auditTargetName,
-            @RequestParam(value = "user", required = false) Set<String> user,
-            @RequestParam(value = "action", required = false) Set<String> action,
-            @RequestParam(value = "from", required = false) String from,
-            @RequestParam(value = "to", required = false) String to) {
+    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
         String resultText;
-
-        // get list of audits
-        AuditCriteria auditCriteria = new AuditCriteria();
-        auditCriteria.setAuditTargetName(auditTargetName);
-        auditCriteria.setUser(user);
-        auditCriteria.setAction(action);
-        Date receivedFrom = dateUtil.fromString(from);
-        auditCriteria.setFrom(receivedFrom);
-        Date receivedTo = dateUtil.fromString(to);
-        auditCriteria.setTo(receivedTo);
         auditCriteria.setStart(0);
         auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());
         final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);

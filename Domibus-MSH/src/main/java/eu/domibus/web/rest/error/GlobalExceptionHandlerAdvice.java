@@ -18,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.RollbackException;
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,9 +32,9 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 @RequestMapping(produces = "application/vnd.error+json")
-public class RestControllerAdvice extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RestControllerAdvice.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalExceptionHandlerAdvice.class);
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
@@ -56,6 +57,11 @@ public class RestControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorRO> handleException(Exception ex) {
         return errorHandlerService.createResponse(ex);
+    }
+
+    @ExceptionHandler({ValidationException.class})
+    public ResponseEntity<ErrorRO> handleException(ValidationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

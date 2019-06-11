@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import com.google.gson.Gson;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.error.RestControllerAdvice;
+import eu.domibus.web.rest.error.GlobalExceptionHandlerAdvice;
 import org.hibernate.HibernateException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,12 +38,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RestControllerAdviceTest {
+public class GlobalExceptionHandlerAdviceTest {
 
     private MockMvc mockMvc;
 
     @InjectMocks
-    private RestControllerAdvice unitUnderTest;
+    private GlobalExceptionHandlerAdvice unitUnderTest;
 
     @Mock
     private PluginUserResource pluginUserResource;

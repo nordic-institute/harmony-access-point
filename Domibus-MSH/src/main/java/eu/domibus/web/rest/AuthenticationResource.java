@@ -34,10 +34,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +50,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping(value = "/rest/security")
+@Validated
 public class AuthenticationResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationResource.class);
@@ -92,7 +95,7 @@ public class AuthenticationResource {
 
     @RequestMapping(value = "authentication", method = RequestMethod.POST)
     @Transactional(noRollbackFor = BadCredentialsException.class)
-    public UserRO authenticate(@RequestBody LoginRO loginRO, HttpServletResponse response) {
+    public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response) {
 
         String domainCode = userDomainService.getDomainForUser(loginRO.getUsername());
         LOG.debug("Determined domain [{}] for user [{}]", domainCode, loginRO.getUsername());
@@ -167,7 +170,7 @@ public class AuthenticationResource {
      */
     @RequestMapping(value = "user/domain", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void setCurrentDomain(@RequestBody String domainCode) {
+    public void setCurrentDomain(@RequestBody @Valid String domainCode) {
         LOG.debug("Setting current domain " + domainCode);
         authenticationService.changeDomain(domainCode);
     }
@@ -180,7 +183,7 @@ public class AuthenticationResource {
      * */
     @RequestMapping(value = "user/password", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@RequestBody ChangePasswordRO param) {
+    public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
         UserDetail loggedUser = this.getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
