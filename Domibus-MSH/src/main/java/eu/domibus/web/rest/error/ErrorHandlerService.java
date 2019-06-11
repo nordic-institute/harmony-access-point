@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
-import javax.annotation.PostConstruct;
 import javax.validation.ValidationException;
 import java.util.List;
 
@@ -52,7 +51,13 @@ public class ErrorHandlerService {
             ex = rootCause == null ? ex : rootCause;
         }
 
-        boolean enabled = domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
+        boolean enabled = true;
+        try {
+            enabled = domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
+        } catch (Exception e) {
+            LOG.warn("Error reading domibus.exceptions.rest.enable as boolean: [{}]", e.getMessage());
+        }
+
         String errorMessage = enabled ? ex.getMessage() : "A server error occurred";
 
         return new ResponseEntity(new ErrorRO(errorMessage), headers, status);
