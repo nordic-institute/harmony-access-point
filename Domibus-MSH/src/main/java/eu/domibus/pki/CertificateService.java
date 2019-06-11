@@ -22,6 +22,14 @@ public interface CertificateService {
 
     boolean isCertificateChainValid(KeyStore trustStore, String alias);
 
+    /**
+     * Verifies every certificate in the chain if valid and not revoked
+     *
+     * @param certificateChain the chain of certificates
+     * @return true if every certificate in the chain is valid and not revoked
+     */
+    boolean isCertificateChainValid(List<? extends Certificate> certificateChain);
+
     String extractCommonName(final X509Certificate certificate) throws InvalidNameException;
 
     /**
