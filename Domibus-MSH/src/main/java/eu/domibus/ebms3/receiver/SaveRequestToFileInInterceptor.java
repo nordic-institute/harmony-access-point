@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.configuration.storage.Storage;
+import eu.domibus.core.payload.filesystem.PayloadFileStorage;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
@@ -62,9 +62,9 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         String contentType = (String) message.get(Message.CONTENT_TYPE);
         LOG.putMDC(Message.CONTENT_TYPE, contentType);
 
-        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {
-            throw new Fault(new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not store Source Message: the property [" + Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION + "] is not defined"));
+            throw new Fault(new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not store Source Message: the property [" + PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION + "] is not defined"));
         }
 
         String fileName = splitAndJoinService.generateSourceFileName(temporaryDirectoryLocation);

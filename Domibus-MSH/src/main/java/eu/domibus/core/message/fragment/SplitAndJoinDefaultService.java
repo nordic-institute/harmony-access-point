@@ -19,8 +19,8 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.*;
-import eu.domibus.configuration.storage.Storage;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.AttachmentCleanupService;
@@ -98,7 +98,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected PModeProvider pModeProvider;
 
     @Autowired
-    protected StorageProvider storageProvider;
+    protected PayloadFileStorageProvider storageProvider;
 
     @Autowired
     protected MessageUtil messageUtil;
@@ -348,7 +348,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         try (InputStream rawInputStream = new FileInputStream(sourceMessageFileName)) {
             MessageImpl messageImpl = new MessageImpl();
-            final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
             LOG.debug("Using temporaryDirectoryLocation for attachments [{}]", temporaryDirectoryLocation);
             messageImpl.put(AttachmentDeserializer.ATTACHMENT_DIRECTORY, temporaryDirectoryLocation);
             messageImpl.setContent(InputStream.class, rawInputStream);
@@ -677,9 +677,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected File getFragmentStorageDirectory() {
-        final Storage currentStorage = storageProvider.getCurrentStorage();
+        final PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
         if (currentStorage.getStorageDirectory() == null || currentStorage.getStorageDirectory().getName() == null) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not store fragment payload. Please configure " + Storage.ATTACHMENT_STORAGE_LOCATION + " when using SplitAndJoin");
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not store fragment payload. Please configure " + PayloadFileStorage.ATTACHMENT_STORAGE_LOCATION + " when using SplitAndJoin");
         }
         return currentStorage.getStorageDirectory();
     }
@@ -748,9 +748,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected File mergeSourceFile(List<File> fragmentFilesInOrder, MessageGroupEntity messageGroupEntity) {
-        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {
-            throw new SplitAndJoinException("Could not rejoin fragments: the property [" + Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION + "] is not defined");
+            throw new SplitAndJoinException("Could not rejoin fragments: the property [" + PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION + "] is not defined");
         }
         String sourceFileName = generateSourceFileName(temporaryDirectoryLocation);
         String outputFileName = sourceFileName;

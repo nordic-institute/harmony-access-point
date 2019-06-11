@@ -18,7 +18,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.*;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -133,7 +133,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected SplitAndJoinService splitAndJoinService;
 
     @Autowired
-    protected StorageProvider storageProvider;
+    protected PayloadFileStorageProvider storageProvider;
 
     @Override
     @Timer(value = INCOMING_USER_MESSAGE)
@@ -443,7 +443,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throw ex;
         }
 
-        if (storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
+        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             LOG.error("SplitAndJoin feature works only with payload storage configured on the file system");
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);

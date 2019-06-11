@@ -15,7 +15,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
@@ -177,7 +177,7 @@ public class UserMessageHandlerServiceImplTest {
     SplitAndJoinService splitAndJoinService;
 
     @Injectable
-    StorageProvider storageProvider;
+    PayloadFileStorageProvider storageProvider;
 
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
@@ -1164,7 +1164,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                    @Injectable MessageGroupEntity messageGroupEntity,
                                                                    @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
         }};
 
@@ -1182,7 +1182,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                  @Injectable MessageGroupEntity messageGroupEntity,
                                                                  @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             messageGroupEntity.getRejected();
@@ -1204,7 +1204,7 @@ public class UserMessageHandlerServiceImplTest {
 
         long totalFragmentCount = 5;
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             messageGroupEntity.getRejected();

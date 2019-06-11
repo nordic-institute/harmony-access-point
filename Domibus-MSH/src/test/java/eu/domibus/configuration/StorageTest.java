@@ -2,7 +2,7 @@ package eu.domibus.configuration;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.configuration.storage.Storage;
+import eu.domibus.core.payload.filesystem.PayloadFileStorage;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -28,7 +28,7 @@ import java.util.List;
 public class StorageTest {
 
     @Tested
-    private Storage storage;
+    private PayloadFileStorage storage;
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -40,7 +40,7 @@ public class StorageTest {
         Assert.assertTrue(Files.notExists(tempPath));
 
         new Expectations(storage) {{
-            domibusPropertyProvider.getProperty((Domain) any,  Storage.ATTACHMENT_STORAGE_LOCATION);
+            domibusPropertyProvider.getProperty((Domain) any,  PayloadFileStorage.ATTACHMENT_STORAGE_LOCATION);
             result = tempPath.toString();
         }};
 
@@ -56,7 +56,7 @@ public class StorageTest {
     public void testWrongPayloadFolder() throws Exception {
         Path tempPath = Paths.get("src", "test", "resources");
         new Expectations(storage) {{
-            domibusPropertyProvider.getProperty( (Domain)any, Storage.ATTACHMENT_STORAGE_LOCATION);
+            domibusPropertyProvider.getProperty( (Domain)any, PayloadFileStorage.ATTACHMENT_STORAGE_LOCATION);
             result = isWindowsOS() ? getWindowsFileSystemIncorrectPath(tempPath.toString()) : getLinuxFileSystemIncorrectPath(tempPath.toString());
         }};
 

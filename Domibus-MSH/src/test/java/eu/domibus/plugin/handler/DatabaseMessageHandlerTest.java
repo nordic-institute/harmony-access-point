@@ -1,6 +1,5 @@
 package eu.domibus.plugin.handler;
 
-import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.message.UserMessageLogService;
@@ -24,7 +23,7 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -160,7 +159,7 @@ public class DatabaseMessageHandlerTest {
     SplitAndJoinService splitAndJoinService;
 
     @Injectable
-    StorageProvider storageProvider;
+    PayloadFileStorageProvider storageProvider;
 
     @Injectable
     protected PModeDefaultService pModeDefaultService;

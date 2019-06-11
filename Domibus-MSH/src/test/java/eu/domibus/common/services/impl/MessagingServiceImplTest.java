@@ -12,8 +12,8 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.configuration.storage.Storage;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -62,10 +62,10 @@ public class MessagingServiceImplTest {
     MessagingDao messagingDao;
 
     @Injectable
-    Storage storage;
+    PayloadFileStorage storage;
 
     @Injectable
-    StorageProvider storageProvider;
+    PayloadFileStorageProvider storageProvider;
 
     @Injectable
     private DomainContextProvider domainContextProvider;
@@ -100,7 +100,7 @@ public class MessagingServiceImplTest {
                                                    @Injectable LegConfiguration legConfiguration,
                                                    @Injectable String backendName) throws IOException, EbMS3Exception {
         new Expectations(messagingService) {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
 
             messagingService.saveOutgoingPayloadToDatabase(partInfo, userMessage, legConfiguration, backendName);
@@ -117,7 +117,7 @@ public class MessagingServiceImplTest {
 
     @Test
     public void testSaveIncomingPayloadToDisk(@Injectable PartInfo partInfo,
-                                              @Injectable Storage storage,
+                                              @Injectable PayloadFileStorage storage,
                                               @Mocked File file,
                                               @Injectable InputStream inputStream,
                                               @Mocked UUID uuid) throws IOException {
@@ -148,7 +148,7 @@ public class MessagingServiceImplTest {
 
     @Test
     public void testSaveIncomingPayloadToDatabase(@Injectable PartInfo partInfo,
-                                                  @Injectable Storage storage,
+                                                  @Injectable PayloadFileStorage storage,
                                                   @Mocked IOUtils ioUtils,
                                                   @Injectable InputStream inputStream) throws IOException {
         final byte[] binaryData = "test".getBytes();
@@ -174,7 +174,7 @@ public class MessagingServiceImplTest {
     public void testStoreIncomingPayloadToDatabase(@Injectable UserMessage userMessage,
                                                    @Injectable PartInfo partInfo) throws IOException {
         new Expectations(messagingService) {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
 
             messagingService.saveIncomingPayloadToDatabase(partInfo);
@@ -192,9 +192,9 @@ public class MessagingServiceImplTest {
     @Test
     public void testStoreIncomingPayloadToFileSystem(@Injectable UserMessage userMessage,
                                                      @Injectable PartInfo partInfo,
-                                                     @Injectable Storage storage) throws IOException {
+                                                     @Injectable PayloadFileStorage storage) throws IOException {
         new Expectations(messagingService) {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             storageProvider.getCurrentStorage();
@@ -275,7 +275,7 @@ public class MessagingServiceImplTest {
     @Test
     public void testStoreValidMessage() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
         }};
 
@@ -288,7 +288,7 @@ public class MessagingServiceImplTest {
     public void testStoreValidMessageToStorageDirectory() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException {
         new Expectations() {{
             storageProvider.getCurrentStorage();
-            result = new Storage(new File(STORAGE_PATH));
+            result = new PayloadFileStorage(new File(STORAGE_PATH));
 
 
         }};
@@ -303,7 +303,7 @@ public class MessagingServiceImplTest {
     public void testStoreValidMessageCompressedWithStorageDirectory() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException, EbMS3Exception {
         new Expectations() {{
             storageProvider.getCurrentStorage();
-            result = new Storage(new File(STORAGE_PATH));
+            result = new PayloadFileStorage(new File(STORAGE_PATH));
 
             compressionService.handleCompression(anyString, withAny(new PartInfo()), legConfiguration);
             result = true;
@@ -320,7 +320,7 @@ public class MessagingServiceImplTest {
             compressionService.handleCompression(anyString, withAny(new PartInfo()), legConfiguration);
             result = true;
 
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
         }};
 

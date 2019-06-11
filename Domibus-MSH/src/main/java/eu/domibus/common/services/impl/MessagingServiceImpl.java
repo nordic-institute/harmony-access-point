@@ -12,8 +12,8 @@ import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessagingService;
-import eu.domibus.configuration.storage.Storage;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -52,7 +52,7 @@ public class MessagingServiceImpl implements MessagingService {
     protected MessagingDao messagingDao;
 
     @Autowired
-    protected StorageProvider storageProvider;
+    protected PayloadFileStorageProvider storageProvider;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -178,11 +178,11 @@ public class MessagingServiceImpl implements MessagingService {
     protected void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
         String messageId = userMessage.getMessageInfo().getMessageId();
 
-        if (storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
+        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             saveIncomingPayloadToDatabase(partInfo);
         } else {
             if (StringUtils.isBlank(partInfo.getFileName())) {
-                Storage currentStorage = storageProvider.getCurrentStorage();
+                PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
                 saveIncomingPayloadToDisk(partInfo, currentStorage);
             } else {
                 LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
@@ -193,7 +193,7 @@ public class MessagingServiceImpl implements MessagingService {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIVED_PAYLOAD_SIZE, partInfo.getHref(), messageId, partInfo.getLength());
     }
 
-    protected void saveIncomingPayloadToDisk(PartInfo partInfo, Storage currentStorage) throws IOException {
+    protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage) throws IOException {
         LOG.debug("Saving incoming payload [{}] to file disk", partInfo.getHref());
 
         final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + ".payload");
@@ -221,12 +221,12 @@ public class MessagingServiceImpl implements MessagingService {
     protected void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, final LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception {
         String messageId = userMessage.getMessageInfo().getMessageId();
 
-        if (storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
+        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             saveOutgoingPayloadToDatabase(partInfo, userMessage, legConfiguration, backendName);
         } else {
             //message fragment files are already saved on the file system
             if (!userMessage.isUserMessageFragment()) {
-                Storage currentStorage = storageProvider.getCurrentStorage();
+                PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
                 saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
             }
         }
@@ -240,7 +240,7 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
 
-    protected void saveOutgoingPayloadToDisk(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration, Storage currentStorage, String backendName) throws IOException, EbMS3Exception {
+    protected void saveOutgoingPayloadToDisk(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration, PayloadFileStorage currentStorage, String backendName) throws IOException, EbMS3Exception {
         LOG.debug("Saving outgoing payload [{}] to file disk", partInfo.getHref());
 
         try (InputStream is = partInfo.getPayloadDatahandler().getInputStream()) {
