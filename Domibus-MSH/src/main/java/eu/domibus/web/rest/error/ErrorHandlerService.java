@@ -35,13 +35,6 @@ public class ErrorHandlerService {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
-    boolean enabled;
-
-    @PostConstruct
-    public void init() {
-        enabled = domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
-    }
-
     public ResponseEntity<ErrorRO> createResponse(Throwable ex) {
         return this.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -59,8 +52,9 @@ public class ErrorHandlerService {
             ex = rootCause == null ? ex : rootCause;
         }
 
+        boolean enabled = domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
         String errorMessage = enabled ? ex.getMessage() : "A server error occurred";
-        
+
         return new ResponseEntity(new ErrorRO(errorMessage), headers, status);
     }
 

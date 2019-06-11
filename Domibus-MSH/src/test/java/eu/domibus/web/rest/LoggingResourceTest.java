@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
@@ -37,6 +38,9 @@ public class LoggingResourceTest {
 
     @Injectable
     private LoggingService loggingService;
+
+    @Injectable
+    protected ErrorHandlerService errorHandlerService;
 
     @Test
     public void testSetLogLevel(final @Mocked LoggingLevelRO loggingLevelRO) {
@@ -127,9 +131,14 @@ public class LoggingResourceTest {
 
         final LoggingException loggingException = new LoggingException("error while setting log level");
 
+        new Expectations(loggingResource) {{
+            errorHandlerService.createResponse(loggingException, HttpStatus.BAD_REQUEST);
+            result = new ResponseEntity(new ErrorRO("[DOM_001]:error while setting log level"), null, HttpStatus.BAD_REQUEST);
+        }};
+
         //tested method
-        final ErrorRO result = loggingResource.handleLoggingException(loggingException);
+        final ResponseEntity<ErrorRO> result = loggingResource.handleLoggingException(loggingException);
         Assert.assertNotNull(result);
-        Assert.assertEquals(loggingException.getMessage(), result.getMessage());
+        Assert.assertEquals(loggingException.getMessage(), result.getBody().getMessage());
     }
 }
