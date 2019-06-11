@@ -29,14 +29,12 @@ import static org.junit.Assert.fail;
 public class DomibusDssCryptoSpiTest {
 
     @org.junit.Test(expected = WSSecurityException.class)
-    public void verifyTrustNoChain(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
-                                   @Mocked CertificateVerifier certificateVerifier,
-                                   @Mocked TSLRepository tslRepository,
-                                   @Mocked ValidationReport validationReport,
-                                   @Mocked X509Certificate leafCertificate) throws WSSecurityException {
-        final X509Certificate[] x509Certificates = {leafCertificate};
+    public void verifyEnmtpytTrustNoChain(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
+                                          @Mocked CertificateVerifier certificateVerifier,
+                                          @Mocked TSLRepository tslRepository,
+                                          @Mocked ValidationReport validationReport) throws WSSecurityException {
         final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport, null);
-        domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
+        domibusDssCryptoProvider.verifyTrust(new X509Certificate[]{}, true, null, null);
         fail("WSSecurityException expected");
     }
 

@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusDssCryptoSpi.class);
+    public static final String CERTPATH = "certpath";
 
     private CertificateVerifier certificateVerifier;
 
@@ -60,9 +61,9 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         //display some trusted list information.
         logDebugTslInfo();
         //should receive at least two certificates.
-        if (certs == null || certs.length < 2) {
+        if (certs == null || certs.length < 1) {
             int chainSize = certs == null ? 0 : certs.length;
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath", new Object[]{String.format("Certificate chain expected with a minimum size of 2 but size is only:[%d]", chainSize)});
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{String.format("Certificate chain expected with a minimum size of 2 but size is only:[%d]", chainSize)});
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
         //add signing certificate to DSS.
@@ -86,7 +87,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         final boolean valid = validationReport.isValid(detailedReport, constraints);
         if (!valid) {
             LOG.error("Dss triggered and error while validating the certificate chain:[{}]", reports.getXmlSimpleReport());
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath", new Object[]{"Certificate chain validation failed."});
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Certificate chain validation failed."});
         }
         LOG.trace("Incoming message certificate chain has been validated by DSS.");
     }
@@ -113,10 +114,14 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
     }
 
     protected X509Certificate getX509LeafCertificate(X509Certificate[] certs) throws WSSecurityException {
+        LOG.debug("Getting leaf certificate out of a list of certificate with size:[{}]", certs.length);
+        if (certs.length == 1) {
+            return certs[0];
+        }
         final List<X509Certificate> leafCertificate = Arrays.stream(certs).
                 filter(x509Certificate -> x509Certificate.getBasicConstraints() == -1).collect(Collectors.toList());
         if (leafCertificate.size() != 1) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "certpath", new Object[]{"Invalid leaf certificate"});
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf certificate"});
         }
         return leafCertificate.get(0);
     }
