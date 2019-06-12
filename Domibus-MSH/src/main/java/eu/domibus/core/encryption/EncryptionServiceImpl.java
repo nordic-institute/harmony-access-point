@@ -45,6 +45,8 @@ public class EncryptionServiceImpl implements EncryptionService {
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
+            //TODO execute method if payload encryption is active for domain
+
             domainTaskExecutor.submit(() -> createEncryptionKeyForPayloadIfNotExists(), domain);
         }
 

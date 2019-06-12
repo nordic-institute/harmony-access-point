@@ -24,7 +24,6 @@ public class DomibusContextRefreshedListener {
     public void onApplicationEvent(ContextRefreshedEvent event) {
         LOG.info("Start processing ContextRefreshedEvent");
 
-        //TODO execute method if payload encryption is active
         encryptionService.createEncryptionKeyForAllDomainsIfNotExists();
 
         LOG.info("Finished processing ContextRefreshedEvent");
