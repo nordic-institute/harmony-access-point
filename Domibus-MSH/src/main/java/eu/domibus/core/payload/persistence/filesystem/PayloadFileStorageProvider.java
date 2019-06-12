@@ -1,4 +1,4 @@
-package eu.domibus.core.payload.filesystem;
+package eu.domibus.core.payload.persistence.filesystem;
 
 import eu.domibus.api.multitenancy.Domain;
 

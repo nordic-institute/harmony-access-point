@@ -1,8 +1,8 @@
 package eu.domibus.core.payload.persistence;
 
 import eu.domibus.common.services.impl.CompressionService;
-import eu.domibus.core.payload.filesystem.PayloadFileStorage;
-import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.*;

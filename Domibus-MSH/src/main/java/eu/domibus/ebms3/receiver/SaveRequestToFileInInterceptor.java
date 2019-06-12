@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.payload.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;

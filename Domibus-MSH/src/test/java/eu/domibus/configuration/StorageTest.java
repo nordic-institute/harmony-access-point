@@ -2,7 +2,7 @@ package eu.domibus.configuration;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.payload.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

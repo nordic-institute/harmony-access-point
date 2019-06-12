@@ -15,7 +15,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
