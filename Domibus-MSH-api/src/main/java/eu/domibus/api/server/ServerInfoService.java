@@ -9,17 +9,13 @@ package eu.domibus.api.server;
 public interface ServerInfoService {
 
     /**
-     * Returns an unique identifier per server/JVM
-     * To be used when sending/receiving messages to a Topic in a cluster configuration
-     *
-     * @return unique server name
-     */
-    String getUniqueServerName();
-
-    /**
      * Returns the server name
+     *
+     * To be used in a cluster environment or non clustered environment
+     *
      *
      * @return server name
      */
     String getServerName();
+
 }
