@@ -1,4 +1,4 @@
-package eu.domibus.util;
+package eu.domibus.core.util;
 
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
