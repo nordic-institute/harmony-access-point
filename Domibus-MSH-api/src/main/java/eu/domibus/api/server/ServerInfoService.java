@@ -14,7 +14,7 @@ public interface ServerInfoService {
      * To be used in a cluster environment or non clustered environment
      *
      *
-     * @return unique server name
+     * @return server name
      */
     String getServerName();
 
