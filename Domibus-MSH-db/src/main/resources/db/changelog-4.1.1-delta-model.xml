@@ -4,14 +4,23 @@
                    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <property name="now" value="sysdate" dbms="oracle"/>
-    <property name="now" value="now()" dbms="mysql"/>
-
     <changeSet author="Cosmin Baciu" id="EDELIVERY-3637">
         <addColumn tableName="TB_PART_INFO">
             <column name="IN_BODY" type="BOOLEAN" defaultValueBoolean="false"/>
         </addColumn>
 
+        <createTable tableName="TB_ENCRYPTION_KEY">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="USAGE" type="VARCHAR(255)"/>
+            <column name="SECRET_KEY" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INIT_VECTOR" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
 
     </changeSet>
 </databaseChangeLog>
