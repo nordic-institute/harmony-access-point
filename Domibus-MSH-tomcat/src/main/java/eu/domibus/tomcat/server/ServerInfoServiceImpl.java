@@ -21,6 +21,7 @@ public class ServerInfoServiceImpl implements ServerInfoService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInfoServiceImpl.class);
 
     private static final String DOMIBUS_NODE_ID = "domibus.node.id";
+    private static final String JMX_SERVER_NAME_ATTR = "name";
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
@@ -29,7 +30,7 @@ public class ServerInfoServiceImpl implements ServerInfoService {
     public String getServerName() {
         //we are getting this using JMX
         //the value is set in server.xml - <Host> section
-        String serverName = null;
+        String serverName = "localhost";
         final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 
         try {
@@ -39,7 +40,8 @@ public class ServerInfoServiceImpl implements ServerInfoService {
 
             if (CollectionUtils.isNotEmpty(nameSet)) {
                 final ObjectName objectName = nameSet.iterator().next();
-                serverName = (String) server.getAttribute(objectName, "name");
+                serverName = (String) server.getAttribute(objectName, JMX_SERVER_NAME_ATTR);
+                LOG.debug("Get serverName=[{}]", serverName);
             }
         } catch (MalformedObjectNameException | ReflectionException |
                 InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
@@ -48,7 +50,9 @@ public class ServerInfoServiceImpl implements ServerInfoService {
 
         if (domibusConfigurationService.isClusterDeployment()) {
             //we are appending the domibus.node.id defined in setenv.bat/sh file
-            serverName += System.getProperty(DOMIBUS_NODE_ID);
+            final String domibusNodeId = System.getProperty(DOMIBUS_NODE_ID);
+            LOG.debug("Domibus node id=[{}]", domibusNodeId);
+            serverName += domibusNodeId;
         }
 
         return serverName;
