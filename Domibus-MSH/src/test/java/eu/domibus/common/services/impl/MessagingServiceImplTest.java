@@ -5,42 +5,35 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.payload.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.message.fragment.SplitAndJoinService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.payload.persistence.PayloadPersistence;
+import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.PayloadInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.messaging.MessagingUtils;
-import eu.domibus.xml.XMLUtilImpl;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Ioana Dragusanu
@@ -51,12 +44,11 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class MessagingServiceImplTest {
 
-    public static final String validHeaderFilePath = "target/test-classes/eu/domibus/services/validMessaging.xml";
-    public static final String validContentFilePath = "target/test-classes/eu/domibus/services/validContent.payload";
-    public static final String STORAGE_PATH = "target/test-classes/eu/domibus/services/";
-
     @Tested
     MessagingServiceImpl messagingService;
+
+    @Injectable
+    protected PayloadPersistenceProvider payloadPersistenceProvider;
 
     @Injectable
     MessagingDao messagingDao;
@@ -95,123 +87,40 @@ public class MessagingServiceImplTest {
     UserMessageLogDao userMessageLogDao;
 
     @Test
-    public void testStoreOutgoingPayloadToDatabase(@Injectable UserMessage userMessage,
-                                                   @Injectable PartInfo partInfo,
-                                                   @Injectable LegConfiguration legConfiguration,
-                                                   @Injectable String backendName) throws IOException, EbMS3Exception {
+    public void testStoreOutgoingPayload(@Injectable UserMessage userMessage,
+                                         @Injectable PartInfo partInfo,
+                                         @Injectable LegConfiguration legConfiguration,
+                                         @Injectable String backendName,
+                                         @Injectable PayloadPersistence payloadPersistence) throws IOException, EbMS3Exception {
         new Expectations(messagingService) {{
-            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
-            result = true;
-
-            messagingService.saveOutgoingPayloadToDatabase(partInfo, userMessage, legConfiguration, backendName);
+            payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
+            result = payloadPersistence;
         }};
-
 
         messagingService.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
         new Verifications() {{
-            messagingService.saveOutgoingPayloadToDatabase(partInfo, userMessage, legConfiguration, backendName);
+            payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
             times = 1;
         }};
     }
 
     @Test
-    public void testSaveIncomingPayloadToDisk(@Injectable PartInfo partInfo,
-                                              @Injectable PayloadFileStorage storage,
-                                              @Mocked File file,
-                                              @Injectable InputStream inputStream,
-                                              @Mocked UUID uuid) throws IOException {
-
-        String path = "/home/invoice.pdf";
-        new Expectations(messagingService) {{
-            new File((File) any, anyString);
-            result = file;
-
-            file.getAbsolutePath();
-            result = path;
-
-            partInfo.getPayloadDatahandler().getInputStream();
-            result = inputStream;
-
-            messagingService.saveIncomingFileToDisk(file, inputStream);
+    public void testStoreIncomingPayload(@Injectable UserMessage userMessage,
+                                         @Injectable PartInfo partInfo,
+                                         @Injectable PayloadPersistence payloadPersistence) throws IOException {
+        new Expectations() {{
+            payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
+            result = payloadPersistence;
         }};
-
-        messagingService.saveIncomingPayloadToDisk(partInfo, storage);
-
-        new Verifications() {{
-            messagingService.saveIncomingFileToDisk(file, inputStream);
-            times = 1;
-
-            partInfo.setFileName(path);
-        }};
-    }
-
-    @Test
-    public void testSaveIncomingPayloadToDatabase(@Injectable PartInfo partInfo,
-                                                  @Injectable PayloadFileStorage storage,
-                                                  @Mocked IOUtils ioUtils,
-                                                  @Injectable InputStream inputStream) throws IOException {
-        final byte[] binaryData = "test".getBytes();
-
-        new Expectations(messagingService) {{
-            partInfo.getPayloadDatahandler().getInputStream();
-            result = inputStream;
-
-            IOUtils.toByteArray(inputStream);
-            result = binaryData;
-        }};
-
-        messagingService.saveIncomingPayloadToDatabase(partInfo);
-
-        new Verifications() {{
-            partInfo.setBinaryData(binaryData);
-            partInfo.setLength(binaryData.length);
-            partInfo.setFileName(null);
-        }};
-    }
-
-    @Test
-    public void testStoreIncomingPayloadToDatabase(@Injectable UserMessage userMessage,
-                                                   @Injectable PartInfo partInfo) throws IOException {
-        new Expectations(messagingService) {{
-            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
-            result = true;
-
-            messagingService.saveIncomingPayloadToDatabase(partInfo);
-        }};
-
 
         messagingService.storeIncomingPayload(partInfo, userMessage);
 
         new Verifications() {{
-            messagingService.saveIncomingPayloadToDatabase(partInfo);
+            payloadPersistence.storeIncomingPayload(partInfo, userMessage);
             times = 1;
         }};
     }
-
-    @Test
-    public void testStoreIncomingPayloadToFileSystem(@Injectable UserMessage userMessage,
-                                                     @Injectable PartInfo partInfo,
-                                                     @Injectable PayloadFileStorage storage) throws IOException {
-        new Expectations(messagingService) {{
-            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
-            result = false;
-
-            storageProvider.getCurrentStorage();
-            result = storage;
-
-            messagingService.saveIncomingPayloadToDisk(partInfo, storage);
-        }};
-
-
-        messagingService.storeIncomingPayload(partInfo, userMessage);
-
-        new Verifications() {{
-            messagingService.saveIncomingPayloadToDisk(partInfo, storage);
-            times = 1;
-        }};
-    }
-
 
     @Test
     public void testStoreSourceMessagePayloads(@Injectable Messaging messaging,
@@ -273,115 +182,32 @@ public class MessagingServiceImplTest {
     }
 
     @Test
-    public void testStoreValidMessage() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException {
+    public void testStoreOutgoingMessage(@Injectable Messaging messaging,
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable PartInfo partInfo,
+                                         @Injectable PayloadPersistence payloadPersistence) throws Exception {
+
+        List<PartInfo> partInfos = new ArrayList<>();
+        partInfos.add(partInfo);
+
         new Expectations() {{
-            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
-            result = true;
+            payloadPersistenceProvider.getPayloadPersistence((PartInfo) any, userMessage);
+            result = payloadPersistence;
+
+            messaging.getUserMessage();
+            result = userMessage;
+
+            userMessage.getPayloadInfo().getPartInfo();
+            result = partInfos;
         }};
 
-        PartInfo partInfo = storeValidMessage();
-        byte[] expectedBinaryData = Files.readAllBytes(Paths.get(validContentFilePath));
-        Assert.assertEquals(new String(expectedBinaryData), new String(partInfo.getBinaryData()));
-    }
+        final String backend = "backend";
+        messagingService.storeMessage(messaging, MSHRole.SENDING, legConfiguration, backend);
 
-    @Test
-    public void testStoreValidMessageToStorageDirectory() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException {
-        new Expectations() {{
-            storageProvider.getCurrentStorage();
-            result = new PayloadFileStorage(new File(STORAGE_PATH));
-
-
+        new Verifications() {{
+            payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backend);
+            times = 1;
         }};
-
-        PartInfo partInfo = storeValidMessage();
-        byte[] expectedBinaryData = Files.readAllBytes(Paths.get(validContentFilePath));
-        byte[] result = Files.readAllBytes(Paths.get(partInfo.getFileName()));
-        Assert.assertEquals(new String(expectedBinaryData), new String(result));
     }
 
-    @Test
-    public void testStoreValidMessageCompressedWithStorageDirectory() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException, EbMS3Exception {
-        new Expectations() {{
-            storageProvider.getCurrentStorage();
-            result = new PayloadFileStorage(new File(STORAGE_PATH));
-
-            compressionService.handleCompression(anyString, withAny(new PartInfo()), legConfiguration);
-            result = true;
-        }};
-        PartInfo partInfo = storeValidMessage(true);
-        byte[] expectedCompressedData = MessagingUtils.compress(validContentFilePath);
-        byte[] result = Files.readAllBytes(Paths.get(partInfo.getFileName()));
-        Assert.assertEquals(new String(expectedCompressedData), new String(result));
-    }
-
-    @Test
-    public void testStoreValidMessageCompressed() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException, EbMS3Exception {
-        new Expectations() {{
-            compressionService.handleCompression(anyString, withAny(new PartInfo()), legConfiguration);
-            result = true;
-
-            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
-            result = true;
-        }};
-
-        PartInfo partInfo = storeValidMessage(true);
-        byte[] expectedCompressedData = MessagingUtils.compress(validContentFilePath);
-        Assert.assertEquals(new String(expectedCompressedData), new String(partInfo.getBinaryData()));
-    }
-
-    @Test(expected = CompressionException.class)
-    public void testStoreInvalidMessage() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException {
-        PartInfo partInfo = storeInvalidMessage();
-        Assert.assertFalse("A CompressionException should have been raised before", true);
-    }
-
-    private Messaging createMessaging(InputStream inputStream) throws XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-        XMLUtil xmlUtil = new XMLUtilImpl();
-        JAXBContext jaxbContext = JAXBContext.newInstance(Messaging.class);
-        JAXBElement root = xmlUtil.unmarshal(true, jaxbContext, inputStream, null).getResult();
-        return (Messaging) root.getValue();
-    }
-
-    private PartInfo getOnePartInfo(Messaging messaging) {
-        /* Check there is only one partInfo */
-        Assert.assertEquals(1, messaging.getUserMessage().getPayloadInfo().getPartInfo().size());
-        /* return the only partInfo in the message */
-        return (PartInfo) messaging.getUserMessage().getPayloadInfo().getPartInfo().toArray()[0];
-    }
-
-    private PartInfo storeValidMessage() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException, FileNotFoundException {
-        return storeValidMessage(false);
-    }
-
-    private PartInfo storeValidMessage(boolean isCompressed) throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException, FileNotFoundException {
-        final Messaging validMessaging = createMessaging(new FileInputStream(new File(validHeaderFilePath)));
-        DataHandler dh = new DataHandler(new FileDataSource(new File(validContentFilePath)));
-
-        PartInfo partInfo = getOnePartInfo(validMessaging);
-        partInfo.setPayloadDatahandler(dh);
-        if (isCompressed) {
-            Property property = new Property();
-            property.setName(CompressionService.COMPRESSION_PROPERTY_KEY);
-            property.setValue(CompressionService.COMPRESSION_PROPERTY_VALUE);
-            partInfo.getPartProperties().getProperties().add(property);
-        }
-
-        messagingService.storeMessage(validMessaging, MSHRole.SENDING, legConfiguration, "backend");
-        partInfo = getOnePartInfo(validMessaging);
-
-        return partInfo;
-    }
-
-    private PartInfo storeInvalidMessage() throws IOException, JAXBException, XMLStreamException, ParserConfigurationException, SAXException, FileNotFoundException {
-        final Messaging messaging = createMessaging(new FileInputStream(new File(validHeaderFilePath)));
-        DataHandler dh = new DataHandler(new URL("http://invalid.url"));
-
-        PartInfo partInfo = getOnePartInfo(messaging);
-        partInfo.setPayloadDatahandler(dh);
-
-        messagingService.storeMessage(messaging, MSHRole.SENDING, legConfiguration, "backend");
-        partInfo = getOnePartInfo(messaging);
-
-        return partInfo;
-    }
 }
