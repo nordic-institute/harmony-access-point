@@ -83,6 +83,10 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "PART_ORDER", nullable = false)
     private int partOrder = 0;
 
+    @XmlTransient
+    @Column(name = "ENCRYPTED")
+    protected boolean encrypted;
+
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;
     }
@@ -121,6 +125,14 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     public String getFileName() {
         return fileName;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
     }
 
     @PostLoad

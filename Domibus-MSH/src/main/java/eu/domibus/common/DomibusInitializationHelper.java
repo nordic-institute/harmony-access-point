@@ -1,14 +1,10 @@
 package eu.domibus.common;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.AssertionBuilderFactory;
-import org.hibernate.jdbc.Expectations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author Thomas Dussart
