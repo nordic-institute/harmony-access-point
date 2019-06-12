@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -24,6 +25,8 @@ public class EncryptionServiceImpl implements EncryptionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
 
+    private static String ENCRYPTION_PROPERTY = "domibus.payload.encryption.active";
+
     @Autowired
     protected EncryptionKeyDao encryptionKeyDao;
 
@@ -39,21 +42,29 @@ public class EncryptionServiceImpl implements EncryptionService {
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     public void createEncryptionKeyForAllDomainsIfNotExists() {
         LOG.debug("Creating encryption key for all domains if not yet exists");
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            //TODO execute method if payload encryption is active for domain
-
-            domainTaskExecutor.submit(() -> createEncryptionKeyForPayloadIfNotExists(), domain);
+            final Boolean encryptionActive = domibusPropertyProvider.getBooleanDomainProperty(domain, ENCRYPTION_PROPERTY);
+            if (encryptionActive) {
+                domainTaskExecutor.submit(() -> createEncryptionKeyForPayloadIfNotExists(), domain);
+            } else {
+                LOG.debug("Payload encryption is not activated for domain [{}]", domain);
+            }
         }
 
         LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
     protected void createEncryptionKeyForPayloadIfNotExists() {
+        LOG.debug("Checking if the encryption key should be created");
+
         final EncryptionKeyEntity payloadKey = encryptionKeyDao.findByUsage(EncryptionUsage.PAYLOAD);
         if (payloadKey != null) {
             LOG.debug("Payload encryption key already exists");
