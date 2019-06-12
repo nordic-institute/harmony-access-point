@@ -1,12 +1,12 @@
 package eu.domibus.ebms3.receiver;
 
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.util.MessageUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

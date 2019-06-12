@@ -1,6 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.util.DateUtilImpl;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

@@ -1,11 +1,9 @@
-package eu.domibus.util;
+package eu.domibus.core.util;
 
 import eu.domibus.api.util.AOPUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
 
 /**
  * @author Cosmin Baciu

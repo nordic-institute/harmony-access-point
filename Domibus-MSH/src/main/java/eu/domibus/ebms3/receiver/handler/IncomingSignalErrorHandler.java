@@ -2,14 +2,14 @@ package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.util.MessageUtil;
-import eu.domibus.util.SoapUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

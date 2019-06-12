@@ -1,4 +1,4 @@
-package eu.domibus.util;
+package eu.domibus.core.util;
 
 import eu.domibus.api.util.ClassUtil;
 import org.springframework.aop.AopInvocationException;

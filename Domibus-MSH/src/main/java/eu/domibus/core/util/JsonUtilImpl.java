@@ -1,4 +1,4 @@
-package eu.domibus.util;
+package eu.domibus.core.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

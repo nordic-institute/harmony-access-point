@@ -1,6 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.util.JsonUtilImpl;
 import org.junit.Test;
 
 import java.util.List;

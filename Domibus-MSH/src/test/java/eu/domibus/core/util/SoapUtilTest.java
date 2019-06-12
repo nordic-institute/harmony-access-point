@@ -3,7 +3,6 @@ package eu.domibus.core.util;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.util.SoapUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.wss4j.dom.WSConstants;

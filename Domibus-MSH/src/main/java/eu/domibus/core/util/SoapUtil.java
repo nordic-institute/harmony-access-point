@@ -1,4 +1,4 @@
-package eu.domibus.util;
+package eu.domibus.core.util;
 
 import com.google.common.io.CharStreams;
 import eu.domibus.ebms3.common.model.ObjectFactory;

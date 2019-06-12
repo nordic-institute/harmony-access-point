@@ -1,4 +1,4 @@
-package eu.domibus.util;
+package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
