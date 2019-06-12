@@ -1,10 +1,12 @@
 package ddsl.dobjects;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -16,10 +18,11 @@ import utils.PROPERTIES;
 public class DWait {
 
 	public WebDriverWait webDriverWait;
+	private TestRunData data = new TestRunData();
 
 
 	public DWait(WebDriver driver) {
-		this.webDriverWait = new WebDriverWait(driver, PROPERTIES.TIMEOUT);
+		this.webDriverWait = new WebDriverWait(driver, data.getTIMEOUT());
 	}
 
 	public void forXMillis(Integer millis) {
@@ -39,7 +42,7 @@ public class DWait {
 	}
 
 	public void forElementToBeEnabled(WebElement element) {
-		int maxTimeout = PROPERTIES.TIMEOUT * 1000;
+		int maxTimeout = data.getTIMEOUT() * 1000;
 		int waitedSoFar = 0;
 		while ((null != element.getAttribute("disabled")) && (waitedSoFar < maxTimeout)) {
 			waitedSoFar += 300;
@@ -57,5 +60,37 @@ public class DWait {
 		} catch (Exception e) {
 		}
 	}
+
+	public void forElementToBe(WebElement element) {
+		int secs = 0;
+		while (secs < data.getTIMEOUT() * 10) {
+			try {
+				if (null != element.getText()) {
+					break;
+				}
+			} catch (Exception e) {
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+			secs++;
+		}
+	}
+
+	public void forAttributeToContain(WebElement element, String attributeName, String value) {
+		webDriverWait.until(ExpectedConditions.attributeContains(element, attributeName, value));
+	}
+
+	public void forElementToHaveText(WebElement element) {
+		webDriverWait.until(new ExpectedCondition<Boolean>() {
+			@NullableDecl
+			@Override
+			public Boolean apply(@NullableDecl WebDriver driver) {
+				return !element.getText().trim().isEmpty();
+			}
+		});
+	}
+
 
 }

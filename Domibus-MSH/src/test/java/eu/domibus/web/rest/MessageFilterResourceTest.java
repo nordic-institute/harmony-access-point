@@ -22,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Tiago Miguel
@@ -43,7 +42,6 @@ public class MessageFilterResourceTest {
 
     @Injectable
     MessageFilterCsvServiceImpl csvService;
-
 
     @Test
     public void testGetMessageFilterPersisted() {

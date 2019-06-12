@@ -31,7 +31,7 @@ public class ErrorLogPgTest extends BaseTest {
 	}
 
 
-	@Test(description = "ERRLOG-1")
+	@Test(description = "ERRLOG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openErrorLogPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
@@ -41,7 +41,7 @@ public class ErrorLogPgTest extends BaseTest {
 	}
 
 
-	@Test(description = "ERRLOG-2")
+	@Test(description = "ERRLOG-2", groups = {"multiTenancy", "singleTenancy"})
 	public void filterErrorLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
@@ -66,7 +66,7 @@ public class ErrorLogPgTest extends BaseTest {
 	}
 
 
-	@Test(description = "ERRLOG-3")
+	@Test(description = "ERRLOG-3", groups = {"multiTenancy", "singleTenancy"})
 	public void paginationTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);

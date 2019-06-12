@@ -176,9 +176,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     result.subscribe(
       (destinations) => {
         for (const key in destinations) {
-          const queue = this.queues.find(el => el.name === key);
+          var src = destinations[key];
+          const queue = this.queues.find(el => el.name === src.name);
           if (queue) {
-            Object.assign(queue, destinations[key]);
+            Object.assign(queue, src);
           }
         }
       }
@@ -258,8 +259,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.http.post('rest/jms/messages', {
       source: this.activeFilter.source,
       jmsType: this.activeFilter.jmsType,
-      fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
-      toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
+      fromDate: this.activeFilter.fromDate,
+      toDate: this.activeFilter.toDate,
       selector: this.activeFilter.selector,
     }).subscribe(
       (response: Response) => {
@@ -271,7 +272,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.refreshDestinations();
       },
       error => {
-        this.alertService.error('An error occured while loading the JMS messages. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide (Error Status: ' + error.status + ')');
+        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
         this.loading = false;
       }
     );
@@ -431,7 +432,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.rows = newRows;
       },
       error => {
-        this.alertService.error('The operation \'move messages\' could not be completed: ' + error);
+        this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
       }
     )
   }
@@ -462,10 +463,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       result += 'jmsType=' + this.activeFilter.jmsType + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.fromDate)) {
-      result += 'fromDate=' + this.activeFilter.fromDate.getTime() + '&';
+      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.toDate)) {
-      result += 'toDate=' + this.activeFilter.toDate.getTime() + '&';
+      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.selector)) {
       result += 'selector=' + this.activeFilter.selector + '&';

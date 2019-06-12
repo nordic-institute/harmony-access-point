@@ -2,7 +2,7 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
+import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class DssRefreshWorker extends DomibusQuartzJobExtBean {
     private static final Logger LOG = LoggerFactory.getLogger(DssRefreshWorker.class);
 
     @Autowired
-    private TSLValidationJob tslValidationJob;
+    private DomibusTSLValidationJob tslValidationJob;
 
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) throws JobExecutionException {

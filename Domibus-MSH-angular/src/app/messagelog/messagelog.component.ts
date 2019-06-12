@@ -197,6 +197,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     }
   }
 
+
   createSearchParams(): URLSearchParams {
     const searchParams = new URLSearchParams();
 
@@ -367,7 +368,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.error('The message ' + messageId + ' could not be resent.');
+      this.alertService.exception('The message ' + messageId + ' could not be resent.', err);
     });
   }
 

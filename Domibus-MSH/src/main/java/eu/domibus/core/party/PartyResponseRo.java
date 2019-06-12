@@ -1,5 +1,8 @@
 package eu.domibus.core.party;
 
+import eu.domibus.web.rest.validators.CustomWhiteListed;
+import eu.domibus.web.rest.validators.SkipWhiteListed;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,15 +21,17 @@ public class PartyResponseRo {
 
     protected String userName;
 
+    @CustomWhiteListed(permitted = ":/")
     protected String endpoint;
 
     private String joinedIdentifiers;
 
+    @SkipWhiteListed
     private String joinedProcesses;
 
-    private List<ProcessRo> processesWithPartyAsInitiator =new ArrayList<>();
+    private List<ProcessRo> processesWithPartyAsInitiator = new ArrayList<>();
 
-    private List<ProcessRo> processesWithPartyAsResponder =new ArrayList<>();
+    private List<ProcessRo> processesWithPartyAsResponder = new ArrayList<>();
 
     protected String certificateContent;
 
@@ -105,6 +110,7 @@ public class PartyResponseRo {
     public String getCertificateContent() {
         return certificateContent;
     }
+
     public void setCertificateContent(String certificateContent) {
         this.certificateContent = certificateContent;
     }

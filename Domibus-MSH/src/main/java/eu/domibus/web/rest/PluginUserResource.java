@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
@@ -16,6 +15,7 @@ import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.PluginUserResultRO;
 import org.apache.cxf.common.util.StringUtils;
@@ -23,8 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(value = "/rest/plugin")
+@Validated
 public class PluginUserResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
@@ -57,30 +60,25 @@ public class PluginUserResource {
     }
 
     @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
-    public PluginUserResultRO findUsers(
-            @RequestParam(value = "authType", required = false) AuthType authType,
-            @RequestParam(value = "authRole", required = false) AuthRole authRole,
-            @RequestParam(value = "originalUser", required = false) String originalUser,
-            @RequestParam(value = "userName", required = false) String userName,
-            @RequestParam(value = "pageStart", defaultValue = "0") int pageStart,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+    public PluginUserResultRO findUsers(PluginUserFilterRequestRO request) {
         LOG.debug("Retrieving plugin users");
 
-        Long count = pluginUserService.countUsers(authType, authRole, originalUser, userName);
+        Long count = pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName());
 
         List<AuthenticationEntity> users;
         if (count > 0) {
-            users = pluginUserService.findUsers(authType, authRole, originalUser, userName, pageStart, pageSize);
+            users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
+                    request.getPageStart(), request.getPageSize());
         } else {
             users = new ArrayList<>();
         }
 
-        return prepareResponse(users, count, pageStart, pageSize);
+        return prepareResponse(users, count, request.getPageStart(), request.getPageSize());
     }
 
     @RequestMapping(value = {"/users"}, method = RequestMethod.PUT)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void updateUsers(@RequestBody List<PluginUserRO> userROs) {
+    public void updateUsers(@RequestBody @Valid List<PluginUserRO> userROs) {
         LOG.debug("Update plugin users was called: " + userROs);
 
         List<PluginUserRO> addedUsersRO = userROs.stream().filter(u -> UserState.NEW.name().equals(u.getStatus())).collect(Collectors.toList());
@@ -97,22 +95,16 @@ public class PluginUserResource {
     /**
      * This method returns a CSV file with the contents of Plugin User table
      *
-     * @param authType     the authentication type (BASIC or CERTIFICATE)
-     * @param authRole     the authorization role
-     * @param originalUser the original user
-     * @param userName     the user name
      * @return CSV file with the contents of Plugin User table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(
-            @RequestParam(value = "authType", required = false) AuthType authType,
-            @RequestParam(value = "authRole", required = false) AuthRole authRole,
-            @RequestParam(value = "originalUser", required = false) String originalUser,
-            @RequestParam(value = "userName", required = false) String userName) {
+    public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
         String resultText;
 
+        request.setPageStart(0);
+        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
         // get list of users
-        final PluginUserResultRO pluginUserROList = findUsers(authType, authRole, originalUser, userName, 0, csvServiceImpl.getMaxNumberRowsToExport());
+        final PluginUserResultRO pluginUserROList = findUsers(request);
 
         try {
             resultText = csvServiceImpl.exportToCSV(pluginUserROList.getEntries(), PluginUserRO.class,
@@ -136,7 +128,7 @@ public class PluginUserResource {
         List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
 
         // this is business, should be located somewhere else
-        for (int i = 0; i < users.size(); i++ ){
+        for (int i = 0; i < users.size(); i++) {
             PluginUserRO userRO = userROs.get(i);
             AuthenticationEntity entity = users.get(i);
 

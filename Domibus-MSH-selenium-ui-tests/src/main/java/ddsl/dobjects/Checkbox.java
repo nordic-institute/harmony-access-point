@@ -21,7 +21,7 @@ public class Checkbox extends DObject {
 		if (isPresent()) {
 			return (null != element.getAttribute("checked"));
 		}
-		throw new Exception("Element not present");
+		throw new DObjectNotPresentException();
 	}
 
 	public void check() throws Exception {

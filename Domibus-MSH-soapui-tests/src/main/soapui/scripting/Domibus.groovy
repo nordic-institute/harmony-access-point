@@ -13,7 +13,6 @@ import com.eviware.soapui.support.GroovyUtils
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
-
 class Domibus{
     def messageExchange = null;
     def context = null;
@@ -54,7 +53,7 @@ class Domibus{
         this.messageExchange = messageExchange
         this.context = context
         this.allDomainsProperties = parseDomainProperties(context.expand('${#Project#allDomainsProperties}'))
-       this.thirdGateway = context.expand('${#Project#thirdGateway}')
+        this.thirdGateway = context.expand('${#Project#thirdGateway}')
         this.blueDomainID = context.expand('${#Project#defaultBlueDomainID}')
         this.redDomainID = context.expand('${#Project#defaultRedDomainId}')
         this.greenDomainID = context.expand('${#Project#defaultGreenDomainID}')
@@ -72,7 +71,7 @@ class Domibus{
         // Class destructor
         void finalize() {
         closeAllDbConnections()
-        log.info "Domibus class not needed longer."
+        log.debug "Domibus class not needed longer."
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
     // Log information wrapper
@@ -111,7 +110,7 @@ def updateNumberOfDomain() {
      def numOfDomain = 0 
      ["C2", "C3", "Third"].each {site -> 
      	 numOfDomain=findNumberOfDomain(site) 
-     	 debugLog("For ${site} number of defined additional domain is: ${numOfDomain}", log) 
+     	 log.info "For ${site} number of defined additional domain is: ${numOfDomain}"
      	 context.testCase.testSuite.project.setPropertyValue("multitenancyMode${site}", numOfDomain as String)
      }
 }
@@ -126,6 +125,7 @@ def findNumberOfDomain(String inputSite) {
         }
         return count
 }
+
 
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  DB Functions
@@ -164,7 +164,6 @@ def findNumberOfDomain(String inputSite) {
         // Open all DB connections
         def openAllDbConnections() {
         debugLog("  ====  Calling \"openAllDbConnections\".", log)
-        log.warn allDomainsProperties.keySet().toString()
         openDbConnections(allDomainsProperties.keySet())
     }
 
@@ -1834,14 +1833,121 @@ static def void checkSmokeTestsResult(testRunner, testCase, log) {
 	debugLog("  ====  Calling \"checkSmokeTestsResult\".", log) 
 	if (testRunner.getStatus().toString() == "FAILED") {
 		testCase.testSuite.setPropertyValue("TestSuiteSmokeTestsResult", "FAILED")
-		debugLog("One of smoke tests failed. Now would cancel execution of all other test cases in current test suite.", log)
+		log.warn ("Test case CANCELED as one of the smoke tests failed.") 
 		}
 }
 
 static def void checkIfAnySmokeTestsFailed(testRunner, testCase, log) {
 	debugLog("  ====  Calling \"checkIfAnySmokeTestsFailed\".", log) 
-	if (testCase.testSuite.getPropertyValue("TestSuiteSmokeTestsResult") == "FAILED") 
-		testRunner.cancel( "DB cleaning script failed. Aborting whole test suite run." )
+	if (testCase.testSuite.getPropertyValue("TestSuiteSmokeTestsResult") == "FAILED") {
+		debugLog("One of smoke tests failed. Now would cancel execution of all other test cases in current test suite.", log)
+		testRunner.cancel( "One of smoke tests failed. Aborting whole test suite run." )
+	}
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// Support enabling and disabling the authentication for SOAP requests.
+
+static def enableAuthenticationForTestSuite(filterForTestSuite, context, log, authProfile, authType, endpointPattern = /.*/) {
+	updateAuthenticationForTestSuite(filterForTestSuite, context, log, true, authProfile, authType, endpointPattern)
+}
+
+static def disableAuthenticationForTestSuite(filterForTestSuite, context, log, authProfile = null, authType = null, endpointPattern = /.*/) {
+	updateAuthenticationForTestSuite(filterForTestSuite, context, log, false, authProfile, authType, endpointPattern)
+}
+
+static def updateAuthenticationForTestSuite(filterForTestSuite, context, log, enableAuthentication, authProfile, authType, endpointPattern = /.*/) {
+    debugLog("START: updateAuthenticationForTestSuite [] [] modyfication of test requests", log)
+    if (enableAuthentication)
+        log.info "Activating for all SOAP requests Basic Preemptive authentication in test suite ${filterForTestSuite} and endpoint matching pattern ${endpointPattern}.  Previously defined usernames and password would be used."
+    else
+        log.info "Disabling authentication for all SOAP requests in test suite ${filterForTestSuite} and endpoint matching pattern ${endpointPattern}."
+
+    context.testCase.testSuite.project.getTestSuiteList().each { testSuite ->
+            if (testSuite.getLabel() =~ filterForTestSuite) {
+                debugLog("test suite: " + testSuite.getLabel(), log)
+                testSuite.getTestCaseList().findAll{ ! it.isDisabled() }.each { testCase ->
+                        debugLog("test label:" + testCase.getLabel(), log)
+                         testCase.getTestStepList().findAll{ ! it.isDisabled() }.each { testStep ->
+                            if (testStep instanceof com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequestStep) {
+                                debugLog("Ammending test step: " + testStep.name, log)
+                                def httpRequest = testStep.getHttpRequest()
+								def endpoint = testStep.getPropertyValue("Endpoint")
+								if ( endpoint =~ endpointPattern) {
+									if (enableAuthentication)
+										httpRequest.setSelectedAuthProfileAndAuthType(authProfile, authType)
+									else {
+										httpRequest.setSelectedAuthProfileAndAuthType(authProfile, authType)
+										httpRequest.removeBasicAuthenticationProfile(authProfile)
+										}
+								}
+								else 
+									debugLog("Endpoint is not refering to provided patern.", log)
+                            }
+                    }
+
+                }
+            }
+    }
+    log.info "Authentication update finished"
+    debugLog("END: updateAuthenticationForTestSuite [] [] Modification of authentication finished", log)
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// Start/Stop rest mock service selected by name.
+
+static def void stopRestMockService(String restMockServiceName,log,testRunner) {
+	log.info("  ====  Calling \"stopRestMockService\".");
+	debugLog("  stopRestMockService  [][]  Rest mock service name:"+restMockServiceName,log);
+	def mockService=null; def mockRunner=null;
+	try{
+		mockService=testRunner.testCase.testSuite.project.getRestMockServiceByName(restMockServiceName);
+	}
+	catch (Exception ex) {
+            log.error "  stopRestMockService  [][]  Can't find rest mock service called: "+restMockServiceName;
+            assert 0,"Exception occurred: " + ex;
+    }
+	mockRunner=mockService.getMockRunner();
+	if(mockRunner!=null){
+		mockRunner.stop();
+	}
+	log.info ("  stopRestMockService  [][]  Rest mock service "+restMockServiceName+" is stopped.");
+}
+
+
+static def void stopAllRestMockService(log,testRunner) {
+	log.info("  ====  Calling \"stopAllRestMockService\".");
+    def project=testRunner.testCase.testSuite.project;
+	def restMockServicesCount=project.getRestMockServiceCount();
+    def restMockServiceName=null;
+	for (i in 0..(restMockServicesCount-1)){
+		// Stop each rest mock service
+		restMockServiceName=project.getRestMockServiceAt(i).getName();
+		debugLog("  stopAllRestMockService  [][]  Stopping Rest service: "+restMockServiceName,log);
+		stopRestMockService(restMockServiceName,log,testRunner);
+		i++;
+	}
+	log.info ("  stopAllRestMockService  [][]  All rest mock services are stopped.");
+}
+
+static def void startRestMockService(String restMockServiceName,log,testRunner,stopAll=1) {
+	log.info("  ====  Calling \"startRestMockService\".");
+	debugLog("  startRestMockService  [][]  Rest mock service name:"+restMockServiceName,log);
+	if(stopAll==1){
+		stopAllRestMockService(log,testRunner);
+	}else{
+		stopRestMockService(restMockServiceName,log,testRunner);
+	}
+	def mockService=null; 
+	try{
+		mockService=testRunner.testCase.testSuite.project.getRestMockServiceByName(restMockServiceName);
+	}
+	catch (Exception ex) {
+            log.error "  startRestMockService  [][]  Can't find rest mock service called: "+restMockServiceName;
+            assert 0,"Exception occurred: " + ex;
+    }
+	mockService.start();
+	log.info ("  startRestMockService  [][]  Rest mock service "+restMockServiceName+" is running.");
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------

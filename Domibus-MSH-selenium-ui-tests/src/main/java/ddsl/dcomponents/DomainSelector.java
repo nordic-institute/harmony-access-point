@@ -6,7 +6,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 
 /**
@@ -20,7 +20,7 @@ public class DomainSelector extends Select {
 
 	public DomainSelector(WebDriver driver, WebElement container) {
 		super(driver, container);
-		PageFactory.initElements(new AjaxElementLocatorFactory(container, PROPERTIES.TIMEOUT), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
 	@FindBy(css = "span.mat-select-value")

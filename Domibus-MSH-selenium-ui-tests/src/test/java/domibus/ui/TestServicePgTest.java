@@ -1,13 +1,10 @@
 package domibus.ui;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DOMIBUS_PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.TestServicePage;
-import pages.login.LoginPage;
 
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -20,16 +17,10 @@ import java.util.List;
 
 public class TestServicePgTest extends BaseTest {
 
-	protected void login(HashMap<String, String> user) throws Exception {
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(user);
-		new DomibusPage(driver).getSidebar().getPageLnk(DOMIBUS_PAGES.TEST_SERVICE).click();
-	}
-
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
@@ -38,7 +29,11 @@ public class TestServicePgTest extends BaseTest {
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
 
-		rest.uploadPMode("pmode-invalid_process.xml", null);
+		rest.uploadPMode("pmodes/pmode-invalid_process.xml", null);
+
+//		wait is required because PMode is updated trough REST API
+		page.wait.forXMillis(500);
+
 		page.refreshPage();
 		soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state (2)");
 
@@ -48,9 +43,9 @@ public class TestServicePgTest extends BaseTest {
 	@Test(description = "TS-2", groups = {"multiTenancy", "singleTenancy"})
 	public void availableParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		rest.uploadPMode("pmode-blue.xml", null);
+		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
-		login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
@@ -65,22 +60,21 @@ public class TestServicePgTest extends BaseTest {
 	@Test(description = "TS-3", groups = {"multiTenancy", "singleTenancy"})
 	public void testBlueParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		rest.uploadPMode("pmode-blue.xml", null);
+		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
-		login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
 
 		page.getPartySelector().selectOptionByText("domibus-blue");
 
 		soft.assertTrue(page.getTestBtn().isEnabled(), "Test button is enabled after picking a party to test");
 
-//		Bug already posted
-//		soft.assertTrue(!page.getUpdateBtn().isEnabled(), "Update button is disabled until test button is clicked");
-
 		page.getTestBtn().click();
+
+		page.waitForEchoRequestData();
+
 		soft.assertTrue(page.getUpdateBtn().isEnabled(), "Update button is enabled after test button is clicked");
 
-		page.wait.forXMillis(500);
 
 		soft.assertTrue(page.getToParty().getText().equalsIgnoreCase("domibus-blue"), "Correct party is listed");
 		soft.assertTrue(!page.getToAccessPoint().getText().isEmpty(), "To access point contains data");

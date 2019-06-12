@@ -264,23 +264,25 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   saveButton(withDownloadCSV: boolean) {
     this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
       if (result) {
-        this.http.delete(PModeArchiveComponent.PMODE_URL, {params: {ids: JSON.stringify(this.deleteList)}}).subscribe(() => {
-            this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
+        const queryParams = {ids: this.deleteList};
+        this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams})
+          .subscribe(() => {
+              this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
 
-            this.disableAllButtons();
-            this.selected = [];
-            this.deleteList = [];
+              this.disableAllButtons();
+              this.selected = [];
+              this.deleteList = [];
 
-            if (withDownloadCSV) {
-              DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
-            }
-          },
-          () => {
-            this.alertService.error('The operation \'update pmodes\' not completed successfully.', false);
-            this.getAllPModeEntries();
-            this.disableAllButtons();
-            this.selected = [];
-          });
+              if (withDownloadCSV) {
+                DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
+              }
+            },
+            (error) => {
+              this.alertService.exception('The operation \'update pmodes\' not completed successfully.', error);
+              this.getAllPModeEntries();
+              this.disableAllButtons();
+              this.selected = [];
+            });
       } else {
         if (withDownloadCSV) {
           DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
@@ -412,7 +414,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
               this.restore(selectedRow);
             },
             error => {
-              this.alertService.error('The operation \'update pmodes\' not completed successfully.', false);
+              this.alertService.exception('The operation \'delete pmodes\' not completed successfully.', error);
               this.enableSaveAndCancelButtons();
               this.selected = [];
             });
@@ -421,7 +423,6 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
         }
       });
     }
-    //this.page(0, this.rowLimiter.pageSize);
   }
 
   private async restore(selectedRow) {
@@ -547,11 +548,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
         const content = res.text();
         this.dialog.open(PmodeViewComponent, {
           data: {metadata: row, content: content}
-        }).afterClosed().subscribe(result => {
         });
       }
     }, err => {
-      this.alertService.error(err);
+      this.alertService.exception('Error getting the current PMode:', err);
     });
   }
 

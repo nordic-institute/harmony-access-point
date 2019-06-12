@@ -22,14 +22,14 @@ public class DLink extends DObject {
 		if (isPresent()) {
 			return super.getText();
 		}
-		throw new Exception("Element not present");
+		throw new DObjectNotPresentException();
 	}
 
 	public String getLinkTarget() throws Exception {
 		if (isPresent()) {
-			return element.getAttribute("href").trim();
+			return element.getAttribute("href");
 		}
-		throw new Exception("Element not present");
+		throw new DObjectNotPresentException();
 	}
 
 

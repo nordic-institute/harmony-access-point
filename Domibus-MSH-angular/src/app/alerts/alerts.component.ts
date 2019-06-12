@@ -5,7 +5,7 @@ import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
-import {Http, URLSearchParams, Response, Headers} from '@angular/http';
+import {Headers, Http, Response, URLSearchParams} from '@angular/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {MdDialog} from '@angular/material';
@@ -31,6 +31,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   @ViewChild('rowProcessed') rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -93,7 +94,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Alert Status', width: 50},
       {name: 'Creation Time', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time', cellTemplate: this.rowWithDateFormatTpl, width: 155},
-      {name: 'Parameters', sortable: false},
+      {name: 'Parameters', cellTemplate: this.rowWithSpaceAfterCommaTpl, sortable: false},
       {name: 'Sent Attempts', width: 50, prop: 'attempts',},
       {name: 'Max Attempts', width: 50},
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
@@ -150,14 +151,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     const searchParams = this.createStaticSearchParams();
 
     if (this.dynamicFilters.length > 0) {
-      let d: string[] = [];
-      for (let i = 0; i < this.dynamicFilters.length; i++) {
-        d[i] = '';
+      for (let filter of this.dynamicFilters) {
+        searchParams.append('parameters', filter);
       }
-      for (let filter in this.dynamicFilters) {
-        d[filter] = this.dynamicFilters[filter];
-      }
-      searchParams.set('parameters', d.toString());
     }
 
     if (this.alertTypeWithDate) {
@@ -248,7 +244,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     }, (error: any) => {
       console.log('error getting the alerts:' + error);
       this.loading = false;
-      this.alertService.error('Error occurred:' + error);
+      this.alertService.exception('Error occurred:', error);
     });
   }
 
@@ -340,7 +336,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
       super.resetFilters();
       // todo: add dynamic params for csv filtering, if requested
-      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createStaticSearchParams().toString());
+      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?'
+        + this.createSearchParams().toString());
     }
   }
 
@@ -358,7 +355,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     const dialogRef = this.dialog.open(SaveDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.http.put(AlertsComponent.ALERTS_URL, JSON.stringify(this.rows), {headers: new Headers({'Content-Type': 'application/json'})}).subscribe(() => {
+        this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
           this.alertService.success('The operation \'update alerts\' completed successfully.', false);
           this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
           this.isDirty = false;
@@ -366,7 +363,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
             DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
           }
         }, err => {
-          this.alertService.error('The operation \'update alerts\' not completed successfully (' + err.status + ').', false);
+          this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
           this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
         });
       } else {

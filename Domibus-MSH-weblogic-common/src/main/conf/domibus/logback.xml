@@ -95,7 +95,7 @@
     </appender>
 
     <appender name="statistic_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${catalina.home}/logs/statistic.log</file>
+        <file>logs/statistic.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
@@ -107,7 +107,7 @@
             <onMatch>NEUTRAL</onMatch>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${catalina.home}/logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>30MB</maxFileSize>
             <maxHistory>60</maxHistory>
             <totalSizeCap>20GB</totalSizeCap>

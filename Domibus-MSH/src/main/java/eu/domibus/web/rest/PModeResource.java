@@ -22,9 +22,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import java.time.ZoneId;
@@ -39,6 +41,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping(value = "/rest/pmode")
+@Validated
 public class PModeResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
@@ -56,7 +59,9 @@ public class PModeResource {
     private AuditService auditService;
 
     @RequestMapping(path = "{id}", method = RequestMethod.GET, produces = "application/xml")
-    public ResponseEntity<? extends Resource> downloadPmode(@PathVariable(value = "id") int id, @DefaultValue("false") @QueryParam("noAudit") boolean noAudit) {
+    public ResponseEntity<? extends Resource> downloadPmode(
+            @PathVariable(value = "id") int id,
+            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit) {
 
         final byte[] rawConfiguration = pModeProvider.getPModeFile(id);
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
@@ -90,7 +95,9 @@ public class PModeResource {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<String> uploadPmodes(@RequestPart("file") MultipartFile pmode, @RequestParam("description") String pModeDescription) {
+    public ResponseEntity<String> uploadPMode(
+            @RequestPart("file") MultipartFile pmode,
+            @RequestParam("description") @Valid String pModeDescription) {
         if (pmode.isEmpty()) {
             return ResponseEntity.badRequest().body("Failed to upload the PMode file since it was empty.");
         }
@@ -118,21 +125,20 @@ public class PModeResource {
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
-    public ResponseEntity<String> deletePmodes(@RequestParam("ids") List<String> pmodesString) {
-        if (pmodesString.isEmpty()) {
+    public ResponseEntity<String> deletePModes(@RequestParam("ids") List<String> pModeIds) {
+        if (pModeIds.isEmpty()) {
             LOG.error("Failed to delete PModes since the list of ids was empty.");
             return ResponseEntity.badRequest().body("Failed to delete PModes since the list of ids was empty.");
         }
         try {
-            for (String pModeId : pmodesString) {
-                pModeId = pModeId.replace("[", "").replace("]", "");
+            for (String pModeId : pModeIds) {
                 pModeProvider.removePMode(Integer.parseInt(pModeId));
             }
         } catch (Exception ex) {
             LOG.error("Impossible to delete PModes", ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible to delete PModes due to \n" + ex.getMessage());
         }
-        LOG.debug("PModes {} were deleted", pmodesString);
+        LOG.debug("PModes {} were deleted", pModeIds);
         return ResponseEntity.ok("PModes were deleted\n");
     }
 

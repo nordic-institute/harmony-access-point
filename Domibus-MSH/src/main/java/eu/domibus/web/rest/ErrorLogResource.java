@@ -13,16 +13,18 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,10 +35,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/rest/errorlogs")
+@Validated
 public class ErrorLogResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ErrorLogResource.class);
-
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -51,23 +53,9 @@ public class ErrorLogResource {
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ErrorLogResultRO getErrorLog(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-            @RequestParam(value = "orderBy", required = false) String column,
-            @RequestParam(value = "asc", defaultValue = "true") boolean asc,
-            @RequestParam(value = "errorSignalMessageId", required = false) String errorSignalMessageId,
-            @RequestParam(value = "mshRole", required = false) MSHRole mshRole,
-            @RequestParam(value = "messageInErrorId", required = false) String messageInErrorId,
-            @RequestParam(value = "errorCode", required = false) ErrorCode errorCode,
-            @RequestParam(value = "errorDetail", required = false) String errorDetail,
-            @RequestParam(value = "timestampFrom", required = false) String timestampFrom,
-            @RequestParam(value = "timestampTo", required = false) String timestampTo,
-            @RequestParam(value = "notifiedFrom", required = false) String notifiedFrom,
-            @RequestParam(value = "notifiedTo", required = false) String notifiedTo) {
-
+    public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
         LOGGER.debug("Getting error log");
-        HashMap<String, Object> filters = createFilterMap(errorSignalMessageId, mshRole, messageInErrorId, errorCode, errorDetail, timestampFrom, timestampTo, notifiedFrom, notifiedTo);
+        HashMap<String, Object> filters = createFilterMap(request);
         ErrorLogResultRO result = new ErrorLogResultRO();
         result.setFilter(filters);
         LOGGER.debug("using filters [{}]", filters);
@@ -76,53 +64,32 @@ public class ErrorLogResource {
         LOGGER.debug("count [{}]", entries);
         result.setCount(Ints.checkedCast(entries));
 
-        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(pageSize * page, pageSize, column, asc, filters);
+        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(request.getPageSize() * request.getPage(),
+                request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
         result.setErrorLogEntries(convert(errorLogEntries));
 
         result.setErrorCodes(ErrorCode.values());
         result.setMshRoles(MSHRole.values());
-        result.setPage(page);
-        result.setPageSize(pageSize);
+        result.setPage(request.getPage());
+        result.setPageSize(request.getPageSize());
 
         return result;
     }
 
     /**
      * This method returns a CSV file with the contents of Error Log table
-     * @param orderByColumn the column to sort rows by
-     * @param asc true if the sort direction is ascending
-     * @param errorSignalMessageId the signal message id of the message that caused the error
-     * @param mshRole whether the error occured while SENDING or while RECEIVING messages
-     * @param messageInErrorId the id of the message that caused the error
-     * @param errorCode error code
-     * @param errorDetail error detail
-     * @param timestampFrom error timestamp after this date
-     * @param timestampTo error timestamp before this date
-     * @param notifiedFrom error notified after this date
-     * @param notifiedTo error notified before this date
      *
      * @return CSV file with the contents of Error Log table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(
-            @RequestParam(value = "orderBy", required = false) String orderByColumn,
-            @RequestParam(value = "asc", defaultValue = "true") boolean asc,
-
-            @RequestParam(value = "errorSignalMessageId", required = false) String errorSignalMessageId,
-            @RequestParam(value = "mshRole", required = false) MSHRole mshRole,
-            @RequestParam(value = "messageInErrorId", required = false) String messageInErrorId,
-            @RequestParam(value = "errorCode", required = false) ErrorCode errorCode,
-            @RequestParam(value = "errorDetail", required = false) String errorDetail,
-            @RequestParam(value = "timestampFrom", required = false) String timestampFrom,
-            @RequestParam(value = "timestampTo", required = false) String timestampTo,
-            @RequestParam(value = "notifiedFrom", required = false) String notifiedFrom,
-            @RequestParam(value = "notifiedTo", required = false) String notifiedTo) {
+    public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
         ErrorLogResultRO result = new ErrorLogResultRO();
 
-        HashMap<String, Object> filters = createFilterMap(errorSignalMessageId, mshRole, messageInErrorId, errorCode, errorDetail, timestampFrom, timestampTo, notifiedFrom, notifiedTo);
+        HashMap<String, Object> filters = createFilterMap(request);
         result.setFilter(filters);
 
-        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, errorLogCsvServiceImpl.getMaxNumberRowsToExport(), orderByColumn, asc, filters);
+        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, errorLogCsvServiceImpl.getMaxNumberRowsToExport(),
+                request.getOrderBy(), request.getAsc(), filters);
         final List<ErrorLogRO> errorLogROList = domainConverter.convert(errorLogEntries, ErrorLogRO.class);
 
         String resultText;
@@ -140,27 +107,18 @@ public class ErrorLogResource {
                 .body(resultText);
     }
 
-    private HashMap<String, Object> createFilterMap(
-                            String errorSignalMessageId,
-                            MSHRole mshRole,
-                            String messageInErrorId,
-                            ErrorCode errorCode,
-                            String errorDetail,
-                            String timestampFrom,
-                            String timestampTo,
-                            String notifiedFrom,
-                            String notifiedTo) {
+    private HashMap<String, Object> createFilterMap(ErrorLogFilterRequestRO request) {
         HashMap<String, Object> filters = new HashMap<>();
-        filters.put("errorSignalMessageId", errorSignalMessageId);
-        filters.put("mshRole", mshRole);
-        filters.put("messageInErrorId", messageInErrorId);
-        filters.put("errorCode", errorCode);
-        filters.put("errorDetail", errorDetail);
+        filters.put("errorSignalMessageId", request.getErrorSignalMessageId());
+        filters.put("mshRole", request.getMshRole());
+        filters.put("messageInErrorId", request.getMessageInErrorId());
+        filters.put("errorCode", request.getErrorCode());
+        filters.put("errorDetail", request.getErrorDetail());
 
-        filters.put("timestampFrom", dateUtil.fromString(timestampFrom));
-        filters.put("timestampTo", dateUtil.fromString(timestampTo));
-        filters.put("notifiedFrom", dateUtil.fromString(notifiedFrom));
-        filters.put("notifiedTo", dateUtil.fromString(notifiedTo));
+        filters.put("timestampFrom", dateUtil.fromString(request.getTimestampFrom()));
+        filters.put("timestampTo", dateUtil.fromString(request.getTimestampTo()));
+        filters.put("notifiedFrom", dateUtil.fromString(request.getNotifiedFrom()));
+        filters.put("notifiedTo", dateUtil.fromString(request.getNotifiedTo()));
 
         return filters;
     }

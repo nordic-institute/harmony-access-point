@@ -8,7 +8,7 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.annotations.Test;
-import utils.PROPERTIES;
+import utils.TestRunData;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +26,7 @@ import java.util.Date;
 
 public class ExcelTestReporter implements ITestListener {
 
+	private TestRunData data = new TestRunData();
 	private static final String[] headers = {"Type", "Test Suite Name", "Test Case ID", "Test Case Name", "Can be run on Bamboo", "TC is disabled", "Test Result", "Last Execution Started", "Execution time", "JIRA tickets", "Impact", "Comment"};
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -39,7 +40,7 @@ public class ExcelTestReporter implements ITestListener {
 
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
 		String dateStr = format.format(iTestContext.getStartDate());
-		filename = PROPERTIES.REPORTS_FOLDER + "TestRunReport" + dateStr + ".xlsx";
+		filename = data.getReportsFolder() + "TestRunReport" + dateStr + ".xlsx";
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("Run Report");
@@ -163,7 +164,6 @@ public class ExcelTestReporter implements ITestListener {
 		Row currentRow = reportSheet.createRow(rowNum);
 
 		currentRow.createCell(0).setCellValue(testType);
-//		currentRow.createCell(0).setCellValue("UI");
 		currentRow.createCell(1).setCellValue(iTestResult.getTestContext().getSuite().getName());
 		currentRow.createCell(2).setCellValue(iTestResult.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class).description());
 		currentRow.createCell(3).setCellValue(iTestResult.getName());
