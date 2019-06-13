@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
+
 import java.io.Serializable;
 
 /**
@@ -9,14 +11,24 @@ import java.io.Serializable;
 public class PluginUserRO implements Serializable {
 
     private Integer entityId;
+
     private String userName;
+
+    @SkipWhiteListed
     private String password;
+
     private String certificateId;
+
     private String originalUser;
-    private String authRoles; 
-    private String authenticationType; 
+
+    private String authRoles;
+
+    private String authenticationType;
+
     private String status;
+
     private boolean active;
+
     private boolean suspended;
 
     public Integer getEntityId() {
