@@ -50,6 +50,11 @@
         <jaxws:outFaultInterceptors>
             <ref bean="clearAuthenticationMDCInterceptor"/>
         </jaxws:outFaultInterceptors>
+        <jaxws:features>
+            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+                <property name="sender" ref="loggingSender"/>
+            </bean>
+        </jaxws:features>
     </jaxws:endpoint>
     <!-- Example ends here -->
 
