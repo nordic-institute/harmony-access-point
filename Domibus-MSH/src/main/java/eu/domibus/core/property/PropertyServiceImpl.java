@@ -5,7 +5,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.web.rest.ro.PropertyRO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +36,7 @@ public class PropertyServiceImpl implements PropertyService {
                 String value = domibusPropertyProvider.getProperty(currentDomain, p.getName());
                 prop.setValue(value);
                 list.add(prop);
-            } else if (p.getUsage() == UsageType.AP_PROPERTY) {
+            } else if (p.getUsage() == UsageType.GLOBAL_PROPERTY) {
                 // TODO
             }
         }
@@ -49,7 +48,7 @@ public class PropertyServiceImpl implements PropertyService {
         return Arrays.stream(new PropMeta[] {
                 new PropMeta("domibus.UI.title.name"),
                 new PropMeta("domibus.passwordPolicy.pattern"),
-                new PropMeta("domibus.userInput.blackList", UsageType.AP_PROPERTY) ,
+                new PropMeta("domibus.userInput.blackList", UsageType.GLOBAL_PROPERTY) ,
                 new PropMeta("domibus.security.keystore.password", UsageType.DOMAIN_PROPERTY)
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
@@ -94,7 +93,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     enum UsageType {
-        AP_PROPERTY, // GLOBAL Property ??? Global AP Property ???
+        GLOBAL_PROPERTY, // GLOBAL Property ??? Global AP Property ???
         // proprietate care are efect asupra intregului AP;
         // se citeste cu getProperty
         // poate fi modificata doar in mod single tenancy sau de catre super admin
