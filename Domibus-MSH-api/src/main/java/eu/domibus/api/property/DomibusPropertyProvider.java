@@ -2,6 +2,7 @@ package eu.domibus.api.property;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -152,4 +153,9 @@ public interface DomibusPropertyProvider {
      * @return true if the property exists.
      */
     boolean containsPropertyKey(String propertyName);
+
+    /**
+     * Returns all known properties (including
+     */
+    Map<String, String> getAll();
 }

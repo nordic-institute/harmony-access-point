@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -311,5 +309,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return defaultValue;
     }
 
+    @Override
+    public Map<String, String> getAll() {
+        Set<String> allKeys = domibusProperties.stringPropertyNames();
+
+        return allKeys.stream().collect(Collectors.toMap(key -> key, key -> domibusProperties.getProperty(key)));
+    }
 
 }
