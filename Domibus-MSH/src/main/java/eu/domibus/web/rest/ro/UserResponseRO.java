@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -16,6 +17,7 @@ public class UserResponseRO {
     private String userName;
     private String roles = StringUtils.EMPTY;
     private String email;
+    @SkipWhiteListed
     private String password;
     private boolean active;
     private List<String> authorities;
