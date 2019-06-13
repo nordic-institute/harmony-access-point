@@ -19,7 +19,8 @@ import javax.validation.constraints.NotNull;
 })
 public class EncryptionKeyEntity extends AbstractBaseEntity {
 
-    @Column(name = "USAGE")
+    @Column(name = "KEY_USAGE")
+    @Enumerated(EnumType.STRING)
     @NotNull
     private EncryptionUsage usage;
 

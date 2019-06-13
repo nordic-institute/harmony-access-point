@@ -13,11 +13,11 @@
             <column autoIncrement="true" name="ID_PK" type="INT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="USAGE" type="VARCHAR(255)"/>
+            <column name="KEY_USAGE" type="VARCHAR(255)"/>
             <column name="SECRET_KEY" type="BLOB">
                 <constraints nullable="false"/>
             </column>
-            <column name="INIT_VECTOR" type="VARCHAR(255)">
+            <column name="INIT_VECTOR" type="BLOB">
                 <constraints nullable="false"/>
             </column>
         </createTable>
