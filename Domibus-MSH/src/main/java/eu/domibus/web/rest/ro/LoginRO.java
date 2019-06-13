@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class LoginRO implements Serializable {
 
     private String username;
+
     @SkipWhiteListed
     private String password;
 

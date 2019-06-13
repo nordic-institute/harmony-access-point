@@ -15,15 +15,24 @@ import java.util.List;
 public class UserResponseRO {
     // order of the fields is important for CSV generation
     private String userName;
+
     private String roles = StringUtils.EMPTY;
+
     private String email;
+
     @SkipWhiteListed
     private String password;
+
     private boolean active;
+
     private List<String> authorities;
+
     private String status;
+
     private boolean suspended;
+
     private String domain;
+
     private boolean deleted;
 
     public String getUserName() {
