@@ -308,12 +308,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOGGER.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
         return defaultValue;
     }
-
-    @Override
-    public Map<String, String> getAll() {
-        Set<String> allKeys = domibusProperties.stringPropertyNames();
-
-        return allKeys.stream().collect(Collectors.toMap(key -> key, key -> domibusProperties.getProperty(key)));
-    }
+//
+//    @Override
+//    public Map<String, String> getAll() {
+//        Set<String> allKeys = domibusProperties.stringPropertyNames();
+//
+//        return allKeys.stream().collect(Collectors.toMap(key -> key, key -> domibusProperties.getProperty(key)));
+//    }
 
 }

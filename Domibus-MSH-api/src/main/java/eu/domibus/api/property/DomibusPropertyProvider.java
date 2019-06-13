@@ -154,8 +154,8 @@ public interface DomibusPropertyProvider {
      */
     boolean containsPropertyKey(String propertyName);
 
-    /**
-     * Returns all known properties (including
-     */
-    Map<String, String> getAll();
+//    /**
+//     * Returns all known properties (including
+//     */
+//    Map<String, String> getAll();
 }

@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.web.rest.ro.PropertyRO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +23,50 @@ public class PropertyServiceImpl implements PropertyService {
 
     public List<PropertyRO> getProperties(String name) {
         List<PropertyRO> list = new ArrayList<>();
+        Domain currentDomain = null; // TODO
+        for (PropMeta p : this.getKnownProperties().values()) {
+
+            PropertyRO prop = new PropertyRO();
+            prop.setName(p.getName());
+
+            if (p.getUsage() == UsageType.DOMAIN_PROPERTY_WITH_FALLBACK) {
+                String value = domibusPropertyProvider.getDomainProperty(p.getName());
+                prop.setValue(value);
+                list.add(prop);
+            } else if (p.getUsage() == UsageType.DOMAIN_PROPERTY) {
+                String value = domibusPropertyProvider.getProperty(currentDomain, p.getName());
+                prop.setValue(value);
+                list.add(prop);
+            } else if (p.getUsage() == UsageType.AP_PROPERTY) {
+                // TODO
+            }
+        }
 
         return list;
     }
 
     private Map<String, PropMeta> getKnownProperties() {
-
         return Arrays.stream(new PropMeta[] {
-            new PropMeta()
-        }).collect(Collectors.toList());
+                new PropMeta("domibus.UI.title.name"),
+                new PropMeta("domibus.passwordPolicy.pattern"),
+                new PropMeta("domibus.userInput.blackList", UsageType.AP_PROPERTY) ,
+                new PropMeta("domibus.security.keystore.password", UsageType.DOMAIN_PROPERTY)
+        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
     class PropMeta {
         private String name;
         private UsageType usage;
         private String type; // numeric, cronexp, regexp, string, concurrency
+
+        public PropMeta(String name) {
+            this(name, UsageType.DOMAIN_PROPERTY_WITH_FALLBACK);
+        }
+
+        public PropMeta(String name, UsageType usage) {
+            this.name = name;
+            this.usage = usage;
+        }
 
         public String getName() {
             return name;
