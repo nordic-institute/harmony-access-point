@@ -13,6 +13,8 @@ import java.io.IOException;
  */
 public interface PayloadPersistence {
 
+    int DEFAULT_BUFFER_SIZE = 32 * 1024;
+
     void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException;
 
     void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, final LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception;

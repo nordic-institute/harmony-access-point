@@ -1,9 +1,12 @@
 package eu.domibus.core.payload.persistence;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.CompressionService;
 import eu.domibus.common.services.impl.MessagingServiceImpl;
+import eu.domibus.core.encryption.EncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
@@ -18,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 import java.io.*;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
@@ -32,7 +37,6 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistence.class);
 
-    public static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
     public static final String PAYLOAD_EXTENSION = ".payload";
 
     @Autowired
@@ -43,6 +47,15 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
     @Autowired
     protected CompressionService compressionService;
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected EncryptionService encryptionService;
 
     @Override
     public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
@@ -68,11 +81,26 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     }
 
     protected long saveIncomingFileToDisk(File file, InputStream is) throws IOException {
-        try (OutputStream fileOutputStream = new FileOutputStream(file)) {
-            final long total = IOUtils.copy(is, fileOutputStream, DEFAULT_BUFFER_SIZE);
-            fileOutputStream.flush();
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+
+            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            if (encryptionActive) {
+                LOG.debug("Using encryption for file [{}]", file);
+                final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
+                outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload);
+            }
+
+            final long total = IOUtils.copy(is, outputStream, DEFAULT_BUFFER_SIZE);
+            outputStream.flush();
             LOG.debug("Done writing file [{}]. Written [{}] bytes.", file.getName(), total);
             return total;
+        } finally {
+            if (outputStream != null) {
+                outputStream.flush();
+                outputStream.close();
+            }
         }
     }
 
@@ -108,21 +136,27 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         boolean useCompression = compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
         LOG.debug("Compression for message with id: [{}] applied: [{}]", userMessage.getMessageInfo().getMessageId(), useCompression);
 
-        OutputStream fileOutputStream = null;
+        OutputStream outputStream = null;
         try {
-            fileOutputStream = new FileOutputStream(file);
+            outputStream = new FileOutputStream(file);
             if (useCompression) {
                 LOG.debug("Using compression for storing the file [{}]", file);
-                fileOutputStream = new GZIPOutputStream(fileOutputStream);
+                outputStream = new GZIPOutputStream(outputStream);
+            }
+            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            if (encryptionActive) {
+                LOG.debug("Using encryption for file [{}]", file);
+                final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
+                outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload);
             }
 
-            final long total = IOUtils.copy(is, fileOutputStream, MessagingServiceImpl.DEFAULT_BUFFER_SIZE);
+            final long total = IOUtils.copy(is, outputStream, MessagingServiceImpl.DEFAULT_BUFFER_SIZE);
             LOG.debug("Done writing file [{}]. Written [{}] bytes.", file.getName(), total);
             return total;
         } finally {
-            if (fileOutputStream != null) {
-                fileOutputStream.flush();
-                fileOutputStream.close();
+            if (outputStream != null) {
+                outputStream.flush();
+                outputStream.close();
             }
         }
 

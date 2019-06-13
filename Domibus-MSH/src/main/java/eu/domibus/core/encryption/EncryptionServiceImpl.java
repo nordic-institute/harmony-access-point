@@ -1,10 +1,10 @@
 package eu.domibus.core.encryption;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,8 +25,6 @@ public class EncryptionServiceImpl implements EncryptionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
 
-    private static String ENCRYPTION_PROPERTY = "domibus.payload.encryption.active";
-
     @Autowired
     protected EncryptionKeyDao encryptionKeyDao;
 
@@ -43,7 +41,7 @@ public class EncryptionServiceImpl implements EncryptionService {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusConfigurationService domibusConfigurationService;
 
     @Override
     public void createEncryptionKeyForAllDomainsIfNotExists() {
@@ -51,7 +49,7 @@ public class EncryptionServiceImpl implements EncryptionService {
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            final Boolean encryptionActive = domibusPropertyProvider.getBooleanDomainProperty(domain, ENCRYPTION_PROPERTY);
+            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
             if (encryptionActive) {
                 domainTaskExecutor.submit(() -> createEncryptionKeyForPayloadIfNotExists(), domain);
             } else {
