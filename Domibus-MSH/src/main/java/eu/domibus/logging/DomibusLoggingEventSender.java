@@ -20,7 +20,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventSender.class);
 
 
-    private static final String CONTENT_TYPE = "Content-Type:";
+    static final String CONTENT_TYPE = "Content-Type:";
 
     private boolean printPayload;
 
