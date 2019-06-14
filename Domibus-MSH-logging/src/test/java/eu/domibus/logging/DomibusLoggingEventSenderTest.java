@@ -10,8 +10,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-
 /**
  * @author Catalin Enache
  * @since 4.1.1
@@ -23,7 +21,7 @@ public class DomibusLoggingEventSenderTest {
     DomibusLoggingEventSender domibusLoggingEventSender;
 
     @Test
-    public void test_getLogMessage_MultipartTrue(final @Mocked LogEvent logEvent) {
+    public void test_getLogMessage_C2C3(final @Mocked LogEvent logEvent) {
         final String payload = "--uuid:1bf7dc24-98f3-405b-83f0-4ed885db1bdf\n" +
                 "Content-Type: application/soap+xml; charset=UTF-8\n" +
                 "Content-Transfer-Encoding: binary\n" +
@@ -45,9 +43,6 @@ public class DomibusLoggingEventSenderTest {
 
             logEvent.getPayload();
             result = payload;
-
-
-
         }};
 
         //tested method

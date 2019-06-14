@@ -1,6 +1,8 @@
 package eu.domibus.util;
 
 import com.google.common.io.CharStreams;
+import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,11 +41,17 @@ public class SoapUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);
 
+
+    static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
+
     @Autowired
     protected TransformerFactory transformerFactory;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {
             try (StringWriter sw = new StringWriter()) {
                 transformerFactory.newTransformer().transform(new DOMSource(request.getSOAPPart()), new StreamResult(sw));
 

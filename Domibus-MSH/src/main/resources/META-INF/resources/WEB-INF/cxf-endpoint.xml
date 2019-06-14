@@ -20,11 +20,6 @@
         <cxf:outFaultInterceptors>
             <ref bean="attachmentCleanupInterceptor"/>
         </cxf:outFaultInterceptors>
-        <cxf:features>
-            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
-                <property name="sender" ref="loggingSender"/>
-            </bean>
-        </cxf:features>
     </cxf:bus>
 
     <!--Message logger configuration-->
@@ -109,9 +104,14 @@
             <bean class="eu.domibus.ebms3.receiver.FaultInHandler"/>
         </jaxws:handlers>
 
-    </jaxws:endpoint>
+        <jaxws:features>
+            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+                <property name="sender" ref="loggingSender"/>
+            </bean>
+        </jaxws:features>
+        </jaxws:endpoint>
 
-    <!--MSH Webservice client-->
+        <!--MSH Webservice client-->
     <jaxws:client id="{http://domibus.eu}msh-dispatch" name="{http://domibus.eu}msh-dispatch" createdFromAPI="true">
         <jaxws:outInterceptors>
             <ref bean="setPolicyOutInterceptor"/>
@@ -131,6 +131,11 @@
             <entry key="faultStackTraceEnabled" value="false"/>
             <entry key="exceptionMessageCauseEnabled" value="false"/>
         </jaxws:properties>
+        <jaxws:features>
+            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+                <property name="sender" ref="loggingSender"/>
+            </bean>
+        </jaxws:features>
     </jaxws:client>
 
     <bean id="domibusPrepareAttachmentInInterceptor"
@@ -155,6 +160,11 @@
             <entry key="faultStackTraceEnabled" value="false"/>
             <entry key="exceptionMessageCauseEnabled" value="false"/>
         </jaxws:properties>
+        <jaxws:features>
+            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+                <property name="sender" ref="loggingSender"/>
+            </bean>
+        </jaxws:features>
     </jaxws:client>
 
     <http-conf:conduit name="*.http-conduit">

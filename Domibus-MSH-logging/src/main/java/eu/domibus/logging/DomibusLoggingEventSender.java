@@ -20,11 +20,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventSender.class);
 
-
     static final String CONTENT_TYPE = "Content-Type:";
-    static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
-    static final String VALUE_START = "<value>";
-    static final String VALUE_END = "</value>";
 
     private boolean printPayload;
 
@@ -40,7 +36,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
             stripPayload(event);
         }
 
-
         return LogMessageFormatter.format(event);
     }
 
@@ -49,7 +44,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
      *
      * @param event
      */
-    private void stripPayload(LogEvent event) {
+    protected void stripPayload(LogEvent event) {
         final String payload = event.getPayload();
 
         //C2 -> C3
@@ -64,11 +59,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
                 }
             }
 
-        } else if (payload.contains(RETRIEVE_MESSAGE_RESPONSE)) {
-            //C4 - C3
-            int indexStart = payload.indexOf(VALUE_START);
-            int indexEnd = payload.indexOf(VALUE_END);
-            event.setPayload(payload.replace(payload.substring(indexStart + 7, indexEnd), AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }
     }
 
