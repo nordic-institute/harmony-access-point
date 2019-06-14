@@ -73,19 +73,20 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + ".payload");
         partInfo.setFileName(attachmentStore.getAbsolutePath());
         try (final InputStream inputStream = partInfo.getPayloadDatahandler().getInputStream()) {
-            final long fileLength = saveIncomingFileToDisk(attachmentStore, inputStream);
+            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            final long fileLength = saveIncomingFileToDisk(attachmentStore, inputStream, encryptionActive);
             partInfo.setLength(fileLength);
+            partInfo.setEncrypted(encryptionActive);
         }
 
         LOG.debug("Finished saving incoming payload [{}] to file disk", partInfo.getHref());
     }
 
-    protected long saveIncomingFileToDisk(File file, InputStream is) throws IOException {
+    protected long saveIncomingFileToDisk(File file, InputStream is, final Boolean encryptionActive) throws IOException {
         OutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(file);
 
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
             if (encryptionActive) {
                 LOG.debug("Using encryption for file [{}]", file);
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
@@ -123,8 +124,11 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
             final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + PAYLOAD_EXTENSION);
             partInfo.setFileName(attachmentStore.getAbsolutePath());
-            final long fileLength = saveOutgoingFileToDisk(attachmentStore, partInfo, is, userMessage, legConfiguration);
+
+            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            final long fileLength = saveOutgoingFileToDisk(attachmentStore, partInfo, is, userMessage, legConfiguration, encryptionActive);
             partInfo.setLength(fileLength);
+            partInfo.setEncrypted(encryptionActive);
 
             LOG.debug("Finished saving outgoing payload [{}] to file disk", partInfo.getHref());
 
@@ -132,7 +136,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         }
     }
 
-    protected long saveOutgoingFileToDisk(File file, PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration) throws IOException, EbMS3Exception {
+    protected long saveOutgoingFileToDisk(File file, PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration, final Boolean encryptionActive) throws IOException, EbMS3Exception {
         boolean useCompression = compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
         LOG.debug("Compression for message with id: [{}] applied: [{}]", userMessage.getMessageInfo().getMessageId(), useCompression);
 
@@ -143,7 +147,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
                 LOG.debug("Using compression for storing the file [{}]", file);
                 outputStream = new GZIPOutputStream(outputStream);
             }
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+
             if (encryptionActive) {
                 LOG.debug("Using encryption for file [{}]", file);
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();

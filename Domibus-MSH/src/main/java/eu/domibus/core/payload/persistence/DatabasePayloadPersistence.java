@@ -64,6 +64,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
                 LOG.debug("Using encryption for part info [{}]", partInfo.getHref());
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
                 outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload);
+                partInfo.setEncrypted(true);
             }
 
             try (InputStream is = partInfo.getPayloadDatahandler().getInputStream()) {
@@ -92,10 +93,13 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
             backendNotificationService.notifyPayloadSubmitted(userMessage, originalFileName, partInfo, backendName);
 
-            byte[] binaryData = getOutgoingBinaryData(partInfo, is, userMessage, legConfiguration);
+            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+
+            byte[] binaryData = getOutgoingBinaryData(partInfo, is, userMessage, legConfiguration, encryptionActive);
             partInfo.setBinaryData(binaryData);
             partInfo.setLength(binaryData.length);
             partInfo.setFileName(null);
+            partInfo.setEncrypted(encryptionActive);
 
             LOG.debug("Finished saving outgoing payload [{}] to database", partInfo.getHref());
 
@@ -103,7 +107,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         }
     }
 
-    protected byte[] getOutgoingBinaryData(PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration) throws IOException, EbMS3Exception {
+    protected byte[] getOutgoingBinaryData(PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration, final Boolean encryptionActive) throws IOException, EbMS3Exception {
         OutputStream outputStream = null;
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
@@ -117,7 +121,6 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
                 outputStream = new GZIPOutputStream(outputStream);
             }
 
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
             if (encryptionActive) {
                 LOG.debug("Using encryption for part info [{}]", partInfo.getHref());
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
