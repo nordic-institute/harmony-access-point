@@ -22,7 +22,7 @@ public class DomibusLoggingEventSenderTest {
     DomibusLoggingEventSender domibusLoggingEventSender;
 
     @Test
-    public void test_getLogMessage_C2C3(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload(final @Mocked LogEvent logEvent) throws Exception {
         final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SendMessage.xml"), "UTF-8");
 
         new Expectations() {{
@@ -34,7 +34,7 @@ public class DomibusLoggingEventSenderTest {
         }};
 
         //tested method
-        domibusLoggingEventSender.getLogMessage(logEvent);
+        domibusLoggingEventSender.stripPayload(logEvent);
 
         new Verifications() {{
             final String payloadActual;
