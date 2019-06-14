@@ -19,3 +19,4 @@
 
 .idea/**
 .\src\main\java\Main.java
+.\src\test\java\MyTest.java

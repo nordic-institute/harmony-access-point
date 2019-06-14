@@ -73,6 +73,8 @@ public class SandwichMenu extends DComponent {
 
 	public void logout() throws Exception {
 
+		clickVoidSpace();
+
 		expandMenu();
 		log.info("Logging out...");
 		driver.findElement(logoutLnk).click();

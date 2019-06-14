@@ -7,6 +7,7 @@ import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.plugin_users.CertPluginUserModal;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
 import utils.Generator;
@@ -592,5 +593,155 @@ public class PluginUsersPgTest extends BaseTest {
 		}
 		soft.assertAll();
 	}
+
+	@Test(description = "PU-19", groups = {"multiTenancy", "singleTenancy"})
+	public void createCertificatePluginUserSave() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.grid().scrollTo("Certificate Id", certId)>-1, "New user is present in the grid");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "PU-20", groups = {"multiTenancy", "singleTenancy"})
+	public void createCertificatePluginUserCancel() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getCancelBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.grid().scrollTo("Certificate Id", certId)==-1, "New user is NOT present in the grid");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "PU-21", groups = {"multiTenancy", "singleTenancy"})
+	public void editCertificateID() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		page.grid().scrollToAndDoubleClick("Certificate Id", certId);
+		modal = new CertPluginUserModal(driver);
+
+		soft.assertTrue(!modal.getUserInput().isEnabled(), "Certificate ID input is disabled for editing");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "PU-21", groups = {"multiTenancy", "singleTenancy"})
+	public void pluginUsernameTooShort() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		PluginUserModal modal = new PluginUserModal(driver);
+		modal.getUserNameInput().fill("aa");
+		modal.getRolesSelect().selectOptionByText(DRoles.ADMIN);
+		modal.getPasswordInput().fill(data.getDefaultTestPass());
+		modal.getConfirmationInput().fill(data.getDefaultTestPass());
+
+		soft.assertTrue(!modal.getOkBtn().isEnabled(), "OK button is disabled until user enters username with more than 3 characters");
+		soft.assertTrue(!modal.getOkBtn().isEnabled());
+
+		soft.assertAll();
+	}
+
+//	------------------------------------------------------------
+	@Test(description = "PU-19", groups = {"multiTenancy", "singleTenancy"})
+	public void certificatePluginUserDuplicateSameDomain() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+
+		page.getNewBtn().click();
+
+		modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+
+		soft.assertAll();
+	}
+
 
 }

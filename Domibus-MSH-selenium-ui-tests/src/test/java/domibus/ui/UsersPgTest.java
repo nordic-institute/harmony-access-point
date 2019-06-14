@@ -609,4 +609,45 @@ public class UsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
+	@Test(description = "USR-19", groups = {"multiTenancy"})
+	public void availableRoles() throws Exception {
+
+		String adminUsername = Generator.randomAlphaNumeric(9);
+		String superUsername = Generator.randomAlphaNumeric(9);
+		String password = data.getDefaultTestPass();
+		rest.createUser(adminUsername, DRoles.ADMIN, password, null);
+		rest.createUser(superUsername, DRoles.SUPER, password, null);
+
+		SoftAssert soft = new SoftAssert();
+		login(adminUsername, password).getSidebar().gGoToPage(PAGES.USERS);
+
+		UsersPage page = new UsersPage(driver);
+
+		page.getNewBtn().click();
+		UserModal modal = new UserModal(driver);
+
+		List<String> roles = modal.getRoleSelect().getOptionsTexts();
+
+		soft.assertTrue(roles.size() == 2, "2 roles available to admin");
+		soft.assertTrue(roles.contains(DRoles.USER), "User role is avalable to admin");
+		soft.assertTrue(roles.contains(DRoles.ADMIN), "Admin role is avalable to admin");
+
+		page.getSandwichMenu().logout();
+		login(superUsername, password).getSidebar().gGoToPage(PAGES.USERS);
+
+		page = new UsersPage(driver);
+
+		page.getNewBtn().click();
+		modal = new UserModal(driver);
+
+		List<String> rolesSuper = modal.getRoleSelect().getOptionsTexts();
+
+		soft.assertTrue(rolesSuper.size() == 3, "3 roles available to admin");
+		soft.assertTrue(rolesSuper.contains(DRoles.USER), "User role is avalable to super");
+		soft.assertTrue(rolesSuper.contains(DRoles.ADMIN), "Admin role is avalable to super");
+		soft.assertTrue(rolesSuper.contains(DRoles.SUPER), "Super Admin role is avalable to super");
+
+		soft.assertAll();
+	}
+
 }

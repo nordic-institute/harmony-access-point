@@ -15,6 +15,8 @@ public class DMessages {
 	public static final String MSG_2_1 = "The user is suspended. Please try again later or contact your administrator.";
 	public static final String MSG_2_2 = "The user is inactive. Please contact your administrator.";
 
+	public static final String DIALOG_CANCEL_ALL = "Do you want to cancel all unsaved operations?";
+
 	public static final String EMAIL_INVALID_MESSAGE = "You should type an email";
 
 	public static final String USERNAME_NO_EMPTY_MESSAGE = "You should type an username";
@@ -34,6 +36,7 @@ public class DMessages {
 	public static final String PASS_NO_EMPTY_MESSAGE = "You should type a password";
 
 	public static final String DUPLICATE_PLUGINUSER_ = "The operation update plugin users completed with errors.  [DOM_001]:Cannot add user %s because this name already exists.";
+	public static final String DUPLICATE_CERT_PLUGINUSER_ = "The operation update plugin users completed with errors.  [DOM_001]:Cannot add user with certificate %s because this certificate already exists.";
 	public static final String DUPLICATE_USER_ = "The operation update users not completed successfully. [DOM_001]:Cannot add user %s because this name already exists in the %s domain.";
 
 

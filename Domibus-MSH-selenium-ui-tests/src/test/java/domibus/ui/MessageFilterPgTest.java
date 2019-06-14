@@ -8,6 +8,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
+import pages.msgFilter.MessageFilterGrid;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
 import utils.Generator;
@@ -559,6 +560,91 @@ public class MessageFilterPgTest extends BaseTest {
 //		Delete created filter
 		rest.deleteMessageFilter(actionName, null);
 		rest.deleteMessageFilter(anotherActionName, null);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSGF-18", groups = {"multiTenancy"})
+	public void editAndChangeDomain() throws Exception {
+//		Create a filter to edit
+		String actionName = Generator.randomAlphaNumeric(5);
+		String anotherActionName = Generator.randomAlphaNumeric(5);
+		rest.createMessageFilter(actionName, null);
+
+		String domainName = rest.getDomainNames().get(1);
+
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+		page.refreshPage();
+
+		int index = page.grid().scrollTo("Action", actionName);
+		page.grid().selectRow(index);
+		page.getEditBtn().click();
+
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		modal.getActionInput().fill(anotherActionName);
+		modal.clickOK();
+
+		page.getDomainSelector().selectOptionByText(domainName);
+
+		Dialog dialog = new Dialog(driver);
+
+		soft.assertTrue(dialog.isLoaded(), "Dialog is shown");
+		soft.assertEquals(dialog.getMessage(), DMessages.DIALOG_CANCEL_ALL, "Dialog shows correct message");
+
+		dialog.confirm();
+
+		soft.assertEquals(page.getDomainSelector().getSelectedValue(), domainName, "Domain was changed");
+
+		page.getDomainSelector().selectOptionByText("Default");
+
+		String listedAction = page.grid().getRowInfo(index).get("Action");
+		soft.assertEquals(actionName, listedAction, "Action is not changed after the user presses OK in the dialog");
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Changes are canceled and save button is disabled");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Changes are canceled and cancel button is disabled");
+
+
+
+		page.grid().selectRow(index);
+		page.getEditBtn().click();
+
+		modal = new MessageFilterModal(driver);
+		modal.getActionInput().fill(anotherActionName);
+		modal.clickOK();
+		page.getDomainSelector().selectOptionByText(domainName);
+
+		dialog = new Dialog(driver);
+
+		soft.assertTrue(dialog.isLoaded(), "Dialog is shown");
+		soft.assertEquals(dialog.getMessage(), DMessages.DIALOG_CANCEL_ALL, "Dialog shows correct message");
+
+		dialog.cancel();
+		soft.assertEquals(page.getDomainSelector().getSelectedValue(), "Default", "Domain was NOT changed");
+
+		listedAction = page.grid().getRowInfo(index).get("Action");
+		soft.assertEquals(anotherActionName, listedAction, "Action is still changed after the user presses Cancel in the dialog");
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "Changes are NOT canceled and save button is enabled");
+		soft.assertTrue(page.getCancelBtn().isEnabled(), "Changes are NOT canceled and cancel button is enabled");
+
+//		Delete created filter
+		rest.deleteMessageFilter(actionName, null);
+
+		soft.assertAll();
+	}
+
+
+	@Test(description = "MSGF-19", groups = {"multiTenancy"})
+	public void persistedCheckbox() throws Exception {
+//		Create a filter to edit
+		String actionName = Generator.randomAlphaNumeric(5);
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = new MessageFilterPage(driver);
+
+		MessageFilterGrid grid = page.grid();
+		for (int i = 0; i < grid.getRowsNo(); i++) {
+			soft.assertTrue(!grid.getPersisted(i).isEnabled(), "Persisted checkbox is disabled for all rows " + i);
+		}
 
 		soft.assertAll();
 	}

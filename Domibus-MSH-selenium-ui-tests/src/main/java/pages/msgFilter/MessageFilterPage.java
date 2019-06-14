@@ -51,8 +51,8 @@ public class MessageFilterPage extends DomibusPage {
 	@FindBy(id = "deletebutton_id")
 	private WebElement deleteBtn;
 
-	public DGrid grid() {
-		return new DGrid(driver, gridContainer);
+	public MessageFilterGrid grid() {
+		return new MessageFilterGrid(driver, gridContainer);
 	}
 
 	public DButton getMoveUpBtn() {

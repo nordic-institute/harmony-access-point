@@ -35,6 +35,13 @@ public class Dialog extends DComponent {
 	@FindBy(css = "md-dialog-container h1")
 	private WebElement dialogMessage;
 
+	public boolean isLoaded() throws Exception{
+		return (new DObject(driver, yesBtn).isEnabled()
+		&& new DObject(driver, noBtn).isEnabled()
+		&& new DObject(driver, dialogMessage).isEnabled()
+		);
+	}
+
 	public void confirm() throws Exception {
 		log.info("dialog .. confirm");
 		new DButton(driver, yesBtn).click();

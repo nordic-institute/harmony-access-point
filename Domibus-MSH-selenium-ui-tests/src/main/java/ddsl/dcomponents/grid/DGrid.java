@@ -44,6 +44,7 @@ public class DGrid extends DComponent {
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
 
+
 	//	------------------------------------------------
 	public Pagination getPagination() {
 		return new Pagination(driver);
@@ -208,6 +209,15 @@ public class DGrid extends DComponent {
 			}
 		} while (true);
 		return allRowInfo;
+	}
+
+	public int getSelectedRowIndex() throws Exception{
+		for (int i = 0; i < gridRows.size(); i++) {
+			if(new DObject(driver, gridRows.get(i)).getAttribute("class").contains("active")){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }

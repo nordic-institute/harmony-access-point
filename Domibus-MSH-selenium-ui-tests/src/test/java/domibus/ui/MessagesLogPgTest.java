@@ -71,6 +71,35 @@ public class MessagesLogPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
+	@Test(description = "MSG-2.1", groups = {"multiTenancy", "singleTenancy"})
+	public void selectAnotherRow() throws Exception{
+		SoftAssert soft = new SoftAssert();
+
+		String user = Generator.randomAlphaNumeric(10);
+		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
+		rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		String messID1 = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
+		String messID2 = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
+
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		MessagesPage page = new MessagesPage(driver);
+		DGrid grid = page.grid();
+
+		int index1 = grid.scrollTo("Message Id", messID1);
+		int index2 = grid.scrollTo("Message Id", messID2);
+
+		grid.selectRow(index1);
+		grid.selectRow(index2);
+
+		int selectedRow = grid.getSelectedRowIndex();
+		soft.assertEquals(index2, selectedRow, "Selected row index is correct");
+
+
+
+		rest.deletePluginUser(user, null);
+		soft.assertAll();
+	}
+
 	@Test(description = "MSG-3", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickMessageRow() throws Exception{
 		SoftAssert soft = new SoftAssert();
