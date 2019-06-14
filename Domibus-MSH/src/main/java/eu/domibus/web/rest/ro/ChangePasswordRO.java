@@ -1,7 +1,8 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
+
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -9,7 +10,10 @@ import java.util.List;
  */
 public class ChangePasswordRO implements Serializable {
 
+    @SkipWhiteListed
     private String currentPassword;
+
+    @SkipWhiteListed
     private String newPassword;
 
     public String getCurrentPassword() {

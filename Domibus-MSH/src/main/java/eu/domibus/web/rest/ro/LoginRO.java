@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
+
 import java.io.Serializable;
 
 /**
@@ -9,6 +11,8 @@ import java.io.Serializable;
 public class LoginRO implements Serializable {
 
     private String username;
+
+    @SkipWhiteListed
     private String password;
 
     public String getUsername() {
