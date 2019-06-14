@@ -5,7 +5,7 @@ import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.LogEvent;
 
 /**
- * This class extends the default {@code Slf4jEventSender} implemented by Apache CXF
+ * This class extends {@code DomibusLoggingEventSender}
  * <p>
  * It will implement operations based on {@code LogEvent} like partially printing the payload, etc
  *
@@ -18,7 +18,6 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     static final String VALUE_START = "<value>";
     static final String VALUE_END = "</value>";
     static final String SUBMIT_REQUEST = "submitRequest";
-
 
     /**
      * It removes some parts of the payload info
