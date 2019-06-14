@@ -20,7 +20,7 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Service
+@Service("EncryptionServiceImpl")
 public class EncryptionServiceImpl implements EncryptionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
