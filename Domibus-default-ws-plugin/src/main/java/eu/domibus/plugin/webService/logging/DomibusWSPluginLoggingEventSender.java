@@ -17,7 +17,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String VALUE_START = "<value>";
     static final String VALUE_END = "</value>";
-    static final String SUBMIT_REQUEST = "submitRequest";
+    static final String SUBMIT_MESSAGE = "submitRequest";
 
     /**
      * It removes some parts of the payload info
@@ -28,7 +28,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     protected void stripPayload(LogEvent event) {
         final String payload = event.getPayload();
 
-        if (payload.contains(RETRIEVE_MESSAGE_RESPONSE) || payload.contains(SUBMIT_REQUEST)) {
+        if (payload.contains(RETRIEVE_MESSAGE_RESPONSE) || payload.contains(SUBMIT_MESSAGE)) {
             //C4 - C3
             int indexStart = payload.indexOf(VALUE_START);
             int indexEnd = payload.indexOf(VALUE_END);
