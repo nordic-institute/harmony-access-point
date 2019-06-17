@@ -2,11 +2,9 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
 import eu.domibus.web.rest.ro.PropertyRO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +24,6 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Autowired
     private List<DomibusPropertyManager> domibusPropertyManagers;
-
-    @Autowired
-    private DomibusCacheService domibusCacheService;
-
 
     public List<PropertyRO> getProperties(String name) {
         List<PropertyRO> list = new ArrayList<>();
@@ -67,12 +61,6 @@ public class PropertyServiceImpl implements PropertyService {
             }
         }
 
-        // TODO: notify (whom?) propertyChange event happened
-
-        if (StringUtils.equalsIgnoreCase(name, "domain.title")) {
-            this.domibusCacheService.clearCache(DomibusCacheService.ALL_DOMAINS_CACHE);
-        }
     }
-
 
 }

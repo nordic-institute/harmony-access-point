@@ -1,4 +1,4 @@
-package eu.domibus.core.crypto;
+package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -6,10 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyManager;
-import eu.domibus.property.DomibusPropertyMetadata;
-import eu.domibus.property.PropertyResolver;
-import eu.domibus.property.PropertyUsageType;
+import eu.domibus.property.*;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Cosmin Baciu
@@ -45,6 +43,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
 
     @Autowired
     protected DomainService domainService;
+
+    @Autowired
+    List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
@@ -381,6 +382,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 fullPropertyName = getPropertyName(domain, propertyName);
             }
             this.domibusProperties.setProperty(fullPropertyName, propertyValue);
+
+            //notify interested listeners that the property changed
+            Stream<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
+                    .filter(listener -> listener.handlesProperty(propertyName));
+            listeners.forEach(listener->listener.propertyValueChanged(domain.getCode(), propertyName, propertyValue));
         }
     }
 
