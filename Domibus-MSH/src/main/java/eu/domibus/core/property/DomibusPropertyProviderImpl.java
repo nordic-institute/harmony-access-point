@@ -341,14 +341,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.ui.support.team.name"),
                 new DomibusPropertyMetadata("domibus.ui.support.team.email"),
 
-                new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED), //how to do to use the new value???
+                new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED),
+                new DomibusPropertyMetadata("domibus.security.keystore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.security.keystore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.security.key.private.alias", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
 
+                new DomibusPropertyMetadata("domibus.security.truststore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED),
+                new DomibusPropertyMetadata("domibus.security.truststore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.security.truststore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 //new DomibusPropertyMetadata("domibus.passwordPolicy.pattern"), //uses getOptionalDomainProperrty so needs to be decided what's the usage
                 new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.userInput.whiteList", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.security.keystore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK)
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
