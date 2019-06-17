@@ -324,7 +324,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         LOGGER.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
         return defaultValue;
     }
-//
+
 //    @Override
 //    public Map<String, String> getAll() {
 //        Set<String> allKeys = domibusProperties.stringPropertyNames();
@@ -337,9 +337,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         // TODO
         return Arrays.stream(new DomibusPropertyMetadata[]{
                 new DomibusPropertyMetadata("domibus.UI.title.name"),
+                new DomibusPropertyMetadata("domibus.ui.replication.enabled"),
+                new DomibusPropertyMetadata("domibus.ui.support.team.name"),
+                new DomibusPropertyMetadata("domibus.ui.support.team.email"),
+
+                //new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED), //how to do to use the new value???
+
+
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.pattern"),
+                //new DomibusPropertyMetadata("domibus.passwordPolicy.pattern"), //uses getOptionalDomainProperrty so needs to be decided what's the usage
                 new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.userInput.whiteList", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.security.keystore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK)
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
