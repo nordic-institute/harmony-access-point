@@ -200,6 +200,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
     }
 
+    @Override
     public void refresh(){
         this.init();
     }
