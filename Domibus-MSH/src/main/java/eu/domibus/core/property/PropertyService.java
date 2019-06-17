@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface PropertyService {
     List<PropertyRO> getProperties(String name);
+
+    void setPropertyValue(String name, String value);
 }
