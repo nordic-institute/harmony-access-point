@@ -48,6 +48,10 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return domainCertificateProvider.getX509Certificates(cryptoType);
     }
 
+    public void refresh() {
+        domainCertificateProviderMap.values().stream().forEach(service -> service.refresh());
+    }
+
     protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
         LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
         if (domainCertificateProviderMap.get(domain) == null) {

@@ -341,7 +341,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.ui.support.team.name"),
                 new DomibusPropertyMetadata("domibus.ui.support.team.email"),
 
-                //new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED), //how to do to use the new value???
+                new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED), //how to do to use the new value???
 
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
@@ -365,6 +365,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
             return this.getDomainProperty(domain, meta.getName());
         } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK) {
             return this.getProperty(domain, meta.getName());
+        } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_RESOLVED) {
+            return this.getResolvedProperty(domain, meta.getName());
         } else if (meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
             // TODO
             throw new NotImplementedException("Get value for GLOBAL_PROP : " + propertyName);
