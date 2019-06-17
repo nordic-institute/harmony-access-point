@@ -1,13 +1,14 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.property.DomibusPropertyManager;
+import eu.domibus.property.DomibusPropertyMetadata;
+import eu.domibus.property.PropertyUsageType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
@@ -19,7 +20,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author @author FERNANDES Henrique, GONCALVES Bruno
  */
 @Component
-public class FSPluginProperties {
+public class FSPluginProperties implements DomibusPropertyManager {
 
     private static final String DOT = ".";
 
@@ -211,12 +212,12 @@ public class FSPluginProperties {
         return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
     }
 
-    /**
-     * @return The cron expression that defines the frequency of the received messages purge job
-     */
-    public String getReceivedPurgeWorkerCronExpression() {
-        return properties.getProperty(PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION);
-    }
+//    /**
+//     * @return The cron expression that defines the frequency of the received messages purge job
+//     */
+//    public String getReceivedPurgeWorkerCronExpression() {
+//        return properties.getProperty(PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION);
+//    }
 
     /**
      * @param domain The domain property qualifier
@@ -404,7 +405,61 @@ public class FSPluginProperties {
 
     private String extractDomainName(String propName) {
         String unprefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
-        return StringUtils.substringBefore(unprefixedProp, ".");
+        return StringUtils.substringBefore(unprefixedProp, DOT);
+    }
+
+    private String extractPropertyName(String propName) {
+        String unprefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
+        return StringUtils.substringAfter(unprefixedProp, DOT);
+    }
+
+    @Override
+    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
+
+        // TODO
+        return Arrays.stream(new DomibusPropertyMetadata[]{
+                new DomibusPropertyMetadata(AUTHENTICATION_USER, PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata(AUTHENTICATION_PASSWORD, PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                // with fallback from the default domain:
+                new DomibusPropertyMetadata(LOCATION),
+                new DomibusPropertyMetadata(ORDER),
+        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }
+
+    @Override
+    public boolean hasKnownProperty(String name) {
+        // TODO
+        return this.getKnownProperties().containsKey(name);
+    }
+
+    @Override
+    public String getKnownPropertyValue(String domain, String propertyName) {
+        DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
+        if (meta == null) throw new IllegalArgumentException(propertyName);
+
+        String propertyKey;
+        if (domain == null)
+            propertyKey = propertyName;
+        else
+            propertyKey = this.getDomainPropertyName(domain, propertyName);
+        // TODO: compose propertyKey differently for multitenancy+default and singletenancy
+
+        // TODO default value ??
+        return this.properties.getProperty(propertyKey);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domain, String propertyName, String propertyValue) {
+        DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
+        if (meta == null) throw new IllegalArgumentException(propertyName);
+
+        String propertyKey;
+        if (domain == null)
+            propertyKey = propertyName;
+        else
+            propertyKey = this.getDomainPropertyName(domain, propertyName);
+
+        this.properties.setProperty(propertyKey, propertyValue);
     }
 
 }
