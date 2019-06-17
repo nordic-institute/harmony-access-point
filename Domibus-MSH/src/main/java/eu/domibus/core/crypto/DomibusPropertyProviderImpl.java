@@ -6,9 +6,13 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.property.DomibusPropertyManager;
+import eu.domibus.property.DomibusPropertyMetadata;
 import eu.domibus.property.PropertyResolver;
+import eu.domibus.property.PropertyUsageType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,7 +27,7 @@ import java.util.stream.Collectors;
  * @since 4.0
  */
 @Service
-public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
+public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, DomibusPropertyManager {
 
     @Autowired
     @Qualifier("domibusProperties")
@@ -38,6 +42,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected DomainService domainService;
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
@@ -75,14 +82,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
 
-    @Override
-    public String getProperty(Domain domain, String propertyName, String defaultValue) {
-        String propertyValue = getProperty(domain, propertyName);
-        if (StringUtils.isEmpty(propertyValue)) {
-            propertyValue = defaultValue;
-        }
-        return propertyValue;
-    }
+//    @Override
+//    public String getProperty(Domain domain, String propertyName, String defaultValue) {
+//        String propertyValue = getProperty(domain, propertyName);
+//        if (StringUtils.isEmpty(propertyValue)) {
+//            propertyValue = defaultValue;
+//        }
+//        return propertyValue;
+//    }
 
     @Override
     public String getProperty(String propertyName) {
@@ -133,15 +140,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getDomainProperty(currentDomain, propertyName);
     }
 
-    @Override
-    public String getOptionalDomainProperty(final String propertyName, final String defaultValue) {
-        final String propertyValue = getOptionalDomainProperty(propertyName);
-        if (StringUtils.isNotEmpty(propertyValue)) {
-            return propertyValue;
-        }
-        return defaultValue;
-    }
+//    @Override
+//    public String getOptionalDomainProperty(final String propertyName, final String defaultValue) {
+//        final String propertyValue = getOptionalDomainProperty(propertyName);
+//        if (StringUtils.isNotEmpty(propertyValue)) {
+//            return propertyValue;
+//        }
+//        return defaultValue;
+//    }
 
+    /**
+     * Retrieves the property value from the requested domain.
+     * If not found, fall back to the property value from the default domain.
+     */
     @Override
     public String getDomainProperty(Domain domain, String propertyName) {
         String propertyValue = getProperty(domain, propertyName);
@@ -151,14 +162,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return propertyValue;
     }
 
-    @Override
-    public String getDomainProperty(Domain domain, String propertyName, String defaultValue) {
-        String propertyValue = getDomainProperty(domain, propertyName);
-        if (StringUtils.isEmpty(propertyValue)) {
-            propertyValue = defaultValue;
-        }
-        return propertyValue;
-    }
+//    /**
+//     * Retrieves the property value from the requested domain.
+//     * If not found, fall back to the property value from the default domain.
+//     * If still not found, fall back to the default value.
+//     */
+//    @Override
+//    public String getDomainProperty(Domain domain, String propertyName, String defaultValue) {
+//        String propertyValue = getDomainProperty(domain, propertyName);
+//        if (StringUtils.isEmpty(propertyValue)) {
+//            propertyValue = defaultValue;
+//        }
+//        return propertyValue;
+//    }
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
@@ -315,5 +331,63 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 //
 //        return allKeys.stream().collect(Collectors.toMap(key -> key, key -> domibusProperties.getProperty(key)));
 //    }
+
+    @Override
+    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
+        // TODO
+        return Arrays.stream(new DomibusPropertyMetadata[]{
+                new DomibusPropertyMetadata("domibus.UI.title.name"),
+                new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.pattern"),
+                new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.security.keystore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK)
+        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }
+
+    @Override
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
+        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
+        if (meta == null) {
+            throw new IllegalArgumentException(propertyName);
+        }
+
+        Domain domain = domainCode == null ? null : this.domainService.getDomain(domainCode);
+
+        if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK) {
+            return this.getDomainProperty(domain, meta.getName());
+        } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK) {
+            return this.getProperty(domain, meta.getName());
+        } else if (meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
+            // TODO
+            throw new NotImplementedException("Get value for GLOBAL_PROP : " + propertyName);
+        }
+
+        throw new NotImplementedException("Get value for : " + propertyName);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        if (!this.hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException(propertyName);
+        }
+
+        final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
+        if (domain == null) {
+            // super property - TODO
+            throw new NotImplementedException("setting super property " + propertyName);
+        } else {
+            String fullPropertyName = propertyName;
+            if (!DomainService.DEFAULT_DOMAIN.equals(domain)) {
+                fullPropertyName = getPropertyName(domain, propertyName);
+            }
+            this.domibusProperties.setProperty(fullPropertyName, propertyValue);
+        }
+    }
+
+    @Override
+    public boolean hasKnownProperty(String name) {
+        // TODO
+        return this.getKnownProperties().containsKey(name);
+    }
 
 }

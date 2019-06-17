@@ -16,7 +16,7 @@ public interface DomibusPropertyProvider {
 
     String getProperty(Domain domain, String propertyName);
 
-    String getProperty(Domain domain, String propertyName, String defaultValue);
+//    String getProperty(Domain domain, String propertyName, String defaultValue);
 
     String getResolvedProperty(Domain domain, String propertyName);
 
@@ -49,11 +49,11 @@ public interface DomibusPropertyProvider {
      */
     String getOptionalDomainProperty(String propertyName);
 
-    String getOptionalDomainProperty(String propertyName, String defaultValue);
+//    String getOptionalDomainProperty(String propertyName, String defaultValue);
 
     String getDomainProperty(Domain domain, String propertyName);
 
-    String getDomainProperty(Domain domain, String propertyName, String defaultValue);
+//    String getDomainProperty(Domain domain, String propertyName, String defaultValue);
 
     Set<String> filterPropertiesName(Predicate<String> predicate);
 
@@ -158,4 +158,9 @@ public interface DomibusPropertyProvider {
 //     * Returns all known properties (including
 //     */
 //    Map<String, String> getAll();
+
+    /**
+     * Changes the value of the property in the current domain.
+     */
+ //   void setPropertyValue(String propertyName, String propertyValue);
 }
