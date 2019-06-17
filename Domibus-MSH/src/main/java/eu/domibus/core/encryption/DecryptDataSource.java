@@ -46,7 +46,7 @@ public class DecryptDataSource implements DataSource {
             contentType = APPLICATION_OCTET_STREAM;
             LOG.debug("Original datasource content type is empty, using [{}]", APPLICATION_OCTET_STREAM);
         }
-
+        LOG.trace("Using content type [{}]", contentType);
         return contentType;
     }
 

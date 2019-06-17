@@ -1,10 +1,15 @@
 package eu.domibus.core.payload.persistence;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.services.impl.CompressionService;
+import eu.domibus.core.encryption.EncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -22,6 +27,8 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class FileSystemPayloadPersistenceTest {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
+
     @Injectable
     protected PayloadFileStorageProvider storageProvider;
 
@@ -30,6 +37,15 @@ public class FileSystemPayloadPersistenceTest {
 
     @Injectable
     protected CompressionService compressionService;
+
+    @Injectable
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    protected EncryptionService encryptionService;
 
     @Tested
     FileSystemPayloadPersistence fileSystemPayloadPersistence;
@@ -56,13 +72,13 @@ public class FileSystemPayloadPersistenceTest {
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;
 
-            fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream);
+            fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream, false);
         }};
 
         fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, storage);
 
         new Verifications() {{
-            fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream);
+            fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream, false);
             times = 1;
 
             partInfo.setFileName(path);

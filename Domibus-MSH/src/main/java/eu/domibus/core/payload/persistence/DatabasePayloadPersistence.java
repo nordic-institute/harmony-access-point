@@ -55,8 +55,9 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         LOG.debug("Saving incoming payload [{}] to database", partInfo.getHref());
 
         OutputStream outputStream = null;
+        ByteArrayOutputStream byteArrayOutputStream = null;
         try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
+            byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             outputStream = byteArrayOutputStream;
 
             final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
@@ -69,11 +70,6 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
             try (InputStream is = partInfo.getPayloadDatahandler().getInputStream()) {
                 IOUtils.copy(is, outputStream, DEFAULT_BUFFER_SIZE);
-
-                byte[] binaryData = byteArrayOutputStream.toByteArray();
-                partInfo.setBinaryData(binaryData);
-                partInfo.setLength(binaryData.length);
-                partInfo.setFileName(null);
             }
         } finally {
             if (outputStream != null) {
@@ -81,6 +77,10 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
                 outputStream.close();
             }
         }
+        byte[] binaryData = byteArrayOutputStream.toByteArray();
+        partInfo.setBinaryData(binaryData);
+        partInfo.setLength(binaryData.length);
+        partInfo.setFileName(null);
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
     }
 
@@ -109,17 +109,13 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
     protected byte[] getOutgoingBinaryData(PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration, final Boolean encryptionActive) throws IOException, EbMS3Exception {
         OutputStream outputStream = null;
+        ByteArrayOutputStream byteArrayOutputStream = null;
         try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
+            byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             outputStream = byteArrayOutputStream;
 
             boolean useCompression = compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
             LOG.debug("Compression properties for message [{}] applied? [{}]", userMessage.getMessageInfo().getMessageId(), useCompression);
-
-            if (useCompression) {
-                LOG.debug("Using compression for part info [{}]", partInfo.getHref());
-                outputStream = new GZIPOutputStream(outputStream);
-            }
 
             if (encryptionActive) {
                 LOG.debug("Using encryption for part info [{}]", partInfo.getHref());
@@ -127,15 +123,19 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
                 outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload);
             }
 
-            IOUtils.copy(is, outputStream, DEFAULT_BUFFER_SIZE);
-            byte[] binaryData = byteArrayOutputStream.toByteArray();
+            if (useCompression) {
+                LOG.debug("Using compression for part info [{}]", partInfo.getHref());
+                outputStream = new GZIPOutputStream(outputStream);
+            }
 
-            return binaryData;
+            IOUtils.copy(is, outputStream, DEFAULT_BUFFER_SIZE);
+
         } finally {
             if (outputStream != null) {
                 outputStream.flush();
                 outputStream.close();
             }
         }
+        return byteArrayOutputStream.toByteArray();
     }
 }

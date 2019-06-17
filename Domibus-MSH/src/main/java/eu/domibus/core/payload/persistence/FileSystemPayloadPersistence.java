@@ -143,15 +143,16 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         OutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(file);
-            if (useCompression) {
-                LOG.debug("Using compression for storing the file [{}]", file);
-                outputStream = new GZIPOutputStream(outputStream);
-            }
 
             if (encryptionActive) {
                 LOG.debug("Using encryption for file [{}]", file);
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
                 outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload);
+            }
+
+            if (useCompression) {
+                LOG.debug("Using compression for storing the file [{}]", file);
+                outputStream = new GZIPOutputStream(outputStream);
             }
 
             final long total = IOUtils.copy(is, outputStream, MessagingServiceImpl.DEFAULT_BUFFER_SIZE);
