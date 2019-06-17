@@ -16,7 +16,7 @@ import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.services.impl.DynamicDiscoveryServiceOASIS;
 import eu.domibus.common.services.impl.DynamicDiscoveryServicePEPPOL;
 import eu.domibus.common.util.EndpointInfo;
-import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.ObjectFactory;

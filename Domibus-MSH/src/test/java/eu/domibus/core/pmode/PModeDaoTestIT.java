@@ -16,7 +16,7 @@ import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.configuration.DefaultDomibusConfigurationService;
-import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.mpc.MpcServiceImpl;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
