@@ -83,10 +83,10 @@ public class FSPluginPropertiesTestIT {
         Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired());
     }
 
-    @Test
-    public void testGetReceivedPurgeWorkerCronExpression() throws Exception {
-        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getReceivedPurgeWorkerCronExpression());
-    }
+//    @Test
+//    public void testGetReceivedPurgeWorkerCronExpression() throws Exception {
+//        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getReceivedPurgeWorkerCronExpression());
+//    }
 
     @Test
     public void testGetUser() throws Exception {

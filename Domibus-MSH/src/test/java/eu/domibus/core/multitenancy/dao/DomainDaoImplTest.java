@@ -40,9 +40,9 @@ public class DomainDaoImplTest {
             result = true;
             domibusConfigurationService.getConfigLocation();
             result = ".";
-            domibusPropertyProvider.getProperty((Domain)any, anyString, "Adomain");
+            domibusPropertyProvider.getProperty((Domain)any, anyString);
             result = "AAAdomain";
-            domibusPropertyProvider.getProperty((Domain)any, anyString, "Zdomain");
+            domibusPropertyProvider.getProperty((Domain)any, anyString);
             result = "ZZZdomain";
         }};
         new Expectations(FileUtils.class) {{
