@@ -1,9 +1,13 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.property.DomibusPropertyChangeListener;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
 import eu.domibus.property.PropertyUsageType;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -21,6 +25,8 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  */
 @Component
 public class FSPluginProperties implements DomibusPropertyManager {
+
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
     private static final String DOT = ".";
 
@@ -82,6 +88,9 @@ public class FSPluginProperties implements DomibusPropertyManager {
     public static final String ACTION_DELETE = "delete";
 
     public static final String ACTION_ARCHIVE = "archive";
+
+    @Autowired
+    List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
 
     /**
      * @return The available domains set
@@ -449,17 +458,30 @@ public class FSPluginProperties implements DomibusPropertyManager {
     }
 
     @Override
-    public void setKnownPropertyValue(String domain, String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
         if (meta == null) throw new IllegalArgumentException(propertyName);
 
         String propertyKey;
-        if (domain == null)
+        if (domainCode == null)
             propertyKey = propertyName;
         else
-            propertyKey = this.getDomainPropertyName(domain, propertyName);
+            propertyKey = this.getDomainPropertyName(domainCode, propertyName);
 
         this.properties.setProperty(propertyKey, propertyValue);
+
+        //TODO: reuse same code as in DomibusPropertyProvider
+        //notify interested listeners that the property changed
+        List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
+                .filter(listener -> listener.handlesProperty(propertyName))
+                .collect(Collectors.toList());
+        listeners.forEach(listener -> {
+            try {
+                listener.propertyValueChanged(domainCode, propertyName, propertyValue);
+            } catch (Throwable ex) {
+                LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
+            }
+        });
     }
 
 }

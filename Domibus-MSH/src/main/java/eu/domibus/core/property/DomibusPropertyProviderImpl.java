@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Cosmin Baciu
@@ -384,9 +383,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
             this.domibusProperties.setProperty(fullPropertyName, propertyValue);
 
             //notify interested listeners that the property changed
-            Stream<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
-                    .filter(listener -> listener.handlesProperty(propertyName));
-            listeners.forEach(listener->listener.propertyValueChanged(domain.getCode(), propertyName, propertyValue));
+            List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
+                    .filter(listener -> listener.handlesProperty(propertyName))
+                    .collect(Collectors.toList());
+            listeners.forEach(listener -> {
+                try {
+                    listener.propertyValueChanged(domainCode, propertyName, propertyValue);
+                } catch (Throwable ex) {
+                    LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
+                }
+            });
         }
     }
 
