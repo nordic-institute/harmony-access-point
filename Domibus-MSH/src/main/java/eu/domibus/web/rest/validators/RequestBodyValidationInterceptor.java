@@ -1,6 +1,7 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -12,7 +13,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAd
 
 import javax.annotation.PostConstruct;
 import javax.validation.ValidationException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 /**
  * @author Ion Perpegel
@@ -37,7 +40,12 @@ public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
     }
 
     @Override
-    public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+    public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
+                                Class<? extends HttpMessageConverter<?>> converterType) {
+        if (shouldSkipValidation(parameter.getMethod())) {
+            return body;
+        }
+
         return handleRequestBody(body);
     }
 
@@ -54,5 +62,19 @@ public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
             LOG.debug("Unexpected exception caught [{}] when validating body: [{}]. Request will be processed downhill.", ex, body);
             return body;
         }
+    }
+
+    private boolean shouldSkipValidation(Method method) {
+        SkipWhiteListed skipAnnot = method.getAnnotation(SkipWhiteListed.class);
+        if (skipAnnot != null) {
+            return true;
+        }
+        if (ArrayUtils.isNotEmpty(method.getParameters())) {
+            boolean skip = Arrays.stream(method.getParameters()).anyMatch(param -> param.getAnnotation(SkipWhiteListed.class) != null);
+            if (skip) {
+                return true;
+            }
+        }
+        return false;
     }
 }

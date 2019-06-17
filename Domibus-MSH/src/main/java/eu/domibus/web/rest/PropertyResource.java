@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
+import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,11 +55,13 @@ public class PropertyResource {
     }
 
     @PutMapping(path = "/properties/{propertyName:.+}")
+    @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue) {
         propertyService.setPropertyValue(propertyName, propertyValue);
     }
 
     @PutMapping(path = "/superProperties/{propertyName:.+}")
+    @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue, String domain) {
         // TODO : test set domain
         if (StringUtils.isEmpty(domain))
