@@ -279,9 +279,9 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     protected CommonConfiguration readCommonConfiguration(Domain domain) {
-        final boolean emailActive = domibusPropertyProvider.getBooleanOptionalDomainProperty(getSendEmailActivePropertyName());
+        final boolean emailActive = domibusPropertyProvider.getBooleanDomainProperty(getSendEmailActivePropertyName());
         final String alertCleanerLifeTimePropertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME, DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME);
-        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerOptionalDomainProperty(alertCleanerLifeTimePropertyName);
+        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerDomainProperty(alertCleanerLifeTimePropertyName);
 
         if (!emailActive) {
             return new CommonConfiguration(alertLifeTimeInDays);

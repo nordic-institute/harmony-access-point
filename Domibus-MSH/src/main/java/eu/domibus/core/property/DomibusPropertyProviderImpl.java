@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -117,8 +117,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
      */
     @Override
     public String getDomainProperty(String propertyName) {
-        final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        assert currentDomain != null;
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+//        assert currentDomain != null;
+        if (currentDomain == null) {
+            currentDomain = DomainService.DEFAULT_DOMAIN;
+        }
         return getDomainProperty(currentDomain, propertyName);
     }
 
@@ -131,14 +134,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return propertyValue;
     }
 
-    @Override
-    public String getOptionalDomainProperty(String propertyName) {
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain == null) {
-            currentDomain = DomainService.DEFAULT_DOMAIN;
-        }
-        return getDomainProperty(currentDomain, propertyName);
-    }
+//    @Override
+//    public String getOptionalDomainProperty(String propertyName) {
+//        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+//        if (currentDomain == null) {
+//            currentDomain = DomainService.DEFAULT_DOMAIN;
+//        }
+//        return getDomainProperty(currentDomain, propertyName);
+//    }
 
 //    @Override
 //    public String getOptionalDomainProperty(final String propertyName, final String defaultValue) {
@@ -213,11 +216,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return getLongInternal(propertyName, domainValue);
     }
 
-    @Override
-    public Integer getIntegerOptionalDomainProperty(String propertyName) {
-        String optionalDomainValue = getOptionalDomainProperty(propertyName);
-        return getIntegerInternal(propertyName, optionalDomainValue);
-    }
+//    @Override
+//    public Integer getIntegerOptionalDomainProperty(String propertyName) {
+//        String optionalDomainValue = getDomainProperty(propertyName);
+//        return getIntegerInternal(propertyName, optionalDomainValue);
+//    }
 
     private Integer getIntegerInternal(String propertyName, String customValue) {
         if (customValue != null) {
@@ -271,11 +274,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return getBooleanInternal(propertyName, domainValue);
     }
 
-    @Override
-    public Boolean getBooleanOptionalDomainProperty(String propertyName) {
-        String optionalDomainValue = getOptionalDomainProperty(propertyName);
-        return getBooleanInternal(propertyName, optionalDomainValue);
-    }
+//    @Override
+//    public Boolean getBooleanOptionalDomainProperty(String propertyName) {
+//        String optionalDomainValue = getDomainProperty(propertyName);
+//        return getBooleanInternal(propertyName, optionalDomainValue);
+//    }
 
     /**
      * {@inheritDoc}
@@ -325,13 +328,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return defaultValue;
     }
 
-//    @Override
-//    public Map<String, String> getAll() {
-//        Set<String> allKeys = domibusProperties.stringPropertyNames();
-//
-//        return allKeys.stream().collect(Collectors.toMap(key -> key, key -> domibusProperties.getProperty(key)));
-//    }
-
     @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
         // TODO
@@ -350,8 +346,23 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.security.truststore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.security.truststore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
 
+                new DomibusPropertyMetadata("domibus.auth.unsecureLoginAllowed", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.console.login.maximum.attempt", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.console.login.suspension.time", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.certificate.revocation.offset", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.certificate.crl.excludedProtocols", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+
+                new DomibusPropertyMetadata("domibus.plugin.login.maximum.attempt", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.plugin.login.suspension.time", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+
+                new DomibusPropertyMetadata("domibus.passwordPolicy.pattern", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.validationMessage", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.expiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+
+
+
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                //new DomibusPropertyMetadata("domibus.passwordPolicy.pattern"), //uses getOptionalDomainProperrty so needs to be decided what's the usage
                 new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.userInput.whiteList", PropertyUsageType.GLOBAL_PROPERTY),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));

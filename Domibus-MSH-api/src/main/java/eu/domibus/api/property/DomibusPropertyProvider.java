@@ -47,7 +47,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return the property value.
      */
-    String getOptionalDomainProperty(String propertyName);
+//    String getOptionalDomainProperty(String propertyName);
 
 //    String getOptionalDomainProperty(String propertyName, String defaultValue);
 
@@ -96,7 +96,7 @@ public interface DomibusPropertyProvider {
      *
      * @return The {@code Integer} value of the optional domain property as specified by the user or the default one provided with the application.
      */
-    Integer getIntegerOptionalDomainProperty(String propertyName);
+//    Integer getIntegerOptionalDomainProperty(String propertyName);
 
     /**
      * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as a {@code Boolean} before
@@ -135,7 +135,7 @@ public interface DomibusPropertyProvider {
      *
      * @return The {@code Boolean} value of the optional domain property as specified by the user or the default one provided with the application.
      */
-    Boolean getBooleanOptionalDomainProperty(String propertyName);
+//    Boolean getBooleanOptionalDomainProperty(String propertyName);
 
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.
