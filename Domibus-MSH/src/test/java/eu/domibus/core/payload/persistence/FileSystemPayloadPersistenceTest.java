@@ -2,11 +2,14 @@ package eu.domibus.core.payload.persistence;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.CompressionService;
 import eu.domibus.core.encryption.EncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,7 +25,7 @@ import java.util.UUID;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  */
 @RunWith(JMockit.class)
 public class FileSystemPayloadPersistenceTest {
@@ -45,13 +48,37 @@ public class FileSystemPayloadPersistenceTest {
     protected DomainContextProvider domainContextProvider;
 
     @Injectable
+    protected PayloadPersistenceHelper payloadPersistenceHelper;
+
+    @Injectable
     protected EncryptionService encryptionService;
 
     @Tested
     FileSystemPayloadPersistence fileSystemPayloadPersistence;
 
     @Test
-    public void storeIncomingPayload() {
+    public void storeIncomingPayload(@Injectable PartInfo partInfo,
+                                     @Injectable UserMessage userMessage,
+                                     @Injectable PayloadFileStorage currentStorage) throws IOException {
+
+        new Expectations(fileSystemPayloadPersistence) {{
+            partInfo.getFileName();
+            result = null;
+
+            storageProvider.getCurrentStorage();
+            result = currentStorage;
+
+            payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
+            result = true;
+
+            fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
+        }};
+
+        fileSystemPayloadPersistence.storeIncomingPayload(partInfo, userMessage);
+
+        new Verifications() {{
+            fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
+        }};
     }
 
     @Test
@@ -86,19 +113,70 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
-    public void saveIncomingFileToDisk() {
+    public void storeOutgoingPayload(@Injectable PartInfo partInfo,
+                                     @Injectable UserMessage userMessage,
+                                     @Injectable PayloadFileStorage currentStorage,
+                                     @Injectable LegConfiguration legConfiguration,
+                                     @Injectable String backendName) throws IOException, EbMS3Exception {
 
+        new Expectations(fileSystemPayloadPersistence) {{
+            userMessage.isUserMessageFragment();
+            result = false;
+
+            storageProvider.getCurrentStorage();
+            result = currentStorage;
+
+            fileSystemPayloadPersistence.saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
+        }};
+
+        fileSystemPayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
     }
 
     @Test
-    public void storeOutgoingPayload() {
-    }
+    public void saveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
+                                          @Injectable UserMessage userMessage,
+                                          @Injectable PayloadFileStorage currentStorage,
+                                          @Injectable LegConfiguration legConfiguration,
+                                          @Injectable String backendName,
+                                          @Injectable InputStream inputStream,
+                                          @Mocked File file,
+                                          @Mocked UUID uuid
+    ) throws IOException, EbMS3Exception {
 
-    @Test
-    public void saveOutgoingPayloadToDisk() {
-    }
+        final String myfile = "myfile";
+        final int length = 123;
+        final String myFilePath = "myFilePath";
 
-    @Test
-    public void saveOutgoingFileToDisk() {
+        new Expectations(fileSystemPayloadPersistence) {{
+            partInfo.getPayloadDatahandler().getInputStream();
+            result = inputStream;
+
+            partInfo.getFileName();
+            result = myfile;
+
+            new File((File) any, anyString);
+            result = file;
+
+            file.getAbsolutePath();
+            result = myFilePath;
+
+            payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
+            result = false;
+
+            fileSystemPayloadPersistence.saveOutgoingFileToDisk(file, partInfo, inputStream, userMessage, legConfiguration, Boolean.FALSE);
+            result = length;
+        }};
+
+        fileSystemPayloadPersistence.saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
+
+
+        new Verifications() {{
+            backendNotificationService.notifyPayloadSubmitted(userMessage, myfile, partInfo, backendName);
+            backendNotificationService.notifyPayloadProcessed(userMessage, myfile, partInfo, backendName);
+
+            partInfo.setLength(length);
+            partInfo.setFileName(myFilePath);
+            partInfo.setEncrypted(false);
+        }};
     }
 }
