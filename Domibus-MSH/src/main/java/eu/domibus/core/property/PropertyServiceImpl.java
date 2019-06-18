@@ -1,9 +1,11 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
+import eu.domibus.property.PropertyUsageType;
 import eu.domibus.web.rest.ro.PropertyRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,9 @@ public class PropertyServiceImpl implements PropertyService {
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
     private List<DomibusPropertyManager> domibusPropertyManagers;
 
     public List<PropertyRO> getProperties(String name) {
@@ -35,6 +40,14 @@ public class PropertyServiceImpl implements PropertyService {
             List<DomibusPropertyMetadata> knownProps = propertyManager.getKnownProperties().values().stream()
                     .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                     .collect(Collectors.toList());
+
+            if (domibusConfigurationService.isMultiTenantAware()) {
+                if (currentDomain == null) {
+                    knownProps = knownProps.stream().filter(p -> p.getUsage() == PropertyUsageType.GLOBAL_PROPERTY).collect(Collectors.toList());
+                } else {
+                    knownProps = knownProps.stream().filter(p -> p.getUsage() != PropertyUsageType.GLOBAL_PROPERTY).collect(Collectors.toList());
+                }
+            }
 
             for (DomibusPropertyMetadata p : knownProps) {
                 String value = propertyManager.getKnownPropertyValue(domainCode, p.getName());

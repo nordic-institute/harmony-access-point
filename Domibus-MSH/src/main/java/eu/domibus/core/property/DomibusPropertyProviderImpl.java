@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -39,6 +40,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
     protected DomainService domainService;
@@ -361,7 +365,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.passwordPolicy.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
 
-
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.userInput.whiteList", PropertyUsageType.GLOBAL_PROPERTY),
@@ -384,8 +387,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_RESOLVED) {
             return this.getResolvedProperty(domain, meta.getName());
         } else if (meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
-            // TODO
-            throw new NotImplementedException("Get value for GLOBAL_PROP : " + propertyName);
+            return this.getProperty(meta.getName());
         }
 
         throw new NotImplementedException("Get value for : " + propertyName);
@@ -398,28 +400,30 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         }
 
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
-        if (domain == null) {
+        if (domain == null || !domibusConfigurationService.isMultiTenantAware()) {
             // super property - TODO
-            throw new NotImplementedException("setting super property " + propertyName);
+            // TODO: handle single tenancy too
+            this.domibusProperties.setProperty(propertyName, propertyValue);
+
         } else {
             String fullPropertyName = propertyName;
             if (!DomainService.DEFAULT_DOMAIN.equals(domain)) {
                 fullPropertyName = getPropertyName(domain, propertyName);
             }
             this.domibusProperties.setProperty(fullPropertyName, propertyValue);
-
-            //notify interested listeners that the property changed
-            List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
-                    .filter(listener -> listener.handlesProperty(propertyName))
-                    .collect(Collectors.toList());
-            listeners.forEach(listener -> {
-                try {
-                    listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-                } catch (Throwable ex) {
-                    LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
-                }
-            });
         }
+
+        //notify interested listeners that the property changed
+        List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
+                .filter(listener -> listener.handlesProperty(propertyName))
+                .collect(Collectors.toList());
+        listeners.forEach(listener -> {
+            try {
+                listener.propertyValueChanged(domainCode, propertyName, propertyValue);
+            } catch (Throwable ex) {
+                LOGGER.error("An error occurred while setting property [{}] to [{}] ", propertyName, propertyValue, ex);
+            }
+        });
     }
 
     @Override
