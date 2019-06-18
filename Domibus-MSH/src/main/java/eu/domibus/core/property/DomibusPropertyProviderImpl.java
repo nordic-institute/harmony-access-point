@@ -85,16 +85,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return result;
     }
 
-
-//    @Override
-//    public String getProperty(Domain domain, String propertyName, String defaultValue) {
-//        String propertyValue = getProperty(domain, propertyName);
-//        if (StringUtils.isEmpty(propertyValue)) {
-//            propertyValue = defaultValue;
-//        }
-//        return propertyValue;
-//    }
-
     @Override
     public String getProperty(String propertyName) {
         return getProperty(DomainService.DEFAULT_DOMAIN, propertyName);
@@ -129,33 +119,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return getDomainProperty(currentDomain, propertyName);
     }
 
-    @Override
-    public String getDomainProperty(String propertyName, String defaultValue) {
-        String propertyValue = getDomainProperty(propertyName);
-        if (StringUtils.isEmpty(propertyValue)) {
-            propertyValue = defaultValue;
-        }
-        return propertyValue;
-    }
-
-//    @Override
-//    public String getOptionalDomainProperty(String propertyName) {
-//        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//        if (currentDomain == null) {
-//            currentDomain = DomainService.DEFAULT_DOMAIN;
-//        }
-//        return getDomainProperty(currentDomain, propertyName);
-//    }
-
-//    @Override
-//    public String getOptionalDomainProperty(final String propertyName, final String defaultValue) {
-//        final String propertyValue = getOptionalDomainProperty(propertyName);
-//        if (StringUtils.isNotEmpty(propertyValue)) {
-//            return propertyValue;
-//        }
-//        return defaultValue;
-//    }
-
     /**
      * Retrieves the property value from the requested domain.
      * If not found, fall back to the property value from the default domain.
@@ -168,20 +131,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         }
         return propertyValue;
     }
-
-//    /**
-//     * Retrieves the property value from the requested domain.
-//     * If not found, fall back to the property value from the default domain.
-//     * If still not found, fall back to the default value.
-//     */
-//    @Override
-//    public String getDomainProperty(Domain domain, String propertyName, String defaultValue) {
-//        String propertyValue = getDomainProperty(domain, propertyName);
-//        if (StringUtils.isEmpty(propertyValue)) {
-//            propertyValue = defaultValue;
-//        }
-//        return propertyValue;
-//    }
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
@@ -219,12 +168,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         String domainValue = getDomainProperty(domain, propertyName);
         return getLongInternal(propertyName, domainValue);
     }
-
-//    @Override
-//    public Integer getIntegerOptionalDomainProperty(String propertyName) {
-//        String optionalDomainValue = getDomainProperty(propertyName);
-//        return getIntegerInternal(propertyName, optionalDomainValue);
-//    }
 
     private Integer getIntegerInternal(String propertyName, String customValue) {
         if (customValue != null) {
@@ -277,12 +220,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         String domainValue = getDomainProperty(domain, propertyName);
         return getBooleanInternal(propertyName, domainValue);
     }
-
-//    @Override
-//    public Boolean getBooleanOptionalDomainProperty(String propertyName) {
-//        String optionalDomainValue = getDomainProperty(propertyName);
-//        return getBooleanInternal(propertyName, optionalDomainValue);
-//    }
 
     /**
      * {@inheritDoc}
