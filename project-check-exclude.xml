@@ -28,7 +28,7 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: activemq-jaas-5.15.6.jar
+   file name: activemq-jaas-5.15.8.jar
    ]]></notes>
         <gav regex="true">^org\.apache\.activemq:.*$</gav>
         <!-- jolokia API not used -->
@@ -36,6 +36,12 @@
         <!-- Hawtio console not used -->
         <cve>CVE-2015-5183</cve>
         <cve>CVE-2015-5184</cve>
+        <!-- Apache ActiveMQ Client before 5.15.6 - client vulnerable to a MITM attack between a Java application using the ActiveMQ client and the ActiveMQ server.
+             In Domibus, activemq.version is 5.15.8. -->
+        <cve>CVE-2018-11775</cve>
+        <!-- Unmarshalling corrupt MQTT frame can lead to broker Out of Memory.
+             In Domibus, MQTT transport protocol is not enabled. No transport connector defined (activemq.xml, standalone-full.xml).       -->
+        <cve>CVE-2019-0222 </cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -64,10 +70,13 @@
         <cve>CVE-2015-5184</cve>
         <!-- Apache ActiveMQ before 5.13.0 -->
         <cve>CVE-2016-3088</cve>
+        <!-- Apache ActiveMQ Client before 5.15.6 - client vulnerable to a MITM attack between a Java application using the ActiveMQ client and the ActiveMQ server.
+             In Domibus, activemq.version is 5.15.8. -->
+        <cve>CVE-2018-11775</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: activemq-client-5.15.6.jar
+   file name: activemq-client-5.15.8.jar
    ]]></notes>
         <gav regex="true">^org\.apache\.activemq:activemq-client:.*$</gav>
         <!-- jolokia API not used -->
@@ -75,5 +84,105 @@
         <!-- Hawtio console not used -->
         <cve>CVE-2015-5183</cve>
         <cve>CVE-2015-5184</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-core-4.2.6.RELEASE.jar
+   ]]></notes>
+        <gav regex="true">^org\.springframework\.security:spring-security-core:.*$</gav>
+        <!-- Cve for Spring framework 5.0.5 in combination with spring security. Domibus uses version 4.3.17.RELEASE, not yet Spring 5.x. -->
+        <cve>CVE-2018-1258</cve>
+        <!-- Cve when using SecureRandomFactoryBean#setSeed to configure a SecureRandom instance.
+             In Domibus we do not use SecureRandomFactoryBean#setSeed -->
+        <cve>CVE-2019-3795</cve>
+        <!-- This cve applies if an application has a pre-existing XSS vulnerability.
+             Domibus already tacled the XSS vulnerabilities, Jira tasks to secure against XSS: EDELIVERY-4489, EDELIVERY-4488, EDELIVERY-4507 -->
+        <cve>CVE-2018-11039</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-core-4.3.17.RELEASE.jar
+   ]]></notes>
+        <gav regex="true">^org\.springframework:spring-core:.*$</gav>
+        <!-- This cve allows web applications to enable cross-domain requests via JSONP (JSON with Padding) through AbstractJsonpResponseBodyAdvice for REST controllers and
+             MappingJackson2JsonView for browser requests. Both are not enabled by default in Spring Framework nor Spring Boot, however, when MappingJackson2JsonView is configured in an application, JSONP support
+             is automatically ready to use through the "jsonp" and "callback" JSONP parameters, enabling cross-domain requests.
+             In Domibus, MappingJackson2JsonView is not configured. No bean  with class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" -->
+        <cve>CVE-2018-11040</cve>
+        <!-- Cve when serving static resources through the ResourceHttpRequestHandler.
+             In Domibus, the static resources are registered here in the mvc-dispatcher-servlet.xml
+             <mvc:resources mapping="/**" location="/"/>
+             ResourceHttpRequestHandler is not configured in the code. -->
+        <cve>CVE-2018-15756</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.9.8.jar
+   ]]></notes>
+        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+        <!-- Cve when Default Typing is enabled (either globally or for a specific property) for an externally exposed JSON endpoint.
+             The ObjectMapper used in Domibus does not have Default Typing enabled (strong typing is used).
+             Domibus does not use: enableDefaultTyping, enableDefaultTypingAsProperty, setDefaultTyping
+             new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.WRAPPER_ARRAY); -->
+        <cve>CVE-2019-12086</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: logback-elasticsearch-appender-1.6.jar
+   ]]></notes>
+        <gav regex="true">^com\.internetitem:logback-elasticsearch-appender:.*$</gav>
+        <!-- Cve when sending log events directly from Logback to Elasticsearch.
+             In Domibus, we do not send logs directly from logback to Elasticsearch. For example, Taxud uses the logs filtered by logstash before sending to ES. -->
+        <cve>CVE-2015-5531</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: slf4j-ext-1.7.25.jar
+   ]]></notes>
+        <gav regex="true">^org\.slf4j:slf4j-ext:.*$</gav>
+        <!-- Vulnerability in slf4j extension API when org.slf4j.ext.EventData used.
+             EventData is not used in Domibus. -->
+        <cve>CVE-2018-8088</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk15on-1.58.jar
+   ]]></notes>
+        <gav regex="true">^org\.bouncycastle:bcprov-jdk15on:.*$</gav>
+        <!-- Cve when any TLS cipher suite using RSA key exchange is negotiated.
+        The TLS RSA cyphers were disabled in the clientauthentication.xml file. -->
+        <cve>CVE-2017-13098</cve>
+        <!-- A flaw in the Low-level interface to RSA key pair generator, specifically RSA Key Pairs generated.
+             In Domibus, we do not use the RsaKeyPairGenerator (RsaKeyPairGenerator::getNumberOfIterations()).
+             Domibus does not generate the RSA Key Pairs, it uses the provided key pair. -->
+        <cve>CVE-2018-1000180</cve>
+        <!-- Vulnerability in XMSS/XMSS^MT private key deserialization that can result in Deserializing an XMSS/XMSS^MT private key can result in the execution of unexpected code.
+             In Domibus we do not use XMSSUtil.deserialize. -->
+        <cve>CVE-2018-1000613</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: xstream-1.4.10.jar
+   ]]></notes>
+        <gav regex="true">^com\.thoughtworks\.xstream:xstream:.*$</gav>
+        <!-- Allow attacker to run arbitrary shell commands by manipulating the processed input stream when unmarshaling XML or any supported format. e.g. JSON.
+             In Domibus, xstream is used to write unit tests and also in the TestService. For the TestService, the input the input is served from the classpath (messages/testservice/testservicemessage.xml) -->
+        <cve>CVE-2013-7285</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-collections-3.2.jar
+   ]]></notes>
+        <gav regex="true">^commons-collections:commons-collections:.*$</gav>
+        <!-- Affected users should update the system Apache commons-collections library to at least version 3.2.2.
+             In Domibus, we have version 3.2.2-->
+        <cve>CVE-2015-6420</cve>
+        <!-- In Apache Synapse, by default no authentication is required for Java Remote Method Invocation (RMI).
+             To mitigate the issue, we need to limit RMI access to trusted users only.
+             In Domibus, RMI is not used. -->
+        <cve>CVE-2017-15708</cve>
+
     </suppress>
 </suppressions>
