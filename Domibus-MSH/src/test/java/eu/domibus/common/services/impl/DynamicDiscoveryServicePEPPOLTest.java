@@ -73,7 +73,7 @@ public class DynamicDiscoveryServicePEPPOLTest {
             domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE, (String) any);
+            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = TransportProfile.AS4.getIdentifier();
@@ -100,7 +100,7 @@ public class DynamicDiscoveryServicePEPPOLTest {
             domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE, (String) any);
+            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = "AS4_other_transport_profile";
@@ -128,7 +128,7 @@ public class DynamicDiscoveryServicePEPPOLTest {
             domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE, (String) any);
+            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = TransportProfile.AS4.getIdentifier();

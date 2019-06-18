@@ -258,7 +258,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY), eq("false"));
+        doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
