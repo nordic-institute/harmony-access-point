@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  */
 @Service
 public class PayloadPersistenceProviderImpl implements PayloadPersistenceProvider {
