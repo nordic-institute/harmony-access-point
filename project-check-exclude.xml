@@ -114,6 +114,7 @@
              <mvc:resources mapping="/**" location="/"/>
              ResourceHttpRequestHandler is not configured in the code. -->
         <cve>CVE-2018-15756</cve>
+        <cve>CVE-2018-11039</cve> <!-- duplicate -->
     </suppress>
     <suppress>
         <notes><![CDATA[
