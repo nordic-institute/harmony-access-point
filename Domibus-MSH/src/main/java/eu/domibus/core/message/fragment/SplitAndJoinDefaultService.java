@@ -218,6 +218,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         final SOAPMessage sourceRequest = rejoinSourceMessage(groupId, new File(sourceMessageFile));
         Messaging sourceMessaging = messageUtil.getMessage(sourceRequest);
+        sourceMessaging.getUserMessage().setSplitAndJoin(true);
 
         MessageExchangeConfiguration userMessageExchangeContext = null;
         LegConfiguration legConfiguration = null;

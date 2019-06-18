@@ -1,7 +1,5 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.CompressionService;
@@ -49,10 +47,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected CompressionService compressionService;
 
     @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Autowired
     protected EncryptionService encryptionService;
@@ -61,19 +56,19 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
         if (StringUtils.isBlank(partInfo.getFileName())) {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
-            saveIncomingPayloadToDisk(partInfo, currentStorage);
+            final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
+            saveIncomingPayloadToDisk(partInfo, currentStorage, encryptionActive);
         } else {
             LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
         }
     }
 
-    protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage) throws IOException {
+    protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
         LOG.debug("Saving incoming payload [{}] to file disk", partInfo.getHref());
 
         final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + ".payload");
         partInfo.setFileName(attachmentStore.getAbsolutePath());
         try (final InputStream inputStream = partInfo.getPayloadDatahandler().getInputStream()) {
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
             final long fileLength = saveIncomingFileToDisk(attachmentStore, inputStream, encryptionActive);
             partInfo.setLength(fileLength);
             partInfo.setEncrypted(encryptionActive);
@@ -125,7 +120,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + PAYLOAD_EXTENSION);
             partInfo.setFileName(attachmentStore.getAbsolutePath());
 
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
             final long fileLength = saveOutgoingFileToDisk(attachmentStore, partInfo, is, userMessage, legConfiguration, encryptionActive);
             partInfo.setLength(fileLength);
             partInfo.setEncrypted(encryptionActive);

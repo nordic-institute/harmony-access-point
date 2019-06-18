@@ -1,7 +1,5 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.CompressionService;
@@ -42,10 +40,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
     protected CompressionService compressionService;
 
     @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Autowired
     protected EncryptionService encryptionService;
@@ -60,7 +55,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             outputStream = byteArrayOutputStream;
 
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
             if (encryptionActive) {
                 LOG.debug("Using encryption for part info [{}]", partInfo.getHref());
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
@@ -93,7 +88,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
             backendNotificationService.notifyPayloadSubmitted(userMessage, originalFileName, partInfo, backendName);
 
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
+            final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
 
             byte[] binaryData = getOutgoingBinaryData(partInfo, is, userMessage, legConfiguration, encryptionActive);
             partInfo.setBinaryData(binaryData);

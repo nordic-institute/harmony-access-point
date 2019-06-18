@@ -75,7 +75,7 @@ public class FileSystemPayloadPersistenceTest {
             fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream, false);
         }};
 
-        fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, storage);
+        fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, storage, false);
 
         new Verifications() {{
             fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream, false);
