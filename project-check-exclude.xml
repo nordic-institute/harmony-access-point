@@ -119,10 +119,18 @@
         <notes><![CDATA[
    file name: spring-tx-4.3.17.RELEASE.jar
    ]]></notes>
-        <gav regex="true">^org\.springframework:spring-core:.*$</gav>
+        <gav regex="true">^org\.springframework:spring-tx:.*$</gav>
         <cve>CVE-2018-11039</cve> <!-- duplicate -->
         <cve>CVE-2018-11040</cve> <!-- duplicate -->
         <cve>CVE-2018-15756</cve> <!-- duplicate -->
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-config-4.2.6.RELEASE.jar
+   ]]></notes>
+        <gav regex="true">^org\.springframework\.security:spring-security-config:.*$</gav>
+        <cve>CVE-2019-3795</cve> <!-- duplicate -->
+        <cve>CVE-2018-1258</cve> <!-- duplicate -->
     </suppress>
     <suppress>
         <notes><![CDATA[
