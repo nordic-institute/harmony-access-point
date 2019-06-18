@@ -89,7 +89,7 @@
         <notes><![CDATA[
    file name: spring-security-core-4.2.6.RELEASE.jar
    ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-security-core:.*$</gav>
+        <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
         <!-- Cve for Spring framework 5.0.5 in combination with spring security. Domibus uses version 4.3.17.RELEASE, not yet Spring 5.x. -->
         <cve>CVE-2018-1258</cve>
         <!-- Cve when using SecureRandomFactoryBean#setSeed to configure a SecureRandom instance.
@@ -103,7 +103,7 @@
         <notes><![CDATA[
    file name: spring-core-4.3.17.RELEASE.jar
    ]]></notes>
-        <gav regex="true">^org\.springframework:spring-core:.*$</gav>
+        <gav regex="true">^org\.springframework:spring-.*:.*$</gav>
         <!-- This cve allows web applications to enable cross-domain requests via JSONP (JSON with Padding) through AbstractJsonpResponseBodyAdvice for REST controllers and
              MappingJackson2JsonView for browser requests. Both are not enabled by default in Spring Framework nor Spring Boot, however, when MappingJackson2JsonView is configured in an application, JSONP support
              is automatically ready to use through the "jsonp" and "callback" JSONP parameters, enabling cross-domain requests.
@@ -114,31 +114,6 @@
              <mvc:resources mapping="/**" location="/"/>
              ResourceHttpRequestHandler is not configured in the code. -->
         <cve>CVE-2018-15756</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-tx-4.3.17.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework:spring-tx:.*$</gav>
-        <cve>CVE-2018-11039</cve> <!-- duplicate -->
-        <cve>CVE-2018-11040</cve> <!-- duplicate -->
-        <cve>CVE-2018-15756</cve> <!-- duplicate -->
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-security-config-4.2.6.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-security-config:.*$</gav>
-        <cve>CVE-2019-3795</cve> <!-- duplicate -->
-        <cve>CVE-2018-1258</cve> <!-- duplicate -->
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-security-web-4.2.6.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-security-web:.*$</gav>
-        <cve>CVE-2018-1258</cve> <!-- duplicate -->
-        <cve>CVE-2019-3795</cve> <!-- duplicate -->
     </suppress>
     <suppress>
         <notes><![CDATA[
