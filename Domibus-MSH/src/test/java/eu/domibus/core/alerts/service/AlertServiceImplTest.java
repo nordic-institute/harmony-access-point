@@ -83,7 +83,7 @@ public class AlertServiceImplTest {
             multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
             result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 
-            domibusPropertyProvider.getIntegerOptionalDomainProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
+            domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
             multiDomainAlertConfigurationService.getAlertLevel(withAny(new Alert()));
@@ -215,7 +215,7 @@ public class AlertServiceImplTest {
             multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
             result=DOMIBUS_ALERT_RETRY_TIME;
 
-            domibusPropertyProvider.getOptionalDomainProperty(DOMIBUS_ALERT_RETRY_TIME);
+            domibusPropertyProvider.getDomainProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
             dateTime.now().plusMinutes(nextAttemptInMinutes).toDate();

@@ -27,6 +27,7 @@ import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.property.DomibusPropertyChangeListener;
 import eu.domibus.property.PropertyResolver;
 import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
@@ -186,6 +187,12 @@ public class PModeDaoTestIT {
         public MpcService mpcService() {
             return new MpcServiceImpl();
         }
+
+        @Bean
+        public List<DomibusPropertyChangeListener> domibusPropertyChangeListeners() {
+            return null;
+        }
+
     }
 
     @Autowired

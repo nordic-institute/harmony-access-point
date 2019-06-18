@@ -151,7 +151,7 @@ public class DynamicDiscoveryPModeProviderTest {
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServiceOASIS);
 
         /* test selection of dynamic discovery client Peppol compliant*/
-        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getDomainProperty(anyString(), anyString());
+        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getDomainProperty(anyString());
         dynamicDiscoveryPModeProvider.init();
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServicePEPPOL);
     }
