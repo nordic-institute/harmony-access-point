@@ -117,6 +117,23 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: spring-tx-4.3.17.RELEASE.jar
+   ]]></notes>
+        <gav regex="true">^org\.springframework:spring-core:.*$</gav>
+        <cve>CVE-2018-11039</cve> <!-- duplicate -->
+        <cve>CVE-2018-11040</cve> <!-- duplicate -->
+        <cve>CVE-2018-15756</cve> <!-- duplicate -->
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-web-4.2.6.RELEASE.jar
+   ]]></notes>
+        <gav regex="true">^org\.springframework\.security:spring-security-web:.*$</gav>
+        <cve>CVE-2018-1258</cve> <!-- duplicate -->
+        <cve>CVE-2019-3795</cve> <!-- duplicate -->
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: jackson-databind-2.9.8.jar
    ]]></notes>
         <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
@@ -183,6 +200,13 @@
              To mitigate the issue, we need to limit RMI access to trusted users only.
              In Domibus, RMI is not used. -->
         <cve>CVE-2017-15708</cve>
-
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: netty-all-4.1.5.Final.jar
+   ]]></notes>
+        <gav regex="true">^io\.netty:netty-all:.*$</gav>
+        <!-- Cve in All For One, an Ethereum gambling game: attackers can get rewards by predicting the random number - not relevant to Domibus -->
+        <cve>CVE-2018-12056</cve>
     </suppress>
 </suppressions>
