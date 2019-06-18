@@ -41,7 +41,7 @@
         <cve>CVE-2018-11775</cve>
         <!-- Unmarshalling corrupt MQTT frame can lead to broker Out of Memory.
              In Domibus, MQTT transport protocol is not enabled. No transport connector defined (activemq.xml, standalone-full.xml).       -->
-        <cve>CVE-2019-0222 </cve>
+        <cve>CVE-2019-0222</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
