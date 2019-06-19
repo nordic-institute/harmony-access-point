@@ -6,7 +6,7 @@
 
     <changeSet author="Cosmin Baciu" id="EDELIVERY-3637">
         <addColumn tableName="TB_PART_INFO">
-            <column name="IN_BODY" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="ENCRYPTED" type="BOOLEAN" defaultValueBoolean="false"/>
         </addColumn>
 
         <createTable tableName="TB_ENCRYPTION_KEY">
