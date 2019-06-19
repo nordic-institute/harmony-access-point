@@ -4,6 +4,9 @@
     </security:trustManagers>
     <security:keyManagers keyPassword="test123">
 		<security:keyStore type="JKS" password="test123" file="${domibus.config.location}/keystores/gateway_keystore.jks"/>
-	</security:keyManagers> 
+	</security:keyManagers>
+    <security:cipherSuitesFilter>
+        <security:exclude>.*_RSA_.*</security:exclude>
+    </security:cipherSuitesFilter>
 </http-conf:tlsClientParameters>
 
