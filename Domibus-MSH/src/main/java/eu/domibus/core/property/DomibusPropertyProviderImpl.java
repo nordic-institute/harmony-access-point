@@ -332,16 +332,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        if (!this.hasKnownProperty(propertyName)) {
+        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
+        if (meta == null) {
             throw new IllegalArgumentException(propertyName);
         }
 
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
-        if (domain == null || !domibusConfigurationService.isMultiTenantAware()) {
+        if (domain == null || !domibusConfigurationService.isMultiTenantAware() || meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
             // super property - TODO
             // TODO: handle single tenancy too
             this.domibusProperties.setProperty(propertyName, propertyValue);
-
         } else {
             String fullPropertyName = propertyName;
             if (!DomainService.DEFAULT_DOMAIN.equals(domain)) {
