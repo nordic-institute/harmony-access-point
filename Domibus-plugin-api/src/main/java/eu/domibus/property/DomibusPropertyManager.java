@@ -12,4 +12,6 @@ public interface DomibusPropertyManager {
 
     void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue);
 
+    //TODO: probably not the ideal place for it
+    void handlePropertyChange(String domainCode, String propertyName, String propertyValue);
 }

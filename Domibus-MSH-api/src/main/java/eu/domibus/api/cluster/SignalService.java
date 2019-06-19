@@ -34,4 +34,10 @@ public interface SignalService {
      */
     void signalLoggingReset();
 
+
+    /**
+     * signals domibus property changed to other servers in the cluster
+     */
+    void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue);
+
 }

@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -47,8 +48,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     @Autowired
     protected DomainService domainService;
 
+    //TODO: move out from here
     @Autowired
     List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
+
+    @Autowired
+    protected SignalService signalService;
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
@@ -350,7 +355,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
             this.domibusProperties.setProperty(fullPropertyName, propertyValue);
         }
 
+        handlePropertyChange(domainCode, propertyName, propertyValue);
+    }
+
+    @Override
+    public void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
         //notify interested listeners that the property changed
+        //TODO: shall we filter by module( core, plugins)
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
@@ -361,6 +372,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 LOGGER.error("An error occurred while setting property [{}] to [{}] ", propertyName, propertyValue, ex);
             }
         });
+
+        //signal for other nodes
+        signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
     }
 
     @Override

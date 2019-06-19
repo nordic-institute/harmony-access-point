@@ -12,6 +12,7 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.property.DomibusPropertyManager;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,9 @@ public class CommandServiceImpl implements CommandService {
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    private DomibusPropertyManager domibusPropertyManager;
 
     @Override
     public void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties) {
@@ -106,6 +110,13 @@ public class CommandServiceImpl implements CommandService {
                 final String name = commandProperties.get(CommandProperty.LOG_NAME);
                 loggingService.setLoggingLevel(name, level);
                 break;
+            case Command.DOMIBUS_PROPERTY_CHANGE:
+                final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
+                final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
+                final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
+                //TODO: is there only one such service or one for each plugin and core???
+                domibusPropertyManager.handlePropertyChange(domainCode, propName, propVal);
+                break;
             default:
                 LOG.error("Unknown command received: {}", command);
         }
@@ -143,6 +154,7 @@ public class CommandServiceImpl implements CommandService {
 
     /**
      * Returns true if the commands is send to same server
+     *
      * @param command
      * @param domain
      * @param commandProperties
