@@ -92,6 +92,9 @@ public class FSPluginProperties implements DomibusPropertyManager {
     @Autowired
     List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
 
+//    @Autowired
+//    protected SignalService signalService;
+
     /**
      * @return The available domains set
      */
@@ -458,6 +461,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
     }
 
     @Override
+    //TODO: reuse same code as in DomibusPropertyProvider
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
         if (meta == null) throw new IllegalArgumentException(propertyName);
@@ -470,7 +474,12 @@ public class FSPluginProperties implements DomibusPropertyManager {
 
         this.properties.setProperty(propertyKey, propertyValue);
 
-        //TODO: reuse same code as in DomibusPropertyProvider
+        handlePropertyChange(domainCode, propertyName, propertyValue);
+    }
+
+    @Override
+    //TODO: reuse same code as in DomibusPropertyProvider
+    public void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
         //notify interested listeners that the property changed
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
@@ -482,6 +491,9 @@ public class FSPluginProperties implements DomibusPropertyManager {
                 LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
             }
         });
+
+        //signal for other nodes???? do we need this for plugins??
+        //signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
     }
 
 }
