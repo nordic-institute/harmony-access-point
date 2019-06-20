@@ -343,7 +343,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         }
 
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
-        if (domain == null || !domibusConfigurationService.isMultiTenantAware() || meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
+        if (domain == null || !domibusConfigurationService.isMultiTenantAware()
+                || meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
             // super property - TODO
             // TODO: handle single tenancy too
             this.domibusProperties.setProperty(propertyName, propertyValue);
@@ -358,8 +359,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         handlePropertyChange(domainCode, propertyName, propertyValue);
     }
 
-    @Override
-    public void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
+//    @Override
+    private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
         //notify interested listeners that the property changed
         //TODO: shall we filter by module( core, plugins)
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()

@@ -114,8 +114,10 @@ public class CommandServiceImpl implements CommandService {
                 final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
+
                 //TODO: is there only one such service or one for each plugin and core???
-                domibusPropertyManager.handlePropertyChange(domainCode, propName, propVal);
+                domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal);
+
                 break;
             default:
                 LOG.error("Unknown command received: {}", command);

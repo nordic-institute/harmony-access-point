@@ -477,9 +477,9 @@ public class FSPluginProperties implements DomibusPropertyManager {
         handlePropertyChange(domainCode, propertyName, propertyValue);
     }
 
-    @Override
+//    @Override
     //TODO: reuse same code as in DomibusPropertyProvider
-    public void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
+    private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
         //notify interested listeners that the property changed
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
@@ -492,7 +492,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
             }
         });
 
-        //signal for other nodes???? do we need this for plugins??
+        //signal for other nodes???? do we need this for plugins?? I think no
         //signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
     }
 
