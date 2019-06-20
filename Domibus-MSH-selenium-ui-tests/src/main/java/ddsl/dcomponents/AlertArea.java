@@ -35,7 +35,7 @@ public class AlertArea extends DComponent {
 			return null;
 		}
 
-		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.\\ ]", "").trim();
+		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.]", "").trim();
 
 		log.info("Getting alert message ...");
 		return messageTxt.trim();

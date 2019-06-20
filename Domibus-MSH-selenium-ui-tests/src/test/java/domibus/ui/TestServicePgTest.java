@@ -1,6 +1,6 @@
 package domibus.ui;
 
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.TestServicePage;
@@ -20,7 +20,7 @@ public class TestServicePgTest extends BaseTest {
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
@@ -45,7 +45,7 @@ public class TestServicePgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
@@ -62,7 +62,7 @@ public class TestServicePgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TEST_SERVICE);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TEST_SERVICE);
 		TestServicePage page = new TestServicePage(driver);
 
 		page.getPartySelector().selectOptionByText("domibus-blue");

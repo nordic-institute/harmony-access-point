@@ -43,8 +43,8 @@ public class JMSFilters extends DomibusPage {
 	WebElement jmsSearchButton;
 
 
-	public Select getJmsQueueSelect() {
-		return new Select(driver ,jmsQueueSelect);
+	public JMSSelect getJmsQueueSelect() {
+		return new JMSSelect(driver ,jmsQueueSelect);
 	}
 
 	public DInput getJmsSelectorInput() {
@@ -75,22 +75,5 @@ public class JMSFilters extends DomibusPage {
 				);
 	}
 
-	public int selectQueueWithMessages() throws Exception{
-		Select qSelect = getJmsQueueSelect();
-		List<String> queues = qSelect.getOptionsTexts();
-
-		int noOfMessages = 0;
-		for (String queue : queues) {
-			String striped  = queue.substring(queue.indexOf("(")+1, queue.indexOf(")")).trim();
-			int noOfMess = Integer.valueOf(striped);
-			if(noOfMess>0){
-				qSelect.selectOptionByText(queue);
-				noOfMessages = noOfMess;
-				break;
-			}
-		}
-
-		return noOfMessages;
-	}
 
 }

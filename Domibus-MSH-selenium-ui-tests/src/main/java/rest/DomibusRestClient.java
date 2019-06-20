@@ -465,7 +465,6 @@ public class DomibusRestClient {
 		params.put("messageId", id);
 
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
-		System.out.println(clientResponse.getStatus());
 		InputStream in= clientResponse.getEntity(InputStream.class);
 
 		File file = File.createTempFile("message", ".zip");

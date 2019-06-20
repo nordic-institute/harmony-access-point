@@ -17,12 +17,14 @@ import utils.TestRunData;
 
 public class DWait {
 
-	public WebDriverWait webDriverWait;
+	public final WebDriverWait defaultWait;
+	public final WebDriverWait longWait;
 	private TestRunData data = new TestRunData();
 
 
 	public DWait(WebDriver driver) {
-		this.webDriverWait = new WebDriverWait(driver, data.getTIMEOUT());
+		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
+		this.longWait = new WebDriverWait(driver, data.getLongWait());
 	}
 
 	public void forXMillis(Integer millis) {
@@ -34,16 +36,17 @@ public class DWait {
 	}
 
 	public WebElement forElementToBeClickable(WebElement element) {
-		return webDriverWait.until(ExpectedConditions.elementToBeClickable(element));
+		return defaultWait.until(ExpectedConditions.elementToBeClickable(element));
 	}
 
 	public WebElement forElementToBeVisible(WebElement element) {
-		return webDriverWait.until(ExpectedConditions.visibilityOf(element));
+		return defaultWait.until(ExpectedConditions.visibilityOf(element));
 	}
 
 	public void forElementToBeEnabled(WebElement element) {
 		int maxTimeout = data.getTIMEOUT() * 1000;
 		int waitedSoFar = 0;
+
 		while ((null != element.getAttribute("disabled")) && (waitedSoFar < maxTimeout)) {
 			waitedSoFar += 300;
 			forXMillis(300);
@@ -51,39 +54,34 @@ public class DWait {
 	}
 
 	public void forAttributeNotEmpty(WebElement element, String attributeName) {
-		webDriverWait.until(ExpectedConditions.attributeToBeNotEmpty(element, attributeName));
+		defaultWait.until(ExpectedConditions.attributeToBeNotEmpty(element, attributeName));
 	}
 
 	public void forElementToBeGone(WebElement element) {
 		try {
-			webDriverWait.until(ExpectedConditions.not(ExpectedConditions.visibilityOf(element)));
+			defaultWait.until(ExpectedConditions.not(ExpectedConditions.visibilityOf(element)));
 		} catch (Exception e) {
 		}
 	}
 
 	public void forElementToBe(WebElement element) {
-		int secs = 0;
-		while (secs < data.getTIMEOUT() * 10) {
-			try {
-				if (null != element.getText()) {
-					break;
-				}
-			} catch (Exception e) {
+
+		defaultWait.until(new ExpectedCondition<Boolean>() {
+			@NullableDecl
+			@Override
+			public Boolean apply(@NullableDecl WebDriver driver) {
+				return element.getLocation() != null;
 			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-			secs++;
-		}
+		});
+
 	}
 
 	public void forAttributeToContain(WebElement element, String attributeName, String value) {
-		webDriverWait.until(ExpectedConditions.attributeContains(element, attributeName, value));
+		defaultWait.until(ExpectedConditions.attributeContains(element, attributeName, value));
 	}
 
 	public void forElementToHaveText(WebElement element) {
-		webDriverWait.until(new ExpectedCondition<Boolean>() {
+		defaultWait.until(new ExpectedCondition<Boolean>() {
 			@NullableDecl
 			@Override
 			public Boolean apply(@NullableDecl WebDriver driver) {
@@ -92,5 +90,16 @@ public class DWait {
 		});
 	}
 
+	public void longWaitforElementToBe(WebElement element) {
+
+		longWait.until(new ExpectedCondition<Boolean>() {
+			@NullableDecl
+			@Override
+			public Boolean apply(@NullableDecl WebDriver driver) {
+				return element.getLocation() != null;
+			}
+		});
+
+	}
 
 }
