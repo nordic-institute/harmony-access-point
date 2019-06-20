@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import com.google.common.collect.Lists;
 import eu.europa.esig.dss.jaxb.detailedreport.DetailedReport;
 import eu.europa.esig.dss.jaxb.detailedreport.XmlConstraint;
 import org.slf4j.Logger;
@@ -26,8 +27,9 @@ import java.util.stream.Collectors;
 public class ValidationReport {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValidationReport.class);
+    public static final String INVALID_CONSTRAINT_NAME = "INVALID_CONSTRAINT_NAME";
 
-    public boolean isValid(final DetailedReport detailedReport, List<ConstraintInternal> constraints) {
+    public List<String> isValid(final DetailedReport detailedReport, List<ConstraintInternal> constraints) {
         if (constraints == null || constraints.isEmpty()) {
             throw new IllegalStateException("A minimum set of constraints should be set.");
         }
@@ -78,21 +80,27 @@ public class ValidationReport {
                     filter(xmlConstraint -> constraintInternal.getName().equals(xmlConstraint.getName().getNameId())).count();
             if (count == 0) {
                 LOG.warn("Configured constraint:[{}] was not found in the report, therefore the validation is impossible", constraintInternal.getName());
-                return false;
+                return Lists.newArrayList(INVALID_CONSTRAINT_NAME);
             }
-            final boolean statusOk = allConstraints.stream().
+            List<String> constraintsWithWrongStatus = allConstraints.stream().
                     filter(xmlConstraint ->
                             xmlConstraint.getName().getNameId().equals(constraintInternal.getName())).
-                    allMatch(xmlConstraint -> {
-                        LOG.debug("Checking status match for constraint:[{}] and status:[{}]", xmlConstraint.getName().getNameId(), xmlConstraint.getStatus().name());
-                        return xmlConstraint.getStatus().name().equals(constraintInternal.getStatus());
-                    });
-
-            if (!statusOk) {
-                return false;
+                    filter(xmlConstraint -> {
+                        boolean valid = xmlConstraint.getStatus().name().equals(constraintInternal.getStatus());
+                        if (valid) {
+                            LOG.debug("Checking status  for constraint:[{}] with status:[{}], expected status is:[{}]", xmlConstraint.getName().getNameId(), xmlConstraint.getStatus().name(), constraintInternal.getStatus());
+                        } else {
+                            LOG.warn("Invalid validation for constraint:[{}] with status:[{}], expected status is:[{}]", xmlConstraint.getName().getNameId(), xmlConstraint.getStatus().name(), constraintInternal.getStatus());
+                        }
+                        return valid;
+                    }).
+                    map(xmlConstraint -> xmlConstraint.getName().getNameId()).
+                    collect(Collectors.toList());
+            if (!constraintsWithWrongStatus.isEmpty()) {
+                return constraintsWithWrongStatus;
             }
         }
-        return true;
+        return Lists.newArrayList();
     }
 
 }
