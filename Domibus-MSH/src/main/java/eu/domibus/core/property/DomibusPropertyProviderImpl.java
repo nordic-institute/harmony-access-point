@@ -323,8 +323,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
 
                 new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.smlzone", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.client.specification", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.peppolclient.mode", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.responder.role", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.type", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.transportprofileas4", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),

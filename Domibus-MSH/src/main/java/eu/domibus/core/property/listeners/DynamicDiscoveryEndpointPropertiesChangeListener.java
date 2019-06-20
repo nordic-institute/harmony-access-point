@@ -14,7 +14,11 @@ public class DynamicDiscoveryEndpointPropertiesChangeListener implements Domibus
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domibus.smlzone");
+        return StringUtils.equalsIgnoreCase(propertyName, "domibus.smlzone")
+                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.peppolclient.mode")
+                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation")
+                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.transportprofileas4");
+        //
     }
 
     @Override
