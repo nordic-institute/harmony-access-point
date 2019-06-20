@@ -117,7 +117,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     @Override
     public String getDomainProperty(String propertyName) {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//        assert currentDomain != null;
         if (currentDomain == null) {
             currentDomain = DomainService.DEFAULT_DOMAIN;
         }
@@ -305,6 +304,24 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.passwordPolicy.validationMessage", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.passwordPolicy.expiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.passwordPolicy.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.warning.beforeExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.dontReuseLast", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.checkDefaultPassword", PropertyUsageType.GLOBAL_PROPERTY),
+
+                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.pattern", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.validationMessage", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.expiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.dontReuseLast", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+
+                //TODO: //in the other place it is called, it has a different usage
+                new DomibusPropertyMetadata("domibus.attachment.storage.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+
+                new DomibusPropertyMetadata("domibus.msh.messageid.suffix", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+
+                new DomibusPropertyMetadata("domibus.msh.retry.messageExpirationDelay", PropertyUsageType.GLOBAL_PROPERTY),
+
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
