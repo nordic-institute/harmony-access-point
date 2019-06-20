@@ -12,6 +12,7 @@ public interface DomibusCacheService {
     String ALL_DOMAINS_CACHE = "allDomains";
     String DOMAIN_BY_CODE_CACHE = "domainByCode";
     String DOMAIN_BY_SCHEDULER_CACHE = "domainByScheduler";
+    String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
 
     void clearCache(String refreshCacheName);
 

@@ -33,6 +33,8 @@ import java.security.KeyStore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+
 /**
  * Service to query a compliant eDelivery SMP profile based on the OASIS BDX Service Metadata Publishers
  * (SMP) to extract the required information about the unknown receiver AP.
@@ -69,7 +71,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     @Autowired
     DomibusProxyService domibusProxyService;
 
-    @Cacheable(value = "lookupInfo", key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
+    @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
                                           final String participantIdScheme,

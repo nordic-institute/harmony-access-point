@@ -322,6 +322,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.msh.retry.messageExpirationDelay", PropertyUsageType.GLOBAL_PROPERTY),
 
                 new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.smlzone", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),

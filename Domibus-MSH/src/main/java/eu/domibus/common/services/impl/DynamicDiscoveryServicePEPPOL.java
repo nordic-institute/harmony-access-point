@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+
 /**
  * Service to query the SMP to extract the required information about the unknown receiver AP.
  * The SMP Lookup is done using an SMP Client software, with the following input:
@@ -54,7 +56,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
     @Autowired
     protected CertificateService certificateService;
 
-    @Cacheable(value = "lookupInfo", key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
+    @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
