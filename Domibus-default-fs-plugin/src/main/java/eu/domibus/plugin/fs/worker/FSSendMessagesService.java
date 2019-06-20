@@ -105,9 +105,7 @@ public class FSSendMessagesService {
     protected void sendMessages(final String domain) {
         LOG.debug("Sending messages for domain [{}]", domain);
 
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            authenticateForDomain(domain);
-        }
+        authenticateForDomain(domain);
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -141,6 +139,14 @@ public class FSSendMessagesService {
      * @param domain
      */
     public void authenticateForDomain(String domain) throws AuthenticationExtException {
+        boolean skipAuthentication = !domibusConfigurationExtService.isMultiTenantAware()
+                && StringUtils.isEmpty(fsPluginProperties.getAuthenticationUser(domain));
+
+        if (skipAuthentication) {
+            LOG.trace("Skip authentication for domain [{}]", domain);
+            return;
+        }
+
         String user = fsPluginProperties.getAuthenticationUser(domain);
         if (user == null) {
             LOG.error("Authentication User not defined for domain [{}]", domain);
