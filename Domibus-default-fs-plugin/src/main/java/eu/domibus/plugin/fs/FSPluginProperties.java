@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.property.DomibusPropertyChangeListener;
-import eu.domibus.property.DomibusPropertyManager;
+import eu.domibus.property.PropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
 import eu.domibus.property.PropertyUsageType;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author @author FERNANDES Henrique, GONCALVES Bruno
  */
 @Component
-public class FSPluginProperties implements DomibusPropertyManager {
+public class FSPluginProperties implements PropertyManager {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 

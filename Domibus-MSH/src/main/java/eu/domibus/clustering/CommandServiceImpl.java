@@ -9,10 +9,10 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.logging.LoggingService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.property.DomibusPropertyManager;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +51,9 @@ public class CommandServiceImpl implements CommandService {
     @Autowired
     private ServerInfoService serverInfoService;
 
+    //TODO: qualify or use another interface
     @Autowired
-    private DomibusPropertyManager domibusPropertyManager;
+    private DomibusPropertyProviderImpl domibusPropertyManager;
 
     @Override
     public void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties) {

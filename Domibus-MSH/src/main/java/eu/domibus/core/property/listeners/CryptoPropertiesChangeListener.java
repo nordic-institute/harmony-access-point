@@ -17,9 +17,6 @@ public class CryptoPropertiesChangeListener implements DomibusPropertyChangeList
     @Autowired
     MultiDomainCryptoService cryptoService;
 
-//    @Autowired
-//    GatewayConfigurationValidator gatewayConfigurationValidator;
-
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.containsIgnoreCase(propertyName, "domibus.security.keystore")

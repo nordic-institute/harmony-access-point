@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.configuration.storage.Storage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.property.*;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -53,7 +55,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
 
     @Autowired
-    protected SignalService signalService;
+    protected ApplicationContext applicationContext;
+
+//    @Autowired
+//    protected SignalService signalService;
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
@@ -399,6 +404,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         });
 
         //signal for other nodes
+        SignalService signalService = applicationContext.getBean(SignalService.class);
         signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
     }
 
