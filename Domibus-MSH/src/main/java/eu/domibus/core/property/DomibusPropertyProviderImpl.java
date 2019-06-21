@@ -57,9 +57,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     @Autowired
     protected ApplicationContext applicationContext;
 
-//    @Autowired
-//    protected SignalService signalService;
-
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     protected String getPropertyName(Domain domain, String propertyName) {
@@ -334,6 +331,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.responder.role", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.type", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.dynamicdiscovery.transportprofileas4", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+
+                new DomibusPropertyMetadata("domibus.listPendingMessages.maxCount", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.jms.queue.maxBrowseSize", PropertyUsageType.GLOBAL_PROPERTY), //there is one place at init time that it is not refreshed
+                new DomibusPropertyMetadata("domibus.jms.internalQueue.expression", PropertyUsageType.GLOBAL_PROPERTY),
+
+                new DomibusPropertyMetadata("domibus.receiver.certificate.validation.onsending", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onsending", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onreceiving", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.onreceiving", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.expression", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sender.certificate.subject.check", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.truststore_alias", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sendMessage.messageIdPattern", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
