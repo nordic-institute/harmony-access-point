@@ -98,7 +98,7 @@ public class DomibusDssCryptoSpiTest {
         fail("WSSecurityException expected");
         new Verifications() {{
             List constraints = new ArrayList<>();
-            validationReport.isValid(detailedReport, withAny(constraints));
+            //  validationReport.extractInvalidConstraints(detailedReport, withAny(constraints));
             times = 1;
         }};
 
@@ -140,7 +140,7 @@ public class DomibusDssCryptoSpiTest {
             result = detailedReport;
 
             List constraints = new ArrayList<>();
-            validationReport.isValid(detailedReport, withAny(constraints));
+            //   validationReport.extractInvalidConstraints(detailedReport, withAny(constraints));
             result = true;
 
         }};

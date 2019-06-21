@@ -3,15 +3,21 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.model.AuthenticationError;
+import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.DomibusCertificateException;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +138,22 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
-        iamProvider.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+        try {
+            iamProvider.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+        } catch (AuthenticationException e) {
+            if (e.getCause() != null) {
+                throw e;
+            }
+            AuthenticationError authenticationError = e.getAuthenticationError();
+            switch (authenticationError) {
+                case EBMS_0101:
+                    EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender certificate is not valid or has been revoked", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e);
+                    ebMS3Ex.setMshRole(MSHRole.RECEIVING);
+                    throw new Fault(ebMS3Ex);
+                default:
+                    throw new Fault(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e));
+            }
+        }
     }
 
     @Override

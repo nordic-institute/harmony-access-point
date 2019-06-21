@@ -3,7 +3,6 @@ package eu.domibus.core.crypto.spi.dss;
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.europa.esig.dss.jaxb.detailedreport.DetailedReport;
 import eu.europa.esig.dss.tsl.TLInfo;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateValidator;
@@ -17,8 +16,6 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.cert.CertPathValidatorException;
-import java.security.cert.PKIXReason;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -82,17 +79,11 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
         CertificateReports reports = certificateValidator.validate();
-        LOG.debug("Detail report:[{}]", reports.getXmlDetailedReport());
-        LOG.debug("Simple report:[{}]", reports.getXmlSimpleReport());
-        LOG.debug("Diagnostic data:[{}]", reports.getXmlDiagnosticData());
-        final DetailedReport detailedReport = reports.getDetailedReportJaxb();
         final List<ConstraintInternal> constraints = constraintMapper.map();
-        final boolean valid = validationReport.isValid(detailedReport, constraints);
-        if (!valid) {
+        List<String> invalidConstraints = validationReport.extractInvalidConstraints(reports, constraints);
+        if (!invalidConstraints.isEmpty()) {
             LOG.error("Dss triggered and error while validating the certificate chain:[{}]", reports.getXmlSimpleReport());
-            throw new WSSecurityException(
-                    WSSecurityException.ErrorCode.FAILURE, new CertPathValidatorException("Path does not chain with any of the trust anchors", null, null, -1, PKIXReason.NO_TRUST_ANCHOR), "certpath"
-            );
+            validationReport.checkConstraint(invalidConstraints);
         }
         LOG.trace("Incoming message certificate chain has been validated by DSS.");
     }
