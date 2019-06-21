@@ -55,6 +55,11 @@
         </dependency>
         <!-- End Domibus modules -->
 
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
         <!-- AspectJ -->
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -71,13 +76,6 @@
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Dozer -->
-        <dependency>
-            <groupId>net.sf.dozer</groupId>
-            <artifactId>dozer</artifactId>
-        </dependency>
-        <!-- End Dozer -->
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

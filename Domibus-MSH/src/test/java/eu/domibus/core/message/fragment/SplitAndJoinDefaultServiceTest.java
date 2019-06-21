@@ -41,6 +41,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -72,6 +73,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 4.1
  */
 @RunWith(JMockit.class)
+@Ignore
 public class SplitAndJoinDefaultServiceTest {
 
     @Tested

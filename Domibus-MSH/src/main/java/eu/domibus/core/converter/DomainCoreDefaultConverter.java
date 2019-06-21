@@ -1,8 +1,15 @@
 package eu.domibus.core.converter;
 
-import org.dozer.Mapper;
+import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.process.Process;
+import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.routing.BackendFilterEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,13 +22,44 @@ import java.util.List;
 @Component
 public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCoreDefaultConverter.class);
+
     @Autowired
-    @Qualifier("domainCoreConverter")
-    Mapper mapper;
+    DomibusCoreMapper domibusCoreMapper;
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
-        return mapper.map(source, typeOfT);
+        if(typeOfT == Process.class) {
+            return (T)domibusCoreMapper.processToProcessAPI((eu.domibus.common.model.configuration.Process)source);
+        }
+
+        if(typeOfT == eu.domibus.common.model.configuration.Process.class) {
+            return (T)domibusCoreMapper.processAPIToProcess((Process)source);
+        }
+
+        if(typeOfT == Domain.class) {
+            return (T)domibusCoreMapper.domainSpiToDomain((DomainSpi) source);
+        }
+        if(typeOfT == DomainSpi.class) {
+            return (T)domibusCoreMapper.domainToDomainSpi((Domain)source);
+        }
+
+        if(typeOfT == BackendFilter.class) {
+            return (T)domibusCoreMapper.backendFilterEntityToBackendFilter((BackendFilterEntity) source);
+        }
+        if(typeOfT == BackendFilterEntity.class) {
+            return (T)domibusCoreMapper.backendFilterToBackendFilterEntity((BackendFilter) source);
+        }
+
+        if(typeOfT == MessageAttempt.class) {
+            return (T)domibusCoreMapper.messageAttemptEntityToMessageAttempt((MessageAttemptEntity) source);
+        }
+        if(typeOfT == MessageAttemptEntity.class) {
+            return (T)domibusCoreMapper.messageAttemptToMessageAttemptEntity((MessageAttempt) source);
+        }
+
+        LOG.warn("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        return null;
     }
 
     @Override
