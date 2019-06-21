@@ -344,6 +344,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.sender.certificate.subject.check", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.sender.trust.validation.truststore_alias", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.sendMessage.messageIdPattern", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+
+
+                new DomibusPropertyMetadata("domibus.dispatcher.connectionTimeout", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dispatcher.receiveTimeout", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dispatcher.allowChunking", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dispatcher.chunkingThreshold", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),

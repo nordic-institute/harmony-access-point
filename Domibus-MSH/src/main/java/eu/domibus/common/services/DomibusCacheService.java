@@ -13,6 +13,7 @@ public interface DomibusCacheService {
     String DOMAIN_BY_CODE_CACHE = "domainByCode";
     String DOMAIN_BY_SCHEDULER_CACHE = "domainByScheduler";
     String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
+    String DISPATCH_CLIENT = "dispatchClient";
 
     void clearCache(String refreshCacheName);
 
