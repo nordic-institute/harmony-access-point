@@ -75,6 +75,7 @@ public class FSSendMessagesService {
     @Qualifier("fsPluginSendQueue")
     private Queue fsPluginSendQueue;
 
+
     protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
 
     /**
@@ -139,10 +140,7 @@ public class FSSendMessagesService {
      * @param domain
      */
     public void authenticateForDomain(String domain) throws AuthenticationExtException {
-        boolean skipAuthentication = !domibusConfigurationExtService.isMultiTenantAware()
-                && StringUtils.isEmpty(fsPluginProperties.getAuthenticationUser(domain));
-
-        if (skipAuthentication) {
+        if (!domibusConfigurationExtService.isSecuredLoginRequired()) {
             LOG.trace("Skip authentication for domain [{}]", domain);
             return;
         }
