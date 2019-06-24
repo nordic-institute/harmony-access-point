@@ -7,6 +7,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ext.domain.PullRequestDTO;
@@ -15,6 +16,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.web.rest.ro.PluginUserRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -84,6 +86,13 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
         }
         if(typeOfT == PullRequestDTO.class) {
             return (T)domibusCoreMapper.pullRequestToPullRequestDTO((PullRequest) source);
+        }
+
+        if(typeOfT == PluginUserRO.class) {
+            return (T)domibusCoreMapper.authenticationEntityToPluginUserRO((AuthenticationEntity) source);
+        }
+        if(typeOfT == AuthenticationEntity.class) {
+            return (T)domibusCoreMapper.pluginUserROToAuthenticationEntity((PluginUserRO) source);
         }
 
         LOG.warn("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());

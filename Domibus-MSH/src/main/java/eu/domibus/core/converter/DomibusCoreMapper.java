@@ -7,12 +7,14 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.web.rest.ro.PluginUserRO;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
@@ -39,5 +41,7 @@ public interface DomibusCoreMapper {
     PullRequestDTO pullRequestToPullRequestDTO(PullRequest pullRequest);
     PullRequest pullRequestDTOToPullRequest(PullRequestDTO pullRequestDTO);
 
+    PluginUserRO authenticationEntityToPluginUserRO(AuthenticationEntity authenticationEntity);
+    AuthenticationEntity pluginUserROToAuthenticationEntity(PluginUserRO pluginUserRO);
 
 }
