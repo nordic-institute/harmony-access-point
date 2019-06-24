@@ -144,6 +144,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
             if (e.getCause() != null) {
                 throw e;
             }
+            LOG.error("Certificate validation error", e);
             AuthenticationError authenticationError = e.getAuthenticationError();
             switch (authenticationError) {
                 case EBMS_0101:
