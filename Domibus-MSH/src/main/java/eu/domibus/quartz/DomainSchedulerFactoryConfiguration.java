@@ -10,6 +10,7 @@ import eu.domibus.core.alerts.job.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.AlertRetrySuperJob;
 import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
+import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.pull.PullRetryWorker;
 import eu.domibus.ebms3.common.quartz.AutowiringSpringBeanJobFactory;
 import eu.domibus.ebms3.puller.MessagePullerJob;
@@ -261,6 +262,25 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerSuperJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getOptionalDomainProperty("domibus.alert.super.cleaner.cron"));
+        obj.setStartDelay(20000);
+        obj.setGroup(GROUP_GENERAL);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean temporaryPayloadRetentionJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(TemporaryPayloadCleanerJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean temporaryPayloadRetentionTrigger() {
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(temporaryPayloadRetentionJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty("domibus.payload.temp.job.retention.cron"));
         obj.setStartDelay(20000);
         obj.setGroup(GROUP_GENERAL);
         return obj;
