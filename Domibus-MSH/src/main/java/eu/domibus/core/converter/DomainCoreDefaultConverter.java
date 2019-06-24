@@ -16,6 +16,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -52,11 +53,18 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T)domibusCoreMapper.domainToDomainSpi((Domain)source);
         }
 
-        if(typeOfT == BackendFilter.class) {
+        if(typeOfT == BackendFilter.class && source.getClass() == BackendFilterEntity.class) {
             return (T)domibusCoreMapper.backendFilterEntityToBackendFilter((BackendFilterEntity) source);
         }
-        if(typeOfT == BackendFilterEntity.class) {
+        if(typeOfT == BackendFilterEntity.class && source.getClass() == BackendFilter.class) {
             return (T)domibusCoreMapper.backendFilterToBackendFilterEntity((BackendFilter) source);
+        }
+
+        if(typeOfT == BackendFilter.class && source.getClass() == MessageFilterRO.class) {
+            return (T)domibusCoreMapper.messageFilterROToBackendFilter((MessageFilterRO) source);
+        }
+        if(typeOfT == MessageFilterRO.class && source.getClass() == BackendFilter.class) {
+            return (T)domibusCoreMapper.backendFilterToMessageFilterRO((BackendFilter) source);
         }
 
         if(typeOfT == RoutingCriteria.class) {

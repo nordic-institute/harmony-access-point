@@ -14,6 +14,7 @@ import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import org.mapstruct.Mapper;
 
@@ -26,8 +27,12 @@ public interface DomibusCoreMapper {
     DomainSpi domainToDomainSpi(Domain domain);
     Domain domainSpiToDomain(DomainSpi domainSpi);
 
+    MessageFilterRO backendFilterToMessageFilterRO(BackendFilter backendFilter);
+    BackendFilter messageFilterROToBackendFilter(MessageFilterRO backendFilterEntity);
+
     BackendFilterEntity backendFilterToBackendFilterEntity(BackendFilter backendFilter);
     BackendFilter backendFilterEntityToBackendFilter(BackendFilterEntity backendFilterEntity);
+
 
     RoutingCriteria routingCriteriaEntityToRoutingCriteria(RoutingCriteriaEntity routingCriteriaEntity);
     RoutingCriteriaEntity routingCriteriaToRoutingCriteriaEntity(RoutingCriteria routingCriteria);
