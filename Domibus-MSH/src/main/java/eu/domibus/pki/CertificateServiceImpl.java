@@ -3,6 +3,8 @@ package eu.domibus.pki;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.model.certificate.CertificateStatus;
@@ -84,10 +86,10 @@ public class CertificateServiceImpl implements CertificateService {
         for (Certificate certificate : certificateChain) {
             boolean certificateValid = isCertificateValid((X509Certificate)certificate);
             if (!certificateValid) {
-                LOG.warn("Sender certificate not valid [{}]", certificate);
+                LOG.warn("Sender pki not valid [{}]", certificate);
                 return false;
             }
-            LOG.debug("Sender certificate valid [{}]", certificate);
+            LOG.debug("Sender pki valid [{}]", certificate);
         }
         return true;
     }
@@ -99,7 +101,7 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             certificateChain = getCertificateChain(trustStore, alias);
         } catch (KeyStoreException e) {
-            throw new DomibusCertificateException("Error getting the certificate chain from the truststore for [" + alias + "]", e);
+            throw new DomibusCertificateException("Error getting the pki chain from the truststore for [" + alias + "]", e);
         }
         if (certificateChain == null || certificateChain.length == 0 || certificateChain[0] == null) {
             throw new DomibusCertificateException("Could not find alias in the truststore [" + alias + "]");
@@ -116,7 +118,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected X509Certificate[] getCertificateChain(KeyStore trustStore, String alias) throws KeyStoreException {
-        //TODO get the certificate chain manually based on the issued by info from the original certificate
+        //TODO get the pki chain manually based on the issued by info from the original pki
         final Certificate[] certificateChain = trustStore.getCertificateChain(alias);
         if (certificateChain == null) {
             X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
@@ -164,7 +166,7 @@ public class CertificateServiceImpl implements CertificateService {
                 return rdn.getValue().toString();
             }
         }
-        throw new IllegalArgumentException("The certificate does not contain a common name (CN): " + certificate.getSubjectDN().getName());
+        throw new IllegalArgumentException("The pki does not contain a common name (CN): " + certificate.getSubjectDN().getName());
     }
 
     /**
@@ -233,7 +235,7 @@ public class CertificateServiceImpl implements CertificateService {
         final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
         final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
 
-        LOG.debug("Searching for certificate about to expire with notification date smaller then:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+        LOG.debug("Searching for pki about to expire with notification date smaller then:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
                 notificationDate, imminentExpirationDelay, maxDate);
         certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
             certificate.setAlertImminentNotificationDate(today);
@@ -259,7 +261,7 @@ public class CertificateServiceImpl implements CertificateService {
         Date endNotification = LocalDateTime.now().minusDays(revokedDuration).toDate();
         Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
 
-        LOG.debug("Searching for expired certificate with notification date smaller then:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
+        LOG.debug("Searching for expired pki with notification date smaller then:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
         certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
             certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
             certificateDao.saveOrUpdate(certificate);
@@ -315,7 +317,7 @@ public class CertificateServiceImpl implements CertificateService {
      *
      * @param trustStore the trust store
      * @param keyStore   the key store
-     * @return a list of certificate.
+     * @return a list of pki.
      */
     protected List<eu.domibus.common.model.certificate.Certificate> groupAllKeystoreCertificates(KeyStore trustStore, KeyStore keyStore) {
         List<eu.domibus.common.model.certificate.Certificate> allCertificates = new ArrayList<>();
@@ -325,10 +327,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     * Load certificate from a keystore and enrich them with status and type.
+     * Load pki from a keystore and enrich them with status and type.
      *
      * @param keyStore        the store where to retrieve the certificates.
-     * @param certificateType the type of the certificate (Public/Private)
+     * @param certificateType the type of the pki (Public/Private)
      * @return the list of certificates.
      */
     private List<eu.domibus.common.model.certificate.Certificate> loadAndEnrichCertificateFromKeystore(KeyStore keyStore, CertificateType certificateType) {
@@ -346,10 +348,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     * Process the certificate status base on its expiration date.
+     * Process the pki status base on its expiration date.
      *
-     * @param notAfter the expiration date of the certificate.
-     * @return the certificate status.
+     * @param notAfter the expiration date of the pki.
+     * @return the pki status.
      */
     protected CertificateStatus getCertificateStatus(Date notAfter) {
         int revocationOffsetInDays = domibusPropertyProvider.getIntegerProperty(REVOCATION_TRIGGER_OFFSET_PROPERTY);
@@ -357,7 +359,7 @@ public class CertificateServiceImpl implements CertificateService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
         LocalDateTime certificateEnd = LocalDateTime.fromDateFields(notAfter);
-        LOG.debug("Current date[{}], offset date[{}], certificate end date:[{}]", now, offsetDate, certificateEnd);
+        LOG.debug("Current date[{}], offset date[{}], pki end date:[{}]", now, offsetDate, certificateEnd);
         if (now.isAfter(certificateEnd)) {
             return CertificateStatus.REVOKED;
         } else if (offsetDate.isAfter(certificateEnd)) {
@@ -392,15 +394,15 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             certFactory = CertificateFactory.getInstance("X.509");
         } catch (CertificateException e) {
-            LOG.warn("Error initializing certificate factory ", e);
-            throw new DomibusCertificateException("Could not initialize certificate factory", e);
+            LOG.warn("Error initializing pki factory ", e);
+            throw new DomibusCertificateException("Could not initialize pki factory", e);
         }
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
         try {
             cert = (X509Certificate) certFactory.generateCertificate(in);
         } catch (CertificateException e) {
-            LOG.warn("Error generating certificate ", e);
-            throw new DomibusCertificateException("Could not generate certificate", e);
+            LOG.warn("Error generating pki ", e);
+            throw new DomibusCertificateException("Could not generate pki", e);
         }
         return cert;
     }
@@ -437,7 +439,7 @@ public class CertificateServiceImpl implements CertificateService {
                 if (o.getType().equals("CERTIFICATE")) {
                     Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
                     final X509Certificate certificate = (X509Certificate) c;
-                    LOG.debug("Deserialized certificate:[{}]", certificate.getSubjectDN());
+                    LOG.debug("Deserialized pki:[{}]", certificate.getSubjectDN());
                     certificates.add(certificate);
                 } else {
                     throw new IllegalArgumentException("Unknown type " + o.getType());
@@ -456,7 +458,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate extractLeafCertificateFromChain(List<? extends Certificate> certificates) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Extracting leaf certificate from chain");
+            LOG.trace("Extracting leaf pki from chain");
             for (Certificate certificate : certificates) {
                 LOG.trace("Certificate:[{}]", certificate);
             }
@@ -481,11 +483,11 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.debug("Not an issuer:[{}]", leafSubjet);
             return subjectMap.get(leafSubjet);
         }
-        //In case of unique self-signed certificate, the issuer and the subject are the same.
+        //In case of unique self-signed pki, the issuer and the subject are the same.
         if (certificates.size() == 1) {
             return certificates.get(0);
         }
-        LOG.error("Certificate exchange type is X_509_PKIPATHV_1 but no leaf certificate has been found");
+        LOG.error("Certificate exchange type is X_509_PKIPATHV_1 but no leaf pki has been found");
         return null;
     }
 
@@ -497,7 +499,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     public TrustStoreEntry getPartyCertificateFromTruststore(String partyName) throws KeyStoreException {
         X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
-        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
+        LOG.debug("get pki from truststore for [{}] = [{}] ", partyName, cert);
         TrustStoreEntry res = createTrustStoreEntry(cert);
         if (res != null)
             res.setFingerprints(extractFingerprints(cert));
@@ -506,7 +508,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
         X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
-        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
+        LOG.debug("get pki from truststore for [{}] = [{}] ", partyName, cert);
         return cert;
     }
 
@@ -540,8 +542,8 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             der = certificate.getEncoded();
         } catch (CertificateEncodingException e) {
-            LOG.warn("Error encoding certificate ", e);
-            throw new DomibusCertificateException("Could not encode certificate", e);
+            LOG.warn("Error encoding pki ", e);
+            throw new DomibusCertificateException("Could not encode pki", e);
         }
         md.update(der);
         byte[] digest = md.digest();

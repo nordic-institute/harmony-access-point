@@ -2,10 +2,7 @@ package eu.domibus.core.crypto.spi.dss;
 
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.ServerInfoExtService;
+import eu.domibus.ext.services.*;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
@@ -319,7 +316,8 @@ public class DssConfiguration {
                                                         final CertificateVerifier certificateVerifier,
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
-                                                        final ValidationConstraintPropertyMapper constraintMapper) {
+                                                        final ValidationConstraintPropertyMapper constraintMapper,
+                                                        final PkiExtService pkiExtService) {
         //needed to initialize WSS4J property bundles to have correct message in the WSSException.
         WSSConfig.init();
         return new DomibusDssCryptoSpi(
@@ -327,6 +325,7 @@ public class DssConfiguration {
                 certificateVerifier,
                 tslRepository,
                 validationReport,
-                constraintMapper);
+                constraintMapper,
+                pkiExtService);
     }
 }

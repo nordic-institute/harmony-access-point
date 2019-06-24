@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
+import eu.domibus.ext.services.PkiExtService;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateValidator;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -35,8 +36,9 @@ public class DomibusDssCryptoSpiTest {
     public void verifyEnmtpytTrustNoChain(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
                                           @Mocked CertificateVerifier certificateVerifier,
                                           @Mocked TSLRepository tslRepository,
-                                          @Mocked ValidationReport validationReport) throws WSSecurityException {
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport, null);
+                                          @Mocked ValidationReport validationReport,
+                                          @Mocked PkiExtService pkiExtService) throws WSSecurityException {
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport, null, pkiExtService);
         domibusDssCryptoProvider.verifyTrust(new X509Certificate[]{}, true, null, null);
         fail("WSSecurityException expected");
     }
@@ -56,7 +58,7 @@ public class DomibusDssCryptoSpiTest {
             chainCertificate.getBasicConstraints();
             result = 0;
         }};
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport, null);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport, null, null);
         domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
         fail("WSSecurityException expected");
     }
@@ -99,7 +101,7 @@ public class DomibusDssCryptoSpiTest {
             }
         };
 
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport.getMockInstance(), constraintMapper);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport.getMockInstance(), constraintMapper, null);
         try {
             domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
             fail("AuthenticationException expected");
@@ -147,7 +149,7 @@ public class DomibusDssCryptoSpiTest {
             }
         };
 
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport.getMockInstance(), constraintMapper);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport.getMockInstance(), constraintMapper, null);
         try {
             domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
             fail("AuthenticationException expected");
@@ -194,7 +196,7 @@ public class DomibusDssCryptoSpiTest {
                 return Lists.newArrayList();
             }
         };
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport.getMockInstance(), constraintMapper);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, certificateVerifier, tslRepository, validationReport.getMockInstance(), constraintMapper, null);
         domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
 
     }
