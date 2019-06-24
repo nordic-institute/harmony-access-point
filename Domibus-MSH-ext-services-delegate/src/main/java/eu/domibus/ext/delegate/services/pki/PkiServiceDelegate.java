@@ -18,6 +18,9 @@ public class PkiServiceDelegate implements PkiExtService {
     @Autowired
     private CertificateService certificateService;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Certificate extractLeafCertificateFromChain(final List<? extends Certificate> certificates) {
         return certificateService.extractLeafCertificateFromChain(certificates);
