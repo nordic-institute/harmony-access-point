@@ -4,11 +4,17 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.ebms3.common.model.PullRequest;
+import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.PullRequestDTO;
+import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.routing.BackendFilterEntity;
+import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,11 +57,33 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T)domibusCoreMapper.backendFilterToBackendFilterEntity((BackendFilter) source);
         }
 
+        if(typeOfT == RoutingCriteria.class) {
+            return (T)domibusCoreMapper.routingCriteriaEntityToRoutingCriteria((RoutingCriteriaEntity) source);
+        }
+        if(typeOfT == RoutingCriteriaEntity.class) {
+            return (T)domibusCoreMapper.routingCriteriaToRoutingCriteriaEntity((RoutingCriteria) source);
+        }
+
         if(typeOfT == MessageAttempt.class) {
             return (T)domibusCoreMapper.messageAttemptEntityToMessageAttempt((MessageAttemptEntity) source);
         }
         if(typeOfT == MessageAttemptEntity.class) {
             return (T)domibusCoreMapper.messageAttemptToMessageAttemptEntity((MessageAttempt) source);
+        }
+
+
+        if(typeOfT == UserMessage.class) {
+            return (T)domibusCoreMapper.userMessageDTOToUserMessage((UserMessageDTO) source);
+        }
+        if(typeOfT == UserMessageDTO.class) {
+            return (T)domibusCoreMapper.userMessageToUserMessageDTO((UserMessage) source);
+        }
+
+        if(typeOfT == PullRequest.class) {
+            return (T)domibusCoreMapper.pullRequestDTOToPullRequest((PullRequestDTO) source);
+        }
+        if(typeOfT == PullRequestDTO.class) {
+            return (T)domibusCoreMapper.pullRequestToPullRequestDTO((PullRequest) source);
         }
 
         LOG.warn("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
