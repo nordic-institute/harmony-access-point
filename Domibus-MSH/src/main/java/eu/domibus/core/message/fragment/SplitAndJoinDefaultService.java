@@ -20,6 +20,7 @@ import eu.domibus.common.services.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.*;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeProvider;
@@ -640,7 +641,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         LOG.debug("Compressing the source message file [{}] to [{}]", fileName, compressedFileName);
         try (GZIPOutputStream out = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(compressedFileName)));
              FileInputStream sourceMessageInputStream = new FileInputStream(fileName)) {
-            byte[] buffer = new byte[MessagingServiceImpl.DEFAULT_BUFFER_SIZE];
+            byte[] buffer = new byte[PayloadPersistence.DEFAULT_BUFFER_SIZE];
             int len;
             while ((len = sourceMessageInputStream.read(buffer)) != -1) {
                 out.write(buffer, 0, len);
@@ -690,7 +691,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         LOG.debug("Splitting SourceMessage [{}] into [{}] fragments, bytesPerSplit [{}], remainingBytes [{}]", sourceMessageFile, fragmentCount, bytesPerSplit, remainingBytes);
 
-        int maxReadBufferSize = MessagingServiceImpl.DEFAULT_BUFFER_SIZE;
+        int maxReadBufferSize = PayloadPersistence.DEFAULT_BUFFER_SIZE;
         try (RandomAccessFile raf = new RandomAccessFile(sourceMessageFile, "r")) {
             for (int index = 1; index <= fragmentCount; index++) {
                 final String fragmentFileName = getFragmentFileName(storageDirectory, sourceMessageFile.getName(), index);
@@ -802,7 +803,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected void decompressGzip(File input, File output) throws IOException {
         try (GZIPInputStream in = new GZIPInputStream(new FileInputStream(input))) {
             try (FileOutputStream out = new FileOutputStream(output)) {
-                IOUtils.copy(in, out, MessagingServiceImpl.DEFAULT_BUFFER_SIZE);
+                IOUtils.copy(in, out, PayloadPersistence.DEFAULT_BUFFER_SIZE);
             }
         }
     }

@@ -150,7 +150,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
                 outputStream = new GZIPOutputStream(outputStream);
             }
 
-            final long total = IOUtils.copy(is, outputStream, MessagingServiceImpl.DEFAULT_BUFFER_SIZE);
+            final long total = IOUtils.copy(is, outputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
             LOG.debug("Done writing file [{}]. Written [{}] bytes.", file.getName(), total);
             return total;
         } finally {

@@ -42,7 +42,7 @@ public class MessagingServiceImpl implements MessagingService {
 
     public static final String MIME_TYPE_APPLICATION_UNKNOWN = "application/unknown";
     public static final String PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD = "domibus.dispatcher.splitAndJoin.payloads.schedule.threshold";
-    public static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
+
     protected static Long BYTES_IN_MB = 1048576L;
 
 
