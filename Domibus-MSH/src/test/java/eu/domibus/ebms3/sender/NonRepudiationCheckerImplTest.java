@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.sender;
 
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.NonRepudiationConstants;
-import eu.domibus.util.SoapUtil;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
@@ -16,7 +16,6 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;

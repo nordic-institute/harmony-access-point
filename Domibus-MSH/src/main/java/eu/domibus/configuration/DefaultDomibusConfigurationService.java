@@ -2,6 +2,7 @@ package eu.domibus.configuration;
 
 import eu.domibus.api.configuration.DataBaseEngine;
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -63,6 +64,11 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Override
     public boolean isExtAuthProviderEnabled() {
         return domibusPropertyProvider.getBooleanProperty(EXTERNAL_AUTH_PROVIDER);
+    }
+
+    @Override
+    public boolean isPayloadEncryptionActive(Domain domain) {
+        return domibusPropertyProvider.getBooleanDomainProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
     }
 
 }

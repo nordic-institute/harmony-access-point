@@ -1,13 +1,18 @@
 package eu.domibus.ebms3.common.model;
 
 import eu.domibus.common.AutoCloseFileDataSource;
+import eu.domibus.core.encryption.DecryptDataSource;
+import eu.domibus.core.encryption.EncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.spring.SpringContextProvider;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.crypto.Cipher;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
@@ -83,6 +88,10 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "PART_ORDER", nullable = false)
     private int partOrder = 0;
 
+    @XmlTransient
+    @Column(name = "ENCRYPTED")
+    protected boolean encrypted;
+
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;
     }
@@ -123,21 +132,47 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         return fileName;
     }
 
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
     @PostLoad
     private void loadBinaray() {
         if (fileName != null) { /* Create payload data handler from File */
             LOG.debug("LoadBinary from file: " + fileName);
-            payloadDatahandler = new DataHandler(new AutoCloseFileDataSource(fileName));
+            DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
+            if (encrypted) {
+                LOG.debug("Using DecryptDataSource for payload [{}]", href);
+                final Cipher decryptCipher = getDecryptCipher();
+                fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
+            }
+            payloadDatahandler = new DataHandler(fsDataSource);
             return;
         }
         /* Create payload data handler from binaryData (byte[]) */
-        if(binaryData == null) {
+        if (binaryData == null) {
             LOG.debug("Payload is empty!");
             payloadDatahandler = null;
         } else {
-            payloadDatahandler = new DataHandler(new ByteArrayDataSource(binaryData, mime));
+            DataSource dataSource = new ByteArrayDataSource(binaryData, mime);
+            if (encrypted) {
+                LOG.debug("Using DecryptDataSource for payload [{}]", href);
+                final Cipher decryptCipher = getDecryptCipher();
+                dataSource = new DecryptDataSource(dataSource, decryptCipher);
+            }
+            payloadDatahandler = new DataHandler(dataSource);
         }
 
+    }
+
+    protected Cipher getDecryptCipher() {
+        LOG.debug("Getting decrypt cipher for payload [{}]", href);
+        final EncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", EncryptionService.class);
+        return encryptionService.getDecryptCipherForPayload();
     }
 
     /**

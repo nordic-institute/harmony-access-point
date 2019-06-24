@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-3637">
+        <addColumn tableName="TB_PART_INFO">
+            <column name="ENCRYPTED" type="BOOLEAN" defaultValueBoolean="false"/>
+        </addColumn>
+
+        <createTable tableName="TB_ENCRYPTION_KEY">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="KEY_USAGE" type="VARCHAR(255)"/>
+            <column name="SECRET_KEY" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INIT_VECTOR" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+</databaseChangeLog>

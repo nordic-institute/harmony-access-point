@@ -6,7 +6,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -19,10 +18,12 @@ import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.AS4ReceiptService;
 import eu.domibus.common.services.impl.MessageRetentionService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
-import eu.domibus.configuration.storage.Storage;
-import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.AttachmentCleanupService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.Error;
@@ -34,8 +35,6 @@ import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
 import eu.domibus.pki.PolicyService;
-import eu.domibus.util.MessageUtil;
-import eu.domibus.util.SoapUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
@@ -45,7 +44,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -96,7 +94,7 @@ public class SplitAndJoinDefaultServiceTest {
     protected PModeProvider pModeProvider;
 
     @Injectable
-    protected StorageProvider storageProvider;
+    protected PayloadFileStorageProvider storageProvider;
 
     @Injectable
     protected MessageUtil messageUtil;
@@ -964,7 +962,7 @@ public class SplitAndJoinDefaultServiceTest {
         String sourceFileName = sourceFile.getAbsolutePath();
 
         new Expectations(splitAndJoinDefaultService) {{
-            domibusPropertyProvider.getProperty(Storage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
             result = temporaryDirectoryLocation.getAbsolutePath();
 
             splitAndJoinDefaultService.generateSourceFileName(temporaryDirectoryLocation.getAbsolutePath());
