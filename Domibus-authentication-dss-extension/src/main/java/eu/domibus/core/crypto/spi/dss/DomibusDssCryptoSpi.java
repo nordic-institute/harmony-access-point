@@ -17,6 +17,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -117,12 +118,11 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         if (certs.length == 1) {
             return certs[0];
         }
-        final List<X509Certificate> leafCertificate = Arrays.stream(certs).
-                filter(x509Certificate -> x509Certificate.getBasicConstraints() == -1).collect(Collectors.toList());
-        if (leafCertificate.size() != 1) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf certificate"});
+        Certificate certificate = pkiExtService.extractLeafCertificateFromChain(Lists.newArrayList(certs));
+        if (certificate == null) {
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf pki"});
         }
-        return leafCertificate.get(0);
+        return (X509Certificate) certificate;
     }
 
     protected void logDebugTslInfo() {

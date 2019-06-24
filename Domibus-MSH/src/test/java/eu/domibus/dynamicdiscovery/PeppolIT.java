@@ -2,8 +2,6 @@ package eu.domibus.dynamicdiscovery;
 
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.util.EndpointInfo;
-import eu.domibus.pki.CertificateService;
-import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
 import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -22,16 +20,11 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import java.security.cert.X509Certificate;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author idragusa
