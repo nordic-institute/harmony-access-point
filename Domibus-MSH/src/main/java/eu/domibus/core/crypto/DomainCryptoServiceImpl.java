@@ -17,13 +17,13 @@ import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.callback.CallbackHandler;
+import javax.xml.ws.WebServiceException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
@@ -150,9 +150,9 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
                 case EBMS_0101:
                     EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender certificate is not valid or has been revoked", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e);
                     ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-                    throw new Fault(ebMS3Ex);
+                    throw new WebServiceException(ebMS3Ex);
                 default:
-                    throw new Fault(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e));
+                    throw new WebServiceException(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e));
             }
         }
     }

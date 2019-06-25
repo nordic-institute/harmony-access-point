@@ -73,7 +73,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         //add signing pki to DSS.
         CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
         certificateVerifier.setAdjunctCertSource(adjunctCertSource);
-        LOG.debug("Leaf pki:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
+        LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
         //add leaf pki to DSS
         CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate);
         //Validate.
@@ -86,10 +86,10 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         final List<ConstraintInternal> constraints = constraintMapper.map();
         List<String> invalidConstraints = validationReport.extractInvalidConstraints(reports, constraints);
         if (!invalidConstraints.isEmpty()) {
-            LOG.error("Dss triggered and error while validating the pki chain:[{}]", reports.getXmlSimpleReport());
+            LOG.error("Dss triggered and error while validating the certificate chain:[{}]", reports.getXmlSimpleReport());
             validationReport.checkConstraint(invalidConstraints);
         }
-        LOG.trace("Incoming message pki chain has been validated by DSS.");
+        LOG.trace("Incoming message certificate chain has been validated by DSS.");
     }
 
     protected CertificateValidator prepareCertificateValidator(X509Certificate leafCertificate) {
@@ -108,19 +108,19 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         for (X509Certificate x509TrustCertificate : trustChain) {
             CertificateToken certificateToken = new CertificateToken(x509TrustCertificate);
             adjunctCertSource.addCertificate(certificateToken);
-            LOG.debug("Trust pki:[{}] added to DSS", x509TrustCertificate.getSubjectDN().getName());
+            LOG.debug("Trust certificate:[{}] added to DSS", x509TrustCertificate.getSubjectDN().getName());
         }
         return adjunctCertSource;
     }
 
     protected X509Certificate getX509LeafCertificate(X509Certificate[] certs) throws WSSecurityException {
-        LOG.debug("Getting leaf pki out of a list of pki with size:[{}]", certs.length);
+        LOG.debug("Getting leaf certificate out of a list of certificate with size:[{}]", certs.length);
         if (certs.length == 1) {
             return certs[0];
         }
         Certificate certificate = pkiExtService.extractLeafCertificateFromChain(Lists.newArrayList(certs));
         if (certificate == null) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf pki"});
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf certificate"});
         }
         return (X509Certificate) certificate;
     }
