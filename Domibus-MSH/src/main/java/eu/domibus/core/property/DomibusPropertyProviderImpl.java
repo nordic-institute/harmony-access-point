@@ -404,10 +404,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         handlePropertyChange(domainCode, propertyName, propertyValue);
     }
 
-//    @Override
     private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
         //notify interested listeners that the property changed
-        //TODO: shall we filter by module( core, plugins)
+        //TODO: shall we filter by module( core, plugins)??
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());

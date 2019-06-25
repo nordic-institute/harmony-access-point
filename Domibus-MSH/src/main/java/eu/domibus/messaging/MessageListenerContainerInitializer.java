@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +72,7 @@ public class MessageListenerContainerInitializer {
 
     /**
      * It will collect and instantiates all {@link PluginMessageListenerContainer} defined in plugins
+     *
      * @param domain
      */
     public void createMessageListenersForPlugins(Domain domain) {
@@ -89,10 +91,21 @@ public class MessageListenerContainerInitializer {
         }
     }
 
+    Map<Domain, MessageListenerContainer> instances1 = new HashMap<>();
+
     public void createSendMessageListenerContainer(Domain domain) {
+        if (instances1.containsKey(domain)) {
+            try {
+                ((AbstractJmsListeningContainer) instances1.get(domain)).shutdown();
+                instances1.remove(domain);
+            } catch (Exception e) {
+                LOG.error("Error while shutting down MessageListenerContainer", e);
+                return;
+            }
+        }
         MessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
         instance.start();
-        instances.add(instance);
+        instances1.put(domain, instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
 
