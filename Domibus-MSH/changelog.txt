@@ -1,3 +1,8 @@
+Domibus 4.1.1
+- Added the possibility to download PMode file using REST services
+- Removed the Domibus payload from being printed to logs if org.apache.cxf is set to INFO in logging.xml - domibus.logging.payload.print property (default to false)
+- JMS Plugin queues are available to remote clients for Wildfly 12
+
 Domibus 4.1-RC1
 - Implement the Split And Join feature
 - Implement EU Login Support

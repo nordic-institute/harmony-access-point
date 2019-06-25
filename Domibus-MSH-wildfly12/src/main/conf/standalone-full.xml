@@ -545,12 +545,12 @@
                 </in-vm-acceptor>
                 <jms-queue name="ExpiryQueue" entries="java:/jms/queue/ExpiryQueue"/>
                 <jms-queue name="DLQ" entries="java:/jms/queue/DLQ"/>
-                <jms-queue name="DomibusBusinessMessageOutQueue" entries="java:/jms/domibus.backend.jms.outQueue java:/jms/queue/DomibusBusinessMessageOutQueue" durable="true"/>
-                <jms-queue name="DomibusNotifyBackendJmsQueue" entries="java:/jms/domibus.notification.jms java:/jms/queue/DomibusNotifyBackendJmsQueue" durable="true"/>
-                <jms-queue name="DomibusErrorNotifyConsumerQueue" entries="java:/jms/domibus.backend.jms.errorNotifyConsumer java:/jms/queue/DomibusErrorNotifyConsumerQueue" durable="true"/>
-                <jms-queue name="DomibusErrorNotifyProducerQueue" entries="java:/jms/domibus.backend.jms.errorNotifyProducer java:/jms/queue/DomibusErrorNotifyProducerQueue" durable="true"/>
-                <jms-queue name="DomibusBusinessMessageInQueue" entries="java:/jms/domibus.backend.jms.inQueue java:/jms/queue/DomibusBusinessMessageInQueue" durable="true"/>
-                <jms-queue name="DomibusPluginToBackendQueue" entries="java:/jms/domibus.backend.jms.replyQueue java:/jms/queue/DomibusPluginToBackendQueue" durable="true"/>
+                <jms-queue name="DomibusBusinessMessageOutQueue" entries="java:/jms/domibus.backend.jms.outQueue java:/jms/queue/DomibusBusinessMessageOutQueue java:jboss/exported/jms/queue/DomibusBusinessMessageOutQueue" durable="true"/>
+                <jms-queue name="DomibusNotifyBackendJmsQueue" entries="java:/jms/domibus.notification.jms java:/jms/queue/DomibusNotifyBackendJmsQueue java:jboss/exported/jms/queue/DomibusNotifyBackendJmsQueue" durable="true"/>
+                <jms-queue name="DomibusErrorNotifyConsumerQueue" entries="java:/jms/domibus.backend.jms.errorNotifyConsumer java:/jms/queue/DomibusErrorNotifyConsumerQueue  java:jboss/exported/jms/queue/DomibusErrorNotifyConsumerQueue" durable="true"/>
+                <jms-queue name="DomibusErrorNotifyProducerQueue" entries="java:/jms/domibus.backend.jms.errorNotifyProducer java:/jms/queue/DomibusErrorNotifyProducerQueue java:jboss/exported/jms/queue/DomibusErrorNotifyProducerQueue" durable="true"/>
+                <jms-queue name="DomibusBusinessMessageInQueue" entries="java:/jms/domibus.backend.jms.inQueue java:/jms/queue/DomibusBusinessMessageInQueue java:jboss/exported/jms/queue/DomibusBusinessMessageInQueue" durable="true"/>
+                <jms-queue name="DomibusPluginToBackendQueue" entries="java:/jms/domibus.backend.jms.replyQueue java:/jms/queue/DomibusPluginToBackendQueue java:jboss/exported/jms/queue/DomibusPluginToBackendQueue" durable="true"/>
                 <jms-queue name="DomibusSendMessageQueue" entries="java:/jms/domibus.internal.dispatch.queue java:/jms/queue/DomibusSendMessageQueue" durable="true"/>
                 <jms-queue name="DomibusSendLargeMessageQueue" entries="java:/jms/domibus.internal.largeMessage.queue java:/jms/queue/DomibusSendLargeMessageQueue" durable="true"/>
                 <jms-queue name="DomibusSplitAndJoinQueue" entries="java:/jms/domibus.internal.splitAndJoin.queue java:/jms/queue/DomibusSplitAndJoinQueue" durable="true"/>
@@ -569,6 +569,7 @@
                 <connection-factory name="InVmConnectionFactory" entries="java:/ConnectionFactory" connectors="in-vm"/>
                 <connection-factory name="RemoteConnectionFactory" entries="java:jboss/exported/jms/RemoteConnectionFactory" connectors="http-connector"/>
                 <connection-factory name="edeliveryConnectionFactory" entries="java:/jms/ConnectionFactory" connectors="in-vm" compress-large-messages="false" failover-on-initial-connection="false" use-global-pools="true"/>
+                <connection-factory name="edeliveryRemoteConnectionFactory" entries="java:jboss/exported/jms/ConnectionFactory" connectors="http-connector" compress-large-messages="false" failover-on-initial-connection="false" use-global-pools="true"/>
                 <pooled-connection-factory name="activemq-ra" entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory" connectors="in-vm" transaction="xa"/>
             </server>
         </subsystem>
