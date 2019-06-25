@@ -14,4 +14,6 @@ public interface DomibusConfigurationExtService {
      * @return true if Domibus runs in multi tenancy mode
      */
     boolean isMultiTenantAware();
+
+    boolean isSecuredLoginRequired();
 }
