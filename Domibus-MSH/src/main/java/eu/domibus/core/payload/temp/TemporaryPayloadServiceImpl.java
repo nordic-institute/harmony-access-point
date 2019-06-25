@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
 public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TemporaryPayloadServiceImpl.class);
+    public static final String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
+    public static final String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
+    public static final String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -70,21 +73,21 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
     }
 
     protected IOFileFilter getRegexFileFilter() {
-        final String excludeRegex = domibusPropertyProvider.getProperty("domibus.payload.temp.job.retention.exclude.regex");
+        final String excludeRegex = domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
         LOG.debug("Using temp payload retention regex [{}]", excludeRegex);
         Pattern pattern = Pattern.compile(excludeRegex);
         return FileFilterUtils.notFileFilter(new RegexIOFileFilter(pattern));
     }
 
     protected IOFileFilter getAgeFileFilter() {
-        final int expirationThresholdInMinutes = domibusPropertyProvider.getIntegerProperty("domibus.payload.temp.job.retention.expiration");
+        final int expirationThresholdInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
         LOG.debug("Using temp payload retention expiration threshold in minutes [{}]", expirationThresholdInMinutes);
         long cutoff = System.currentTimeMillis() - (expirationThresholdInMinutes * 60 * 1000);
         return FileFilterUtils.ageFileFilter(cutoff);
     }
 
     protected List<File> getTemporaryLocations() {
-        final String directories = domibusPropertyProvider.getProperty("domibus.payload.temp.job.retention.directories");
+        final String directories = domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
         if (StringUtils.isEmpty(directories)) {
             LOG.debug("No configured payload temporary directories to clean");
             return new ArrayList<>();
