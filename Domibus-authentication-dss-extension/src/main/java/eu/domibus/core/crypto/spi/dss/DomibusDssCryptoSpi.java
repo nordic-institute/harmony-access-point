@@ -70,11 +70,11 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Certificate chain expected with a minimum size of 1 but is empty"});
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
-        //add signing pki to DSS.
+        //add signing certificate to DSS.
         CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
         certificateVerifier.setAdjunctCertSource(adjunctCertSource);
         LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
-        //add leaf pki to DSS
+        //add leaf certificate to DSS
         CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate);
         //Validate.
         validate(certificateValidator);
