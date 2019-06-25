@@ -11,7 +11,6 @@ import java.util.List;
  */
 public interface PkiExtService {
 
-
     /**
      * Given a chain of signing certificates (Trust chain + leaf), extract the leaf one.
      *
