@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class DomibusDssCryptoSpiTest {
 
-    @org.junit.Test(expected = WSSecurityException.class)
+    @Test(expected = WSSecurityException.class)
     public void verifyEnmtpytTrustNoChain(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
                                           @Mocked CertificateVerifier certificateVerifier,
                                           @Mocked TSLRepository tslRepository,
@@ -44,7 +44,7 @@ public class DomibusDssCryptoSpiTest {
         fail("WSSecurityException expected");
     }
 
-    @org.junit.Test(expected = WSSecurityException.class)
+    @Test(expected = WSSecurityException.class)
     public void verifyTrustNoLeafCertificate(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
                                              @Mocked CertificateVerifier certificateVerifier,
                                              @Mocked TSLRepository tslRepository,
@@ -63,7 +63,7 @@ public class DomibusDssCryptoSpiTest {
         fail("WSSecurityException expected");
     }
 
-    @org.junit.Test
+    @Test
     public void verifyTrustNotValid(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
                                     @Mocked CertificateVerifier certificateVerifier,
                                     @Mocked TSLRepository tslRepository,
@@ -111,7 +111,7 @@ public class DomibusDssCryptoSpiTest {
         }
     }
 
-    @org.junit.Test
+    @Test
     public void verifyValidityNotValid(@Mocked DomainCryptoServiceSpi defaultDomainCryptoService,
                                        @Mocked CertificateVerifier certificateVerifier,
                                        @Mocked TSLRepository tslRepository,

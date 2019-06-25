@@ -65,7 +65,6 @@ public class ValidationReportTest {
 
         final List<ConstraintInternal> constraints = new ArrayList<>();
         constraints.add(new ConstraintInternal("BBB_XCV_CCCBB", "OK"));
-        // constraints.add(new ConstraintInternal("BBB_XCV_ICTIVRSC", "OK"));
         ValidationReport validationReport = new ValidationReport();
         Assert.assertTrue(validationReport.extractInvalidConstraints(certificateReports, constraints).isEmpty());
     }
@@ -84,7 +83,7 @@ public class ValidationReportTest {
         ValidationReport validationReport = new ValidationReport();
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
-            result = new DetailedReport();
+            result = detailedReport;
         }};
         Assert.assertFalse(validationReport.extractInvalidConstraints(certificateReports, constraints).isEmpty());
     }

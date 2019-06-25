@@ -11,6 +11,8 @@ import java.util.List;
 /**
  * @author Thomas Dussart
  * @since 4.1
+ *
+ * Delegate class allowing Domibus extension/plugin to use some certificate related functions of Domibus.
  */
 @Service
 public class PkiServiceDelegate implements PkiExtService {
