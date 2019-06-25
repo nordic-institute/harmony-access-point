@@ -12,7 +12,7 @@ public class SendJMSMessageOnWildFly {
     //the user has to have the necessary roles; the security configuration is done in the WildFly profile under  <security-settings>
     private static final String USER = "jmssender";
     private static final String PASSWORD = "jmssender";
-    private static final String CONNECTION_FACTORY_JNDI = "jms/connectionFactory";
+    private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
     private static final String QUEUE = "jms/queue/DomibusBusinessMessageInQueue";
 
     public static void main(String[] args) throws Exception {
