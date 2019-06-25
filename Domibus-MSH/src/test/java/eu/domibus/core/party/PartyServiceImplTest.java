@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Identifier;
 import eu.domibus.api.party.Party;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.process.Process;
 import eu.domibus.common.dao.PartyDao;
@@ -19,14 +20,7 @@ import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.pki.CertificateService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.NonStrictExpectations;
-import mockit.Tested;
-import mockit.Verifications;
-import mockit.VerificationsInOrder;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,17 +31,9 @@ import org.junit.runner.RunWith;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Dussart

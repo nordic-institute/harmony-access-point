@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -29,7 +30,6 @@ import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.util.MessageUtil;
 import eu.domibus.util.SoapUtil;
 import mockit.*;
