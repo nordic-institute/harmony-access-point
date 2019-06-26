@@ -1,8 +1,10 @@
-package eu.domibus.tomcat.activemq;
+package eu.domibus.tomcat.activemq.condition;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -10,9 +12,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @since 3.3
  */
 @Configuration
-public class DummyEmbeddedActiveMQConfiguration implements Condition {
+public class DummyEmbeddedActiveMQCondition implements Condition {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DummyEmbeddedActiveMQConfiguration.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DummyEmbeddedActiveMQCondition.class);
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -21,10 +23,4 @@ public class DummyEmbeddedActiveMQConfiguration implements Condition {
         return dummyActiveMQBroker;
     }
 
-    @Bean(name = "broker")
-    @Conditional(DummyEmbeddedActiveMQConfiguration.class)
-    public Object activeMQBroker() {
-        LOGGER.debug("Creating a dummy bean to satisfy the depends-on dependencies");
-        return new Object();
-    }
 }
