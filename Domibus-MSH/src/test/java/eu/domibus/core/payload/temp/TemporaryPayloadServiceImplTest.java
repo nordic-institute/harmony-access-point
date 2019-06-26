@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -118,14 +120,81 @@ public class TemporaryPayloadServiceImplTest {
     }
 
     @Test
-    public void getTemporaryLocations() {
+    public void getTemporaryLocations(@Injectable File dir1,
+                                      @Injectable File dir2) {
+        String directories = "dir1,dir2";
+
+        new Expectations(temporaryPayloadService) {{
+            domibusPropertyProvider.getProperty(TemporaryPayloadServiceImpl.DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
+            result = directories;
+
+            temporaryPayloadService.getDirectory("dir1");
+            result = dir1;
+
+            temporaryPayloadService.getDirectory("dir2");
+            result = dir2;
+        }};
+
+        final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations();
+        Assert.assertEquals(temporaryLocations.size(), 2);
+        Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
+        Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
     }
 
     @Test
-    public void getDirectory() {
+    public void getDirectory(@Injectable File directoryFile) {
+        String directory = "dir1";
+
+        new Expectations(temporaryPayloadService) {{
+            temporaryPayloadService.getDirectoryIfExists(directory);
+            result = directoryFile;
+        }};
+
+        final File payloadServiceDirectory = temporaryPayloadService.getDirectory(directory);
+        Assert.assertSame(payloadServiceDirectory, directoryFile);
+
+        new Verifications() {{
+            domibusPropertyProvider.getProperty(anyString);
+            times = 0;
+        }};
     }
 
     @Test
-    public void getDirectoryIfExists() {
+    public void getDirectoryFromDomibusProperties(@Injectable File directoryFile) {
+        String directory = "dir1";
+
+        new Expectations(temporaryPayloadService) {{
+            temporaryPayloadService.getDirectoryIfExists(directory);
+            result = null;
+
+            domibusPropertyProvider.getProperty(directory);
+            result = "myprop";
+
+            temporaryPayloadService.getDirectoryIfExists("myprop");
+            result = directoryFile;
+        }};
+
+        final File payloadServiceDirectory = temporaryPayloadService.getDirectory(directory);
+        Assert.assertSame(payloadServiceDirectory, directoryFile);
+    }
+
+    @Test
+    public void getDirectoryIfExists(@Mocked File file,
+                                     @Mocked LoggerFactory loggerFactory) {
+        String directory = "dir1";
+
+        new Expectations() {{
+            new File(directory);
+            result = file;
+
+            file.exists();
+            result = true;
+
+            file.getPath();
+            result = "/mypath";
+        }};
+
+        final File result = temporaryPayloadService.getDirectoryIfExists(directory);
+        Assert.assertEquals(result.getPath(), file.getPath());
     }
 }
