@@ -9,6 +9,8 @@ public class PModeArchiveInfo {
     private String username;
     private String description;
 
+    public PModeArchiveInfo(){}
+
     public PModeArchiveInfo(int id, Date configurationDate, String username, String description) {
         this.id = id;
         this.configurationDate = configurationDate;

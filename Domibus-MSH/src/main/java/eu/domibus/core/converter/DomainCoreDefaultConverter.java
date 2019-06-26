@@ -1,12 +1,33 @@
 package eu.domibus.core.converter;
 
+import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.cluster.Command;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.party.Party;
+import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.api.user.User;
+import eu.domibus.clustering.CommandEntity;
+import eu.domibus.common.model.audit.Audit;
+import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.common.model.logging.SignalMessageLog;
+import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.alerts.model.persist.Alert;
+import eu.domibus.core.alerts.model.persist.Event;
+import eu.domibus.core.crypto.api.CertificateEntry;
+import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.core.party.PartyResponseRo;
+import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.replication.UIMessageDiffEntity;
+import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -16,8 +37,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
-import eu.domibus.web.rest.ro.MessageFilterRO;
-import eu.domibus.web.rest.ro.PluginUserRO;
+import eu.domibus.web.rest.ro.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, idragusa
  * @since 3.3
  */
 @Component
@@ -38,69 +58,293 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
-        if(typeOfT == Process.class) {
-            return (T)domibusCoreMapper.processToProcessAPI((eu.domibus.common.model.configuration.Process)source);
+        if (typeOfT == Process.class && source.getClass() == eu.domibus.common.model.configuration.Process.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.processToProcessAPI((eu.domibus.common.model.configuration.Process) source);
         }
 
-        if(typeOfT == eu.domibus.common.model.configuration.Process.class) {
-            return (T)domibusCoreMapper.processAPIToProcess((Process)source);
+        if (typeOfT == eu.domibus.common.model.configuration.Process.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.processAPIToProcess((Process) source);
         }
 
-        if(typeOfT == Domain.class) {
-            return (T)domibusCoreMapper.domainSpiToDomain((DomainSpi) source);
+        if (typeOfT == Domain.class && source.getClass() == DomainSpi.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domainSpiToDomain((DomainSpi) source);
         }
-        if(typeOfT == DomainSpi.class) {
-            return (T)domibusCoreMapper.domainToDomainSpi((Domain)source);
-        }
-
-        if(typeOfT == BackendFilter.class && source.getClass() == BackendFilterEntity.class) {
-            return (T)domibusCoreMapper.backendFilterEntityToBackendFilter((BackendFilterEntity) source);
-        }
-        if(typeOfT == BackendFilterEntity.class && source.getClass() == BackendFilter.class) {
-            return (T)domibusCoreMapper.backendFilterToBackendFilterEntity((BackendFilter) source);
+        if (typeOfT == DomainSpi.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domainToDomainSpi((Domain) source);
         }
 
-        if(typeOfT == BackendFilter.class && source.getClass() == MessageFilterRO.class) {
-            return (T)domibusCoreMapper.messageFilterROToBackendFilter((MessageFilterRO) source);
+        if (typeOfT == BackendFilter.class && source.getClass() == BackendFilterEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.backendFilterEntityToBackendFilter((BackendFilterEntity) source);
         }
-        if(typeOfT == MessageFilterRO.class && source.getClass() == BackendFilter.class) {
-            return (T)domibusCoreMapper.backendFilterToMessageFilterRO((BackendFilter) source);
-        }
-
-        if(typeOfT == RoutingCriteria.class) {
-            return (T)domibusCoreMapper.routingCriteriaEntityToRoutingCriteria((RoutingCriteriaEntity) source);
-        }
-        if(typeOfT == RoutingCriteriaEntity.class) {
-            return (T)domibusCoreMapper.routingCriteriaToRoutingCriteriaEntity((RoutingCriteria) source);
+        if (typeOfT == BackendFilterEntity.class && source.getClass() == BackendFilter.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.backendFilterToBackendFilterEntity((BackendFilter) source);
         }
 
-        if(typeOfT == MessageAttempt.class) {
-            return (T)domibusCoreMapper.messageAttemptEntityToMessageAttempt((MessageAttemptEntity) source);
+        if (typeOfT == BackendFilter.class && source.getClass() == MessageFilterRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageFilterROToBackendFilter((MessageFilterRO) source);
         }
-        if(typeOfT == MessageAttemptEntity.class) {
-            return (T)domibusCoreMapper.messageAttemptToMessageAttemptEntity((MessageAttempt) source);
-        }
-
-
-        if(typeOfT == UserMessage.class) {
-            return (T)domibusCoreMapper.userMessageDTOToUserMessage((UserMessageDTO) source);
-        }
-        if(typeOfT == UserMessageDTO.class) {
-            return (T)domibusCoreMapper.userMessageToUserMessageDTO((UserMessage) source);
+        if (typeOfT == MessageFilterRO.class && source.getClass() == BackendFilter.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.backendFilterToMessageFilterRO((BackendFilter) source);
         }
 
-        if(typeOfT == PullRequest.class) {
-            return (T)domibusCoreMapper.pullRequestDTOToPullRequest((PullRequestDTO) source);
+        if (typeOfT == RoutingCriteria.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.routingCriteriaEntityToRoutingCriteria((RoutingCriteriaEntity) source);
         }
-        if(typeOfT == PullRequestDTO.class) {
-            return (T)domibusCoreMapper.pullRequestToPullRequestDTO((PullRequest) source);
+        if (typeOfT == RoutingCriteriaEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.routingCriteriaToRoutingCriteriaEntity((RoutingCriteria) source);
         }
 
-        if(typeOfT == PluginUserRO.class) {
-            return (T)domibusCoreMapper.authenticationEntityToPluginUserRO((AuthenticationEntity) source);
+        if (typeOfT == MessageAttempt.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageAttemptEntityToMessageAttempt((MessageAttemptEntity) source);
         }
-        if(typeOfT == AuthenticationEntity.class) {
-            return (T)domibusCoreMapper.pluginUserROToAuthenticationEntity((PluginUserRO) source);
+        if (typeOfT == MessageAttemptEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageAttemptToMessageAttemptEntity((MessageAttempt) source);
+        }
+
+        if (typeOfT == UserMessage.class && source.getClass() == UserMessageDTO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userMessageDTOToUserMessage((UserMessageDTO) source);
+        }
+        if (typeOfT == UserMessageDTO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userMessageToUserMessageDTO((UserMessage) source);
+        }
+
+        if (typeOfT == PullRequest.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.pullRequestDTOToPullRequest((PullRequestDTO) source);
+        }
+        if (typeOfT == PullRequestDTO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.pullRequestToPullRequestDTO((PullRequest) source);
+        }
+
+        if (typeOfT == PluginUserRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.authenticationEntityToPluginUserRO((AuthenticationEntity) source);
+        }
+        if (typeOfT == AuthenticationEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.pluginUserROToAuthenticationEntity((PluginUserRO) source);
+        }
+
+        if (typeOfT == eu.domibus.core.alerts.model.service.Event.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.eventPersistToEventService((Event) source);
+        }
+        if (typeOfT == Event.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.eventServiceToEventPersist((eu.domibus.core.alerts.model.service.Event) source);
+        }
+
+        if (typeOfT == PModeResponseRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.pModeArchiveInfoToPModeResponseRO((PModeArchiveInfo) source);
+        }
+        if (typeOfT == PModeArchiveInfo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.pModeResponseROToPModeArchiveInfo((PModeResponseRO) source);
+        }
+
+        if (typeOfT == TrustStoreRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.trustStoreEntryToTrustStoreRO((TrustStoreEntry) source);
+        }
+        if (typeOfT == TrustStoreEntry.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.trustStoreROToTrustStoreEntry((TrustStoreRO) source);
+        }
+
+        if (typeOfT == AuditResponseRo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.auditLogToAuditResponseRo((AuditLog) source);
+        }
+        if (typeOfT == AuditLog.class && source.getClass() == AuditResponseRo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.auditResponseRoToAuditLog((AuditResponseRo) source);
+        }
+
+        if (typeOfT == DomainRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domainToDomainRO((Domain) source);
+        }
+        if (typeOfT == Domain.class && source.getClass() == DomainRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domainROToDomain((DomainRO) source);
+        }
+
+        if (typeOfT == UserResponseRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userToUserResponseRO((User) source);
+        }
+        if (typeOfT == User.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userResponseROToUser((UserResponseRO) source);
+        }
+
+        if (typeOfT == eu.domibus.common.model.security.User.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userApiToUserSecurity((User) source);
+        }
+        if (typeOfT == User.class && source.getClass() == eu.domibus.common.model.security.User.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userSecurityToUserApi((eu.domibus.common.model.security.User) source);
+        }
+
+        if (typeOfT == AuditLog.class && source.getClass() == Audit.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.auditToAuditLog((Audit) source);
+        }
+        if (typeOfT == Audit.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.auditLogToAudit((AuditLog) source);
+        }
+
+        if (typeOfT == LoggingLevelRO.class && source.getClass() == LoggingEntry.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.loggingLevelROToLoggingEntry((LoggingLevelRO) source);
+        }
+        if (typeOfT == LoggingEntry.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.loggingEntryToLoggingLevelRO((LoggingEntry) source);
+        }
+
+        if (typeOfT == Party.class && source.getClass() == eu.domibus.common.model.configuration.Party.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.configurationPartyToParty((eu.domibus.common.model.configuration.Party) source);
+        }
+        if (typeOfT == eu.domibus.common.model.configuration.Party.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.partyToConfigurationParty((Party) source);
+        }
+
+        if (typeOfT == ProcessRo.class && source.getClass() == Process.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.processToProcessRo((Process) source);
+        }
+        if (typeOfT == Process.class && source.getClass() == ProcessRo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.processRoToProcess((ProcessRo) source);
+        }
+
+        if (typeOfT == Alert.class && source.getClass() == eu.domibus.core.alerts.model.service.Alert.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.alertServiceToAlertPersist((eu.domibus.core.alerts.model.service.Alert) source);
+        }
+        if (typeOfT == eu.domibus.core.alerts.model.service.Alert.class && source.getClass() == Alert.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.alertPersistToAlertService((Alert) source);
+        }
+
+        if (typeOfT == MessageLogRO.class && source.getClass() == MessageLogInfo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageLogInfoToMessageLogRO((MessageLogInfo) source);
+        }
+        if (typeOfT == MessageLogInfo.class && source.getClass() == MessageLogRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageLogROToMessageLogInfo((MessageLogRO) source);
+        }
+
+        if (typeOfT == UIMessageEntity.class && source.getClass() == UIMessageDiffEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.uiMessageDiffEntityToUIMessageEntity((UIMessageDiffEntity) source);
+        }
+        if (typeOfT == UIMessageDiffEntity.class && source.getClass() == UIMessageEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.uiMessageEntityToUIMessageDiffEntity((UIMessageEntity) source);
+        }
+
+        if (typeOfT == MessageLogRO.class && source.getClass() == UIMessageEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.uiMessageEntityToMessageLogRO((UIMessageEntity) source);
+        }
+        if (typeOfT == UIMessageEntity.class && source.getClass() == MessageLogRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageLogROToUIMessageEntity((MessageLogRO) source);
+        }
+
+        if (typeOfT == MessageLogInfo.class && source.getClass() == UIMessageEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.uiMessageEntityToMessageLogInfo((UIMessageEntity) source);
+        }
+        if (typeOfT == UIMessageEntity.class && source.getClass() == MessageLogInfo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.messageLogInfoToUIMessageEntity((MessageLogInfo) source);
+        }
+
+        if (typeOfT == SignalMessageLog.class && source.getClass() == UIMessageEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.uiMessageEntityToSignalMessageLog((UIMessageEntity) source);
+        }
+        if (typeOfT == UIMessageEntity.class && source.getClass() == SignalMessageLog.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.signalMessageLogToUIMessageEntity((SignalMessageLog) source);
+        }
+
+        if (typeOfT == UserMessageLog.class && source.getClass() == UIMessageEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.uiMessageEntityToUserMessageLog((UIMessageEntity) source);
+        }
+        if (typeOfT == UIMessageEntity.class && source.getClass() == UserMessageLog.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userMessageLogToUIMessageEntity((UserMessageLog) source);
+        }
+
+        if (typeOfT == Command.class && source.getClass() == CommandEntity.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.commandEntityToCommand((CommandEntity) source);
+        }
+        if (typeOfT == CommandEntity.class && source.getClass() == Command.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.commandToCommandEntity((Command) source);
+        }
+
+        if (typeOfT == CertificateEntry.class && source.getClass() == CertificateEntrySpi.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.certificateEntrySpiToCertificateEntry((CertificateEntrySpi) source);
+        }
+        if (typeOfT == CertificateEntrySpi.class && source.getClass() == CertificateEntry.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.certificateEntryToCertificateEntrySpi((CertificateEntry) source);
+        }
+
+        if (typeOfT == ErrorLogRO.class && source.getClass() == ErrorLogEntry.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.errorLogEntryToErrorLogRO((ErrorLogEntry) source);
+        }
+        if (typeOfT == ErrorLogEntry.class && source.getClass() == ErrorLogRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.errorLogROToErrorLogEntry((ErrorLogRO) source);
+        }
+
+        if (typeOfT == PartyResponseRo.class && source.getClass() == Party.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.partyToPartyResponseRo((Party) source);
+        }
+        if (typeOfT == Party.class && source.getClass() == PartyResponseRo.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.partyResponseRoToParty((PartyResponseRo) source);
+        }
+
+        if (typeOfT == UserMessage.class && source.getClass() == eu.domibus.api.usermessage.domain.UserMessage.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userMessageApiToUserMessage((eu.domibus.api.usermessage.domain.UserMessage) source);
+        }
+        if (typeOfT == eu.domibus.api.usermessage.domain.UserMessage.class && source.getClass() == UserMessage.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.userMessageToUserMessageApi((UserMessage) source);
         }
 
         LOG.warn("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
@@ -109,13 +353,14 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
     @Override
     public <T, U> List<T> convert(List<U> sourceList, final Class<T> typeOfT) {
+        LOG.info("Convert list to T=[{} ", typeOfT);
         if (sourceList == null) {
+            LOG.info("SourceList is null for T=[{}", typeOfT);
             return null;
         }
         List<T> result = new ArrayList<>();
         for (U sourceObject : sourceList) {
             result.add(convert(sourceObject, typeOfT));
-
         }
         return result;
     }

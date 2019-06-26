@@ -16,6 +16,7 @@ import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.pull.PullMessageService;
@@ -100,7 +101,7 @@ public class UserMessageDefaultServiceTest {
     private JMSManager jmsManager;
 
     @Injectable
-    DomainExtConverter domainExtConverter;
+    DomainCoreConverter domainConverter;
 
     @Injectable
     PModeService pModeService;

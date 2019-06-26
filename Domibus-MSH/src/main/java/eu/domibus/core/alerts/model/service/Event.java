@@ -90,6 +90,12 @@ public class Event {
         return Optional.of(property.getValue().toString());
     }
 
+    public void addProperty(final String key, final AbstractPropertyValue abstractProperty) {
+        abstractProperty.setKey(key);
+        properties.put(key, abstractProperty);
+        abstractProperty.setValue(this);
+    }
+
     public void addStringKeyValue(final String key, final String value) {
         properties.put(key, new StringPropertyValue(key,value));
     }

@@ -19,6 +19,7 @@ import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.pull.PullMessageService;
@@ -116,7 +117,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     //TODO remove the ext converter and replace it with DomainCoreConverter
     @Autowired
-    private DomainExtConverter domainExtConverter;
+    private DomainCoreConverter domainConverter;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -423,7 +424,7 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageByMessageId == null) {
             return null;
         }
-        return domainExtConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
+        return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
     @Override
