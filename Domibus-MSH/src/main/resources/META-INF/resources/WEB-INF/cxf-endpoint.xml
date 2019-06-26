@@ -80,6 +80,7 @@
             <entry key="ws-security.encryption.username" value="useReqSigCert"/>
             <entry key="faultStackTraceEnabled" value="false"/>
             <entry key="exceptionMessageCauseEnabled" value="false"/>
+            <entry key="ws-security.enable.streaming" value="true"/>
         </jaxws:properties>
         <jaxws:inInterceptors>
             <ref bean="domibusReadyInterceptor"/>
