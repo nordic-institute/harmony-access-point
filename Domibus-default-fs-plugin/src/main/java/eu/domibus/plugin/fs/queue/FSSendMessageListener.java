@@ -68,6 +68,7 @@ public class FSSendMessageListener implements MessageListener {
             fileObject = fileSystemManager.resolveFile(fileName);
             if (!fileObject.exists()) {
                 LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
+                fsFilesManager.deleteLockFile(fileObject);
                 return;
             }
         } catch (FileSystemException e) {
