@@ -261,4 +261,8 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="EDELIVERY-4741" author="Ion Perpegel" dbms="mysql">
+        <modifyDataType tableName="TB_CERTIFICATE" newDataType="DATETIME" columnName="NOT_VALID_BEFORE_DATE"/>
+        <modifyDataType tableName="TB_CERTIFICATE" newDataType="DATETIME" columnName="NOT_VALID_AFTER_DATE"/>
+    </changeSet>
 </databaseChangeLog>
