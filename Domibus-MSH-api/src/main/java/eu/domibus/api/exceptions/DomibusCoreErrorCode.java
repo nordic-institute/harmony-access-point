@@ -37,7 +37,11 @@ public enum DomibusCoreErrorCode {
     /**
      * Invalid message exception
      */
-    DOM_007("007")
+    DOM_007("007"),
+    /**
+     * Convert exception
+     */
+    DOM_008("008")
     ;
 
     private final String errorCode;

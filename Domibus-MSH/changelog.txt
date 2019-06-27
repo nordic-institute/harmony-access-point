@@ -1,3 +1,5 @@
+Domibus 4.1
+- Replace dozer with MapStruct
 Domibus 4.1-RC1
 - Implement the Split And Join feature
 - Implement EU Login Support
