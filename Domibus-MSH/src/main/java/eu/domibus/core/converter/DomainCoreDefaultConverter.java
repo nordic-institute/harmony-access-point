@@ -2,6 +2,8 @@ package eu.domibus.core.converter;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.cluster.Command;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
@@ -350,8 +352,9 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.userMessageToUserMessageApi((UserMessage) source);
         }
 
-        LOG.warn("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-        return null;
+        String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        LOG.error(errorMsg);
+        throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMsg);
     }
 
     @Override

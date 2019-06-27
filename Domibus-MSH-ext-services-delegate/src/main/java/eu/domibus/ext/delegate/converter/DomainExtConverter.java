@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Class responsible of conversion from the internal domain to external domain and the other way around
  *
- * @author migueti, Cosmin Baciux
+ * @author migueti, Cosmin Baciu
  * @since 3.3
  */
 public interface DomainExtConverter {

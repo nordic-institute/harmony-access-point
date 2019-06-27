@@ -1,5 +1,7 @@
 package eu.domibus.ext.delegate.converter;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
@@ -71,10 +73,9 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageToUserMessageDTO((UserMessage) source);
         }
-
-        LOG.warn("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-
-        return null;
+        String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        LOG.error(errorMsg);
+        throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMsg);
     }
 
     @Override

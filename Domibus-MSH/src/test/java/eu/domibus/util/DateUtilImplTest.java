@@ -18,7 +18,6 @@ import java.util.Date;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-@Ignore
 public class DateUtilImplTest {
 
     @Tested
