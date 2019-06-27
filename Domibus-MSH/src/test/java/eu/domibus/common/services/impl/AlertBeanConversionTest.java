@@ -2,9 +2,10 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.core.alerts.model.common.AuthenticationEvent;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.converter.EventMapper;
-import eu.domibus.core.converter.EventMapperImpl_;
+import eu.domibus.core.alerts.model.mapper.EventMapper;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

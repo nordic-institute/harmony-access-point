@@ -2,8 +2,8 @@ package eu.domibus.core.converter;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.cluster.Command;
+import eu.domibus.api.converter.ConverterException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
@@ -19,6 +19,7 @@ import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.crypto.api.CertificateEntry;
@@ -354,7 +355,7 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
         String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
         LOG.error(errorMsg);
-        throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMsg);
+        throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
     }
 
     @Override

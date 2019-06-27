@@ -187,7 +187,6 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
         UIMessageEntity entity = domainConverter.convert(signalMessageLog, UIMessageEntity.class);
 
-        // TODO dozer - check the value set in here
         entity.setEntityId(0); //mapper copies other value here
         entity.setMessageId(messageId);
         entity.setConversationId(StringUtils.EMPTY);

@@ -1,4 +1,4 @@
-package eu.domibus.core.converter;
+package eu.domibus.core.alerts.model.mapper;
 
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.DateEventProperty;
@@ -12,16 +12,16 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.inject.Inject;
-import javax.inject.Named;
+
 
 /**
+ *  This decorator class is used to enhance the EventMapper on mapping the event properties depending on their
+ *  type, StringPropertyValue and DatePropertyValue. Initially ignored in the EventMapper, the properties are converted here.
+ *
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-public abstract class AbstractPropertyValueDecorator implements EventMapper {
+ public abstract class AbstractPropertyValueDecorator implements EventMapper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractPropertyValueDecorator.class);
 
