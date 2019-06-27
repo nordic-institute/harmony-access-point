@@ -56,6 +56,9 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
     @Autowired
     DomibusCoreMapper domibusCoreMapper;
 
+    @Autowired
+    EventMapper eventMapper;
+
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
         if (typeOfT == Process.class && source.getClass() == eu.domibus.common.model.configuration.Process.class) {
@@ -142,11 +145,11 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
         if (typeOfT == eu.domibus.core.alerts.model.service.Event.class) {
             LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-            return (T) domibusCoreMapper.eventPersistToEventService((Event) source);
+            return (T) eventMapper.eventPersistToEventService((Event) source);
         }
         if (typeOfT == Event.class) {
             LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-            return (T) domibusCoreMapper.eventServiceToEventPersist((eu.domibus.core.alerts.model.service.Event) source);
+            return (T) eventMapper.eventServiceToEventPersist((eu.domibus.core.alerts.model.service.Event) source);
         }
 
         if (typeOfT == PModeResponseRO.class) {
@@ -214,11 +217,11 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
         if (typeOfT == LoggingLevelRO.class && source.getClass() == LoggingEntry.class) {
             LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-            return (T) domibusCoreMapper.loggingLevelROToLoggingEntry((LoggingLevelRO) source);
-        }
-        if (typeOfT == LoggingEntry.class) {
-            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.loggingEntryToLoggingLevelRO((LoggingEntry) source);
+        }
+        if (typeOfT == LoggingEntry.class && source.getClass() == LoggingLevelRO.class) {
+            LOG.info("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.loggingLevelROToLoggingEntry((LoggingLevelRO) source);
         }
 
         if (typeOfT == Party.class && source.getClass() == eu.domibus.common.model.configuration.Party.class) {

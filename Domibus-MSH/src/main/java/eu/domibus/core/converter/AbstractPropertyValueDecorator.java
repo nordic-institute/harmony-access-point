@@ -9,23 +9,25 @@ import eu.domibus.core.alerts.model.service.DatePropertyValue;
 import eu.domibus.core.alerts.model.service.StringPropertyValue;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.decorator.Decorator;
 import javax.decorator.Delegate;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Decorator
-public abstract class AbstractPropertyValueDecorator implements DomibusCoreMapper {
+public abstract class AbstractPropertyValueDecorator implements EventMapper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractPropertyValueDecorator.class);
 
-    @Inject
-    @Delegate
-    DomibusCoreMapper delegate;
+    @Autowired
+    @Qualifier("delegate")
+    protected EventMapper delegate;
 
     public AbstractPropertyValueDecorator() {
     }

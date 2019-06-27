@@ -46,8 +46,7 @@ import org.mapstruct.*;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(componentModel = "spring")
-@DecoratedWith(AbstractPropertyValueDecorator.class)
+@Mapper(uses = EventMapper.class, componentModel = "spring")
 public interface DomibusCoreMapper {
 
     Process processAPIToProcess(eu.domibus.api.process.Process process);
@@ -86,24 +85,6 @@ public interface DomibusCoreMapper {
     PluginUserRO authenticationEntityToPluginUserRO(AuthenticationEntity authenticationEntity);
 
     AuthenticationEntity pluginUserROToAuthenticationEntity(PluginUserRO pluginUserRO);
-
-    @Mapping(target = "properties", ignore = true)
-    Event eventServiceToEventPersist(eu.domibus.core.alerts.model.service.Event event);
-
-    @Mapping(target = "properties", ignore = true)
-    eu.domibus.core.alerts.model.service.Event eventPersistToEventService(Event event);
-
-    @Mapping(source = "value", target = "stringValue")
-    StringEventProperty stringPropertyValueToStringEventProperty(StringPropertyValue propertyValue);
-
-    @InheritInverseConfiguration
-    StringPropertyValue stringEventPropertyToStringPropertyValue(StringEventProperty eventProperty);
-
-    @Mapping(source = "value", target = "dateValue")
-    DateEventProperty datePropertyValueToDateEventProperty(DatePropertyValue propertyValue);
-
-    @InheritInverseConfiguration
-    DatePropertyValue dateEventPropertyToDatePropertyValue(DateEventProperty eventProperty);
 
     PModeResponseRO pModeArchiveInfoToPModeResponseRO(PModeArchiveInfo pModeArchiveInfo);
 
