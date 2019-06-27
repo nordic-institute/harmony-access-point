@@ -32,45 +32,45 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
         if (typeOfT == DomainDTO.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.domainToDomainDTO((Domain) source);
         }
         if (typeOfT == Domain.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.domainDTOToDomain((DomainDTO) source);
         }
         if (typeOfT == MessageAttemptDTO.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAttemptToMessageAttemptDTO((MessageAttempt) source);
         }
         if (typeOfT == MessageAttempt.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAttemptDTOToMessageAttempt((MessageAttemptDTO) source);
         }
         if (typeOfT == MessageAcknowledgement.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAcknowledgementDTOToMessageAcknowledgement((MessageAcknowledgementDTO) source);
         }
         if (typeOfT == MessageAcknowledgementDTO.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAcknowledgementToMessageAcknowledgementDTO((MessageAcknowledgement) source);
         }
 
         if (typeOfT == JmsMessage.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.jmsMessageDTOToJmsMessage((JmsMessageDTO) source);
         }
         if (typeOfT == JmsMessageDTO.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.jmsMessageToJmsMessageDTO((JmsMessage) source);
         }
 
         if (typeOfT == UserMessage.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageDTOToUserMessage((UserMessageDTO) source);
         }
         if (typeOfT == UserMessageDTO.class) {
-            LOG.info("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageToUserMessageDTO((UserMessage) source);
         }
         String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
@@ -81,9 +81,9 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Override
     public <T, U> List<T> convert(List<U> sourceList, final Class<T> typeOfT) {
-        LOG.info("Ext convert list to T=[{} ", typeOfT);
+        LOG.debug("Ext convert list to T=[{} ", typeOfT);
         if (sourceList == null) {
-            LOG.info("Ext sourceList is null for T=[{}", typeOfT);
+            LOG.debug("Ext sourceList is null for T=[{}", typeOfT);
             return null;
         }
         List<T> result = new ArrayList<>();

@@ -47,7 +47,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
     }
 
     protected AbstractEventProperty convert(AbstractPropertyValue propertyValue) {
-        LOG.info("AbstractPropertyValue convert: [{}]", propertyValue.getClass());
+        LOG.debug("AbstractPropertyValue convert: [{}]", propertyValue.getClass());
         if (propertyValue instanceof StringPropertyValue) {
             return delegate.stringPropertyValueToStringEventProperty((StringPropertyValue) propertyValue);
         }
@@ -59,7 +59,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
     }
 
     protected AbstractPropertyValue convert(AbstractEventProperty eventProperty) {
-        LOG.info("AbstractEventProperty convert: [{}]", eventProperty.getClass());
+        LOG.debug("AbstractEventProperty convert: [{}]", eventProperty.getClass());
         if (eventProperty instanceof StringEventProperty) {
             return delegate.stringEventPropertyToStringPropertyValue((StringEventProperty) eventProperty);
         }
