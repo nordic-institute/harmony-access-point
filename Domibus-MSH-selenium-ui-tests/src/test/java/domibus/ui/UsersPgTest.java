@@ -2,7 +2,7 @@ package domibus.ui;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
@@ -11,7 +11,6 @@ import pages.login.LoginPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import utils.Generator;
-import utils.TestRunData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +29,7 @@ public class UsersPgTest extends BaseTest {
 //		login with Admin and go to users page
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.login(user);
-		loginPage.getSidebar().gGoToPage(DOMIBUS_PAGES.USERS);
+		loginPage.getSidebar().gGoToPage(PAGES.USERS);
 	}
 
 	@Test(description = "USR-1", groups = {"multiTenancy", "singleTenancy"})
@@ -387,7 +386,7 @@ public class UsersPgTest extends BaseTest {
 
 
 		loginPage.login(data.getAdminUser());
-		loginPage.getSidebar().gGoToPage(DOMIBUS_PAGES.USERS);
+		loginPage.getSidebar().gGoToPage(PAGES.USERS);
 
 		page.grid().scrollToAndSelect("Username", username);
 		page.getEditBtn().click();
@@ -489,7 +488,7 @@ public class UsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-14", groups = {"multiTenancy"})
 	public void duplicateUserVSPluginUser() throws Exception {
 
 		String username = Generator.randomAlphaNumeric(9);
@@ -509,6 +508,8 @@ public class UsersPgTest extends BaseTest {
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
 		String expectedMessage = String.format(DMessages.DUPLICATE_USER_, username, "default");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
+
+		rest.deletePluginUser(username, null);
 
 		soft.assertAll();
 	}
@@ -547,5 +548,106 @@ public class UsersPgTest extends BaseTest {
 		throw new SkipException("Implementation of test not finished");
 	}
 
+	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
+	public void userNameValidations() throws Exception {
+
+		String username = Generator.randomAlphaNumeric(9);
+
+		SoftAssert soft = new SoftAssert();
+		loginAndGoToUsersPage(data.getAdminUser());
+		UsersPage page = new UsersPage(driver);
+
+		soft.assertTrue(page.isLoaded(), "Page is loaded");
+
+		soft.assertTrue(page.grid().getRowsNo() > 0, "Grid lists existing users");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+
+		page.getNewBtn().click();
+		UserModal modal = new UserModal(driver);
+
+		modal.getUserNameInput().fill("t");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERNAME_VALIDATION_MESSAGE, "Correct error message shown (1)");
+
+		modal.getUserNameInput().fill("te");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERNAME_VALIDATION_MESSAGE, "Correct error message shown (2)");
+
+		modal.getUserNameInput().fill("te$%^*");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERNAME_VALIDATION_MESSAGE, "Correct error message shown (3)");
+
+		modal.getUserNameInput().fill("testUser");
+
+		String errMess = null;
+		try {
+			errMess = modal.getUsernameErrMess().getText();
+		} catch (Exception e) { }
+
+		soft.assertNull(errMess, "When correct username is entered the error message dissapears");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "USR-18", groups = {"multiTenancy", "singleTenancy"})
+	public void adminDeleteSelf() throws Exception {
+
+		String username = Generator.randomAlphaNumeric(9);
+		String password = data.getDefaultTestPass();
+		rest.createUser(username, DRoles.ADMIN, password, null);
+
+		SoftAssert soft = new SoftAssert();
+		login(username, password).getSidebar().gGoToPage(PAGES.USERS);
+
+		UsersPage page = new UsersPage(driver);
+		page.grid().scrollToAndSelect("Username", username);
+
+		page.getDeleteBtn().click();
+
+		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(),
+				String.format(DMessages.DELETE_LOGGED_IN_ERROR, username),
+				"Correct error message is shown");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "USR-19", groups = {"multiTenancy"})
+	public void availableRoles() throws Exception {
+
+		String adminUsername = Generator.randomAlphaNumeric(9);
+		String superUsername = Generator.randomAlphaNumeric(9);
+		String password = data.getDefaultTestPass();
+		rest.createUser(adminUsername, DRoles.ADMIN, password, null);
+		rest.createUser(superUsername, DRoles.SUPER, password, null);
+
+		SoftAssert soft = new SoftAssert();
+		login(adminUsername, password).getSidebar().gGoToPage(PAGES.USERS);
+
+		UsersPage page = new UsersPage(driver);
+
+		page.getNewBtn().click();
+		UserModal modal = new UserModal(driver);
+
+		List<String> roles = modal.getRoleSelect().getOptionsTexts();
+
+		soft.assertTrue(roles.size() == 2, "2 roles available to admin");
+		soft.assertTrue(roles.contains(DRoles.USER), "User role is avalable to admin");
+		soft.assertTrue(roles.contains(DRoles.ADMIN), "Admin role is avalable to admin");
+
+		page.getSandwichMenu().logout();
+		login(superUsername, password).getSidebar().gGoToPage(PAGES.USERS);
+
+		page = new UsersPage(driver);
+
+		page.getNewBtn().click();
+		modal = new UserModal(driver);
+
+		List<String> rolesSuper = modal.getRoleSelect().getOptionsTexts();
+
+		soft.assertTrue(rolesSuper.size() == 3, "3 roles available to admin");
+		soft.assertTrue(rolesSuper.contains(DRoles.USER), "User role is avalable to super");
+		soft.assertTrue(rolesSuper.contains(DRoles.ADMIN), "Admin role is avalable to super");
+		soft.assertTrue(rolesSuper.contains(DRoles.SUPER), "Super Admin role is avalable to super");
+
+		soft.assertAll();
+	}
 
 }

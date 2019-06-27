@@ -84,4 +84,20 @@ public class TestRunData {
 	public boolean isIsMultiDomain() {
 		return Boolean.valueOf(prop.getProperty("isMultiDomain"));
 	}
+
+	public String getChromeDriverPath() {
+		return prop.getProperty("webdriver.chrome.driver");
+	}
+
+	public String getFirefoxDriverPath() {
+		return prop.getProperty("webdriver.gecko.driver");
+	}
+
+	public String getIEDriverPath() {
+		return prop.getProperty("webdriver.ie.driver");
+	}
+
+	public String getRunBrowser() {
+		return System.getenv("runBrowser");
+	}
 }

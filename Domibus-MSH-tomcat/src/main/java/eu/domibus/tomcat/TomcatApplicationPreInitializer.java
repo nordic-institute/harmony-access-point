@@ -1,4 +1,4 @@
-package eu.domibus.tomcat.activemq;
+package eu.domibus.tomcat;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

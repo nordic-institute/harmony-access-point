@@ -63,8 +63,8 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
             responseMessage = processMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
-            final PartyInfo partyInfo = messaging.getUserMessage().getPartyInfo();
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIVED, partyInfo.getFrom().getFirstPartyId(), partyInfo.getTo().getFirstPartyId());
+            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
+                    messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
 
             LOG.debug("Ping message {}", testMessage);
         } catch (TransformerException | SOAPException | JAXBException | IOException e) {

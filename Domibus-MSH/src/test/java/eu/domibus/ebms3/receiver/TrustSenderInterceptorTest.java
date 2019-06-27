@@ -1,10 +1,10 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ebms3.SoapInterceptorTest;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.pki.PKIUtil;
 import eu.domibus.spring.SpringContextProvider;
 import mockit.*;

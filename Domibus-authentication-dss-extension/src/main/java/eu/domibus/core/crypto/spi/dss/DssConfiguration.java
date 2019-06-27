@@ -2,14 +2,13 @@ package eu.domibus.core.crypto.spi.dss;
 
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.*;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
 import eu.europa.esig.dss.tsl.OtherTrustedList;
 import eu.europa.esig.dss.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.tsl.service.DomibusTSLRepository;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -31,6 +30,11 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -123,12 +127,35 @@ public class DssConfiguration {
     }
 
     @Bean
-    public TSLRepository tslRepository(TrustedListsCertificateSource trustedListSource) {
+    public IgnorePivotFilenameFilter ignorePivotFilenameFilter() {
+        return new IgnorePivotFilenameFilter();
+    }
+
+    @Bean
+    public DomibusTSLRepository tslRepository(TrustedListsCertificateSource trustedListSource,
+                                              ServerInfoExtService serverInfoExtService,
+                                              IgnorePivotFilenameFilter ignorePivotFilenameFilter) {
         LOG.debug("Dss trusted list cache path:[{}]", dssCachePath);
-        TSLRepository tslRepository = new TSLRepository();
+        String nodeName = serverInfoExtService.getNodeName();
+        String serverCacheDirectoryName = getCacheDirectoryName(dssCachePath, nodeName);
+        Path dssPerNodePath = Paths.get(serverCacheDirectoryName);
+        if (!dssPerNodePath.toFile().exists()) {
+            try {
+                LOG.debug("Cache directory does not exists, creating path:[{}]", dssCachePath);
+                Files.createDirectories(dssPerNodePath);
+            } catch (IOException e) {
+                LOG.error("Error create dss cache path:[{}], impossible to configure DSS correctly", dssPerNodePath.toAbsolutePath(), e);
+            }
+        }
+        DomibusTSLRepository tslRepository = new DomibusTSLRepository(ignorePivotFilenameFilter);
         tslRepository.setTrustedListsCertificateSource(trustedListSource);
-        tslRepository.setCacheDirectoryPath(dssCachePath);
+        LOG.debug("Dss configure with cache path:[{}] for server:[{}]", serverCacheDirectoryName, nodeName);
+        tslRepository.setCacheDirectoryPath(serverCacheDirectoryName);
         return tslRepository;
+    }
+
+    private String getCacheDirectoryName(String dssCachePath, String nodeName) {
+        return dssCachePath + File.separator + nodeName + File.separator;
     }
 
     @Bean
@@ -232,8 +259,24 @@ public class DssConfiguration {
         validationJob.setCheckLOTLSignature(true);
         validationJob.setCheckTSLSignatures(true);
         validationJob.setOtherTrustedLists(otherTrustedLists);
-        validationJob.initRepository();
-        validationJob.refresh();
+        String serverCacheDirectoryPath = tslRepository.getCacheDirectoryPath();
+        Path cachePath = Paths.get(serverCacheDirectoryPath);
+        if (!cachePath.toFile().exists()) {
+            LOG.error("Dss cache directory[{}] should be created by the system, please check permissions", serverCacheDirectoryPath);
+            return validationJob;
+        }
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(cachePath)) {
+            Iterator files = ds.iterator();
+            if (!files.hasNext()) {
+                LOG.debug("Cache directory is empty, refreshing trusted lists needed");
+                validationJob.refresh();
+            } else {
+                LOG.debug("Cache directory is not empty, loading trusted lists from disk");
+                validationJob.initRepository();
+            }
+        } catch (IOException e) {
+            LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
+        }
         return validationJob;
     }
 
@@ -273,7 +316,8 @@ public class DssConfiguration {
                                                         final CertificateVerifier certificateVerifier,
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
-                                                        final ValidationConstraintPropertyMapper constraintMapper) {
+                                                        final ValidationConstraintPropertyMapper constraintMapper,
+                                                        final PkiExtService pkiExtService) {
         //needed to initialize WSS4J property bundles to have correct message in the WSSException.
         WSSConfig.init();
         return new DomibusDssCryptoSpi(
@@ -281,6 +325,7 @@ public class DssConfiguration {
                 certificateVerifier,
                 tslRepository,
                 validationReport,
-                constraintMapper);
+                constraintMapper,
+                pkiExtService);
     }
 }

@@ -75,9 +75,7 @@ public class FSSendMessageListener implements MessageListener {
             return;
         }
 
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            fsSendMessagesService.authenticateForDomain(domain);
-        }
+        fsSendMessagesService.authenticateForDomain(domain);
 
         //process the file
         LOG.debug("now send the file: {}", fileObject);

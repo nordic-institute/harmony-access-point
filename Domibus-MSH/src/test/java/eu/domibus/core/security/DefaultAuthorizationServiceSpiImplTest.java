@@ -14,8 +14,9 @@ import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.util.RegexUtilImpl;
 import eu.domibus.pki.CertificateService;
+import eu.domibus.util.RegexUtilImpl;
+
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

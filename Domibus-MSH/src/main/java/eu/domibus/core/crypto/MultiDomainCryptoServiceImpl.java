@@ -2,6 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -9,7 +10,6 @@ import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.DomibusCertificateException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;

@@ -1,7 +1,7 @@
 package domibus.ui;
 
 import ddsl.enums.DMessages;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.PModeCofirmationModal;
@@ -18,7 +18,7 @@ public class PModeCurrentPgTests extends BaseTest {
 	public void openPModeCurrentWindow() throws Exception{
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_CURRENT);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
 
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 
@@ -45,7 +45,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_CURRENT);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
 
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 
@@ -76,7 +76,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_CURRENT);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
 
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 
@@ -113,7 +113,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domaincode);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.PMODE_CURRENT);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
 
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 

@@ -302,4 +302,17 @@ public class UserMessage extends AbstractBaseEntity {
                 .toString();
     }
 
+    public String getFromFirstPartyId() {
+        if (getPartyInfo() != null && getPartyInfo().getFrom() != null) {
+            return getPartyInfo().getFrom().getFirstPartyId();
+        }
+        return null;
+    }
+
+    public String getToFirstPartyId() {
+        if (getPartyInfo() != null && getPartyInfo().getTo() != null) {
+            return getPartyInfo().getTo().getFirstPartyId();
+        }
+        return null;
+    }
 }

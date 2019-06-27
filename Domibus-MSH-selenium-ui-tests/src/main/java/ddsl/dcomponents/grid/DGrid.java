@@ -41,6 +41,10 @@ public class DGrid extends DComponent {
 	@FindBy(id = "saveascsvbutton_id")
 	protected WebElement downloadCSVButton;
 
+	@FindBy(tagName = "datatable-progress")
+	protected WebElement progressBar;
+
+
 	//	------------------------------------------------
 	public Pagination getPagination() {
 		return new Pagination(driver);
@@ -95,7 +99,12 @@ public class DGrid extends DComponent {
 	}
 
 	public void waitForRowsToLoad() {
-		wait.forElementToBeVisible(gridHeaders.get(0));
+		try {
+			wait.forElementToBe(progressBar);
+			wait.forElementToBeGone(progressBar);
+		} catch (Exception e) {
+
+		}
 	}
 
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
@@ -136,6 +145,7 @@ public class DGrid extends DComponent {
 
 	public void scrollToAndSelect(String columnName, String value) throws Exception {
 		int index = scrollTo(columnName, value);
+		if(index < 0){throw new Exception("Cannot select row because it doesn't seem to be in grid");}
 		selectRow(index);
 	}
 
@@ -163,9 +173,14 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
-		if (!getColumnNames().contains(columnName)) {
-			throw new Exception("Column not found in grid " + columnName);
+		for (int i = 0; i < gridHeaders.size(); i++) {
+			DObject column = new DObject(driver, gridHeaders.get(i));
+			if(column.getText().equalsIgnoreCase(columnName)){
+				column.click();
+				return;
+			}
 		}
+		throw new Exception("Column name not present in the grid");
 	}
 
 	public void scrollToAndDoubleClick(String columnName, String value) throws Exception {
@@ -194,6 +209,15 @@ public class DGrid extends DComponent {
 			}
 		} while (true);
 		return allRowInfo;
+	}
+
+	public int getSelectedRowIndex() throws Exception{
+		for (int i = 0; i < gridRows.size(); i++) {
+			if(new DObject(driver, gridRows.get(i)).getAttribute("class").contains("active")){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }

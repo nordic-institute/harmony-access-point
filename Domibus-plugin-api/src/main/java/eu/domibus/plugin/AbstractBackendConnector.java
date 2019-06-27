@@ -4,6 +4,8 @@ import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
@@ -59,23 +61,41 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
-            return this.messageSubmitter.submit(messageData, this.getName());
+            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
+            return messageId;
         } catch (IllegalArgumentException iaEx) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, iaEx);
             throw new TransformationException(iaEx);
         } catch (IllegalStateException ise) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, ise);
             throw new PModeMismatchException(ise);
+        } catch (MessagingProcessingException mpEx) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, mpEx);
+            throw mpEx;
         }
     }
 
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        }
 
-        T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
-        lister.removeFromPending(messageId);
-        return t;
+        try {
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+            lister.removeFromPending(messageId);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+            return t;
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
     }
 
     @Override

@@ -5,7 +5,7 @@ package ddsl.enums;
  * @version 4.1
  */
 
-public enum DOMIBUS_PAGES {
+public enum PAGES {
 
 	MESSAGES,
 	MESSAGE_FILTER,

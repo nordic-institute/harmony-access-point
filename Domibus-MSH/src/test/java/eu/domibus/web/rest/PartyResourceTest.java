@@ -2,9 +2,11 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -25,9 +27,11 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
