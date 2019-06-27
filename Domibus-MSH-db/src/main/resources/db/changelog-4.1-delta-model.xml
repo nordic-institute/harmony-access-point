@@ -255,7 +255,7 @@
 
     <changeSet author="Catalin Enache" id="EDELIVERY-4410">
         <dropIndex tableName="TB_MESSAGE_LOG" indexName="IDX_MESSAGE_LOG_M_STATUS"/>
-        <createIndex indexName="IDX_MESSAGE_LOG_M_STATUS_SEND_ATT" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_M_STATUS_SEND_ATT" tableName="TB_MESSAGE_LOG">
             <column name="MESSAGE_STATUS"/>
             <column name="SEND_ATTEMPTS" />
         </createIndex>
