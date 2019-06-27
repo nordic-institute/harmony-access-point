@@ -115,7 +115,6 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private MessageExchangeService messageExchangeService;
 
-    //TODO remove the ext converter and replace it with DomainCoreConverter
     @Autowired
     private DomainCoreConverter domainConverter;
 
