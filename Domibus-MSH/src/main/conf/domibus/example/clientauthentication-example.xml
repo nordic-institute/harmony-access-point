@@ -12,5 +12,8 @@
         <security:keyStore type="JKS" password="123456"
                            file="${domibus.config.location}/keystore_blue.jks"/>
     </security:keyManagers>
+    <security:cipherSuitesFilter>
+        <security:exclude>.*_RSA_.*</security:exclude>
+    </security:cipherSuitesFilter>
 </http-conf:tlsClientParameters>
 

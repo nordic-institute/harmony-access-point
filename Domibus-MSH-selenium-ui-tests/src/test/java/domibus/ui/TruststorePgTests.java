@@ -1,9 +1,8 @@
 package domibus.ui;
 
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.PModePartiesPage;
 import pages.truststore.TrustStorePage;
 import pages.truststore.TruststoreModal;
 
@@ -27,7 +26,7 @@ public class TruststorePgTests extends BaseTest {
 	public void openTrustorePage() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TRUSTSTORE);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TRUSTSTORE);
 
 		TrustStorePage page = new TrustStorePage(driver);
 
@@ -41,7 +40,7 @@ public class TruststorePgTests extends BaseTest {
 	public void doubleClickTruststoreEntry() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(DOMIBUS_PAGES.TRUSTSTORE);
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TRUSTSTORE);
 
 		TrustStorePage page = new TrustStorePage(driver);
 		Map<String, String> entryInfo = page.grid().getRowInfo(0);

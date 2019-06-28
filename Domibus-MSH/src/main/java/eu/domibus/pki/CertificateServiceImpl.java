@@ -3,6 +3,8 @@ package eu.domibus.pki;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.model.certificate.CertificateStatus;
@@ -82,7 +84,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public boolean isCertificateChainValid(List<? extends Certificate> certificateChain) {
         for (Certificate certificate : certificateChain) {
-            boolean certificateValid = isCertificateValid((X509Certificate)certificate);
+            boolean certificateValid = isCertificateValid((X509Certificate) certificate);
             if (!certificateValid) {
                 LOG.warn("Sender certificate not valid [{}]", certificate);
                 return false;

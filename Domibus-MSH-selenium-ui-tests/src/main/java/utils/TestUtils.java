@@ -4,6 +4,7 @@ import java.text.Collator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 
 /**
@@ -17,16 +18,7 @@ public class TestUtils {
 
 	/* Checks if List provided is sorted desc*/
 	public static boolean isStringListSorted(List<String> strings) {
-
-		Collator collator = Collator.getInstance(Locale.ENGLISH);
-		collator.setStrength(Collator.PRIMARY);
-
-		for (int i = 0; i < strings.size() - 1; i++) {
-			if (collator.compare(strings.get(i), strings.get(i + 1)) > 0) {
-				return false;
-			}
-		}
-		return true;
+		return strings.stream().sorted().collect(Collectors.toList()).equals(strings);
 	}
 
 	/* Checks if List provided is sorted desc*/

@@ -1,7 +1,9 @@
 package pages.msgFilter;
 
+import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.Select;
 import ddsl.dcomponents.popups.EditModal;
+import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.WebDriver;
@@ -14,7 +16,6 @@ import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
@@ -23,6 +24,8 @@ public class MessageFilterModal extends EditModal {
 	public MessageFilterModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
+		wait.forElementToBeEnabled(serviceInput);
 		log.info("Filter details popup initialized");
 	}
 
@@ -54,8 +57,20 @@ public class MessageFilterModal extends EditModal {
 	@FindBy(id = "okbutton_id")
 	public WebElement okBtn;
 
-	@FindBy(id = "cancelbutton_id")
+	@FindBy(css = "editmessagefilter-form #cancelbutton_id")
 	public WebElement cancelBtn;
+
+
+	@Override
+	public DButton getOkBtn() {
+		return new DButton(driver, okBtn);
+	}
+
+	@Override
+	public DButton getCancelBtn() {
+		return new DButton(driver, cancelBtn);
+	}
+
 
 	public Select getPluginSelect() {
 		return new Select(driver, pluginSelectContainer);
@@ -105,5 +120,15 @@ public class MessageFilterModal extends EditModal {
 		fillForm(plugin, from, to, action, service);
 		clickOK();
 	}
+
+	public boolean isLoaded() throws Exception {
+		return (getPluginSelect().isDisplayed()
+				&& getFromInput().isEnabled()
+				&& getToInput().isEnabled()
+				&& getActionInput().isEnabled()
+				&& getServiceInput().isEnabled()
+		);
+	}
+
 
 }

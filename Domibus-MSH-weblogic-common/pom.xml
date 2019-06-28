@@ -43,6 +43,11 @@
             <artifactId>domibus-logging</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- End Domibus modules -->
 
         <dependency>

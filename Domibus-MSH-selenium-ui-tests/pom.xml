@@ -145,12 +145,51 @@
 							<groups>singleTenancy</groups>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
+								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>bamboo</id>
+			<build>
+				<plugins>
+
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<!--<version>2.22.1</version>-->
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<groups>singleTenancy</groups>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/equality-e2-s.properties</propertiesFile>
+								<runBrowser>chrome</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
 
 						</configuration>
 					</plugin>
-
-
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>

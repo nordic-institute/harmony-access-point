@@ -2,6 +2,7 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -14,8 +15,8 @@ import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.pmode.PModeProvider;
+
 import eu.domibus.core.util.RegexUtilImpl;
-import eu.domibus.pki.CertificateService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

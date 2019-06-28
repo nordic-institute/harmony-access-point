@@ -32,10 +32,10 @@ public class DComponent {
 		By selector = By.cssSelector("[class*=\"overlay-backdrop\"]");
 		try {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
-		} catch (Exception e) {	}
+			wait.forElementToBeGone(driver.findElement(selector));
+		} catch (Exception e) {
 
-		wait.forElementToBeGone(driver.findElement(selector));
-
+		}
 	}
 
 }
