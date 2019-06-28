@@ -24,6 +24,8 @@ public class TrustStoreEntry {
         this.validUntil = validUntil;
     }
 
+    public TrustStoreEntry() {
+    }
 
     public String getName() {
         return name;
