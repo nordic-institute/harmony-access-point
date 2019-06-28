@@ -9,9 +9,14 @@ import javax.crypto.Cipher;
 public interface EncryptionService {
 
     /**
-     * Creates the encryption key for all available domains if does not yet exists
+     * Creates the payload encryption key for all available domains if does not yet exists
      */
-    void createEncryptionKeyForAllDomainsIfNotExists();
+    void createPayloadEncryptionKeyForAllDomainsIfNotExists();
+
+    /**
+     * Creates the password encryption key for all available domains if does not yet exists
+     */
+    void createPasswordEncryptionKeyForAllDomainsIfNotExists();
 
     Cipher getEncryptCipherForPayload();
 

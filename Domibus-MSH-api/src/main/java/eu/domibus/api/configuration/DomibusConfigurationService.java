@@ -34,4 +34,6 @@ public interface DomibusConfigurationService {
 
     boolean isPayloadEncryptionActive(Domain domain);
 
+    boolean isPasswordEncryptionActive(Domain domain);
+
 }

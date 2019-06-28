@@ -1,5 +1,6 @@
 package eu.domibus.property;
 
+import eu.domibus.core.property.PropertyResolver;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

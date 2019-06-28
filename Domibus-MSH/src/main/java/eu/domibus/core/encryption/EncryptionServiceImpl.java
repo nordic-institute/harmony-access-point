@@ -44,14 +44,14 @@ public class EncryptionServiceImpl implements EncryptionService {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Override
-    public void createEncryptionKeyForAllDomainsIfNotExists() {
+    public void createPayloadEncryptionKeyForAllDomainsIfNotExists() {
         LOG.debug("Creating encryption key for all domains if not yet exists");
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
             if (encryptionActive) {
-                domainTaskExecutor.submit(() -> createEncryptionKeyForPayloadIfNotExists(), domain);
+                domainTaskExecutor.submit(() -> createPayloadEncryptionKeyIfNotExists(), domain);
             } else {
                 LOG.debug("Payload encryption is not activated for domain [{}]", domain);
             }
@@ -60,7 +60,31 @@ public class EncryptionServiceImpl implements EncryptionService {
         LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
-    protected void createEncryptionKeyForPayloadIfNotExists() {
+    @Override
+    public void createPasswordEncryptionKeyForAllDomainsIfNotExists() {
+        LOG.debug("Creating password encryption key for all domains if not yet exists");
+
+        final List<Domain> domains = domainService.getDomains();
+        for (Domain domain : domains) {
+            final Boolean encryptionActive = domibusConfigurationService.isPasswordEncryptionActive(domain);
+            if (encryptionActive) {
+                createPasswordEncryptionKeyIfNotExists(domain);
+            } else {
+                LOG.debug("Password encryption is not activated for domain [{}]", domain);
+            }
+        }
+
+        LOG.debug("Finished creating password encryption key for all domains if not yet exists");
+    }
+
+    protected void createPasswordEncryptionKeyIfNotExists(Domain domain) {
+        LOG.debug("Checking if the encryption key should be created");
+
+
+        LOG.debug("Finished creating payload encryption key");
+    }
+
+    protected void createPayloadEncryptionKeyIfNotExists() {
         LOG.debug("Checking if the encryption key should be created");
 
         final EncryptionKeyEntity payloadKey = encryptionKeyDao.findByUsage(EncryptionUsage.PAYLOAD);

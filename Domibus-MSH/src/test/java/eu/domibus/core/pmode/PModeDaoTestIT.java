@@ -27,7 +27,7 @@ import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.property.PropertyResolver;
+import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
