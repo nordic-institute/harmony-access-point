@@ -1,6 +1,5 @@
 package eu.domibus.ebms3.receiver;
 
-import eu.domibus.common.ErrorCode;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,6 +32,6 @@ public class ErrorSignalConfigurationFactory extends AbstractMessageLegConfigura
         if (CollectionUtils.isEmpty(signalMessage.getError())) {
             return false;
         }
-        return !signalMessage.getError().stream().anyMatch(candidate -> candidate.getErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0006.getCode().getErrorCode().getErrorCodeName()));
+        return true;
     }
 }
