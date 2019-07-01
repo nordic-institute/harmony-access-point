@@ -73,7 +73,6 @@ import static org.junit.Assert.assertNotNull;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-@Ignore
 public class SplitAndJoinDefaultServiceTest {
 
     @Tested
