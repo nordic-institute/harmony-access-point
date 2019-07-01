@@ -1,6 +1,7 @@
 package eu.domibus.core.security;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -17,7 +18,6 @@ import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

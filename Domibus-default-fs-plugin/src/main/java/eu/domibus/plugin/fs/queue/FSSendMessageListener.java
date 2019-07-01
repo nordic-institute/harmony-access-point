@@ -68,6 +68,7 @@ public class FSSendMessageListener implements MessageListener {
             fileObject = fileSystemManager.resolveFile(fileName);
             if (!fileObject.exists()) {
                 LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
+                fsFilesManager.deleteLockFile(fileObject);
                 return;
             }
         } catch (FileSystemException e) {
@@ -75,9 +76,7 @@ public class FSSendMessageListener implements MessageListener {
             return;
         }
 
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            fsSendMessagesService.authenticateForDomain(domain);
-        }
+        fsSendMessagesService.authenticateForDomain(domain);
 
         //process the file
         LOG.debug("now send the file: {}", fileObject);

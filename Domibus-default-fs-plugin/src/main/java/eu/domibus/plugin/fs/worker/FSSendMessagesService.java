@@ -75,6 +75,7 @@ public class FSSendMessagesService {
     @Qualifier("fsPluginSendQueue")
     private Queue fsPluginSendQueue;
 
+
     protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
 
     /**
@@ -105,9 +106,7 @@ public class FSSendMessagesService {
     protected void sendMessages(final String domain) {
         LOG.debug("Sending messages for domain [{}]", domain);
 
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            authenticateForDomain(domain);
-        }
+        authenticateForDomain(domain);
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -141,6 +140,11 @@ public class FSSendMessagesService {
      * @param domain
      */
     public void authenticateForDomain(String domain) throws AuthenticationExtException {
+        if (!domibusConfigurationExtService.isSecuredLoginRequired()) {
+            LOG.trace("Skip authentication for domain [{}]", domain);
+            return;
+        }
+
         String user = fsPluginProperties.getAuthenticationUser(domain);
         if (user == null) {
             LOG.error("Authentication User not defined for domain [{}]", domain);

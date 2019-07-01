@@ -114,7 +114,7 @@ public class FSSendMessagesServiceTest {
         final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
         final String domain1 = "DOMAIN1";
         new Expectations(instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
             fsPluginProperties.getDomains();
@@ -142,7 +142,7 @@ public class FSSendMessagesServiceTest {
     public void testSendMessages_RootDomain_NoMultitenancy() throws MessagingProcessingException, FileSystemException, FSSetUpException {
         final String domain = null; //root
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = false;
 
             fsFilesManager.setUpFileSystem(domain);
@@ -172,7 +172,7 @@ public class FSSendMessagesServiceTest {
     public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
         final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
             fsPluginProperties.getAuthenticationUser(domainDefault);
@@ -210,7 +210,7 @@ public class FSSendMessagesServiceTest {
     public void testSendMessages_Domain1() throws MessagingProcessingException, FileSystemException {
         final String domain1 = "DOMAIN1";
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
             fsFilesManager.setUpFileSystem(domain1);
@@ -247,7 +247,7 @@ public class FSSendMessagesServiceTest {
     public void testSendMessages_Domain1_BadConfiguration() throws MessagingProcessingException, FileSystemException, FSSetUpException {
         final String domain1 = "DOMAIN1";
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
             fsPluginProperties.getAuthenticationUser(anyString);

@@ -20,6 +20,8 @@ public class PartyModal extends DomibusPage {
 	public PartyModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
+		wait.forElementToBeEnabled(nameInput);
 	}
 
 	@FindBy(css = "app-party-details > md-dialog-content > form > button:nth-child(5)")

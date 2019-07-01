@@ -1,16 +1,13 @@
 package domibus.ui;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import org.openqa.selenium.JavascriptExecutor;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.login.LoginPage;
+import pages.plugin_users.CertPluginUserModal;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
 import utils.Generator;
@@ -29,24 +26,14 @@ import java.util.List;
 
 public class PluginUsersPgTest extends BaseTest {
 
-	protected PluginUsersPage login(HashMap<String, String> user){
-		System.out.println("login started");
-		LoginPage loginPage = new LoginPage(driver);
-		try {
-			loginPage.login(user);
-			new DomibusPage(driver).getSidebar().getPageLnk(DOMIBUS_PAGES.PLUGIN_USERS).click();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new PluginUsersPage(driver);
-	}
-
 	@Test(description = "PU-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
 
-		PluginUsersPage page = login(data.getAdminUser());
+		PluginUsersPage page = new PluginUsersPage(driver);
+
 //		checks that all components of the page are present
 		soft.assertTrue(page.isLoaded(), "page loaded");
 
@@ -62,8 +49,9 @@ public class PluginUsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
-		page.refreshPage();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		int index = page.grid().scrollTo("User Name", username);
 		HashMap<String, String> row = page.grid().getRowInfo(index);
@@ -89,7 +77,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 // 		login and go to users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page is loaded");
 
@@ -118,7 +108,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 // 		login and go to users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page is loaded");
 
@@ -153,13 +145,15 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "PU-5", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndCancel() throws Exception {
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		DGrid grid = page.grid();
 		int index = grid.scrollTo("User Name", username);
@@ -189,13 +183,15 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "PU-6", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C8";
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		DGrid grid = page.grid();
 		int index = grid.scrollTo("User Name", username);
@@ -230,7 +226,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 
 		DGrid grid = page.grid();
@@ -256,7 +254,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		DGrid grid = page.grid();
 		grid.scrollToAndSelect("User Name", username);
@@ -279,7 +279,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		page.grid().scrollToAndDoubleClick("User Name", username);
 
@@ -299,7 +301,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		page.grid().scrollToAndDoubleClick("User Name", username);
 
@@ -328,7 +332,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		page.getNewBtn().click();
 
@@ -377,7 +383,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		page.grid().scrollToAndDoubleClick("User Name", username);
 
@@ -431,7 +439,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		soft.assertTrue(page.grid().scrollTo("User Name", username) == -1, "Plugin user is not visible on default domain");
 
@@ -451,7 +461,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -480,7 +492,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -509,7 +523,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -523,14 +539,16 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "PU-17", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-17", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnSameDomain() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -555,7 +573,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		PluginUsersPage page = login(data.getAdminUser());
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
 
 		page.getFilters().search(null, null, null, usernames.get(0));
 		soft.assertEquals(page.grid().getRowInfo(0).get("User Name"), usernames.get(0), "Search by username return correct result");
@@ -573,5 +593,155 @@ public class PluginUsersPgTest extends BaseTest {
 		}
 		soft.assertAll();
 	}
+
+	@Test(description = "PU-19", groups = {"multiTenancy", "singleTenancy"})
+	public void createCertificatePluginUserSave() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.grid().scrollTo("Certificate Id", certId)>-1, "New user is present in the grid");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "PU-20", groups = {"multiTenancy", "singleTenancy"})
+	public void createCertificatePluginUserCancel() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getCancelBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.grid().scrollTo("Certificate Id", certId)==-1, "New user is NOT present in the grid");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "PU-21", groups = {"multiTenancy", "singleTenancy"})
+	public void editCertificateID() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		page.grid().scrollToAndDoubleClick("Certificate Id", certId);
+		modal = new CertPluginUserModal(driver);
+
+		soft.assertTrue(!modal.getUserInput().isEnabled(), "Certificate ID input is disabled for editing");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "PU-21", groups = {"multiTenancy", "singleTenancy"})
+	public void pluginUsernameTooShort() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		PluginUserModal modal = new PluginUserModal(driver);
+		modal.getUserNameInput().fill("aa");
+		modal.getRolesSelect().selectOptionByText(DRoles.ADMIN);
+		modal.getPasswordInput().fill(data.getDefaultTestPass());
+		modal.getConfirmationInput().fill(data.getDefaultTestPass());
+
+		soft.assertTrue(!modal.getOkBtn().isEnabled(), "OK button is disabled until user enters username with more than 3 characters");
+		soft.assertTrue(!modal.getOkBtn().isEnabled());
+
+		soft.assertAll();
+	}
+
+//	------------------------------------------------------------
+	@Test(description = "PU-19", groups = {"multiTenancy", "singleTenancy"})
+	public void certificatePluginUserDuplicateSameDomain() throws Exception {
+		String id = Generator.randomAlphaNumeric(5);
+		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		CertPluginUserModal modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+
+		page.getNewBtn().click();
+
+		modal = new CertPluginUserModal(driver);
+		modal.getUserInput().fill(certId);
+		modal.getRoleSelect().selectOptionByText(DRoles.ADMIN);
+		modal.clickOK();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+
+		soft.assertAll();
+	}
+
 
 }

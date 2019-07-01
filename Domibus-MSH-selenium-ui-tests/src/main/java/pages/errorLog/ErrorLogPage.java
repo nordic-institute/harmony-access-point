@@ -25,6 +25,8 @@ public class ErrorLogPage extends DomibusPage {
 	public ErrorLogPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
+		wait.forElementToBe(searchButton);
 	}
 
 
@@ -97,7 +99,7 @@ public class ErrorLogPage extends DomibusPage {
 
 
 	public boolean isLoaded() throws Exception {
-		return (searchButton.isEnabled()
+		return (getSearchButton().isEnabled()
 				&& getMessageIDInput().isEnabled()
 				&& getSignalMessIDInput().isEnabled());
 	}

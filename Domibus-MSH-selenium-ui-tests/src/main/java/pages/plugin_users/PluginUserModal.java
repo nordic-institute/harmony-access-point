@@ -32,7 +32,7 @@ public class PluginUserModal extends EditModal {
 	@FindBy(css = "#originalUser_id")
 	private WebElement originalUserInput;
 
-	@FindBy(css = "editbasicpluginuser-form > div > form > md-card > div:nth-child(3) > md2-select")
+	@FindBy(css = "md2-select[placeholder=\"Role\"]")
 	private WebElement rolesSelectContainer;
 
 	@FindBy(css = "#password_id")

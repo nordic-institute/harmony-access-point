@@ -13,6 +13,7 @@ import com.eviware.soapui.support.GroovyUtils
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
+
 class Domibus{
     def messageExchange = null;
     def context = null;
@@ -941,7 +942,7 @@ def findNumberOfDomain(String inputSite) {
         log.info "  uploadPmode  [][]  Start upload PMode for Domibus \"" + side + "\".";
         def commandString = null;
         def commandResult = null;
-        def pmDescription = "SoapUI sample test description for PMode upload";
+        def pmDescription = "SoapUI sample test description for PMode upload. Used Pmode: " + extFilePath ;
         def multitenancyOn = false;
         def authenticationUser = authUser;
         def authenticationPwd = authPwd;
@@ -952,7 +953,13 @@ def findNumberOfDomain(String inputSite) {
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-            commandString="curl "+urlToDomibus(side, log, context)+"/rest/pmode -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -F \"description="+pmDescription+"\" -F  file=@"+pmodeFile;
+
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-F", "description=" + pmDescription,
+							"-F", "file=@" + pmodeFile,							
+							"-v"]
             commandResult = runCurlCommand(commandString, log)
             assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected outcome \"" + outcome + "\"."
             if (outcome.toLowerCase() == "successfully") {
@@ -978,11 +985,14 @@ def findNumberOfDomain(String inputSite) {
         def commandResult = null;
         def pmDescription = "Dummy";
 
-        def String output = fetchCookieHeader(side, context, log, userLogin, passwordLogin)
+        def String output = fetchCookieHeader(side, context, log)
         def XXSRFTOKEN = null;
         def String pmodeFile = computePathRessources(baseFilePath, extFilePath, context, log)
 
-        commandString = "curl " + urlToDomibus(side, log, context) + "/rest/pmode -v -F \"description=" + pmDescription + "\" -F  file=@" + pmodeFile;
+		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode", 
+				"-F", "description=" + pmDescription,
+				"-F", "file=@" + pmodeFile,							
+				"-v"]
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to connect to domibus."
         if (outcome.toLowerCase() == "successfully") {
@@ -1013,8 +1023,15 @@ def findNumberOfDomain(String inputSite) {
             (authenticationUser, authenticationPwd)=retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             truststoreFile=computePathRessources(baseFilePath,extFilePath,context,log)
-            commandString = "curl " + urlToDomibus(side, log, context) + "/rest/truststore/save -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -F \"password=" + tsPassword + "\" -F  truststore=@" + truststoreFile;
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/truststore/save", 
+				"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+				"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+				"-F", "password=" + tsPassword,
+				"-F", "truststore=@" + truststoreFile,							
+				"-v"]
             commandResult = runCurlCommand(commandString, log)
+			
             assert(commandResult[0].contains(outcome)),"Error:uploadTruststore: Error while trying to upload the truststore to domibus."
             log.info "  uploadTruststore  [][]  " + commandResult[0] + " Domibus: \"" + side + "\".";
         } finally {
@@ -1340,7 +1357,7 @@ def findNumberOfDomain(String inputSite) {
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
                 commandResult = runCurlCommand(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user. outputCatcher="+ commandResult[0] + "\n\n errorCatcher=" + commandResult[1];
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
             }
         } finally {
@@ -1383,11 +1400,23 @@ def findNumberOfDomain(String inputSite) {
                     }
                     i++;
                 }
-                assert(rolePl != null),"Error:removePluginUser: Error while fetching the role of user \"$userPl\".";
-                assert(entityId != null),"Error:removePluginUser: Error while fetching the \"entityId\" of user \"$userPl\" from the user list.";
-                curlParams = "[\n  {\n    \"entityId\": $entityId,\n    \"userName\": \"$userPl\",\n    \"password\": null,\n    \"certificateId\": null,\n" + ((originalUser != null && originalUser != "") ? "    \"originalUser\": \"$originalUser\",\n" : "") + "    \"authRoles\": \"$rolePl\",\n    \"authenticationType\": \"BASIC\",\n    \"status\": \"REMOVED\"\n  }\n]";
+                assert(rolePl != null),"Error:removePluginUser: Error while fetching the role of user \"$userPl\"."
+                assert(entityId != null),"Error:removePluginUser: Error while fetching the \"entityId\" of user \"$userPl\" from the user list."
+                curlParams = '[ { \"entityId\": $entityId, \"userName\": \"' + "${userPl}" + 
+							  '\", \"password\": null, \"certificateId\": null, "' + 
+							  ((originalUser != null && originalUser != "") ? ' \"originalUser\": \"' + "${originalUser}" : '' ) + 
+							  ' \"authRoles\": \"' + "${rolePl}" + 
+							  '\", \"authenticationType\": \"BASIC\", \"status\": \"REMOVED\" } ]'
+				
                 debugLog("  removePluginUser  [][]  curlParams: " + curlParams, log)
-                commandString = "curl " + urlToDomibus(side, log, context) + "/rest/plugin/users -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+                commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT", 
+								"--data-binary", formatJsonForCurl(curlParams, log), 
+								"-v"]				
+
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:removePluginUser: Error while trying to remove user $userPl.";
                 log.info "  removePluginUser  [][]  Plugin user $userPl removed.";
@@ -1435,6 +1464,14 @@ def findNumberOfDomain(String inputSite) {
         XSFRTOKEN_C3 = null;
         XSFRTOKEN_C_Other = null;
     }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// 
+static def ifWindowsEscapeJsonString(json) {
+	if (System.properties['os.name'].toLowerCase().contains('windows')) 
+		json = json.replace("\"", "\\\"")
+	return json
+}
 //---------------------------------------------------------------------------------------------------------------------------------
     // Insert wrong password
     static def insertWrongPassword(String side, context, log, String username, int attempts=1, String domainValue="Default", String wrongPass="zzzdumzzz", String authUser=null, String authPwd=null){
@@ -1454,8 +1491,15 @@ def findNumberOfDomain(String inputSite) {
             usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
             debugLog("  insertWrongPassword  [][]  usersMap:	$usersMap", log)
             assert(userExists(usersMap, username, log, false)),"Error:insertWrongPassword: user \"$username\" was not found.";
-            // Try to login with wrong password
-            commandString = "curl " + urlToDomibus(side, log, context) + "/rest/security/authentication -i -H \"Content-Type: application/json\" -X POST -d \"{\"\"\"username\"\"\":\"\"\"" + username + "\"\"\",\"\"\"password\"\"\":\"\"\"$wrongPass\"\"\"}\" -c " + context.expand('${projectDir}') + File.separator + "cookie.txt";
+			
+			def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${username}" + '\",\"password\":\"' + "${wrongPass}" + '\"}')
+				
+			// Try to login with wrong password
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/authentication",
+							"-H",  "Content-Type: application/json", 
+							"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+							"-i"]
+
             for (def i = 1; i <= attempts; i++) {
                 log.info("  insertWrongPassword  [][]  Try to login with wrong password: Attempt $i.")
                 commandResult = runCurlCommand(commandString, log)
@@ -1565,13 +1609,13 @@ def findNumberOfDomain(String inputSite) {
         debugLog("  ====  Calling \"fetchCookieHeader\".", log)
         def commandString = null;
         def commandResult = null;
-		def json = '{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}'
+		def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}')
 		
-		if (System.properties['os.name'].toLowerCase().contains('windows')) json = json.replace("\"", "\\\"")
-	
-        commandString = ["curl", "-i", "-H",  "Content-Type: application/json", 
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/authentication",
+						"-i",
+						"-H",  "Content-Type: application/json", 
 						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
-						urlToDomibus(side, log, context) + "/rest/security/authentication", "--trace-ascii", "-"]
+						"--trace-ascii", "-"]
 	
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus."
@@ -1983,6 +2027,41 @@ static def void startRestMockService(String restMockServiceName,log,testRunner,s
     }
 	mockService.start();
 	log.info ("  startRestMockService  [][]  Rest mock service "+restMockServiceName+" is running.");
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// Methods handling Pmode properties overwriting
+static def processFile(log, file, newFileSuffix, Closure processText) {
+	 	 def text = file.text
+   		 def outputTextFile = new File(file.path + newFileSuffix)
+  		 outputTextFile.write(processText(text))
+  		 if (outputTextFile.text == text) 
+  		 	log.warn "processFile method returned file with same content! filePath=${file.path}, newFileSuffix=${newFileSuffix}."
+}
+
+static def changeConfigurationFile(log, testRunner, filePath, newFileSuffix, Closure processText) {    		
+		 // Checkfilefile exists
+        def file = new File(filePath)
+        if (!file.exists()) {
+            testRunner.fail("File [${filePath}] does not exist. Can't change value.")
+            return null
+        } else log.info "  changeConfigurationFile  [][]  File [${filePath}] exists."
+	
+	processFile(log, file, newFileSuffix, processText)
+	
+   log.info "  changeDomibusProperties  [][]  Configuration file [${filePath}] amended"
+}
+static def updatePmodeEndpoints(log, context, testRunner, filePath, newFileSuffix) { 
+	def defaulEndpointBlue = 'http://localhost:8080/domibus'
+	def newEndpointBlue = context.expand('${#Project#localUrl}')
+	def defaulEndpointRed = 'http://localhost:8180/domibus'
+	def newEndpointRed = context.expand('${#Project#remoteUrl}')
+	
+	debugLog("For file: ${filePath} change endpoint value ${defaulEndpointBlue} to ${newEndpointBlue} and change endpoint value: ${defaulEndpointRed} to ${newEndpointRed} value", log)
+	changeConfigurationFile(log, testRunner, filePath, newFileSuffix) { text ->
+	    text = text.replaceAll("${defaulEndpointBlue}", "${newEndpointBlue}")
+	    text.replaceAll("${defaulEndpointRed}", "${newEndpointRed}")    
+	}
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------

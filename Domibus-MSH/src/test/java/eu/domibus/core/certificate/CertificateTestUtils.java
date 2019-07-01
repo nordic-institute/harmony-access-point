@@ -1,6 +1,6 @@
 package eu.domibus.core.certificate;
 
-import eu.domibus.pki.DomibusCertificateException;
+import eu.domibus.api.pki.DomibusCertificateException;
 
 import java.io.FileInputStream;
 import java.io.IOException;

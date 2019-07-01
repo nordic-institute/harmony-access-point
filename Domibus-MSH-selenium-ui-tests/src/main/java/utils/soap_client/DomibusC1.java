@@ -1,7 +1,7 @@
 package utils.soap_client;
 
 
-import com.sun.xml.internal.ws.developer.JAXWSProperties;
+//import com.sun.xml.internal.ws.developer.JAXWSProperties;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.webService.generated.BackendInterface;
@@ -34,8 +34,12 @@ import java.util.Map;
 public class DomibusC1 {
 	private static final Log LOG = LogFactory.getLog(DomibusC1.class);
 
-	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_submitRequest.xml";
-	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_messaging.xml";
+//	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_submitRequest.xml";
+//	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_messaging.xml";
+
+	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/main/resources/eu/domibus/example/ws/submitMessage_submitRequest.xml";
+	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/main/resources/eu/domibus/example/ws/submitMessage_messaging.xml";
+
 	private static final String DEFAULT_WEBSERVICE_LOCATION = new TestRunData().getUiBaseUrl() + "services/backend?wsdl";
 
 	private static JAXBContext jaxbMessagingContext;
@@ -84,7 +88,8 @@ public class DomibusC1 {
 		}
 
 		Map<String, Object> ctxt = bindingProvider.getRequestContext();
-		ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+//		ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+		ctxt.put("com.sun.xml.internal.ws.transport.http.client.streaming.chunk.size", 8192);
 		//enable MTOM
 		SOAPBinding binding = (SOAPBinding) bindingProvider.getBinding();
 		binding.setMTOMEnabled(true);
@@ -108,7 +113,7 @@ public class DomibusC1 {
 	}
 
 
-	public SubmitResponse sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception {
+	public String sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception {
 		BackendInterface backendInterface = getPort(pluginU, password);
 
 
@@ -127,7 +132,11 @@ public class DomibusC1 {
 
 		SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
 
-		return result;
+		if (null != result.getMessageID()){
+			return result.getMessageID().get(0);
+		}
+
+		throw new RuntimeException("Could not send message");
 	}
 
 
