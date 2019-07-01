@@ -90,6 +90,10 @@ public class DWait {
 		});
 	}
 
+	public void forElementToContainText(WebElement element, String text) {
+		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
+	}
+
 	public void longWaitforElementToBe(WebElement element) {
 
 		longWait.until(new ExpectedCondition<Boolean>() {

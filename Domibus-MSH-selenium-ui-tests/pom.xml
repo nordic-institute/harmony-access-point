@@ -109,11 +109,17 @@
 			<version>${javax.ws.rs-api_version}</version>
 		</dependency>
 
-
 		<dependency>
 			<groupId>eu.domibus</groupId>
 			<artifactId>domibus-ws-stubs</artifactId>
 			<version>${domibus-ws-stubs_version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.3</version>
 		</dependency>
 
 	</dependencies>

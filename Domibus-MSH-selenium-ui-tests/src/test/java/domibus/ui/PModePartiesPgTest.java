@@ -176,7 +176,10 @@ public class PModePartiesPgTest extends BaseTest {
 		modal.fillNewPartyForm(newPatyName, "http://test.com", "pid");
 		modal.clickOK();
 
+		page.wait.forXMillis(1000);
 		page.getSaveButton().click();
+		page.wait.forXMillis(5000);
+
 
 		soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equalsIgnoreCase(DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
@@ -207,7 +210,11 @@ public class PModePartiesPgTest extends BaseTest {
 		modal.getNameInput().fill(newPatyName);
 		modal.getEndpointInput().fill("http://" + newPatyName.toLowerCase()+".com");
 		modal.clickOK();
+
+		page.wait.forXMillis(1000);
 		page.getSaveButton().click();
+		page.wait.forXMillis(5000);
+
 
 		soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
 

@@ -11,6 +11,8 @@ import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMessModal;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
+import rest.RestServicePaths;
+import utils.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -267,6 +269,40 @@ public class JMSMessPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
+	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, null, null);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "JMS-9", groups = {"multiTenancy", "singleTenancy"})
+	public void gridSelfAssert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+
+		page.grid().assertControls(soft);
+
+		soft.assertAll();
+	}
+
+
+
+
+
 
 	private String getSelector(HashMap<String, String> messInfo) throws JSONException {
 		String selectorTemplate = "MESSAGE_ID='%s' AND JMSMessageID='%s'";
@@ -280,5 +316,6 @@ public class JMSMessPgTest extends BaseTest {
 		return String.format(selectorTemplate, messageId, jmsMessageID);
 
 	}
+
 
 }

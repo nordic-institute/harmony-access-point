@@ -5,6 +5,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @author Catalin Comanici
@@ -18,38 +20,15 @@ public class JMSSelect extends Select {
 
 	public int selectQueueWithMessages() throws Exception{
 
-		List<String> queues = getOptionsTexts();
-
-		int noOfMessages = 0;
-		for (String queue : queues) {
-			String striped  = queue.substring(queue.indexOf("(")+1, queue.indexOf(")")).trim();
-			int noOfMess = Integer.valueOf(striped);
-			if(noOfMess>0){
-				selectOptionByText(queue);
-				noOfMessages = noOfMess;
-				break;
-			}
-		}
-
-		return noOfMessages;
+		String qName = getQueueNameWithMessages("");
+		selectOptionByText(qName);
+		return Integer.valueOf(qName.replaceAll("\\D", ""));
 	}
 
 	public int selectQueueWithMessagesNotDLQ() throws Exception{
-
-		List<String> queues = getOptionsTexts();
-
-		int noOfMessages = 0;
-		for (String queue : queues) {
-			String striped  = queue.substring(queue.indexOf("(")+1, queue.indexOf(")")).trim();
-			int noOfMess = Integer.valueOf(striped);
-			if(noOfMess>0 && !queue.contains("DLQ")){
-				selectOptionByText(queue);
-				noOfMessages = noOfMess;
-				break;
-			}
-		}
-
-		return noOfMessages;
+		String qName = getQueueNameWithMessages("DLQ");
+		selectOptionByText(qName);
+		return Integer.valueOf(qName.replaceAll("\\D", ""));
 	}
 
 	public void selectDLQQueue() throws Exception{
@@ -66,7 +45,27 @@ public class JMSSelect extends Select {
 	}
 
 
+	private String getQueueNameWithMessages(String excludePattern) throws Exception{
+		List<String> queues = getOptionsTexts();
+		List<String> filtered;
+		if(null != excludePattern && !excludePattern.isEmpty()){
+			filtered = queues.stream().filter(queue -> queue.contains(excludePattern)).collect((Collectors.toList()));
+		}else {
+			filtered = queues;
+		}
 
+		List<String> withMess = filtered.stream()
+				.filter(queue -> queue.contains(excludePattern))
+				.collect((Collectors.toList()));
+
+		for (String queue : withMess) {
+			int noOfmess = Integer.valueOf(queue.replaceAll("\\D", ""));
+			if(noOfmess>0){
+				return queue;
+			}
+		}
+		return null;
+	}
 
 
 

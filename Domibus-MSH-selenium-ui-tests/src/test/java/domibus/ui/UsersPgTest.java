@@ -10,7 +10,9 @@ import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
+import rest.RestServicePaths;
 import utils.Generator;
+import utils.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;

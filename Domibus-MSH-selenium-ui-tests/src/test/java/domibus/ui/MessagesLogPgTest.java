@@ -4,21 +4,29 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import pages.messages.SearchFilters;
+import rest.RestServicePaths;
 import utils.Generator;
+import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,6 +41,8 @@ import java.util.zip.ZipInputStream;
  * @since 4.1
  */
 public class MessagesLogPgTest extends BaseTest {
+
+	List<String> columnList = Arrays.asList("Message Id", "From Party Id", "To Party Id", "Message Status", "Notification Status", "Received", "AP Role", "Send Attempts", "Send Attempts Max", "Next Attempt", "Conversation Id", "Message Type", "Message Subtype", "Deleted", "Original Sender", "Final Recipient", "Ref To Message Id", "Failed", "Restored", "Actions");
 
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception{
@@ -435,6 +445,42 @@ public class MessagesLogPgTest extends BaseTest {
 
 		soft.assertAll();
 	}
+
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		MessagesPage page = new MessagesPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		page.grid().sortBy("Received");
+
+		List<String> gridHeaders = page.grid().getColumnNames();
+		gridHeaders.remove("Actions");
+
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "MSG-13", groups = {"multiTenancy", "singleTenancy"})
+	public void gridSelfAssert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		MessagesPage page = new MessagesPage(driver);
+
+		page.grid().assertControls(soft);
+
+		soft.assertAll();
+	}
+
+
 
 	private HashMap<String, String> unzip(String zipFilePath) throws Exception {
 

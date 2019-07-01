@@ -258,6 +258,17 @@ public class DomibusRestClient {
 		}
 	}
 
+	public void createCertPluginUser(String username, String role, String domain) {
+		String payloadTemplate = "[{\"status\":\"NEW\",\"userName\":\"\",\"active\":true,\"suspended\":false,\"authenticationType\":\"CERTIFICATE\",\"$$index\":4,\"certificateId\":\"%s\",\"authRoles\":\"%s\"}]";
+		String payload = String.format(payloadTemplate, username, role);
+
+		switchDomain(domain);
+		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		if (response.getStatus() != 204) {
+			throw new RuntimeException("Could not create plugin user");
+		}
+	}
+
 	public void deletePluginUser(String username, String domain) throws Exception {
 
 		switchDomain(domain);
@@ -447,11 +458,11 @@ public class DomibusRestClient {
 	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception{
 		switchDomain(domain);
 
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_CSV), params);
+		ClientResponse clientResponse = requestGET(resource.path(path), params);
 		System.out.println(clientResponse.getStatus());
 		InputStream in= clientResponse.getEntity(InputStream.class);
 
-		File file = File.createTempFile("domibus", "");
+		File file = File.createTempFile("domibus", ".csv");
 		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 		in.close();

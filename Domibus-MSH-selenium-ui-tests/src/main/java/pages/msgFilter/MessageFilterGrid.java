@@ -1,10 +1,16 @@
 package pages.msgFilter;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.grid.Pagination;
 import ddsl.dobjects.Checkbox;
+import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Catalin Comanici
@@ -30,5 +36,48 @@ public class MessageFilterGrid extends DGrid {
 		WebElement element = gridRows.get(rowIndex).findElement(persistedChkSelector);
 
 		return new Checkbox(driver, element);
+	}
+
+//	@Override
+//	public List<HashMap<String, String>> getAllRowInfo() throws Exception {
+//		List<HashMap<String, String>> allRowInfo = new ArrayList<>();
+//
+//		Pagination pagination = getPagination();
+//		pagination.skipToFirstPage();
+//
+//		do {
+//			for (int i = 0; i < getRowsNo(); i++) {
+//				allRowInfo.add(getRowInfo(i));
+//			}
+//			if (pagination.hasNextPage()) {
+//				pagination.goToNextPage();
+//			} else {
+//				break;
+//			}
+//		} while (true);
+//		return allRowInfo;
+//	}
+
+	@Override
+	public HashMap<String, String> getRowInfo(int rowNumber) throws Exception {
+		if (rowNumber < 0) {
+			throw new Exception("Row number too low " + rowNumber);
+		}
+		if (rowNumber > gridRows.size()) {
+			throw new Exception("Row number too high " + rowNumber);
+		}
+		HashMap<String, String> info = new HashMap<>();
+
+		List<String> columns = getColumnNames();
+		List<WebElement> cells = gridRows.get(rowNumber).findElements(cellSelector);
+
+		for (int i = 0; i < columns.size(); i++) {
+			info.put(columns.get(i), new DObject(driver, cells.get(i)).getText());
+		}
+
+		String isPersisted = String.valueOf(getPersisted(rowNumber).isChecked());
+		info.put("Persisted", isPersisted);
+
+		return info;
 	}
 }

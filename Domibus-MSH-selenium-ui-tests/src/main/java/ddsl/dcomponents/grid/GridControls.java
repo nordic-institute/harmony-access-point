@@ -60,7 +60,38 @@ public class GridControls extends DComponent {
 		return null;
 	}
 
+	public void checkBoxWithLabel(String name) throws Exception{
+		boolean found = false;
+		for (WebElement chk : chkContainer) {
+			WebElement labelFor = chk.findElement(By.cssSelector("label"));
+			WebElement checkbox = chk.findElement(By.cssSelector("input"));
+			if(new DObject(driver, labelFor).getText().equalsIgnoreCase(name)){
+				new Checkbox(driver, checkbox).check();
+				found = true;
+			}
+		}
+		if(!found){
+			throw new Exception("Checkbox not found");
+		}
+	}
+
+	public void uncheckBoxWithLabel(String name) throws Exception{
+		boolean found = false;
+		for (WebElement chk : chkContainer) {
+			WebElement labelFor = chk.findElement(By.cssSelector("label"));
+			WebElement checkbox = chk.findElement(By.cssSelector("input"));
+			if(new DObject(driver, labelFor).getText().equalsIgnoreCase(name)){
+				new Checkbox(driver, checkbox).uncheck();
+				found = true;
+			}
+		}
+		if(!found){
+			throw new Exception("Checkbox not found");
+		}
+	}
+
 	public HashMap<String, Boolean> getAllCheckboxStatuses() throws Exception{
+		showCtrls();
 		HashMap<String, Boolean> statuses = new HashMap<>();
 
 		for (WebElement chk : chkContainer) {
@@ -72,6 +103,28 @@ public class GridControls extends DComponent {
 		return statuses;
 	}
 
+	public void showCtrls() throws Exception{
+		DLink link = getShowHideCtrlLnk();
+		if(link.getLinkText().equalsIgnoreCase("Show columns")){
+			link.click();
+			wait.forElementToContainText(showHideCtrlLnk, "Hide");
+		}
+	}
+
+	public void hideCtrls() throws Exception{
+		DLink link = getShowHideCtrlLnk();
+		if(link.getLinkText().equalsIgnoreCase("Hide columns")){
+			link.click();
+			wait.forElementToContainText(showHideCtrlLnk, "Show");
+		}
+	}
+
+	public boolean areCheckboxesVisible() throws Exception{
+		try {
+			return getAllLnk().isPresent();
+		}catch (Exception e){}
+		return false;
+	}
 
 
 

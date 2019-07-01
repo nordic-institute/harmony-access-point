@@ -4,6 +4,11 @@ import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.popups.InfoModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
+import jdk.nashorn.internal.runtime.ScriptObject;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,11 +16,16 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import org.testng.asserts.SoftAssert;
 import utils.TestRunData;
+import utils.TestUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -50,8 +60,8 @@ public class DGrid extends DComponent {
 		return new Pagination(driver);
 	}
 
-	public DButton getDownloadCSVButton() {
-		return new DButton(driver, downloadCSVButton);
+	public GridControls getGridCtrl() {
+		return new GridControls(driver);
 	}
 
 	public boolean isPresent() {
@@ -64,7 +74,7 @@ public class DGrid extends DComponent {
 		return isPresent;
 	}
 
-	protected ArrayList<String> getColumnNames() throws Exception {
+	public ArrayList<String> getColumnNames() throws Exception {
 		ArrayList<String> columnNames = new ArrayList<>();
 		for (int i = 0; i < gridHeaders.size(); i++) {
 			columnNames.add(new DObject(driver, gridHeaders.get(i)).getText());
@@ -145,7 +155,9 @@ public class DGrid extends DComponent {
 
 	public void scrollToAndSelect(String columnName, String value) throws Exception {
 		int index = scrollTo(columnName, value);
-		if(index < 0){throw new Exception("Cannot select row because it doesn't seem to be in grid");}
+		if (index < 0) {
+			throw new Exception("Cannot select row because it doesn't seem to be in grid");
+		}
 		selectRow(index);
 	}
 
@@ -175,7 +187,7 @@ public class DGrid extends DComponent {
 	public void sortBy(String columnName) throws Exception {
 		for (int i = 0; i < gridHeaders.size(); i++) {
 			DObject column = new DObject(driver, gridHeaders.get(i));
-			if(column.getText().equalsIgnoreCase(columnName)){
+			if (column.getText().equalsIgnoreCase(columnName)) {
 				column.click();
 				return;
 			}
@@ -211,13 +223,192 @@ public class DGrid extends DComponent {
 		return allRowInfo;
 	}
 
-	public int getSelectedRowIndex() throws Exception{
+	public int getSelectedRowIndex() throws Exception {
 		for (int i = 0; i < gridRows.size(); i++) {
-			if(new DObject(driver, gridRows.get(i)).getAttribute("class").contains("active")){
+			if (new DObject(driver, gridRows.get(i)).getAttribute("class").contains("active")) {
 				return i;
 			}
 		}
 		return -1;
 	}
+
+	public boolean columnsVsCheckboxes() throws Exception {
+
+		HashMap<String, Boolean> columnStatus = getGridCtrl().getAllCheckboxStatuses();
+		ArrayList<String> visibleColumns = getColumnNames();
+
+		List<String> checkedColumns = new ArrayList<>();
+		for (String k : columnStatus.keySet()) {
+			if (columnStatus.get(k) == true) {
+				checkedColumns.add(k);
+			}
+		}
+
+		if (visibleColumns.size() != checkedColumns.size()) {
+			return false;
+		}
+
+		Collections.sort(visibleColumns);
+		Collections.sort(checkedColumns);
+
+		for (int i = 0; i < visibleColumns.size(); i++) {
+			if (!visibleColumns.get(i).equalsIgnoreCase(checkedColumns.get(i))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public List<String> getValuesOnColumn(String columnName) throws Exception {
+		List<HashMap<String, String>> allInfo = getAllRowInfo();
+		List<String> values = new ArrayList<>();
+
+		for (int i = 0; i < allInfo.size(); i++) {
+			String val = allInfo.get(i).get(columnName);
+			if (null != val) {
+				values.add(val);
+			}
+		}
+		return values;
+	}
+
+
+
+
+	public void assertControls(SoftAssert soft)throws Exception{
+
+
+		getGridCtrl().showCtrls();
+		List<String> chkOptions = new ArrayList<>();
+		chkOptions.addAll(getGridCtrl().getAllCheckboxStatuses().keySet());
+
+		checkShowLink(soft);
+		checkHideLink(soft);
+		checkModifyVisibleColumns(soft, chkOptions);
+		checkAllLink(soft, chkOptions);
+		checkNoneLink(soft);
+		checkChangeNumberOfRows(soft);
+	}
+
+	private void checkShowLink(SoftAssert soft) throws Exception{
+		//-----------Show
+		getGridCtrl().showCtrls();
+		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
+
+	}
+	private void checkHideLink(SoftAssert soft) throws Exception{
+		//-----------Hide
+		getGridCtrl().hideCtrls();
+		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
+	}
+	private void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
+		//-----------Show - Modify - Hide
+		for (String colName : chkOptions) {
+			getGridCtrl().showCtrls();
+			getGridCtrl().checkBoxWithLabel(colName);
+			soft.assertTrue(columnsVsCheckboxes());
+
+			getGridCtrl().uncheckBoxWithLabel(colName);
+			soft.assertTrue(columnsVsCheckboxes());
+		}
+	}
+	private void checkAllLink(SoftAssert soft, List<String> chkOptions) throws Exception{
+		//-----------All link
+		getGridCtrl().showCtrls();
+		getGridCtrl().getAllLnk().click();
+		getGridCtrl().hideCtrls();
+
+		List<String> visibleColumns = getColumnNames();
+		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, chkOptions), "All the desired columns are visible");
+	}
+	private void checkNoneLink(SoftAssert soft) throws Exception{
+		//-----------None link
+		getGridCtrl().showCtrls();
+		getGridCtrl().getNoneLnk().click();
+		getGridCtrl().hideCtrls();
+
+		List<String> noneColumns = getColumnNames();
+		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
+
+	}
+	private void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
+		//----------Rows
+		getGridCtrl().showCtrls();
+		getGridCtrl().getAllLnk().click();
+
+		int rows = getPagination().getTotalItems();
+		getPagination().getPageSizeSelect().selectOptionByText("25");
+		waitForRowsToLoad();
+
+		soft.assertTrue(getPagination().getActivePage() == 1, "pagination is reset to 1 after changing number of items per page");
+
+		if(rows > 10){
+			soft.assertTrue(getRowsNo() > 10, "Number of rows is bigger than 10");
+			soft.assertTrue(getRowsNo() <= 25, "Number of rows is less or equal to 25");
+		}
+
+		if(rows > 25){
+			soft.assertTrue(getPagination().hasNextPage(), "If there are more than 25 items there are more than one pages");
+		}
+	}
+
+
+
+	public void checkCSVAgainstGridInfo(String filename, SoftAssert soft) throws Exception {
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<CSVRecord> records = csvParser.getRecords();
+
+
+		List<HashMap<String, String>> gridInfo = getAllRowInfo();
+
+		soft.assertTrue(CollectionUtils.isEqualCollection(gridHeaders, csvParser.getHeaderMap().keySet()), "Headers between grid and CSV file match");
+
+		for (int i = 0; i < gridInfo.size(); i++) {
+			HashMap<String, String> gridRecord = gridInfo.get(i);
+			CSVRecord record = records.get(i);
+			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+		}
+	}
+
+	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
+
+		for (String key : gridRow.keySet()) {
+			if (key.equalsIgnoreCase("Actions")) {
+				continue;
+			}
+
+			if (isUIDate(gridRow.get(key))) {
+				if (!csvVsUIDate(record.get(key), gridRow.get(key))) {
+					return false;
+				}
+			} else {
+				if (!gridRow.get(key).equalsIgnoreCase(record.get(key))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public boolean csvVsUIDate(String csvDateStr, String uiDateStr) throws ParseException {
+		Date csvDate = TestRunData.CSV_DATE_FORMAT.parse(csvDateStr);
+		Date uiDate = TestRunData.UI_DATE_FORMAT.parse(uiDateStr);
+
+		return csvDate.equals(uiDate);
+	}
+
+	public boolean isUIDate(String string) {
+		Date uiDate = null;
+		try {
+			uiDate = TestRunData.UI_DATE_FORMAT.parse(string);
+		} catch (ParseException e) {
+			return false;
+		}
+		return true;
+	}
+
 
 }
