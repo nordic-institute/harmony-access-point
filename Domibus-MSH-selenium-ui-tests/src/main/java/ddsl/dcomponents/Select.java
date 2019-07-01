@@ -43,8 +43,11 @@ public class Select extends DComponent {
 	@FindBy(css = "span[class*=\"select-arrow\"]")
 	protected WebElement expandBtn;
 
-	@FindBy(css = "span.md2-select-value")
+	@FindBy(css = "span[class*=\"-select-value\"]")
 	protected WebElement selectedOptionValue;
+
+	@FindBy(css = "[class*=\"select-content ng-trigger ng-trigger-fadeInContent\"]")
+	protected WebElement optionContainer;
 
 	private DObject getSelectContainer() {
 		return new DObject(driver, selectContainer);
@@ -67,11 +70,6 @@ public class Select extends DComponent {
 		String[] idsAttributes = selectContainer.getAttribute("aria-owns").trim().split(" ");
 		optionIDs.addAll(Arrays.asList(idsAttributes));
 
-		System.out.println("getTextraw = " + selectContainer.getAttribute("aria-owns").trim());
-		System.out.println("idsArr = " + idsAttributes);
-		System.out.println("optionids = " + optionIDs);
-
-
 		log.info("option ids identified");
 	}
 
@@ -80,7 +78,11 @@ public class Select extends DComponent {
 	}
 
 	public void expand() throws Exception{
-		getExpandBtn().click();
+		try {
+			getExpandBtn().click();
+		} catch (Exception e) {
+
+		}
 	}
 
 	protected List<DObject> getOptionElements() throws Exception {
@@ -123,7 +125,7 @@ public class Select extends DComponent {
 
 	public List<String> getOptionsTexts() throws Exception{
 		List<String> texts = new ArrayList<>();
-		List<DObject> options = new ArrayList<>();
+		List<DObject> options = getOptionElements();
 
 		for (int i = 0; i < options.size(); i++) {
 			texts.add(options.get(i).getText());

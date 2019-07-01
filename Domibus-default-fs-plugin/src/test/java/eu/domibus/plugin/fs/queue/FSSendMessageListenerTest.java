@@ -87,6 +87,8 @@ public class FSSendMessageListenerTest {
         fsSendMessageListener.onMessage(message);
 
         new FullVerifications(fsSendMessagesService) {{
+            fsSendMessagesService.authenticateForDomain(domain);
+
             String domainActual;
             fsSendMessagesService.processFileSafely((FileObject) any, domainActual = withCapture());
             Assert.assertEquals(domain, domainActual);

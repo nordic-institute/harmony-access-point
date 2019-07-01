@@ -1,8 +1,8 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.util.SoapUtil;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;

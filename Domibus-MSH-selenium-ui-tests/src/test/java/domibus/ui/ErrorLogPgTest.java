@@ -1,15 +1,12 @@
 package domibus.ui;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
-import ddsl.enums.DOMIBUS_PAGES;
+import ddsl.enums.PAGES;
 import org.testng.SkipException;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.errorLog.ErrorLogPage;
-import pages.login.LoginPage;
 
 import java.util.HashMap;
 
@@ -23,17 +20,11 @@ import java.util.HashMap;
 public class ErrorLogPgTest extends BaseTest {
 
 
-	@BeforeMethod(alwaysRun = true)
-	private void login() throws Exception {
-		new LoginPage(driver)
-				.login(data.getAdminUser());
-		new DomibusPage(driver).getSidebar().getPageLnk(DOMIBUS_PAGES.ERROR_LOG).click();
-	}
-
-
 	@Test(description = "ERRLOG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openErrorLogPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
+
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 
 		soft.assertTrue(errorLogPage.isLoaded(), "Expected elements appear in the page");
@@ -44,6 +35,9 @@ public class ErrorLogPgTest extends BaseTest {
 	@Test(description = "ERRLOG-2", groups = {"multiTenancy", "singleTenancy"})
 	public void filterErrorLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
+
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
+
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 
 		soft.assertTrue(errorLogPage.isLoaded());
@@ -69,6 +63,9 @@ public class ErrorLogPgTest extends BaseTest {
 	@Test(description = "ERRLOG-3", groups = {"multiTenancy", "singleTenancy"})
 	public void paginationTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
+
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
+
 		ErrorLogPage page = new ErrorLogPage(driver);
 
 		soft.assertTrue(page.isLoaded());
@@ -104,6 +101,7 @@ public class ErrorLogPgTest extends BaseTest {
 		soft.assertTrue(pgCtrl.getActivePage() == 2, "Next page is 2");
 
 		page.getGrid().sortBy("Error Code");
+		page.getGrid().waitForRowsToLoad();
 		soft.assertTrue(pgCtrl.getActivePage() == 1, "After sorting the active page is 1");
 		pgCtrl.goToPage(2);
 

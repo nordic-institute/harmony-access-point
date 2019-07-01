@@ -173,7 +173,7 @@ public class CommandServiceImpl implements CommandService {
             return false;
         }
 
-        final String serverName = serverInfoService.getUniqueServerName();
+        final String serverName = serverInfoService.getServerName();
 
         if (serverName.equalsIgnoreCase(originServerName)) {
             LOG.debug("Command [{}] for domain [{}] not executed as origin and actual server signature is the same [{}]", command, domain, serverName);

@@ -9,7 +9,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
-import eu.domibus.ebms3.common.model.PartyInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
@@ -105,8 +104,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 messagingDao.clearPayloadData(messageId);
-                final PartyInfo partyInfo = userMessage.getPartyInfo();
-                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS, messageId, partyInfo.getFrom().getFirstPartyId(), partyInfo.getTo().getFirstPartyId());
+                LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 break;
             case WAITING_FOR_CALLBACK:
                 updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(messageId, legConfiguration);

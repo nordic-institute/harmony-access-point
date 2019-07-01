@@ -2,6 +2,7 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
@@ -11,7 +12,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.pki.PolicyService;
 import mockit.Expectations;
 import mockit.Injectable;

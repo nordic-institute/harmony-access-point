@@ -41,7 +41,7 @@ public class FSSendMessageListener implements MessageListener {
     @Autowired
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class})
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class}, timeout = 1200) // 20 minutes
     @Override
     public void onMessage(Message message) {
         LOG.debug("received message on fsPluginSendQueue");
@@ -75,9 +75,7 @@ public class FSSendMessageListener implements MessageListener {
             return;
         }
 
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            fsSendMessagesService.authenticateForDomain(domain);
-        }
+        fsSendMessagesService.authenticateForDomain(domain);
 
         //process the file
         LOG.debug("now send the file: {}", fileObject);

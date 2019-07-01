@@ -19,10 +19,10 @@ public class DInput extends DObject {
 	}
 
 	public void fill(String value) throws Exception {
+		if (null == value) {
+			return;
+		}
 		if (isEnabled()) {
-			if (null == value) {
-				return;
-			}
 			element.clear();
 			element.sendKeys(value);
 		} else {

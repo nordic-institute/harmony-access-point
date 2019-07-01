@@ -1,5 +1,7 @@
 package eu.domibus.api.configuration;
 
+import eu.domibus.api.multitenancy.Domain;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -11,6 +13,7 @@ public interface DomibusConfigurationService {
     String FOURCORNERMODEL_ENABLED_KEY = "domibus.fourcornermodel.enabled";
     String CLUSTER_DEPLOYMENT = "domibus.deployment.clustered";
     String EXTERNAL_AUTH_PROVIDER = "domibus.security.ext.auth.provider.enabled";
+    String PAYLOAD_ENCRYPTION_PROPERTY = "domibus.payload.encryption.active";
 
     String getConfigLocation();
 
@@ -28,5 +31,7 @@ public interface DomibusConfigurationService {
      * @return boolean - true if an authentication external provider is enabled
      */
     boolean isExtAuthProviderEnabled();
+
+    boolean isPayloadEncryptionActive(Domain domain);
 
 }

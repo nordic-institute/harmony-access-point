@@ -2,7 +2,6 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.configuration.storage.Storage;
 import eu.domibus.messaging.MessageListenerContainerInitializer;
 import eu.domibus.property.DomibusPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;

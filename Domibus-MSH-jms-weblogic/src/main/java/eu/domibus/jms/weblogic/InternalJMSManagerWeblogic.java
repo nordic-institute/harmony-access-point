@@ -405,7 +405,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin) {
         if (excludeOrigin) {
-            internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getUniqueServerName());
+            internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }
         sendMessage(internalJmsMessage, destination);
     }

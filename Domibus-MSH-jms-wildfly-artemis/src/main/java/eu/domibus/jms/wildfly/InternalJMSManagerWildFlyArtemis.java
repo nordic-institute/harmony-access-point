@@ -25,8 +25,8 @@ import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.jms.*;
 import javax.jms.Queue;
+import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
@@ -236,7 +236,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin) {
         if (excludeOrigin) {
-            internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getUniqueServerName());
+            internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }
         sendMessage(internalJmsMessage, destination);
     }

@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -14,14 +15,24 @@ import java.util.List;
 public class UserResponseRO {
     // order of the fields is important for CSV generation
     private String userName;
+
     private String roles = StringUtils.EMPTY;
+
     private String email;
+
+    @SkipWhiteListed
     private String password;
+
     private boolean active;
+
     private List<String> authorities;
+
     private String status;
+
     private boolean suspended;
+
     private String domain;
+
     private boolean deleted;
 
     public String getUserName() {

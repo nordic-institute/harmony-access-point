@@ -3,6 +3,7 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -15,13 +16,15 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
@@ -30,10 +33,7 @@ import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.plugin.validation.SubmissionValidationException;
-import eu.domibus.util.MessageUtil;
-import eu.domibus.util.SoapUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -177,7 +177,7 @@ public class UserMessageHandlerServiceImplTest {
     SplitAndJoinService splitAndJoinService;
 
     @Injectable
-    StorageProvider storageProvider;
+    PayloadFileStorageProvider storageProvider;
 
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
@@ -1164,7 +1164,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                    @Injectable MessageGroupEntity messageGroupEntity,
                                                                    @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
         }};
 
@@ -1182,7 +1182,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                  @Injectable MessageGroupEntity messageGroupEntity,
                                                                  @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             messageGroupEntity.getRejected();
@@ -1204,7 +1204,7 @@ public class UserMessageHandlerServiceImplTest {
 
         long totalFragmentCount = 5;
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             messageGroupEntity.getRejected();

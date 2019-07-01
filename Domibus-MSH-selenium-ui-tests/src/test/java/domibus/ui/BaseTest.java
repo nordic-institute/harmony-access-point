@@ -2,6 +2,8 @@ package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
@@ -72,6 +74,7 @@ public class BaseTest {
 	protected DomibusPage login(HashMap<String, String> user){
 		System.out.println("login started");
 		LoginPage loginPage = new LoginPage(driver);
+
 		try {
 			loginPage.login(user);
 		} catch (Exception e) {
