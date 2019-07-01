@@ -46,8 +46,8 @@ public class PolicyServiceImpl implements PolicyService {
      * @throws ConfigurationException if the policy xml cannot be read or parsed from the file
      */
     @Override
-    @Cacheable("policyCache")
-    public synchronized Policy parsePolicy(final String location) throws ConfigurationException {
+    @Cacheable(value = "policyCache", sync = true)
+    public Policy parsePolicy(final String location) throws ConfigurationException {
         final PolicyBuilder pb = bus.getExtension(PolicyBuilder.class);
         try (InputStream inputStream = new FileInputStream(new File(domibusConfigurationService.getConfigLocation(), location))){
             return pb.getPolicy(inputStream);
