@@ -76,6 +76,12 @@
             <artifactId>mapstruct</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>eu.europa.ec.digit.commons</groupId>
+            <artifactId>commons-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- AspectJ -->
         <dependency>
             <groupId>org.aspectj</groupId>

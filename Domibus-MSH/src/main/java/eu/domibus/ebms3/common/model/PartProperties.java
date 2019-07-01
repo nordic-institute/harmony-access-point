@@ -35,6 +35,16 @@ public class PartProperties {
     @JoinColumn(name = "PARTPROPERTIES_ID")
     protected Set<Property> property;
 
+    // used by the mapper
+    public Set<Property> getProperty() {
+        return property;
+    }
+
+    // used by the mapper
+    public void setProperty(Set<Property> property) {
+        this.property = property;
+    }
+
     /**
      * Gets the value of the property property.
      *

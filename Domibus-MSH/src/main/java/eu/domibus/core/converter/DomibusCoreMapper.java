@@ -27,10 +27,8 @@ import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.security.AuthenticationEntity;
-import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ext.domain.PullRequestDTO;
-import eu.domibus.ext.domain.UserMessageDTO;
+import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ext.domain.*;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
@@ -45,45 +43,110 @@ import org.mapstruct.*;
 @Mapper(uses = EventMapper.class, componentModel = "spring")
 public interface DomibusCoreMapper {
 
+    @Mapping(source = "id", target = "entityId")
+    @Mapping(target = "initiatorPartiesXml", ignore = true)
+    @Mapping(target = "responderPartiesXml", ignore = true)
+    @Mapping(target = "initiatorParties", ignore = true)
+    @Mapping(target = "responderParties", ignore = true)
+    @Mapping(target = "legs", ignore = true)
     Process processAPIToProcess(eu.domibus.api.process.Process process);
 
+    @InheritInverseConfiguration
     eu.domibus.api.process.Process processToProcessAPI(Process process);
 
     DomainSpi domainToDomainSpi(Domain domain);
 
     Domain domainSpiToDomain(DomainSpi domainSpi);
 
+    @Mapping(target = "persisted", ignore = true)
     MessageFilterRO backendFilterToMessageFilterRO(BackendFilter backendFilter);
 
+    @Mapping(target = "active", ignore = true)
     BackendFilter messageFilterROToBackendFilter(MessageFilterRO backendFilterEntity);
 
+    @Mapping(target = "index", ignore = true)
     BackendFilterEntity backendFilterToBackendFilterEntity(BackendFilter backendFilter);
 
+    @Mapping(target = "active", ignore = true)
     BackendFilter backendFilterEntityToBackendFilter(BackendFilterEntity backendFilterEntity);
 
-
+    @InheritInverseConfiguration
     RoutingCriteria routingCriteriaEntityToRoutingCriteria(RoutingCriteriaEntity routingCriteriaEntity);
 
+    @Mapping(target = "inputPattern", ignore = true)
+    @Mapping(target = "tooltip", ignore = true)
     RoutingCriteriaEntity routingCriteriaToRoutingCriteriaEntity(RoutingCriteria routingCriteria);
 
+    @Mapping(source = "id", target = "entityId")
     MessageAttemptEntity messageAttemptToMessageAttemptEntity(MessageAttempt messageAttempt);
 
+    @InheritInverseConfiguration
     MessageAttempt messageAttemptEntityToMessageAttempt(MessageAttemptEntity messageAttemptEntity);
 
+    @Mapping(target = "properties", ignore = true)
+    PartProperties partPropertiesDTOToPartProperties(PartPropertiesDTO partPropertiesDTO);
+
+    @InheritInverseConfiguration
+    PartPropertiesDTO partPropertiesToPartPropertiesDTO(PartProperties partProperties);
+
+    @InheritInverseConfiguration
+    PropertyDTO propertyToPropertyDTO(Property property);
+
+    @Mapping(target = "entityId", ignore = true)
+    Property propertyDTOToProperty(PropertyDTO propertyDTO);
+
+    @InheritInverseConfiguration
+    PartyIdDTO partyIdToPartyIdDTO(PartyId partyId);
+
+    @Mapping(target = "entityId", ignore = true)
+    PartyId partyIdDTOToPartyId(PartyIdDTO partyIdDTO);
+
+    @InheritInverseConfiguration
+    PartInfoDTO partInfoToPartInfoDTO(PartInfo partInfo);
+
+    @Mapping(target = "entityId", ignore = true)
+    @Mapping(target = "payloadDatahandler", ignore = true)
+    @Mapping(target = "binaryData", ignore = true)
+    @Mapping(target = "fileName", ignore = true)
+    @Mapping(target = "length", ignore = true)
+    PartInfo partInfoDTOToPartInfo(PartInfoDTO partInfoDTO);
+
+    @InheritInverseConfiguration
+    MessageInfoDTO messageInfoToMessageInfoDTO(MessageInfo messageInfo);
+
+    @Mapping(target = "entityId", ignore = true)
+    MessageInfo messageInfoDTOToMessageInfo(MessageInfoDTO messageInfoDTO);
+
+    @InheritInverseConfiguration
     UserMessageDTO userMessageToUserMessageDTO(UserMessage userMessage);
 
+    @Mapping(target = "entityId", ignore = true)
+    @Mapping(target = "messageFragment", ignore = true)
+    @Mapping(target = "splitAndJoin", ignore = true)
     UserMessage userMessageDTOToUserMessage(UserMessageDTO userMessageDTO);
 
+    @InheritInverseConfiguration
     PullRequestDTO pullRequestToPullRequestDTO(PullRequest pullRequest);
 
+    @Mapping(target = "otherAttributes", ignore = true)
     PullRequest pullRequestDTOToPullRequest(PullRequestDTO pullRequestDTO);
 
+    @Mapping(target = "authenticationType", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "suspended", ignore = true)
     PluginUserRO authenticationEntityToPluginUserRO(AuthenticationEntity authenticationEntity);
 
+    @Mapping(target = "attemptCount", ignore = true)
+    @Mapping(target = "suspensionDate", ignore = true)
+    @Mapping(target = "passwordChangeDate", ignore = true)
+    @Mapping(target = "defaultPassword", ignore = true)
+    @Mapping(target = "backend", ignore = true)
     AuthenticationEntity pluginUserROToAuthenticationEntity(PluginUserRO pluginUserRO);
 
+    @Mapping(target = "current", ignore = true)
     PModeResponseRO pModeArchiveInfoToPModeResponseRO(PModeArchiveInfo pModeArchiveInfo);
 
+    @InheritInverseConfiguration
     PModeArchiveInfo pModeResponseROToPModeArchiveInfo(PModeResponseRO pModeResponseRO);
 
     TrustStoreRO trustStoreEntryToTrustStoreRO(TrustStoreEntry trustStoreEntry);
@@ -118,8 +181,10 @@ public interface DomibusCoreMapper {
 
     eu.domibus.common.model.configuration.Party partyToConfigurationParty(Party party);
 
+    @Mapping(source = "entityId", target = "id")
     eu.domibus.api.process.Process processRoToProcess(ProcessRo processRo);
 
+    @InheritInverseConfiguration
     ProcessRo processToProcessRo(eu.domibus.api.process.Process process);
 
     Alert alertServiceToAlertPersist(eu.domibus.core.alerts.model.service.Alert alert);
@@ -179,4 +244,11 @@ public interface DomibusCoreMapper {
     eu.domibus.api.usermessage.domain.UserMessage userMessageToUserMessageApi(UserMessage userMessage);
 
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
+
+    @Mapping(target = "properties", ignore = true)
+    PartProperties partPropertiesApiToPartProperties(eu.domibus.api.usermessage.domain.PartProperties partProperties);
+
+    @InheritInverseConfiguration
+    eu.domibus.api.usermessage.domain.PartProperties partPropertiesToPartPropertiesApi(PartProperties partProperties);
+
 }
