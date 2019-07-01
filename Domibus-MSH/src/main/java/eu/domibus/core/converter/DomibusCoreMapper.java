@@ -64,7 +64,6 @@ public interface DomibusCoreMapper {
     @Mapping(target = "active", ignore = true)
     BackendFilter messageFilterROToBackendFilter(MessageFilterRO backendFilterEntity);
 
-    @Mapping(target = "index", ignore = true)
     BackendFilterEntity backendFilterToBackendFilterEntity(BackendFilter backendFilter);
 
     @Mapping(target = "active", ignore = true)
@@ -221,13 +220,15 @@ public interface DomibusCoreMapper {
 
     UIMessageEntity signalMessageLogToUIMessageEntity(SignalMessageLog signalMessageLog);
 
+    @InheritInverseConfiguration
     UserMessageLog uiMessageEntityToUserMessageLog(UIMessageEntity uiMessageEntity);
 
+    @Mapping(source = "messageInfo.refToMessageId", target = "refToMessageId")
     UIMessageEntity userMessageLogToUIMessageEntity(UserMessageLog userMessageLog);
 
     CommandEntity commandToCommandEntity(Command command);
 
-    CommandEntity commandEntityToCommand(CommandEntity commandEntity);
+    Command commandEntityToCommand(CommandEntity commandEntity);
 
     CertificateEntrySpi certificateEntryToCertificateEntrySpi(CertificateEntry certificateEntry);
 
