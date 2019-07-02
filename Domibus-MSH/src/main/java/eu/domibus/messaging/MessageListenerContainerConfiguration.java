@@ -154,11 +154,11 @@ public class MessageListenerContainerConfiguration {
     /**
      * It will create a {@code DefaultMessageListenerContainer}
      *
-     * @param domain domain
-     * @param connectionFactory JMS connection factory
-     * @param destination JMS queue
-     * @param messageListener JMS message listener
-     * @param transactionManager Transaction manager
+     * @param domain                    domain
+     * @param connectionFactory         JMS connection factory
+     * @param destination               JMS queue
+     * @param messageListener           JMS message listener
+     * @param transactionManager        Transaction manager
      * @param domainPropertyConcurrency domain property key for retrieving queue concurrency value
      * @return
      */
@@ -174,14 +174,16 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
-        messageListenerContainer.setConcurrency(domibusPropertyProvider.getDomainProperty(domain, domainPropertyConcurrency));
+
+        final String concurrency = domibusPropertyProvider.getDomainProperty(domain, domainPropertyConcurrency);
+        messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
 
         messageListenerContainer.afterPropertiesSet();
 
+        LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
         return messageListenerContainer;
-
     }
 
 }

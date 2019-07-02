@@ -99,12 +99,14 @@ public class MessageListenerContainerInitializer {
                 ((AbstractJmsListeningContainer) instances1.get(domain)).shutdown();
                 instances1.remove(domain);
             } catch (Exception e) {
-                LOG.error("Error while shutting down MessageListenerContainer", e);
+                LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", domain, e);
                 return;
             }
         }
+
         MessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
         instance.start();
+        instances.add(instance);
         instances1.put(domain, instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
