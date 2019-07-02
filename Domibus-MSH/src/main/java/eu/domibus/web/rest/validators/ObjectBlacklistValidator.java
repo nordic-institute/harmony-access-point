@@ -91,6 +91,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
 
     private boolean isPrimitive(Object obj) {
         return ClassUtils.isPrimitiveOrWrapper(obj.getClass())
+                || obj.getClass().isEnum()
                 || isDate(obj);
     }
 
