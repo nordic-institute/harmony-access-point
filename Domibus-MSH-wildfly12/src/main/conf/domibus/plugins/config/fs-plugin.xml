@@ -47,6 +47,7 @@
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginPurgeSentWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.sent.purge.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
 
     <!-- quartz job for purging failed messages -->
@@ -60,6 +61,7 @@
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginPurgeFailedWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.failed.purge.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
 
     <!-- quartz job for purging received messages -->
@@ -73,6 +75,7 @@
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginPurgeReceivedWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.received.purge.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
 
     <!-- quartz job for sending messages (from OUT folders) -->
@@ -86,5 +89,6 @@
           class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginSendMessagesWorkerJob"/>
         <property name="repeatInterval" value="${fsplugin.messages.send.worker.repeatInterval}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
 </beans>

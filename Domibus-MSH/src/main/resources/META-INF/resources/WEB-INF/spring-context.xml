@@ -67,14 +67,6 @@
 
     <cache:annotation-driven/>
 
-    <bean id="domainCoreConverter" class="org.dozer.DozerBeanMapper">
-        <property name="mappingFiles">
-            <list>
-                <value>config/DomainCoreBeanMapping.xml</value>
-            </list>
-        </property>
-    </bean>
-
     <!-- JAXB Context for mapping of ebMS3 schema -->
     <bean id="jaxbContextEBMS" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
         <constructor-arg type="java.lang.String" value="eu.domibus.ebms3.common.model"/>

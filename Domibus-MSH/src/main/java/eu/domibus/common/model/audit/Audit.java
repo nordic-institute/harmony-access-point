@@ -30,7 +30,7 @@ public class Audit {
     @Column(name = "AUDIT_DATE")
     private Date changed;
 
-    //needed for dozer.
+    //needed for mapping
     public Audit() {
     }
 

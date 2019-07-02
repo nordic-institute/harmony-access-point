@@ -10,6 +10,9 @@ public class CertificateEntry {
     String alias;
     X509Certificate certificate;
 
+    public CertificateEntry() {
+    }
+
     public CertificateEntry(String alias, X509Certificate certificate) {
         this.alias = alias;
         this.certificate = certificate;

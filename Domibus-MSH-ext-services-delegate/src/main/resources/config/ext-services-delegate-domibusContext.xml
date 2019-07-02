@@ -4,14 +4,6 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="domainExtConverter" class="org.dozer.DozerBeanMapper">
-        <property name="mappingFiles">
-            <list>
-                <value>config/DomibusDomainBeanMapping.xml</value>
-            </list>
-        </property>
+    <bean id="domibusExtMapper" class="eu.domibus.ext.delegate.mapper.DomibusExtMapperImpl">
     </bean>
-
-
-
 </beans>
