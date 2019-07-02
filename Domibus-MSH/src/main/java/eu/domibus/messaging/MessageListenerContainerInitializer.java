@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,25 +89,68 @@ public class MessageListenerContainerInitializer {
             LOG.info("{} initialized for domain [{}]", pluginMessageListenerContainerName, domain);
         }
     }
+//
+//    private synchronized void startInstance(MessageListenerContainer instance, Domain domain) {
+//        instance.start();
+//
+//        List<MessageListenerContainer> list = instances.get(domain);
+//        if (list == null) {
+//            list = new ArrayList<>();
+//            instances.put(domain, list);
+//        }
+//        list.add(instance);
+//    }
 
-    Map<Domain, MessageListenerContainer> instances1 = new HashMap<>();
+    private void stopInstance(MessageListenerContainer instance, Domain domain) {
+        try {
+            ((AbstractJmsListeningContainer) instance).shutdown();
+        } catch (Exception e) {
+            LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", domain, e);
+            return;
+        }
+    }
+//
+//    private MessageListenerContainer findInstance(Domain domain, String beanName) {
+//        List<MessageListenerContainer> list = instances.get(domain);
+//
+//        DefaultMessageListenerContainer a;
+//
+//    }
+
+
+    //Map<Domain, MessageListenerContainer> instances1 = new HashMap<>();
 
     public void createSendMessageListenerContainer(Domain domain) {
-        if (instances1.containsKey(domain)) {
-            try {
-                ((AbstractJmsListeningContainer) instances1.get(domain)).shutdown();
-                instances1.remove(domain);
-            } catch (Exception e) {
-                LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", domain, e);
-                return;
-            }
-        }
+//        if (instances1.containsKey(domain)) {
+//            try {
+//                ((AbstractJmsListeningContainer) instances1.get(domain)).shutdown();
+//                instances1.remove(domain);
+//            } catch (Exception e) {
+//                LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", domain, e);
+//                return;
+//            }
+//        }
 
         MessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
+        removeOldInstanceIfAny((DomainMessageListenerContainer) instance);
         instance.start();
         instances.add(instance);
-        instances1.put(domain, instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
+    }
+
+    private void removeOldInstanceIfAny(DomainMessageListenerContainer instance) {
+        DomainMessageListenerContainer oldInstance = instances.stream()
+                .map(i -> (DomainMessageListenerContainer) i)
+                .filter(i -> i.getName().equals(instance.getName()) && i.getDomain().equals(instance.getDomain()))
+                .findFirst().orElse(null);
+        if (oldInstance != null) {
+            try {
+                oldInstance.shutdown();
+            } catch (Exception e) {
+                LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", instance.getDomain(), e);
+            }
+            instances.remove(oldInstance);
+        }
     }
 
     public void createSendLargeMessageListenerContainer(Domain domain) {
