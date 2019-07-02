@@ -14,6 +14,9 @@ public class CertificateEntrySpi {
 
     private X509Certificate certificate;
 
+    public CertificateEntrySpi() {
+    }
+
     public CertificateEntrySpi(String alias, X509Certificate certificate) {
         this.alias = alias;
         this.certificate = certificate;

@@ -200,7 +200,10 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public void addCertificate(List<CertificateEntry> certificates, boolean overwrite) {
-        iamProvider.addCertificate(domainCoreConverter.convert(certificates, CertificateEntrySpi.class), overwrite);
+        List<CertificateEntrySpi> list = certificates.stream()
+                .map(c -> new CertificateEntrySpi(c.getAlias(), c.getCertificate()))
+                .collect(Collectors.toList());
+        iamProvider.addCertificate(list, overwrite);
     }
 
 

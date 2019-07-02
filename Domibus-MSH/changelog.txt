@@ -3,7 +3,7 @@ Domibus 4.1.1
 - Removed the Domibus payload from being printed to logs if org.apache.cxf is set to INFO in logging.xml - domibus.logging.payload.print property (default to false)
 - JMS Plugin queues are available to remote clients for Wildfly 12
 
-Domibus 4.1-RC1
+Domibus 4.1
 - Implement the Split And Join feature
 - Implement EU Login Support
 - Integrate DSS library
@@ -11,6 +11,7 @@ Domibus 4.1-RC1
 - Remove support for Wildfly 9
 - Add drop wizard statistics to Domibus.
 - Add new authentication module using the DSS library.
+- Replace dozer with MapStruct
 - Multitenancy - Posibility to sort the list of tenants
 - Add pull pace control on sender side in case of receiver triggering exception.
 - Add a new path:${domibus.config.location}/extensions/lib for loading identity and authorization extensions.

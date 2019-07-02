@@ -49,7 +49,7 @@ public class RoutingCriteriaEntity extends AbstractBaseEntity implements IRoutin
         patternHashMap = new HashMap<>();
     }
 
-    protected RoutingCriteriaEntity() {
+    public RoutingCriteriaEntity() {
     }
 
     @Override
