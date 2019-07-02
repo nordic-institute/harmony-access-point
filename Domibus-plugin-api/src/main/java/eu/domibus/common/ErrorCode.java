@@ -1,5 +1,8 @@
 package eu.domibus.common;
 
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.slf4j.Logger;
+
 /**
  * @author Christian Koch, Stefan Mueller
  * @since 3.0
@@ -21,6 +24,7 @@ public enum ErrorCode {
     private static final String ORIGIN_SECURITY = "security";
     private String errorCodeName;
 
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ErrorCode.class);
 
     ErrorCode(final String errorCodeName) {
         this.errorCodeName = errorCodeName;
@@ -32,7 +36,7 @@ public enum ErrorCode {
                 return errorCode;
             }
         }
-
+        LOG.error("No ErrorCode found for ErrorCodeName: " + errorCodeName);
         throw new IllegalArgumentException("No ErrorCode found for ErrorCodeName: " + errorCodeName);
     }
 
