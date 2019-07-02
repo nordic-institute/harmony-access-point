@@ -17,7 +17,6 @@ import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
-import org.dozer.Mapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,7 +91,7 @@ public class UIReplicationDataServiceImplTest {
 
 
     @Test
-    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable Mapper domainCoreConverter) {
+    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomainCoreConverter domainCoreConverter) {
 
         new Expectations(uiReplicationDataService) {{
             uiReplicationDataService.saveUIMessageFromUserMessageLog(anyString, jmsTime.getTime());

@@ -187,7 +187,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
         UIMessageEntity entity = domainConverter.convert(signalMessageLog, UIMessageEntity.class);
 
-        entity.setEntityId(0); //dozer copies other value here
+        entity.setEntityId(0); //mapper copies other value here
         entity.setMessageId(messageId);
         entity.setConversationId(StringUtils.EMPTY);
         entity.setFromId(userMessage.getPartyInfo().getFrom().getPartyId().iterator().next().getValue());
@@ -215,7 +215,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         //using Dozer
         UIMessageEntity entity = domainConverter.convert(userMessageLog, UIMessageEntity.class);
 
-        entity.setEntityId(0); //dozer
+        entity.setEntityId(0); //mapper
         entity.setMessageId(messageId);
         entity.setConversationId(userMessage.getCollaborationInfo().getConversationId());
         entity.setFromId(userMessage.getPartyInfo().getFrom().getPartyId().iterator().next().getValue());
