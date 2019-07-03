@@ -89,65 +89,27 @@ public class MessageListenerContainerInitializer {
             LOG.info("{} initialized for domain [{}]", pluginMessageListenerContainerName, domain);
         }
     }
-//
-//    private synchronized void startInstance(MessageListenerContainer instance, Domain domain) {
-//        instance.start();
-//
-//        List<MessageListenerContainer> list = instances.get(domain);
-//        if (list == null) {
-//            list = new ArrayList<>();
-//            instances.put(domain, list);
-//        }
-//        list.add(instance);
-//    }
-
-    private void stopInstance(MessageListenerContainer instance, Domain domain) {
-        try {
-            ((AbstractJmsListeningContainer) instance).shutdown();
-        } catch (Exception e) {
-            LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", domain, e);
-            return;
-        }
-    }
-//
-//    private MessageListenerContainer findInstance(Domain domain, String beanName) {
-//        List<MessageListenerContainer> list = instances.get(domain);
-//
-//        DefaultMessageListenerContainer a;
-//
-//    }
-
-
-    //Map<Domain, MessageListenerContainer> instances1 = new HashMap<>();
 
     public void createSendMessageListenerContainer(Domain domain) {
-//        if (instances1.containsKey(domain)) {
-//            try {
-//                ((AbstractJmsListeningContainer) instances1.get(domain)).shutdown();
-//                instances1.remove(domain);
-//            } catch (Exception e) {
-//                LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", domain, e);
-//                return;
-//            }
-//        }
-
         MessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
-        removeOldInstanceIfAny((DomainMessageListenerContainer) instance);
+        removeInstance(domain, ((DomainMessageListenerContainer) instance).getName());
         instance.start();
         instances.add(instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
 
-    private void removeOldInstanceIfAny(DomainMessageListenerContainer instance) {
+    private void removeInstance(Domain domain, String beanName) {
         DomainMessageListenerContainer oldInstance = instances.stream()
-                .map(i -> (DomainMessageListenerContainer) i)
-                .filter(i -> i.getName().equals(instance.getName()) && i.getDomain().equals(instance.getDomain()))
+                .filter(instance -> instance instanceof DomainMessageListenerContainer)
+                .map(instance -> (DomainMessageListenerContainer) instance)
+                .filter(instance -> domain.equals(instance.getDomain()))
+                .filter(instance -> beanName.equals(instance.getName()))
                 .findFirst().orElse(null);
         if (oldInstance != null) {
             try {
                 oldInstance.shutdown();
             } catch (Exception e) {
-                LOG.error("Error while shutting down MessageListenerContainer for domain [{}]", instance.getDomain(), e);
+                LOG.error("Error while shutting down [{}] MessageListenerContainer for domain [{}]", beanName, domain, e);
             }
             instances.remove(oldInstance);
         }
