@@ -20,6 +20,9 @@
         <cxf:outFaultInterceptors>
             <ref bean="attachmentCleanupInterceptor"/>
         </cxf:outFaultInterceptors>
+        <cxf:properties>
+            <entry key="ws-security.enable.streaming" value="true"/>
+        </cxf:properties>
     </cxf:bus>
 
     <!--Message logger configuration-->
@@ -80,7 +83,7 @@
             <entry key="ws-security.encryption.username" value="useReqSigCert"/>
             <entry key="faultStackTraceEnabled" value="false"/>
             <entry key="exceptionMessageCauseEnabled" value="false"/>
-            <entry key="ws-security.enable.streaming" value="true"/>
+            <entry key="mtom-enabled" value="true" />
         </jaxws:properties>
         <jaxws:inInterceptors>
             <ref bean="domibusReadyInterceptor"/>
@@ -106,9 +109,9 @@
         </jaxws:handlers>
 
         <jaxws:features>
-            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
-                <property name="sender" ref="loggingSender"/>
-            </bean>
+<!--            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">-->
+<!--                <property name="sender" ref="loggingSender"/>-->
+<!--            </bean>-->
         </jaxws:features>
         </jaxws:endpoint>
 
@@ -131,11 +134,12 @@
             <entry key="ws-security.signature.crypto" value-ref="Wss4JMultiDomainCryptoProvider"/>
             <entry key="faultStackTraceEnabled" value="false"/>
             <entry key="exceptionMessageCauseEnabled" value="false"/>
+            <entry key="mtom-enabled" value="true" />
         </jaxws:properties>
         <jaxws:features>
-            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
-                <property name="sender" ref="loggingSender"/>
-            </bean>
+<!--            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">-->
+<!--                <property name="sender" ref="loggingSender"/>-->
+<!--            </bean>-->
         </jaxws:features>
     </jaxws:client>
 
