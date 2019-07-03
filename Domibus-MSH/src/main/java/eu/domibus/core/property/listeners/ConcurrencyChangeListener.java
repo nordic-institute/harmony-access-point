@@ -4,13 +4,14 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.messaging.MessageListenerContainerInitializer;
 import eu.domibus.property.DomibusPropertyChangeListener;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
-public class DispatchContainerPropertyChangeListener implements DomibusPropertyChangeListener {
+public class ConcurrencyChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     protected DomainService domainService;
@@ -18,9 +19,14 @@ public class DispatchContainerPropertyChangeListener implements DomibusPropertyC
     @Autowired
     protected ApplicationContext applicationContext;
 
+    private String[] handledProperties = new String[]{
+            "domibus.dispatcher.concurency",
+            "domibus.dispatcher.largeFiles.concurrency"
+    };
+
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.concurency");
+        return Arrays.stream(handledProperties).anyMatch(p -> p.equalsIgnoreCase(propertyName));
     }
 
     @Override
@@ -29,6 +35,13 @@ public class DispatchContainerPropertyChangeListener implements DomibusPropertyC
 
         final Domain domain = domainService.getDomain(domainCode);
 
-        messageListenerContainerInitializer.createSendMessageListenerContainer(domain);
+        switch (propertyName) {
+            case "domibus.dispatcher.concurency":
+                messageListenerContainerInitializer.createSendMessageListenerContainer(domain);
+                break;
+            case "domibus.dispatcher.largeFiles.concurrency":
+                messageListenerContainerInitializer.createSendLargeMessageListenerContainer(domain);
+                break;
+        }
     }
 }

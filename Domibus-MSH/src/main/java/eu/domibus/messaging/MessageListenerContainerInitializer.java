@@ -70,7 +70,7 @@ public class MessageListenerContainerInitializer {
     }
 
     /**
-     * It will collect and instantiates all {@link PluginMessageListenerContainer} defined in plugins
+     * It will collect and instantiate all {@link PluginMessageListenerContainer} defined in plugins
      *
      * @param domain
      */
@@ -98,25 +98,9 @@ public class MessageListenerContainerInitializer {
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
 
-    private void removeInstance(Domain domain, String beanName) {
-        DomainMessageListenerContainer oldInstance = instances.stream()
-                .filter(instance -> instance instanceof DomainMessageListenerContainer)
-                .map(instance -> (DomainMessageListenerContainer) instance)
-                .filter(instance -> domain.equals(instance.getDomain()))
-                .filter(instance -> beanName.equals(instance.getName()))
-                .findFirst().orElse(null);
-        if (oldInstance != null) {
-            try {
-                oldInstance.shutdown();
-            } catch (Exception e) {
-                LOG.error("Error while shutting down [{}] MessageListenerContainer for domain [{}]", beanName, domain, e);
-            }
-            instances.remove(oldInstance);
-        }
-    }
-
     public void createSendLargeMessageListenerContainer(Domain domain) {
         MessageListenerContainer instance = messageListenerContainerFactory.createSendLargeMessageListenerContainer(domain);
+        removeInstance(domain, ((DomainMessageListenerContainer) instance).getName());
         instance.start();
         instances.add(instance);
         LOG.info("LargeMessageListenerContainer initialized for domain [{}]", domain);
@@ -142,4 +126,22 @@ public class MessageListenerContainerInitializer {
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);
     }
+
+    private void removeInstance(Domain domain, String beanName) {
+        DomainMessageListenerContainer oldInstance = instances.stream()
+                .filter(instance -> instance instanceof DomainMessageListenerContainer)
+                .map(instance -> (DomainMessageListenerContainer) instance)
+                .filter(instance -> domain.equals(instance.getDomain()))
+                .filter(instance -> beanName.equals(instance.getName()))
+                .findFirst().orElse(null);
+        if (oldInstance != null) {
+            try {
+                oldInstance.shutdown();
+            } catch (Exception e) {
+                LOG.error("Error while shutting down [{}] MessageListenerContainer for domain [{}]", beanName, domain, e);
+            }
+            instances.remove(oldInstance);
+        }
+    }
+
 }
