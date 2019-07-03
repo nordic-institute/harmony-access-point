@@ -122,6 +122,7 @@ public class MessageListenerContainerInitializer {
 
     public void createRetentionListenerContainer(Domain domain) {
         MessageListenerContainer instance = messageListenerContainerFactory.createRetentionListenerContainer(domain);
+        removeInstance(domain, ((DomainMessageListenerContainer)instance).getName());
         instance.start();
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);

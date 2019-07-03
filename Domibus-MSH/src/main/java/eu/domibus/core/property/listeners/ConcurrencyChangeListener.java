@@ -21,7 +21,8 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
 
     private String[] handledProperties = new String[]{
             "domibus.dispatcher.concurency",
-            "domibus.dispatcher.largeFiles.concurrency"
+            "domibus.dispatcher.largeFiles.concurrency",
+            "domibus.retention.jms.concurrency",
     };
 
     @Override
@@ -41,6 +42,9 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
                 break;
             case "domibus.dispatcher.largeFiles.concurrency":
                 messageListenerContainerInitializer.createSendLargeMessageListenerContainer(domain);
+                break;
+            case "domibus.retention.jms.concurrency":
+                messageListenerContainerInitializer.createRetentionListenerContainer(domain);
                 break;
         }
     }
