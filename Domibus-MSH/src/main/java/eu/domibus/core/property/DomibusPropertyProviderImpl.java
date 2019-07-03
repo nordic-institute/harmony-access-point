@@ -363,6 +363,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.proxy.password", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.proxy.nonProxyHosts", PropertyUsageType.GLOBAL_PROPERTY),
 
+                // TODO: domibus.pull.* properties
+                // TODO: domibus.alert.* properties
+
+                new DomibusPropertyMetadata("domibus.ui.replication.sync.cron.max.rows", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.plugin.notification.active", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.nonrepudiation.audit.active", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.sendMessage.failure.delete.payload", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.sendMessage.attempt.audit.active", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.fourcornermodel.enabled", PropertyUsageType.GLOBAL_PROPERTY),
+
                 //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
