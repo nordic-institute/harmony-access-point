@@ -22,8 +22,14 @@ public interface DomibusProxyService {
     Boolean isProxyUserSet();
 
     /*
-    * Proxy user is only set when the proxy requires basic authentication
-    * */
+     * Proxy user is only set when the proxy requires basic authentication
+     * */
     Boolean isNonProxyHostsSet();
+
+
+    /*
+     * Reinitialize the object containing the configured proxy properties
+     * */
+    void resetProxy();
 
 }

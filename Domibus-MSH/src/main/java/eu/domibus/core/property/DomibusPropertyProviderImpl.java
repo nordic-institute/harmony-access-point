@@ -355,6 +355,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.downloaded.max.delete", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.not_downloaded.max.delete", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.retention.jms.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+
+                new DomibusPropertyMetadata("domibus.proxy.enabled", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.proxy.http.host", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.proxy.http.port", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.proxy.user", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.proxy.password", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.proxy.nonProxyHosts", PropertyUsageType.GLOBAL_PROPERTY),
+
                 //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),

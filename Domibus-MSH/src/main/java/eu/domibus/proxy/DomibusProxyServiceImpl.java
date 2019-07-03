@@ -48,6 +48,11 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
     }
 
     @Override
+    public void resetProxy() {
+        domibusProxy = null;
+    }
+
+    @Override
     public Boolean useProxy() {
         return getDomibusProxy().isEnabled();
     }
