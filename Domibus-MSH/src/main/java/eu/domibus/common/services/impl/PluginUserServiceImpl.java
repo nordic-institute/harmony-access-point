@@ -142,14 +142,16 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
         authenticationDAO.create(u);
 
-        String userIdentifier = u.getCertificateId() != null ? u.getCertificateId() : u.getUserName();
-        userDomainService.setDomainForUser(userIdentifier, domain.getCode());
+        userDomainService.setDomainForUser(u.getUniqueIdentifier(), domain.getCode());
     }
 
     protected void updateUser(AuthenticationEntity modified) {
         AuthenticationEntity existing = authenticationDAO.read(modified.getEntityId());
 
-        userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+        if (StringUtils.isBlank(existing.getCertificateId())) {
+            // locking policy is only applicable to Basic auth plugin users
+            userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+        }
 
         if (!StringUtils.isEmpty(modified.getPassword())) {
             changePassword(existing, modified.getPassword());
@@ -169,7 +171,6 @@ public class PluginUserServiceImpl implements PluginUserService {
         AuthenticationEntity entity = authenticationDAO.read(u.getEntityId());
         authenticationDAO.delete(entity);
 
-        String userIdentifier = u.getCertificateId() != null ? u.getCertificateId() : u.getUserName();
-        userDomainService.deleteDomainForUser(userIdentifier);
+        userDomainService.deleteDomainForUser(u.getUniqueIdentifier());
     }
 }
