@@ -46,6 +46,9 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
             case "domibus.retention.jms.concurrency":
                 messageListenerContainerInitializer.createRetentionListenerContainer(domain);
                 break;
+            case "domibus.dispatcher.splitAndJoin.concurrency":
+                messageListenerContainerInitializer.createSplitAndJoinListenerContainer(domain);
+                break;
         }
     }
 }

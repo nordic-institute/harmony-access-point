@@ -115,6 +115,7 @@ public class MessageListenerContainerInitializer {
 
     public void createSplitAndJoinListenerContainer(Domain domain) {
         MessageListenerContainer instance = messageListenerContainerFactory.createSplitAndJoinListenerContainer(domain);
+        removeInstance(domain, ((DomainMessageListenerContainer)instance).getName());
         instance.start();
         instances.add(instance);
         LOG.info("SplitAndJoinListenerContainer initialized for domain [{}]", domain);

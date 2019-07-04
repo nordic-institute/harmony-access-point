@@ -372,7 +372,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.sendMessage.failure.delete.payload", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.sendMessage.attempt.audit.active", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.fourcornermodel.enabled", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.logging.payload.print", PropertyUsageType.GLOBAL_PROPERTY),
 
+                new DomibusPropertyMetadata("domibus.attachment.temp.storage.location", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.payloads.schedule.threshold", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
