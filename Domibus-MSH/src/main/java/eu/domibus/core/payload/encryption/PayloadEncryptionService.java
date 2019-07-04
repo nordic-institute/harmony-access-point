@@ -1,4 +1,4 @@
-package eu.domibus.core.encryption;
+package eu.domibus.core.payload.encryption;
 
 import javax.crypto.Cipher;
 
@@ -6,17 +6,12 @@ import javax.crypto.Cipher;
  * @author Cosmin Baciu
  * @since 4.1
  */
-public interface EncryptionService {
+public interface PayloadEncryptionService {
 
     /**
      * Creates the payload encryption key for all available domains if does not yet exists
      */
     void createPayloadEncryptionKeyForAllDomainsIfNotExists();
-
-    /**
-     * Creates the password encryption key for all available domains if does not yet exists
-     */
-    void createPasswordEncryptionKeyForAllDomainsIfNotExists();
 
     Cipher getEncryptCipherForPayload();
 

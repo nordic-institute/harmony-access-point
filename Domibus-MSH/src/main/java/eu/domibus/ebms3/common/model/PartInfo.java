@@ -2,7 +2,7 @@ package eu.domibus.ebms3.common.model;
 
 import eu.domibus.common.AutoCloseFileDataSource;
 import eu.domibus.core.encryption.DecryptDataSource;
-import eu.domibus.core.encryption.EncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.SpringContextProvider;
@@ -171,7 +171,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     protected Cipher getDecryptCipher() {
         LOG.debug("Getting decrypt cipher for payload [{}]", href);
-        final EncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", EncryptionService.class);
+        final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
         return encryptionService.getDecryptCipherForPayload();
     }
 

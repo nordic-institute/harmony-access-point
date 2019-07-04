@@ -1,4 +1,4 @@
-package eu.domibus.core.encryption;
+package eu.domibus.core.payload.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
@@ -6,6 +6,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.util.EncryptionUtil;
+import eu.domibus.core.encryption.EncryptionKeyDao;
+import eu.domibus.core.encryption.EncryptionKeyEntity;
+import eu.domibus.core.encryption.EncryptionUsage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +24,9 @@ import java.util.List;
  * @since 4.1
  */
 @Service("EncryptionServiceImpl")
-public class EncryptionServiceImpl implements EncryptionService {
+public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadEncryptionServiceImpl.class);
 
     @Autowired
     protected EncryptionKeyDao encryptionKeyDao;
@@ -60,29 +63,6 @@ public class EncryptionServiceImpl implements EncryptionService {
         LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
-    @Override
-    public void createPasswordEncryptionKeyForAllDomainsIfNotExists() {
-        LOG.debug("Creating password encryption key for all domains if not yet exists");
-
-        final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            final Boolean encryptionActive = domibusConfigurationService.isPasswordEncryptionActive(domain);
-            if (encryptionActive) {
-                createPasswordEncryptionKeyIfNotExists(domain);
-            } else {
-                LOG.debug("Password encryption is not activated for domain [{}]", domain);
-            }
-        }
-
-        LOG.debug("Finished creating password encryption key for all domains if not yet exists");
-    }
-
-    protected void createPasswordEncryptionKeyIfNotExists(Domain domain) {
-        LOG.debug("Checking if the encryption key should be created");
-
-
-        LOG.debug("Finished creating payload encryption key");
-    }
 
     protected void createPayloadEncryptionKeyIfNotExists() {
         LOG.debug("Checking if the encryption key should be created");

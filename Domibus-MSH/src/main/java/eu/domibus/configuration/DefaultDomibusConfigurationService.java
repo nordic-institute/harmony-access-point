@@ -71,4 +71,10 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return domibusPropertyProvider.getBooleanDomainProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
     }
 
+    @Override
+    public boolean isPasswordEncryptionActive(Domain domain) {
+        return domibusPropertyProvider.getBooleanDomainProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+    }
+
+
 }

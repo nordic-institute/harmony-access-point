@@ -1,6 +1,7 @@
 package eu.domibus.spring;
 
-import eu.domibus.core.encryption.EncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.property.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,17 @@ public class DomibusContextRefreshedListener {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
     @Autowired
-    protected EncryptionService encryptionService;
+    protected PayloadEncryptionService encryptionService;
+
+    @Autowired
+    protected PasswordEncryptionService passwordEncryptionService;
 
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
         LOG.info("Start processing ContextRefreshedEvent");
 
         encryptionService.createPayloadEncryptionKeyForAllDomainsIfNotExists();
+        passwordEncryptionService.createAllPasswordEncryptionKeyIfNotExists();
 
         LOG.info("Finished processing ContextRefreshedEvent");
 

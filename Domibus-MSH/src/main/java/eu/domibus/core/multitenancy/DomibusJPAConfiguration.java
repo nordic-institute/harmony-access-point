@@ -1,6 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.property.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.PrefixedProperties;
@@ -43,6 +44,9 @@ public class DomibusJPAConfiguration {
     @Autowired
     protected DataSource dataSource;
 
+    @Autowired
+    protected PasswordEncryptionService passwordEncryptionService;
+
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
         return new HibernateJpaVendorAdapter();
@@ -69,7 +73,7 @@ public class DomibusJPAConfiguration {
             LOG.info("Configuring jpaProperties for multi-tenancy");
             jpaProperties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
             jpaProperties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProviderImpl.get());
-            if(tenantIdentifierResolver.isPresent()) {
+            if (tenantIdentifierResolver.isPresent()) {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
             }
         }
@@ -80,6 +84,10 @@ public class DomibusJPAConfiguration {
 
     @Bean
     public PrefixedProperties jpaProperties() {
+        //get database password decrypted
+        //if password encryption is activated and the db password is encrypted => decrypt the password and set it here
+        passwordEncryptionService.createAllPasswordEncryptionKeyIfNotExists();
+
         PrefixedProperties result = new PrefixedProperties(domibusProperties, "domibus.entityManagerFactory.jpaProperty.");
         return result;
     }
