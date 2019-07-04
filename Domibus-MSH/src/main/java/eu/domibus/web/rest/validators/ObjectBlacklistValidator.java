@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import javax.validation.ValidationException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -91,11 +92,12 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
 
     private boolean isPrimitive(Object obj) {
         return ClassUtils.isPrimitiveOrWrapper(obj.getClass())
+                || obj.getClass().isEnum()
                 || isDate(obj);
     }
 
     private boolean isDate(Object obj) {
         Class<?> cls = obj.getClass();
-        return cls.equals(Date.class) || cls.equals(LocalDate.class) || cls.equals(LocalDateTime.class);
+        return cls.equals(Date.class) || cls.equals(Timestamp.class) || cls.equals(LocalDate.class) || cls.equals(LocalDateTime.class);
     }
 }
