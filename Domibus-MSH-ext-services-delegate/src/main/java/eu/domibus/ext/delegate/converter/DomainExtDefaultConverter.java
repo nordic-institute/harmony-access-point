@@ -6,6 +6,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.*;
@@ -31,47 +32,52 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
+        final String debugMessage = "Ext type converted: T=[{}] U=[{}]";
         if (typeOfT == DomainDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.domainToDomainDTO((Domain) source);
         }
         if (typeOfT == Domain.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.domainDTOToDomain((DomainDTO) source);
         }
         if (typeOfT == MessageAttemptDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAttemptToMessageAttemptDTO((MessageAttempt) source);
         }
         if (typeOfT == MessageAttempt.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAttemptDTOToMessageAttempt((MessageAttemptDTO) source);
         }
         if (typeOfT == MessageAcknowledgement.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAcknowledgementDTOToMessageAcknowledgement((MessageAcknowledgementDTO) source);
         }
         if (typeOfT == MessageAcknowledgementDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAcknowledgementToMessageAcknowledgementDTO((MessageAcknowledgement) source);
         }
 
         if (typeOfT == JmsMessage.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.jmsMessageDTOToJmsMessage((JmsMessageDTO) source);
         }
         if (typeOfT == JmsMessageDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.jmsMessageToJmsMessageDTO((JmsMessage) source);
         }
 
         if (typeOfT == UserMessage.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageDTOToUserMessage((UserMessageDTO) source);
         }
         if (typeOfT == UserMessageDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageToUserMessageDTO((UserMessage) source);
+        }
+        if (typeOfT == PModeArchiveInfoDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.pModeArchiveInfoToPModeArchiveInfoDto((PModeArchiveInfo) source);
         }
         String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
         LOG.error(errorMsg);

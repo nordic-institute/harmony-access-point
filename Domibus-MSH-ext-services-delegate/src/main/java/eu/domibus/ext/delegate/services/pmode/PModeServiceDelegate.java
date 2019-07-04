@@ -8,13 +8,14 @@ import eu.domibus.ext.services.PModeExtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author Catalin Enache
  * @since 4.1.1
  */
 @Service
 public class PModeServiceDelegate implements PModeExtService {
-
 
     @Autowired
     private PModeService pModeService;
@@ -31,5 +32,10 @@ public class PModeServiceDelegate implements PModeExtService {
     public PModeArchiveInfoDTO getCurrentPmode() {
         final PModeArchiveInfo pModeArchiveInfo = pModeService.getCurrentPMode();
         return domainConverter.convert(pModeArchiveInfo, PModeArchiveInfoDTO.class);
+    }
+
+    @Override
+    public List<String> updatePModeFile(byte[] bytes, String description) {
+        return pModeService.updatePModeFile(bytes, description);
     }
 }
