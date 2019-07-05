@@ -34,7 +34,14 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   existingUsers = [];
   existingActions = [];
 
+  timestampFromMaxDate: Date;
+  timestampToMinDate: Date;
+  timestampToMaxDate: Date;
+
   loading: boolean = false;
+
+// --- hide/show binding ---
+  advancedSearch: boolean;
 
 // --- Table binding ---
   rows = [];
@@ -42,9 +49,6 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   offset: number = 0;
   count: number = 0;
-
-// --- hide/show binding ---
-  advancedSearch: boolean;
 
   constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService) {
     super();
@@ -64,10 +68,14 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     const existingTargets = this.auditService.listTargetTypes();
     existingTargets.subscribe((target: string) => this.existingAuditTargets.push(target));
 
+    this.timestampFromMaxDate = new Date();
+    this.timestampToMinDate = null;
+    this.timestampToMaxDate = new Date();
+
 // --- lets init the table columns ---
     this.initColumns();
 
-// --- lets count the reccords and fill the table.---
+// --- lets count the records and fill the table.---
     this.searchAndCount();
   }
 
@@ -192,4 +200,11 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     this.auditService.saveAsCsv(auditCriteria);
   }
 
+  onTimestampFromChange(event) {
+    this.timestampToMinDate = event.value;
+  }
+
+  onTimestampToChange(event) {
+    this.timestampFromMaxDate = event.value;
+  }
 }
