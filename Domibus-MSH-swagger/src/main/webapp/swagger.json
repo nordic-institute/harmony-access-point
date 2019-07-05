@@ -313,6 +313,36 @@
         } ]
       }
     },
+    "/ext/pmode" : {
+      "post" : {
+        "tags" : [ "pmode" ],
+        "summary" : "Upload a PMode file",
+        "description" : "Upload the PMode file",
+        "operationId" : "uploadPMode",
+        "parameters" : [ {
+          "name" : "file",
+          "in" : "formData",
+          "required" : true,
+          "type" : "file"
+        }, {
+          "name" : "description",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/pmode/current" : {
       "get" : {
         "tags" : [ "pmode" ],
@@ -350,7 +380,7 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/Resource"
+              "$ref" : "#/definitions/ByteArrayResource"
             }
           }
         },
@@ -377,6 +407,44 @@
         },
         "pmode" : {
           "type" : "string"
+        }
+      }
+    },
+    "ByteArrayResource" : {
+      "type" : "object",
+      "properties" : {
+        "byteArray" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "format" : "byte"
+          }
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "inputStream" : {
+          "$ref" : "#/definitions/InputStream"
+        },
+        "url" : {
+          "type" : "string",
+          "format" : "url"
+        },
+        "file" : {
+          "type" : "file"
+        },
+        "open" : {
+          "type" : "boolean"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "filename" : {
+          "type" : "string"
+        },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
         }
       }
     },
@@ -641,37 +709,6 @@
         },
         "type" : {
           "type" : "string"
-        }
-      }
-    },
-    "Resource" : {
-      "type" : "object",
-      "properties" : {
-        "url" : {
-          "type" : "string",
-          "format" : "url"
-        },
-        "file" : {
-          "type" : "file"
-        },
-        "open" : {
-          "type" : "boolean"
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
-        },
-        "readable" : {
-          "type" : "boolean"
-        },
-        "filename" : {
-          "type" : "string"
-        },
-        "inputStream" : {
-          "$ref" : "#/definitions/InputStream"
         }
       }
     },

@@ -2,6 +2,8 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 
+import java.util.List;
+
 /**
  * All operations related to PMode files
  *
@@ -29,5 +31,15 @@ public interface PModeExtService {
      * @return an instance of {@code PModeArchiveInfoDTO}
      */
     PModeArchiveInfoDTO getCurrentPmode();
+
+
+    /**
+     * Upload a new version of the PMode file
+     *
+     * @param bytes PMode file to be uploaded
+     * @param description of the PMode uploaded version
+     * @return List<String> as errors
+     */
+    List<String> updatePModeFile(byte[] bytes, String description);
 
 }
