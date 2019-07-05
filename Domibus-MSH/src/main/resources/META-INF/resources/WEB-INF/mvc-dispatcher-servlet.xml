@@ -19,10 +19,6 @@
 
     <!-- Configuring interceptors based on URI -->
     <mvc:interceptors>
-<!--        <mvc:interceptor>-->
-<!--            <mvc:mapping path="/ext/**" />-->
-<!--            <bean class="eu.domibus.ext.web.interceptor.AuthenticationInterceptor"/>-->
-<!--        </mvc:interceptor>-->
         <mvc:interceptor>
             <mvc:mapping path="/rest/**"/>
             <mvc:exclude-mapping path="/rest/security/user"/>
