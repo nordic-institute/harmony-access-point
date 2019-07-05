@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>eu.domibus</groupId>
 		<artifactId>domibus</artifactId>
-		<version>4.1-RC1-SNAPSHOT</version>
+		<version>4.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>domibus-selenium-tests</artifactId>
@@ -109,12 +109,25 @@
 			<version>${javax.ws.rs-api_version}</version>
 		</dependency>
 
-
 		<dependency>
 			<groupId>eu.domibus</groupId>
 			<artifactId>domibus-ws-stubs</artifactId>
 			<version>${domibus-ws-stubs_version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+		</dependency>
+
 
 	</dependencies>
 

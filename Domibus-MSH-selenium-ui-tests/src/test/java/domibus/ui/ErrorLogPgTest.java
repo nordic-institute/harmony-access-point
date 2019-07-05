@@ -1,14 +1,20 @@
 package domibus.ui;
 
-import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.grid.Pagination;
-import ddsl.enums.PAGES;
-import org.testng.SkipException;
-import org.testng.annotations.Test;
-import org.testng.asserts.SoftAssert;
-import pages.errorLog.ErrorLogPage;
+		import ddsl.dcomponents.DomibusPage;
+		import ddsl.dcomponents.grid.DGrid;
+		import ddsl.dcomponents.grid.GridControls;
+		import ddsl.dcomponents.grid.Pagination;
+		import ddsl.enums.PAGES;
+		import org.testng.SkipException;
+		import org.testng.annotations.Test;
+		import org.testng.asserts.SoftAssert;
+		import pages.errorLog.ErrorLogPage;
+		import rest.RestServicePaths;
+		import utils.TestUtils;
 
-import java.util.HashMap;
+		import java.util.ArrayList;
+		import java.util.HashMap;
+		import java.util.List;
 
 
 /**
@@ -20,7 +26,7 @@ import java.util.HashMap;
 public class ErrorLogPgTest extends BaseTest {
 
 
-	@Test(description = "ERRLOG-1", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ERR-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openErrorLogPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
@@ -32,7 +38,7 @@ public class ErrorLogPgTest extends BaseTest {
 	}
 
 
-	@Test(description = "ERRLOG-2", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"})
 	public void filterErrorLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -42,7 +48,7 @@ public class ErrorLogPgTest extends BaseTest {
 
 		soft.assertTrue(errorLogPage.isLoaded());
 
-		DGrid grid = errorLogPage.getGrid();
+		DGrid grid = errorLogPage.grid();
 
 		if (grid.getRowsNo() < 3) {
 			throw new SkipException("Not enough rows to test filtering");
@@ -52,7 +58,7 @@ public class ErrorLogPgTest extends BaseTest {
 
 		errorLogPage.basicSearch(null, row.get("Message Id"), null, null);
 
-		HashMap<String, String> row2 = errorLogPage.getGrid().getRowInfo(0);
+		HashMap<String, String> row2 = errorLogPage.grid().getRowInfo(0);
 
 		soft.assertTrue(row2.equals(row), "Errors for correct message id is displayed");
 
@@ -60,7 +66,7 @@ public class ErrorLogPgTest extends BaseTest {
 	}
 
 
-	@Test(description = "ERRLOG-3", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ERR-3", groups = {"multiTenancy", "singleTenancy"})
 	public void paginationTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -70,7 +76,7 @@ public class ErrorLogPgTest extends BaseTest {
 
 		soft.assertTrue(page.isLoaded());
 
-		Pagination pgCtrl = page.getGrid().getPagination();
+		Pagination pgCtrl = page.grid().getPagination();
 
 		int noOfErrors = pgCtrl.getTotalItems();
 		if (noOfErrors < 11) {
@@ -86,7 +92,7 @@ public class ErrorLogPgTest extends BaseTest {
 		pgCtrl.skipToLastPage();
 		soft.assertTrue(pgCtrl.getActivePage() == pgCtrl.getExpectedNoOfPages(), "Skipped to last page");
 
-		soft.assertEquals(page.getGrid().getRowsNo(), pgCtrl.getNoOfItemsOnLastPg(), "Number of items on the last page");
+		soft.assertEquals(page.grid().getRowsNo(), pgCtrl.getNoOfItemsOnLastPg(), "Number of items on the last page");
 
 		pgCtrl.skipToFirstPage();
 		soft.assertTrue(pgCtrl.getActivePage() == 1, "Skipped to first page");
@@ -100,8 +106,8 @@ public class ErrorLogPgTest extends BaseTest {
 		pgCtrl.goToPage(2);
 		soft.assertTrue(pgCtrl.getActivePage() == 2, "Next page is 2");
 
-		page.getGrid().sortBy("Error Code");
-		page.getGrid().waitForRowsToLoad();
+		page.grid().sortBy("Error Code");
+		page.grid().waitForRowsToLoad();
 		soft.assertTrue(pgCtrl.getActivePage() == 1, "After sorting the active page is 1");
 		pgCtrl.goToPage(2);
 
@@ -111,6 +117,36 @@ public class ErrorLogPgTest extends BaseTest {
 
 		soft.assertAll();
 	}
+
+	@Test(description = "ERR-4", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		ErrorLogPage page = new ErrorLogPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, null, null);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+		page.grid().sortBy("Timestamp");
+		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "ERR-5", groups = {"multiTenancy", "singleTenancy"})
+	public void gridSelfAssert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		ErrorLogPage page = new ErrorLogPage(driver);
+
+		page.grid().assertControls(soft);
+
+		soft.assertAll();
+	}
+
 
 
 }

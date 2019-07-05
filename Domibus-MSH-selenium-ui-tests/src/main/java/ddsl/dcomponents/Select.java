@@ -2,6 +2,7 @@ package ddsl.dcomponents;
 
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -80,9 +81,8 @@ public class Select extends DComponent {
 	public void expand() throws Exception{
 		try {
 			getExpandBtn().click();
-		} catch (Exception e) {
-
-		}
+			wait.forElementToBeGone(expandBtn);
+		} catch (Exception e) {	}
 	}
 
 	protected List<DObject> getOptionElements() throws Exception {
@@ -104,7 +104,7 @@ public class Select extends DComponent {
 
 		for (DObject dObject : optionObj) {
 
-			if(dObject.getText().equalsIgnoreCase(text)){
+			if(StringUtils.equalsIgnoreCase(dObject.getText(), text)){
 				dObject.click();
 				return true;
 			}

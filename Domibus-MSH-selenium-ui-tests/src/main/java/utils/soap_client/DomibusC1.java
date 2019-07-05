@@ -1,7 +1,6 @@
 package utils.soap_client;
 
 
-//import com.sun.xml.internal.ws.developer.JAXWSProperties;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.webService.generated.BackendInterface;
@@ -33,9 +32,6 @@ import java.util.Map;
 
 public class DomibusC1 {
 	private static final Log LOG = LogFactory.getLog(DomibusC1.class);
-
-//	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_submitRequest.xml";
-//	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src\\main\\resources\\eu\\domibus\\example\\ws\\submitMessage_messaging.xml";
 
 	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/main/resources/eu/domibus/example/ws/submitMessage_submitRequest.xml";
 	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/main/resources/eu/domibus/example/ws/submitMessage_messaging.xml";

@@ -8,9 +8,12 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
+import pages.truststore.TrustStorePage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
+import rest.RestServicePaths;
 import utils.Generator;
+import utils.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,18 +21,18 @@ import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class UsersPgTest extends BaseTest {
 
-	private void loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
+	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
 //		login with Admin and go to users page
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.login(user);
 		loginPage.getSidebar().gGoToPage(PAGES.USERS);
+		return new UsersPage(driver);
 	}
 
 	@Test(description = "USR-1", groups = {"multiTenancy", "singleTenancy"})
@@ -545,7 +548,20 @@ public class UsersPgTest extends BaseTest {
 
 	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadUserList() throws Exception {
-		throw new SkipException("Implementation of test not finished");
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+		page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
+
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		page.getUsersGrid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
 	}
 
 	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
@@ -579,7 +595,8 @@ public class UsersPgTest extends BaseTest {
 		String errMess = null;
 		try {
 			errMess = modal.getUsernameErrMess().getText();
-		} catch (Exception e) { }
+		} catch (Exception e) {
+		}
 
 		soft.assertNull(errMess, "When correct username is entered the error message dissapears");
 
@@ -646,6 +663,16 @@ public class UsersPgTest extends BaseTest {
 		soft.assertTrue(rolesSuper.contains(DRoles.USER), "User role is avalable to super");
 		soft.assertTrue(rolesSuper.contains(DRoles.ADMIN), "Admin role is avalable to super");
 		soft.assertTrue(rolesSuper.contains(DRoles.SUPER), "Super Admin role is avalable to super");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "USR-20", groups = {"multiTenancy", "singleTenancy"})
+	public void gridSelfAssert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+		page.grid().assertControls(soft);
 
 		soft.assertAll();
 	}

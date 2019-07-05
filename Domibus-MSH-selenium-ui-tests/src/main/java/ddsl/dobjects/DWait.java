@@ -1,6 +1,5 @@
 package ddsl.dobjects;
 
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -67,9 +66,8 @@ public class DWait {
 	public void forElementToBe(WebElement element) {
 
 		defaultWait.until(new ExpectedCondition<Boolean>() {
-			@NullableDecl
 			@Override
-			public Boolean apply(@NullableDecl WebDriver driver) {
+			public Boolean apply(WebDriver driver) {
 				return element.getLocation() != null;
 			}
 		});
@@ -82,20 +80,22 @@ public class DWait {
 
 	public void forElementToHaveText(WebElement element) {
 		defaultWait.until(new ExpectedCondition<Boolean>() {
-			@NullableDecl
 			@Override
-			public Boolean apply(@NullableDecl WebDriver driver) {
+			public Boolean apply(WebDriver driver) {
 				return !element.getText().trim().isEmpty();
 			}
 		});
 	}
 
+	public void forElementToContainText(WebElement element, String text) {
+		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
+	}
+
 	public void longWaitforElementToBe(WebElement element) {
 
 		longWait.until(new ExpectedCondition<Boolean>() {
-			@NullableDecl
 			@Override
-			public Boolean apply(@NullableDecl WebDriver driver) {
+			public Boolean apply(WebDriver driver) {
 				return element.getLocation() != null;
 			}
 		});
