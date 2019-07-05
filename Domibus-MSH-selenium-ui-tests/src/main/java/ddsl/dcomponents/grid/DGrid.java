@@ -9,6 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -121,7 +122,7 @@ public class DGrid extends DComponent {
 		for (int i = 0; i < gridRows.size(); i++) {
 			WebElement rowContainer = gridRows.get(i);
 			String rowValue = new DObject(driver, rowContainer.findElements(cellSelector).get(columnIndex)).getText();
-			if (rowValue.equalsIgnoreCase(value)) {
+			if (StringUtils.equalsIgnoreCase(rowValue, value)) {
 				return i;
 			}
 		}
@@ -136,7 +137,7 @@ public class DGrid extends DComponent {
 
 		int columnIndex = -1;
 		for (int i = 0; i < columnNames.size(); i++) {
-			if (columnNames.get(i).equalsIgnoreCase(columnName)) {
+			if (StringUtils.equalsIgnoreCase(columnNames.get(i), columnName)) {
 				columnIndex = i;
 			}
 		}
@@ -187,7 +188,7 @@ public class DGrid extends DComponent {
 	public void sortBy(String columnName) throws Exception {
 		for (int i = 0; i < gridHeaders.size(); i++) {
 			DObject column = new DObject(driver, gridHeaders.get(i));
-			if (column.getText().equalsIgnoreCase(columnName)) {
+			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.click();
 				return;
 			}
@@ -225,7 +226,11 @@ public class DGrid extends DComponent {
 
 	public int getSelectedRowIndex() throws Exception {
 		for (int i = 0; i < gridRows.size(); i++) {
-			if (new DObject(driver, gridRows.get(i)).getAttribute("class").contains("active")) {
+			String classStr = new DObject(driver, gridRows.get(i)).getAttribute("class");
+			if(null == classStr || classStr.isEmpty()){
+				continue;
+			}
+			if (classStr.contains("active")) {
 				return i;
 			}
 		}
@@ -252,7 +257,7 @@ public class DGrid extends DComponent {
 		Collections.sort(checkedColumns);
 
 		for (int i = 0; i < visibleColumns.size(); i++) {
-			if (!visibleColumns.get(i).equalsIgnoreCase(checkedColumns.get(i))) {
+			if (!StringUtils.equalsIgnoreCase(visibleColumns.get(i), checkedColumns.get(i))) {
 				return false;
 			}
 		}
@@ -376,7 +381,7 @@ public class DGrid extends DComponent {
 	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
 
 		for (String key : gridRow.keySet()) {
-			if (key.equalsIgnoreCase("Actions")) {
+			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
 				continue;
 			}
 
@@ -385,7 +390,9 @@ public class DGrid extends DComponent {
 					return false;
 				}
 			} else {
-				if (!gridRow.get(key).equalsIgnoreCase(record.get(key))) {
+				String gridValue = gridRow.get(key).replaceAll("\\s", "");
+				String csvValue = record.get(key).replaceAll("\\s", "");
+				if (!StringUtils.equalsIgnoreCase(gridValue, csvValue)) {
 					return false;
 				}
 			}

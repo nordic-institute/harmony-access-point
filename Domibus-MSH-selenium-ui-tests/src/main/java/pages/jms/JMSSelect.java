@@ -19,7 +19,6 @@ public class JMSSelect extends Select {
 	}
 
 	public int selectQueueWithMessages() throws Exception{
-
 		String qName = getQueueNameWithMessages("");
 		selectOptionByText(qName);
 		return Integer.valueOf(qName.replaceAll("\\D", ""));
@@ -49,16 +48,16 @@ public class JMSSelect extends Select {
 		List<String> queues = getOptionsTexts();
 		List<String> filtered;
 		if(null != excludePattern && !excludePattern.isEmpty()){
-			filtered = queues.stream().filter(queue -> queue.contains(excludePattern)).collect((Collectors.toList()));
+			filtered = queues.stream().filter(queue -> !queue.contains(excludePattern)).collect((Collectors.toList()));
 		}else {
 			filtered = queues;
 		}
 
-		List<String> withMess = filtered.stream()
-				.filter(queue -> queue.contains(excludePattern))
-				.collect((Collectors.toList()));
+//		List<String> withMess = filtered.stream()
+//				.filter(queue -> !queue.contains("(0)"))
+//				.collect((Collectors.toList()));
 
-		for (String queue : withMess) {
+		for (String queue : filtered) {
 			int noOfmess = Integer.valueOf(queue.replaceAll("\\D", ""));
 			if(noOfmess>0){
 				return queue;

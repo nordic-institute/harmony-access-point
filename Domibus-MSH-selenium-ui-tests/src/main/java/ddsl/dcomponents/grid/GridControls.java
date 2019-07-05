@@ -4,6 +4,7 @@ import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.DObject;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -53,7 +54,7 @@ public class GridControls extends DComponent {
 		for (WebElement chk : chkContainer) {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
 			WebElement checkbox = chk.findElement(By.cssSelector("input"));
-			if(new DObject(driver, labelFor).getText().equalsIgnoreCase(name)){
+			if(StringUtils.equalsIgnoreCase(new DObject(driver, labelFor).getText(), name)){
 				return new Checkbox(driver, checkbox).isChecked();
 			}
 		}
@@ -65,7 +66,7 @@ public class GridControls extends DComponent {
 		for (WebElement chk : chkContainer) {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
 			WebElement checkbox = chk.findElement(By.cssSelector("input"));
-			if(new DObject(driver, labelFor).getText().equalsIgnoreCase(name)){
+			if(StringUtils.equalsIgnoreCase(new DObject(driver, labelFor).getText(), name)){
 				new Checkbox(driver, checkbox).check();
 				found = true;
 			}
@@ -80,7 +81,7 @@ public class GridControls extends DComponent {
 		for (WebElement chk : chkContainer) {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
 			WebElement checkbox = chk.findElement(By.cssSelector("input"));
-			if(new DObject(driver, labelFor).getText().equalsIgnoreCase(name)){
+			if(StringUtils.equalsIgnoreCase(new DObject(driver, labelFor).getText(), name)){
 				new Checkbox(driver, checkbox).uncheck();
 				found = true;
 			}
@@ -105,7 +106,8 @@ public class GridControls extends DComponent {
 
 	public void showCtrls() throws Exception{
 		DLink link = getShowHideCtrlLnk();
-		if(link.getLinkText().equalsIgnoreCase("Show columns")){
+		wait.forElementToContainText(showHideCtrlLnk, "columns");
+		if(StringUtils.equalsIgnoreCase(link.getLinkText(), "Show columns")){
 			link.click();
 			wait.forElementToContainText(showHideCtrlLnk, "Hide");
 		}
@@ -113,7 +115,7 @@ public class GridControls extends DComponent {
 
 	public void hideCtrls() throws Exception{
 		DLink link = getShowHideCtrlLnk();
-		if(link.getLinkText().equalsIgnoreCase("Hide columns")){
+		if(StringUtils.equalsIgnoreCase(link.getLinkText(), "Hide columns")){
 			link.click();
 			wait.forElementToContainText(showHideCtrlLnk, "Show");
 		}

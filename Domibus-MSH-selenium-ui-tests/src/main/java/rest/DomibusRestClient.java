@@ -7,6 +7,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +54,7 @@ public class DomibusRestClient {
 
 		if (null != cookies) {
 			for (NewCookie cookie : cookies) {
-				if (cookie.getName().equalsIgnoreCase("XSRF-TOKEN")) {
+				if (StringUtils.equalsIgnoreCase(cookie.getName(), "XSRF-TOKEN")) {
 					token = cookie.getValue();
 				}
 			}
@@ -232,7 +233,7 @@ public class DomibusRestClient {
 		JSONArray pusers = new JSONArray(sanitizeResponse(getResponse));
 		JSONArray toDelete = new JSONArray();
 		for (int i = 0; i < pusers.length(); i++) {
-			if (pusers.getJSONObject(i).getString("userName").equalsIgnoreCase(username)) {
+			if (StringUtils.equalsIgnoreCase(pusers.getJSONObject(i).getString("userName"), username)) {
 				JSONObject tmpUser = pusers.getJSONObject(i);
 				tmpUser.put("status", "REMOVED");
 				tmpUser.put("deleted", true);
@@ -278,7 +279,7 @@ public class DomibusRestClient {
 		JSONArray pusers = new JSONObject(sanitizeResponse(getResponse)).getJSONArray("entries");
 		JSONArray toDelete = new JSONArray();
 		for (int i = 0; i < pusers.length(); i++) {
-			if (pusers.getJSONObject(i).getString("userName").equalsIgnoreCase(username)) {
+			if (StringUtils.equalsIgnoreCase(pusers.getJSONObject(i).getString("userName"), username)) {
 				JSONObject tmpUser = pusers.getJSONObject(i);
 				tmpUser.put("status", "REMOVED");
 				toDelete.put(tmpUser);
@@ -299,7 +300,7 @@ public class DomibusRestClient {
 			JSONArray array = getUsers();
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tmpUser = array.getJSONObject(i);
-				if (tmpUser.getString("userName").equalsIgnoreCase(username)) {
+				if (StringUtils.equalsIgnoreCase(tmpUser.getString("userName"), username)) {
 					user = tmpUser;
 				}
 			}
@@ -371,7 +372,7 @@ public class DomibusRestClient {
 				JSONArray domainArray = getDomains();
 				for (int i = 0; i < domainArray.length(); i++) {
 					String currentName = domainArray.getJSONObject(i).getString("name");
-					if(currentName.equalsIgnoreCase(name)){
+					if(StringUtils.equalsIgnoreCase(currentName, name)){
 						return domainArray.getJSONObject(i).getString("code");
 					}
 				}

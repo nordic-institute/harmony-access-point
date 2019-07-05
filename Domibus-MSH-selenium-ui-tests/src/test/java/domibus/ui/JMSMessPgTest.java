@@ -51,7 +51,9 @@ public class JMSMessPgTest extends BaseTest {
 
 			soft.assertEquals(rowInfo.get("ID"), modalInfo.get("Id"), "Info from grid and modal is the same (1)");
 			soft.assertEquals(rowInfo.get("Time"), modalInfo.get("Timestamp"), "Info from grid and modal is the same (2)");
-			soft.assertEquals(rowInfo.get("Custom prop"), modalInfo.get("Custom Properties"), "Info from grid and modal is the same (3)");
+
+
+			soft.assertEquals(rowInfo.get("Custom prop").replaceAll("\\s", ""), modalInfo.get("Custom Properties").replaceAll("\\s", ""), "Info from grid and modal is the same (3)");
 		}
 
 		soft.assertAll();
@@ -214,8 +216,7 @@ public class JMSMessPgTest extends BaseTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		page.grid().waitForRowsToLoad();
-		List<HashMap<String, String>> dlqMessages = page.grid().getAllRowInfo();
-
+		int noOfMessInDQL = page.grid().getPagination().getTotalItems();
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
 		page.grid().waitForRowsToLoad();
@@ -235,7 +236,7 @@ public class JMSMessPgTest extends BaseTest {
 			page.filters().getJmsQueueSelect().selectDLQQueue();
 			page.grid().waitForRowsToLoad();
 
-			soft.assertEquals(dlqMessages.size(), page.grid().getPagination().getTotalItems(), "Number of messages in DLQ message queue is not changed");
+			soft.assertEquals(noOfMessInDQL, page.grid().getPagination().getTotalItems(), "Number of messages in DLQ message queue is not changed");
 
 			page.filters().getJmsQueueSelect().selectOptionByText(queuename);
 			page.grid().waitForRowsToLoad();
@@ -257,7 +258,7 @@ public class JMSMessPgTest extends BaseTest {
 			page.filters().getJmsQueueSelect().selectDLQQueue();
 			page.grid().waitForRowsToLoad();
 
-			soft.assertEquals(dlqMessages.size() + 1, page.grid().getRowsNo(), "DQL queue has one more message after the move");
+			soft.assertEquals(noOfMessInDQL + 1, page.grid().getPagination().getTotalItems(), "DQL queue has one more message after the move");
 
 			int index = page.grid().scrollTo("ID", rowInfo.get("ID"));
 
@@ -275,11 +276,13 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, null, null);
+		HashMap<String, String> params = new HashMap<>();
+		params.put("source", "domibus.DLQ");
+
+		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
-
 
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 

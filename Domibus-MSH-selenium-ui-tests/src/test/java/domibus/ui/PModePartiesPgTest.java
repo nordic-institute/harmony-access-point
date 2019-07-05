@@ -2,6 +2,7 @@ package domibus.ui;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.PModePartiesPage;
@@ -182,7 +183,8 @@ public class PModePartiesPgTest extends BaseTest {
 
 
 		soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equalsIgnoreCase(DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
+		soft.assertTrue(StringUtils.equalsIgnoreCase(page.getAlertArea().getAlertMessage(),
+				DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
 
 
 		soft.assertTrue(page.grid().scrollTo(partyName, newPatyName)>=0, "party is shown in grid");
