@@ -71,7 +71,9 @@ public class AuditResource {
                 auditCriteria.getStart(),
                 auditCriteria.getMax());
 
-        return domainConverter.convert(sourceList, AuditResponseRo.class);
+        List<AuditResponseRo> list = domainConverter.convert(sourceList, AuditResponseRo.class);
+        list.forEach(entry -> entry.setAction(getActionTypeLabelFromCode(entry.getAction())));
+        return list;
     }
 
 
@@ -87,25 +89,33 @@ public class AuditResource {
 
     /**
      * Action type send from the admin console are different from the one used in the database.
-     * Eg: In the admin console the filter for a modified entity is Modified where in the database a modified reccord
+     * Eg: In the admin console the filter for a modified entity is Modified where in the database a modified record
      * has the MOD flag. This method does the translation.
      *
      * @param actions
      * @return
      */
     private Set<String> changeActionType(Set<String> actions) {
-        Set<String> modificationTypes = new HashSet<>();
-        if(actions == null || actions.isEmpty()) {
-            return modificationTypes;
+        if (actions == null || actions.isEmpty()) {
+            return new HashSet<>();
         }
-        actions.forEach(action -> {
-            Set<String> collect = Arrays.stream(ModificationType.values()).
-                    filter(modificationType -> modificationType.getLabel().equals(action)).
-                    map(Enum::name).
-                    collect(Collectors.toSet());
-            modificationTypes.addAll(collect);
-        });
-        return modificationTypes;
+        return actions.stream()
+                .map(action -> getActionTypesFromLabel(action))
+                .flatMap(Set::stream).collect(Collectors.toSet());
+    }
+
+    private Set<String> getActionTypesFromLabel(String label) {
+        return Arrays.stream(ModificationType.values()).
+                filter(modificationType -> modificationType.getLabel().equals(label)).
+                map(Enum::name).
+                collect(Collectors.toSet());
+    }
+
+    private String getActionTypeLabelFromCode(String code) {
+        return Arrays.stream(ModificationType.values()).
+                filter(modificationType -> modificationType.toString().equals(code)).
+                map(ModificationType::getLabel).
+                findFirst().orElse(code);
     }
 
     @RequestMapping(value = {"/targets"}, method = RequestMethod.GET)
@@ -115,12 +125,12 @@ public class AuditResource {
 
     /**
      * This method returns a CSV file with the contents of Audit table
-     * @param auditTargetName the type of audit.
-     * @param user the user that performed the audited action.
-     * @param action the type of action linked with audit.
-     * @param from the date from which we want to retrieve audit logs.
-     * @param to the date to which we want to retrieve audit logs.
      *
+     * @param auditTargetName the type of audit.
+     * @param user            the user that performed the audited action.
+     * @param action          the type of action linked with audit.
+     * @param from            the date from which we want to retrieve audit logs.
+     * @param to              the date to which we want to retrieve audit logs.
      * @return CSV file with the contents of Audit table
      */
     @RequestMapping(path = "/csv", method = RequestMethod.GET)

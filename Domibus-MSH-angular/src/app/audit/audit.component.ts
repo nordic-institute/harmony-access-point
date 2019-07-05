@@ -27,7 +27,6 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 export class AuditComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
 
   @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithActionMapTpl') rowWithActionMapTpl: TemplateRef<any>;
 
 // --- Search components binding ---
   existingAuditTargets = [];
@@ -67,7 +66,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
 // --- lets init the table columns ---
     this.initColumns();
 
-// --- lets count the reccords and fill the table.---
+// --- lets count the records and fill the table.---
     this.searchAndCount();
   }
 
@@ -78,7 +77,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     this.offset = 0;
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
-    const auditCountOservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
+    const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
         this.rows = response;
         this.loading = false;
@@ -88,8 +87,8 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
         this.loading = false;
       },
       // on complete of auditLogsObservable Observable, we load the count
-      // TODO: load this in parrallel and merge the stream at the end.
-      () => auditCountOservable.subscribe(auditCount => this.count = auditCount,
+      // TODO: load this in parallel and merge the stream at the end.
+      () => auditCountObservable.subscribe(auditCount => this.count = auditCount,
         error => {
           this.alertService.error('Could not count audits ' + error);
           this.loading = false;
@@ -157,7 +156,6 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
         sortable: false
       },
       {
-        cellTemplate: this.rowWithActionMapTpl,
         name: 'Action',
         prop: 'action',
         width: 20,
