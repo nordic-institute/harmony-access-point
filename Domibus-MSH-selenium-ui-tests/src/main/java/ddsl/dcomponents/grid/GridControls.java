@@ -124,8 +124,9 @@ public class GridControls extends DComponent {
 	public boolean areCheckboxesVisible() throws Exception{
 		try {
 			return getAllLnk().isPresent();
-		}catch (Exception e){}
-		return false;
+		}catch (Exception e){
+			return false;
+		}
 	}
 
 
