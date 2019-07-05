@@ -24,8 +24,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        LOG.debug("Intercepted request for " + request.getRequestURI());
-        LOG.info("dispatcher type is=[{}]", request.getDispatcherType());
+        LOG.debug("Intercepted request for {}", request.getRequestURI());
 
         try {
             authenticationExtService.authenticate(request);
