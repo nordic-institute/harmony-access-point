@@ -317,9 +317,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
 
                 //TODO: //in the other place it is called, it has a different usage
                 new DomibusPropertyMetadata("domibus.attachment.storage.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.payload.encryption.active", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
                 new DomibusPropertyMetadata("domibus.msh.messageid.suffix", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-
                 new DomibusPropertyMetadata("domibus.msh.retry.messageExpirationDelay", PropertyUsageType.GLOBAL_PROPERTY),
 
                 new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
