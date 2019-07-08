@@ -193,15 +193,13 @@ public class PModeResource {
 
         try {
             resultText = csvServiceImpl.exportToCSV(pModeResponseROList, PModeResponseRO.class,
-                    new HashMap<String, String>(), CsvExcludedItems.PMODE_RESOURCE.getExcludedItems());
+                    new HashMap<>(), CsvExcludedItems.PMODE_RESOURCE.getExcludedItems());
         } catch (CsvException e) {
+            LOG.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("pmodearchive"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "pmodearchive");
     }
 
 }

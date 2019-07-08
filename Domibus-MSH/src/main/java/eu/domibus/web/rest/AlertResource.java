@@ -141,10 +141,7 @@ public class AlertResource {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("alerts"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "alerts");
 
     }
 

@@ -179,10 +179,7 @@ public class MessageLogResource {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("messages"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "messages");
     }
 
     @RequestMapping(value = "test/outgoing/latest", method = RequestMethod.GET)

@@ -96,13 +96,12 @@ public class TruststoreResource {
             resultText = csvServiceImpl.exportToCSV(trustStoreROS, TrustStoreRO.class,
                     CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(), CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems());
         } catch (CsvException e) {
+            LOG.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("truststore"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "truststore");
+
     }
 
 }

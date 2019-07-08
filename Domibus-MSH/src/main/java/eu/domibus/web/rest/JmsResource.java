@@ -143,14 +143,14 @@ public class JmsResource {
             resultText = csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,
                     CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems());
         } catch (CsvException e) {
+            LOGGER.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("jmsmonitoring"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "jmsmonitoring");
     }
+
+
 
     private void customizeJMSProperties(List<JmsMessage> jmsMessageList) {
         for (JmsMessage message : jmsMessageList) {

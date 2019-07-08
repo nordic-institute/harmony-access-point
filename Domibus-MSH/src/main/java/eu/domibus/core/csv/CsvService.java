@@ -1,5 +1,7 @@
 package eu.domibus.core.csv;
 
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 import java.util.Map;
 
@@ -16,5 +18,14 @@ public interface CsvService {
                        final Map<String, String> customColumnNames, List<String> excludedColumns);
 
     int getMaxNumberRowsToExport();
+
+    /**
+     * It builds the {@code ResponseEntity} object used in Save As dialog
+     *
+     * @param resultText
+     * @param moduleName
+     * @return
+     */
+    ResponseEntity<String> getResponseEntity(final String resultText, final String moduleName);
 
 }

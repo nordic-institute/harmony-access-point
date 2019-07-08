@@ -110,13 +110,11 @@ public class PluginUserResource {
             resultText = csvServiceImpl.exportToCSV(pluginUserROList.getEntries(), PluginUserRO.class,
                     CsvCustomColumns.PLUGIN_USER_RESOURCE.getCustomColumns(), CsvExcludedItems.PLUGIN_USER_RESOURCE.getExcludedItems());
         } catch (CsvException e) {
+            LOG.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("pluginusers"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "pluginusers");
     }
 
     /**

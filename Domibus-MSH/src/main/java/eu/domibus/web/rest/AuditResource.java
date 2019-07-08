@@ -139,12 +139,10 @@ public class AuditResource {
             resultText = csvServiceImpl.exportToCSV(auditResponseRos, AuditResponseRo.class,
                     CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(), CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems());
         } catch (CsvException e) {
+            LOG.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("audit"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "audit");
     }
 }

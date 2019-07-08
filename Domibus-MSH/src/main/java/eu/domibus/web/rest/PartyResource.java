@@ -108,10 +108,7 @@ public class PartyResource {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("pmodeparties"))
-                .body(resultText);
+        return csvServiceImpl.getResponseEntity(resultText, "pmodeparties");
     }
 
     @RequestMapping(value = {"/update"}, method = RequestMethod.PUT)

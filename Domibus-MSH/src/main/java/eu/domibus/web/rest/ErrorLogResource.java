@@ -101,10 +101,7 @@ public class ErrorLogResource {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + errorLogCsvServiceImpl.getCsvFilename("errorlog"))
-                .body(resultText);
+        return errorLogCsvServiceImpl.getResponseEntity(resultText, "errorlog");
     }
 
     private HashMap<String, Object> createFilterMap(ErrorLogFilterRequestRO request) {

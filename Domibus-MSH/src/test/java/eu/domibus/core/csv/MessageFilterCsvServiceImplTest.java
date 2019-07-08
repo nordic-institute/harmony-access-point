@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.csv;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.property.DomibusPropertyProvider;

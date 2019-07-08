@@ -85,9 +85,6 @@ public class MessageFilterResource {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + messageFilterCsvServiceImpl.getCsvFilename("message-filter"))
-                .body(resultText);
+        return messageFilterCsvServiceImpl.getResponseEntity(resultText, "message-filter");
     }
 }
