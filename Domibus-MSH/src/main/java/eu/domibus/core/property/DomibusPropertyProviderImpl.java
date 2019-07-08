@@ -274,9 +274,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         return defaultValue;
     }
 
+    /**
+     * Returns the properties that this PropertyProvider is able to handle.
+     *
+     * @return a map
+     * @implNote This list will be moved in the database eventually.
+     */
     @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
-        // TODO
+
         return Arrays.stream(new DomibusPropertyMetadata[]{
                 new DomibusPropertyMetadata("domibus.UI.title.name"),
                 new DomibusPropertyMetadata("domibus.ui.replication.enabled"),
@@ -354,6 +360,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.downloaded.max.delete", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.not_downloaded.max.delete", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.retention.jms.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dispatch.ebms.error.unrecoverable.retry", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
                 new DomibusPropertyMetadata("domibus.proxy.enabled", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.proxy.http.host", PropertyUsageType.GLOBAL_PROPERTY),
@@ -361,9 +368,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.proxy.user", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.proxy.password", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.proxy.nonProxyHosts", PropertyUsageType.GLOBAL_PROPERTY),
-
-                // TODO: domibus.pull.* properties
-                // TODO: domibus.alert.* properties
 
                 new DomibusPropertyMetadata("domibus.ui.replication.sync.cron.max.rows", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.plugin.notification.active", PropertyUsageType.GLOBAL_PROPERTY),
@@ -376,7 +380,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.attachment.temp.storage.location", PropertyUsageType.GLOBAL_PROPERTY),
                 new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.payloads.schedule.threshold", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                //
 
                 new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
@@ -414,10 +417,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         }
 
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
-        if (domain == null || !domibusConfigurationService.isMultiTenantAware()
+        if (domain == null
+                || !domibusConfigurationService.isMultiTenantAware()
                 || meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
-            // super property - TODO
-            // TODO: handle single tenancy too
             this.domibusProperties.setProperty(propertyName, propertyValue);
         } else {
             String fullPropertyName = propertyName;
@@ -431,8 +433,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     }
 
     private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
-        //notify interested listeners that the property changed
-        //TODO: shall we filter by module( core, plugins)??
+        // notify interested listeners that the property value changed
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
@@ -451,7 +452,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
 
     @Override
     public boolean hasKnownProperty(String name) {
-        // TODO
         return this.getKnownProperties().containsKey(name);
     }
 

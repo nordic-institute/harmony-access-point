@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.ErrorLogDao;
@@ -68,6 +69,9 @@ public class ReliabilityChecker {
 
     @Autowired
     protected TransformerFactory transformerFactory;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final Reliability reliability) throws EbMS3Exception {
@@ -249,7 +253,8 @@ public class ReliabilityChecker {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final String messageId) {
         exceptionToHandle.setRefToMessageId(messageId);
-        if (!exceptionToHandle.isRecoverable() && !Boolean.parseBoolean(System.getProperty(UNRECOVERABLE_ERROR_RETRY))) {
+        Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
+        if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
             userMessageLogService.setMessageAsAcknowledged(messageId);
             // TODO Shouldn't clear the payload data here ?
         }

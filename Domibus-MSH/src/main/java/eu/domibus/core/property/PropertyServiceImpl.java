@@ -63,8 +63,6 @@ public class PropertyServiceImpl implements PropertyService {
 
 
     public void setPropertyValue(String name, String value) {
-        // TODO: validate that the property belongs to the current domain ?
-
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
 
@@ -73,7 +71,6 @@ public class PropertyServiceImpl implements PropertyService {
                 propertyManager.setKnownPropertyValue(domainCode, name, value);
             }
         }
-
     }
 
 }
