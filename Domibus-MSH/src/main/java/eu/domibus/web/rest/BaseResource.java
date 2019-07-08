@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Groups all common REST Resource functionalities
+ * Groups all common REST Resource code
  *
  * @author Catalin Enache
  * @since 4.1.1
@@ -23,11 +23,20 @@ public abstract class BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BaseResource.class);
 
+
+    /**
+     * exports to CSV
+     * @param list
+     * @param tClass
+     * @param customColumnNames
+     * @param excludedColumns
+     * @param moduleName
+     * @return
+     */
     protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass,
                                                  final Map<String, String> customColumnNames,
                                                  List<String> excludedColumns,
                                                  final String moduleName) {
-
         String resultText;
         try {
             resultText = getCsvService().exportToCSV(list, tClass,

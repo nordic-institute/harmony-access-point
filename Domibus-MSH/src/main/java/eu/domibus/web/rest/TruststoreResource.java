@@ -35,7 +35,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping(value = "/rest/truststore")
-public class TruststoreResource {
+public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
 
@@ -92,16 +92,15 @@ public class TruststoreResource {
         String resultText;
         final List<TrustStoreRO> trustStoreROS = trustStoreEntries();
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(trustStoreROS, TrustStoreRO.class,
-                    CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(), CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
-
-        return csvServiceImpl.getResponseEntity(resultText, "truststore");
+        return exportToCSV(trustStoreROS, TrustStoreRO.class,
+                CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems(),
+                "truststore");
 
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

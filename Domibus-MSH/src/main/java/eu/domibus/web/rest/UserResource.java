@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import com.google.common.base.Strings;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskException;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +43,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping(value = "/rest/user")
 @Validated
-public class UserResource {
+public class UserResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
 
@@ -164,15 +162,16 @@ public class UserResource {
         // get list of users
         final List<UserResponseRO> userResponseROList = users();
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(userResponseROList, UserResponseRO.class,
-                    CsvCustomColumns.USER_RESOURCE.getCustomColumns(), CsvExcludedItems.USER_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(userResponseROList, UserResponseRO.class,
+                CsvCustomColumns.USER_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
+                "users");
+    }
 
-        return csvServiceImpl.getResponseEntity(resultText, "users");
+
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 
     /**
