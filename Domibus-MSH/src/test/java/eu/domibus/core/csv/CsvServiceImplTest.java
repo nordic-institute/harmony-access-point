@@ -15,6 +15,9 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -91,6 +94,20 @@ public class CsvServiceImplTest {
         Assert.assertTrue(exportToCSV.contains("ID,JMS Type,Time,Content,Custom prop,JMS prop"));
         Assert.assertTrue(exportToCSV.contains("DOMAIN"));
         Assert.assertTrue(exportToCSV.contains("originalQueue"));
+    }
+
+    @Test
+    public void testGetResponseEntity() {
+        List<JmsMessage> jmsMessageList = getJmsMessageList();
+
+        final String exportToCSV = csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,
+                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems());
+
+       final ResponseEntity<String> responseEntity = csvServiceImpl.getResponseEntity(exportToCSV, "test");
+       Assert.assertNotNull(responseEntity);
+       Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+       Assert.assertEquals(MediaType.parseMediaType(CsvServiceImpl.APPLICATION_EXCEL_STR), responseEntity.getHeaders().getContentType());
+       Assert.assertEquals(exportToCSV, responseEntity.getBody());
     }
 
     private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, MessageSubtype messageSubtype) {
