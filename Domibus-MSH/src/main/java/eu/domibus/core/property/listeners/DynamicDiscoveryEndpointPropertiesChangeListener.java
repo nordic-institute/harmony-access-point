@@ -18,7 +18,6 @@ public class DynamicDiscoveryEndpointPropertiesChangeListener implements Domibus
                 || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.peppolclient.mode")
                 || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation")
                 || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.transportprofileas4");
-        //
     }
 
     @Override

@@ -97,6 +97,7 @@ public class MessageListenerContainerConfiguration {
 
     /**
      * Creates the large message JMS listener(domain dependent)
+     *
      * @param domain
      * @return
      */
@@ -112,6 +113,7 @@ public class MessageListenerContainerConfiguration {
 
     /**
      * Creates the SplitAndJoin JMS listener(domain dependent)
+     *
      * @param domain
      * @return
      */
@@ -154,11 +156,11 @@ public class MessageListenerContainerConfiguration {
     /**
      * It will create a {@code DefaultMessageListenerContainer}
      *
-     * @param domain                    domain
-     * @param connectionFactory         JMS connection factory
-     * @param destination               JMS queue
-     * @param messageListener           JMS message listener
-     * @param transactionManager        Transaction manager
+     * @param domain domain
+     * @param connectionFactory JMS connection factory
+     * @param destination JMS queue
+     * @param messageListener JMS message listener
+     * @param transactionManager Transaction manager
      * @param domainPropertyConcurrency domain property key for retrieving queue concurrency value
      * @return
      */

@@ -5,7 +5,9 @@ import eu.domibus.proxy.DomibusProxyService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ProxyPropertiesChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired

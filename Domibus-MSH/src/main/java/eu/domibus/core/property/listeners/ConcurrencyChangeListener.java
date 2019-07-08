@@ -23,6 +23,7 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
             "domibus.dispatcher.concurency",
             "domibus.dispatcher.largeFiles.concurrency",
             "domibus.retention.jms.concurrency",
+            "domibus.dispatcher.splitAndJoin.concurrency",
     };
 
     @Override

@@ -1,6 +1,5 @@
-package eu.domibus.core.crypto;
+package eu.domibus.core.property;
 
-import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import mockit.Deencapsulation;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

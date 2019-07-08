@@ -48,9 +48,9 @@ public class PropertyResource {
     @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")
     @GetMapping(path = "/superProperties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request, String domain) {
-        if (StringUtils.isEmpty(domain))
+        if (StringUtils.isEmpty(domain)) {
             domainContextProvider.clearCurrentDomain();
-        else
+        } else
             domainContextProvider.setCurrentDomain(domain);
 
         return this.getProperties(request);
@@ -67,10 +67,11 @@ public class PropertyResource {
     @PutMapping(path = "/superProperties/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue, String domain) {
-        if (StringUtils.isEmpty(domain))
+        if (StringUtils.isEmpty(domain)) {
             domainContextProvider.clearCurrentDomain();
-        else
+        } else {
             domainContextProvider.setCurrentDomain(domain);
+        }
 
         this.setProperty(propertyName, propertyValue);
     }

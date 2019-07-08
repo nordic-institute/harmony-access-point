@@ -18,7 +18,6 @@ public class DispatchClientPropertiesChangeListener implements DomibusPropertyCh
                 || StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.receiveTimeout")
                 || StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.allowChunking")
                 || StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.chunkingThreshold");
-        //
     }
 
     @Override
