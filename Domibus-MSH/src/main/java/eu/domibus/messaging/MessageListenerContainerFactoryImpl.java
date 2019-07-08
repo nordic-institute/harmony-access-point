@@ -22,33 +22,33 @@ public class MessageListenerContainerFactoryImpl implements MessageListenerConta
     protected ApplicationContext applicationContext;
 
     @Override
-    public MessageListenerContainer createSendMessageListenerContainer(Domain domain) {
+    public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the SendMessageListenerContainer for domain [{}]", domain);
-        return (DefaultMessageListenerContainer) applicationContext.getBean("dispatchContainer", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("dispatchContainer", domain);
     }
 
     @Override
-    public MessageListenerContainer createSendLargeMessageListenerContainer(Domain domain) {
+    public DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the SendLargeMessageListenerContainer for domain [{}]", domain);
-        return (DefaultMessageListenerContainer) applicationContext.getBean("sendLargeMessageContainer", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("sendLargeMessageContainer", domain);
     }
 
     @Override
-    public MessageListenerContainer createSplitAndJoinListenerContainer(Domain domain) {
+    public DomainMessageListenerContainer createSplitAndJoinListenerContainer(Domain domain) {
         LOG.debug("Creating the SplitAndJoinListenerContainer for domain [{}]", domain);
-        return (DefaultMessageListenerContainer) applicationContext.getBean("splitAndJoinContainer", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("splitAndJoinContainer", domain);
     }
 
     @Override
-    public MessageListenerContainer createPullReceiptListenerContainer(Domain domain) {
+    public DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain) {
         LOG.debug("Creating the PullReceiptListenerContainer for domain [{}]", domain);
-        return (DefaultMessageListenerContainer) applicationContext.getBean("pullReceiptContainer", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("pullReceiptContainer", domain);
     }
 
     @Override
-    public MessageListenerContainer createRetentionListenerContainer(Domain domain) {
+    public DomainMessageListenerContainer createRetentionListenerContainer(Domain domain) {
         LOG.debug("Creating the RetentionListenerContainer for domain [{}]", domain);
-        return (DefaultMessageListenerContainer) applicationContext.getBean("retentionContainer", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("retentionContainer", domain);
     }
 
 }

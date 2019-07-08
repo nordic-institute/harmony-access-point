@@ -91,39 +91,40 @@ public class MessageListenerContainerInitializer {
     }
 
     public void createSendMessageListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
-        removeInstance(domain, ((DomainMessageListenerContainer) instance).getName());
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createSendLargeMessageListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createSendLargeMessageListenerContainer(domain);
-        removeInstance(domain, ((DomainMessageListenerContainer) instance).getName());
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendLargeMessageListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("LargeMessageListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createPullReceiptListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createPullReceiptListenerContainer(domain);
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createPullReceiptListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("PullReceiptListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createSplitAndJoinListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createSplitAndJoinListenerContainer(domain);
-        removeInstance(domain, ((DomainMessageListenerContainer)instance).getName());
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSplitAndJoinListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("SplitAndJoinListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createRetentionListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createRetentionListenerContainer(domain);
-        removeInstance(domain, ((DomainMessageListenerContainer)instance).getName());
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createRetentionListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);

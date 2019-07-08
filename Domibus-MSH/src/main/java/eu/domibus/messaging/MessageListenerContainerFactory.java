@@ -9,13 +9,13 @@ import org.springframework.jms.listener.MessageListenerContainer;
  */
 public interface MessageListenerContainerFactory {
 
-    MessageListenerContainer createSendMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain);
 
-    MessageListenerContainer createSendLargeMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain);
 
-    MessageListenerContainer createSplitAndJoinListenerContainer(Domain domain);
+    DomainMessageListenerContainer createSplitAndJoinListenerContainer(Domain domain);
 
-    MessageListenerContainer createPullReceiptListenerContainer(Domain domain);
+    DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain);
 
-    MessageListenerContainer createRetentionListenerContainer(Domain domain);
+    DomainMessageListenerContainer createRetentionListenerContainer(Domain domain);
 }
