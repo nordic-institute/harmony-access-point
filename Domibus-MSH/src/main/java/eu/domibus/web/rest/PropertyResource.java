@@ -10,6 +10,7 @@ import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class PropertyResource {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @GetMapping(path = "/properties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
@@ -43,9 +45,9 @@ public class PropertyResource {
         return response;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")
     @GetMapping(path = "/superProperties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request, String domain) {
-        // TODO : test set domain
         if (StringUtils.isEmpty(domain))
             domainContextProvider.clearCurrentDomain();
         else
@@ -54,16 +56,17 @@ public class PropertyResource {
         return this.getProperties(request);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @PutMapping(path = "/properties/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue) {
         propertyService.setPropertyValue(propertyName, propertyValue);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")
     @PutMapping(path = "/superProperties/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue, String domain) {
-        // TODO : test set domain
         if (StringUtils.isEmpty(domain))
             domainContextProvider.clearCurrentDomain();
         else

@@ -1,23 +1,30 @@
 package eu.domibus.property;
 
 public enum PropertyUsageType {
-    GLOBAL_PROPERTY, // Global AP Property ???
-    // proprietate care are efect asupra intregului AP;
-    // it is read with getProperty
-    // poate fi modificata doar in mod single tenancy sau de catre super admin
-    // e.g.  domibus.alert.sender.smtp.user
 
-    DOMAIN_PROPERTY_NO_FALLBACK, // specific domain property , no fallback
-    // proprietate care are efect asupra domeniului curent.
-    // se citeste NUMAI din domeniul curent   ,   cu getProperty(domain, name)
-    // e.g. domibus.security.keystore.type
+    /**
+     * Global AP property.
+     * It affects the entire AP.
+     * In single tenancy mode, it can be changed by regular admins.
+     * In multi tenancy mode, it can be changed only by AP admins.
+     */
+    GLOBAL_PROPERTY,
 
-    DOMAIN_PROPERTY_WITH_FALLBACK, // overridable property
-    // it can be defined in the default domain and overwritten in another)
-    // e.g.  domibus.UI.title.name   ->   domain_name.domibus.UI.title.name
+    /**
+     * Domain property, no fallback to the default domain value.
+     * Can be changed by either domain admins or AP admins.
+     */
+    DOMAIN_PROPERTY_NO_FALLBACK,
 
-    DOMAIN_PROPERTY_RESOLVED, // overridable property
-    // it can be defined in the default domain and overwritten in another)
-    // it is read with getResolvedProperty(domain, name)
-    // e.g. domibus.security.keystore.location
+    /**
+     * Domain property, with fallback to the default domain value.
+     * Can be changed by either domain admins or AP admins.
+     */
+    DOMAIN_PROPERTY_WITH_FALLBACK,
+
+    /**
+     * Resolved domain property, no fallback to the default domain value.
+     * Can be changed by either domain admins or AP admins.
+     */
+    DOMAIN_PROPERTY_RESOLVED,
 }

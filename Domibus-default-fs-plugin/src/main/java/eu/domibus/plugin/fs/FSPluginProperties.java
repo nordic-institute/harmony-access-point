@@ -50,8 +50,6 @@ public class FSPluginProperties implements DomibusPropertyManager {
 
     private static final String RECEIVED_PURGE_EXPIRED = "messages.received.purge.expired";
 
-    private static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "messages.received.purge.worker.cronExpression";
-
     private static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
 
     private static final String SEND_DELAY = "messages.send.delay";
@@ -90,10 +88,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
     public static final String ACTION_ARCHIVE = "archive";
 
     @Autowired
-    List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
-
-//    @Autowired
-//    protected SignalService signalService;
+    private List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
 
     /**
      * @return The available domains set
@@ -223,13 +218,6 @@ public class FSPluginProperties implements DomibusPropertyManager {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
         return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
     }
-
-//    /**
-//     * @return The cron expression that defines the frequency of the received messages purge job
-//     */
-//    public String getReceivedPurgeWorkerCronExpression() {
-//        return properties.getProperty(PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION);
-//    }
 
     /**
      * @param domain The domain property qualifier
@@ -427,8 +415,6 @@ public class FSPluginProperties implements DomibusPropertyManager {
 
     @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
-
-        // TODO
         return Arrays.stream(new DomibusPropertyMetadata[]{
                 new DomibusPropertyMetadata(AUTHENTICATION_USER, PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata(AUTHENTICATION_PASSWORD, PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
@@ -440,7 +426,6 @@ public class FSPluginProperties implements DomibusPropertyManager {
 
     @Override
     public boolean hasKnownProperty(String name) {
-        // TODO
         return this.getKnownProperties().containsKey(name);
     }
 
@@ -454,14 +439,12 @@ public class FSPluginProperties implements DomibusPropertyManager {
             propertyKey = propertyName;
         else
             propertyKey = this.getDomainPropertyName(domain, propertyName);
-        // TODO: compose propertyKey differently for multitenancy+default and singletenancy
 
-        // TODO default value ??
         return this.properties.getProperty(propertyKey);
     }
 
     @Override
-    //TODO: reuse same code as in DomibusPropertyProvider
+    //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
         if (meta == null) throw new IllegalArgumentException(propertyName);
@@ -477,8 +460,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
         handlePropertyChange(domainCode, propertyName, propertyValue);
     }
 
-//    @Override
-    //TODO: reuse same code as in DomibusPropertyProvider
+    //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
     private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
         //notify interested listeners that the property changed
         List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
@@ -491,9 +473,6 @@ public class FSPluginProperties implements DomibusPropertyManager {
                 LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
             }
         });
-
-        //signal for other nodes???? do we need this for plugins?? I think no
-        //signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
     }
 
 }

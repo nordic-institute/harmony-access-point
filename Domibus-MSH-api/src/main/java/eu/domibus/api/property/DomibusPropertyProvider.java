@@ -32,7 +32,8 @@ public interface DomibusPropertyProvider {
      * conf/domibus.properties, classpath://domibus.properties, classpath://domibus-default.properties
      * When actions are executed under a super admin user, there is no domain set on the current thread.
      * Nevertheless we need to retrieve some default properties. So if no domain is found, this method will retrieve
-     * properties from the default one.     * @param propertyName the property name.
+     * properties from the default one.
+     * @param propertyName the property name.
      * @return the value for that property.
      */
     String getDomainProperty(String propertyName);
