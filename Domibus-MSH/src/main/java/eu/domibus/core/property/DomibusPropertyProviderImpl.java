@@ -315,7 +315,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
                 new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.dontReuseLast", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
-                //TODO: //in the other place it is called, it has a different usage
                 new DomibusPropertyMetadata("domibus.attachment.storage.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.payload.encryption.active", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
 
