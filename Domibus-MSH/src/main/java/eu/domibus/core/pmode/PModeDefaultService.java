@@ -11,8 +11,14 @@ import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.messaging.XmlProcessingException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -48,6 +54,19 @@ public class PModeDefaultService implements PModeService {
     @Override
     public PModeArchiveInfo getCurrentPMode() {
         return pModeProvider.getCurrentPmode();
+    }
+
+    @Override
+    public List<String> updatePModeFile(byte[] bytes, String description) throws PModeException {
+        try {
+            return pModeProvider.updatePModes(bytes, description);
+        } catch (XmlProcessingException e) {
+            String message = "Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e);
+            if (CollectionUtils.isNotEmpty(e.getErrors())) {
+                message += ";" + StringUtils.join(e.getErrors(), ";");
+            }
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, message);
+        }
     }
 
 

@@ -79,13 +79,6 @@ public abstract class PModeProvider {
     @Autowired
     private MpcService mpcService;
 
-//    @Autowired
-//    protected JMSManager jmsManager;
-//
-//    @Qualifier("clusterCommandTopic")
-//    @Autowired
-//    protected Topic clusterCommandTopic;
-
     @Autowired
     protected SignalService signalService;
 
