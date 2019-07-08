@@ -13,9 +13,11 @@ import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.property.DomibusPropertyManager;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +53,9 @@ public class CommandServiceImpl implements CommandService {
     @Autowired
     private ServerInfoService serverInfoService;
 
-    //TODO: qualify or use another interface
     @Autowired
-    private DomibusPropertyProviderImpl domibusPropertyManager;
+    @Qualifier("domibusPropertyManager")
+    private DomibusPropertyManager domibusPropertyManager;
 
     @Override
     public void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties) {

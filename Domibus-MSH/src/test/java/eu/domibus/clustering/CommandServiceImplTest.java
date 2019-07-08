@@ -8,6 +8,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.logging.LoggingService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.property.DomibusPropertyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -52,6 +53,9 @@ public class CommandServiceImplTest {
 
     @Injectable
     private ServerInfoService serverInfoService;
+
+    @Injectable
+    private DomibusPropertyManager domibusPropertyManager;
 
     @Tested
     private CommandServiceImpl commandService;

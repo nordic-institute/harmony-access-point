@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Cosmin Baciu, Ion Perpegel
  * @since 4.0
  */
-@Service
+@Service("domibusPropertyManager")
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, DomibusPropertyManager {
 
     @Autowired
@@ -49,9 +49,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     @Autowired
     protected DomainService domainService;
 
-    //TODO: move out from here
     @Autowired
-    List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
+    private List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
 
     @Autowired
     protected ApplicationContext applicationContext;
