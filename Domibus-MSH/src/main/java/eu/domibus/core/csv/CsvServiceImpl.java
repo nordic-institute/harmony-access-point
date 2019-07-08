@@ -60,14 +60,7 @@ public class CsvServiceImpl implements CsvService {
     }
 
     @Override
-    public ResponseEntity<String> getResponseEntity(final String resultText, final String moduleName) {
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=\"" + getCsvFilename(moduleName)+"\"")
-                .body(resultText);
-    }
-
-    protected String getCsvFilename(String module) {
+    public String getCsvFilename(String module) {
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         return module + "_datatable_" + dateFormat.format(date) + ".csv";

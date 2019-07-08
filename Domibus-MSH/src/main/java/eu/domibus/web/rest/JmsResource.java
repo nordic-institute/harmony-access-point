@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -10,14 +9,12 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +33,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 @RequestMapping(value = "/rest/jms")
 @Validated
-public class JmsResource {
+public class JmsResource extends BaseResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(JmsResource.class);
 
@@ -139,18 +136,17 @@ public class JmsResource {
 
         customizeJMSProperties(jmsMessageList);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,
-                    CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            LOGGER.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(jmsMessageList, JmsMessage.class,
+                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.JMS_RESOURCE.getExcludedItems(),
+                "jmsmonitoring");
 
-        return csvServiceImpl.getResponseEntity(resultText, "jmsmonitoring");
     }
 
-
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 
     private void customizeJMSProperties(List<JmsMessage> jmsMessageList) {
         for (JmsMessage message : jmsMessageList) {
@@ -159,5 +155,5 @@ public class JmsResource {
         }
     }
 
-
 }
+

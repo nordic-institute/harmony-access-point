@@ -19,13 +19,6 @@ public interface CsvService {
 
     int getMaxNumberRowsToExport();
 
-    /**
-     * It builds the {@code ResponseEntity} object used in Save As dialog
-     *
-     * @param resultText
-     * @param moduleName
-     * @return
-     */
-    ResponseEntity<String> getResponseEntity(final String resultText, final String moduleName);
+    String getCsvFilename(String module);
 
 }
