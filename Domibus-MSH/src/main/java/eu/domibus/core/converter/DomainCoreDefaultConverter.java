@@ -353,6 +353,11 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.userMessageToUserMessageApi((UserMessage) source);
         }
 
+        if (typeOfT == PropertyRO.class && source.getClass() == eu.domibus.api.property.Property.class) {
+            LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.propertyApiToPropertyRO((eu.domibus.api.property.Property) source);
+        }
+
         String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
         LOG.error(errorMsg);
         throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);

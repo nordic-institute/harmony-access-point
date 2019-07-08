@@ -1,6 +1,8 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.Property;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.PropertyService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
@@ -29,19 +31,22 @@ public class PropertyResource {
     private PropertyService propertyService;
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
+    private DomainContextProvider domainContextProvider;
+
+    @Autowired
+    private DomainCoreConverter domainConverter;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @GetMapping(path = "/properties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
-        List<PropertyRO> items = propertyService.getProperties(request.getName());
+        List<Property> items = propertyService.getProperties(request.getName());
         response.setCount(items.size());
         items = items.stream()
                 .skip(request.getPage() * request.getPageSize())
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
-        response.setItems(items);
+        response.setItems(domainConverter.convert(items, PropertyRO.class));
         return response;
     }
 

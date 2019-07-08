@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.web.rest.ro.PropertyRO;
+import eu.domibus.api.property.Property;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * @since 4.1.1
  */
 public interface PropertyService {
-    List<PropertyRO> getProperties(String name);
+    List<Property> getProperties(String name);
 
     void setPropertyValue(String name, String value);
 }

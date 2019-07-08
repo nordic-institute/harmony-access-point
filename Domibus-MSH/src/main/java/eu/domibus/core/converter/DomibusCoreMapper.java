@@ -179,4 +179,6 @@ public interface DomibusCoreMapper {
     eu.domibus.api.usermessage.domain.UserMessage userMessageToUserMessageApi(UserMessage userMessage);
 
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
+
+    PropertyRO propertyApiToPropertyRO(eu.domibus.api.property.Property property);
 }
