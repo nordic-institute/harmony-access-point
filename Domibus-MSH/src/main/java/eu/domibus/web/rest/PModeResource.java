@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.common.services.AuditService;
@@ -32,7 +31,10 @@ import javax.ws.rs.QueryParam;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Mircea Musat
@@ -42,7 +44,7 @@ import java.util.*;
 @RestController
 @RequestMapping(value = "/rest/pmode")
 @Validated
-public class PModeResource {
+public class PModeResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
 
@@ -58,7 +60,7 @@ public class PModeResource {
     @Autowired
     private AuditService auditService;
 
-    @RequestMapping(path = "{id}", method = RequestMethod.GET, produces = "application/xml")
+    @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
             @PathVariable(value = "id") int id,
             @DefaultValue("false") @QueryParam("noAudit") boolean noAudit) {
@@ -94,7 +96,7 @@ public class PModeResource {
 
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<String> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid String pModeDescription) {
@@ -124,7 +126,7 @@ public class PModeResource {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @DeleteMapping
     public ResponseEntity<String> deletePModes(@RequestParam("ids") List<String> pModeIds) {
         if (pModeIds.isEmpty()) {
             LOG.error("Failed to delete PModes since the list of ids was empty.");
@@ -142,7 +144,7 @@ public class PModeResource {
         return ResponseEntity.ok("PModes were deleted\n");
     }
 
-    @RequestMapping(value = {"/restore/{id}"}, method = RequestMethod.PUT)
+    @PutMapping(value = {"/restore/{id}"})
     public ResponseEntity<String> uploadPmode(@PathVariable(value = "id") Integer id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
@@ -168,7 +170,7 @@ public class PModeResource {
         return ResponseEntity.ok(message);
     }
 
-    @RequestMapping(value = {"/list"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/list"})
     public List<PModeResponseRO> pmodeList() {
         return domainConverter.convert(pModeProvider.getRawConfigurationList(), PModeResponseRO.class);
     }
@@ -178,9 +180,8 @@ public class PModeResource {
      *
      * @return CSV file with the contents of PMode Archive table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
 
         // get list of archived pmodes
         List<PModeResponseRO> pModeResponseROList = new ArrayList();
@@ -191,15 +192,15 @@ public class PModeResource {
             pModeResponseROList.get(0).setCurrent(true);
         }
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(pModeResponseROList, PModeResponseRO.class,
-                    new HashMap<>(), CsvExcludedItems.PMODE_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
-
-        return csvServiceImpl.getResponseEntity(resultText, "pmodearchive");
+        return exportToCSV(pModeResponseROList,
+                PModeResponseRO.class,
+                new HashMap<>(),
+                CsvExcludedItems.PMODE_RESOURCE.getExcludedItems(),
+                "pmodearchive");
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

@@ -95,7 +95,7 @@ public class UserResource extends BaseResource {
     /**
      * {@inheritDoc}
      */
-    @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/users"})
     public List<UserResponseRO> users() {
         LOG.debug("Retrieving users");
 
@@ -104,9 +104,9 @@ public class UserResource extends BaseResource {
         return prepareResponse(users);
     }
 
-    @RequestMapping(value = {"/users"}, method = RequestMethod.PUT)
+    @PutMapping(value = {"/users"})
     public void updateUsers(@RequestBody @Valid List<UserResponseRO> userROS) {
-        LOG.debug("Update Users was called: " + userROS);
+        LOG.debug("Update Users was called: {}", userROS);
         validateUsers(userROS);
         updateUserRoles(userROS);
         List<User> users = domainConverter.convert(userROS, User.class);
@@ -134,7 +134,7 @@ public class UserResource extends BaseResource {
         }
     }
 
-    @RequestMapping(value = {"/userroles"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/userroles"})
     public List<String> userRoles() {
         List<String> result = new ArrayList<>();
         List<UserRole> userRoles = getUserService().findUserRoles();
@@ -155,9 +155,8 @@ public class UserResource extends BaseResource {
      *
      * @return CSV file with the contents of User table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
 
         // get list of users
         final List<UserResponseRO> userResponseROList = users();

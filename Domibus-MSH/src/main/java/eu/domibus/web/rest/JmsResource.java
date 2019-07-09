@@ -16,19 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
 @RequestMapping(value = "/rest/jms")
@@ -45,7 +39,7 @@ public class JmsResource extends BaseResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
-    @RequestMapping(value = {"/destinations"}, method = GET)
+    @GetMapping(value = {"/destinations"})
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
         final DestinationsResponseRO destinationsResponseRO = new DestinationsResponseRO();
@@ -63,7 +57,7 @@ public class JmsResource extends BaseResource {
         }
     }
 
-    @RequestMapping(value = {"/messages"}, method = POST)
+    @PostMapping(value = {"/messages"})
     public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid JmsFilterRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
@@ -81,7 +75,7 @@ public class JmsResource extends BaseResource {
         }
     }
 
-    @RequestMapping(value = {"/messages/action"}, method = POST)
+    @PostMapping(value = {"/messages/action"})
     public ResponseEntity<MessagesActionResponseRO> action(@RequestBody @Valid MessagesActionRequestRO request) {
 
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
@@ -120,9 +114,8 @@ public class JmsResource extends BaseResource {
      *
      * @return CSV file with the contents of JMS Messages table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request) {
-        String resultText;
 
         // get list of messages
         final List<JmsMessage> jmsMessageList = jmsManager.browseMessages(

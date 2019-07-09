@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -18,7 +17,6 @@ import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,7 +63,7 @@ public class TruststoreResource extends BaseResource {
         return errorHandlerService.createResponse(rootCause, HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @PostMapping(value = "/save")
     public ResponseEntity<String> uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststore,
                                                        @RequestParam("password") String password) throws IOException {
         if (truststore.isEmpty()) {
@@ -87,9 +85,8 @@ public class TruststoreResource extends BaseResource {
      *
      * @return CSV file with the contents of Truststore table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
         final List<TrustStoreRO> trustStoreROS = trustStoreEntries();
 
         return exportToCSV(trustStoreROS, TrustStoreRO.class,

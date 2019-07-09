@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
@@ -21,7 +20,6 @@ import eu.domibus.web.rest.ro.PluginUserResultRO;
 import org.apache.cxf.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/rest/plugin")
 @Validated
-public class PluginUserResource {
+public class PluginUserResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
 
@@ -59,7 +57,7 @@ public class PluginUserResource {
         return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);
     }
 
-    @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/users"})
     public PluginUserResultRO findUsers(PluginUserFilterRequestRO request) {
         LOG.debug("Retrieving plugin users");
 
@@ -76,10 +74,10 @@ public class PluginUserResource {
         return prepareResponse(users, count, request.getPageStart(), request.getPageSize());
     }
 
-    @RequestMapping(value = {"/users"}, method = RequestMethod.PUT)
+    @PutMapping(value = {"/users"})
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void updateUsers(@RequestBody @Valid List<PluginUserRO> userROs) {
-        LOG.debug("Update plugin users was called: " + userROs);
+        LOG.debug("Update plugin users was called: {}", userROs);
 
         List<PluginUserRO> addedUsersRO = userROs.stream().filter(u -> UserState.NEW.name().equals(u.getStatus())).collect(Collectors.toList());
         List<PluginUserRO> updatedUsersRO = userROs.stream().filter(u -> UserState.UPDATED.name().equals(u.getStatus())).collect(Collectors.toList());
@@ -97,24 +95,24 @@ public class PluginUserResource {
      *
      * @return CSV file with the contents of Plugin User table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
-        String resultText;
 
         request.setPageStart(0);
         request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
         // get list of users
         final PluginUserResultRO pluginUserROList = findUsers(request);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(pluginUserROList.getEntries(), PluginUserRO.class,
-                    CsvCustomColumns.PLUGIN_USER_RESOURCE.getCustomColumns(), CsvExcludedItems.PLUGIN_USER_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(pluginUserROList.getEntries(),
+                PluginUserRO.class,
+                CsvCustomColumns.PLUGIN_USER_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.PLUGIN_USER_RESOURCE.getExcludedItems(),
+                "pluginusers");
+    }
 
-        return csvServiceImpl.getResponseEntity(resultText, "pluginusers");
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 
     /**
@@ -151,4 +149,5 @@ public class PluginUserResource {
 
         return result;
     }
+
 }
