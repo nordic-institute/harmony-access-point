@@ -85,10 +85,6 @@ public class DomibusJPAConfiguration {
     @Bean
     public PrefixedProperties jpaProperties() {
         PrefixedProperties result = new PrefixedProperties(domibusProperties, "domibus.entityManagerFactory.jpaProperty.");
-        //TODO
-        //if password encryption is activated and the db password is encrypted => decrypt the password and set it here
-//        passwordEncryptionService.createAllPasswordEncryptionKeyIfNotExists();
-
         return result;
     }
 }

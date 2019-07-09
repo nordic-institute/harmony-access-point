@@ -58,6 +58,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (StringUtils.isEmpty(propertyValue) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
             propertyValue = getPropertyValue(propertyName);
         }
+        propertyValue = passwordEncryptionService.decryptProperty(domain, propertyName, propertyValue);
+
         return propertyValue;
     }
 

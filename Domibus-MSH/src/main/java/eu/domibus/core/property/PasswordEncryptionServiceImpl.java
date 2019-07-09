@@ -13,6 +13,7 @@ import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import javax.crypto.spec.IvParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +42,9 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionServiceImpl.class);
 
     public static final String ENCRYPTED_KEY = "encrypted.key";
-    public static final String ENC = "ENC(";
+    public static final String ENC_START = "ENC(";
+    public static final String ENC_END = ")";
+    protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss.SSS");
 
 
     @Autowired
@@ -90,7 +94,20 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             return new ArrayList<>();
         }
         final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
-        return Arrays.asList(propertiesToEncrypt);
+        LOG.debug("The following properties are configured for encryption [{}]", propertiesToEncrypt);
+
+        List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
+            final String propertyValue = domibusPropertyProvider.getProperty(domain, propertyName);
+            if (!isValueEncrypted(propertyValue)) {
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+
+        LOG.debug("The following properties are not encrypted [{}]", result);
+
+        return result;
     }
 
     protected void encryptPasswordsIfConfigured(Domain domain) {
@@ -99,6 +116,12 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final Boolean encryptionActive = domibusConfigurationService.isPasswordEncryptionActive(domain);
         if (!encryptionActive) {
             LOG.debug("Password encryption is not activated");
+            return;
+        }
+
+        final List<String> propertiesToEncrypt = getPropertiesToEncrypt(domain);
+        if (CollectionUtils.isEmpty(propertiesToEncrypt)) {
+            LOG.debug("No properties are needed to be encrypted");
             return;
         }
 
@@ -114,10 +137,9 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Using encrypted key file [{}]", encryptedKeyFile);
         final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
         final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
-        final List<String> propertiesToEncrypt = getPropertiesToEncrypt(domain);
         final List<PasswordEncryptionResult> encryptedProperties = encryptProperties(domain, propertiesToEncrypt, secretKey, secretKeySpec);
 
-        replaceProperty(domain, encryptedProperties);
+        replacePropertiesInFile(domain, encryptedProperties);
 
         LOG.debug("Finished creating the encryption key");
     }
@@ -135,7 +157,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Encrypting properties");
 
         for (String propertyName : propertiesToEncrypt) {
-            final PasswordEncryptionResult passwordEncryptionResult = getPasswordEncryptionResult(domain, secretKey, secretKeySpec, propertyName);
+            final PasswordEncryptionResult passwordEncryptionResult = encryptProperty(domain, secretKey, secretKeySpec, propertyName);
             if (passwordEncryptionResult != null) {
                 LOG.debug("Property [{}] encrypted [{}]", propertyName, passwordEncryptionResult.getFormattedBase64EncryptedValue());
 
@@ -146,9 +168,33 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return result;
     }
 
-    protected PasswordEncryptionResult getPasswordEncryptionResult(Domain domain, SecretKey secretKey, IvParameterSpec secretKeySpec, String propertyName) {
+    //TODO add cache
+    public String decryptProperty(Domain domain, String propertyName, String encryptedFormatValue) {
+        final boolean valueEncrypted = isValueEncrypted(encryptedFormatValue);
+        if (!valueEncrypted) {
+            LOG.trace("Property [{}] is not encrypted: skipping decrypting value", propertyName);
+            return encryptedFormatValue;
+        }
+
+        final File encryptedKeyFile = getEncryptedKeyFile(domain);
+
+        PasswordEncryptionSecret secret = passwordEncryptionDao.getSecret(encryptedKeyFile);
+        LOG.debug("Using encrypted key file for decryption [{}]", encryptedKeyFile);
+
+        final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
+        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+
+        String base64EncryptedValue = extractValueFromEncryptedFormat(encryptedFormatValue);
+        final byte[] encryptedValue = Base64.decodeBase64(base64EncryptedValue);
+
+        return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
+    }
+
+
+    protected PasswordEncryptionResult encryptProperty(Domain domain, SecretKey secretKey, IvParameterSpec secretKeySpec, String propertyName) {
         final String propertyValue = domibusPropertyProvider.getProperty(domain, propertyName);
-        if (StringUtils.trim(propertyValue).startsWith(ENC)) {
+
+        if (isValueEncrypted(propertyValue)) {
             LOG.debug("Property [{}] is already encrypted", propertyName);
             return null;
         }
@@ -160,11 +206,26 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         passwordEncryptionResult.setPropertyName(propertyName);
         passwordEncryptionResult.setPropertyValue(propertyValue);
         passwordEncryptionResult.setBase64EncryptedValue(base64EncryptedValue);
-        passwordEncryptionResult.setFormattedBase64EncryptedValue(String.format(ENC + "%s)", base64EncryptedValue));
+        passwordEncryptionResult.setFormattedBase64EncryptedValue(formatEncryptedValue(base64EncryptedValue));
         return passwordEncryptionResult;
     }
 
-    protected void replaceProperty(Domain domain, List<PasswordEncryptionResult> encryptedProperties) {
+    protected String formatEncryptedValue(String value) {
+        return String.format(ENC_START + "%s" + ENC_END, value);
+    }
+
+    protected String extractValueFromEncryptedFormat(String encryptedFormat) {
+        return StringUtils.substringBetween(encryptedFormat, ENC_START, ENC_END);
+    }
+
+    protected boolean isValueEncrypted(final String propertyValue) {
+        if (StringUtils.trim(propertyValue).startsWith(ENC_START)) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void replacePropertiesInFile(Domain domain, List<PasswordEncryptionResult> encryptedProperties) {
         final File configurationFile = getConfigurationFile(domain);
 
         LOG.debug("Replacing configured properties in file [{}] with encrypted values");
@@ -222,7 +283,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected File getConfigurationFileBackup(File configurationFile) {
-        return new File(configurationFile.getParent(), configurationFile.getName() + ".backup-" + dateUtil.getCurrentTime());
+        return new File(configurationFile.getParent(), configurationFile.getName() + ".backup-" + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER));
     }
 
     protected File getConfigurationFile(Domain domain) {

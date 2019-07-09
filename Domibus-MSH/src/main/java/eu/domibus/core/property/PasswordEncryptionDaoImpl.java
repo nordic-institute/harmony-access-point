@@ -33,6 +33,7 @@ public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
     @Override
     public PasswordEncryptionSecret getSecret(File encryptedKeyFile) {
         LOG.debug("Getting the secret key from file [{}]", encryptedKeyFile);
+
         String fileContent = null;
         try {
             fileContent = FileUtils.readFileToString(encryptedKeyFile, StandardCharsets.UTF_8);
