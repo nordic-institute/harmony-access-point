@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -23,17 +22,13 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
@@ -52,7 +47,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/rest/messagelog")
 @Validated
-public class MessageLogResource {
+public class MessageLogResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
 
@@ -83,7 +78,8 @@ public class MessageLogResource {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
-    Date defaultFrom, defaultTo;
+    Date defaultFrom;
+    Date defaultTo;
 
     @PostConstruct
     public void init() {
@@ -96,7 +92,7 @@ public class MessageLogResource {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public MessageLogResultRO getMessageLog(@Valid MessageLogFilterRequestRO request) {
         LOG.debug("Getting message log");
 
@@ -152,7 +148,7 @@ public class MessageLogResource {
      *
      * @return CSV file with the contents of Messages table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
 
@@ -170,22 +166,14 @@ public class MessageLogResource {
             resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
         }
 
-        String resultText;
-        try {
-            resultText = csvServiceImpl.exportToCSV(resultList, MessageLogInfo.class,
-                    CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(), CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("messages"))
-                .body(resultText);
+        return exportToCSV(resultList,
+                MessageLogInfo.class,
+                CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems(),
+                "messages");
     }
 
-    @RequestMapping(value = "test/outgoing/latest", method = RequestMethod.GET)
+    @GetMapping(value = "test/outgoing/latest")
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) {
         String partyId = request.getPartyId();
         LOG.debug("Getting last sent test message for partyId='{}'", partyId);
@@ -218,7 +206,7 @@ public class MessageLogResource {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "test/incoming/latest", method = RequestMethod.GET)
+    @GetMapping(value = "test/incoming/latest")
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) {
         String partyId = request.getPartyId();
         String userMessageId = request.getUserMessageId();
@@ -261,4 +249,8 @@ public class MessageLogResource {
         return filters;
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

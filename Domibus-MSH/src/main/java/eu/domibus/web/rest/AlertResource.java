@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
@@ -18,7 +17,6 @@ import eu.domibus.web.rest.ro.AlertResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +30,7 @@ import java.util.stream.IntStream;
 @RestController
 @RequestMapping(value = "/rest/alerts")
 @Validated
-public class AlertResource {
+public class AlertResource extends BaseResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertResource.class);
 
@@ -130,21 +128,11 @@ public class AlertResource {
             alertRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria, true));
         }
 
-        String resultText;
-        try {
-
-            resultText = csvServiceImpl.exportToCSV(alertRoList, AlertRo.class,
-                    CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(), new ArrayList<>());
-
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("alerts"))
-                .body(resultText);
+        return exportToCSV(alertRoList,
+                AlertRo.class,
+                CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(),
+                new ArrayList<>(),
+                "alerts");
 
     }
 
@@ -256,4 +244,8 @@ public class AlertResource {
         return alertRo;
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

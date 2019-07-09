@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvService;
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/rest/messagefilters")
-public class MessageFilterResource {
+public class MessageFilterResource extends BaseResource {
 
     private static final Logger LOGGER = DomibusLoggerFactory.getLogger(MessageFilterResource.class);
 
@@ -76,18 +74,16 @@ public class MessageFilterResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
-        try {
-            resultText = messageFilterCsvServiceImpl.exportToCSV(getBackendFiltersInformation().getKey(),
-                    MessageFilterRO.class, null, null);
-        } catch (CsvException e) {
-            LOGGER.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + messageFilterCsvServiceImpl.getCsvFilename("message-filter"))
-                .body(resultText);
+        return exportToCSV(getBackendFiltersInformation().getKey(),
+                MessageFilterRO.class,
+                null,
+                null,
+                "message-filter");
+    }
+
+    @Override
+    public CsvService getCsvService() {
+        return messageFilterCsvServiceImpl;
     }
 }

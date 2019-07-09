@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.csv;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.message.MessageSubtype;
@@ -7,7 +7,6 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ebms3.common.model.MessageType;
 import mockit.Injectable;
 import mockit.Tested;
@@ -93,4 +92,6 @@ public class CsvServiceImplTest {
         result.add(messageLog);
         return result;
     }
+
+
 }

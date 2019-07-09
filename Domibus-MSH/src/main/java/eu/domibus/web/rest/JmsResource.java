@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -10,19 +9,14 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Comparator;
@@ -30,13 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
 @RestController
 @RequestMapping(value = "/rest/jms")
 @Validated
-public class JmsResource {
+public class JmsResource extends BaseResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(JmsResource.class);
 
@@ -48,7 +39,7 @@ public class JmsResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
-    @RequestMapping(value = {"/destinations"}, method = GET)
+    @GetMapping(value = {"/destinations"})
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
         final DestinationsResponseRO destinationsResponseRO = new DestinationsResponseRO();
@@ -66,7 +57,7 @@ public class JmsResource {
         }
     }
 
-    @RequestMapping(value = {"/messages"}, method = POST)
+    @PostMapping(value = {"/messages"})
     public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid JmsFilterRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
@@ -84,7 +75,7 @@ public class JmsResource {
         }
     }
 
-    @RequestMapping(value = {"/messages/action"}, method = POST)
+    @PostMapping(value = {"/messages/action"})
     public ResponseEntity<MessagesActionResponseRO> action(@RequestBody @Valid MessagesActionRequestRO request) {
 
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
@@ -123,9 +114,8 @@ public class JmsResource {
      *
      * @return CSV file with the contents of JMS Messages table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request) {
-        String resultText;
 
         // get list of messages
         final List<JmsMessage> jmsMessageList = jmsManager.browseMessages(
@@ -139,17 +129,16 @@ public class JmsResource {
 
         customizeJMSProperties(jmsMessageList);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,
-                    CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(jmsMessageList, JmsMessage.class,
+                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.JMS_RESOURCE.getExcludedItems(),
+                "jmsmonitoring");
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("jmsmonitoring"))
-                .body(resultText);
+    }
+
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 
     private void customizeJMSProperties(List<JmsMessage> jmsMessageList) {
@@ -159,5 +148,5 @@ public class JmsResource {
         }
     }
 
-
 }
+

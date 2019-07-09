@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.audit.AuditLog;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.common.ModificationType;
@@ -13,18 +12,12 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -42,7 +35,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/rest/audit")
 @Validated
-public class AuditResource {
+public class AuditResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditResource.class);
 
@@ -67,9 +60,9 @@ public class AuditResource {
      * @param auditCriteria the audit criteria used to filter the returned list.
      * @return an audit list.
      */
-    @RequestMapping(value = {"/list"}, method = RequestMethod.POST)
+    @PostMapping(value = {"/list"})
     public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
-        LOG.debug("Audit criteria received:" + auditCriteria.toString());
+        LOG.debug("Audit criteria received: {}", auditCriteria.toString());
 
         List<AuditLog> sourceList = auditService.listAudit(
                 auditCriteria.getAuditTargetName(),
@@ -84,7 +77,7 @@ public class AuditResource {
     }
 
 
-    @RequestMapping(value = {"/count"}, method = RequestMethod.POST)
+    @PostMapping(value = {"/count"})
     public Long countAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
                 auditCriteria.getAuditTargetName(),
@@ -117,7 +110,7 @@ public class AuditResource {
         return modificationTypes;
     }
 
-    @RequestMapping(value = {"/targets"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/targets"})
     public List<String> auditTargets() {
         return auditService.listAuditTarget();
     }
@@ -128,23 +121,21 @@ public class AuditResource {
      * @param auditCriteria same filter criteria as in filter method
      * @return CSV file with the contents of Audit table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
-        String resultText;
         auditCriteria.setStart(0);
         auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());
         final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(auditResponseRos, AuditResponseRo.class,
-                    CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(), CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(auditResponseRos,
+                AuditResponseRo.class,
+                CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems(),
+                "audit");
+    }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("audit"))
-                .body(resultText);
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 }
