@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.*;
+import eu.europa.esig.dss.client.crl.OnlineCRLSource;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
@@ -159,11 +160,18 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CertificateVerifier certificateVerifier(DomibusDataLoader dataLoader, TrustedListsCertificateSource trustedListSource) {
+    public OnlineCRLSource onlineCRLSource(DomibusDataLoader dataLoader) {
+        OnlineCRLSource onlineCRLSource = new OnlineCRLSource();
+        onlineCRLSource.setDataLoader(dataLoader);
+        return onlineCRLSource;
+    }
+
+    @Bean
+    public CertificateVerifier certificateVerifier(DomibusDataLoader dataLoader, TrustedListsCertificateSource trustedListSource, OnlineCRLSource onlineCRLSource) {
         CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
         certificateVerifier.setTrustedCertSource(trustedListSource);
         certificateVerifier.setDataLoader(dataLoader);
-
+        //certificateVerifier.setCrlSource(onlineCRLSource);
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
 

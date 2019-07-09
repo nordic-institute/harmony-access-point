@@ -17,21 +17,35 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
@@ -48,6 +62,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
     protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
+
+    //added for the stress test.
+    public static final String PAYLOAD_ENDPOINT_PROPERTY_NAME = "domibus.c4.rest.payload.endpoint";
+    public static final String DOMIBUS_TAXUD_REST_TIMEOUT = "domibus.taxud.rest.timeout";
+    public static final String DOMIBUS_TAXUD_REST_CONNECTIONS_TOTAL = "domibus.taxud.rest.connections";
+
+    private org.springframework.web.client.RestTemplate istTemplate;
+
     @Autowired
     protected JMSExtService jmsExtService;
 
@@ -63,6 +85,32 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     private MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer;
     private MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer;
+
+
+    @PostConstruct
+    protected void init() {
+        int timeout = Integer.parseInt(domibusPropertyExtService.getProperty(DOMIBUS_TAXUD_REST_TIMEOUT));
+        int connections = Integer.parseInt(domibusPropertyExtService.getProperty(DOMIBUS_TAXUD_REST_CONNECTIONS_TOTAL));
+
+        istTemplate = new RestTemplate(getClientHttpRequestFactory(timeout, connections));
+        istTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+    }
+
+    private ClientHttpRequestFactory getClientHttpRequestFactory(final int timeout, final int connections) {
+
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
+                .setSocketTimeout(timeout)
+                .build();
+        CloseableHttpClient client = HttpClientBuilder
+                .create()
+                .setMaxConnTotal(connections)
+                .setMaxConnPerRoute(connections)
+                .setDefaultRequestConfig(config)
+                .build();
+        return new HttpComponentsClientHttpRequestFactory(client);
+    }
 
     public BackendJMSImpl(String name) {
         super(name);
@@ -142,14 +190,23 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public void deliverMessage(final String messageId) {
-        LOG.debug("Delivering message");
+        Submission submission;
+        try {
+            submission = this.messageRetriever.downloadMessage(messageId);
+        } catch (MessageNotFoundException e) {
+            LOG.error(e.getMessage(), e);
+            return;
+        }
+
+        sendPayload(submission);
+        /*LOG.debug("Delivering message");
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
         final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
         }
         LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));*/
     }
 
     @Override
@@ -220,5 +277,61 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             mapMessage.setStringProperty(MessageConstants.DOMAIN, currentDomain.getCode());
             return mapMessage;
         }
+    }
+
+    private void sendPayload(Submission submission) {
+        JsonSubmission jsonSubmission = new JsonSubmission();
+        jsonSubmission.setAction(submission.getAction());
+        jsonSubmission.setAgreementRef(submission.getAgreementRef());
+        jsonSubmission.setAgreementRefType(submission.getAgreementRefType());
+        jsonSubmission.setConversationId(submission.getConversationId());
+        jsonSubmission.setMessageId(submission.getMessageId());
+        jsonSubmission.setRefToMessageId(submission.getRefToMessageId());
+        jsonSubmission.setService(submission.getService());
+        jsonSubmission.setServiceType(submission.getServiceType());
+        Set<Submission.Party> toParties = submission.getToParties();
+        jsonSubmission.setFromRole(submission.getFromRole());
+        jsonSubmission.setToRole(submission.getToRole());
+
+        for (Submission.Party toParty : toParties) {
+            jsonSubmission.addToParty(toParty.getPartyId(), toParty.getPartyIdType());
+        }
+
+        Set<Submission.Party> fromParties = submission.getFromParties();
+        for (Submission.Party fromParty : fromParties) {
+            jsonSubmission.addFromParty(fromParty.getPartyId(), fromParty.getPartyIdType());
+        }
+        Collection<Submission.TypedProperty> messageProperties = submission.getMessageProperties();
+        for (Submission.TypedProperty messageProperty : messageProperties) {
+            jsonSubmission.getMessageProperties().add(new JsonSubmission.TypedProperty(messageProperty.getKey(), messageProperty.getValue(), messageProperty.getType()));
+        }
+
+        LOG.info("Message submission:\n  [{}]", jsonSubmission);
+        byte[] bytes = buildMultiPartRequestFromPayload(submission.getPayloads());
+        jsonSubmission.setPayload(bytes);
+
+        String payloadEndPointUrl = domibusPropertyExtService.getProperty(PAYLOAD_ENDPOINT_PROPERTY_NAME);
+
+        LOG.trace("Sending payload to:[{}]", payloadEndPointUrl);
+        istTemplate.postForLocation(payloadEndPointUrl, jsonSubmission);
+    }
+
+    private byte[] buildMultiPartRequestFromPayload(Set<Submission.Payload> payloads) {
+        for (Submission.Payload payload : payloads) {
+            try (InputStream inputStream = payload.getPayloadDatahandler().getInputStream();) {
+
+                int available = inputStream.available();
+                if (available == 0) {
+                    LOG.warn("Payload skipped because it is empty");
+                    return new byte[]{0};
+                }
+                byte[] payloadContent = new byte[available];
+                inputStream.read(payloadContent);
+                return Base64.encodeBase64(payloadContent);
+            } catch (IOException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+        return new byte[]{0};
     }
 }
