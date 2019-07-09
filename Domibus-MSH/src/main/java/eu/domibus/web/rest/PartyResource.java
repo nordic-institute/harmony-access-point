@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
@@ -18,7 +17,6 @@ import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +34,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/rest/party")
 @Validated
-public class PartyResource {
+public class PartyResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
@@ -98,23 +96,16 @@ public class PartyResource {
     public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
         request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
-        String resultText;
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(partyResponseRoList, PartyResponseRo.class,
-                    CsvCustomColumns.PARTY_RESOURCE.getCustomColumns(), CsvExcludedItems.PARTY_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("pmodeparties"))
-                .body(resultText);
+        return exportToCSV(partyResponseRoList,
+                PartyResponseRo.class,
+                CsvCustomColumns.PARTY_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.PARTY_RESOURCE.getExcludedItems(),
+                "pmodeparties");
     }
 
-    @RequestMapping(value = {"/update"}, method = RequestMethod.PUT)
+    @PutMapping(value = {"/update"})
     public ResponseEntity updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
@@ -269,5 +260,10 @@ public class PartyResource {
         }
 
         return domainConverter.convert(cert, TrustStoreRO.class);
+    }
+
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 }

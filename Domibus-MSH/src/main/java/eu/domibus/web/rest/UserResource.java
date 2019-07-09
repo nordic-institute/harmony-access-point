@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import com.google.common.base.Strings;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskException;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +43,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping(value = "/rest/user")
 @Validated
-public class UserResource {
+public class UserResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
 
@@ -97,7 +95,7 @@ public class UserResource {
     /**
      * {@inheritDoc}
      */
-    @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/users"})
     public List<UserResponseRO> users() {
         LOG.debug("Retrieving users");
 
@@ -106,9 +104,9 @@ public class UserResource {
         return prepareResponse(users);
     }
 
-    @RequestMapping(value = {"/users"}, method = RequestMethod.PUT)
+    @PutMapping(value = {"/users"})
     public void updateUsers(@RequestBody @Valid List<UserResponseRO> userROS) {
-        LOG.debug("Update Users was called: " + userROS);
+        LOG.debug("Update Users was called: {}", userROS);
         validateUsers(userROS);
         updateUserRoles(userROS);
         List<User> users = domainConverter.convert(userROS, User.class);
@@ -136,7 +134,7 @@ public class UserResource {
         }
     }
 
-    @RequestMapping(value = {"/userroles"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/userroles"})
     public List<String> userRoles() {
         List<String> result = new ArrayList<>();
         List<UserRole> userRoles = getUserService().findUserRoles();
@@ -157,24 +155,22 @@ public class UserResource {
      *
      * @return CSV file with the contents of User table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
 
         // get list of users
         final List<UserResponseRO> userResponseROList = users();
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(userResponseROList, UserResponseRO.class,
-                    CsvCustomColumns.USER_RESOURCE.getCustomColumns(), CsvExcludedItems.USER_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(userResponseROList, UserResponseRO.class,
+                CsvCustomColumns.USER_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
+                "users");
+    }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("users"))
-                .body(resultText);
+
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 
     /**

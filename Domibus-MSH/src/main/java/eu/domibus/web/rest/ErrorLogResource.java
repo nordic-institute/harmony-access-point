@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import com.google.common.primitives.Ints;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -17,11 +16,10 @@ import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -36,7 +34,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/rest/errorlogs")
 @Validated
-public class ErrorLogResource {
+public class ErrorLogResource extends BaseResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ErrorLogResource.class);
 
@@ -52,7 +50,7 @@ public class ErrorLogResource {
     @Autowired
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
         LOGGER.debug("Getting error log");
         HashMap<String, Object> filters = createFilterMap(request);
@@ -81,7 +79,7 @@ public class ErrorLogResource {
      *
      * @return CSV file with the contents of Error Log table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
         ErrorLogResultRO result = new ErrorLogResultRO();
 
@@ -92,19 +90,16 @@ public class ErrorLogResource {
                 request.getOrderBy(), request.getAsc(), filters);
         final List<ErrorLogRO> errorLogROList = domainConverter.convert(errorLogEntries, ErrorLogRO.class);
 
-        String resultText;
-        try {
-            resultText = errorLogCsvServiceImpl.exportToCSV(errorLogROList, ErrorLogRO.class,
-                    CsvCustomColumns.ERRORLOG_RESOURCE.getCustomColumns(), new ArrayList<>());
-        } catch (CsvException e) {
-            LOGGER.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(errorLogROList,
+                ErrorLogRO.class,
+                CsvCustomColumns.ERRORLOG_RESOURCE.getCustomColumns(),
+                new ArrayList<>(),
+                "errorlog");
+    }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + errorLogCsvServiceImpl.getCsvFilename("errorlog"))
-                .body(resultText);
+    @Override
+    public CsvService getCsvService() {
+        return errorLogCsvServiceImpl;
     }
 
     private HashMap<String, Object> createFilterMap(ErrorLogFilterRequestRO request) {
@@ -148,4 +143,5 @@ public class ErrorLogResource {
         result.setMessageInErrorId(errorLogEntry.getMessageInErrorId());
         return result;
     }
+
 }

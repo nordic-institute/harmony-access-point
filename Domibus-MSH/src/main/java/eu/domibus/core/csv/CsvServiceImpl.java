@@ -1,6 +1,7 @@
 package eu.domibus.core.csv;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.opencsv.CSVWriter;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -12,6 +13,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
@@ -56,6 +59,7 @@ public class CsvServiceImpl implements CsvService {
         return NumberUtils.toInt(domibusPropertyProvider.getDomainProperty(MAXIMUM_NUMBER_CSV_ROWS));
     }
 
+    @Override
     public String getCsvFilename(String module) {
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
@@ -128,15 +132,15 @@ public class CsvServiceImpl implements CsvService {
             return StringUtils.EMPTY;
         }
         if (fieldValue instanceof Map) {
-            return new Gson().toJson(fieldValue);
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            return gson.toJson(fieldValue);
         }
         if (fieldValue instanceof Date) {
             DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
             ZonedDateTime d = ZonedDateTime.ofInstant(((Date) fieldValue).toInstant(), ZoneId.systemDefault());
             return d.format(f);
         }
-        String str = Objects.toString(fieldValue, StringUtils.EMPTY);
-        return str;
+        return Objects.toString(fieldValue, StringUtils.EMPTY);
     }
 
 }
