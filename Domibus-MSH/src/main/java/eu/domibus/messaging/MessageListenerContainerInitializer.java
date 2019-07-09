@@ -32,7 +32,7 @@ public class MessageListenerContainerInitializer {
     ApplicationContext applicationContext;
 
     @Autowired
-    protected MessageListenerContainerFactory messageListenerContainerFactory;
+    protected DomainMessageListenerContainerFactory messageListenerContainerFactory;
 
     @Autowired
     protected DomainService domainService;

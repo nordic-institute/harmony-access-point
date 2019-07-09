@@ -55,7 +55,7 @@ public class CommandServiceImplTest {
     private ServerInfoService serverInfoService;
 
     @Injectable
-    private DomibusPropertyManager domibusPropertyManager;
+    private List<DomibusPropertyManager> domibusPropertyManagers;
 
     @Tested
     private CommandServiceImpl commandService;

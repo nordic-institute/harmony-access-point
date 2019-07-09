@@ -8,8 +8,11 @@ import java.io.Serializable;
  */
 
 public class PropertyFilterRequestRO implements Serializable {
+
     private int page = 0;
+
     private int pageSize = 10;
+
     private String name;
 
     public int getPage() {
@@ -27,7 +30,6 @@ public class PropertyFilterRequestRO implements Serializable {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
-
 
     public String getName() {
         return name;

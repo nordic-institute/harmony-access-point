@@ -5,8 +5,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,9 +12,9 @@ import org.springframework.stereotype.Service;
  * @since 4.0
  */
 @Service
-public class MessageListenerContainerFactoryImpl implements MessageListenerContainerFactory {
+public class DomainMessageListenerContainerFactoryImpl implements DomainMessageListenerContainerFactory {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerFactoryImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainMessageListenerContainerFactoryImpl.class);
 
     @Autowired
     protected ApplicationContext applicationContext;

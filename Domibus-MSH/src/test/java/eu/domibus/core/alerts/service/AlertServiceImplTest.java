@@ -215,7 +215,7 @@ public class AlertServiceImplTest {
             multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
             result=DOMIBUS_ALERT_RETRY_TIME;
 
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_ALERT_RETRY_TIME);
+            domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
             dateTime.now().plusMinutes(nextAttemptInMinutes).toDate();

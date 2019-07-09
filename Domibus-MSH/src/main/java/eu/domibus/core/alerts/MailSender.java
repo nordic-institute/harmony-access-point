@@ -67,7 +67,7 @@ public class MailSender {
         final Boolean alertModuleEnabled = multiDomainAlertConfigurationService.isAlertModuleEnabled();
         LOG.debug("Alert module enabled:[{}]", alertModuleEnabled);
         final String sendEmailActivePropertyName = multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
-        final boolean mailActive = Boolean.parseBoolean(domibusPropertyProvider.getDomainProperty(sendEmailActivePropertyName));
+        final boolean mailActive = domibusPropertyProvider.getBooleanDomainProperty(sendEmailActivePropertyName);
         if (alertModuleEnabled && mailActive) {
             //static properties.
             final String url = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
