@@ -117,7 +117,7 @@ public class CommandServiceImpl implements CommandService {
                 final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
-                domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal);
+                domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal, false);
                 break;
             default:
                 LOG.error("Unknown command received: {}", command);

@@ -445,7 +445,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
 
     @Override
     //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
         if (meta == null) throw new IllegalArgumentException(propertyName);
 
@@ -458,6 +458,16 @@ public class FSPluginProperties implements DomibusPropertyManager {
         this.properties.setProperty(propertyKey, propertyValue);
 
         handlePropertyChange(domainCode, propertyName, propertyValue);
+
+        if (broadcast) {
+            // TODO (EDELIVERY-4812)
+        }
+    }
+
+    @Override
+    //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
     //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)

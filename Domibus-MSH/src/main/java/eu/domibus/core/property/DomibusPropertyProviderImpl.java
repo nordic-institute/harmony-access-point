@@ -409,7 +409,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
         if (meta == null) {
             throw new IllegalArgumentException(propertyName);
@@ -429,6 +429,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
         }
 
         handlePropertyChange(domainCode, propertyName, propertyValue);
+
+        if (broadcast) { //signal for other nodes
+            SignalService signalService = applicationContext.getBean(SignalService.class);
+            signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
+        }
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
     private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
@@ -443,10 +453,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider, Dom
                 LOGGER.error("An error occurred while setting property [{}] to [{}] ", propertyName, propertyValue, ex);
             }
         });
-
-        //signal for other nodes
-        SignalService signalService = applicationContext.getBean(SignalService.class);
-        signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
     }
 
     @Override
