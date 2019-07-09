@@ -115,4 +115,12 @@ public interface DomibusPropertyProvider {
      */
     boolean containsPropertyKey(String propertyName);
 
+    /**
+     * Changes the value of the given property key.
+     * @param domain the domain of the property
+     * @param propertyName the name of the property
+     * @param propertyValue the new value of the property
+     */
+    void setPropertyValue(Domain domain, String propertyName, String propertyValue);
+
 }

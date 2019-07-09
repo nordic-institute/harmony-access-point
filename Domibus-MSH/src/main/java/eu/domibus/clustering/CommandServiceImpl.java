@@ -9,7 +9,6 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.logging.LoggingService;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -17,7 +16,6 @@ import eu.domibus.property.DomibusPropertyManager;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -54,8 +52,7 @@ public class CommandServiceImpl implements CommandService {
     private ServerInfoService serverInfoService;
 
     @Autowired
-    @Qualifier("domibusPropertyManager")
-    private DomibusPropertyManager domibusPropertyManager;
+    private List<DomibusPropertyManager> domibusPropertyManagers;
 
     @Override
     public void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties) {
@@ -117,7 +114,11 @@ public class CommandServiceImpl implements CommandService {
                 final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
-                domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal, false);
+                for (DomibusPropertyManager domibusPropertyManager : domibusPropertyManagers) {
+                    if (domibusPropertyManager.hasKnownProperty(propName)) {
+                        domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal, false);
+                    }
+                }
                 break;
             default:
                 LOG.error("Unknown command received: {}", command);
