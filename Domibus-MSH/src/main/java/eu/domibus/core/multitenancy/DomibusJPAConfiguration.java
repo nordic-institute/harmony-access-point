@@ -1,7 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.property.PasswordEncryptionService;
+import eu.domibus.api.property.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.PrefixedProperties;
@@ -84,11 +84,11 @@ public class DomibusJPAConfiguration {
 
     @Bean
     public PrefixedProperties jpaProperties() {
-        //get database password decrypted
-        //if password encryption is activated and the db password is encrypted => decrypt the password and set it here
-        passwordEncryptionService.createAllPasswordEncryptionKeyIfNotExists();
-
         PrefixedProperties result = new PrefixedProperties(domibusProperties, "domibus.entityManagerFactory.jpaProperty.");
+        //TODO
+        //if password encryption is activated and the db password is encrypted => decrypt the password and set it here
+//        passwordEncryptionService.createAllPasswordEncryptionKeyIfNotExists();
+
         return result;
     }
 }

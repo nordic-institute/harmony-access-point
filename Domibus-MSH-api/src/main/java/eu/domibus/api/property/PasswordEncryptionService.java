@@ -1,4 +1,4 @@
-package eu.domibus.core.property;
+package eu.domibus.api.property;
 
 /**
  * @author Cosmin Baciu
@@ -6,5 +6,5 @@ package eu.domibus.core.property;
  */
 public interface PasswordEncryptionService {
 
-    void createAllPasswordEncryptionKeyIfNotExists();
+    void encryptPasswords();
 }

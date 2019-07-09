@@ -11,6 +11,8 @@ import java.util.function.Predicate;
  */
 public interface DomibusPropertyProvider {
 
+    String DOMIBUS_PROPERTY_FILE = "domibus.properties";
+
     String getProperty(String propertyName);
 
     String getProperty(Domain domain, String propertyName);
