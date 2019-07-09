@@ -54,8 +54,16 @@ public interface DomibusPropertyExtService {
      */
     String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue);
 
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
+     */
+    @Deprecated
     String getDomainResolvedProperty(DomainDTO domain, String propertyName);
 
+    /**
+     * @deprecated Use instead {@link DomibusPropertyExtService#getProperty(java.lang.String) }
+     */
+    @Deprecated
     String getResolvedProperty(String propertyName);
 
 }

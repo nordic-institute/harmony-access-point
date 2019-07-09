@@ -79,6 +79,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             // For all the other Boolean and Integer property values, if users have overwritten their original default Domibus property values, they are defaulted back to their
             // original default Domibus values when invalid (please check the #getInteger..(..) and #getBoolean..(..) methods below).
         }
+        if (StringUtils.contains(result, "${")) {
+            LOGGER.debug("Resolving property [{}]", propertyName);
+            result = propertyResolver.getResolvedValue(result, domibusProperties, true);
+        }
+
+
         return result;
     }
 
@@ -94,24 +100,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public String getProperty(String propertyName) {
-        return getProperty(DomainService.DEFAULT_DOMAIN, propertyName);
+        return getPropertyValue(propertyName);
     }
-
-    @Override
-    public String getResolvedProperty(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyName(domain, propertyName);
-        String resolvedProperty = propertyResolver.getResolvedProperty(domainPropertyName, domibusProperties, true);
-        if (StringUtils.isEmpty(resolvedProperty) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            resolvedProperty = propertyResolver.getResolvedProperty(propertyName, domibusProperties, true);
-        }
-        return resolvedProperty;
-    }
-
-    @Override
-    public String getResolvedProperty(String propertyName) {
-        return getResolvedProperty(DomainService.DEFAULT_DOMAIN, propertyName);
-    }
-
 
     /**
      * {@inheritDoc}
@@ -119,7 +109,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public String getDomainProperty(String propertyName) {
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        assert currentDomain != null;
         return getDomainProperty(currentDomain, propertyName);
     }
 

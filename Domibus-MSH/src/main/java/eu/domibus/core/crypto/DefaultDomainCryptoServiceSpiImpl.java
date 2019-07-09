@@ -238,7 +238,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String keystoreType = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type");
         final String keystorePassword = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password");
         final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias");
-        final String keystoreLocation = domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.keystore.location");
+        final String keystoreLocation = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.location");
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_TYPE, keystoreType);
@@ -276,7 +276,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected String getTrustStoreLocation() {
-        return domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.truststore.location");
+        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location");
     }
 
     protected String getTrustStorePassword() {

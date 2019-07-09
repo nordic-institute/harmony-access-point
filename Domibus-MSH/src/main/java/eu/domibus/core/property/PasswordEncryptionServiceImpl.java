@@ -44,7 +44,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public static final String ENCRYPTED_KEY = "encrypted.key";
     public static final String ENC_START = "ENC(";
     public static final String ENC_END = ")";
-    protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss.SSS");
+    protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
 
 
     @Autowired
@@ -145,7 +145,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     public File getEncryptedKeyFile(Domain domain) {
-        final String encryptionKeyLocation = domibusPropertyProvider.getResolvedProperty(domain, "domibus.password.encryption.key.location");
+        final String encryptionKeyLocation = domibusPropertyProvider.getProperty(domain, "domibus.password.encryption.key.location");
         LOG.debug("Configured encryptionKeyLocation [{}]", encryptionKeyLocation);
 
         return new File(encryptionKeyLocation, ENCRYPTED_KEY);

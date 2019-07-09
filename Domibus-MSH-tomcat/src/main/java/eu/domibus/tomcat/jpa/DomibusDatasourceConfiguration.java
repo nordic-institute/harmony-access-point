@@ -67,7 +67,7 @@ public class DomibusDatasourceConfiguration {
 
         final String driverClassName = domibusPropertyProvider.getProperty("domibus.datasource.driverClassName");
         dataSource.setDriverClassName(driverClassName);
-        final String dataSourceURL = domibusPropertyProvider.getResolvedProperty("domibus.datasource.url");
+        final String dataSourceURL = domibusPropertyProvider.getProperty("domibus.datasource.url");
         dataSource.setUrl(dataSourceURL);
         final String user = domibusPropertyProvider.getProperty("domibus.datasource.user");
         dataSource.setUser(user);
