@@ -2,10 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyChangeListener;
-import eu.domibus.property.DomibusPropertyManager;
-import eu.domibus.property.DomibusPropertyMetadata;
-import eu.domibus.property.Module;
+import eu.domibus.property.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -88,7 +85,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
     public static final String ACTION_ARCHIVE = "archive";
 
     @Autowired
-    private List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
+    private DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
 
     /**
      * @return The available domains set
@@ -437,16 +434,12 @@ public class FSPluginProperties implements DomibusPropertyManager {
     }
 
     @Override
-    //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
+    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         String propertyKey = getKnownPropertyKey(domainCode, propertyName);
         this.properties.setProperty(propertyKey, propertyValue);
 
-        handlePropertyChange(domainCode, propertyName, propertyValue);
-
-        if (broadcast) {
-            // TODO (EDELIVERY-4812)
-        }
+        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
     }
 
     private String getKnownPropertyKey(String domain, String propertyName) {
@@ -464,24 +457,10 @@ public class FSPluginProperties implements DomibusPropertyManager {
     }
 
     @Override
-    //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
+    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
-    //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
-    private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
-        //notify interested listeners that the property changed
-        List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
-                .filter(listener -> listener.handlesProperty(propertyName))
-                .collect(Collectors.toList());
-        listeners.forEach(listener -> {
-            try {
-                listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
-                LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
-            }
-        });
-    }
 
 }

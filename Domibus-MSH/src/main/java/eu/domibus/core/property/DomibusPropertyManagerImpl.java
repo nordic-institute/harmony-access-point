@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyChangeListener;
+import eu.domibus.property.DomibusPropertyChangeNotifier;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
 import org.apache.commons.lang3.NotImplementedException;
@@ -16,7 +16,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,11 +34,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
-
+    private DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
 
     /**
      * Returns the properties that this PropertyProvider is able to handle.
@@ -190,12 +185,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         }
         this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
 
-        handlePropertyChange(domainCode, propertyName, propertyValue);
-
-        if (broadcast) { //signal for other nodes
-            SignalService signalService = applicationContext.getBean(SignalService.class);
-            signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
-        }
+        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
     }
 
     @Override
@@ -203,19 +193,6 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
-    private void handlePropertyChange(String domainCode, String propertyName, String propertyValue) {
-        // notify interested listeners that the property value changed
-        List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
-                .filter(listener -> listener.handlesProperty(propertyName))
-                .collect(Collectors.toList());
-        listeners.forEach(listener -> {
-            try {
-                listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
-                LOGGER.error("An error occurred while setting property [{}] to [{}] ", propertyName, propertyValue, ex);
-            }
-        });
-    }
 
     @Override
     public boolean hasKnownProperty(String name) {
