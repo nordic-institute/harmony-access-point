@@ -19,6 +19,12 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.0
  */
+
+/* Any new type of exception thrown in here has to be handled in eu.domibus.core.crypto.DomainCryptoServiceInterceptor
+   TODO throw exceptions derived from one (or more) common exceptions that are handled in the DomainCryptoServiceInterceptor. Consider exeptions that lead to ABORT the
+   sending, DomibusCertificateException and KeyStoreException are now caught and transformed into ChainCertificateInvalidException (message sending
+   is not retried for these exceptions - ABORT)
+ */
 public interface DomainCryptoService {
 
     /* START - Methods required to be implemented by the org.apache.wss4j.common.crypto.CryptoBase */

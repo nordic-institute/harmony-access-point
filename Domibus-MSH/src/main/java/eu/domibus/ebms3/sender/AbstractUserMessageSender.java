@@ -161,6 +161,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             getLog().error("Error sending message [{}]", messageId, t);
             attempt.setError(t.getMessage());
+            // shouldn't we ABORT in case of Throwable? For example, when Keystore cannot be loaded it gets here.
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
