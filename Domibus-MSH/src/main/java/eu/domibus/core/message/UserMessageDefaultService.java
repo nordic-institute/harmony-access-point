@@ -223,7 +223,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
                 Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
                 LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(new PartyExtractor(receiverParty), userMessage, userMessageLog);
+                pullMessageService.addPullMessageLock(new PartyExtractor(receiverParty, userMessage.getPartyInfo().getTo().getPartyId()), userMessage, userMessageLog);
             } catch (EbMS3Exception ebms3Ex) {
                 LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
             }
@@ -487,7 +487,7 @@ public class UserMessageDefaultService implements UserMessageService {
             return;
         }
 
-        LOG.debug("Deleting [" + messageIds.size() + "] messages");
+        LOG.debug("Deleting [{}] messages", messageIds.size());
         for (final String messageId : messageIds) {
             deleteMessage(messageId);
         }
