@@ -7,8 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of proxy property
+ */
 @Service
-public class ProxyPropertiesChangeListener implements DomibusPropertyChangeListener {
+public class ProxyChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     @Qualifier("domibusProxyService")

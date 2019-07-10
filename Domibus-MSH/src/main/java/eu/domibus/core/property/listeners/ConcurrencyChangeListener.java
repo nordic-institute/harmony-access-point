@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of concurency properties
+ */
 @Service
 public class ConcurrencyChangeListener implements DomibusPropertyChangeListener {
 

@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.Property;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.property.PropertyService;
+import eu.domibus.core.property.DomibusPropertyService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyRO;
@@ -33,7 +33,7 @@ public class PropertyResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(PropertyResource.class);
 
     @Autowired
-    private PropertyService propertyService;
+    private DomibusPropertyService domibusPropertyService;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
@@ -45,7 +45,7 @@ public class PropertyResource {
     @GetMapping(path = "/properties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
-        List<Property> items = propertyService.getProperties(request.getName());
+        List<Property> items = domibusPropertyService.getProperties(request.getName());
         response.setCount(items.size());
         items = items.stream()
                 .skip(request.getPage() * request.getPageSize())
@@ -70,7 +70,7 @@ public class PropertyResource {
     @PutMapping(path = "/properties/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue) {
-        propertyService.setPropertyValue(propertyName, propertyValue);
+        domibusPropertyService.setPropertyValue(propertyName, propertyValue);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")

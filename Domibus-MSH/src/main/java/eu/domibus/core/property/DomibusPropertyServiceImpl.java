@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
  * @since 4.1.1
  */
 @Service
-public class PropertyServiceImpl implements PropertyService {
+public class DomibusPropertyServiceImpl implements DomibusPropertyService {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(PropertyServiceImpl.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceImpl.class);
 
     @Autowired
     protected DomainContextProvider domainContextProvider;

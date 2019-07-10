@@ -7,6 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of dynamicdiscovery client propertiy
+ */
 @Service
 public class DynamicDiscoveryClientChangeListener implements DomibusPropertyChangeListener {
 

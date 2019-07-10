@@ -9,8 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of payload encryption property
+ */
 @Service
-public class PayloadEncryptionPropertyChangeListener implements DomibusPropertyChangeListener {
+public class PayloadEncryptionChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     protected DomainService domainService;

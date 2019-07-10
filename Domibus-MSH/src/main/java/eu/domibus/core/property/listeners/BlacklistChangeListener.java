@@ -8,8 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of blacklist and whitelist properties
+ */
 @Service
-public class BlacklistPropertyChangeListener implements DomibusPropertyChangeListener {
+public class BlacklistChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     List<BaseBlacklistValidator> blacklistValidators;

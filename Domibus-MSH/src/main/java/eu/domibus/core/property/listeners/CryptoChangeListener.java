@@ -8,8 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of crypto related properties
+ */
 @Service
-public class CryptoPropertiesChangeListener implements DomibusPropertyChangeListener {
+public class CryptoChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     protected ApplicationContext applicationContext;
