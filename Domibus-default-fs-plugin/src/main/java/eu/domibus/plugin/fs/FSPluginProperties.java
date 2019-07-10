@@ -437,9 +437,14 @@ public class FSPluginProperties implements DomibusPropertyManager {
     //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         String propertyKey = getKnownPropertyKey(domainCode, propertyName);
+        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyKey);
+        if (propMeta == null) {
+            throw new IllegalArgumentException(propertyName);
+        }
         this.properties.setProperty(propertyKey, propertyValue);
 
-        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
+        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
+        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     private String getKnownPropertyKey(String domain, String propertyName) {

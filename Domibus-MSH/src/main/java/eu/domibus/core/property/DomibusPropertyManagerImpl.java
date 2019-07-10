@@ -171,19 +171,20 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
-        if (meta == null) {
+        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
+        if (propMeta == null) {
             throw new IllegalArgumentException(propertyName);
         }
 
         Domain propertyDomain = null;
         if (domibusConfigurationService.isMultiTenantAware()) {
             propertyDomain = domainCode == null ? null : domainService.getDomain(domainCode);
-            propertyDomain = meta.isDomainSpecific() ? propertyDomain : null;
+            propertyDomain = propMeta.isDomainSpecific() ? propertyDomain : null;
         }
         this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
 
-        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
+        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
+        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     @Override

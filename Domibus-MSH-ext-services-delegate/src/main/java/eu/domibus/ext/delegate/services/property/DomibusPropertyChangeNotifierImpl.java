@@ -37,7 +37,8 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
             }
         });
 
-        if (broadcast) { //signal for other nodes
+        //signal for other nodes in the cluster
+        if (broadcast) {
             SignalService signalService = applicationContext.getBean(SignalService.class);
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
         }
