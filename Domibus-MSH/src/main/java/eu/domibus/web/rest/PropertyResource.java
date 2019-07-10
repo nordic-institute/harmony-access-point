@@ -1,12 +1,12 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.Property;
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.DomibusPropertyService;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
-import eu.domibus.web.rest.ro.PropertyRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
 import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
@@ -45,13 +45,13 @@ public class PropertyResource {
     @GetMapping(path = "/properties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
-        List<Property> items = domibusPropertyService.getProperties(request.getName());
+        List<DomibusProperty> items = domibusPropertyService.getProperties(request.getName());
         response.setCount(items.size());
         items = items.stream()
                 .skip(request.getPage() * request.getPageSize())
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
-        response.setItems(domainConverter.convert(items, PropertyRO.class));
+        response.setItems(domainConverter.convert(items, DomibusPropertyRO.class));
         return response;
     }
 

@@ -6,6 +6,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -26,6 +27,8 @@ import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.replication.UIMessageDiffEntity;
+import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -34,9 +37,9 @@ import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
-import eu.domibus.core.replication.UIMessageDiffEntity;
-import eu.domibus.core.replication.UIMessageEntity;
-import org.mapstruct.*;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * @author Ioana Dragusanu (idragusa)
@@ -180,5 +183,5 @@ public interface DomibusCoreMapper {
 
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
-    PropertyRO propertyApiToPropertyRO(eu.domibus.api.property.Property property);
+    DomibusPropertyRO propertyApiToPropertyRO(DomibusProperty property);
 }

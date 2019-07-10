@@ -1,7 +1,6 @@
 package eu.domibus.web.rest.ro;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +11,7 @@ public class PropertyResponseRO implements Serializable {
 
     private int count;
 
-    private List<PropertyRO> items;
+    private List<DomibusPropertyRO> items;
 
     public int getCount() {
         return count;
@@ -22,9 +21,11 @@ public class PropertyResponseRO implements Serializable {
         this.count = count;
     }
 
-    public List<PropertyRO> getItems() {
+    public List<DomibusPropertyRO> getItems() {
         return items;
     }
 
-    public void setItems(List<PropertyRO> items) { this.items = items; }
+    public void setItems(List<DomibusPropertyRO> items) {
+        this.items = items;
+    }
 }

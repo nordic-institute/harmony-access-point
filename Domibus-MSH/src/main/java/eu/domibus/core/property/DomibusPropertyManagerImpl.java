@@ -1,6 +1,5 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
@@ -12,7 +11,6 @@ import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

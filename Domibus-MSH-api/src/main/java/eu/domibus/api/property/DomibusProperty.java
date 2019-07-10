@@ -4,7 +4,7 @@ package eu.domibus.api.property;
  * @author Ion Perpegel
  * @since 4.1.1
  */
-public class Property {
+public class DomibusProperty {
     private String name;
     private String value;
 

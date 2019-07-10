@@ -1,7 +1,7 @@
 package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.property.Property;
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.property.DomibusPropertyService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,10 +18,10 @@ public class PropertyResourceIT extends AbstractIT {
     @Test
     public void testFind() throws Exception {
 
-        List<Property> list = domibusPropertyService.getProperties("title");
+        List<DomibusProperty> list = domibusPropertyService.getProperties("title");
         Assert.assertTrue(list.size() > 0);
 
-        List<Property> list2 = domibusPropertyService.getProperties("domibus.ui.title.name");
+        List<DomibusProperty> list2 = domibusPropertyService.getProperties("domibus.ui.title.name");
         Assert.assertEquals(1, list2.size());
     }
 
@@ -30,7 +30,7 @@ public class PropertyResourceIT extends AbstractIT {
 
         String name = "domibus.UI.title.name";
 
-        List<Property> list = domibusPropertyService.getProperties(name);
+        List<DomibusProperty> list = domibusPropertyService.getProperties(name);
         Assert.assertEquals(1, list.size());
 
         String originalValue = list.get(0).getValue();

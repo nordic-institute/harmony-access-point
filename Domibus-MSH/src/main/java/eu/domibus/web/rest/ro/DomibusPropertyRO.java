@@ -5,7 +5,7 @@ package eu.domibus.web.rest.ro;
  * @since 4.1.1
  */
 
-public class PropertyRO {
+public class DomibusPropertyRO {
     private String name;
     private String value;
 

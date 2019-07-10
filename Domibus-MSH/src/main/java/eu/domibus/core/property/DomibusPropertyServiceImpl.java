@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.Property;
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
@@ -33,8 +33,8 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
     @Autowired
     private List<DomibusPropertyManager> domibusPropertyManagers;
 
-    public List<Property> getProperties(String name) {
-        List<Property> list = new ArrayList<>();
+    public List<DomibusProperty> getProperties(String name) {
+        List<DomibusProperty> list = new ArrayList<>();
 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
@@ -54,7 +54,7 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
 
             for (DomibusPropertyMetadata p : knownProps) {
                 String value = propertyManager.getKnownPropertyValue(domainCode, p.getName());
-                Property prop = new Property();
+                DomibusProperty prop = new DomibusProperty();
                 prop.setName(p.getName());
                 prop.setValue(value);
                 list.add(prop);
