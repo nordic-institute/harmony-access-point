@@ -78,7 +78,8 @@ public class PropertyServiceImpl implements PropertyService {
         }
 
         if (!handled) {
-            LOG.warn("Property manager not found for [{}]", name);
+            LOG.debug("Property manager not found for [{}]", name);
+            throw new IllegalArgumentException(name);
         }
     }
 

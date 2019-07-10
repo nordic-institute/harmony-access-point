@@ -2,7 +2,10 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.*;
+import eu.domibus.property.DomibusPropertyChangeListener;
+import eu.domibus.property.DomibusPropertyManager;
+import eu.domibus.property.DomibusPropertyMetadata;
+import eu.domibus.property.Module;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -428,14 +431,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
 
     @Override
     public String getKnownPropertyValue(String domain, String propertyName) {
-        DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
-        if (meta == null) throw new IllegalArgumentException(propertyName);
-
-        String propertyKey;
-        if (domain == null)
-            propertyKey = propertyName;
-        else
-            propertyKey = this.getDomainPropertyName(domain, propertyName);
+        String propertyKey = getKnownPropertyKey(domain, propertyName);
 
         return this.properties.getProperty(propertyKey);
     }
@@ -443,15 +439,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
     @Override
     //TODO: reuse same code as in DomibusPropertyProvider (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
-        if (meta == null) throw new IllegalArgumentException(propertyName);
-
-        String propertyKey;
-        if (domainCode == null)
-            propertyKey = propertyName;
-        else
-            propertyKey = this.getDomainPropertyName(domainCode, propertyName);
-
+        String propertyKey = getKnownPropertyKey(domainCode, propertyName);
         this.properties.setProperty(propertyKey, propertyValue);
 
         handlePropertyChange(domainCode, propertyName, propertyValue);
@@ -459,6 +447,20 @@ public class FSPluginProperties implements DomibusPropertyManager {
         if (broadcast) {
             // TODO (EDELIVERY-4812)
         }
+    }
+
+    private String getKnownPropertyKey(String domain, String propertyName) {
+        final DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
+        if (meta == null) {
+            throw new IllegalArgumentException(propertyName);
+        }
+        final String propertyKey;
+        if (domain == null) {
+            propertyKey = propertyName;
+        } else {
+            propertyKey = this.getDomainPropertyName(domain, propertyName);
+        }
+        return propertyKey;
     }
 
     @Override
