@@ -57,12 +57,12 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
                 new DomibusPropertyMetadata("domibus.ui.support.team.name"),
                 new DomibusPropertyMetadata("domibus.ui.support.team.email"),
 
-                new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED),
+                new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.security.keystore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.security.keystore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.security.key.private.alias", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
 
-                new DomibusPropertyMetadata("domibus.security.truststore.location", PropertyUsageType.DOMAIN_PROPERTY_RESOLVED),
+                new DomibusPropertyMetadata("domibus.security.truststore.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.security.truststore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
                 new DomibusPropertyMetadata("domibus.security.truststore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
 
@@ -168,8 +168,6 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
             return domibusPropertyProvider.getDomainProperty(domain, meta.getName());
         } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK) {
             return domibusPropertyProvider.getProperty(domain, meta.getName());
-        } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_RESOLVED) {
-            return domibusPropertyProvider.getResolvedProperty(domain, meta.getName());
         } else if (meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
             return domibusPropertyProvider.getProperty(meta.getName());
         }

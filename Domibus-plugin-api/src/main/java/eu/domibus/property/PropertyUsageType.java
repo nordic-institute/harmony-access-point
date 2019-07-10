@@ -22,9 +22,4 @@ public enum PropertyUsageType {
      */
     DOMAIN_PROPERTY_WITH_FALLBACK,
 
-    /**
-     * Resolved domain property, no fallback to the default domain value.
-     * Can be changed by either domain admins or AP admins.
-     */
-    DOMAIN_PROPERTY_RESOLVED,
 }
