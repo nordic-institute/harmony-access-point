@@ -20,6 +20,11 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * Resource responsible with getting the domibus properties that can be changed at runtime, getting and setting their values throught REST Api
+ */
 @RestController
 @RequestMapping(value = "/rest/configuration")
 @Validated
