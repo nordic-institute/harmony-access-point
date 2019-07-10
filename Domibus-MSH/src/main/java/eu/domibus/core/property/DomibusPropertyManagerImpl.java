@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.property.DomibusPropertyChangeListener;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
-import eu.domibus.property.PropertyUsageType;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -52,106 +51,106 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
 
         return Arrays.stream(new DomibusPropertyMetadata[]{
-                new DomibusPropertyMetadata("domibus.UI.title.name"),
-                new DomibusPropertyMetadata("domibus.ui.replication.enabled"),
-                new DomibusPropertyMetadata("domibus.ui.support.team.name"),
-                new DomibusPropertyMetadata("domibus.ui.support.team.email"),
+                new DomibusPropertyMetadata("domibus.UI.title.name", true, true),
+                new DomibusPropertyMetadata("domibus.ui.replication.enabled", true, true),
+                new DomibusPropertyMetadata("domibus.ui.support.team.name", true, true),
+                new DomibusPropertyMetadata("domibus.ui.support.team.email", true, true),
 
-                new DomibusPropertyMetadata("domibus.security.keystore.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.security.keystore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.security.keystore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.security.key.private.alias", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.security.keystore.location", true, false),
+                new DomibusPropertyMetadata("domibus.security.keystore.type", true, false),
+                new DomibusPropertyMetadata("domibus.security.keystore.password", true, false),
+                new DomibusPropertyMetadata("domibus.security.key.private.alias", true, false),
 
-                new DomibusPropertyMetadata("domibus.security.truststore.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.security.truststore.type", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.security.truststore.password", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.security.truststore.location", true, false),
+                new DomibusPropertyMetadata("domibus.security.truststore.type", true, false),
+                new DomibusPropertyMetadata("domibus.security.truststore.password", true, false),
 
-                new DomibusPropertyMetadata("domibus.auth.unsecureLoginAllowed", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.console.login.maximum.attempt", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.console.login.suspension.time", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.certificate.revocation.offset", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.certificate.crl.excludedProtocols", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.auth.unsecureLoginAllowed", true, false),
+                new DomibusPropertyMetadata("domibus.console.login.maximum.attempt", true, true),
+                new DomibusPropertyMetadata("domibus.console.login.suspension.time", true, true),
+                new DomibusPropertyMetadata("domibus.certificate.revocation.offset", true, false),
+                new DomibusPropertyMetadata("domibus.certificate.crl.excludedProtocols", true, false),
 
-                new DomibusPropertyMetadata("domibus.plugin.login.maximum.attempt", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.plugin.login.suspension.time", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.plugin.login.maximum.attempt", true, false),
+                new DomibusPropertyMetadata("domibus.plugin.login.suspension.time", true, true),
 
-                new DomibusPropertyMetadata("domibus.passwordPolicy.pattern", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.validationMessage", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.expiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.warning.beforeExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.dontReuseLast", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.checkDefaultPassword", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.pattern", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.validationMessage", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.expiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.defaultPasswordExpiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.warning.beforeExpiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.dontReuseLast", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.checkDefaultPassword", false),
 
-                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.pattern", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.validationMessage", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.expiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.defaultPasswordExpiration", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.dontReuseLast", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.pattern", true, true),
+                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.validationMessage", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.expiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.defaultPasswordExpiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.dontReuseLast", true, true),
 
-                new DomibusPropertyMetadata("domibus.attachment.storage.location", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.payload.encryption.active", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.attachment.storage.location", true, false),
+                new DomibusPropertyMetadata("domibus.payload.encryption.active", true, true),
 
-                new DomibusPropertyMetadata("domibus.msh.messageid.suffix", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.msh.retry.messageExpirationDelay", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.msh.messageid.suffix", true, true),
+                new DomibusPropertyMetadata("domibus.msh.retry.messageExpirationDelay", false),
 
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.smlzone", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.client.specification", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.peppolclient.mode", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.responder.role", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.type", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dynamicdiscovery.transportprofileas4", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", true, true),
+                new DomibusPropertyMetadata("domibus.smlzone", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.client.specification", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.peppolclient.mode", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.responder.role", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.type", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.transportprofileas4", true, true),
 
-                new DomibusPropertyMetadata("domibus.listPendingMessages.maxCount", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.jms.queue.maxBrowseSize", PropertyUsageType.GLOBAL_PROPERTY), //there is one place at init time that it is not refreshed
-                new DomibusPropertyMetadata("domibus.jms.internalQueue.expression", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.listPendingMessages.maxCount", false),
+                new DomibusPropertyMetadata("domibus.jms.queue.maxBrowseSize", false), //there is one place at init time that it is not refreshed
+                new DomibusPropertyMetadata("domibus.jms.internalQueue.expression", false),
 
-                new DomibusPropertyMetadata("domibus.receiver.certificate.validation.onsending", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onsending", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onreceiving", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sender.trust.validation.onreceiving", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sender.trust.validation.expression", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sender.certificate.subject.check", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sender.trust.validation.truststore_alias", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sendMessage.messageIdPattern", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata("domibus.receiver.certificate.validation.onsending", true, true),
+                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onsending", true, true),
+                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onreceiving", true, true),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.onreceiving", true, true),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.expression", true, false),
+                new DomibusPropertyMetadata("domibus.sender.certificate.subject.check", true, true),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.truststore_alias", true, true),
+                new DomibusPropertyMetadata("domibus.sendMessage.messageIdPattern", true, false),
 
-                new DomibusPropertyMetadata("domibus.dispatcher.connectionTimeout", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.receiveTimeout", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.allowChunking", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.chunkingThreshold", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.concurency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.largeFiles.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.cacheable", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.connection.keepAlive", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.downloaded.max.delete", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.not_downloaded.max.delete", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.retention.jms.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatch.ebms.error.unrecoverable.retry", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.dispatcher.connectionTimeout", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.receiveTimeout", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.allowChunking", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.chunkingThreshold", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.concurency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.largeFiles.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.cacheable", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.connection.keepAlive", true, true),
+                new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.downloaded.max.delete", true, true),
+                new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.not_downloaded.max.delete", true, true),
+                new DomibusPropertyMetadata("domibus.retention.jms.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatch.ebms.error.unrecoverable.retry", true, true),
 
-                new DomibusPropertyMetadata("domibus.proxy.enabled", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.proxy.http.host", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.proxy.http.port", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.proxy.user", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.proxy.password", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.proxy.nonProxyHosts", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.proxy.enabled", false),
+                new DomibusPropertyMetadata("domibus.proxy.http.host", false),
+                new DomibusPropertyMetadata("domibus.proxy.http.port", false),
+                new DomibusPropertyMetadata("domibus.proxy.user", false),
+                new DomibusPropertyMetadata("domibus.proxy.password", false),
+                new DomibusPropertyMetadata("domibus.proxy.nonProxyHosts", false),
 
-                new DomibusPropertyMetadata("domibus.ui.replication.sync.cron.max.rows", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.plugin.notification.active", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.nonrepudiation.audit.active", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.sendMessage.failure.delete.payload", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.sendMessage.attempt.audit.active", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.fourcornermodel.enabled", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.logging.payload.print", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domibus.ui.replication.sync.cron.max.rows", true, true),
+                new DomibusPropertyMetadata("domibus.plugin.notification.active", false),
+                new DomibusPropertyMetadata("domibus.nonrepudiation.audit.active", false),
+                new DomibusPropertyMetadata("domibus.sendMessage.failure.delete.payload", true, true),
+                new DomibusPropertyMetadata("domibus.sendMessage.attempt.audit.active", false),
+                new DomibusPropertyMetadata("domibus.fourcornermodel.enabled", false),
+                new DomibusPropertyMetadata("domibus.logging.payload.print", false),
 
-                new DomibusPropertyMetadata("domibus.attachment.temp.storage.location", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.concurrency", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
-                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.payloads.schedule.threshold", PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK),
+                new DomibusPropertyMetadata("domibus.attachment.temp.storage.location", false),
+                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.payloads.schedule.threshold", true, true),
 
-                new DomibusPropertyMetadata("domain.title", PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata("domibus.userInput.blackList", PropertyUsageType.GLOBAL_PROPERTY),
-                new DomibusPropertyMetadata("domibus.userInput.whiteList", PropertyUsageType.GLOBAL_PROPERTY),
+                new DomibusPropertyMetadata("domain.title", true, false),
+                new DomibusPropertyMetadata("domibus.userInput.blackList", false),
+                new DomibusPropertyMetadata("domibus.userInput.whiteList", false),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
@@ -164,12 +163,14 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
         Domain domain = domainCode == null ? null : this.domainService.getDomain(domainCode);
 
-        if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_WITH_FALLBACK) {
-            return domibusPropertyProvider.getDomainProperty(domain, meta.getName());
-        } else if (meta.getUsage() == PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK) {
-            return domibusPropertyProvider.getProperty(domain, meta.getName());
-        } else if (meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY) {
+        if (!meta.isDomainSpecific()) {
             return domibusPropertyProvider.getProperty(meta.getName());
+        } else {
+            if (meta.isWithFallback()) {
+                return domibusPropertyProvider.getDomainProperty(domain, meta.getName());
+            } else if (!meta.isWithFallback()) {
+                return domibusPropertyProvider.getProperty(domain, meta.getName());
+            }
         }
 
         throw new NotImplementedException("Get value for : " + propertyName);
@@ -182,11 +183,12 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
             throw new IllegalArgumentException(propertyName);
         }
 
-        final Domain domain = domainCode == null
-                || !domibusConfigurationService.isMultiTenantAware()
-                || meta.getUsage() == PropertyUsageType.GLOBAL_PROPERTY
-                ? null : domainService.getDomain(domainCode);
-        this.domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
+        Domain propertyDomain = null;
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            propertyDomain = domainCode == null ? null : domainService.getDomain(domainCode);
+            propertyDomain = meta.isDomainSpecific() ? propertyDomain : null;
+        }
+        this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
 
         handlePropertyChange(domainCode, propertyName, propertyValue);
 

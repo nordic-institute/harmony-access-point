@@ -7,9 +7,6 @@ import eu.domibus.api.property.Property;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.property.DomibusPropertyManager;
 import eu.domibus.property.DomibusPropertyMetadata;
-import eu.domibus.property.PropertyUsageType;
-import eu.domibus.web.rest.PropertyResource;
-import eu.domibus.web.rest.ro.PropertyRO;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,9 +46,9 @@ public class PropertyServiceImpl implements PropertyService {
 
             if (domibusConfigurationService.isMultiTenantAware()) {
                 if (currentDomain == null) {
-                    knownProps = knownProps.stream().filter(p -> p.getUsage() == PropertyUsageType.GLOBAL_PROPERTY).collect(Collectors.toList());
+                    knownProps = knownProps.stream().filter(p -> !p.isDomainSpecific()).collect(Collectors.toList());
                 } else {
-                    knownProps = knownProps.stream().filter(p -> p.getUsage() != PropertyUsageType.GLOBAL_PROPERTY).collect(Collectors.toList());
+                    knownProps = knownProps.stream().filter(p -> p.isDomainSpecific()).collect(Collectors.toList());
                 }
             }
 

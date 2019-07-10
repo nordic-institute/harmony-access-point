@@ -2,10 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyChangeListener;
-import eu.domibus.property.DomibusPropertyManager;
-import eu.domibus.property.DomibusPropertyMetadata;
-import eu.domibus.property.PropertyUsageType;
+import eu.domibus.property.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -416,11 +413,11 @@ public class FSPluginProperties implements DomibusPropertyManager {
     @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadata[]{
-                new DomibusPropertyMetadata(AUTHENTICATION_USER, PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
-                new DomibusPropertyMetadata(AUTHENTICATION_PASSWORD, PropertyUsageType.DOMAIN_PROPERTY_NO_FALLBACK),
+                new DomibusPropertyMetadata(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
+                new DomibusPropertyMetadata(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
                 // with fallback from the default domain:
-                new DomibusPropertyMetadata(LOCATION),
-                new DomibusPropertyMetadata(ORDER),
+                new DomibusPropertyMetadata(LOCATION, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadata(ORDER, Module.FS_PLUGIN, true, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
