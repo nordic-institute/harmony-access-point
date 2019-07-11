@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.property.DomibusPropertyChangeListener;
+import eu.domibus.property.DomibusPropertyChangeNotifier;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -24,6 +25,9 @@ public class FSPluginPropertiesTest {
 
     @Tested
     FSPluginProperties fsPluginProperties;
+
+    @Injectable
+    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
 
     @Injectable
     List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;

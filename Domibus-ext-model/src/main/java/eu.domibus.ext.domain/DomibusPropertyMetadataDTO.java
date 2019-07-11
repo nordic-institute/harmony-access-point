@@ -1,6 +1,6 @@
-package eu.domibus.property;
+package eu.domibus.ext.domain;
 
-public class DomibusPropertyMetadata {
+public class DomibusPropertyMetadataDTO {
 
     private String name;
 
@@ -28,7 +28,7 @@ public class DomibusPropertyMetadata {
 
     private Module module;
 
-    public DomibusPropertyMetadata(String name, Module module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadataDTO(String name, Module module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
@@ -36,19 +36,19 @@ public class DomibusPropertyMetadata {
         this.module = module;
     }
 
-    public DomibusPropertyMetadata(String name, Module module, boolean domainSpecific, boolean withFallback) {
+    public DomibusPropertyMetadataDTO(String name, Module module, boolean domainSpecific, boolean withFallback) {
         this(name, module, domainSpecific, withFallback, true);
     }
 
-    public DomibusPropertyMetadata(String name, boolean domainSpecific, boolean withFallback) {
+    public DomibusPropertyMetadataDTO(String name, boolean domainSpecific, boolean withFallback) {
         this(name, Module.MSH, domainSpecific, withFallback, true);
     }
 
-    public DomibusPropertyMetadata(String name, boolean domainSpecific) {
+    public DomibusPropertyMetadataDTO(String name, boolean domainSpecific) {
         this(name, Module.MSH, domainSpecific, false, true);
     }
 
-    public DomibusPropertyMetadata(String name) {
+    public DomibusPropertyMetadataDTO(String name) {
         this(name, Module.MSH, true, true, true);
     }
 

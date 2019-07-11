@@ -1,4 +1,4 @@
-package eu.domibus.property;
+package eu.domibus.ext.domain;
 
 public enum Module {
 

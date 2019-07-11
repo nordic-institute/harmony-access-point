@@ -1,8 +1,11 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.domain.Module;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.*;
+import eu.domibus.property.DomibusPropertyChangeNotifier;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +24,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author @author FERNANDES Henrique, GONCALVES Bruno
  */
 @Component
-public class FSPluginProperties implements DomibusPropertyManager {
+public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
@@ -411,13 +414,13 @@ public class FSPluginProperties implements DomibusPropertyManager {
     }
 
     @Override
-    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
-        return Arrays.stream(new DomibusPropertyMetadata[]{
-                new DomibusPropertyMetadata(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadata(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
+    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+        return Arrays.stream(new DomibusPropertyMetadataDTO[]{
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
                 // with fallback from the default domain:
-                new DomibusPropertyMetadata(LOCATION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadata(ORDER, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
@@ -437,7 +440,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
     //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         String propertyKey = getKnownPropertyKey(domainCode, propertyName);
-        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyKey);
+        DomibusPropertyMetadataDTO propMeta = this.getKnownProperties().get(propertyKey);
         if (propMeta == null) {
             throw new IllegalArgumentException(propertyName);
         }
@@ -448,7 +451,7 @@ public class FSPluginProperties implements DomibusPropertyManager {
     }
 
     private String getKnownPropertyKey(String domain, String propertyName) {
-        final DomibusPropertyMetadata meta = getKnownProperties().get(propertyName);
+        final DomibusPropertyMetadataDTO meta = getKnownProperties().get(propertyName);
         if (meta == null) {
             throw new IllegalArgumentException(propertyName);
         }
