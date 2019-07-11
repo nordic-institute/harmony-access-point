@@ -127,11 +127,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             } catch (ChainCertificateInvalidException cciEx) {
                 getLog().securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx);
                 attempt.setError(cciEx.getMessage());
-                attempt.setStatus(MessageAttemptStatus.ABORT);
+                attempt.setStatus(MessageAttemptStatus.ERROR);
                 // this flag is used in the finally clause
-                reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
+                reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                getLog().info("Skipped checking the reliability for message [" + messageId + "]: message sending has been aborted");
                 return;
             }
 
@@ -161,7 +160,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             getLog().error("Error sending message [{}]", messageId, t);
             attempt.setError(t.getMessage());
-            // shouldn't we ABORT in case of Throwable? For example, when Keystore cannot be loaded it gets here.
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
