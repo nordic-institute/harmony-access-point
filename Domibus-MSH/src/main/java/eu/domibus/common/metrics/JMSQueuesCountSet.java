@@ -36,7 +36,7 @@ public class JMSQueuesCountSet implements MetricSet {
         Map<String, JMSDestination> queues = jmsManager.getDestinations();
         for (Map.Entry<String, JMSDestination> entry: queues.entrySet()) {
             final JMSDestination jmsDestination = entry.getValue();
-            LOG.debug("Getting the count for {}", jmsDestination);
+            LOG.debug("Getting the count for [{}]", jmsDestination);
             final String queueName = jmsDestination.getName();
             final long queueNbOfMessages = jmsDestination.getNumberOfMessages();
             gauges.put(queueName, (Gauge<Long>) () -> queueNbOfMessages);
