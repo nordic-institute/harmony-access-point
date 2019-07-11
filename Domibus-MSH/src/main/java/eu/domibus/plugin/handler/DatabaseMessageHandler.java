@@ -352,7 +352,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         } else {
             final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
-            pullMessageService.addPullMessageLock(new PartyExtractor(to, userMessage.getPartyInfo().getTo().getPartyId()), pModeKey, userMessageLog);
+            pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
         }
     }
 
