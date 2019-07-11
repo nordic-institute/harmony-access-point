@@ -82,6 +82,16 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Finished checking if password encryption is configured");
     }
 
+
+    @Override
+    public boolean isValueEncrypted(final String propertyValue) {
+        if (StringUtils.isBlank(propertyValue)) {
+            return false;
+        }
+
+        return StringUtils.trim(propertyValue).startsWith(ENC_START);
+    }
+
     protected List<String> getPropertiesToEncrypt(PasswordEncryptionContext passwordEncryptionContext) {
         final String propertiesToEncryptString = passwordEncryptionContext.getProperty("domibus.password.encryption.properties");
         if (StringUtils.isEmpty(propertiesToEncryptString)) {
@@ -93,6 +103,10 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
             final String propertyValue = passwordEncryptionContext.getProperty(propertyName);
+            if (StringUtils.isBlank(propertyValue)) {
+                return false;
+            }
+
             if (!isValueEncrypted(propertyValue)) {
                 return true;
             }
@@ -213,12 +227,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return StringUtils.substringBetween(encryptedFormat, ENC_START, ENC_END);
     }
 
-    protected boolean isValueEncrypted(final String propertyValue) {
-        if (StringUtils.trim(propertyValue).startsWith(ENC_START)) {
-            return true;
-        }
-        return false;
-    }
 
     protected void replacePropertiesInFile(PasswordEncryptionContext passwordEncryptionContext, List<PasswordEncryptionResult> encryptedProperties) {
         final File configurationFile = getConfigurationFile(passwordEncryptionContext);

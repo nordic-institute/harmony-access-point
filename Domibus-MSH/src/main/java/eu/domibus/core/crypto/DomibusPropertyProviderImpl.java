@@ -93,7 +93,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             LOGGER.debug("Resolving property [{}]", propertyName);
             result = propertyResolver.getResolvedValue(result, domibusProperties, true);
         }
-        if (decrypt) {
+        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
             LOGGER.debug("Decrypting property [{}]", propertyName);
             final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
             result = passwordEncryptionService.decryptProperty(passwordEncryptionContext, propertyName, result);

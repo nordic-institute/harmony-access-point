@@ -3,6 +3,8 @@ package eu.domibus.tomcat.jpa;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.PrefixedProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +20,11 @@ import java.util.Properties;
  */
 @Configuration
 public class DomibusDatasourceConfiguration {
+
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusDatasourceConfiguration.class);
+
+    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password";
+    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
     @Autowired
     @Qualifier("domibusProperties")
@@ -56,7 +63,11 @@ public class DomibusDatasourceConfiguration {
 
     @Bean
     public PrefixedProperties xaProperties() {
-        return new PrefixedProperties(domibusProperties, "domibus.datasource.xa.property.");
+        final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusProperties, DOMIBUS_DATASOURCE_XA_PROPERTY);
+
+        LOGGER.debug("Decrypting the property [{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD);
+        prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD, true));
+        return prefixedProperties;
     }
 
 
@@ -71,7 +82,7 @@ public class DomibusDatasourceConfiguration {
         dataSource.setUrl(dataSourceURL);
         final String user = domibusPropertyProvider.getProperty("domibus.datasource.user");
         dataSource.setUser(user);
-        final String password = domibusPropertyProvider.getProperty("domibus.datasource.password");
+        final String password = domibusPropertyProvider.getProperty("domibus.datasource.password", true);
         dataSource.setPassword(password);
         final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.minPoolSize");
         dataSource.setMinPoolSize(minPoolSize);

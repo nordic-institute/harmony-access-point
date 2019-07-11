@@ -9,4 +9,6 @@ public interface PasswordEncryptionService {
     void encryptPasswords();
 
     String decryptProperty(PasswordEncryptionContext passwordEncryptionContext, String propertyName, String encryptedFormatValue);
+
+    boolean isValueEncrypted(final String propertyValue);
 }
