@@ -129,13 +129,18 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             isPullMessage = true;
         }
 
-
         String senderPartyName;
+        String receiverPartyName;
         if (isPullMessage) {
             senderPartyName = getReceiverPartyName(message);
+            receiverPartyName = getSenderPartyName(message);
         } else {
             senderPartyName = getSenderPartyName(message);
+            receiverPartyName = getReceiverPartyName(message);
         }
+        LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
+        LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
+
         LOG.info("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
