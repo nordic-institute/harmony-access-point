@@ -4,7 +4,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.PasswordEncryptionContext;
 import eu.domibus.api.property.PasswordEncryptionService;
+import eu.domibus.core.property.PasswordEncryptionContextFactory;
 import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -45,20 +47,28 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
+    @Autowired
+    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
+
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     protected String getPropertyName(Domain domain, String propertyName) {
         return domain.getCode() + "." + propertyName;
     }
 
+
     @Override
     public String getProperty(Domain domain, String propertyName) {
+        return getProperty(domain, propertyName, false);
+    }
+
+    @Override
+    public String getProperty(Domain domain, String propertyName, boolean decrypt) {
         final String domainPropertyName = getPropertyName(domain, propertyName);
-        String propertyValue = getPropertyValue(domainPropertyName);
+        String propertyValue = getPropertyValue(domainPropertyName, domain, decrypt);
         if (StringUtils.isEmpty(propertyValue) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            propertyValue = getPropertyValue(propertyName);
+            propertyValue = getPropertyValue(propertyName, domain, decrypt);
         }
-        propertyValue = passwordEncryptionService.decryptProperty(domain, propertyName, propertyValue);
 
         return propertyValue;
     }
@@ -69,7 +79,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @param propertyName the property name
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
-    protected String getPropertyValue(String propertyName) {
+    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
         String result = System.getenv(propertyName);
         if (StringUtils.isEmpty(result)) {
             result = domibusProperties.getProperty(propertyName);
@@ -82,6 +92,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (StringUtils.contains(result, "${")) {
             LOGGER.debug("Resolving property [{}]", propertyName);
             result = propertyResolver.getResolvedValue(result, domibusProperties, true);
+        }
+        if (decrypt) {
+            LOGGER.debug("Decrypting property [{}]", propertyName);
+            final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            result = passwordEncryptionService.decryptProperty(passwordEncryptionContext, propertyName, result);
         }
 
 
@@ -100,7 +115,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public String getProperty(String propertyName) {
-        return getPropertyValue(propertyName);
+        return getProperty(propertyName, false);
+    }
+
+
+    @Override
+    public String getProperty(String propertyName, boolean decrypt) {
+        return getPropertyValue(propertyName, null, decrypt);
     }
 
     /**

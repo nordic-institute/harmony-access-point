@@ -35,6 +35,12 @@ public interface DomibusConfigurationService {
 
     boolean isPayloadEncryptionActive(Domain domain);
 
+    boolean isPasswordEncryptionActive();
+
     boolean isPasswordEncryptionActive(Domain domain);
+
+    String getConfigurationFileName();
+
+    String getConfigurationFileName(Domain domain);
 
 }
