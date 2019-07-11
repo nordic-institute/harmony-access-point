@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample pMode configuration for simulating a Two-Way Mep and the three bindings PushAndPush, PullAndPush, PushAndPull -->
 <db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw">
 
     <mpcs>
