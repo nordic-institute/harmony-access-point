@@ -1,6 +1,7 @@
 package eu.domibus.common.services.impl;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
@@ -345,7 +346,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
                 LOG.info("Receiver certificate exists and is valid [{}}]", receiverName);
-            } catch (DomibusCertificateException e) {
+            } catch (DomibusCertificateException | CryptoException e) {
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, e);
             }
         }
@@ -384,7 +385,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
                 LOG.info("Sender certificate exists and is valid [{}]", senderName);
-            } catch (DomibusCertificateException | KeyStoreException ex) {
+            } catch (DomibusCertificateException | KeyStoreException | CryptoException ex) {
                 // Is this an error and we stop the sending or we just log a warning that we were not able to validate the cert?
                 // my opinion is that since the option is enabled, we should validate no matter what => this is an error
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, ex);

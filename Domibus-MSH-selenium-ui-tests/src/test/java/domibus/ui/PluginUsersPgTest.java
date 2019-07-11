@@ -5,11 +5,13 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.plugin_users.CertPluginUserModal;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
+import rest.RestServicePaths;
 import utils.Generator;
 
 import java.util.ArrayList;
@@ -430,7 +432,7 @@ public class PluginUsersPgTest extends BaseTest {
 		List<String> domains = rest.getDomainNames();
 		String domain1 = "";
 		for (String domain : domains) {
-			if (!domain.equalsIgnoreCase("Default")) {
+			if (!StringUtils.equalsIgnoreCase(domain,"Default")) {
 				domain1 = domain;
 				break;
 			}
@@ -483,7 +485,7 @@ public class PluginUsersPgTest extends BaseTest {
 		List<String> domains = rest.getDomainNames();
 		String domain1 = "";
 		for (String domain : domains) {
-			if (!domain.equalsIgnoreCase("Default")) {
+			if (!StringUtils.equalsIgnoreCase(domain, "Default")) {
 				domain1 = domain;
 				break;
 			}
@@ -514,7 +516,7 @@ public class PluginUsersPgTest extends BaseTest {
 		List<String> domains = rest.getDomainNames();
 		String domain1 = "";
 		for (String domain : domains) {
-			if (!domain.equalsIgnoreCase("Default")) {
+			if (!StringUtils.equalsIgnoreCase(domain,"Default")) {
 				domain1 = domain;
 				break;
 			}
@@ -742,6 +744,27 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertAll();
 	}
+
+	@Test(description = "PU-20", groups = {"multiTenancy", "singleTenancy"})
+	public void gridSelfAssert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.grid().waitForRowsToLoad();
+
+		page.grid().assertControls(soft);
+
+		page.refreshPage();
+		page.getFilters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+		page.grid().waitForRowsToLoad();
+
+		page.grid().assertControls(soft);
+
+		soft.assertAll();
+	}
+
+
 
 
 }

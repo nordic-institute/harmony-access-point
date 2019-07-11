@@ -2,18 +2,11 @@ package utils;
 
 
 import ddsl.enums.DRoles;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 
 /**
@@ -24,6 +17,10 @@ import java.util.Properties;
 
 public class TestRunData {
 	static Properties prop = new Properties();
+
+	public static SimpleDateFormat UI_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+	public static SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'GMT'Z");
+	public static SimpleDateFormat TESTSERVICE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss");
 
 
 	public TestRunData() {
@@ -70,11 +67,11 @@ public class TestRunData {
 	}
 
 	public Integer getTIMEOUT() {
-		return Integer.valueOf(prop.getProperty("SHORT_TIMEOUT"));
+		return Integer.valueOf(prop.getProperty("SHORT_TIMEOUT_SECONDS"));
 	}
 
 	public Integer getLongWait() {
-		return Integer.valueOf(prop.getProperty("LONG_TIMEOUT"));
+		return Integer.valueOf(prop.getProperty("LONG_TIMEOUT_SECONDS"));
 	}
 
 	public String getReportsFolder() {
@@ -100,4 +97,7 @@ public class TestRunData {
 	public String getRunBrowser() {
 		return System.getenv("runBrowser");
 	}
+
+
+
 }
