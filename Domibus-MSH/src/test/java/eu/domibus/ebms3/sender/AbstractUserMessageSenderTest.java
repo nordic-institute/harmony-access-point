@@ -230,11 +230,11 @@ public class AbstractUserMessageSenderTest {
     public void testSendMessage_ChainCertificateInvalid_Exception(@Mocked final UserMessage userMessage, @Mocked final LegConfiguration legConfiguration,
                                                                   final @Mocked Party senderParty, final @Mocked Party receiverParty) throws Exception {
         final MessageAttempt attempt = createMessageAttempt();
-        final MessageAttemptStatus attemptStatus = MessageAttemptStatus.ABORT;
+        final MessageAttemptStatus attemptStatus = MessageAttemptStatus.ERROR;
         final String chainExceptionMessage = "certificate invalid";
         final String attemptError = "[" + DomibusErrorCode.DOM_001 + "]:" + chainExceptionMessage;
         final ChainCertificateInvalidException chainCertificateInvalidException = new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
-        final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
+        final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
 
         new Expectations(abstractUserMessageSender) {{
