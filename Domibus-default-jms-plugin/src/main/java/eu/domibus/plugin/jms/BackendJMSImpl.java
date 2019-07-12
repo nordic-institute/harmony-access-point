@@ -67,6 +67,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     public static final String PAYLOAD_ENDPOINT_PROPERTY_NAME = "domibus.c4.rest.payload.endpoint";
     public static final String DOMIBUS_TAXUD_REST_TIMEOUT = "domibus.taxud.rest.timeout";
     public static final String DOMIBUS_TAXUD_REST_CONNECTIONS_TOTAL = "domibus.taxud.rest.connections";
+    public static final String DO_SEND_TO_C4 = "domibus.do.send.to.c4";
 
     private org.springframework.web.client.RestTemplate istTemplate;
 
@@ -190,6 +191,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public void deliverMessage(final String messageId) {
+        LOG.info("Deliver message:[{}]", messageId);
         Submission submission;
         try {
             submission = this.messageRetriever.downloadMessage(messageId);
@@ -198,7 +200,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             return;
         }
 
-        sendPayload(submission);
+        if (domibusPropertyExtService.getProperty(DO_SEND_TO_C4).equals("true")) {
+            sendPayload(submission);
+        }
         /*LOG.debug("Delivering message");
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
         final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
