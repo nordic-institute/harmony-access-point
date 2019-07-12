@@ -1,6 +1,4 @@
 Domibus 4.1
-- Replace dozer with MapStruct
-Domibus 4.1-RC1
 - Implement the Split And Join feature
 - Implement EU Login Support
 - Integrate DSS library
@@ -53,6 +51,7 @@ Domibus 4.1-RC1
 - Harmonise the context path across the supported servers
 - Upgrade several libraries to the latest version
 - Domibus MSH Service should return a text on GET
+- Replace dozer with MapStruct
 Domibus 4.0.2
 - Improved the logging in the Default JMS Plugin
 - Allow sending an XML payload in the Soap body
