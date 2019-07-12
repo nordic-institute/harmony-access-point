@@ -210,7 +210,7 @@ public class DomibusQuartzStarter {
     }
 
     public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws SchedulerException {
-        Scheduler scheduler = schedulers.get(domain);
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
         for (String groupName : scheduler.getJobGroupNames()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 final String jobName = jobKey.getName();
