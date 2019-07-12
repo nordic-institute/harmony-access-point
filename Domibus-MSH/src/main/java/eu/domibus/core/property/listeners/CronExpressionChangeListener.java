@@ -33,22 +33,22 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     protected ApplicationContext applicationContext;
 
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
-            {"domibus.account.unlock.cron", "activateSuspendedUserTrigger"}, //todo: handle also the super trigger
-            {"domibus.certificate.check.cron", "activateSuspendedUserTrigger"}, //todo: handle also the super trigger
-            {"domibus.plugin.account.unlock.cron", "activateSuspendedPluginUserTrigger"},
-            {"domibus.passwordPolicies.check.cron", "userPasswordPolicyAlertTrigger"},
-            {"domibus.plugin_passwordPolicies.check.cron", "pluginUserPasswordPolicyAlertTrigger"},
-            {"domibus.payload.temp.job.retention.cron", "temporaryPayloadRetentionTrigger"},
-            {"domibus.msh.retry.cron", "retryWorkerTrigger"},
-            {"domibus.retentionWorker.cronExpression", "retentionWorkerTrigger"},
-            {"domibus.msh.pull.cron", "pullRequestTrigger"},
-            {"domibus.pull.retry.cron", "pullRetryWorkerTrigger"},
-            {"domibus.alert.cleaner.cron", "alertCleanerTrigger"},
-            {"domibus.alert.retry.cron", "alertRetryWorkerTrigger"},
-//            { "domibus.alert.super.cleaner.cron", "alertSuperCleanerTrigger" },
-//            { "domibus.alert.super.retry.cron", "alertRetrySuperWorkerTrigger" },
-            {"domibus.ui.replication.sync.cron", "uiReplicationTrigger"},
-            {"domibus.splitAndJoin.receive.expiration.cron", "splitAndJoinExpirationTrigger"},
+            {"domibus.account.unlock.cron", "activateSuspendedUsersJob"}, //todo: handle also the super Job
+            {"domibus.certificate.check.cron", "saveCertificateAndLogRevocationJob"},
+            {"domibus.plugin.account.unlock.cron", "activateSuspendedPluginUsersJob"},
+            {"domibus.passwordPolicies.check.cron", "userPasswordPolicyAlertJob"},
+            {"domibus.plugin_passwordPolicies.check.cron", "pluginUserPasswordPolicyAlertJob"},
+            {"domibus.payload.temp.job.retention.cron", "temporaryPayloadRetentionJob"},
+            {"domibus.msh.retry.cron", "retryWorkerJob"},
+            {"domibus.retentionWorker.cronExpression", "retentionWorkerJob"},
+            {"domibus.msh.pull.cron", "pullRequestWorkerJob"},
+            {"domibus.pull.retry.cron", "pullRetryWorkerJob"},
+            {"domibus.alert.cleaner.cron", "alertCleanerJob"},
+            {"domibus.alert.retry.cron", "alertRetryJob"},
+            {"domibus.alert.super.cleaner.cron", "alertCleanerSuperJob"},
+            {"domibus.alert.super.retry.cron", "alertRetryJSuperJob"},
+            {"domibus.ui.replication.sync.cron", "uiReplicationJob"},
+            {"domibus.splitAndJoin.receive.expiration.cron", "splitAndJoinExpirationJob"},
 
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
@@ -61,13 +61,12 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
         if (jobName == null) {
-            LOGGER.warn("Could not find the coresponding job for the property [{}]", propertyName);
+            LOGGER.warn("Could not find the corresponding job for the property [{}]", propertyName);
             return;
         }
 
-//        DomainSchedulerFactoryConfiguration schedulerConf = applicationContext.getBean(DomainSchedulerFactoryConfiguration.class);
         DomibusQuartzStarter domibusQuartzStarter = applicationContext.getBean(DomibusQuartzStarter.class);
-        final Domain domain = domainService.getDomain(domainCode);
+        final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
 
         try {
             domibusQuartzStarter.rescheduleJob(domain, jobName, propertyValue);
