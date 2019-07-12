@@ -144,6 +144,9 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
                 new DomibusPropertyMetadata("domain.title", true, false),
                 new DomibusPropertyMetadata("domibus.userInput.blackList", false),
                 new DomibusPropertyMetadata("domibus.userInput.whiteList", false),
+
+                new DomibusPropertyMetadata("domibus.retentionWorker.cronExpression", true, true),
+
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

@@ -43,6 +43,20 @@ public class PropertyResourceIT extends AbstractIT {
 
         String actualValue = list.get(0).getValue();
         Assert.assertEquals(newValue, actualValue);
+    }
 
+    @Test
+    public void testSetCronExpression() throws Exception {
+
+        String name = "domibus.retentionWorker.cronExpression";
+        String newValue = "0 0/5 * * * ?"; // every 5 minutes
+
+        domibusPropertyService.setPropertyValue(name, newValue);
+
+        List<DomibusProperty> list = domibusPropertyService.getProperties(name);
+        Assert.assertEquals(1, list.size());
+
+        String actualValue = list.get(0).getValue();
+        Assert.assertEquals(newValue, actualValue);
     }
 }
