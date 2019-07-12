@@ -1,7 +1,6 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.PrefixedProperties;
@@ -43,9 +42,6 @@ public class DomibusJPAConfiguration {
     @Qualifier("domibusJDBC-XADataSource")
     @Autowired
     protected DataSource dataSource;
-
-    @Autowired
-    protected PasswordEncryptionService passwordEncryptionService;
 
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
