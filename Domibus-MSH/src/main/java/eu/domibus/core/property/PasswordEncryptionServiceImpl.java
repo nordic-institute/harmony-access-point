@@ -42,6 +42,8 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public static final String ENC_START = "ENC(";
     public static final String ENC_END = ")";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
+    public static final String LINE_COMMENT_PREFIX = "#";
+    public static final String PROPERTY_VALUE_DELIMITER = "=";
 
 
     @Autowired
@@ -99,7 +101,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             return new ArrayList<>();
         }
         final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
-        LOG.debug("The following properties are configured for encryption [{}]", propertiesToEncrypt);
+        LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
 
         List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
             final String propertyValue = passwordEncryptionContext.getProperty(propertyName);
@@ -231,7 +233,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected void replacePropertiesInFile(PasswordEncryptionContext passwordEncryptionContext, List<PasswordEncryptionResult> encryptedProperties) {
         final File configurationFile = getConfigurationFile(passwordEncryptionContext);
 
-        LOG.debug("Replacing configured properties in file [{}] with encrypted values");
+        LOG.debug("Replacing configured properties in file [{}] with encrypted values", configurationFile);
 
         final Stream<String> lines;
         try {
@@ -241,30 +243,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         }
 
         final List<String> fileLines = lines
-                .map(line -> {
-                    if (!line.contains("=")) {
-                        return line;
-                    }
-                    final String[] strings = line.split("=");
-                    final String propertyName = StringUtils.trim(strings[0]);
-                    if (strings.length != 2) {
-                        LOG.trace("Property [{}] is empty", propertyName);
-                        return line;
-                    }
-                    final Optional<PasswordEncryptionResult> encryptedValueOptional = encryptedProperties.stream()
-                            .filter(encryptionResult -> encryptionResult.getPropertyName().equals(propertyName))
-                            .findFirst();
-                    if (!encryptedValueOptional.isPresent()) {
-                        LOG.trace("Property [{}] is not encrypted", propertyName);
-                        return line;
-                    }
-                    final PasswordEncryptionResult passwordEncryptionResult = encryptedValueOptional.get();
-                    LOG.debug("Replacing value for property [{}] with [{}]", propertyName, passwordEncryptionResult.getFormattedBase64EncryptedValue());
-
-                    String newLine = StringUtils.replace(line, passwordEncryptionResult.getPropertyValue(), passwordEncryptionResult.getFormattedBase64EncryptedValue());
-
-                    return newLine;
-                })
+                .map(line -> replaceLine(encryptedProperties, line))
                 .collect(Collectors.toList());
 
         LOG.debug("Writing encrypted values ");
@@ -283,6 +262,35 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not write encrypted values to file [%s] ", configurationFile), e);
         }
+    }
+
+    protected String replaceLine(List<PasswordEncryptionResult> encryptedProperties, String line) {
+        if (StringUtils.startsWith(line, LINE_COMMENT_PREFIX) || StringUtils.containsNone(line, PROPERTY_VALUE_DELIMITER)) {
+            return line;
+        }
+        final String[] strings = line.split(PROPERTY_VALUE_DELIMITER);
+        final String filePropertyName = StringUtils.trim(strings[0]);
+        if (strings.length != 2) {
+            LOG.trace("Property [{}] is empty", filePropertyName);
+            return line;
+        }
+        final Optional<PasswordEncryptionResult> encryptedValueOptional = encryptedProperties.stream()
+                .filter(encryptionResult -> arePropertiesMatching(filePropertyName, encryptionResult))
+                .findFirst();
+        if (!encryptedValueOptional.isPresent()) {
+            LOG.trace("Property [{}] is not encrypted", filePropertyName);
+            return line;
+        }
+        final PasswordEncryptionResult passwordEncryptionResult = encryptedValueOptional.get();
+        LOG.debug("Replacing value for property [{}] with [{}]", filePropertyName, passwordEncryptionResult.getFormattedBase64EncryptedValue());
+
+        String newLine = StringUtils.replace(line, passwordEncryptionResult.getPropertyValue(), passwordEncryptionResult.getFormattedBase64EncryptedValue());
+
+        return newLine;
+    }
+
+    protected boolean arePropertiesMatching(String filePropertyName, PasswordEncryptionResult encryptionResult) {
+        return StringUtils.contains(filePropertyName, encryptionResult.getPropertyName());
     }
 
     protected File getConfigurationFileBackup(File configurationFile) {
