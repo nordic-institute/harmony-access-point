@@ -15,11 +15,11 @@ import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.MessageUtils;
@@ -189,7 +189,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     private String getSenderPartyName(SoapMessage message) {
         List<String> contents = getPmodeKeyValues(message);
-        if (!CollectionUtils.isEmpty(contents)) {
+        if (CollectionUtils.isNotEmpty(contents)) {
             return contents.get(0);
         }
         return null;
@@ -197,7 +197,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     private String getReceiverPartyName(SoapMessage message) {
         List<String> contents = getPmodeKeyValues(message);
-        if (!CollectionUtils.isEmpty(contents) && contents.size() > 1) {
+        if (CollectionUtils.isNotEmpty(contents) && contents.size() > 1) {
             return contents.get(1);
         }
         return null;
