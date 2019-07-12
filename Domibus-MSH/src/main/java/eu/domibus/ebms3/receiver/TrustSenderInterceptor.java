@@ -112,7 +112,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      * @param message the incoming CXF soap message to handle
      */
     @Override
-    @MDCKey({DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO})
     public void handleMessage(final SoapMessage message) throws Fault {
         if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.warn("No trust verification of sending certificate");
@@ -190,16 +189,27 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     }
 
     private String getSenderPartyName(SoapMessage message) {
-        String pmodeKey = (String) message.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
-        List<String> contents = StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
-        return contents.get(0);
+        List<String> contents = getPmodeKeyValues(message);
+        if (!CollectionUtils.isEmpty(contents)) {
+            return contents.get(0);
+        }
+        return null;
     }
 
-
     private String getReceiverPartyName(SoapMessage message) {
+        List<String> contents = getPmodeKeyValues(message);
+        if (!CollectionUtils.isEmpty(contents) && contents.size() > 1) {
+            return contents.get(1);
+        }
+        return null;
+    }
+
+    protected List<String> getPmodeKeyValues(SoapMessage message) {
         String pmodeKey = (String) message.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
-        List<String> contents = StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
-        return contents.get(1);
+        if (StringUtils.isEmpty(pmodeKey))
+            return null;
+
+        return StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
     }
 
     protected List<? extends Certificate> getSenderCertificateChain(SoapMessage msg) {
