@@ -28,6 +28,10 @@ public class DomibusPropertyMetadata {
 
     private Module module;
 
+    public static DomibusPropertyMetadata GLOBAL_PROPERTY(String name) {
+        return new DomibusPropertyMetadata(name, false, false);
+    }
+
     public DomibusPropertyMetadata(String name, Module module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;

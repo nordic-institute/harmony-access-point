@@ -145,7 +145,22 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
                 new DomibusPropertyMetadata("domibus.userInput.blackList", false),
                 new DomibusPropertyMetadata("domibus.userInput.whiteList", false),
 
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.account.unlock.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.certificate.check.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.plugin.account.unlock.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.passwordPolicies.check.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.plugin_passwordPolicies.check.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.payload.temp.job.retention.cron"),
+                new DomibusPropertyMetadata("domibus.msh.retry.cron", true, true),
                 new DomibusPropertyMetadata("domibus.retentionWorker.cronExpression", true, true),
+                new DomibusPropertyMetadata("domibus.msh.pull.cron", true, true),
+                new DomibusPropertyMetadata("domibus.pull.retry.cron", true, true),
+                new DomibusPropertyMetadata("domibus.alert.cleaner.cron", true, true),
+                new DomibusPropertyMetadata("domibus.alert.retry.cron", true, true),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.alert.super.cleaner.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.alert.super.retry.cron"),
+                DomibusPropertyMetadata.GLOBAL_PROPERTY("domibus.ui.replication.sync.cron"),
+                new DomibusPropertyMetadata("domibus.splitAndJoin.receive.expiration.cron", true, true),
 
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
