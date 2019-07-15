@@ -61,18 +61,18 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         new NonStrictExpectations() {{
             domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type");
             result = "keystoreType";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password");
+            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password", true);
             result = "keystorePassword";
             domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias");
             result = "privateKeyAlias";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password");
+            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true);
             result = PRIVATE_KEY_PASSWORD;
             domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.location");
             result = "keystoreLocation";
 
             domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location");
             result = "trustStoreLocation";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password");
+            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password", true);
             result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type");
             result = "trustStoreType";
