@@ -15,7 +15,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- The contents of this file will be loaded for each web application -->
+<!-- Use the same value for context path and session cookie path -->
 <Context patch="/domibus" sessionCookiePath="/domibus">
 
 </Context>
