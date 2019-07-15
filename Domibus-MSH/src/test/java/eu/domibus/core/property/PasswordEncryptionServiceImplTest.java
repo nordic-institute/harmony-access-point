@@ -25,9 +25,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.core.property.PasswordEncryptionServiceImpl.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
-import static eu.domibus.core.property.PasswordEncryptionServiceImpl.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
+import static eu.domibus.core.property.PasswordEncryptionServiceImpl.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -356,17 +356,62 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void replaceLine() {
+        String line = "myProperty=myValue";
+        String encryptedValue = "myEncryptedValue";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+        PasswordEncryptionResult passwordEncryptionResult = new PasswordEncryptionResult();
+        passwordEncryptionResult.setPropertyName("myProperty");
+        passwordEncryptionResult.setPropertyValue("myValue");
+        passwordEncryptionResult.setFormattedBase64EncryptedValue("ENC(" + encryptedValue + ")");
+        encryptedProperties.add(passwordEncryptionResult);
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("myProperty=ENC(myEncryptedValue)", replacedLine);
     }
 
     @Test
     public void arePropertiesMatching() {
+        String propertyName = "myProperty";
+        PasswordEncryptionResult passwordEncryptionResult = new PasswordEncryptionResult();
+        passwordEncryptionResult.setPropertyName("myProperty");
+
+        assertTrue(passwordEncryptionService.arePropertiesMatching(propertyName, passwordEncryptionResult));
     }
 
     @Test
     public void getConfigurationFileBackup() {
+        String timePart = "2019-07-15_23_01_01.111";
+        final String configurationFileName = "domibus.properties";
+        final String parentDirectory = "home";
+
+        new Expectations() {{
+            dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+            result = timePart;
+        }};
+
+
+        File configurationFile = new File(parentDirectory, configurationFileName);
+        final File configurationFileBackup = passwordEncryptionService.getConfigurationFileBackup(configurationFile);
+        assertEquals(configurationFileName + ".backup-" + timePart, configurationFileBackup.getName());
+        assertEquals(parentDirectory, configurationFileBackup.getParent());
     }
 
     @Test
-    public void getConfigurationFile() {
+    public void getConfigurationFile(@Injectable PasswordEncryptionContext passwordEncryptionContext) throws IOException {
+        final String configurationFileName = "domibus.properties";
+        String configLocation = "home";
+
+        new Expectations() {{
+            passwordEncryptionContext.getConfigurationFileName();
+            result = configurationFileName;
+
+            domibusConfigurationService.getConfigLocation();
+            result = configLocation;
+        }};
+
+        final File configurationFile = passwordEncryptionService.getConfigurationFile(passwordEncryptionContext);
+        assertEquals(configurationFileName, configurationFile.getName());
+        assertEquals(configLocation, configurationFile.getParent());
     }
 }
