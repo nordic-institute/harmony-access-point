@@ -44,6 +44,8 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
     public static final String LINE_COMMENT_PREFIX = "#";
     public static final String PROPERTY_VALUE_DELIMITER = "=";
+    public static final String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties";
+    public static final String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";
 
 
     @Autowired
@@ -95,7 +97,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected List<String> getPropertiesToEncrypt(PasswordEncryptionContext passwordEncryptionContext) {
-        final String propertiesToEncryptString = passwordEncryptionContext.getProperty("domibus.password.encryption.properties");
+        final String propertiesToEncryptString = passwordEncryptionContext.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES);
         if (StringUtils.isEmpty(propertiesToEncryptString)) {
             LOG.debug("No properties to encrypt");
             return new ArrayList<>();
@@ -156,7 +158,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     public File getEncryptedKeyFile(PasswordEncryptionContext passwordEncryptionContext) {
-        final String encryptionKeyLocation = passwordEncryptionContext.getProperty("domibus.password.encryption.key.location");
+        final String encryptionKeyLocation = passwordEncryptionContext.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
         LOG.debug("Configured encryptionKeyLocation [{}]", encryptionKeyLocation);
 
         return new File(encryptionKeyLocation, ENCRYPTED_KEY);
@@ -235,16 +237,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         LOG.debug("Replacing configured properties in file [{}] with encrypted values", configurationFile);
 
-        final Stream<String> lines;
-        try {
-            lines = Files.lines(configurationFile.toPath());
-        } catch (IOException e) {
-            throw new DomibusEncryptionException(String.format("Could not replace properties: could not read configuration file [%s]", configurationFile), e);
-        }
-
-        final List<String> fileLines = lines
-                .map(line -> replaceLine(encryptedProperties, line))
-                .collect(Collectors.toList());
+        final List<String> fileLines = getReplacedLines(encryptedProperties, configurationFile);
 
         LOG.debug("Writing encrypted values ");
 
@@ -262,6 +255,19 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not write encrypted values to file [%s] ", configurationFile), e);
         }
+    }
+
+    protected List<String> getReplacedLines(List<PasswordEncryptionResult> encryptedProperties, File configurationFile) {
+        final Stream<String> lines;
+        try {
+            lines = Files.lines(configurationFile.toPath());
+        } catch (IOException e) {
+            throw new DomibusEncryptionException(String.format("Could not replace properties: could not read configuration file [%s]", configurationFile), e);
+        }
+
+        return lines
+                .map(line -> replaceLine(encryptedProperties, line))
+                .collect(Collectors.toList());
     }
 
     protected String replaceLine(List<PasswordEncryptionResult> encryptedProperties, String line) {
