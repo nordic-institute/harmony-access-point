@@ -2,10 +2,11 @@ package eu.domibus.ebms3.common.model;
 
 import eu.domibus.common.AutoCloseFileDataSource;
 import eu.domibus.core.encryption.DecryptDataSource;
-import eu.domibus.core.encryption.EncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.SpringContextProvider;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -90,7 +91,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     @XmlTransient
     @Column(name = "ENCRYPTED")
-    protected boolean encrypted;
+    protected Boolean encrypted;
 
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;
@@ -133,7 +134,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     }
 
     public boolean isEncrypted() {
-        return encrypted;
+        return BooleanUtils.toBoolean(encrypted);
     }
 
     public void setEncrypted(boolean encrypted) {
@@ -145,7 +146,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         if (fileName != null) { /* Create payload data handler from File */
             LOG.debug("LoadBinary from file: " + fileName);
             DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
-            if (encrypted) {
+            if (isEncrypted()) {
                 LOG.debug("Using DecryptDataSource for payload [{}]", href);
                 final Cipher decryptCipher = getDecryptCipher();
                 fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
@@ -159,7 +160,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
             payloadDatahandler = null;
         } else {
             DataSource dataSource = new ByteArrayDataSource(binaryData, mime);
-            if (encrypted) {
+            if (isEncrypted()) {
                 LOG.debug("Using DecryptDataSource for payload [{}]", href);
                 final Cipher decryptCipher = getDecryptCipher();
                 dataSource = new DecryptDataSource(dataSource, decryptCipher);
@@ -171,7 +172,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     protected Cipher getDecryptCipher() {
         LOG.debug("Getting decrypt cipher for payload [{}]", href);
-        final EncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", EncryptionService.class);
+        final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
         return encryptionService.getDecryptCipherForPayload();
     }
 

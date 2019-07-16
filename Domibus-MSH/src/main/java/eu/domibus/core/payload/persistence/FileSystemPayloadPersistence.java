@@ -3,8 +3,7 @@ package eu.domibus.core.payload.persistence;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.CompressionService;
-import eu.domibus.common.services.impl.MessagingServiceImpl;
-import eu.domibus.core.encryption.EncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
@@ -50,7 +49,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Autowired
-    protected EncryptionService encryptionService;
+    protected PayloadEncryptionService encryptionService;
 
     @Override
     public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {

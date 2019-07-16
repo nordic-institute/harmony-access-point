@@ -7,6 +7,7 @@ import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 
@@ -43,6 +44,16 @@ public class DateUtilImpl implements DateUtil {
 
     @Override
     public Date getStartOfDay() {
-        return LocalDateTime.now().withTime(0,0,0,0).toDate();
+        return LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
+    }
+
+    @Override
+    public String getCurrentTime(DateTimeFormatter dateTimeFormatter) {
+        return java.time.LocalDateTime.now().format(dateTimeFormatter);
+    }
+
+    @Override
+    public String getCurrentTime() {
+        return getCurrentTime(DEFAULT_FORMATTER);
     }
 }
