@@ -35,7 +35,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.PolicyService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.neethi.AbstractPolicyOperator;
+import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyComponent;
+import org.apache.wss4j.policy.model.SignedElements;
+import org.opensaml.soap.wspolicy.ExactlyOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -45,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -333,9 +339,17 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
-        if (policyService.isNoSecurityPolicy(policy)) {
+        if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
             return;
         }
+
+        Iterator<List<Assertion>> alternativeIterator = policy.getAlternatives();
+        while (alternativeIterator.hasNext()) {
+            List<Assertion> alternative = alternativeIterator.next();
+            SignedElements signedElements = (SignedElements) alternative.get(0);
+        }
+        PolicyComponent pc = ((AbstractPolicyOperator)policy).getPolicyComponents().get(0);
+
         // TODO - skip for policy with no encryption
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
