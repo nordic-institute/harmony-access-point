@@ -106,6 +106,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
 
         List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
+            propertyName = StringUtils.trim(propertyName);
             final String propertyValue = passwordEncryptionContext.getProperty(propertyName);
             if (StringUtils.isBlank(propertyValue)) {
                 return false;
