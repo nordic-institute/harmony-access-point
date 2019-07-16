@@ -343,14 +343,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        Iterator<List<Assertion>> alternativeIterator = policy.getAlternatives();
-        while (alternativeIterator.hasNext()) {
-            List<Assertion> alternative = alternativeIterator.next();
-            SignedElements signedElements = (SignedElements) alternative.get(0);
-        }
-        PolicyComponent pc = ((AbstractPolicyOperator)policy).getPolicyComponents().get(0);
-
-        // TODO - skip for policy with no encryption
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
             try {
