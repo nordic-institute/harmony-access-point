@@ -1,6 +1,5 @@
 package eu.domibus.ebms3.common.model;
 
-import eu.domibus.ebms3.common.model.EmptyStringAdapter;
 import mockit.Tested;
 import org.junit.Test;
 

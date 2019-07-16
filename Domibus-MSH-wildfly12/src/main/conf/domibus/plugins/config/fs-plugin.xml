@@ -19,6 +19,10 @@
         <property name="jndiName" value="jms/domibus.notification.filesystem" />
     </bean>
 
+    <bean id="fsPluginSendQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="${fsplugin.send.queue}"/>
+    </bean>
+
     <bean id="backendFSPlugin"
           class="eu.domibus.plugin.fs.BackendFSImpl">
         <constructor-arg value="backendFSPlugin"/>
@@ -43,8 +47,9 @@
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginPurgeSentWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.sent.purge.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
-    
+
     <!-- quartz job for purging failed messages -->
     <bean id="fsPluginPurgeFailedWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
@@ -56,8 +61,9 @@
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginPurgeFailedWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.failed.purge.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
-    
+
     <!-- quartz job for purging received messages -->
     <bean id="fsPluginPurgeReceivedWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
@@ -69,8 +75,9 @@
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginPurgeReceivedWorkerJob"/>
         <property name="cronExpression" value="${fsplugin.messages.received.purge.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
-    
+
     <!-- quartz job for sending messages (from OUT folders) -->
     <bean id="fsPluginSendMessagesWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -82,18 +89,6 @@
           class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean" scope="prototype">
         <property name="jobDetail" ref="fsPluginSendMessagesWorkerJob"/>
         <property name="repeatInterval" value="${fsplugin.messages.send.worker.repeatInterval}"/>
+        <property name="startDelay" value="20000"/>
     </bean>
-
-    <!-- customizable list of triggers to be executed by quartz -->
-    <bean id="fsPluginTriggerList" class="org.springframework.beans.factory.config.ListFactoryBean">
-        <property name="sourceList">
-            <list>
-                <ref bean="fsPluginPurgeSentWorkerTrigger"/>
-                <ref bean="fsPluginPurgeFailedWorkerTrigger"/>
-                <ref bean="fsPluginPurgeReceivedWorkerTrigger"/>
-                <ref bean="fsPluginSendMessagesWorkerTrigger"/>
-            </list>
-        </property>
-    </bean>
-
 </beans>

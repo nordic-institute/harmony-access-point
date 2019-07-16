@@ -22,7 +22,8 @@ import java.io.OutputStreamWriter;
 /**
  * This class is responsible for performing complex operations using VFS
  *
- * @author @author FERNANDES Henrique, GONCALVES Bruno
+ * @author FERNANDES Henrique, GONCALVES Bruno
+ * @author Cosmin Baciu
  */
 @Component
 @Transactional(noRollbackFor = FSSetUpException.class)
@@ -43,11 +44,11 @@ public class FSFilesManager {
     private FSPluginProperties fsPluginProperties;
 
     public FileObject getEnsureRootLocation(final String location, final String domain,
-            final String user, final String password) throws FileSystemException {
+                                            final String user, final String password) throws FileSystemException {
         StaticUserAuthenticator auth = new StaticUserAuthenticator(domain, user, password);
         FileSystemOptions opts = new FileSystemOptions();
         DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
-        
+
         /*
          * This is a workaround for a VFS issue regarding FTP servers on Linux.
          * See https://issues.apache.org/jira/browse/VFS-620
@@ -69,7 +70,7 @@ public class FSFilesManager {
         checkRootDirExists(rootDir);
 
         return rootDir;
-    }    
+    }
 
     private void checkRootDirExists(FileObject rootDir) throws FileSystemException {
         if (!rootDir.exists()) {
@@ -83,11 +84,11 @@ public class FSFilesManager {
         checkRootDirExists(rootDir);
         return rootDir;
     }
-    
+
     private FileSystemManager getVFSManager() throws FileSystemException {
         return VFS.getManager();
     }
-    
+
     public FileObject getEnsureChildFolder(FileObject rootDir, String folderName) {
         try {
             checkRootDirExists(rootDir);
@@ -104,7 +105,7 @@ public class FSFilesManager {
             throw new FSSetUpException("IO error setting up folders", ex);
         }
     }
-    
+
     public FileObject[] findAllDescendantFiles(FileObject folder) throws FileSystemException {
         return folder.findFiles(new FileTypeSelector(FileType.FILE));
     }
@@ -112,19 +113,69 @@ public class FSFilesManager {
     public FileObject[] findAllDescendantFiles(FileObject folder, FileType fileType) throws FileSystemException {
         return folder.findFiles(new FileTypeSelector(fileType));
     }
-    
+
     public DataHandler getDataHandler(FileObject file) {
         return new DataHandler(new FileObjectDataSource(file));
     }
-    
+
     public FileObject resolveSibling(FileObject file, String siblingName) throws FileSystemException {
         return file.resolveFile(PARENT_RELATIVE_PATH + siblingName);
     }
 
+    /**
+     * Checks if a lock file exists for a given file
+     *
+     * @param file The original file for which the lock file is checked
+     * @return true if a lock file exists
+     * @throws FileSystemException On error parsing the path, or on error finding the file.
+     */
+    public boolean hasLockFile(FileObject file) throws FileSystemException {
+        final FileObject lockFile = resolveSibling(file, FSFileNameHelper.getLockFilename(file));
+        LOG.debug("Checking if lock file exists [{}]", file.getName().getURI());
+        final boolean exists = lockFile.exists();
+        LOG.debug("Lock file [{}] exists? [{}]", file.getName().getURI(), exists);
+        return exists;
+    }
+
+    /**
+     * Creates a lock file associated to a given file. For instance it will create invoice.pdf.lock for a file named invoice.pdf
+     *
+     * @param file The original file for which the  lock file is created
+     * @return the lock file
+     * @throws FileSystemException On error parsing the path, or on error finding the file.
+     */
+    public FileObject createLockFile(FileObject file) throws FileSystemException {
+        final FileObject lockFile = resolveSibling(file, FSFileNameHelper.getLockFilename(file));
+        LOG.debug("Creating lock file for [{}]", file.getName().getBaseName());
+        lockFile.createFile();
+        return lockFile;
+    }
+
+    /**
+     * Deletes the lock file associated to a given file
+     *
+     * @param file The original file for which the lock file is deleted
+     * @return true if the lock file has been deleted
+     * @throws FileSystemException On error parsing the path, or on error finding the file.
+     */
+    public boolean deleteLockFile(FileObject file) throws FileSystemException {
+        final FileObject lockFile = resolveSibling(file, FSFileNameHelper.getLockFilename(file));
+        if (lockFile.exists()) {
+            LOG.debug("Deleting lock file for [{}]", file.getName().getBaseName());
+            return lockFile.delete();
+        } else {
+            LOG.debug("Lock file for [{}] not found", file.getName().getBaseName());
+        }
+        return false;
+    }
+
+
     public FileObject renameFile(FileObject file, String newFileName) throws FileSystemException {
+        LOG.debug("Renaming file [{}] to [{}]", file.getName().getPath(), newFileName);
+
         FileObject newFile = resolveSibling(file, newFileName);
         file.moveTo(newFile);
-        
+
         forceLastModifiedTimeIfSupported(newFile);
 
         return newFile;
@@ -132,7 +183,7 @@ public class FSFilesManager {
 
     public void moveFile(FileObject file, FileObject targetFile) throws FileSystemException {
         file.moveTo(targetFile);
-        
+
         forceLastModifiedTimeIfSupported(targetFile);
     }
 
@@ -141,6 +192,7 @@ public class FSFilesManager {
             try (FileContent fileContent = file.getContent()) {
                 long currentTimeMillis = System.currentTimeMillis();
                 fileContent.setLastModifiedTime(currentTimeMillis);
+                LOG.debug("Forced LastModifiedTime for file [{}] to [{}]", file.getName().getPath(), currentTimeMillis);
             }
         }
     }
@@ -168,7 +220,7 @@ public class FSFilesManager {
         }
         return rootDir;
     }
-    
+
     public void closeAll(FileObject[] files) {
         for (FileObject file : files) {
             try {
@@ -185,15 +237,15 @@ public class FSFilesManager {
      * Creates a file in the directory with the given file name and content.
      *
      * @param directory base directory
-     * @param fileName file name
-     * @param content content
+     * @param fileName  file name
+     * @param content   content
      * @throws java.io.IOException
      */
     public void createFile(FileObject directory, String fileName, String content) throws IOException {
         try (FileObject file = directory.resolveFile(fileName);
              OutputStream fileOS = file.getContent().getOutputStream();
              OutputStreamWriter fileOSW = new OutputStreamWriter(fileOS)) {
-            
+
             fileOSW.write(content);
         }
     }

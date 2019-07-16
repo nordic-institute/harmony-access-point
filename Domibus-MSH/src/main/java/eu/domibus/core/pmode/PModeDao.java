@@ -33,6 +33,7 @@ public class PModeDao extends PModeProvider {
     private static final String STR_ACTION = "ACTION";
     private static final String STR_SERVICE = "SERVICE";
     private static final String STR_NO_MATCHING_LEG_FOUND = "No matching leg found";
+    private static final String STR_WARN_NO_USSAGE_ALLOWED = "Call to ~PModeDao~ is not expected anymore!";
 
     @Autowired
     private PartyDao partyDao;
@@ -40,11 +41,13 @@ public class PModeDao extends PModeProvider {
     @Override
     public Party getGatewayParty() {
         //TODO check if it can be optimized
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
         return configurationDAO.read().getParty();
     }
 
     @Override
     public Party getSenderParty(final String pModeKey) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         String senderPartyName = this.getSenderPartyNameFromPModeKey(pModeKey);
 
@@ -60,6 +63,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Party getReceiverParty(final String pModeKey) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         String senderPartyName = this.getReceiverPartyNameFromPModeKey(pModeKey);
 
@@ -75,6 +79,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Service getService(final String pModeKey) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<Service> query = this.entityManager.createNamedQuery("Service.findByName", Service.class);
         query.setParameter("NAME", this.getServiceNameFromPModeKey(pModeKey)); //FIXME enable multiple ServiceTypes with the same name
         return query.getSingleResult();
@@ -82,6 +88,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Action getAction(final String pModeKey) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<Action> query = this.entityManager.createNamedQuery("Action.findByName", Action.class);
         query.setParameter("NAME", this.getActionNameFromPModeKey(pModeKey));
         return query.getSingleResult();
@@ -89,6 +97,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public Agreement getAgreement(final String pModeKey) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<Agreement> query = this.entityManager.createNamedQuery("Agreement.findByName", Agreement.class);
         query.setParameter("NAME", this.getAgreementRefNameFromPModeKey(pModeKey));
         return query.getSingleResult();
@@ -96,6 +106,8 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public LegConfiguration getLegConfiguration(final String pModeKey) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<LegConfiguration> query = this.entityManager.createNamedQuery("LegConfiguration.findByName", LegConfiguration.class);
         query.setParameter("NAME", this.getLegConfigurationNameFromPModeKey(pModeKey));
         return query.getSingleResult();
@@ -104,33 +116,46 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public void init() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         //nothing to init here
     }
 
+    @Override
+    protected String findPullLegName(final String agreementName, final String senderParty, final String receiverParty, final String service, final String action, String mpc) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
+        //Here we invert the parties to find leg configured for a pull.
+        try {
+            String legNameInPullProcess = findLegNameMepBindingAgnostic(agreementName, receiverParty, senderParty, service, action);
+            //then we verify that the leg is indeed in a pull process.
+            final List<Process> resultList = processDao.findPullProcessByLegName(legNameInPullProcess);
+            //if not pull process found then this is a miss configuration.
+            if (resultList.isEmpty()) {
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, STR_NO_MATCHING_LEG_FOUND, null, null);
+            }
+            return legNameInPullProcess;
+        } catch (EbMS3Exception e) {
+            LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, e, agreementName, senderParty, receiverParty, service, action);
+            throw e;
+        }
+    }
+
+    @Override
     protected String findLegName(final String agreementName, final String senderParty, final String receiverParty, final String service, final String action) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         try {
             //this is the normal call for a push.
             return findLegNameMepBindingAgnostic(agreementName, senderParty, receiverParty, service, action);
         } catch (EbMS3Exception e) {
-            //Here we invert the parties to find leg configured for a pull.
-            try {
-                String legNameInPullProcess = findLegNameMepBindingAgnostic(agreementName, receiverParty, senderParty, service, action);
-                //then we verify that the leg is indeed in a pull process.
-                final List<Process> resultList = processDao.findPullProcessByLegName(legNameInPullProcess);
-                //if not pull process found then this is a miss configuration.
-                if (resultList.isEmpty()) {
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, STR_NO_MATCHING_LEG_FOUND, null, null);
-                }
-                return legNameInPullProcess;
-            } catch (EbMS3Exception e1) {
-                LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, e, agreementName, senderParty, receiverParty, service, action);
-                throw e1;
-            }
+            return findPullLegName(agreementName, senderParty, receiverParty, service, action, null);
         }
-
     }
 
     public String findLegNameMepBindingAgnostic(String agreementName, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         LOG.debug("Finding leg name using agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]",
                 agreementName, senderParty, receiverParty, service, action);
         String namedQuery;
@@ -179,6 +204,8 @@ public class PModeDao extends PModeProvider {
     }
 
     protected String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {
             return OPTIONAL_AND_EMPTY;
         }
@@ -196,6 +223,8 @@ public class PModeDao extends PModeProvider {
     }
 
     protected String findActionName(final String action) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         if (action == null || action.isEmpty()) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Action parameter must not be null or empty", null, null);
         }
@@ -210,7 +239,16 @@ public class PModeDao extends PModeProvider {
         }
     }
 
+    @Override
+    protected Mpc findMpc(String mpcValue) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
+        return null;
+    }
+
     protected String findServiceName(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final String type = service.getType();
         final String value = service.getValue();
         final TypedQuery<String> query;
@@ -237,6 +275,8 @@ public class PModeDao extends PModeProvider {
     }
 
     protected String findPartyName(final Collection<PartyId> partyIds) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         Identifier identifier;
         for (final PartyId partyId : partyIds) {
             LOG.debug("Trying to find party [{}]", partyId);
@@ -271,12 +311,15 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public boolean isMpcExistant(final String mpc) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<Integer> query = this.entityManager.createNamedQuery("Mpc.countForQualifiedName", Integer.class);
         return query.getSingleResult() > 0;
     }
 
     @Override
     public int getRetentionDownloadedByMpcName(final String mpcName) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         final TypedQuery<Mpc> query = entityManager.createNamedQuery("Mpc.findByName", Mpc.class);
         query.setParameter("NAME", mpcName);
@@ -293,6 +336,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         final TypedQuery<Mpc> query = entityManager.createNamedQuery("Mpc.findByQualifiedName", Mpc.class);
         query.setParameter("QUALIFIED_NAME", mpcURI);
@@ -309,6 +353,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public int getRetentionUndownloadedByMpcName(final String mpcName) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         final TypedQuery<Mpc> query = this.entityManager.createNamedQuery("Mpc.findByName", Mpc.class);
         query.setParameter("NAME", mpcName);
@@ -325,6 +370,7 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         final TypedQuery<Mpc> query = entityManager.createNamedQuery("Mpc.findByQualifiedName", Mpc.class);
         query.setParameter("QUALIFIED_NAME", mpcURI);
@@ -341,28 +387,37 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public List<String> getMpcList() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<String> query = entityManager.createNamedQuery("Mpc.getAllNames", String.class);
         return query.getResultList();
     }
 
     @Override
     public List<String> getMpcURIList() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<String> query = entityManager.createNamedQuery("Mpc.getAllURIs", String.class);
         return query.getResultList();
     }
 
     @Override
     public void refresh() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         //as we always query the DB pmodes never are stale, thus no refresh needed
     }
 
     @Override
     public boolean isConfigurationLoaded() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
         return configurationDAO.configurationExists();
     }
 
     @Override
     public Role getBusinessProcessRole(String roleValue) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         final TypedQuery<Role> query = entityManager.createNamedQuery("Role.findByValue", Role.class);
         query.setParameter("VALUE", roleValue);
 
@@ -376,32 +431,41 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         return processDao.findPullProcessesByMessageContext(messageExchangeConfiguration);
     }
 
     @Override
     public List<Process> findPullProcessesByInitiator(final Party party) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         return processDao.findPullProcessesByInitiator(party);
     }
 
     @Override
     public List<Process> findPullProcessByMpc(final String mpc) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
         return processDao.findPullProcessByMpc(mpc);
     }
 
     @Override
     public List<Process> findAllProcesses() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
         return processDao.findAllProcesses();
     }
 
     @Override
     public List<Party> findAllParties() {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
         return partyDao.getParties();
     }
 
 
     @Override
     public List<String> findPartyIdByServiceAndAction(final String service, final String action) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         List<String> result = new ArrayList<>();
         LegConfiguration legConfiguration;
         // get the leg which contains the service and action
@@ -418,8 +482,8 @@ public class PModeDao extends PModeProvider {
         final List<Process> processByLegName = processDao.findProcessByLegName(legConfiguration.getName());
 
         for (Process process : processByLegName) {
-            for(Party party : process.getResponderParties()) {
-                for(Identifier identifier : party.getIdentifiers()) {
+            for (Party party : process.getResponderParties()) {
+                for (Identifier identifier : party.getIdentifiers()) {
                     result.add(identifier.getPartyId());
                 }
             }
@@ -429,31 +493,49 @@ public class PModeDao extends PModeProvider {
 
     @Override
     public String getPartyIdType(String partyIdentifier) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String getServiceType(String serviceValue) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String getRole(String roleType, String serviceValue) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public String getAgreementRef(String serviceValue) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         // Not implemented on purpose
         return null;
     }
 
     @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
         // Not implemented on purpose
+        return null;
+    }
+
+    @Override
+    public String findMpcUri(String mpcName) throws EbMS3Exception {
+        LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
+
+        LOG.warn("No calls expected to this class anymore");
         return null;
     }
 }

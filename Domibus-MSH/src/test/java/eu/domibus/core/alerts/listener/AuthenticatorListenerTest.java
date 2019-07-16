@@ -8,6 +8,7 @@ import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,22 +46,22 @@ public class AuthenticatorListenerTest {
         }};
     }
 
-    @Test
-    public void onAccountDisabled(@Mocked final Event event, @Mocked final Alert alert) {
-        final String domain = "domain";
-        new Expectations() {{
-            alertService.createAlertOnEvent(event);
-            result = alert;
-        }};
-        authenticatorListener.onAccountDisabled(event, domain);
-        new Verifications() {{
-            domainContextProvider.setCurrentDomain(domain);
-            times = 1;
-            eventService.persistEvent(event);
-            alertService.createAlertOnEvent(event);
-            alertService.enqueueAlert(alert);
-        }};
-    }
+//    @Test
+//    public void onAccountDisabled(@Mocked final Event event, @Mocked final Alert alert) {
+//        final String domain = "domain";
+//        new Expectations() {{
+//            alertService.createAlertOnEvent(event);
+//            result = alert;
+//        }};
+//        authenticatorListener.onAccountDisabled(event, domain);
+//        new Verifications() {{
+//            domainContextProvider.setCurrentDomain(domain);
+//            times = 1;
+//            eventService.persistEvent(event);
+//            alertService.createAlertOnEvent(event);
+//            alertService.enqueueAlert(alert);
+//        }};
+//    }
 
 
 }

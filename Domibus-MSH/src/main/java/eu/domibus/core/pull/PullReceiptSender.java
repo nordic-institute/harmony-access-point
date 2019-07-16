@@ -12,14 +12,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.util.MessageUtil;
 import org.apache.neethi.Policy;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.soap.SOAPMessage;
 import java.util.Set;
 
@@ -31,39 +28,46 @@ public class PullReceiptSender {
     @Autowired
     private MSHDispatcher mshDispatcher;
 
-    @Qualifier("jaxbContextEBMS")
     @Autowired
-    private JAXBContext jaxbContext;
+    protected MessageUtil messageUtil;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReicept(final SOAPMessage soapMessage, final String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey, final String messsageId, String domainCode) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void sendReceipt(final SOAPMessage soapMessage, final String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey, final String messsageId, String domainCode) throws EbMS3Exception {
         domainContextProvider.setCurrentDomain(domainCode);
-        LOG.trace("[sendReicept]Message:[{}]dispatch receipt", messsageId);
+        LOG.trace("[sendReceipt] Message:[{}] dispatch receipt", messsageId);
         final SOAPMessage acknowledgementResult;
         try {
             acknowledgementResult = mshDispatcher.dispatch(soapMessage, endpoint, policy, legConfiguration, pModeKey);
-            LOG.trace("[sendReicept] Message:[{}]receipt result", messsageId);
+            LOG.trace("[sendReceipt] Message:[{}] receipt result", messsageId);
             handleDispatchReceiptResult(acknowledgementResult);
         } catch (EbMS3Exception e) {
-            LOG.error("[sendReicept] Message:[{}]", messsageId, e);
+            LOG.error("Error dispatching the pull receipt for message:[{}]", messsageId, e);
+            throw e;
+        } finally {
+            LOG.trace("[sendReceipt] ~~~ finnaly the end ~~~");
         }
     }
 
-    private void handleDispatchReceiptResult(SOAPMessage acknowledgementResult) throws EbMS3Exception {
-        if (acknowledgementResult != null) {
-
-            Messaging errorMessage = MessageUtil.getMessage(acknowledgementResult, jaxbContext);
-            Set<Error> errors = errorMessage.getSignalMessage().getError();
-            for (Error error : errors) {
-                LOG.error("An error occured when sending receipt:error code:[{}], description:[{}]:[{}]", error.getErrorCode(), error.getShortDescription(), error.getErrorDetail());
-                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(error.getErrorCode()), error.getErrorDetail(), error.getRefToMessageInError(), null);
-                ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-                throw ebMS3Ex;
-            }
+    protected void handleDispatchReceiptResult(SOAPMessage acknowledgementResult) throws EbMS3Exception {
+        if (acknowledgementResult == null) {
+            LOG.debug("acknowledgementResult is null, as expected. No errors were reported");
+            return;
+        }
+        Messaging errorMessage = messageUtil.getMessage(acknowledgementResult);
+        if (errorMessage == null || errorMessage.getSignalMessage() == null) {
+            LOG.debug("acknowledgementResult is not null, but it does not contain a SignalMessage with the reported errors. ");
+            return;
+        }
+        Set<Error> errors = errorMessage.getSignalMessage().getError();
+        if (errors != null && !errors.isEmpty()) {
+            Error error = errors.iterator().next();
+            LOG.error("An error occured when sending receipt:error code:[{}], description:[{}]:[{}]", error.getErrorCode(), error.getShortDescription(), error.getErrorDetail());
+            EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(error.getErrorCode()), error.getErrorDetail(), error.getRefToMessageInError(), null);
+            ebMS3Ex.setMshRole(MSHRole.RECEIVING);
+            throw ebMS3Ex;
         }
     }
-
 }

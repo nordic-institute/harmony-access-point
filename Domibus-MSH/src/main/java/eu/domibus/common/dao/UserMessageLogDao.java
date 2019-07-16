@@ -1,12 +1,12 @@
 package eu.domibus.common.dao;
 
 import com.google.common.collect.Maps;
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
-import eu.domibus.ebms3.common.model.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -30,7 +30,7 @@ import java.util.*;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+    protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
@@ -45,25 +45,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
         query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
 
-        return query.getResultList();
-    }
-
-    public List<String> findPullWaitingForReceiptMessages() {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findPullWaitingForReceiptMessages", String.class);
-        query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
-        return query.getResultList();
-    }
-
-    public List<String> findTimedoutMessages(int timeoutTolerance) {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findTimedoutMessages", String.class);
-        query.setParameter("TIMESTAMP_WITH_TOLERANCE", new Date(System.currentTimeMillis() - timeoutTolerance));
-
-        return query.getResultList();
-    }
-
-    public List<String> findTimedOutPullMessages(int timeoutTolerance) {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findPullTimedoutMessages", String.class);
-        query.setParameter("TIMESTAMP_WITH_TOLERANCE", new Date(System.currentTimeMillis() - timeoutTolerance));
         return query.getResultList();
     }
 
@@ -97,10 +78,28 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
+    /**
+     * Finds a UserMessageLog by message id. If the message id is not found it catches the exception raised Hibernate and returns null.
+     *
+     * @param messageId The message id
+     * @return The UserMessageLog
+     */
+    public UserMessageLog findByMessageIdSafely(String messageId) {
+        try {
+            return findByMessageId(messageId);
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with id [" + messageId + "]");
+            return null;
+        }
+    }
+
+
     public UserMessageLog findByMessageId(String messageId) {
+        //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         return query.getSingleResult();
+
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
@@ -149,27 +148,23 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
-        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", String.class);
-        query.setParameter("DATE", date);
-        query.setParameter("MPC", mpc);
-        query.setMaxResults(expiredNotDownloadedMessagesLimit);
-        try {
-            return query.getResultList();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query UserMessageLog.findUndownloadedUserMessagesOlderThan did not find any result for date [" + date + "] and MPC [" + mpc + "]");
-            return Collections.emptyList();
-        }
+        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
     public List<String> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
-        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", String.class);
-        query.setParameter("DATE", date);
+        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+    }
+
+    private List<String> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        TypedQuery<String> query = em.createNamedQuery(queryName, String.class);
+        query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
-        query.setMaxResults(expiredDownloadedMessagesLimit);
+        query.setMaxResults(expiredMessagesLimit);
+
         try {
             return query.getResultList();
         } catch (NoResultException nrEx) {
-            LOG.debug("Query UserMessageLog.findDownloadedUserMessagesOlderThan did not find any result for date [" + date + "] and MPC [" + mpc + "]");
+            LOG.debug("Query [{}] did not find any result for startDate [{}] startDate and MPC [{}]", queryName, startDate, mpc);
             return Collections.emptyList();
         }
     }
@@ -236,8 +231,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public String findLastUserTestMessageId(String party) {
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype",MessageSubtype.TEST);
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("messageSubtype", MessageSubtype.TEST);
         filters.put("mshRole", MSHRole.SENDING);
         filters.put("toPartyId", party);
         filters.put("messageType", MessageType.USER_MESSAGE);

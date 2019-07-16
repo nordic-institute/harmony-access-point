@@ -1,7 +1,10 @@
 package eu.domibus.web.rest;
 
+import com.google.common.base.Strings;
 import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.multitenancy.DomainException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
@@ -17,18 +20,21 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.UserResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Thomas Dussart
@@ -59,6 +65,9 @@ public class UserResource {
     @Autowired
     private AuthUtils authUtils;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
     private UserService getUserService() {
         if (authUtils.isSuperAdmin()) {
             return superUserManagementService;
@@ -69,18 +78,17 @@ public class UserResource {
 
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
-        LOG.error(ex.getMessage(), ex);
-        return new ResponseEntity(new ErrorRO(ex.getMessage()), HttpStatus.CONFLICT);
+        return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler({DomainException.class})
-    public ResponseEntity<ErrorRO> handleDomainException(DomainException ex) {
-        if (ExceptionUtils.getRootCause(ex) instanceof UserManagementException) {
-            return handleUserManagementException((UserManagementException) ExceptionUtils.getRootCause(ex));
+    @ExceptionHandler({DomainTaskException.class})
+    public ResponseEntity<ErrorRO> handleDomainException(DomainTaskException ex) {
+        //We caught it here just to check for UserManagementException and put HttpStatus.CONFLICT;  otherwise we would have delegated to general error handler
+        Throwable rootException = ExceptionUtils.getRootCause(ex);
+        if (rootException instanceof UserManagementException) {
+            return handleUserManagementException((UserManagementException) rootException);
         }
-
-        LOG.error(ex.getMessage(), ex);
-        return new ResponseEntity(new ErrorRO(ExceptionUtils.getRootCause(ex).getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return errorHandlerService.createResponse(ex);
     }
 
     /**
@@ -98,9 +106,22 @@ public class UserResource {
     @RequestMapping(value = {"/users"}, method = RequestMethod.PUT)
     public void updateUsers(@RequestBody List<UserResponseRO> userROS) {
         LOG.debug("Update Users was called: " + userROS);
+        validateUsers(userROS);
         updateUserRoles(userROS);
         List<User> users = domainConverter.convert(userROS, User.class);
         getUserService().updateUsers(users);
+    }
+
+    private void validateUsers(List<UserResponseRO> users) {
+        users.forEach(user -> {
+            if (Strings.isNullOrEmpty(user.getUserName())) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User name cannot be null.");
+            }
+
+            if (Strings.isNullOrEmpty(user.getRoles())) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User role cannot be null.");
+            }
+        });
     }
 
     private void updateUserRoles(List<UserResponseRO> userROS) {
@@ -154,7 +175,7 @@ public class UserResource {
     }
 
     /**
-     * convert user to userresponsero.
+     * convert User to UserResponseRO.
      *
      * @param users
      * @return a list of

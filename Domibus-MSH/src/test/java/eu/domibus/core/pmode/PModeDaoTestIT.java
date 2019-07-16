@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -7,11 +8,17 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.common.dao.*;
+import eu.domibus.clustering.SignalServiceImpl;
+import eu.domibus.common.dao.ConfigurationDAO;
+import eu.domibus.common.dao.ConfigurationRawDAO;
+import eu.domibus.common.dao.PartyDao;
+import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.configuration.DefaultDomibusConfigurationService;
 import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
+import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.mpc.MpcServiceImpl;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -109,6 +116,11 @@ public class PModeDaoTestIT {
             return Mockito.mock(DomibusPropertyProviderImpl.class);
         }
 
+        @Bean(name = "domibusDefaultProperties")
+        public Properties domibusDefaultProperties() {
+            return Mockito.mock(Properties.class);
+        }
+
         @Bean(name = "domibusProperties")
         public Properties domibusProperties() {
             return Mockito.mock(Properties.class);
@@ -163,6 +175,16 @@ public class PModeDaoTestIT {
         @Bean
         public PModeDao pModeDao() {
             return new PModeDao();
+        }
+
+        @Bean
+        public SignalService signalService() {
+            return new SignalServiceImpl();
+        }
+
+        @Bean
+        public MpcService mpcService() {
+            return new MpcServiceImpl();
         }
     }
 

@@ -1,24 +1,26 @@
-import {Component, Inject, ChangeDetectorRef, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
 import {UserValidatorService} from '../../user/uservalidator.service';
-import {SecurityService} from '../../security/security.service';
 import {PluginUserRO} from '../pluginuser';
 import {PluginUserService} from '../pluginuser.service';
+import {SecurityService} from '../../security/security.service';
 
-const NEW_MODE = 'New User';
-const EDIT_MODE = 'User Edit';
+const NEW_MODE = 'New Plugin User';
+const EDIT_MODE = 'Plugin User Edit';
 
 @Component({
   selector: 'editbasicpluginuser-form',
   templateUrl: './editbasicpluginuser-form.component.html',
   providers: [UserValidatorService]
 })
-export class EditbasicpluginuserFormComponent {
+
+export class EditbasicpluginuserFormComponent implements OnInit {
 
   existingRoles = [];
   confirmation: string;
-  public passwordPattern = PluginUserService.passwordPattern;
+  public passwordPattern: string;
+  public passwordValidationMessage: string;
   editMode: boolean;
   formTitle: string;
   userForm: FormGroup;
@@ -30,10 +32,11 @@ export class EditbasicpluginuserFormComponent {
   public certificateIdPattern = PluginUserService.certificateIdPattern;
   public certificateIdMessage = PluginUserService.certificateIdMessage;
 
-  constructor (public dialogRef: MdDialogRef<EditbasicpluginuserFormComponent>,
-               @Inject(MD_DIALOG_DATA) public data: any,
-               fb: FormBuilder,
-               userValidatorService: UserValidatorService) {
+  constructor(public dialogRef: MdDialogRef<EditbasicpluginuserFormComponent>,
+              @Inject(MD_DIALOG_DATA) public data: any,
+              fb: FormBuilder,
+              private securityService: SecurityService,
+              userValidatorService: UserValidatorService) {
 
     this.existingRoles = data.userroles;
     this.editMode = data.edit;
@@ -45,28 +48,40 @@ export class EditbasicpluginuserFormComponent {
 
     if (this.editMode) {
       this.userForm = fb.group({
-        'userName': new FormControl({value: this.user.username, disabled: true}, Validators.nullValidator),
+        'userName': new FormControl({value: this.user.userName, disabled: true}, Validators.nullValidator),
         'originalUser': new FormControl(this.user.originalUser, null),
         'role': new FormControl(this.user.authRoles, Validators.required),
-        'password': [null, Validators.pattern],
+        'password': [null],
         'confirmation': [null],
+        'active': new FormControl(this.user.active, Validators.required)
       }, {
         validator: userValidatorService.validateForm()
       });
     } else {
       this.userForm = fb.group({
-        'userName': new FormControl(this.user.username, Validators.required),
+        'userName': new FormControl(this.user.userName, Validators.required),
         'originalUser': new FormControl(this.user.originalUser, null),
         'role': new FormControl(this.user.authRoles, Validators.required),
         'password': [Validators.required, Validators.pattern],
         'confirmation': [Validators.required],
+        'active': [Validators.required]
       }, {
         validator: userValidatorService.validateForm()
       });
     }
   }
 
-  submitForm () {
+  async ngOnInit() {
+    const passwordPolicy = await this.securityService.getPluginPasswordPolicy();
+    this.passwordPattern = passwordPolicy.pattern;
+    this.passwordValidationMessage = passwordPolicy.validationMessage;
+  }
+
+  updateActive (event) {
+    this.user.active = event.target.checked;
+  }
+
+  submitForm() {
     this.dialogRef.close(true);
   }
 

@@ -3,8 +3,11 @@ package eu.domibus.web.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
@@ -12,20 +15,19 @@ import eu.domibus.core.party.CertificateContentRo;
 import eu.domibus.core.party.IdentifierRo;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -169,7 +171,12 @@ public class PartyResourceTest {
     public void getCertificateForParty() throws Exception {
         final Date date = new Date();
         final TrustStoreEntry tre = new TrustStoreEntry("name", "subject", "issuer", date, date);
-        final TrustStoreRO tr = new TrustStoreRO(); tr.setName("name"); tr.setSubject("subject"); tr.setIssuer("issuer"); tr.setValidFrom(date); tr.setValidUntil(date);
+        final TrustStoreRO tr = new TrustStoreRO();
+        tr.setName("name");
+        tr.setSubject("subject");
+        tr.setIssuer("issuer");
+        tr.setValidFrom(date);
+        tr.setValidUntil(date);
         final String partyName = "party1";
 
         new Expectations(partyResource) {{
@@ -190,7 +197,12 @@ public class PartyResourceTest {
     public void convertCertificateContent() throws Exception {
         final Date date = new Date();
         final TrustStoreEntry tre = new TrustStoreEntry("name", "subject", "issuer", date, date);
-        final TrustStoreRO tr = new TrustStoreRO(); tr.setName("name"); tr.setSubject("subject"); tr.setIssuer("issuer"); tr.setValidFrom(date); tr.setValidUntil(date);
+        final TrustStoreRO tr = new TrustStoreRO();
+        tr.setName("name");
+        tr.setSubject("subject");
+        tr.setIssuer("issuer");
+        tr.setValidFrom(date);
+        tr.setValidUntil(date);
         final String partyName = "party1";
         final String certContent = "content";
 
@@ -215,5 +227,53 @@ public class PartyResourceTest {
 //            certificateService.convertCertificateContent(certContent);
 //            times = 1;
 //        }};
+    }
+
+
+    @Test
+    public void testGetCsv() throws EbMS3Exception {
+        // Given
+        String name = "";
+        String endpoint = null;
+        String partyId = null;
+        String process = null;
+        List<PartyResponseRo> partyResponseRoList = new ArrayList<>();
+        String mockCsvResult = "csv";
+
+        new Expectations(partyResource) {{
+            partyResource.listParties(name, endpoint, partyId, process, anyInt, anyInt);
+            result = partyResponseRoList;
+            csvServiceImpl.exportToCSV(partyResponseRoList, PartyResponseRo.class, (Map<String, String>) any, (List<String>) any);
+            result = mockCsvResult;
+        }};
+
+        // When
+        final ResponseEntity<String> csv = partyResource.getCsv(name, endpoint, partyId, process);
+
+        // Then
+        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assert.assertEquals(mockCsvResult, csv.getBody());
+    }
+
+    @Test
+    public void testUpdateParties() {
+        // Given
+        PartyResponseRo partyResponseRo = new PartyResponseRo();
+        List<PartyResponseRo> partiesRo = Arrays.asList(partyResponseRo);
+        Party party = new Party();
+        List<Party> partyList = Arrays.asList(party);
+
+        new Expectations(partyResource) {{
+            domainConverter.convert(partiesRo, Party.class);
+            result = partyList;
+            partyService.updateParties(partyList, (Map<String, String>) any);
+            times = 1;
+        }};
+
+        // When
+        final ResponseEntity response = partyResource.updateParties(partiesRo);
+
+        // Then
+        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 }

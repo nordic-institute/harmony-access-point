@@ -1,8 +1,6 @@
 package eu.domibus.ebms3.receiver;
 
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
@@ -13,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +28,7 @@ public class ServerInMessageLegConfigurationFactoryTest {
     @Mock
     private PullRequestLegConfigurationFactory pullRequestLegConfigurationFactory;
     @Mock
-    private ReceiptLegConfigurationFactory receiptLegConfigurationFactory;
+    private ServerInReceiptLegConfigurationFactory serverInReceiptLegConfigurationFactory;
     @InjectMocks
     private ServerInMessageLegConfigurationFactory configurationFactory;
 

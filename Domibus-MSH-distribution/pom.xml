@@ -11,7 +11,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.0.2</version>
+        <version>4.1-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
     <artifactId>domibus-distribution</artifactId>
@@ -63,13 +63,43 @@
             </build>
         </profile>
         <profile>
+            <id>dss-extension</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-authentication-dss-extension</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>
+                                            src/main/assembly/authentication-dss-extension/authentication-dss-extension.xml
+                                        </descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>tomcat</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
 
             <properties>
-                <tomcat.version>8.0.24</tomcat.version>
+                <tomcat.version>8.5.38</tomcat.version>
             </properties>
             <build>
                 <plugins>
@@ -138,7 +168,6 @@
         </profile>
         <profile>
             <id>weblogic</id>
-
             <build>
                 <plugins>
                     <plugin>
@@ -166,84 +195,19 @@
             </build>
         </profile>
         <profile>
-            <id>wildfly</id>
-            <properties>
-                <wildfly.version>9.0.2.Final</wildfly.version>
-            </properties>
-
+            <id>weblogic-ecas</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>${cargo-maven2-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>build-wildfly</id>
-                                <goals>
-                                    <goal>configure</goal>
-                                </goals>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <container>
-                                        <containerId>wildfly9x</containerId>
-                                        <zipUrlInstaller>
-                                            <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/9.0.2.Final/wildfly-as-dist-9.0.2.Final.zip
-                                            </url>
-                                        </zipUrlInstaller>
-                                    </container>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.google.code.maven-replacer-plugin</groupId>
-                        <artifactId>replacer</artifactId>
-                        <version>1.5.3</version>
-                        <executions>
-                            <execution>
-                                <id>domibus-conf-location</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>replace</goal>
-                                </goals>
-                                <configuration>
-                                    <includes>
-                                        <include>
-                                            ${project.build.directory}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf.bat
-                                        </include>
-                                        <include>
-                                            ${project.build.directory}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf
-                                        </include>
-                                    </includes>
-                                    <replacements>
-                                        <!-- Please keep the values from the "token" and the "value" fields on one line and do not include any whitespaces -->
-                                        <replacement>
-                                            <token>"JAVA_OPTS=-Xms64M -Xmx512M -XX:MaxPermSize=256M"</token>
-                                            <value>"JAVA_OPTS=-Xms64M -Xmx512M -XX:MaxPermSize=256M -Ddomibus.config.location=%JBOSS_HOME%/conf/domibus"</value>
-                                        </replacement>
-                                        <!-- Please keep the values from the "token" and the "value" fields on one line and do not include any whitespaces -->
-                                        <replacement>
-                                            <token>JAVA_OPTS="-Xms64m -Xmx512m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true"</token>
-                                            <value>JAVA_OPTS="-Xms64m -Xmx512m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true -Ddomibus.config.location=\$JBOSS_HOME/conf/domibus"</value>
-                                        </replacement>
-                                    </replacements>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>make-assembly-wildfly</id>
+                                <id>make-assembly-weblogic-ecas</id>
                                 <configuration>
                                     <descriptors>
-                                        <descriptor>src/main/assembly/wildfly/wildfly-configuration-only.xml</descriptor>
-                                        <descriptor>src/main/assembly/wildfly/wildfly-war.xml</descriptor>
-                                        <descriptor>src/main/assembly/wildfly/wildfly-full.xml</descriptor>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-ecas-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-ecas-war.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                                 <!-- bound to verify because we need to execute cargo-package first

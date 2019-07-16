@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.message.UserMessageLogService;
@@ -11,32 +12,47 @@ import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.message.fragment.MessageGroupDao;
+import eu.domibus.core.message.fragment.MessageGroupEntity;
+import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
-import eu.domibus.core.pull.ToExtractor;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
+import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
+import eu.domibus.ebms3.sender.SplitAndJoinException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.DelayedDispatchMessageCreator;
 import eu.domibus.messaging.DispatchMessageCreator;
+import eu.domibus.messaging.MessageConstants;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.plugin.transformer.impl.UserMessageFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -57,6 +73,18 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     @Qualifier("sendMessageQueue")
     private Queue sendMessageQueue;
+
+    @Autowired
+    @Qualifier("sendLargeMessageQueue")
+    private Queue sendLargeMessageQueue;
+
+    @Autowired
+    @Qualifier("splitAndJoinQueue")
+    private Queue splitAndJoinQueue;
+
+    @Autowired
+    @Qualifier("sendPullReceiptQueue")
+    private Queue sendPullReceiptQueue;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -91,9 +119,8 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private MessageExchangeService messageExchangeService;
 
-    //TODO remove the ext converter and replace it with DomainCoreConverter
     @Autowired
-    private DomainExtConverter domainExtConverter;
+    private DomainCoreConverter domainConverter;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -103,6 +130,38 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected MessageGroupDao messageGroupDao;
+
+    @Autowired
+    protected UserMessageFactory userMessageFactory;
+
+    @Autowired
+    protected DatabaseMessageHandler databaseMessageHandler;
+
+    @Autowired
+    private PModeProvider pModeProvider;
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
+    public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
+        messageGroupDao.create(messageGroupEntity);
+
+        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageInfo().getMessageId());
+        for (int index = 0; index < fragmentFiles.size(); index++) {
+            try {
+                final String fragmentFile = fragmentFiles.get(index);
+                createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragmentFile, index + 1);
+            } catch (MessagingProcessingException e) {
+                throw new SplitAndJoinException("Could not create Messaging for fragment " + index, e);
+            }
+        }
+    }
+
+    protected void createMessagingForFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, String backendName, String fragmentFile, int index) throws MessagingProcessingException {
+        final UserMessage userMessageFragment = userMessageFactory.createUserMessageFragment(userMessage, messageGroupEntity, Long.valueOf(index), fragmentFile);
+        databaseMessageHandler.submitMessageFragment(userMessageFragment, backendName);
+    }
 
     @Override
     public String getFinalRecipient(String messageId) {
@@ -159,8 +218,15 @@ public class UserMessageDefaultService implements UserMessageService {
             scheduleSending(messageId);
         } else {
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-            LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
-            pullMessageService.addPullMessageLock(new ToExtractor(userMessage.getPartyInfo().getTo()), userMessage, userMessageLog);
+            try {
+                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+                Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
+                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
+                pullMessageService.addPullMessageLock(new PartyExtractor(receiverParty), userMessage, userMessageLog);
+            } catch (EbMS3Exception ebms3Ex) {
+                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
+            }
         }
     }
 
@@ -181,6 +247,19 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(messageId);
     }
 
+    @Override
+    public void resendFailedOrSendEnqueuedMessage(String messageId) {
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Message [" + messageId + "] does not exist");
+        }
+        if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
+            sendEnqueuedMessage(messageId);
+        } else {
+            restoreFailedMessage(messageId);
+        }
+    }
+
     protected Integer getMaxAttemptsConfiguration(final String messageId) {
         final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageId);
         Integer result = 1;
@@ -194,31 +273,171 @@ public class UserMessageDefaultService implements UserMessageService {
 
     protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog, final String messageId) {
         Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(messageId);
-        return userMessageLog.getSendAttempts() + maxAttemptsConfiguration;
+        // always increase maxAttempts (even when not reached by sendAttempts)
+        return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
     @Override
     public void scheduleSending(String messageId, int retryCount) {
-        jmsManager.sendMessageToQueue(new DispatchMessageCreator(messageId).createMessage(retryCount), sendMessageQueue);
+        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage(retryCount));
     }
 
     @Override
     public void scheduleSending(String messageId) {
-        jmsManager.sendMessageToQueue(new DispatchMessageCreator(messageId).createMessage(), sendMessageQueue);
+        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage());
     }
 
     @Override
     public void scheduleSending(String messageId, Long delay) {
-        jmsManager.sendMessageToQueue(new DelayedDispatchMessageCreator(messageId, delay).createMessage(), sendMessageQueue);
+        scheduleSending(messageId, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
+    }
+
+    @Override
+    public void scheduleSourceMessageSending(String messageId) {
+        LOG.debug("Sending message to sendLargeMessageQueue");
+        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+        jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+    }
+
+    protected void scheduleSending(String messageId, JmsMessage jmsMessage) {
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+
+        if (userMessageLog.isSplitAndJoin()) {
+            LOG.debug("Sending message to sendLargeMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+        } else {
+            LOG.debug("Sending message to sendMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
+        }
+        userMessageLog.setScheduled(true);
+        userMessageLogDao.update(userMessageLog);
+    }
+
+    @Override
+    public void scheduleSplitAndJoinSendFailed(String groupId, String errorDetail) {
+        LOG.debug("Scheduling marking the group [{}] as failed", groupId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_SEND_FAILED)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSetUserMessageFragmentAsFailed(String messageId) {
+        LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED)
+                .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSourceMessageRejoinFile(String groupId, String backendName) {
+        LOG.debug("Scheduling the SourceMessage file rejoining for group [{}]", groupId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN_FILE)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_BACKEND_NAME, backendName)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSourceMessageRejoin(String groupId, String file, String backendName) {
+        LOG.debug("Scheduling the SourceMessage rejoining for group [{}] from file [{}]", groupId, file);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_SOURCE_MESSAGE_FILE, file)
+                .property(UserMessageService.MSG_BACKEND_NAME, backendName)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSourceMessageReceipt(String messageId, String pmodeKey) {
+        LOG.debug("Scheduling the SourceMessage receipt for message [{}]", messageId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)
+                .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, messageId)
+                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSendingSignalError(String messageId, String ebMS3ErrorCode, String errorDetail, String pmodeKey) {
+        LOG.debug("Scheduling sending the Signal error for message [{}]", messageId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)
+                .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail) {
+        LOG.debug("Scheduling marking the SplitAndJoin receive failed for group [{}]", groupId);
+
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)
+                .property(UserMessageService.MSG_GROUP_ID, groupId)
+                .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, sourceMessageId)
+                .property(UserMessageService.MSG_EBMS3_ERROR_CODE, errorCode)
+                .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
+                .build();
+        jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
+    }
+
+    @Override
+    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey) {
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .build();
+        LOG.debug("Sending message to sendPullReceiptQueue");
+        jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
+    }
+
+    @Override
+    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey, final int retryCount) {
+        final JmsMessage jmsMessage = JMSMessageBuilder
+                .create()
+                .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(MessageConstants.RETRY_COUNT, retryCount)
+                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .build();
+        LOG.debug("Sending message to sendPullReceiptQueue");
+        jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
     }
 
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
         final UserMessage userMessageByMessageId = messagingDao.findUserMessageByMessageId(messageId);
-        if(userMessageByMessageId == null) {
+        if (userMessageByMessageId == null) {
             return null;
         }
-        return domainExtConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
+        return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
     @Override
@@ -268,7 +487,7 @@ public class UserMessageDefaultService implements UserMessageService {
             return;
         }
 
-        LOG.debug("Deleting [" + messageIds.size() + "] messages");
+        LOG.debug("Deleting [{}] messages", messageIds.size());
         for (final String messageId : messageIds) {
             deleteMessage(messageId);
         }
@@ -305,16 +524,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     protected void handleSignalMessageDelete(String messageId) {
         List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-        if (!signalMessages.isEmpty()) {
-            for (SignalMessage signalMessage : signalMessages) {
-                signalMessageDao.clear(signalMessage);
-            }
-        }
+        signalMessages.stream().forEach(signalMessage -> signalMessageDao.clear(signalMessage));
+
         List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-        if (!signalMessageIds.isEmpty()) {
-            for (String signalMessageId : signalMessageIds) {
-                userMessageLogService.setMessageAsDeleted(signalMessageId);
-            }
-        }
+        signalMessageIds.stream().forEach(signalMessageId -> userMessageLogService.setMessageAsDeleted(signalMessageId));
     }
 }

@@ -31,14 +31,20 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
-    public String getProperty(String propertyName, String defaultValue) {
-        return domibusPropertyProvider.getProperty(propertyName, defaultValue);
-    }
-
-    @Override
     public String getDomainProperty(DomainDTO domainCode, String propertyName) {
         final Domain domain = domainConverter.convert(domainCode, Domain.class);
         return domibusPropertyProvider.getProperty(domain, propertyName);
+    }
+
+    @Override
+    public boolean containsDomainPropertyKey(DomainDTO domainDTO, String propertyName) {
+        final Domain domain = domainConverter.convert(domainDTO, Domain.class);
+        return domibusPropertyProvider.containsDomainPropertyKey(domain, propertyName);
+    }
+
+    @Override
+    public boolean containsPropertyKey(String propertyName) {
+        return domibusPropertyProvider.containsPropertyKey(propertyName);
     }
 
     @Override

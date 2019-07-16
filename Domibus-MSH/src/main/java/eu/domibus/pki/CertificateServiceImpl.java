@@ -3,6 +3,8 @@ package eu.domibus.pki;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.model.certificate.CertificateStatus;
@@ -17,6 +19,11 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemObjectGenerator;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,10 +34,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.xml.bind.DatatypeConverter;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -52,8 +56,6 @@ public class CertificateServiceImpl implements CertificateService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateServiceImpl.class);
 
     public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = "domibus.certificate.revocation.offset";
-
-    public static final String REVOCATION_TRIGGER_OFFSET_DEFAULT_VALUE = "15";
 
     @Autowired
     CRLService crlService;
@@ -78,6 +80,19 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Override
+    public boolean isCertificateChainValid(List<? extends Certificate> certificateChain) {
+        for (Certificate certificate : certificateChain) {
+            boolean certificateValid = isCertificateValid((X509Certificate) certificate);
+            if (!certificateValid) {
+                LOG.warn("Sender certificate not valid [{}]", certificate);
+                return false;
+            }
+            LOG.debug("Sender certificate valid [{}]", certificate);
+        }
+        return true;
+    }
 
     @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class)
@@ -117,7 +132,7 @@ public class CertificateServiceImpl implements CertificateService {
     public boolean isCertificateValid(X509Certificate cert) throws DomibusCertificateException {
         boolean isValid = checkValidity(cert);
         if (!isValid) {
-            LOG.warn("Certificate is not valid:[{}] ",cert);
+            LOG.warn("Certificate is not valid:[{}] ", cert);
             return false;
         }
         try {
@@ -143,7 +158,7 @@ public class CertificateServiceImpl implements CertificateService {
     public String extractCommonName(final X509Certificate certificate) throws InvalidNameException {
 
         final String dn = certificate.getSubjectDN().getName();
-        LOG.debug("DN is:[{}]",dn);
+        LOG.debug("DN is:[{}]", dn);
         final LdapName ln = new LdapName(dn);
         for (final Rdn rdn : ln.getRdns()) {
             if (StringUtils.equalsIgnoreCase(rdn.getType(), "CN")) {
@@ -152,30 +167,6 @@ public class CertificateServiceImpl implements CertificateService {
             }
         }
         throw new IllegalArgumentException("The certificate does not contain a common name (CN): " + certificate.getSubjectDN().getName());
-    }
-
-    /**
-     * Load certificate with alias from JKS file and return as {@code X509Certificate}.
-     *
-     * @param filePath the path to the JKS file
-     * @param alias the certificate alias
-     * @param password the key store certificate
-     * @return a X509 certificate
-     */
-    @Override
-    public X509Certificate loadCertificateFromJKSFile(String filePath, String alias, String password) {
-        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-
-            KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(fileInputStream, password.toCharArray());
-
-            Certificate cert = keyStore.getCertificate(alias);
-
-            return (X509Certificate) cert;
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            LOG.error("Could not load certificate from file " + filePath + ", alias " + alias + "pass " + password);
-            throw new DomibusCertificateException("Could not load certificate from file " + filePath + ", alias " + alias, e);
-        }
     }
 
     /**
@@ -212,13 +203,13 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void validateLoadOperation(ByteArrayInputStream newTrustStoreBytes, String password) {
+    public void validateLoadOperation(ByteArrayInputStream newTrustStoreBytes, String password, String type) {
         try {
-            KeyStore tempTrustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            KeyStore tempTrustStore = KeyStore.getInstance(type);
             tempTrustStore.load(newTrustStoreBytes, password.toCharArray());
             newTrustStoreBytes.reset();
         } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            throw new DomibusCertificateException("Could not load key store", e);
+            throw new DomibusCertificateException("Could not load key store: " + e.getMessage(), e);
         }
     }
 
@@ -240,19 +231,20 @@ public class CertificateServiceImpl implements CertificateService {
         final Integer imminentExpirationDelay = imminentExpirationCertificateConfiguration.getImminentExpirationDelay();
         final Integer imminentExpirationFrequency = imminentExpirationCertificateConfiguration.getImminentExpirationFrequency();
 
-        final Date offset = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
+        final Date today = LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
+        final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
         final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
 
-        LOG.debug("Searching for certificate about to expire with notification date smaller then:[{}] and expiration date < current date + offset[{}]->[{}]", notificationDate, imminentExpirationDelay, offset);
-        certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, offset).forEach(certificate -> {
-            certificate.setAlertImminentNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
+        LOG.debug("Searching for certificate about to expire with notification date smaller then:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+                notificationDate, imminentExpirationDelay, maxDate);
+        certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
+            certificate.setAlertImminentNotificationDate(today);
             certificateDao.saveOrUpdate(certificate);
             final String alias = certificate.getAlias();
             final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
             eventService.enqueueImminentCertificateExpirationEvent(accessPointOrAlias, alias, certificate.getNotAfter());
         });
     }
-
 
 
     protected void sendCertificateExpiredAlerts() {
@@ -270,7 +262,7 @@ public class CertificateServiceImpl implements CertificateService {
         Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
 
         LOG.debug("Searching for expired certificate with notification date smaller then:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
-        certificateDao.findExpiredToNotifyAsAlert(notificationDate,endNotification).forEach(certificate -> {
+        certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
             certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
             certificateDao.saveOrUpdate(certificate);
             final String alias = certificate.getAlias();
@@ -289,12 +281,14 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     /**
-     * Create or update certificate in the db.
+     * Create or update all keystore certificates in the db.
+     *
      * @param trustStore the trust store
-     * @param keyStore the key store
+     * @param keyStore   the key store
      */
     protected void saveCertificateData(KeyStore trustStore, KeyStore keyStore) {
         List<eu.domibus.common.model.certificate.Certificate> certificates = groupAllKeystoreCertificates(trustStore, keyStore);
+        certificateDao.removeUnusedCertificates(certificates);
         for (eu.domibus.common.model.certificate.Certificate certificate : certificates) {
             certificateDao.saveOrUpdate(certificate);
         }
@@ -322,7 +316,7 @@ public class CertificateServiceImpl implements CertificateService {
      * Group keystore and trustStore certificates in a list.
      *
      * @param trustStore the trust store
-     * @param keyStore the key store
+     * @param keyStore   the key store
      * @return a list of certificate.
      */
     protected List<eu.domibus.common.model.certificate.Certificate> groupAllKeystoreCertificates(KeyStore trustStore, KeyStore keyStore) {
@@ -360,13 +354,8 @@ public class CertificateServiceImpl implements CertificateService {
      * @return the certificate status.
      */
     protected CertificateStatus getCertificateStatus(Date notAfter) {
-        int revocationOffsetInDays = Integer.parseInt(REVOCATION_TRIGGER_OFFSET_DEFAULT_VALUE);
-        try {
-            revocationOffsetInDays = Integer.parseInt(domibusPropertyProvider.getProperty(REVOCATION_TRIGGER_OFFSET_PROPERTY, REVOCATION_TRIGGER_OFFSET_DEFAULT_VALUE));
-        } catch (NumberFormatException n) {
-            LOG.trace("Property:[{}] is invalid, should be a number.",REVOCATION_TRIGGER_OFFSET_PROPERTY,n);
-
-        }
+        int revocationOffsetInDays = domibusPropertyProvider.getIntegerProperty(REVOCATION_TRIGGER_OFFSET_PROPERTY);
+        LOG.debug("Property [{}], value [{}]", REVOCATION_TRIGGER_OFFSET_PROPERTY, revocationOffsetInDays);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
         LocalDateTime certificateEnd = LocalDateTime.fromDateFields(notAfter);
@@ -418,6 +407,91 @@ public class CertificateServiceImpl implements CertificateService {
         return cert;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String serializeCertificateChainIntoPemFormat(List<? extends Certificate> certificates) {
+        StringWriter sw = new StringWriter();
+        for (Certificate certificate : certificates) {
+            try (PemWriter pw = new PemWriter(sw)) {
+                PemObjectGenerator gen = new JcaMiscPEMGenerator(certificate);
+                pw.writeObject(gen);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(String.format("Error while serializing certificates:[%s]", certificate.getType()), e);
+            }
+        }
+        final String certificateChainValue = sw.toString();
+        LOG.debug("Serialized certificates:[{}]", certificateChainValue);
+        return certificateChainValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
+        List<X509Certificate> certificates = new ArrayList<>();
+        try (PemReader reader = new PemReader(new StringReader(chain))) {
+            CertificateFactory cf = CertificateFactory.getInstance("X509");
+            PemObject o;
+            while ((o = reader.readPemObject()) != null) {
+                if (o.getType().equals("CERTIFICATE")) {
+                    Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
+                    final X509Certificate certificate = (X509Certificate) c;
+                    LOG.debug("Deserialized certificate:[{}]", certificate.getSubjectDN());
+                    certificates.add(certificate);
+                } else {
+                    throw new IllegalArgumentException("Unknown type " + o.getType());
+                }
+            }
+
+        } catch (IOException | CertificateException e) {
+            LOG.error("Error while instantiating certificates from pem", e);
+        }
+        return certificates;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Certificate extractLeafCertificateFromChain(List<? extends Certificate> certificates) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Extracting leaf certificate from chain");
+            for (Certificate certificate : certificates) {
+                LOG.trace("Certificate:[{}]", certificate);
+            }
+        }
+        Set<String> issuerSet = new HashSet<>();
+        Map<String, X509Certificate> subjectMap = new HashMap<>();
+        for (Certificate certificate : certificates) {
+            X509Certificate x509Certificate = (X509Certificate) certificate;
+            final String subjectName = x509Certificate.getSubjectDN().getName();
+            subjectMap.put(subjectName, x509Certificate);
+            final String issuerName = x509Certificate.getIssuerDN().getName();
+            issuerSet.add(issuerName);
+            LOG.debug("Certificate subject:[{}] issuer:[{}]", subjectName, issuerName);
+        }
+
+        final Set<String> allSubject = subjectMap.keySet();
+        //There should always be one more subject more than issuers. Indeed the root CA has the same value as issuer and subject.
+        allSubject.removeAll(issuerSet);
+        //the unique entry in the set is the leaf.
+        if (allSubject.size() == 1) {
+            final String leafSubjet = allSubject.iterator().next();
+            LOG.debug("Not an issuer:[{}]", leafSubjet);
+            return subjectMap.get(leafSubjet);
+        }
+        //In case of unique self-signed certificate, the issuer and the subject are the same.
+        if (certificates.size() == 1) {
+            return certificates.get(0);
+        }
+        LOG.error("Certificate exchange type is X_509_PKIPATHV_1 but no leaf certificate has been found");
+        return null;
+    }
+
+
     public TrustStoreEntry convertCertificateContent(String certificateContent) throws CertificateException {
         X509Certificate cert = loadCertificateFromString(certificateContent);
         return createTrustStoreEntry(cert);
@@ -430,6 +504,12 @@ public class CertificateServiceImpl implements CertificateService {
         if (res != null)
             res.setFingerprints(extractFingerprints(cert));
         return res;
+    }
+
+    public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
+        X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
+        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
+        return cert;
     }
 
     private TrustStoreEntry createTrustStoreEntry(X509Certificate certificate) {

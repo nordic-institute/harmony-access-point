@@ -19,16 +19,23 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,6 +86,60 @@ public class CertificateServiceImplTest {
     @Before
     public void init() {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+    }
+
+    @Test
+    public void testIsCertificateChainValidPathV1() throws CertificateException {
+        new Expectations() {{
+            crlService.isCertificateRevoked((X509Certificate)any);
+            result = false;
+        }};
+
+        String certStrPath1 = "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";
+
+        final byte[] bytes = Base64.decodeBase64(certStrPath1);
+        org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory certificateFactory = new org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory();
+        List<? extends java.security.cert.Certificate> certificateChain = certificateFactory.engineGenerateCertPath(new ByteArrayInputStream(bytes)).getCertificates();
+        System.out.println(certificateChain);
+
+        Assert.assertTrue(certificateService.isCertificateChainValid(certificateChain));
+
+        new Verifications() {{
+            crlService.isCertificateRevoked((X509Certificate)any); times=3;
+        }};
+    }
+
+
+    @Test
+    public void testIsCertificateChainValidPathV1Revoked() throws CertificateException {
+        new Expectations() {{
+            crlService.isCertificateRevoked((X509Certificate)any);
+            result = true;
+        }};
+
+        String certStrPath1 = "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";
+
+        final byte[] bytes = Base64.decodeBase64(certStrPath1);
+        org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory certificateFactory = new org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory();
+        List<? extends java.security.cert.Certificate> certificateChain = certificateFactory.engineGenerateCertPath(new ByteArrayInputStream(bytes)).getCertificates();
+        System.out.println(certificateChain);
+
+        Assert.assertFalse(certificateService.isCertificateChainValid(certificateChain));
+    }
+
+    @Test
+    public void testCertificateChain() throws CertificateException {
+
+        String certStr = "-----BEGIN CERTIFICATE-----\n" +
+                "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\n" +
+                "-----END CERTIFICATE-----";
+
+        InputStream in = new ByteArrayInputStream(certStr.getBytes());
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        final java.security.cert.Certificate certificate = certFactory.generateCertificate(in);
+        System.out.println(certificate);
+
+        Assert.assertNotNull(certificate);
     }
 
     @Test
@@ -331,6 +392,9 @@ public class CertificateServiceImplTest {
         final List<Certificate> keyStoreCertificates = Lists.newArrayList(certificate);
 
         new Expectations(certificateService) {{
+            domibusPropertyProvider.getIntegerProperty(CertificateServiceImpl.REVOCATION_TRIGGER_OFFSET_PROPERTY);
+            result = 15;
+            times = 2;
             certificateService.extractCertificateFromKeyStore(trustStore);
             result = trustStoreCertificates;
             certificateService.extractCertificateFromKeyStore(keyStore);
@@ -345,6 +409,11 @@ public class CertificateServiceImplTest {
 
     @Test
     public void updateCertificateStatus() {
+        new Expectations(certificateService) {{
+            domibusPropertyProvider.getIntegerProperty(CertificateServiceImpl.REVOCATION_TRIGGER_OFFSET_PROPERTY);
+            result = 15;
+        }};
+
         Date now = new Date();
 
         Calendar c = Calendar.getInstance();
@@ -409,7 +478,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void sendCertificateImminentExpirationAlerts(final @Mocked ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration,
-                                                        @Mocked LocalDateTime dateTime,@Mocked final Certificate certificate) throws ParseException {
+                                                        @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
         Date offset = parser.parse("25/10/1977 00:00:00");
@@ -423,10 +492,10 @@ public class CertificateServiceImplTest {
         new Expectations() {{
 
             pModeProvider.isConfigurationLoaded();
-            result=true;
+            result = true;
 
             pModeProvider.getGatewayParty().getName();
-            result= accesPoint;
+            result = accesPoint;
 
             multiDomainAlertConfigurationService.getImminentExpirationCertificateConfiguration();
             result = imminentExpirationCertificateConfiguration;
@@ -446,29 +515,32 @@ public class CertificateServiceImplTest {
 
             final LocalDateTime now1 = dateTime.now();
             now1.minusDays(imminentExpirationFrequency).toDate();
-            result=notificationDate;
+            result = notificationDate;
 
-            certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, offset);
-            result=Lists.newArrayList(certificate);
+            certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, (Date) any, offset);
+            result = Lists.newArrayList(certificate);
 
             certificate.getAlias();
-            result= alias;
+            result = alias;
 
             certificate.getNotAfter();
-            result=notAfter;
+            result = notAfter;
 
         }};
         certificateService.sendCertificateImminentExpirationAlerts();
-        new VerificationsInOrder(){{
-            certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, offset);times=1;
-            certificateDao.saveOrUpdate(certificate);times=1;
-            eventService.enqueueImminentCertificateExpirationEvent(accesPoint, alias, notAfter);times=1;
+        new VerificationsInOrder() {{
+            certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, (Date) any, offset);
+            times = 1;
+            certificateDao.saveOrUpdate(certificate);
+            times = 1;
+            eventService.enqueueImminentCertificateExpirationEvent(accesPoint, alias, notAfter);
+            times = 1;
         }};
     }
 
     @Test
     public void sendCertificateExpiredAlerts(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                        @Mocked LocalDateTime dateTime,@Mocked final Certificate certificate) throws ParseException {
+                                             @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
         Date endNotification = parser.parse("25/10/1977 00:00:00");
@@ -482,10 +554,10 @@ public class CertificateServiceImplTest {
         new Expectations() {{
 
             pModeProvider.isConfigurationLoaded();
-            result=true;
+            result = true;
 
             pModeProvider.getGatewayParty().getName();
-            result= accesPoint;
+            result = accesPoint;
 
             multiDomainAlertConfigurationService.getExpiredCertificateConfiguration();
             result = expiredCertificateConfiguration;
@@ -505,49 +577,77 @@ public class CertificateServiceImplTest {
 
             final LocalDateTime now1 = dateTime.now();
             now1.minusDays(revokedFrequency).toDate();
-            result=notificationDate;
+            result = notificationDate;
 
             certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);
-            result=Lists.newArrayList(certificate);
+            result = Lists.newArrayList(certificate);
 
             certificate.getAlias();
-            result= alias;
+            result = alias;
 
             certificate.getNotAfter();
-            result=notAfter;
+            result = notAfter;
 
         }};
         certificateService.sendCertificateExpiredAlerts();
-        new VerificationsInOrder(){{
-            certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);times=1;
-            certificateDao.saveOrUpdate(certificate);times=1;
-            eventService.enqueueCertificateExpiredEvent(accesPoint, alias, notAfter);times=1;
+        new VerificationsInOrder() {{
+            certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);
+            times = 1;
+            certificateDao.saveOrUpdate(certificate);
+            times = 1;
+            eventService.enqueueCertificateExpiredEvent(accesPoint, alias, notAfter);
+            times = 1;
         }};
     }
 
     @Test
     public void sendCertificateExpiredAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                             @Mocked LocalDateTime dateTime,@Mocked final Certificate certificate) throws ParseException {
+                                                           @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
         new Expectations() {{
             multiDomainAlertConfigurationService.getExpiredCertificateConfiguration().isActive();
             result = false;
         }};
         certificateService.sendCertificateExpiredAlerts();
-        new VerificationsInOrder(){{
-            pModeProvider.isConfigurationLoaded();times=0;
+        new VerificationsInOrder() {{
+            pModeProvider.isConfigurationLoaded();
+            times = 0;
         }};
     }
 
     @Test
     public void sendCertificateImminentExpirationAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                           @Mocked LocalDateTime dateTime,@Mocked final Certificate certificate) throws ParseException {
+                                                                      @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
         new Expectations() {{
             multiDomainAlertConfigurationService.getImminentExpirationCertificateConfiguration().isActive();
             result = false;
         }};
         certificateService.sendCertificateImminentExpirationAlerts();
-        new VerificationsInOrder(){{
-            pModeProvider.isConfigurationLoaded();times=0;
+        new VerificationsInOrder() {{
+            pModeProvider.isConfigurationLoaded();
+            times = 0;
         }};
     }
+
+//    @Test
+//    public void validateLoadOperation(final @Mocked ByteArrayInputStream newTrustStoreBytes) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableKeyException {
+//        final String password = "test123";
+//        final String type = "jks";
+//
+//        KeyStoreSpi keyStoreSpiMock = mock(KeyStoreSpi.class);
+//        KeyStore keyStore = new KeyStore(keyStoreSpiMock, null, type) {};
+//        keyStore.load(null);  // this is important to put the internal state "initialized" to true
+//
+//        when(keyStoreSpiMock.engineGetKey(any(), any())).thenReturn(mock(Key.class));
+//
+//        new Expectations() {{
+//            KeyStore.getInstance(type);
+//            result = keyStore;
+//        }};
+//        certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
+//        new VerificationsInOrder() {{
+//            keyStore.load(newTrustStoreBytes, password.toCharArray());
+//            times = 1;
+//        }};
+//    }
+
 }

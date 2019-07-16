@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Catalin Enache
  * @since 3.3
  */
 public class UserRO implements Serializable {
@@ -13,6 +13,8 @@ public class UserRO implements Serializable {
     private String username;
     private List<String> authorities;
     private boolean defaultPasswordUsed;
+    private Integer daysTillExpiration;
+    private boolean externalAuthProvider;
 
     public Integer getId() {
         return id;
@@ -44,5 +46,19 @@ public class UserRO implements Serializable {
 
     public void setDefaultPasswordUsed(boolean defaultPasswordUsed) {
         this.defaultPasswordUsed = defaultPasswordUsed;
+    }
+
+    public Integer getDaysTillExpiration() {
+        return daysTillExpiration;
+    }
+
+    public void setDaysTillExpiration(Integer daysTillExpiration) { this.daysTillExpiration = daysTillExpiration; }
+
+    public boolean isExternalAuthProvider() {
+        return externalAuthProvider;
+    }
+
+    public void setExternalAuthProvider(boolean externalAuthProvider) {
+        this.externalAuthProvider = externalAuthProvider;
     }
 }

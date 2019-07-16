@@ -15,6 +15,10 @@ public class FSPayload {
     
     private final DataHandler dataHandler;
 
+    protected long fileSize;
+
+    protected String filePath;
+
     /**
      * Creates a new FSPayload
      * @param mimeType the payload MIME type
@@ -47,5 +51,20 @@ public class FSPayload {
     public DataHandler getDataHandler() {
         return dataHandler;
     }
-    
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 }

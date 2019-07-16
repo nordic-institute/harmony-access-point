@@ -1,10 +1,11 @@
 package eu.domibus.common.services.impl;
 
+import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.util.CollectionUtil;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -14,9 +15,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.Queue;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Cosmin Baciu
@@ -24,9 +30,6 @@ import java.util.List;
  */
 @RunWith(JMockit.class)
 public class MessageRetentionServiceTest {
-
-    @Injectable
-    private CollectionUtil collectionUtil;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -38,13 +41,16 @@ public class MessageRetentionServiceTest {
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    private UserMessageService userMessageService;
+    private JMSManager jmsManager;
+
+    @Injectable
+    private Queue retentionMessageQueue;
 
     @Tested
-    MessageRetentionService messageRetentionService;
+    MessageRetentionDefaultService messageRetentionService;
 
     @Test
-    public void testDeleteExpiredMessages() throws Exception {
+    public void testDeleteExpiredMessages() {
         final String mpc1 = "mpc1";
         final String mpc2 = "mpc2";
         final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
@@ -53,10 +59,10 @@ public class MessageRetentionServiceTest {
             pModeProvider.getMpcURIList();
             result = mpcs;
 
-            messageRetentionService.getRetentionValue(MessageRetentionService.DOWNLOADED_MESSAGES_DELETE_LIMIT_PROPERTY, MessageRetentionService.DEFAULT_DOWNLOADED_MESSAGES_DELETE_LIMIT);
+            messageRetentionService.getRetentionValue(MessageRetentionDefaultService.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
             result = 10;
 
-            messageRetentionService.getRetentionValue(MessageRetentionService.NOT_DOWNLOADED_MESSAGES_DELETE_LIMIT_PROPERTY, MessageRetentionService.DEFAULT_NOT_DOWNLOADED_MESSAGES_DELETE_LIMIT);
+            messageRetentionService.getRetentionValue(MessageRetentionDefaultService.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
             result = 20;
         }};
 
@@ -68,7 +74,7 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testDeleteExpiredMessagesForMpc() throws Exception {
+    public void testDeleteExpiredMessagesForMpc() {
         final String mpc1 = "mpc1";
         final Integer expiredDownloadedMessagesLimit = 10;
         final Integer expiredNotDownloadedMessagesLimit = 20;
@@ -86,7 +92,7 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testDeleteExpiredDownloadedMessagesWithNegativeRetentionValue() throws Exception {
+    public void testDeleteExpiredDownloadedMessagesWithNegativeRetentionValue() {
         final String mpc1 = "mpc1";
 
         new Expectations(messageRetentionService) {{
@@ -103,7 +109,7 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testDeleteExpiredNotDownloadedMessagesWithNegativeRetentionValue() throws Exception {
+    public void testDeleteExpiredNotDownloadedMessagesWithNegativeRetentionValue() {
         final String mpc1 = "mpc1";
 
         new Expectations(messageRetentionService) {{
@@ -120,7 +126,7 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testDeleteExpiredDownloadedMessages() throws Exception {
+    public void testDeleteExpiredDownloadedMessages() {
         String id1 = "1";
         String id2 = "2";
         final List<String> downloadedMessageIds = Arrays.asList(new String[]{id1, id2});
@@ -138,12 +144,15 @@ public class MessageRetentionServiceTest {
         messageRetentionService.deleteExpiredDownloadedMessages(mpc1, messagesDeleteLimit);
 
         new Verifications() {{
-            userMessageService.delete(downloadedMessageIds);
+            List<JmsMessage> jmsMessages = new ArrayList<>();
+            jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 2;
+            assertEquals("Should have scheduled expired downloaded messages for deletion", downloadedMessageIds,
+                    jmsMessages.stream().map(jmsMessage -> jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID)).collect(Collectors.toList()));
         }};
     }
 
     @Test
-    public void testDeleteExpiredNotDownloadedMessages() throws Exception {
+    public void testDeleteExpiredNotDownloadedMessages() {
         String id1 = "1";
         String id2 = "2";
         final List<String> downloadedMessageIds = Arrays.asList(new String[]{id1, id2});
@@ -161,49 +170,23 @@ public class MessageRetentionServiceTest {
         messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, messagesDeleteLimit);
 
         new Verifications() {{
-            userMessageService.delete(downloadedMessageIds);
+            List<JmsMessage> jmsMessages = new ArrayList<>();
+            jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 2;
+            assertEquals("Should have scheduled expired not downloaded messages for deletion", downloadedMessageIds,
+                    jmsMessages.stream().map(jmsMessage -> jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID)).collect(Collectors.toList()));
         }};
     }
 
     @Test
-    public void testGetRetentionValueWithUndefinedRetentionValue() throws Exception {
+    public void testGetRetentionValueWithValidRetentionValue() {
         final String propertyName = "retentionLimitProperty";
-        Integer defaultValue = 3;
 
         new Expectations(messageRetentionService) {{
-            domibusPropertyProvider.getDomainProperty(propertyName);
-            result = null;
+            domibusPropertyProvider.getIntegerDomainProperty(propertyName);
+            result = 5;
         }};
 
-        final Integer retentionValue = messageRetentionService.getRetentionValue(propertyName, defaultValue);
-        Assert.assertEquals(retentionValue, defaultValue);
-    }
-
-    @Test
-    public void testGetRetentionValueWithInvalidRetentionValue() throws Exception {
-        final String propertyName = "retentionLimitProperty";
-        Integer defaultValue = 3;
-
-        new Expectations(messageRetentionService) {{
-            domibusPropertyProvider.getDomainProperty(propertyName);
-            result = "a2";
-        }};
-
-        final Integer retentionValue = messageRetentionService.getRetentionValue(propertyName, defaultValue);
-        Assert.assertEquals(retentionValue, defaultValue);
-    }
-
-    @Test
-    public void testGetRetentionValueWithValidRetentionValue() throws Exception {
-        final String propertyName = "retentionLimitProperty";
-        Integer defaultValue = 3;
-
-        new Expectations(messageRetentionService) {{
-            domibusPropertyProvider.getDomainProperty(propertyName);
-            result = "5";
-        }};
-
-        final Integer retentionValue = messageRetentionService.getRetentionValue(propertyName, defaultValue);
+        final Integer retentionValue = messageRetentionService.getRetentionValue(propertyName);
         Assert.assertEquals(retentionValue, Integer.valueOf(5));
     }
 }

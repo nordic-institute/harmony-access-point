@@ -6,6 +6,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +19,7 @@ import javax.annotation.PostConstruct;
 
 @Component
 @Qualifier("serverInMessageLegConfigurationFactory")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ServerInMessageLegConfigurationFactory implements MessageLegConfigurationFactory {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInMessageLegConfigurationFactory.class);
 
@@ -27,16 +30,16 @@ public class ServerInMessageLegConfigurationFactory implements MessageLegConfigu
     private PullRequestLegConfigurationFactory pullRequestLegConfigurationFactory;
 
     @Autowired
-    private ReceiptLegConfigurationFactory receiptLegConfigurationFactory;
-
+    private ServerInReceiptLegConfigurationFactory serverInReceiptLegConfigurationFactory;
 
     @PostConstruct
-    void init(){
+    void init() {
         userMessageLegConfigurationFactory.
                 chain(pullRequestLegConfigurationFactory).
-                chain(receiptLegConfigurationFactory);
+                chain(serverInReceiptLegConfigurationFactory);
 
     }
+
     @Override
     public LegConfigurationExtractor extractMessageConfiguration(SoapMessage soapMessage, Messaging messaging) {
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);

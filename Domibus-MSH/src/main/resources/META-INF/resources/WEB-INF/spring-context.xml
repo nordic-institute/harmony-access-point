@@ -17,11 +17,17 @@
     <context:component-scan base-package="eu.domibus"/>
     <context:annotation-config/>
 
+    <util:properties id="domibusDefaultProperties" ignore-resource-not-found="true"
+                     location="classpath:config/application.properties,
+                     classpath:config/domibus-default.properties,classpath:config/domibus.properties,
+                     classpath*:config/*-plugin-default.properties"/>
+
+
     <util:properties id="domibusProperties" ignore-resource-not-found="true"
                      location="classpath:config/application.properties,
                      classpath:config/domibus-default.properties,classpath:config/domibus.properties, file:///${domibus.config.location}/domibus.properties,
                      file:///${domibus.config.location}/*-domibus.properties,
-                     classpath*:config/*-plugin-default.properties,file:///${domibus.config.location}/plugins/config/*-plugin.properties"/>
+                     classpath*:config/*-plugin-default.properties,file:///${domibus.config.location}/plugins/config/*-plugin.properties,file:///${domibus.config.location}/extensions/config/*-extension.properties"/>
 
     <context:property-placeholder properties-ref="domibusProperties" ignore-resource-not-found="true" ignore-unresolvable="true"/>
 
@@ -49,7 +55,6 @@
 
     <import resource="classpath*:config/*-plugin.xml"/>
     <import resource="file:///${domibus.config.location}/plugins/config/*-plugin.xml" />
-    <import resource="domibus-security.xml"/>
     <import resource="domibus-configuration.xml"/>
 
     <import resource="domibus-plugins.xml"/>
@@ -58,23 +63,16 @@
     <import resource="jpa-config.xml"/>
     <import resource="msh-config.xml"/>
     <import resource="cxf-endpoint.xml"/>
-    <import resource="spring-security.xml"/>
 
 
     <cache:annotation-driven/>
 
-    <bean id="domainCoreConverter" class="org.dozer.DozerBeanMapper">
-        <property name="mappingFiles">
-            <list>
-                <value>config/DomainCoreBeanMapping.xml</value>
-            </list>
-        </property>
-    </bean>
-
     <!-- JAXB Context for mapping of ebMS3 schema -->
     <bean id="jaxbContextEBMS" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
         <constructor-arg type="java.lang.String" value="eu.domibus.ebms3.common.model"/>
-        <!--value="eu.domibus.common.model.org.oasis_open.docs.ebxml_bp.ebbp_signals_2_0:eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704:eu.domibus.common.model.org.w3._2003._05.soap_envelope:eu.domibus.common.model.org.w3._2005._05.xmlmime:eu.domibus.common.model.org.xmlsoap.schemas.soap.envelope"/>-->
+    </bean>
+    <bean id="jaxbContextMessageFragment" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
+        <constructor-arg type="java.lang.String" value="eu.domibus.ebms3.common.model.mf"/>
     </bean>
 
     <!-- JAXB context for mapping of pMode XML configuration -->

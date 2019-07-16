@@ -21,13 +21,12 @@ public class SubmissionAS4Transformer {
 
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
+        result.setMpc(submission.getMpc());
         this.generateCollaborationInfo(submission, result);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
         this.generatePayload(submission, result);
         this.generateMessageProperties(submission, result);
-
-        //TODO: set mpc from pmode
 
         return result;
     }
@@ -49,7 +48,7 @@ public class SubmissionAS4Transformer {
 
     private void generateCollaborationInfo(final Submission submission, final UserMessage result) {
         final CollaborationInfo collaborationInfo = new CollaborationInfo();
-        // if the conversation id is null, we generate one; otherwise we trim it and pass it forward
+        // if the conversation id is null, we generate one; otherwise we pass it forward
         String conversationId = submission.getConversationId();
         collaborationInfo.setConversationId(conversationId == null ? this.generateConversationId() : conversationId.trim());
         collaborationInfo.setAction(submission.getAction());
@@ -107,6 +106,9 @@ public class SubmissionAS4Transformer {
             partInfo.setInBody(payload.isInBody());
             partInfo.setPayloadDatahandler(payload.getPayloadDatahandler());
             partInfo.setHref(payload.getContentId());
+            partInfo.setLength(payload.getPayloadSize());
+            partInfo.setFileName(payload.getFilepath());
+
             final PartProperties partProperties = new PartProperties();
             for (final Submission.TypedProperty entry : payload.getPayloadProperties()) {
                 final Property property = new Property();
@@ -132,6 +134,7 @@ public class SubmissionAS4Transformer {
             return result;
         }
 
+        result.setMpc(messaging.getMpc());
         final CollaborationInfo collaborationInfo = messaging.getCollaborationInfo();
         result.setAction(collaborationInfo.getAction());
         result.setService(messaging.getCollaborationInfo().getService().getValue());
@@ -176,11 +179,14 @@ public class SubmissionAS4Transformer {
                 properties.add(new Submission.TypedProperty(property.getName(), property.getValue(), property.getType()));
             }
         }
+        final Submission.Payload payload = new Submission.Payload(partInfo.getHref(), partInfo.getPayloadDatahandler(), properties, partInfo.isInBody(), null, null);
         if (partInfo.getFileName() != null) {
             final String fileNameWithoutPath = FilenameUtils.getName(partInfo.getFileName());
-            properties.add(new Submission.TypedProperty("FileName",  fileNameWithoutPath, null));
+            properties.add(new Submission.TypedProperty("FileName", fileNameWithoutPath, null));
+
+            payload.setFilepath(partInfo.getFileName());
         }
-        result.addPayload(partInfo.getHref(), partInfo.getPayloadDatahandler(), properties, partInfo.isInBody(), null, null);
+        result.addPayload(payload);
     }
 
     private String generateConversationId() {

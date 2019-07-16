@@ -3,6 +3,7 @@ package eu.domibus.core.pull;
 import com.google.common.collect.Lists;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -13,6 +14,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
@@ -64,10 +66,13 @@ public class PullMessageServiceImplTest {
     private PModeProvider pModeProvider;
 
     @Injectable
-    private java.util.Properties domibusProperties;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Injectable
+    protected MpcService mpcService;
 
     @Tested
     private PullMessageServiceImpl pullMessageService;
@@ -207,7 +212,7 @@ public class PullMessageServiceImplTest {
         final String mpc = "mpc";
         final Date staledDate = new Date();
         final LegConfiguration legConfiguration = new LegConfiguration();
-        new Expectations(pullMessageService) {{
+        new NonStrictExpectations(pullMessageService) {{
             partyIdExtractor.getPartyId();
             result = partyId;
             messageLog.getMessageId();
@@ -242,7 +247,7 @@ public class PullMessageServiceImplTest {
             result = pmodeKey;
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;
-            pullMessageService.getPullMessageExpirationDate(messageLog, legConfiguration);
+            updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);
             result = staledDate;
         }};
         pullMessageService.addPullMessageLock(partyIdExtractor, userMessage, messageLog);
@@ -257,27 +262,6 @@ public class PullMessageServiceImplTest {
         }};
     }
 
-
-    @Test
-    public void getPullMessageExpirationDate(@Mocked final MessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration) {
-
-
-
-        final long currentTime = System.currentTimeMillis();
-        final int timeOut = 10;
-        final long timeOutInMillis = 60000 * timeOut;
-        final Date expectedDate = new Date(currentTime + timeOutInMillis);
-        new Expectations() {{
-            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
-            result = currentTime;
-            legConfiguration.getReceptionAwareness().getRetryTimeout();
-            result = timeOut;
-
-        }};
-        assertEquals(expectedDate, pullMessageService.getPullMessageExpirationDate(userMessageLog, legConfiguration));
-
-    }
-
     @Test
     public void waitingForCallExpired(
             @Mocked final MessagingLock lock,
@@ -288,7 +272,7 @@ public class PullMessageServiceImplTest {
             messagingLockDao.findMessagingLockForMessageId(userMessageLog.getMessageId());
             result=lock;
 
-            pullMessageService.isExpired(legConfiguration, userMessageLog);
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result=true;
 
         }};
@@ -312,10 +296,10 @@ public class PullMessageServiceImplTest {
             messagingLockDao.findMessagingLockForMessageId(userMessageLog.getMessageId());
             result=lock;
 
-            pullMessageService.isExpired(legConfiguration, userMessageLog);
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result=false;
 
-            pullMessageService.updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
+            updateRetryLoggingService.updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
         }};
         pullMessageService.waitingForCallBack(legConfiguration, userMessageLog);
         new Verifications() {{
@@ -331,7 +315,7 @@ public class PullMessageServiceImplTest {
 
     @Test
     public void hasAttemptsLeftTrueBecauseOfSendAttempt(@Mocked final MessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration) {
-        new Expectations() {{
+        new NonStrictExpectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = 1;
             userMessageLog.getSendAttempts();
@@ -341,6 +325,10 @@ public class PullMessageServiceImplTest {
 
             updateRetryLoggingService.getScheduledStartTime(userMessageLog);
             result = System.currentTimeMillis() + 10000;
+
+            updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);
+            result = new Date(System.currentTimeMillis() + 50000);
+
         }};
         assertEquals(true, pullMessageService.attemptNumberLeftIsLowerOrEqualThenMaxAttempts(userMessageLog, legConfiguration));
     }
@@ -362,7 +350,7 @@ public class PullMessageServiceImplTest {
 
     @Test
     public void equalAttemptsButNotExpired(@Mocked final MessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration) {
-        new Expectations() {{
+        new NonStrictExpectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = 1;
 
@@ -374,6 +362,9 @@ public class PullMessageServiceImplTest {
 
             updateRetryLoggingService.getScheduledStartTime(userMessageLog);
             result = System.currentTimeMillis() + 70000;
+
+            updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);
+            result = new Date(System.currentTimeMillis() + 50000);
         }};
         final boolean actual = pullMessageService.attemptNumberLeftIsLowerOrEqualThenMaxAttempts(userMessageLog, legConfiguration);
         assertEquals(true, actual);
@@ -381,7 +372,7 @@ public class PullMessageServiceImplTest {
 
     @Test
     public void equalAttemptsButExpired(@Mocked final MessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration) {
-        new Expectations() {{
+        new NonStrictExpectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = 1;
 
@@ -391,8 +382,8 @@ public class PullMessageServiceImplTest {
             userMessageLog.getSendAttemptsMax();
             result = 2;
 
-            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
-            result = System.currentTimeMillis() - 70000;
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
+            result = true;
         }};
         final boolean actual = pullMessageService.attemptNumberLeftIsLowerOrEqualThenMaxAttempts(userMessageLog, legConfiguration);
         assertEquals(false, actual);

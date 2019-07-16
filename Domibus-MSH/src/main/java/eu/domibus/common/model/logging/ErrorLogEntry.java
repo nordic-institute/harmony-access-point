@@ -65,6 +65,7 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.messageInErrorId = messageInErrorId;
         this.errorCode = errorCode;
         this.errorDetail = errorDetail;
+        this.timestamp = new Date();
     }
 
     /**

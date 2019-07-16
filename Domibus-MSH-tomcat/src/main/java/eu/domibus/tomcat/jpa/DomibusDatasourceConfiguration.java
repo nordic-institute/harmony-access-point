@@ -33,11 +33,11 @@ public class DomibusDatasourceConfiguration {
         final String xaDataSourceClassName = domibusPropertyProvider.getProperty("domibus.datasource.xa.xaDataSourceClassName");
         dataSource.setXaDataSourceClassName(xaDataSourceClassName);
         dataSource.setXaProperties(xaProperties());
-        final Integer minPoolSize = Integer.parseInt(domibusPropertyProvider.getProperty("domibus.datasource.xa.minPoolSize", "5"));
+        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.minPoolSize");
         dataSource.setMinPoolSize(minPoolSize);
-        final Integer maxPoolSize = Integer.parseInt(domibusPropertyProvider.getProperty("domibus.datasource.xa.maxPoolSize", "100"));
+        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxPoolSize");
         dataSource.setMaxPoolSize(maxPoolSize);
-        final Integer maxLifeTime = Integer.parseInt(domibusPropertyProvider.getProperty("domibus.datasource.xa.maxLifetime", "60"));
+        final Integer maxLifeTime = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxLifetime");
         dataSource.setMaxLifetime(maxLifeTime);
         return dataSource;
     }
@@ -46,4 +46,5 @@ public class DomibusDatasourceConfiguration {
     public PrefixedProperties xaProperties() {
         return new PrefixedProperties(domibusProperties, "domibus.datasource.xa.property.");
     }
+
 }

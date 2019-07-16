@@ -6,22 +6,18 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Property;
 import eu.domibus.common.model.configuration.PropertySet;
-import eu.domibus.common.util.DomibusPropertiesService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.UserMessageDefaultServiceHelper;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.xml.XMLUtilImpl;
-import mockit.Expectations;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -29,12 +25,16 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by idragusa on 7/2/18.
+ * @author idragusa
+ * @since 4.0
  */
 @RunWith(JMockit.class)
 public class PropertyProfileValidatorTest {
@@ -96,49 +96,6 @@ public class PropertyProfileValidatorTest {
 
         final Messaging messaging = createMessaging(new FileInputStream(new File(valid4CornerMessagePath)));
         propertyProfileValidator.validate(messaging, "anyKey");
-    }
-
-    @Test
-    public void validate4CornerModelTest() throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-
-        new Expectations() {{
-            domibusConfigurationService.isFourCornerEnabled();
-            result = true;
-
-        }};
-
-        final Messaging messaging = createMessaging(new FileInputStream(new File(valid4CornerMessagePath)));
-        propertyProfileValidator.validateFourCornerModel(messaging);
-    }
-
-    @Test(expected = EbMS3Exception.class)
-    public void validate4CornerModelMissingMessagePropertiesTest() throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-
-        new Expectations() {{
-            domibusConfigurationService.isFourCornerEnabled();
-            result = true;
-
-        }};
-
-        final Messaging messaging = createMessaging(new FileInputStream(new File(valid4CornerMessagePath)));
-        messaging.getUserMessage().setMessageProperties(null);
-
-        propertyProfileValidator.validateFourCornerModel(messaging);
-    }
-
-    @Test(expected = EbMS3Exception.class)
-    public void validate4CornerModelMissingOriginalSenderTest() throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-
-        new Expectations() {{
-            domibusConfigurationService.isFourCornerEnabled();
-            result = true;
-
-        }};
-
-        final Messaging messaging = createMessaging(new FileInputStream(new File(valid4CornerMessagePath)));
-        messaging.getUserMessage().getMessageProperties().getProperty().clear();
-
-        propertyProfileValidator.validateFourCornerModel(messaging);
     }
 
     private Property createProperty(String name, String key, String dataType, boolean required) {

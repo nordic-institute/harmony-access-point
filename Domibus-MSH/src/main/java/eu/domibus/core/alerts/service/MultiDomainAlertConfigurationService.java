@@ -66,6 +66,11 @@ public interface MultiDomainAlertConfigurationService {
     Boolean isAlertModuleEnabled();
 
     /**
+     * @return alert events module configuration
+     */
+    RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType);
+
+    /**
      * With the introduction of multitenancy, a super user has been created.
      * It has its own property definition for some of the domibus properties.
      * The following methods are helper methods to retrieve super or domain alert property name
@@ -95,4 +100,13 @@ public interface MultiDomainAlertConfigurationService {
      */
     String getAlertSuperServerNameSubjectPropertyName();
 
+    /**
+     * @return login failure module configuration for plugin users
+     */
+    LoginFailureModuleConfiguration getPluginLoginFailureConfiguration();
+
+    /**
+     * @return account disabled module configuration for plugin users
+     */
+    AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration();
 }

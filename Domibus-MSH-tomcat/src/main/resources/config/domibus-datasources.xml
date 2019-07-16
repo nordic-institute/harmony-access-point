@@ -17,26 +17,19 @@
         <property name="maxPoolSize" value="${domibus.jms.XAConnectionFactory.maxPoolSize}"/>
     </bean>
 
-    <!-- JMS ConnectionFactory to use, configuring the embedded broker using XML -->
-    <amq:xaConnectionFactory id="xaJmsConnectionFactory"
-                             brokerURL="${activeMQ.transportConnector.uri}"
-                             userName="${activeMQ.username}" password="${activeMQ.password}">
-        <!-- do not remove this! otherwise the redeliveryPolicy configured in activemq.xml will be ignored -->
-        <amq:redeliveryPolicyMap>
-            <amq:redeliveryPolicyMap><!-- Don't know why a double nesting -->
-                <amq:defaultEntry>
-                    <!-- default policy-->
-                    <amq:redeliveryPolicy maximumRedeliveries="0"/>
-                </amq:defaultEntry>
-            </amq:redeliveryPolicyMap>
-        </amq:redeliveryPolicyMap>
-    </amq:xaConnectionFactory>
-
 
     <amq:queue id="sendMessageQueue"
                physicalName="domibus.internal.dispatch.queue"/>
+    <amq:queue id="sendLargeMessageQueue"
+               physicalName="domibus.internal.largeMessage.queue"/>
+    <amq:queue id="splitAndJoinQueue"
+               physicalName="domibus.internal.splitAndJoin.queue"/>
     <amq:queue id="pullMessageQueue"
                physicalName="domibus.internal.pull.queue"/>
+    <amq:queue id="sendPullReceiptQueue"
+               physicalName="domibus.internal.pull.receipt.queue"/>
+    <amq:queue id="retentionMessageQueue"
+               physicalName="domibus.internal.retentionMessage.queue"/>
     <amq:queue id="alertMessageQueue"
                physicalName="domibus.internal.alert.queue"/>
     <amq:queue id="uiReplicationQueue"

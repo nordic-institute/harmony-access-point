@@ -1,6 +1,8 @@
 package eu.domibus.jms.spi;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -95,12 +97,18 @@ public class InternalJmsMessage {
 		}
 		return customProperties;
 	}
-
+	
 	public Object getProperty(String name) {
 		if(properties == null) {
 			return null;
 		}
 		return properties.get(name);
+	}
+
+	public void setProperty(String key, Object value){
+		if (properties != null) {
+			properties.put(key, value);
+		}
 	}
 
 	public void setProperties(Map<String, Object> properties) {

@@ -4,15 +4,17 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {Http, HttpModule, RequestOptions, XHRBackend} from "@angular/http";
 import {
   MdButtonModule,
+  MdButtonToggleModule,
+  MdCheckboxModule,
   MdDialogModule,
+  MdExpansionModule,
   MdIconModule,
   MdInputModule,
   MdListModule,
   MdMenuModule,
   MdSelectModule,
   MdSidenavModule,
-  MdTooltipModule,
-  MdExpansionModule, MdCheckboxModule
+  MdTooltipModule
 } from '@angular/material';
 import "hammerjs";
 
@@ -20,25 +22,22 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {Md2Module, Md2SelectModule} from "md2";
 
 import {AppComponent} from "./app.component";
-import {LoginComponent} from "./login/login.component";
+import {LoginComponent} from "./security/login/login.component";
 import {CurrentPModeComponent} from "./pmode/current/currentPMode.component";
 import {PModeArchiveComponent} from "./pmode/archive/pmodeArchive.component";
 
-import {AuthenticatedGuard} from "./guards/authenticated.guard";
-import {AuthorizedGuard} from "./guards/authorized.guard";
+import {AuthenticatedAuthorizedGuard} from "./common/guards/authenticated-authorized.guard";
 import {routing} from "./app.routes";
-import {IsAuthorized} from "./security/is-authorized.directive";
-import {ExtendedHttpClient} from "./http/extended-http-client";
-import {HttpEventService} from "./http/http.event.service";
+import {ExtendedHttpClient} from "./common/http/extended-http-client";
+import {HttpEventService} from "./common/http/http.event.service";
 import {SecurityService} from "./security/security.service";
 import {SecurityEventService} from "./security/security.event.service";
 import {DomainService} from "./security/domain.service";
-import {AlertComponent} from "./alert/alert.component";
-import {AlertService} from "./alert/alert.service";
+import {AlertComponent} from "./common/alert/alert.component";
+import {AlertService} from "./common/alert/alert.service";
 import {ErrorLogComponent} from "./errorlog/errorlog.component";
-import {FooterComponent} from "./footer/footer.component";
-import {DomibusInfoService} from "./appinfo/domibusinfo.service";
-import {AuthorizedAdminGuard} from "./guards/authorized-admin.guard";
+import {FooterComponent} from "./common/footer/footer.component";
+import {DomibusInfoService} from "./common/appinfo/domibusinfo.service";
 import {MessageFilterComponent} from "./messagefilter/messagefilter.component";
 import {MessageLogComponent} from "./messagelog/messagelog.component";
 import {UserComponent} from "./user/user.component";
@@ -50,14 +49,14 @@ import {JmsComponent} from "./jms/jms.component";
 import {RowLimiterComponent} from "./common/row-limiter/row-limiter.component";
 import {MoveDialogComponent} from "./jms/move-dialog/move-dialog.component";
 import {MessageDialogComponent} from "./jms/message-dialog/message-dialog.component";
-import {DatePipe} from "./customDate/datePipe";
+import {DatePipe} from "./common/customDate/datePipe";
 import {CapitalizeFirstPipe} from "./common/capitalizefirst.pipe";
 import {DefaultPasswordDialogComponent} from "./security/default-password-dialog/default-password-dialog.component";
 import {MessagelogDetailsComponent} from "./messagelog/messagelog-details/messagelog-details.component";
 import {ErrorlogDetailsComponent} from "./errorlog/errorlog-details/errorlog-details.component";
 import {EditMessageFilterComponent} from "./messagefilter/editmessagefilter-form/editmessagefilter-form.component";
 import {CancelDialogComponent} from "./common/cancel-dialog/cancel-dialog.component";
-import {DirtyGuard} from "./common/dirty.guard";
+import {DirtyGuard} from "./common/guards/dirty.guard";
 import {EditUserComponent} from "app/user/edituser-form/edituser-form.component";
 import {SaveDialogComponent} from "./common/save-dialog/save-dialog.component";
 import {TruststoreDialogComponent} from "./truststore/truststore-dialog/truststore-dialog.component";
@@ -70,17 +69,27 @@ import {ActionDirtyDialogComponent} from "./pmode/action-dirty-dialog/action-dir
 import {AuditComponent} from "./audit/audit.component";
 import {PartyComponent} from "./party/party.component";
 import {PartyDetailsComponent} from "./party/party-details/party-details.component";
-import {ClearInvalidDirective} from "./customDate/clearInvalid.directive";
+import {ClearInvalidDirective} from "./common/customDate/clearInvalid.directive";
 import {PageHeaderComponent} from "./common/page-header/page-header.component";
 import {DomainSelectorComponent} from "./common/domain-selector/domain-selector.component";
 import {PmodeViewComponent} from './pmode/archive/pmode-view/pmode-view.component';
 import {AlertsComponent} from "./alerts/alerts.component";
 import {TestServiceComponent} from "./testservice/testservice.component";
-import { PluginUserComponent } from './pluginuser/pluginuser.component';
-import { EditbasicpluginuserFormComponent } from './pluginuser/editpluginuser-form/editbasicpluginuser-form.component';
-import { EditcertificatepluginuserFormComponent } from './pluginuser/editpluginuser-form/editcertificatepluginuser-form.component';
-import { PartyIdentifierDetailsComponent } from './party/party-identifier-details/party-identifier-details.component';
+import {PluginUserComponent} from './pluginuser/pluginuser.component';
+import {EditbasicpluginuserFormComponent} from './pluginuser/editpluginuser-form/editbasicpluginuser-form.component';
+import {EditcertificatepluginuserFormComponent} from './pluginuser/editpluginuser-form/editcertificatepluginuser-form.component';
+import {PartyIdentifierDetailsComponent} from './party/party-identifier-details/party-identifier-details.component';
 import {GlobalErrorHandler} from './common/global.error-handler';
+import {UserService} from './user/user.service';
+import {UserValidatorService} from './user/uservalidator.service';
+import {DefaultPasswordGuard} from './security/defaultPassword.guard';
+import {SanitizeHtmlPipe} from './common/sanitizeHtml.pipe';
+import {LoggingComponent} from './logging/logging.component';
+import {ChangePasswordComponent} from './security/change-password/change-password.component';
+import {AuthExternalProviderGuard} from "./common/guards/auth-external-provider.guard";
+import {LogoutAuthExtProviderComponent} from "./security/logout/logout.components";
+import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
+import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.components";
 
 export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions, httpEventService: HttpEventService) {
   return new ExtendedHttpClient(xhrBackend, requestOptions, httpEventService);
@@ -98,7 +107,6 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     FooterComponent,
     CurrentPModeComponent,
     PModeArchiveComponent,
-    IsAuthorized,
     TruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
@@ -111,6 +119,7 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     MessageDialogComponent,
     DatePipe,
     CapitalizeFirstPipe,
+    SanitizeHtmlPipe,
     DefaultPasswordDialogComponent,
     EditMessageFilterComponent,
     MessagelogDetailsComponent,
@@ -134,7 +143,11 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     PluginUserComponent,
     EditbasicpluginuserFormComponent,
     EditcertificatepluginuserFormComponent,
-    PartyIdentifierDetailsComponent
+    PartyIdentifierDetailsComponent,
+    LoggingComponent,
+    ChangePasswordComponent,
+    LogoutAuthExtProviderComponent,
+    NotAuthorizedComponent
   ],
   entryComponents: [
     AppComponent,
@@ -157,7 +170,8 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     PartyDetailsComponent,
     EditbasicpluginuserFormComponent,
     EditcertificatepluginuserFormComponent,
-    PartyIdentifierDetailsComponent
+    PartyIdentifierDetailsComponent,
+    ChangePasswordComponent,
   ],
   imports: [
     BrowserModule,
@@ -180,13 +194,16 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     Md2SelectModule,
     SharedModule,
     MdExpansionModule,
-    MdCheckboxModule
+    MdCheckboxModule,
+    MdButtonToggleModule,
+    MdTooltipModule
   ],
   providers: [
-    AuthenticatedGuard,
-    AuthorizedGuard,
-    AuthorizedAdminGuard,
+    AuthenticatedAuthorizedGuard,
     DirtyGuard,
+    DefaultPasswordGuard,
+    AuthExternalProviderGuard,
+    RedirectHomeGuard,
     HttpEventService,
     SecurityService,
     SecurityEventService,
@@ -202,7 +219,9 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     {
       provide: ErrorHandler,
       useClass: GlobalErrorHandler
-    }
+    },
+    UserService,
+    UserValidatorService,
   ],
   bootstrap: [AppComponent]
 })

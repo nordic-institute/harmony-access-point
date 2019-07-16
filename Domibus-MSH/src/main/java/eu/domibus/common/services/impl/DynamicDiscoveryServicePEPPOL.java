@@ -1,10 +1,11 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.util.DomibusApacheFetcher;
+import eu.domibus.common.util.DomibusCertificateValidator;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.common.util.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -19,7 +20,6 @@ import no.difi.vefa.peppol.lookup.api.LookupException;
 import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
 import no.difi.vefa.peppol.mode.Mode;
 import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
-import no.difi.vefa.peppol.security.util.EmptyCertificateValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,10 +49,10 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected ProxyUtil proxyUtil;
 
     @Autowired
-    protected ProxyUtil proxyUtil;
+    protected CertificateService certificateService;
 
     @Cacheable(value = "lookupInfo", key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
@@ -66,11 +66,8 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
         try {
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
             lookupClientBuilder.locator(new BusdoxLocator(smlInfo));
-            lookupClientBuilder.fetcher(new DomibusApacheFetcher(Mode.of(mode), domibusConfigurationService, proxyUtil));
-            /* DifiCertificateValidator.validate fails when proxy is enabled */
-            if(domibusConfigurationService.useProxy()) {
-                lookupClientBuilder.certificateValidator(EmptyCertificateValidator.INSTANCE);
-            }
+            lookupClientBuilder.fetcher(new DomibusApacheFetcher(Mode.of(mode), proxyUtil));
+            lookupClientBuilder.certificateValidator(new DomibusCertificateValidator(certificateService));
             final LookupClient smpClient = lookupClientBuilder.build();
             final ParticipantIdentifier participantIdentifier = ParticipantIdentifier.of(participantId, Scheme.of(participantIdScheme));
             final DocumentTypeIdentifier documentIdentifier = getDocumentTypeIdentifier(documentId);
@@ -79,7 +76,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             LOG.debug("Getting the ServiceMetadata");
             final ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
-            String transportProfileAS4 = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4, TransportProfile.AS4.getIdentifier());
+            String transportProfileAS4 = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Getting the Endpoint from ServiceMetadata with transportprofile [{}]", transportProfileAS4);
             final Endpoint endpoint = sm.getEndpoint(processIdentifier, TransportProfile.of(transportProfileAS4));
 

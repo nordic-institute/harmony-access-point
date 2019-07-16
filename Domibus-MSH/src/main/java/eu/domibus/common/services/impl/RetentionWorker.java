@@ -21,15 +21,14 @@ public class RetentionWorker extends DomibusQuartzJobBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionWorker.class);
 
-
     @Autowired
-    private MessageRetentionService messageRetentionService;
+    protected MessageRetentionService messageRetentionService;
 
     @Autowired
     private ConfigurationDAO configurationDAO;
 
     @Autowired
-    AuthUtils authUtils;
+    private AuthUtils authUtils;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {

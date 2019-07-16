@@ -5,6 +5,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,7 +21,9 @@ import java.util.List;
 @Service
 public class DomainServiceImpl implements DomainService {
 
-    private  static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
+
+    private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
     private static final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
 
     @Autowired
@@ -34,18 +38,23 @@ public class DomainServiceImpl implements DomainService {
         return domainDao.findAll();
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE, key = "#code")
+    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
     @Override
     public Domain getDomain(String code) {
+        LOG.trace("Getting domain with code [{}]", code);
+
         final List<Domain> domains = getDomains();
         if (domains == null) {
+            LOG.trace("No domains found");
             return null;
         }
         for (Domain domain : domains) {
             if (StringUtils.equalsIgnoreCase(code, domain.getCode())) {
+                LOG.trace("Found domain [{}] for code [{}]", domain, code);
                 return domain;
             }
         }
+        LOG.trace("No domain found with code [{}]", code);
         return null;
     }
 

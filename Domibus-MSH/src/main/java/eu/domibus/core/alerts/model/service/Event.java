@@ -4,18 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = Event.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id", scope = Event.class)
 public class Event {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(Event.class);
@@ -70,11 +73,11 @@ public class Event {
 
     public Optional<String> findStringProperty(final String key) {
         final StringPropertyValue stringPropertyValue = (StringPropertyValue) properties.get(key);
-        if(stringPropertyValue ==null){
-            LOG.error("No event property with such key as key[{}]",key);
+        if (stringPropertyValue == null) {
+            LOG.error("No event property with such key as key[{}]", key);
             throw new IllegalArgumentException("Invalid property key");
         }
-        if(stringPropertyValue.getValue()==null){
+        if (stringPropertyValue.getValue() == null) {
             return Optional.empty();
         }
         return Optional.of(stringPropertyValue.getValue());
@@ -82,28 +85,49 @@ public class Event {
 
     public Optional<String> findOptionalProperty(final String key) {
         final AbstractPropertyValue property = properties.get(key);
-        if(property ==null || property.getValue()==null){
+        if (property == null || property.getValue() == null) {
             return Optional.empty();
         }
         return Optional.of(property.getValue().toString());
     }
 
+    public void addProperty(final String key, final AbstractPropertyValue abstractProperty) {
+        if (abstractProperty instanceof StringPropertyValue) {
+            addStringKeyValue(key, ((StringPropertyValue) abstractProperty).getValue());
+        } else if (abstractProperty instanceof DatePropertyValue) {
+            addDateKeyValue(key, ((DatePropertyValue) abstractProperty).getValue());
+        } else {
+            LOG.error("Invalid property type: key[{}] type[{}]", key, abstractProperty.getValue().getClass());
+            throw new IllegalArgumentException("Invalid property type");
+        }
+    }
+
     public void addStringKeyValue(final String key, final String value) {
-        properties.put(key, new StringPropertyValue(key,value));
+        properties.put(key, new StringPropertyValue(key, value));
     }
 
     public void addDateKeyValue(final String key, final Date value) {
-        properties.put(key, new DatePropertyValue(key,value));
+        properties.put(key, new DatePropertyValue(key, value));
     }
 
 
+    private LocalDate lastAlertDate;
+
+    public LocalDate getLastAlertDate() {
+        return lastAlertDate;
+    }
+
+    public void setLastAlertDate(LocalDate lastAlertDate) {
+        this.lastAlertDate = lastAlertDate;
+    }
+
     @Override
     public String toString() {
-        return "Event{" +
-                "entityId=" + entityId +
-                ", reportingTime=" + reportingTime +
-                ", type='" + type + '\'' +
-                ", properties=" + properties +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("entityId", entityId)
+                .append("reportingTime", reportingTime)
+                .append("type", type)
+                .append("properties", properties)
+                .toString();
     }
 }

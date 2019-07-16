@@ -1,11 +1,10 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ebms3.SoapInterceptorTest;
-import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.pki.PKIUtil;
 import eu.domibus.spring.SpringContextProvider;
 import mockit.*;
@@ -33,9 +32,13 @@ import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
+import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
 import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
@@ -68,179 +71,170 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Bean
     @Qualifier("jmsTemplateCommand")
-    public JmsOperations jmsOperations() throws JAXBException {
+    public JmsOperations jmsOperations() {
         return Mockito.mock(JmsOperations.class);
     }
 
     PKIUtil pkiUtil = new PKIUtil();
 
     @Test
-    public void testHandleMessageBinaryToken(@Mocked SpringContextProvider springContextProvider,@Mocked final Element securityHeader,@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException, WSSecurityException {
+    public void testHandleMessageBinaryToken(@Mocked SpringContextProvider springContextProvider, @Mocked final Element securityHeader, @Mocked final BinarySecurityTokenReference binarySecurityTokenReference, @Mocked X509Certificate x509Certificate) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException, WSSecurityException {
         Document doc = readDocument("dataset/as4/SoapRequestBinaryToken.xml");
         String trustoreFilename = RESOURCE_PATH + "nonEmptySource.jks";
         String trustorePassword = "1234";
 
-        new Expectations(){{
+        new Expectations() {{
             tokenReferenceExtractor.extractTokenReference(withAny(securityHeader));
-            result=binarySecurityTokenReference;
+            result = binarySecurityTokenReference;
             binarySecurityTokenReference.getUri();
-            result="#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
+            result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
-            result= X_509_V_3;
+            result = X_509_V_3;
+            certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
+            result = x509Certificate;
         }};
         testHandleMessage(doc, trustoreFilename, trustorePassword);
     }
 
     @Test(expected = org.apache.cxf.interceptor.Fault.class)
-    public void testSenderTrustFault(@Mocked SpringContextProvider springContextProvider,@Mocked final Element securityHeader,@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException, WSSecurityException {
+    public void testSenderTrustFault(@Mocked SpringContextProvider springContextProvider, @Mocked final Element securityHeader, @Mocked final BinarySecurityTokenReference binarySecurityTokenReference, @Mocked X509Certificate x509Certificate) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException, WSSecurityException {
         Document doc = readDocument("dataset/as4/SoapRequestBinaryToken.xml");
         String trustoreFilename = RESOURCE_PATH + "nonEmptySource.jks";
         String trustorePassword = "1234";
 
         new Expectations() {{
             tokenReferenceExtractor.extractTokenReference(withAny(securityHeader));
-            result=binarySecurityTokenReference;
+            result = binarySecurityTokenReference;
             binarySecurityTokenReference.getUri();
-            result="#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
+            result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
-            result=X_509_V_3;
-            certificateService.isCertificateValid((X509Certificate) any);
+            result = X_509_V_3;
+            certificateService.isCertificateChainValid((List<Certificate>) any);
             result = false;
-            domibusPropertyProvider.getDomainProperty(TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING, "true");
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = true;
+            certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
+            result = x509Certificate;
         }};
         testHandleMessage(doc, trustoreFilename, trustorePassword);
     }
 
     @Test
-    public void testSenderTrustNoSenderVerification(@Mocked SpringContextProvider springContextProvider,@Mocked final Element securityHeader,@Mocked BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException, WSSecurityException {
+    public void testSenderTrustNoSenderVerification(@Mocked SpringContextProvider springContextProvider, @Mocked final Element securityHeader, @Mocked BinarySecurityTokenReference binarySecurityTokenReference, @Mocked X509Certificate x509Certificate) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException, WSSecurityException {
         Document doc = readDocument("dataset/as4/SoapRequestBinaryToken.xml");
         String trustoreFilename = RESOURCE_PATH + "nonEmptySource.jks";
         String trustorePassword = "1234";
 
         new Expectations() {{
             tokenReferenceExtractor.extractTokenReference(withAny(securityHeader));
-            result=binarySecurityTokenReference;
+            result = binarySecurityTokenReference;
             binarySecurityTokenReference.getUri();
-            result="#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
+            result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
-            result=X_509_V_3;
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING, "false");
+            result = X_509_V_3;
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = false;
+            certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
+            result = x509Certificate;
         }};
         testHandleMessage(doc, trustoreFilename, trustorePassword);
         new Verifications() {{
-            certificateService.isCertificateValid((X509Certificate) any);
+            certificateService.isCertificateChainValid((List<Certificate>) any);
             times = 0;
         }};
     }
 
     @Test
     public void testGetCertificateFromBinarySecurityTokenX509v3(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, URISyntaxException {
-        new Expectations(){{
+        new Expectations() {{
             binarySecurityTokenReference.getUri();
-            result="#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
+            result = "#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
             binarySecurityTokenReference.getValueType();
-            result=X_509_V_3;
+            result = X_509_V_3;
         }};
         Document doc = readDocument("dataset/as4/RawXMLMessageWithSpaces.xml");
-        X509Certificate xc = trustSenderInterceptor.getCertificateFromBinarySecurityToken(doc.getDocumentElement(),binarySecurityTokenReference);
-        Assert.assertNotNull(xc);
-        Assert.assertNotNull(xc.getIssuerDN());
+        final List<? extends Certificate> xc = trustSenderInterceptor.getCertificateFromBinarySecurityToken(doc.getDocumentElement(), binarySecurityTokenReference);
+        Assert.assertNotNull(xc.get(0));
+        Assert.assertNotNull(((X509Certificate) xc.get(0)).getIssuerDN());
     }
 
     @Test
     public void testGetCertificateFromBinarySecurityTokenX509PKIPathv1(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, URISyntaxException {
-        new Expectations(){{
+        new Expectations() {{
             binarySecurityTokenReference.getUri();
-            result="#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
+            result = "#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
             binarySecurityTokenReference.getValueType();
-            result="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1";
+            result = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1";
         }};
         Document doc = readDocument("dataset/as4/RawXMLMessageWithSpacesAndPkiPath.xml");
-        X509Certificate xc = trustSenderInterceptor.getCertificateFromBinarySecurityToken(doc.getDocumentElement(),binarySecurityTokenReference);
-        Assert.assertNotNull(xc);
-        Assert.assertNotNull(xc.getIssuerDN());
+        final List<? extends Certificate> certificateFromBinarySecurityToken = trustSenderInterceptor.getCertificateFromBinarySecurityToken(doc.getDocumentElement(), binarySecurityTokenReference);
+        Assert.assertNotNull(certificateFromBinarySecurityToken.get(0));
+        Assert.assertNotNull(((X509Certificate) certificateFromBinarySecurityToken.get(0)).getIssuerDN());
     }
 
 
-
-    protected void testHandleMessage(Document doc, String trustoreFilename,  String trustorePassword) throws JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException {
+    protected void testHandleMessage(Document doc, String trustoreFilename, String trustorePassword) throws JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException {
         SoapMessage soapMessage = getSoapMessageForDom(doc);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING, "false");
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
             result = true;
         }};
         trustSenderInterceptor.handleMessage(soapMessage);
+        String senderPartyName = LOG.getMDC(DomibusLogger.MDC_FROM);
+        String receiverPartyName = LOG.getMDC(DomibusLogger.MDC_TO);
+
+        Assert.assertEquals("blue_gw", senderPartyName);
+        Assert.assertEquals("red_gw", receiverPartyName);
+
     }
 
     @Test
     public void testCheckCertificateValidityEnabled() throws Exception {
         final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
         final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, new DateTime().minusDays(2).toDate(), new DateTime().minusDays(1).toDate(), null);
+        List<Certificate> certificateChain = new ArrayList<>();
+        certificateChain.add(certificate);
+        List<Certificate> expiredCertificateChain = new ArrayList<>();
+        expiredCertificateChain.add(expiredCertificate);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING, "true");
-            result = "true";
-            certificateService.isCertificateValid(certificate);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = true;
-            certificateService.isCertificateValid(expiredCertificate);
+            certificateService.isCertificateChainValid(certificateChain);
+            result = true;
+            certificateService.isCertificateChainValid(expiredCertificateChain);
             result = false;
 
         }};
 
-        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(certificate, "test sender", false));
-        Assert.assertFalse(trustSenderInterceptor.checkCertificateValidity(expiredCertificate, "test sender", false));
+        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(certificateChain, "test sender", false));
+        Assert.assertFalse(trustSenderInterceptor.checkCertificateValidity(expiredCertificateChain, "test sender", false));
     }
 
     @Test
     public void testCheckCertificateValidityDisabled() throws Exception {
         final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, new DateTime().minusDays(2).toDate(), new DateTime().minusDays(1).toDate(), null);
+        List<Certificate> expiredCertificateChain = new ArrayList<>();
+        expiredCertificateChain.add(expiredCertificate);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING, "true");
-            result = "false";
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
+            result = false;
         }};
-        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(expiredCertificate, "test sender", false));
+        Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(expiredCertificateChain, "test sender", false));
     }
 
     @Test
-    public void testCheckSenderPartyTrust() throws Exception {
-        final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-
+    public void testHandleOneTestActivated(@Mocked final SoapMessage message) {
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING, "false");
-            result = "true";
-        }};
-
-        Assert.assertTrue(trustSenderInterceptor.checkSenderPartyTrust(certificate, "GlobalSign", "messageID123", false));
-        Assert.assertFalse(trustSenderInterceptor.checkSenderPartyTrust(certificate, "test sender", "messageID123", false));
-    }
-
-    @Test
-    public void testCheckSenderPartyTrustDisabled() throws Exception {
-        final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-
-        new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING, "false");
-            result = "false";
-        }};
-
-        Assert.assertTrue(trustSenderInterceptor.checkSenderPartyTrust(certificate, "test sender", "messageID123", false));
-    }
-
-    @Test
-    public void testHandleOneTestActivated(@Mocked final SoapMessage message){
-        new Expectations(){{
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING, "false");
-            result="false";
-            domibusPropertyProvider.getDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING, "false");
-            result="false";
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
+            result = false;
         }};
         trustSenderInterceptor.handleMessage(message);
-        new Verifications(){{
-           message.getExchange();times=0;
+        new Verifications() {{
+            message.getExchange();
+            times = 0;
         }};
     }
 }

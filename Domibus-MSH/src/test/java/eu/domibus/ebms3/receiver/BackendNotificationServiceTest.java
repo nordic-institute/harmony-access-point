@@ -6,13 +6,16 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.MessageLog;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
@@ -21,6 +24,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.routing.CriteriaFactory;
@@ -39,7 +43,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import javax.jms.Queue;
@@ -75,6 +78,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     SubmissionValidatorListProvider submissionValidatorListProvider;
+
+    @Injectable
+    UserMessageHandlerService userMessageHandlerService;
 
     List<NotificationListener> notificationListenerServices;
 
@@ -116,6 +122,12 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Injectable
+    protected List<BackendConnector> backendConnectors;
+
+    @Injectable
+    UserMessageService userMessageService;
 
     @Test
     public void testValidateSubmissionForUnsupportedNotificationType(@Injectable final Submission submission, @Injectable final UserMessage userMessage) throws Exception {
@@ -561,7 +573,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyOfMessageStatusChange(@Injectable final MessageLog messageLog,
+    public void testNotifyOfMessageStatusChange(@Injectable final UserMessageLog messageLog,
                                                 @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration) throws Exception {
         final String messageId = "1";
         final String backend = "JMS";
@@ -580,16 +592,16 @@ public class BackendNotificationServiceTest {
             result = messageId;
 
             messageLog.getMshRole();
-            result= role;
+            result = role;
 
             messageLog.getBackend();
             result = backend;
 
             multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
-            result=messageCommunicationConfiguration;
+            result = messageCommunicationConfiguration;
 
             messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-            result=true;
+            result = true;
 
             backendNotificationService.notify(anyString, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<String, Object>()));
         }};
@@ -598,7 +610,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(messageLog, status, new Timestamp(System.currentTimeMillis()));
 
         new VerificationsInOrder() {{
-            eventService.enqueueMessageEvent(messageId,previousStatus, status, role);
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
             String capturedMessageId = null;
             String capturedBackend = null;
             Map<String, Object> properties = null;

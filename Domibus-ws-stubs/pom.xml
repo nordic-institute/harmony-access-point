@@ -7,11 +7,24 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.0.2</version>
+        <version>4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-ws-stubs</artifactId>
     <name>Domibus MSH Default WS Plugin Stubs</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
