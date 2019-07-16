@@ -29,7 +29,7 @@
 		<jersey-multipart_version>1.19.4</jersey-multipart_version>
 		<json_version>20080701</json_version>
 		<javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
-		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
+		<domibus-ws-stubs_version>4.1-SNAPSHOT</domibus-ws-stubs_version>
 	</properties>
 
 	<dependencies>
