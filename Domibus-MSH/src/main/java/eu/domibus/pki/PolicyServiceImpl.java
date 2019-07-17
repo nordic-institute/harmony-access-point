@@ -111,10 +111,12 @@ public class PolicyServiceImpl implements PolicyService {
         while (alternatives.hasNext()) {
             List<Assertion> assertions = alternatives.next();
             if (assertions.stream().anyMatch(as -> ENCRYPTEDPARTS.equals(as.getName().getLocalPart()))) {
+                LOG.debug("Security policy [{}] includes encryptedParts.", policy.getName());
                 return false;
             }
         }
 
+        LOG.debug("There are no encryptedParts in the security policy [{}]", policy.getName());
         return true;
     }
 }

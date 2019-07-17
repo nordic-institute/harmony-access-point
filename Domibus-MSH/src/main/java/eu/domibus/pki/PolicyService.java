@@ -16,7 +16,6 @@ public interface PolicyService {
 
     boolean isNoEncryptionPolicy(Policy policy);
 
-    @Cacheable("policyCache")
     Policy parsePolicy(final String location) throws ConfigurationException;
 
     Policy getPolicy(final LegConfiguration legConfiguration) throws ConfigurationException;
