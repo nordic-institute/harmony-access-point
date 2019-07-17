@@ -1,5 +1,6 @@
 package eu.domibus.spring;
 
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.PasswordEncryptionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.logging.DomibusLogger;
@@ -25,6 +26,9 @@ public class DomibusContextRefreshedListener {
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
+
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
         LOG.info("Start processing ContextRefreshedEvent");
@@ -35,10 +39,18 @@ public class DomibusContextRefreshedListener {
             return;
         }
 
-        encryptionService.createPayloadEncryptionKeyForAllDomainsIfNotExists();
-        passwordEncryptionService.encryptPasswords();
+        domainTaskExecutor.submit(() -> handleEncryption());
 
         LOG.info("Finished processing ContextRefreshedEvent");
 
     }
+
+    protected void handleEncryption() {
+        encryptionService.createPayloadEncryptionKeyForAllDomainsIfNotExists();
+        passwordEncryptionService.encryptPasswords();
+
+        //signal to plugins that's ok to encrypt passwords
+        //the operation must be idempotent
+    }
+
 }
