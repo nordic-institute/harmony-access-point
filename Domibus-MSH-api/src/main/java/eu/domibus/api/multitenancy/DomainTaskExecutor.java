@@ -15,6 +15,13 @@ public interface DomainTaskExecutor {
 
     void submit(Runnable task);
 
+    /**
+     * Attempts to lock the file and if it succeeds submits a Runnable task for execution
+     *
+     * @param task The Runnable task to execute
+     * @param errorHandler The Runnable task that will be executed in case an error occurs while running the main task
+     * @param lockFile The file that will be locked before running the task
+     */
     void submit(Runnable task, Runnable errorHandler, File lockFile);
 
     void submit(Runnable task, Domain domain);
