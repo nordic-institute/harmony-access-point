@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.concurrent.*;
 
 /**
@@ -50,6 +51,15 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public void submit(Runnable task, Runnable errorHandler, File lockFile) {
+        LOG.trace("Submitting task with lock file [{}]", lockFile);
+        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
+        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(clearDomainRunnable, errorHandler);
+        SetLockOnFileRunnable setLockOnFileRunnable = new SetLockOnFileRunnable(setMDCContextTaskRunnable, lockFile);
+        submitRunnable(schedulingTaskExecutor, setLockOnFileRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    @Override
     public void submit(Runnable task, Domain domain) {
         submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
     }
@@ -61,7 +71,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     @Override
     public void submitLongRunningTask(Runnable task, Runnable errorHandler, Domain domain) {
-        submit(schedulingLongTaskExecutor, new LongTaskRunnable(task, errorHandler), domain, false, null, null);
+        submit(schedulingLongTaskExecutor, new SetMDCContextTaskRunnable(task, errorHandler), domain, false, null, null);
     }
 
     protected void submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {

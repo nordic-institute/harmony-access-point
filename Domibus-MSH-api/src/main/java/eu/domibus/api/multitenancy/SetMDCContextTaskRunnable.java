@@ -11,22 +11,17 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.1
  */
-public class LongTaskRunnable implements Runnable {
+public class SetMDCContextTaskRunnable implements Runnable {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LongTaskRunnable.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetMDCContextTaskRunnable.class);
 
     protected Runnable runnable;
     protected Runnable errorHandler;
     protected Map<String, String> copyOfContextMap;
 
-    public LongTaskRunnable(final Runnable runnable, Runnable errorHandler) {
+    public SetMDCContextTaskRunnable(final Runnable runnable, Runnable errorHandler) {
         this.runnable = runnable;
         this.errorHandler = errorHandler;
-        this.copyOfContextMap = LOG.getCopyOfContextMap();
-    }
-
-    public LongTaskRunnable(final Runnable runnable) {
-        this.runnable = runnable;
         this.copyOfContextMap = LOG.getCopyOfContextMap();
     }
 

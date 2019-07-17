@@ -27,7 +27,7 @@ public class LongTaskRunnableTest {
             result = new DomainTaskException("long running task exception");
         }};
 
-        LongTaskRunnable longTaskRunnable = new LongTaskRunnable(runnable, errorHandler);
+        SetMDCContextTaskRunnable longTaskRunnable = new SetMDCContextTaskRunnable(runnable, errorHandler);
         longTaskRunnable.run();
 
         new Verifications() {{
