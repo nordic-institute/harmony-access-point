@@ -53,6 +53,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Override
     public void submit(Runnable task, Runnable errorHandler, File lockFile) {
         LOG.trace("Submitting task with lock file [{}]", lockFile);
+
         SetLockOnFileRunnable setLockOnFileRunnable = new SetLockOnFileRunnable(task, lockFile);
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(setLockOnFileRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
