@@ -55,7 +55,7 @@ public class DomibusContextRefreshedListener {
         if (useLockForEncryption()) {
             LOG.debug("Handling encryption using lock file");
 
-            final File fileLock = getLockFile();
+            final File fileLock = getLockFileLocation();
             domainTaskExecutor.submit(() -> handleEncryption(), null, fileLock);
         } else {
             LOG.debug("Handling encryption");
@@ -120,7 +120,7 @@ public class DomibusContextRefreshedListener {
 
 
 
-    protected File getLockFile() {
+    protected File getLockFileLocation() {
         return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
     }
 

@@ -156,7 +156,7 @@ public class DomibusContextRefreshedListenerTest {
             result = configLocation;
         }};
 
-        final File lockFile = domibusContextRefreshedListener.getLockFile();
+        final File lockFile = domibusContextRefreshedListener.getLockFileLocation();
         assertEquals(configLocation, lockFile.getParent());
         assertEquals(DomibusContextRefreshedListener.ENCRYPTION_LOCK, lockFile.getName());
 
