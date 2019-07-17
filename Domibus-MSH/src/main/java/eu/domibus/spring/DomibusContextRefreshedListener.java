@@ -63,7 +63,24 @@ public class DomibusContextRefreshedListener {
         }
 
         LOG.info("Finished processing ContextRefreshedEvent");
+    }
 
+    protected void handleEncryption() {
+        try {
+            encryptionService.createPayloadEncryptionKeyForAllDomainsIfNotExists();
+        } catch (Exception e) {
+            LOG.error("Error creating payload encryption key", e);
+        }
+
+        try {
+            passwordEncryptionService.encryptPasswords();
+        } catch (Exception e) {
+            LOG.error("Error encrypting passwords", e);
+        }
+
+
+        //signal to plugins that's ok to encrypt passwords
+        //the operation must be idempotent
     }
 
     protected boolean useLockForEncryption() {
@@ -101,13 +118,7 @@ public class DomibusContextRefreshedListener {
         return false;
     }
 
-    protected void handleEncryption() {
-        encryptionService.createPayloadEncryptionKeyForAllDomainsIfNotExists();
-        passwordEncryptionService.encryptPasswords();
 
-        //signal to plugins that's ok to encrypt passwords
-        //the operation must be idempotent
-    }
 
     protected File getLockFile() {
         return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
