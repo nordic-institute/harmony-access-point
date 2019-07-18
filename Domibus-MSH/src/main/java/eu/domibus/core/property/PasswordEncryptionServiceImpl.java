@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.*;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
@@ -70,6 +70,9 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected DateUtil dateUtil;
 
+    @Autowired
+    protected DomibusPropertyEncryptionListenerDelegate domibusPropertyEncryptionListenerDelegate;
+
 
     @Override
     public void encryptPasswords() {
@@ -78,7 +81,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(domibusPropertyProvider, domibusConfigurationService);
         encryptPasswordsIfConfigured(passwordEncryptionContext);
 
-
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
             for (Domain domain : domains) {
@@ -86,6 +88,8 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
                 encryptPasswordsIfConfigured(passwordEncryptionContextDomain);
             }
         }
+
+        domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
 
         LOG.debug("Finished checking if password encryption is configured");
     }
@@ -158,7 +162,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final List<PasswordEncryptionResult> encryptedProperties = encryptProperties(passwordEncryptionContext, propertiesToEncrypt, secretKey, secretKeySpec);
 
         replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
-
 
 
         LOG.debug("Finished creating the encryption key");
