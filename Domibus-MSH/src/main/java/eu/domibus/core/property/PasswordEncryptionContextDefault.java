@@ -2,7 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 
 /**
  * @author Cosmin Baciu

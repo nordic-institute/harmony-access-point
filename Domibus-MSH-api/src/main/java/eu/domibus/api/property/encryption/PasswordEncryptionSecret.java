@@ -1,4 +1,4 @@
-package eu.domibus.api.property;
+package eu.domibus.api.property.encryption;
 
 import java.io.Serializable;
 

@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.PasswordEncryptionSecret;
+import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.logging.DomibusLogger;

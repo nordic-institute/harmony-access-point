@@ -4,6 +4,10 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.*;
+import eu.domibus.api.property.encryption.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
@@ -154,6 +158,8 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final List<PasswordEncryptionResult> encryptedProperties = encryptProperties(passwordEncryptionContext, propertiesToEncrypt, secretKey, secretKeySpec);
 
         replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
+
+
 
         LOG.debug("Finished creating the encryption key");
     }
