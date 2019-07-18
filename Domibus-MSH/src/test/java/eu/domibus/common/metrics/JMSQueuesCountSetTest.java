@@ -3,6 +3,7 @@ package eu.domibus.common.metrics;
 import com.codahale.metrics.Metric;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.security.AuthUtils;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -23,6 +24,9 @@ public class JMSQueuesCountSetTest {
 
     @Injectable
     JMSManager jmsManager;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Test
     public void test_GetMetrics() {

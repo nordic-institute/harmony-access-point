@@ -5,9 +5,9 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,20 +18,26 @@ import java.util.Map;
  * @author Catalin Enache
  * @since 4.1.1
  */
-@Component
 public class JMSQueuesCountSet implements MetricSet {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSQueuesCountSet.class);
 
     private JMSManager jmsManager;
 
-    public JMSQueuesCountSet(JMSManager jmsManager) {
+    private AuthUtils authUtils;
+
+    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils) {
         this.jmsManager = jmsManager;
+        this.authUtils = authUtils;
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
+
+        if(!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password");
+        }
 
         Map<String, JMSDestination> queues = jmsManager.getDestinations();
         for (Map.Entry<String, JMSDestination> entry: queues.entrySet()) {
