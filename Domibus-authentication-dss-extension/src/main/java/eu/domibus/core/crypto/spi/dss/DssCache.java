@@ -28,7 +28,7 @@ public class DssCache {
 
     public boolean isChainValid(final String key) {
         boolean certificateKeyInCache = cache.get(key) != null;
-        LOG.debug("Is certificate chaing key in cache:[{}]", certificateKeyInCache);
+        LOG.debug("Is certificate chain key in cache:[{}]", certificateKeyInCache);
         return certificateKeyInCache;
     }
 }
