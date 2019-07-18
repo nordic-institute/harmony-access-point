@@ -129,7 +129,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
         if (!encryptionActive) {
-            LOG.debug("Password encryption is not activate");
+            LOG.debug("Password encryption is not active");
             return;
         }
 
@@ -240,7 +240,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         final List<String> fileLines = getReplacedLines(encryptedProperties, configurationFile);
 
-        LOG.debug("Writing encrypted values ");
+        LOG.debug("Writing encrypted values");
 
         final File configurationFileBackup = getConfigurationFileBackup(configurationFile);
 

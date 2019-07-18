@@ -21,6 +21,8 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
+
 
     </changeSet>
 </databaseChangeLog>
