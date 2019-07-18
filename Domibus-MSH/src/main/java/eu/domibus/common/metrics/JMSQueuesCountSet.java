@@ -5,6 +5,7 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -36,7 +37,7 @@ public class JMSQueuesCountSet implements MetricSet {
         final Map<String, Metric> gauges = new HashMap<>();
 
         if(!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password");
+            authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
         }
 
         Map<String, JMSDestination> queues = jmsManager.getDestinations();
