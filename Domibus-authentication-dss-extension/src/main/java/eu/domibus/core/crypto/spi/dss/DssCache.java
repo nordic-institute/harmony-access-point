@@ -1,5 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import org.slf4j.Logger;
@@ -9,11 +11,11 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Dussart
  * @since 4.1
  * <p>
- * Dss cache..
+ * Dss cache.
  */
 public class DssCache {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DssCache.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssCache.class);
 
     private final Cache cache;
 

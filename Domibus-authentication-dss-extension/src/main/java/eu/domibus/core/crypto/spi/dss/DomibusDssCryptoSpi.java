@@ -77,10 +77,11 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         for (X509Certificate cert : certs) {
             cacheKeyBuilder.
                     append(cert.getSerialNumber()).
-                    append(cert.getIssuerDN().getName());
+                    append(cert.getIssuerDN()!=null?cert.getIssuerDN().getName():"");
         }
         String cacheKey = cacheKeyBuilder.toString();
         if (dssCache.isChainValid(cacheKey)) {
+            LOG.debug("Certificate with cache key:[{}] validated from dss cache",dssCache);
             return;
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
