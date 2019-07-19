@@ -5,9 +5,13 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.SoapService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.receiver.SetPolicyInInterceptor;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.StaxInInterceptor;
+import org.apache.neethi.builders.converters.ConverterException;
 import org.apache.neethi.builders.converters.StaxToDOMConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.acl.LastOwnerException;
 
 
 /**
@@ -32,6 +37,8 @@ import java.io.InputStream;
 
 @Service
 public class SoapServiceImpl implements SoapService {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapServiceImpl.class);
 
     @Qualifier("jaxbContextEBMS")
     @Autowired
@@ -46,7 +53,14 @@ public class SoapServiceImpl implements SoapService {
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
         new StaxInInterceptor().handleMessage(message);
         final XMLStreamReader xmlStreamReader = message.getContent(XMLStreamReader.class);
-        final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
+        LOG.info("Soap content:[{}]",new String(data));
+        Element soapEnvelope=null;
+        try {
+            soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
+        }catch (ConverterException ex){
+            LOG.error("Wrong soap content:[{}]",new String(data));
+            throw ex;
+        }
         message.removeContent(XMLStreamReader.class);
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
         //message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(message.getContent(InputStream.class)));
