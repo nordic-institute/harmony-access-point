@@ -113,19 +113,14 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     @Override
     public int findAndSyncUIMessages(int limit) {
         LOG.debug("find and sync first {} UIMessages", limit);
-        long startTime = System.currentTimeMillis();
-
-
         int recordsToSync = countAll();
-
-        LOG.debug("{} milliseconds to count the records", System.currentTimeMillis() - startTime);
-        startTime = System.currentTimeMillis();
 
         if (recordsToSync == 0) {
             LOG.debug("no records to sync");
             return 0;
         }
 
+        long startTime = System.currentTimeMillis();
         List<UIMessageEntity> uiMessageEntityList =
                 findAll(limit).
                         stream().
