@@ -39,42 +39,44 @@ public class UIReplicationListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processUIReplication(final MapMessage map) throws JMSException {
 
-        final String domainCode = map.getStringProperty(MessageConstants.DOMAIN);
-        domainContextProvider.setCurrentDomain(domainCode);
-
         //disabling read of JMS messages
         if (!uiReplicationSignalService.isReplicationEnabled()) {
             LOG.debug("UIReplication is disabled - no processing will occur");
             return;
         }
 
+        final String domainCode = map.getStringProperty(MessageConstants.DOMAIN);
+        domainContextProvider.setCurrentDomain(domainCode);
+
         final String messageId = map.getStringProperty(MessageConstants.MESSAGE_ID);
         final String jmsType = map.getJMSType();
         LOG.debug("processUIReplication for messageId=[{}] domain=[{}] jmsType=[{}]", messageId, domainCode, jmsType);
 
+        long timestamp = map.getLongProperty(UIReplicationSignalService.JMS_PROP_TIMESTAMP);
+
         switch (UIJMSType.valueOf(jmsType)) {
             case USER_MESSAGE_RECEIVED:
-                uiReplicationDataService.messageReceived(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.messageReceived(messageId, timestamp);
                 break;
             case USER_MESSAGE_SUBMITTED:
-                uiReplicationDataService.messageSubmitted(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.messageSubmitted(messageId, timestamp);
                 break;
             case MESSAGE_STATUS_CHANGE:
                 MessageStatus messageStatus = MessageStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_STATUS));
-                uiReplicationDataService.messageStatusChange(messageId, messageStatus, map.getJMSTimestamp());
+                uiReplicationDataService.messageStatusChange(messageId, messageStatus, timestamp);
                 break;
             case MESSAGE_NOTIFICATION_STATUS_CHANGE:
                 NotificationStatus notificationStatus = NotificationStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_NOTIF_STATUS));
-                uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, map.getJMSTimestamp());
+                uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, timestamp);
                 break;
             case MESSAGE_CHANGE:
-                uiReplicationDataService.messageChange(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.messageChange(messageId, timestamp);
                 break;
             case SIGNAL_MESSAGE_SUBMITTED:
-                uiReplicationDataService.signalMessageSubmitted(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.signalMessageSubmitted(messageId, timestamp);
                 break;
             case SIGNAL_MESSAGE_RECEIVED:
-                uiReplicationDataService.signalMessageReceived(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.signalMessageReceived(messageId, timestamp);
                 break;
             default:
                 throw new AssertionError("Invalid UIJMSType enum value");

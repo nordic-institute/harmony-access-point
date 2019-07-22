@@ -5,7 +5,7 @@ import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.logging.SignalMessageLog;
+import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ebms3.common.UserMessageDefaultServiceHelper;
@@ -15,7 +15,6 @@ import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -215,26 +214,14 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      * @param jmsTimestamp
      */
     void saveUIMessageFromSignalMessageLog(String messageId, final long jmsTimestamp) {
-        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(messageId);
+        final MessageLog signalMessageLog = signalMessageLogDao.findByMessageId(messageId);
         final SignalMessage signalMessage = messagingDao.findSignalMessageByMessageId(messageId);
 
         final Messaging messaging = messagingDao.findMessageByMessageId(signalMessage.getMessageInfo().getRefToMessageId());
         final UserMessage userMessage = messaging.getUserMessage();
 
-        UIMessageEntity entity = domainConverter.convert(signalMessageLog, UIMessageEntity.class);
+        createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
 
-        entity.setEntityId(0); //dozer copies other value here
-        entity.setMessageId(messageId);
-        entity.setConversationId(StringUtils.EMPTY);
-        entity.setFromId(userMessage.getPartyInfo().getFrom().getPartyId().iterator().next().getValue());
-        entity.setToId(userMessage.getPartyInfo().getTo().getPartyId().iterator().next().getValue());
-        entity.setFromScheme(userMessageDefaultServiceHelper.getOriginalSender(userMessage));
-        entity.setToScheme(userMessageDefaultServiceHelper.getFinalRecipient(userMessage));
-        entity.setRefToMessageId(signalMessage.getMessageInfo().getRefToMessageId());
-        entity.setLastModified(new Date(jmsTimestamp));
-        entity.setLastModified2(entity.getLastModified());
-
-        uiMessageDao.create(entity);
         LOG.debug("SignalMessage with messageId={} replicated", messageId);
     }
 
@@ -245,9 +232,15 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      * @param jmsTimestamp
      */
     protected void saveUIMessageFromUserMessageLog(String messageId, long jmsTimestamp) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final MessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
+        createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
+
+        LOG.debug("UserMessage with messageId={} replicated", messageId);
+    }
+
+    private void createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog userMessageLog, UserMessage userMessage) {
         //using Dozer
         UIMessageEntity entity = domainConverter.convert(userMessageLog, UIMessageEntity.class);
 
@@ -260,12 +253,10 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         entity.setToScheme(userMessageDefaultServiceHelper.getFinalRecipient(userMessage));
         entity.setRefToMessageId(userMessage.getMessageInfo().getRefToMessageId());
         entity.setLastModified(new Date(jmsTimestamp));
-        entity.setLastModified2(entity.getLastModified());
+        entity.setLastModified2(new Date(jmsTimestamp));
 
         uiMessageDao.create(entity);
-        LOG.debug("UserMessage with messageId={} replicated", messageId);
     }
-
 
 
 }
