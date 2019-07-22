@@ -4,16 +4,13 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
-import pages.truststore.TrustStorePage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
 import utils.Generator;
-import utils.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -349,8 +346,8 @@ public class UsersPgTest extends BaseTest {
 		UserModal um = new UserModal(driver);
 		um.fillData("", "asdsa", "", "assd", "asdaa");
 
-		soft.assertEquals(um.getUsernameErrMess().getText(), DMessages.USERNAME_NO_EMPTY_MESSAGE, "Correct username err message appears");
-		soft.assertEquals(um.getEmailErrMess().getText(), DMessages.EMAIL_INVALID_MESSAGE, "Correct email err message appears");
+		soft.assertEquals(um.getUsernameErrMess().getText(), DMessages.USER_USERNAME_NO_EMPTY, "Correct username err message appears");
+		soft.assertEquals(um.getEmailErrMess().getText(), DMessages.USER_EMAIL_INVALID, "Correct email err message appears");
 		soft.assertEquals(um.getPassErrMess().getText(), DMessages.PASS_POLICY_MESSAGE, "Correct pass err message appears");
 		soft.assertEquals(um.getConfirmationErrMess().getText(), DMessages.PASS_NO_MATCH_MESSAGE, "Correct pass err message appears");
 
@@ -385,7 +382,7 @@ public class UsersPgTest extends BaseTest {
 
 		soft.assertTrue(!loginPage.getSandwichMenu().isLoggedIn(), "User is not logged in");
 		soft.assertTrue(loginPage.getAlertArea().isError(), "Error message shown");
-		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.MSG_2_2, "Correct error message is shown");
+		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "Correct error message is shown");
 
 
 		loginPage.login(data.getAdminUser());
@@ -485,7 +482,7 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedError = String.format(DMessages.DUPLICATE_USER_, username, domains.get(1));
+		String expectedError = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domains.get(1));
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedError, "Correct message is displayed");
 
 		soft.assertAll();
@@ -509,7 +506,7 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedMessage = String.format(DMessages.DUPLICATE_USER_, username, "default");
+		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, "default");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		rest.deletePluginUser(username, null);
@@ -540,7 +537,7 @@ public class UsersPgTest extends BaseTest {
 
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
 
-		String expectedMessage = String.format(DMessages.DUPLICATE_USER_, username, domains.get(1));
+		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domains.get(1));
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		soft.assertAll();
@@ -582,13 +579,13 @@ public class UsersPgTest extends BaseTest {
 		UserModal modal = new UserModal(driver);
 
 		modal.getUserNameInput().fill("t");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERNAME_VALIDATION_MESSAGE, "Correct error message shown (1)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
 
 		modal.getUserNameInput().fill("te");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERNAME_VALIDATION_MESSAGE, "Correct error message shown (2)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (2)");
 
 		modal.getUserNameInput().fill("te$%^*");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERNAME_VALIDATION_MESSAGE, "Correct error message shown (3)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (3)");
 
 		modal.getUserNameInput().fill("testUser");
 
@@ -620,7 +617,7 @@ public class UsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.DELETE_LOGGED_IN_ERROR, username),
+				String.format(DMessages.USER_DELETE_LOGGED_IN_USER, username),
 				"Correct error message is shown");
 
 		soft.assertAll();

@@ -66,6 +66,7 @@ public class DGrid extends DComponent {
 	}
 
 	public boolean isPresent() {
+
 		boolean isPresent = false;
 		try {
 			isPresent = getColumnNames().size() >= 0;
@@ -369,7 +370,10 @@ public class DGrid extends DComponent {
 
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
 
-		soft.assertTrue(CollectionUtils.isEqualCollection(gridHeaders, csvParser.getHeaderMap().keySet()), "Headers between grid and CSV file match");
+		List<String> columnNames = getColumnNames();
+		columnNames.remove("Actions");
+
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvParser.getHeaderMap().keySet()), "Headers between grid and CSV file match");
 
 		for (int i = 0; i < gridInfo.size(); i++) {
 			HashMap<String, String> gridRecord = gridInfo.get(i);

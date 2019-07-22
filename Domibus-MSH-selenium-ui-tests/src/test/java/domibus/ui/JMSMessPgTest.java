@@ -277,7 +277,7 @@ public class JMSMessPgTest extends BaseTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		HashMap<String, String> params = new HashMap<>();
-		params.put("source", "domibus.DLQ");
+		params.put("source", "DomibusDLQ");
 
 		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
 

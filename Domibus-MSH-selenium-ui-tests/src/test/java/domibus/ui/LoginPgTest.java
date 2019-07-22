@@ -98,7 +98,7 @@ public class LoginPgTest extends BaseTest {
 		soft.assertTrue(loginPage.isLoaded(), "User is still on Login page");
 
 		soft.assertTrue(loginPage.getAlertArea().isError(), "Error message is displayed");
-		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.MSG_1, "Displayed message is correct");
+		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
 		soft.assertAll();
 	}
@@ -121,16 +121,16 @@ public class LoginPgTest extends BaseTest {
 			soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 
 			if (i <= 4) {
-				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MSG_1, "Displayed message is correct");
+				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 			} else {
-				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MSG_2, "Account blocked message displayed as expected");
+				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED, "Account blocked message displayed as expected");
 			}
 		}
 
 		page.login(username, data.getDefaultTestPass());
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed (2)");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MSG_2_1, "Displayed message is correct (2)");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "Displayed message is correct (2)");
 
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "true");

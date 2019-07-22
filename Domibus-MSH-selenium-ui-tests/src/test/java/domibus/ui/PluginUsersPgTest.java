@@ -11,7 +11,6 @@ import org.testng.asserts.SoftAssert;
 import pages.plugin_users.CertPluginUserModal;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
-import rest.RestServicePaths;
 import utils.Generator;
 
 import java.util.ArrayList;
@@ -345,23 +344,23 @@ public class PluginUsersPgTest extends BaseTest {
 
 		pum.getUserNameInput().clear();
 		String errMess = pum.getUsernameErrMess().getText();
-		soft.assertEquals(errMess, DMessages.USERNAME_NO_EMPTY_MESSAGE, "Username should not be empty");
+		soft.assertEquals(errMess, DMessages.USER_USERNAME_NO_EMPTY, "Username should not be empty");
 
 		pum.getUserNameInput().fill(username);
 
 		pum.getOriginalUserInput().fill("kdsjflksjfsldjk");
-		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.ORIGINAL_USER_NOTVALID, "Original user is not valid");
+		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
 		pum.getOriginalUserInput().clear();
 
-		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_NOTEMPTY, "Role cannot be empty");
+		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty");
 		pum.getRolesSelect().selectOptionByIndex(0);
 
 
 		errMess = pum.getPassErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_NO_EMPTY_MESSAGE, "Password should NOT empty");
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 
 		errMess = pum.getConfirmationErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_NO_EMPTY_MESSAGE, "Password should NOT empty");
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 
 		pum.getPasswordInput().fill("tst");
 
@@ -472,7 +471,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.DUPLICATE_PLUGINUSER_, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, null);
@@ -503,7 +502,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.DUPLICATE_PLUGINUSER_, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, domain1);
@@ -534,7 +533,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.DUPLICATE_PLUGINUSER_, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
 				"Error message is shown");
 
 		rest.deleteUser(username, domain1);
@@ -557,7 +556,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.DUPLICATE_PLUGINUSER_, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
 				"Error message is shown");
 
 		rest.deleteUser(username, null);

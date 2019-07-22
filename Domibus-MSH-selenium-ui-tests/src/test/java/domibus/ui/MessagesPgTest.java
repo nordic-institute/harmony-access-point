@@ -4,10 +4,6 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -17,13 +13,11 @@ import pages.messages.MessagesPage;
 import pages.messages.SearchFilters;
 import rest.RestServicePaths;
 import utils.Generator;
-import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -354,7 +348,7 @@ public class MessagesPgTest extends BaseTest {
 			c++;
 		}
 		soft.assertTrue(statusChanged, "Message changed to SEND_ENQUEUED");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.RESEND_MESSAGE_SUCCESS, "Page shows corect success message");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS, "Page shows corect success message");
 		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
 
 
@@ -460,9 +454,6 @@ public class MessagesPgTest extends BaseTest {
 		page.grid().getGridCtrl().getAllLnk().click();
 
 		page.grid().sortBy("Received");
-
-		List<String> gridHeaders = page.grid().getColumnNames();
-		gridHeaders.remove("Actions");
 
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 

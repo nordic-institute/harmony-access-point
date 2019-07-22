@@ -13,7 +13,6 @@ import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
 import rest.RestServicePaths;
 import utils.Generator;
-import utils.TestUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -495,7 +494,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.DUPLICATE_MESSAGE_FILTER_ERROR,  "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER,  "Page shows error");
 
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
@@ -521,7 +520,7 @@ public class MessageFilterPgTest extends BaseTest {
 		modal.clickOK();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.DUPLICATE_MESSAGE_FILTER_ERROR,  "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER,  "Page shows error");
 
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
@@ -551,7 +550,7 @@ public class MessageFilterPgTest extends BaseTest {
 		modal.clickOK();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.DUPLICATE_MESSAGE_FILTER_ERROR,  "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER,  "Page shows error");
 
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
