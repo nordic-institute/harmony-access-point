@@ -298,12 +298,13 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
      */
     public void validateUniqueUser(UserBase user) {
         if (domibusConfigurationService.isMultiTenantAware()) {
+            //check to see if it is a domain user
             String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());
             if (domain != null) {
                 String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists in the " + domain + " domain.";
                 throw new UserManagementException(errorMessage);
             }
-
+            //if no luck, check also if it is super-user/AP admin
             String preferredDomain = userDomainService.getPreferredDomainForUser(user.getUniqueIdentifier());
             if (preferredDomain != null) {
                 String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because an AP admin with this name already exists.";
