@@ -5,6 +5,8 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.SoapService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -33,6 +35,8 @@ import java.io.InputStream;
 @Service
 public class SoapServiceImpl implements SoapService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapServiceImpl.class);
+
     @Qualifier("jaxbContextEBMS")
     @Autowired
     private JAXBContext jaxbContext;
@@ -41,20 +45,24 @@ public class SoapServiceImpl implements SoapService {
     public Messaging getMessage(final SoapMessage message) throws IOException, JAXBException, EbMS3Exception {
         final InputStream inputStream = message.getContent(InputStream.class);
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        IOUtils.copy(inputStream, byteArrayOutputStream); //FIXME: do not copy the whole byte[], use SequenceInputstream instead
-        final byte[] data = byteArrayOutputStream.toByteArray();
-        message.setContent(InputStream.class, new ByteArrayInputStream(data));
-        new StaxInInterceptor().handleMessage(message);
-        final XMLStreamReader xmlStreamReader = message.getContent(XMLStreamReader.class);
-        final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
-        message.removeContent(XMLStreamReader.class);
-        message.setContent(InputStream.class, new ByteArrayInputStream(data));
-        //message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(message.getContent(InputStream.class)));
-        final Node messagingNode = soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
-        if(messagingNode == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, null);
+        Node messagingNode=null;
+        try {
+            IOUtils.copy(inputStream, byteArrayOutputStream); //FIXME: do not copy the whole byte[], use SequenceInputstream instead
+            final byte[] data = byteArrayOutputStream.toByteArray();
+            message.setContent(InputStream.class, new ByteArrayInputStream(data));
+            new StaxInInterceptor().handleMessage(message);
+            final XMLStreamReader xmlStreamReader = message.getContent(XMLStreamReader.class);
+            final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
+            message.removeContent(XMLStreamReader.class);
+            message.setContent(InputStream.class, new ByteArrayInputStream(data));
+            //message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(message.getContent(InputStream.class)));
+            messagingNode = soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
+            if (messagingNode == null) {
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, null);
+            }
+        } catch (Exception e) {
+            LOG.error("------------ Error during load of soap message:[{}]",new String(byteArrayOutputStream.toByteArray()),e);
         }
-
         return ((JAXBElement<Messaging>) this.jaxbContext.createUnmarshaller().unmarshal(messagingNode)).getValue();
     }
 }
