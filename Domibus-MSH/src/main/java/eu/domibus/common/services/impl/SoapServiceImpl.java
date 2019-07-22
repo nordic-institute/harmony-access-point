@@ -60,10 +60,11 @@ public class SoapServiceImpl implements SoapService {
             if (messagingNode == null) {
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, null);
             }
+            return ((JAXBElement<Messaging>) this.jaxbContext.createUnmarshaller().unmarshal(messagingNode)).getValue();
         } catch (Exception e) {
             LOG.error("------------ Error during load of soap message:[{}]",new String(byteArrayOutputStream.toByteArray()),e);
+            throw e;
         }
-        return ((JAXBElement<Messaging>) this.jaxbContext.createUnmarshaller().unmarshal(messagingNode)).getValue();
     }
 }
 
