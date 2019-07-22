@@ -146,12 +146,13 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
     public void saveOrUpdate(final UIMessageEntity uiMessageEntity) {
         UIMessageEntity uiMessageEntityFound = findUIMessageByMessageId(uiMessageEntity.getMessageId());
         Date currentDate = new Date(System.currentTimeMillis());
+        uiMessageEntity.setLastModified(currentDate);
+        uiMessageEntity.setLastModified2(currentDate);
         if (uiMessageEntityFound != null) {
+            LOG.debug("TB_MESSAGE_UI will be updated for messageId=[{}]", uiMessageEntityFound.getMessageId());
             uiMessageEntity.setEntityId(uiMessageEntityFound.getEntityId());
-            uiMessageEntity.setLastModified(uiMessageEntityFound.getLastModified() != null ? uiMessageEntity.getLastModified() : currentDate);
-            uiMessageEntity.setLastModified2(uiMessageEntityFound.getLastModified2() != null ? uiMessageEntity.getLastModified2() : currentDate);
             em.merge(uiMessageEntity);
-            LOG.debug("uiMessageEntity having messageId={} have been updated", uiMessageEntity.getMessageId());
+            LOG.debug("uiMessageEntity having messageId=[{}] have been updated", uiMessageEntity.getMessageId());
             return;
         }
         em.persist(uiMessageEntity);

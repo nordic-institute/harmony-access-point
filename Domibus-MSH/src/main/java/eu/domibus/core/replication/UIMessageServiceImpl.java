@@ -72,7 +72,7 @@ public class UIMessageServiceImpl implements UIMessageService {
             uiMessageDao.saveOrUpdate(uiMessageEntity);
         } catch (Exception e) {
             //we log here just in case an exception is thrown
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to insert/update into TB_MESSAGE_UI having messageId=[{}] error is: {}", uiMessageEntity.getMessageId(),  e.getMessage(), e);
         }
     }
 

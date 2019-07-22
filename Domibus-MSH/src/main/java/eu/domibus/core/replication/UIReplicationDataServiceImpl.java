@@ -15,6 +15,7 @@ import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -142,7 +143,6 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
                 return;
             }
         }
-
         LOG.debug("messageNotificationStatusChange skipped for messageId={}", messageId);
     }
 
@@ -178,7 +178,6 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
                 return;
             }
         }
-
         LOG.debug("messageChange skipped for messageId={}", messageId);
     }
 
@@ -220,9 +219,11 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         final Messaging messaging = messagingDao.findMessageByMessageId(signalMessage.getMessageInfo().getRefToMessageId());
         final UserMessage userMessage = messaging.getUserMessage();
 
-        createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
+        UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
+        entity.setConversationId(StringUtils.EMPTY);
+        uiMessageDao.create(entity);
 
-        LOG.debug("SignalMessage with messageId={} replicated", messageId);
+        LOG.debug("SignalMessage with messageId=[{}] inserted", messageId);
     }
 
     /**
@@ -235,18 +236,21 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         final MessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
-        createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
+        UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
+        entity.setConversationId(userMessage.getCollaborationInfo().getConversationId());
 
-        LOG.debug("UserMessage with messageId={} replicated", messageId);
+        uiMessageDao.create(entity);
+
+        LOG.debug("UserMessage with messageId=[{}] inserted", messageId);
     }
 
-    private void createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog userMessageLog, UserMessage userMessage) {
+    private UIMessageEntity createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog messageLog, UserMessage userMessage) {
         //using Dozer
-        UIMessageEntity entity = domainConverter.convert(userMessageLog, UIMessageEntity.class);
+        UIMessageEntity entity = domainConverter.convert(messageLog, UIMessageEntity.class);
 
         entity.setEntityId(0); //dozer
         entity.setMessageId(messageId);
-        entity.setConversationId(userMessage.getCollaborationInfo().getConversationId());
+
         entity.setFromId(userMessage.getPartyInfo().getFrom().getPartyId().iterator().next().getValue());
         entity.setToId(userMessage.getPartyInfo().getTo().getPartyId().iterator().next().getValue());
         entity.setFromScheme(userMessageDefaultServiceHelper.getOriginalSender(userMessage));
@@ -255,7 +259,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         entity.setLastModified(new Date(jmsTimestamp));
         entity.setLastModified2(new Date(jmsTimestamp));
 
-        uiMessageDao.create(entity);
+        return entity;
     }
 
 
