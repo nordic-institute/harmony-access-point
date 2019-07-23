@@ -1,4 +1,78 @@
 Domibus 4.1 (from 4.0.2):
+                - Configure logback.xml to property log statistics by adding the following logger:
+                    <logger name="eu.domibus.statistic" level="INFO" additivity="false">
+                        <appender-ref ref="statistic_file"/>
+                    </logger>
+                - Configure logback.xml to property log statistics by adding the following appender:
+                    o [WebLogic only]
+                         <appender name="statistic_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                                <file>${catalina.home}/logs/statistic.log</file>
+                                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                                    <level>INFO</level>
+                                </filter>
+                                <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+                                    <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                                        <marker>STATISTIC</marker>
+                                    </evaluator>
+                                    <onMismatch>DENY</onMismatch>
+                                    <onMatch>NEUTRAL</onMatch>
+                                </filter>
+                                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                                    <fileNamePattern>${catalina.home}/logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                                    <maxFileSize>30MB</maxFileSize>
+                                    <maxHistory>60</maxHistory>
+                                    <totalSizeCap>20GB</totalSizeCap>
+                                </rollingPolicy>
+                                <encoder>
+                                    <pattern>${statisticsPattern}</pattern>
+                                </encoder>
+                            </appender>
+                    o [Tomcat only]
+                         <appender name="statistic_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                                <file>${catalina.home}/logs/statistic.log</file>
+                                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                                    <level>INFO</level>
+                                </filter>
+                                <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+                                    <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                                        <marker>STATISTIC</marker>
+                                    </evaluator>
+                                    <onMismatch>DENY</onMismatch>
+                                    <onMatch>NEUTRAL</onMatch>
+                                </filter>
+                                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                                    <fileNamePattern>${catalina.home}/logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                                    <maxFileSize>30MB</maxFileSize>
+                                    <maxHistory>60</maxHistory>
+                                    <totalSizeCap>20GB</totalSizeCap>
+                                </rollingPolicy>
+                                <encoder>
+                                    <pattern>${statisticsPattern}</pattern>
+                                </encoder>
+                            </appender>
+                    o [Wildfly only]
+                        <appender name="statistic_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                                <file>${JBOSS_HOME}/logs/statistic.log</file>
+                                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                                    <level>INFO</level>
+                                </filter>
+                                <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+                                    <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                                        <marker>STATISTIC</marker>
+                                    </evaluator>
+                                    <onMismatch>DENY</onMismatch>
+                                    <onMatch>NEUTRAL</onMatch>
+                                </filter>
+                                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                                    <fileNamePattern>${JBOSS_HOME}/logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                                    <maxFileSize>30MB</maxFileSize>
+                                    <maxHistory>60</maxHistory>
+                                    <totalSizeCap>20GB</totalSizeCap>
+                                </rollingPolicy>
+                                <encoder>
+                                    <pattern>${statisticsPattern}</pattern>
+                                </encoder>
+                            </appender>
                 - Run the appropriate DB migration script(mysql5innoDb-4.0.2-to-4.1-migration.ddl for MySQL or oracle10g-4.0.2-to-4.1-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - Replace the current logback.xml file with the newer version optionally keeping the existing configuration
