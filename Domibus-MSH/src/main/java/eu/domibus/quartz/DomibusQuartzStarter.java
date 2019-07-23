@@ -224,7 +224,7 @@ public class DomibusQuartzStarter {
         }
     }
 
-    private void rescheduleJob(Scheduler scheduler, JobKey jobKey, String cronExpression) throws SchedulerException {
+    protected void rescheduleJob(Scheduler scheduler, JobKey jobKey, String cronExpression) throws SchedulerException {
         JobDetail jobDetail = scheduler.getJobDetail(jobKey);
         JobDataMap jobDataMap = jobDetail.getJobDataMap();
 

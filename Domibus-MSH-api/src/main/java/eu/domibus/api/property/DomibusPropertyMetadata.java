@@ -28,7 +28,7 @@ public class DomibusPropertyMetadata {
 
     private Module module;
 
-    public static DomibusPropertyMetadata GLOBAL_PROPERTY(String name) {
+    public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return new DomibusPropertyMetadata(name, false, false);
     }
 
@@ -40,20 +40,12 @@ public class DomibusPropertyMetadata {
         this.module = module;
     }
 
-    public DomibusPropertyMetadata(String name, Module module, boolean domainSpecific, boolean withFallback) {
-        this(name, module, domainSpecific, withFallback, true);
-    }
-
     public DomibusPropertyMetadata(String name, boolean domainSpecific, boolean withFallback) {
         this(name, Module.MSH, domainSpecific, withFallback, true);
     }
 
     public DomibusPropertyMetadata(String name, boolean domainSpecific) {
         this(name, Module.MSH, domainSpecific, false, true);
-    }
-
-    public DomibusPropertyMetadata(String name) {
-        this(name, Module.MSH, true, true, true);
     }
 
     public String getName() {

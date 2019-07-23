@@ -1,5 +1,7 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
@@ -72,6 +74,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             domibusQuartzStarter.rescheduleJob(domain, jobName, propertyValue);
         } catch (SchedulerException ex) {
             LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
         }
     }
 
