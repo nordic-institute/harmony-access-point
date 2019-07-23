@@ -82,13 +82,13 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
         new NonStrictExpectations() {{
             domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type"); result = "keystoreType";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password"); result = "keystorePassword";
+            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password", true); result = "keystorePassword";
             domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias"); result = "privateKeyAlias";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password"); result = PRIVATE_KEY_PASSWORD;
-            domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.keystore.location"); result = "keystoreLocation";
+            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true); result = PRIVATE_KEY_PASSWORD;
+            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.location"); result = "keystoreLocation";
 
-            domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.truststore.location"); result = TRUST_STORE_LOCATION;
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password"); result = "trustStorePassword";
+            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location"); result = TRUST_STORE_LOCATION;
+            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password", true); result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type"); result = TRUST_STORE_TYPE;
         }};
     }
@@ -1095,7 +1095,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Could not load truststore, truststore location is empty");
 
         new Expectations() {{
-            domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.truststore.location"); result = null;
+            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location"); result = null;
         }};
 
         // When

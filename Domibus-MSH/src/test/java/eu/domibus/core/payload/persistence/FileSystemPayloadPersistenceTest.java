@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.CompressionService;
-import eu.domibus.core.encryption.EncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
@@ -51,7 +51,7 @@ public class FileSystemPayloadPersistenceTest {
     protected PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Injectable
-    protected EncryptionService encryptionService;
+    protected PayloadEncryptionService encryptionService;
 
     @Tested
     FileSystemPayloadPersistence fileSystemPayloadPersistence;

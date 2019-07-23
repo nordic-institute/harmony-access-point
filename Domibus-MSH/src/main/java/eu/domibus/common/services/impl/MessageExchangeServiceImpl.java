@@ -333,10 +333,11 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
-        if (policyService.isNoSecurityPolicy(policy)) {
+        if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
+            LOG.debug("Validation of the receiver certificate is skipped.");
             return;
         }
-        // TODO - skip for policy with no encryption
+
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
             try {
@@ -371,6 +372,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy)) {
+            LOG.debug("Validation of the sender certificate is skipped.");
             return;
         }
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {

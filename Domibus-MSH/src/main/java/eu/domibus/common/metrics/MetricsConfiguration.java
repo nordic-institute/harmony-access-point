@@ -9,6 +9,7 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -51,7 +52,8 @@ public class MetricsConfiguration {
     }
 
     @Bean
-    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry, JMSManager jmsManager) {
+    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry,
+                                         JMSManager jmsManager, AuthUtils authUtils) {
         MetricRegistry metricRegistry = new MetricRegistry();
         Boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
 
@@ -79,7 +81,7 @@ public class MetricsConfiguration {
 
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
         if (monitorJMSQueues) {
-            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager));
+            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils));
         }
 
         Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL4J_REPORTER_ENABLE);

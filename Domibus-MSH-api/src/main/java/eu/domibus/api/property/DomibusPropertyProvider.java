@@ -11,16 +11,17 @@ import java.util.function.Predicate;
  */
 public interface DomibusPropertyProvider {
 
+    String DOMIBUS_PROPERTY_FILE = "domibus.properties";
+
     String getProperty(String propertyName);
+
+    String getProperty(String propertyName, boolean decrypt);
 
     String getProperty(Domain domain, String propertyName);
 
+    String getProperty(Domain domain, String propertyName, boolean decrypt);
+
     String getProperty(Domain domain, String propertyName, String defaultValue);
-
-    String getResolvedProperty(Domain domain, String propertyName);
-
-    String getResolvedProperty(String propertyName);
-
 
     /*
     The getDomainProperty methods retrieve the specified property
@@ -39,20 +40,21 @@ public interface DomibusPropertyProvider {
 
     String getDomainProperty(String propertyName, String defaultValue);
 
+    String getDomainProperty(Domain domain, String propertyName);
+
+    String getDomainProperty(Domain domain, String propertyName, String defaultValue);
+
     /**
      * When actions are executed under a super admin user, there is no domain set on the current thread.
      * Nevertheless we need to retrieve some default properties. So if no domain is found, this method will retrieve
      * properties from the default one.
+     *
      * @param propertyName the property name.
      * @return the property value.
      */
     String getOptionalDomainProperty(String propertyName);
 
     String getOptionalDomainProperty(String propertyName, String defaultValue);
-
-    String getDomainProperty(Domain domain, String propertyName);
-
-    String getDomainProperty(Domain domain, String propertyName, String defaultValue);
 
     Set<String> filterPropertiesName(Predicate<String> predicate);
 
@@ -64,7 +66,6 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     *
      * @return The {@code Integer} value of the property as specified by the user or the default one provided with the application.
      */
     Integer getIntegerProperty(String propertyName);
@@ -76,7 +77,6 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     *
      * @return The {@code Integer} value of the domain property as specified by the user or the default one provided with the application.
      */
     Integer getIntegerDomainProperty(String propertyName);
@@ -92,10 +92,20 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     *
      * @return The {@code Integer} value of the optional domain property as specified by the user or the default one provided with the application.
      */
     Integer getIntegerOptionalDomainProperty(String propertyName);
+
+    /**
+     * <p>Reads an optional domain property value and parses it safely as a {@code Boolean} before returning it.</p><br />
+     *
+     * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
+     * domibus.properties files that are provided with the application.</p>
+     *
+     * @param propertyName the property name.
+     * @return The {@code Boolean} value of the optional domain property as specified by the user or the default one provided with the application.
+     */
+    Boolean getBooleanOptionalDomainProperty(String propertyName);
 
     /**
      * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as a {@code Boolean} before
@@ -105,7 +115,6 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     *
      * @return The {@code Boolean} value of the property as specified by the user or the default one provided with the application.
      */
     Boolean getBooleanProperty(String propertyName);
@@ -117,24 +126,11 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     *
      * @return The {@code Boolean} value of the domain property as specified by the user or the default one provided with the application.
      */
     Boolean getBooleanDomainProperty(String propertyName);
 
     Boolean getBooleanDomainProperty(Domain domain, String propertyName);
-
-    /**
-     * <p>Reads an optional domain property value and parses it safely as a {@code Boolean} before returning it.</p><br />
-     *
-     * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
-     * domibus.properties files that are provided with the application.</p>
-     *
-     * @param propertyName the property name.
-     *
-     * @return The {@code Boolean} value of the optional domain property as specified by the user or the default one provided with the application.
-     */
-    Boolean getBooleanOptionalDomainProperty(String propertyName);
 
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.
@@ -148,6 +144,7 @@ public interface DomibusPropertyProvider {
 
     /**
      * Verify that a property key exists within the domibus/default-domain properties.
+     *
      * @param propertyName the name of the property
      * @return true if the property exists.
      */
