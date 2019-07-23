@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.security.AuthenticationService;
+import eu.domibus.security.DomibusCookieClearingLogoutHandler;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ChangePasswordRO;
 import eu.domibus.web.rest.ro.DomainRO;
@@ -132,7 +133,7 @@ public class AuthenticationResource {
         }
 
         LOG.debug("Logging out user [" + auth.getName() + "]");
-        new CookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN").logout(request, response, null);
+        new DomibusCookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN").logout(request, response, null);
         LOG.debug("Cleared cookies");
         new SecurityContextLogoutHandler().logout(request, response, auth);
         LOG.debug("Logged out");
