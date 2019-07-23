@@ -31,7 +31,6 @@
         <addNotNullConstraint
                 columnDataType="TIMESTAMP"
                 columnName="LAST_MODIFIED"
-
                 tableName="TB_MESSAGE_UI"/>
         <addNotNullConstraint
                 columnDataType="TIMESTAMP"
