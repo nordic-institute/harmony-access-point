@@ -1,7 +1,8 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.property.encryption.PasswordEncryptionContextDefault;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

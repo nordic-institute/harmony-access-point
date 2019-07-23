@@ -1,4 +1,4 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;

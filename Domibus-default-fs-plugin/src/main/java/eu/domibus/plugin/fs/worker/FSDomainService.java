@@ -7,7 +7,7 @@ import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSMessage;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.ebms3.CollaborationInfo;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import org.apache.commons.lang3.StringUtils;

@@ -1,0 +1,57 @@
+package eu.domibus.core.property.encryption.plugin;
+
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.encryption.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
+import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.encryption.PluginPasswordEncryptionContext;
+import eu.domibus.plugin.encryption.PluginPasswordEncryptionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author Cosmin Baciu
+ * @since 4.1.1
+ */
+@Service
+public class PluginPasswordEncryptionServiceImpl implements PluginPasswordEncryptionService {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionServiceImpl.class);
+
+    @Autowired
+    protected PasswordEncryptionService passwordEncryptionService;
+
+    @Autowired
+    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
+
+    @Autowired
+    protected DomainExtConverter domainExtConverter;
+
+    @Override
+    public void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext) {
+        LOG.debug("Encrypting passwords in file");
+
+        final Domain domain = domainExtConverter.convert(pluginPasswordEncryptionContext.getDomain(), Domain.class);
+        LOG.debug("Using domain [{}]", domain);
+
+        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+        PasswordEncryptionContext encryptionContext = new PluginPasswordEncryptionContextDelegate(pluginPasswordEncryptionContext, passwordEncryptionContext);
+        passwordEncryptionService.encryptPasswordsIfConfigured(encryptionContext);
+    }
+
+    @Override
+    public boolean isValueEncrypted(String propertyValue) {
+        return passwordEncryptionService.isValueEncrypted(propertyValue);
+    }
+
+    @Override
+    public String decryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
+        LOG.debug("Decrypting property [{}] for domain [{}]", propertyName, domainDTO);
+        final Domain domain = domainExtConverter.convert(domainDTO, Domain.class);
+        return passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
+    }
+}

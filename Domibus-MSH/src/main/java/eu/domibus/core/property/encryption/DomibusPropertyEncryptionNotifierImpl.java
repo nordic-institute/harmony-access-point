@@ -1,4 +1,4 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,9 +13,9 @@ import java.util.List;
  * @since 4.1.1
  */
 @Service
-public class DomibusPropertyEncryptionListenerDelegateImpl implements DomibusPropertyEncryptionListenerDelegate {
+public class DomibusPropertyEncryptionNotifierImpl implements DomibusPropertyEncryptionNotifier {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyEncryptionListenerDelegateImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyEncryptionNotifierImpl.class);
 
     @Autowired(required = false)
     protected List<PluginPropertyEncryptionListener> pluginPropertyEncryptionListeners;

@@ -1,4 +1,6 @@
-package eu.domibus.api.property.encryption;
+package eu.domibus.plugin.encryption;
+
+import eu.domibus.ext.domain.DomainDTO;
 
 import java.io.File;
 import java.util.List;
@@ -7,15 +9,13 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-public interface PasswordEncryptionContext {
+public interface PluginPasswordEncryptionContext {
 
-    boolean isPasswordEncryptionActive();
+    DomainDTO getDomain();
 
     String getProperty(String propertyName);
 
     File getConfigurationFile();
 
     List<String> getPropertiesToEncrypt();
-
-    File getEncryptedKeyFile();
 }

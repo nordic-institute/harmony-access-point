@@ -1,9 +1,10 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.encryption.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
@@ -11,17 +12,19 @@ import eu.domibus.logging.DomibusLoggerFactory;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-public class PasswordEncryptionContextDomain implements PasswordEncryptionContext {
+public class PasswordEncryptionContextDomain extends PasswordEncryptionContextAbstract {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionContextDomain.class);
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    protected DomibusConfigurationService domibusConfigurationService;
-
     protected Domain domain;
 
-    public PasswordEncryptionContextDomain(DomibusPropertyProvider domibusPropertyProvider, DomibusConfigurationService domibusConfigurationService, Domain domain) {
+    public PasswordEncryptionContextDomain(PasswordEncryptionService passwordEncryptionService,
+                                           DomibusPropertyProvider domibusPropertyProvider,
+                                           DomibusConfigurationService domibusConfigurationService,
+                                           Domain domain) {
+        super(passwordEncryptionService, domibusConfigurationService);
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domain = domain;

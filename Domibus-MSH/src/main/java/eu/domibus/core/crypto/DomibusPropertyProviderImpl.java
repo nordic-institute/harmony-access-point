@@ -4,10 +4,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.core.property.PasswordEncryptionContextFactory;
 import eu.domibus.core.property.PropertyResolver;
+import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
@@ -95,10 +94,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
         if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
             LOGGER.debug("Decrypting property [{}]", propertyName);
-            final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
-            result = passwordEncryptionService.decryptProperty(passwordEncryptionContext, propertyName, result);
+            result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
         }
-
 
         return result;
     }
