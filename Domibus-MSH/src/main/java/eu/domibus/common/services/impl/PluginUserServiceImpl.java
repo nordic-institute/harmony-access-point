@@ -10,6 +10,7 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.services.PluginUserService;
+import eu.domibus.core.security.PluginUserPasswordHistoryDao;
 import eu.domibus.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
@@ -55,6 +56,9 @@ public class PluginUserServiceImpl implements PluginUserService {
 
     @Autowired
     PluginUserAlertsServiceImpl userAlertsService;
+
+    @Autowired
+    PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     @Override
     public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
@@ -169,8 +173,15 @@ public class PluginUserServiceImpl implements PluginUserService {
 
     protected void deleteUser(AuthenticationEntity u) {
         AuthenticationEntity entity = authenticationDAO.read(u.getEntityId());
-        authenticationDAO.delete(entity);
+        delete(entity);
 
         userDomainService.deleteDomainForUser(u.getUniqueIdentifier());
+    }
+
+    private void delete(AuthenticationEntity user) {
+        //delete password history
+        pluginUserPasswordHistoryDao.removePasswords(user, 0);
+        //delete actual user
+        authenticationDAO.delete(user);
     }
 }
