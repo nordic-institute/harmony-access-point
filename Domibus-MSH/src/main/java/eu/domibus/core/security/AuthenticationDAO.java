@@ -5,6 +5,7 @@ import eu.domibus.common.dao.BasicDao;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,13 +47,7 @@ public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements
         final TypedQuery<String> query = this.em.createNamedQuery("AuthenticationEntity.getRolesForUsername", String.class);
         query.setParameter("USERNAME", username);
 
-        List<AuthRole> authRoles = new ArrayList<>();
-        String rolesStr = query.getSingleResult();
-        String[] roles = StringUtils.split(rolesStr, ';');
-        for (String role : roles) {
-            authRoles.add(AuthRole.valueOf(StringUtils.strip(role)));
-        }
-        return authRoles;
+        return getAuthRoles(query);
     }
 
     public AuthenticationEntity findByCertificateId(final String certificateId) {
@@ -73,6 +68,10 @@ public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements
         final TypedQuery<String> query = this.em.createNamedQuery("AuthenticationEntity.getRolesForCertificateId", String.class);
         query.setParameter("CERTIFICATE_ID", certificateId);
 
+        return getAuthRoles(query);
+    }
+
+    private List<AuthRole> getAuthRoles(TypedQuery<String> query) {
         List<AuthRole> authRoles = new ArrayList<>();
         String rolesStr = query.getSingleResult();
         String[] roles = StringUtils.split(rolesStr, ';');
