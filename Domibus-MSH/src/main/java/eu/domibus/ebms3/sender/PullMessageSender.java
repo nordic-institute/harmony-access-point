@@ -122,27 +122,29 @@ public class PullMessageSender {
         boolean notifyBusinessOnError = false;
         Messaging messaging = null;
         String messageId = null;
-        Party receiverParty = null;
+        String mpcName = null;
+
         try {
-            final String mpc = map.getStringProperty(PullContext.MPC);
+            final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
             final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
             notifyBusinessOnError = Boolean.valueOf(map.getStringProperty(PullContext.NOTIFY_BUSINNES_ON_ERROR));
             SignalMessage signalMessage = new SignalMessage();
             PullRequest pullRequest = new PullRequest();
-            pullRequest.setMpc(mpc);
+            pullRequest.setMpc(mpcQualifiedName);
             signalMessage.setPullRequest(pullRequest);
-            LOG.debug("Sending pull request with mpc:[{}]", mpc);
+            LOG.debug("Sending pull request with mpc:[{}]", mpcQualifiedName);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            receiverParty = pModeProvider.getReceiverParty(pModeKey);
+            mpcName = legConfiguration.getDefaultMpc().getName();
+            Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             final Policy policy = getPolicy(legConfiguration);
             LOG.trace("Build soap message");
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
-            pullFrequencyHelper.success(receiverParty.getName());
+            pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
             messaging = messageUtil.getMessage(response);
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
-                LOG.trace("No message for sent pull request with mpc:[{}]", mpc);
+                LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
                 logError(signalMessage);
                 return;
             }
@@ -174,7 +176,7 @@ public class PullMessageSender {
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
             }
-            checkConnectionProblem(e, receiverParty.getName());
+            checkConnectionProblem(e, mpcName);
         }
     }
 
@@ -196,10 +198,10 @@ public class PullMessageSender {
         }
     }
 
-    private void checkConnectionProblem(EbMS3Exception e, String receiverName) {
+    private void checkConnectionProblem(EbMS3Exception e, String mpcName) {
         if (e.getErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
             LOG.warn("ConnectionFailure ", e);
-            pullFrequencyHelper.increaseError(receiverName);
+            pullFrequencyHelper.increaseError(mpcName);
         } else {
             throw new WebServiceException(e);
         }
