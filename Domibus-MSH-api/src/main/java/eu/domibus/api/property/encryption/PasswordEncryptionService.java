@@ -12,7 +12,7 @@ public interface PasswordEncryptionService {
 
     void encryptPasswords();
 
-    void encryptPasswordsIfConfigured(PasswordEncryptionContext passwordEncryptionContext);
+    void encryptPasswords(PasswordEncryptionContext passwordEncryptionContext);
 
     String decryptProperty(File encryptedKeyFile, String propertyName, String encryptedFormatValue);
 

@@ -40,7 +40,7 @@ public class PluginPasswordEncryptionServiceImpl implements PluginPasswordEncryp
 
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
         PasswordEncryptionContext encryptionContext = new PluginPasswordEncryptionContextDelegate(pluginPasswordEncryptionContext, passwordEncryptionContext);
-        passwordEncryptionService.encryptPasswordsIfConfigured(encryptionContext);
+        passwordEncryptionService.encryptPasswords(encryptionContext);
     }
 
     @Override

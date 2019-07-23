@@ -76,13 +76,13 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Encrypting passwords");
 
         final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService);
-        encryptPasswordsIfConfigured(passwordEncryptionContext);
+        encryptPasswords(passwordEncryptionContext);
 
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
             for (Domain domain : domains) {
                 final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
-                encryptPasswordsIfConfigured(passwordEncryptionContextDomain);
+                encryptPasswords(passwordEncryptionContextDomain);
             }
         }
 
@@ -92,7 +92,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     @Override
-    public void encryptPasswordsIfConfigured(PasswordEncryptionContext passwordEncryptionContext) {
+    public void encryptPasswords(PasswordEncryptionContext passwordEncryptionContext) {
         LOG.debug("Encrypting password if configured");
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
