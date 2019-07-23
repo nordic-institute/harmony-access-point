@@ -24,27 +24,35 @@
 
     </changeSet>
     <changeSet id="EDELIVERY-4850" author="Catalin Enache" dbms="oracle">
+        <sql>
+            UPDATE TB_MESSAGE_UI SET LAST_MODIFIED = sysdate WHERE LAST_MODIFIED IS NULL;
+            UPDATE TB_MESSAGE_UI SET LAST_MODIFIED2 = sysdate WHERE LAST_MODIFIED2 IS NULL;
+        </sql>
         <addNotNullConstraint
                 columnDataType="TIMESTAMP"
                 columnName="LAST_MODIFIED"
-                defaultNullValue="sysdate"
+
                 tableName="TB_MESSAGE_UI"/>
         <addNotNullConstraint
                 columnDataType="TIMESTAMP"
                 columnName="LAST_MODIFIED2"
-                defaultNullValue="sysdate"
                 tableName="TB_MESSAGE_UI"/>
     </changeSet>
     <changeSet id="EDELIVERY-4850" author="Catalin Enache" dbms="mysql">
+        <sql>
+            SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
+            SET SQL_SAFE_UPDATES = 0;
+            UPDATE TB_MESSAGE_UI SET LAST_MODIFIED = now() WHERE LAST_MODIFIED IS NULL;
+            UPDATE TB_MESSAGE_UI SET LAST_MODIFIED2 = now() WHERE LAST_MODIFIED2 IS NULL;
+            SET SQL_SAFE_UPDATES = @OLD_SQL_SAFE_UPDATES;
+        </sql>
         <addNotNullConstraint
                 columnDataType="TIMESTAMP"
                 columnName="LAST_MODIFIED"
-                defaultNullValue="now()"
                 tableName="TB_MESSAGE_UI"/>
         <addNotNullConstraint
                 columnDataType="TIMESTAMP"
                 columnName="LAST_MODIFIED2"
-                defaultNullValue="now()"
                 tableName="TB_MESSAGE_UI"/>
     </changeSet>
 </databaseChangeLog>
