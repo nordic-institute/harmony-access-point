@@ -326,9 +326,6 @@ public class UIReplicationDataServiceImplTest {
             userMessageDefaultServiceHelper.getOriginalSender(userMessage);
             result = originalSender;
 
-            uiMessageEntity.getLastModified();
-            result = jmsTime;
-
         }};
 
         //tested method
@@ -402,9 +399,6 @@ public class UIReplicationDataServiceImplTest {
 
             userMessageDefaultServiceHelper.getOriginalSender(userMessage);
             result = originalSender;
-
-            uiMessageEntity.getLastModified();
-            result = jmsTime;
 
         }};
 
