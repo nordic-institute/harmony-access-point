@@ -50,13 +50,7 @@ public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements
         final TypedQuery<String> query = this.em.createNamedQuery("AuthenticationEntity.getRolesForUsername", String.class);
         query.setParameter("USERNAME", username);
 
-        List<AuthRole> authRoles = new ArrayList<>();
-        String rolesStr = query.getSingleResult();
-        String[] roles = StringUtils.split(rolesStr, ';');
-        for (String role : roles) {
-            authRoles.add(AuthRole.valueOf(StringUtils.strip(role)));
-        }
-        return authRoles;
+        return getAuthRoles(query);
     }
 
     public AuthenticationEntity findByCertificateId(final String certificateId) {
@@ -77,6 +71,10 @@ public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements
         final TypedQuery<String> query = this.em.createNamedQuery("AuthenticationEntity.getRolesForCertificateId", String.class);
         query.setParameter("CERTIFICATE_ID", certificateId);
 
+        return getAuthRoles(query);
+    }
+
+    private List<AuthRole> getAuthRoles(TypedQuery<String> query) {
         List<AuthRole> authRoles = new ArrayList<>();
         String rolesStr = query.getSingleResult();
         String[] roles = StringUtils.split(rolesStr, ';');
