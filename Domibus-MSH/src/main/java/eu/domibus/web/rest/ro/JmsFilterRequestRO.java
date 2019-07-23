@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.CustomWhiteListed;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -16,6 +17,8 @@ public class JmsFilterRequestRO {
     private Date fromDate;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
+
+    @CustomWhiteListed(permitted = "=,:-'")
     private String selector;
 
     public String getSource() {
