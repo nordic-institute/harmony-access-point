@@ -25,9 +25,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements UserDaoBase<AuthenticationEntity> {
 
-    @Autowired
-    PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
-
     public AuthenticationDAO() {
         super(AuthenticationEntity.class);
     }
@@ -169,9 +166,4 @@ public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements
         return findByUser(userName);
     }
 
-    @Override
-    public void delete(AuthenticationEntity user) {
-        pluginUserPasswordHistoryDao.removePasswords(user, 0);
-        super.delete(user);
-    }
 }
