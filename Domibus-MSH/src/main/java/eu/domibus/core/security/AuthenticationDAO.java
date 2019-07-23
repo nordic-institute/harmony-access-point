@@ -5,6 +5,7 @@ import eu.domibus.common.dao.BasicDao;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ import java.util.stream.Collectors;
 @Repository("securityAuthenticationDAO")
 @Transactional
 public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements UserDaoBase<AuthenticationEntity> {
+
+    @Autowired
+    PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     public AuthenticationDAO() {
         super(AuthenticationEntity.class);
@@ -167,4 +171,9 @@ public class AuthenticationDAO extends BasicDao<AuthenticationEntity> implements
         return findByUser(userName);
     }
 
+    @Override
+    public void delete(AuthenticationEntity user) {
+        pluginUserPasswordHistoryDao.removePasswords(user, 0);
+        super.delete(user);
+    }
 }
