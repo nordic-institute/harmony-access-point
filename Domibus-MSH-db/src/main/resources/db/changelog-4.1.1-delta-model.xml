@@ -22,7 +22,24 @@
             </column>
         </createTable>
         <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
+    </changeSet>
 
-
+    <changeSet id="EDELIVERY-4849" author="Catalin Enache">
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
+            TRIM(CAST(ri.ID AS CHAR(11))) AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV
+            UNION
+            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
+            TB_ACTION_AUDIT aa
+        </createView>
     </changeSet>
 </databaseChangeLog>
