@@ -1,9 +1,9 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.BasicDao;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -146,15 +146,18 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
     public void saveOrUpdate(final UIMessageEntity uiMessageEntity) {
         // Sonar Bug: ignored because the following call happens within a transaction that gets started by the service calling this method
         UIMessageEntity uiMessageEntityFound = findUIMessageByMessageId(uiMessageEntity.getMessageId()); //NOSONAR
+        Date currentDate = new Date(System.currentTimeMillis());
+        uiMessageEntity.setLastModified(currentDate);
+        uiMessageEntity.setLastModified2(currentDate);
         if (uiMessageEntityFound != null) {
+            LOG.debug("TB_MESSAGE_UI will be updated for messageId=[{}]", uiMessageEntityFound.getMessageId());
             uiMessageEntity.setEntityId(uiMessageEntityFound.getEntityId());
-            uiMessageEntity.setLastModified(uiMessageEntityFound.getLastModified());
             em.merge(uiMessageEntity);
-            LOG.debug("uiMessageEntity having messageId={} have been updated", uiMessageEntity.getMessageId());
+            LOG.debug("uiMessageEntity having messageId=[{}] have been updated", uiMessageEntity.getMessageId());
             return;
         }
         em.persist(uiMessageEntity);
-        LOG.debug("uiMessageEntity having messageId={} have been inserted", uiMessageEntity.getMessageId());
+        LOG.debug("uiMessageEntity having messageId=[{}] have been inserted", uiMessageEntity.getMessageId());
     }
 
     @Override
@@ -178,11 +181,11 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
     }
 
     @Override
-    public boolean updateNotificationStatus(String messageId, NotificationStatus notificationStatus, Date lastModified) {
+    public boolean updateNotificationStatus(String messageId, NotificationStatus notificationStatus, Date lastModified2) {
         try {
             int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateNotificationStatus", UIMessageEntity.class)
                     .setParameter(1, notificationStatus.name())
-                    .setParameter(2, lastModified, TemporalType.TIMESTAMP)
+                    .setParameter(2, lastModified2, TemporalType.TIMESTAMP)
                     .setParameter(3, messageId)
                     .executeUpdate();
             return rowsUpdated == 1;
@@ -268,6 +271,5 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
             }
         }
     }
-
 
 }
