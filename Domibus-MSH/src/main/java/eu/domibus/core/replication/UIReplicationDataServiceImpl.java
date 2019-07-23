@@ -105,9 +105,11 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
             boolean updateSuccess = uiMessageDao.updateMessageStatus(messageId, messageStatus, userMessageLog.getDeleted(),
                     userMessageLog.getNextAttempt(), userMessageLog.getFailed(), new Date(jmsTimestamp));
             if (updateSuccess) {
-                LOG.debug("{}Message with messageId=[{}] synced, status=[{}]",
-                        MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId,
-                        messageStatus);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("{}Message with messageId=[{}] synced, status=[{}]",
+                            MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId,
+                            messageStatus);
+                }
                 return;
             }
 
@@ -140,9 +142,11 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         if (entity.getLastModified2().getTime() <= jmsTimestamp) {
             boolean updateSuccess = uiMessageDao.updateNotificationStatus(messageId, notificationStatus, new Date(jmsTimestamp));
             if (updateSuccess) {
-                LOG.debug("{}Message with messageId=[{}] synced, notificationStatus=[{}]",
-                        MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId,
-                        notificationStatus);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("{}Message with messageId=[{}] synced, notificationStatus=[{}]",
+                            MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId,
+                            notificationStatus);
+                }
                 return;
             }
         }
@@ -177,8 +181,10 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
                     userMessageLog.getNextAttempt(), userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax(),
                     jmsTime);
             if (updateSuccess) {
-                LOG.debug("{}Message with messageId=[{}] synced",
-                        MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("{}Message with messageId=[{}] synced",
+                            MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId);
+                }
                 return;
             }
         }
