@@ -4,8 +4,8 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionContext;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionService;
+import eu.domibus.ext.services.PluginPasswordEncryptionContext;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,13 +29,13 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
-    protected PluginPasswordEncryptionService pluginPasswordEncryptionService;
+    protected PasswordEncryptionExtService pluginPasswordEncryptionService;
 
     protected DomainDTO domain;
 
     public FSPluginPasswordEncryptionContext(FSPluginProperties fsPluginProperties,
                                              DomibusConfigurationExtService domibusConfigurationExtService,
-                                             PluginPasswordEncryptionService pluginPasswordEncryptionService,
+                                             PasswordEncryptionExtService pluginPasswordEncryptionService,
                                              DomainDTO domain) {
         this.fsPluginProperties = fsPluginProperties;
         this.domibusConfigurationExtService = domibusConfigurationExtService;

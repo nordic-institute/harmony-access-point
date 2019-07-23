@@ -5,7 +5,7 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionService;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.encryption.PluginPropertyEncryptionListener;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
@@ -22,7 +22,7 @@ public class FSPluginPropertyEncryptionListener implements PluginPropertyEncrypt
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginPropertyEncryptionListener.class);
 
     @Autowired
-    protected PluginPasswordEncryptionService pluginPasswordEncryptionService;
+    protected PasswordEncryptionExtService pluginPasswordEncryptionService;
 
     @Autowired
     protected FSPluginProperties fsPluginProperties;

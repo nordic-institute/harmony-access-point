@@ -1,4 +1,4 @@
-package eu.domibus.plugin.encryption;
+package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 
@@ -6,7 +6,7 @@ import eu.domibus.ext.domain.DomainDTO;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-public interface PluginPasswordEncryptionService {
+public interface PasswordEncryptionExtService {
 
     void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext);
 

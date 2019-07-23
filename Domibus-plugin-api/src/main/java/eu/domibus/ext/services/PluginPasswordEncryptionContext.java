@@ -1,4 +1,4 @@
-package eu.domibus.plugin.encryption;
+package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 

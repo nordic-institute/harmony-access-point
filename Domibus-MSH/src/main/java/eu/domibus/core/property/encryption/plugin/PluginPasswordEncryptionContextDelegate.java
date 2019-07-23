@@ -3,7 +3,7 @@ package eu.domibus.core.property.encryption.plugin;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionContext;
+import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 
 import java.io.File;
 import java.util.List;

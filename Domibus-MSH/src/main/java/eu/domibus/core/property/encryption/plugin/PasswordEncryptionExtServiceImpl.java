@@ -8,8 +8,8 @@ import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionContext;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionService;
+import eu.domibus.ext.services.PluginPasswordEncryptionContext;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
  * @since 4.1.1
  */
 @Service
-public class PluginPasswordEncryptionServiceImpl implements PluginPasswordEncryptionService {
+public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionExtServiceImpl.class);
 
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;

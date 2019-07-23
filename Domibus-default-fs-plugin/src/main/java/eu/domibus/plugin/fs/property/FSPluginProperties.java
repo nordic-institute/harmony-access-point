@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.encryption.PluginPasswordEncryptionService;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +88,7 @@ public class FSPluginProperties {
     private Properties properties;
 
     @Autowired
-    protected PluginPasswordEncryptionService pluginPasswordEncryptionService;
+    protected PasswordEncryptionExtService pluginPasswordEncryptionService;
 
     @Autowired
     protected DomainExtService domainExtService;
