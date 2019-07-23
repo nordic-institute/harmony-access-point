@@ -23,4 +23,28 @@
         </createTable>
 
     </changeSet>
+    <changeSet id="EDELIVERY-4850" author="Catalin Enache" dbms="oracle">
+        <addNotNullConstraint
+                columnDataType="TIMESTAMP"
+                columnName="LAST_MODIFIED"
+                defaultNullValue="sysdate"
+                tableName="TB_MESSAGE_UI"/>
+        <addNotNullConstraint
+                columnDataType="TIMESTAMP"
+                columnName="LAST_MODIFIED2"
+                defaultNullValue="sysdate"
+                tableName="TB_MESSAGE_UI"/>
+    </changeSet>
+    <changeSet id="EDELIVERY-4850" author="Catalin Enache" dbms="mysql">
+        <addNotNullConstraint
+                columnDataType="TIMESTAMP"
+                columnName="LAST_MODIFIED"
+                defaultNullValue="now()"
+                tableName="TB_MESSAGE_UI"/>
+        <addNotNullConstraint
+                columnDataType="TIMESTAMP"
+                columnName="LAST_MODIFIED2"
+                defaultNullValue="now()"
+                tableName="TB_MESSAGE_UI"/>
+    </changeSet>
 </databaseChangeLog>
