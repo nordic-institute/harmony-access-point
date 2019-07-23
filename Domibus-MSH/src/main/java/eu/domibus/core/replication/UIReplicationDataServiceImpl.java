@@ -35,7 +35,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationDataServiceImpl.class);
 
-    static final String LOG_WARN_NO_RECORD_FOUND = "no record found into TB_MESSAGE_UI for messageId={}";
+    static final String LOG_WARN_NO_RECORD_FOUND = "no record found into TB_MESSAGE_UI for messageId=[{}]";
 
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
@@ -75,7 +75,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      */
     @Override
     public void messageSubmitted(String messageId, long jmsTimestamp) {
-        LOG.debug("UserMessage={} submitted", messageId);
+        LOG.debug("UserMessage=[{}] submitted", messageId);
         saveUIMessageFromUserMessageLog(messageId, jmsTimestamp);
     }
 
@@ -102,16 +102,17 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         }
 
         if (entity.getLastModified().getTime() <= jmsTimestamp) {
-            if (uiMessageDao.updateMessageStatus(messageId, messageStatus, userMessageLog.getDeleted(),
-                    userMessageLog.getNextAttempt(), userMessageLog.getFailed(), new Date(jmsTimestamp))) {
-                LOG.debug("{}Message with messageId={} synced, status={}",
+            boolean updateSuccess = uiMessageDao.updateMessageStatus(messageId, messageStatus, userMessageLog.getDeleted(),
+                    userMessageLog.getNextAttempt(), userMessageLog.getFailed(), new Date(jmsTimestamp));
+            if (updateSuccess) {
+                LOG.debug("{}Message with messageId=[{}] synced, status=[{}]",
                         MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId,
                         messageStatus);
                 return;
             }
 
         }
-        LOG.debug("messageStatusChange skipped for messageId={}", messageId);
+        LOG.debug("messageStatusChange skipped for messageId=[{}]", messageId);
     }
 
 
@@ -137,14 +138,15 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
             return;
         }
         if (entity.getLastModified2().getTime() <= jmsTimestamp) {
-            if (uiMessageDao.updateNotificationStatus(messageId, notificationStatus, new Date(jmsTimestamp))) {
-                LOG.debug("{}Message with messageId={} synced, notificationStatus={}",
+            boolean updateSuccess = uiMessageDao.updateNotificationStatus(messageId, notificationStatus, new Date(jmsTimestamp));
+            if (updateSuccess) {
+                LOG.debug("{}Message with messageId=[{}] synced, notificationStatus=[{}]",
                         MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId,
                         notificationStatus);
                 return;
             }
         }
-        LOG.debug("messageNotificationStatusChange skipped for messageId={}", messageId);
+        LOG.debug("messageNotificationStatusChange skipped for messageId=[{}]", messageId);
     }
 
     /**
@@ -170,16 +172,17 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         }
 
         if (entity.getLastModified().getTime() <= jmsTimestamp) {
-            if (uiMessageDao.updateMessage(messageId, userMessageLog.getMessageStatus(),
+            boolean updateSuccess = uiMessageDao.updateMessage(messageId, userMessageLog.getMessageStatus(),
                     userMessageLog.getDeleted(), userMessageLog.getFailed(), userMessageLog.getRestored(),
                     userMessageLog.getNextAttempt(), userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax(),
-                    jmsTime)) {
-                LOG.debug("{}Message with messageId={} synced",
+                    jmsTime);
+            if (updateSuccess) {
+                LOG.debug("{}Message with messageId=[{}] synced",
                         MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId);
                 return;
             }
         }
-        LOG.debug("messageChange skipped for messageId={}", messageId);
+        LOG.debug("messageChange skipped for messageId=[{}]", messageId);
     }
 
     /**
@@ -190,7 +193,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      */
     @Override
     public void signalMessageSubmitted(String messageId, long jmsTimestamp) {
-        LOG.debug("SignalMessage={} submitted", messageId);
+        LOG.debug("SignalMessage=[{}] submitted", messageId);
         saveUIMessageFromSignalMessageLog(messageId, jmsTimestamp);
     }
 
@@ -202,7 +205,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      */
     @Override
     public void signalMessageReceived(String messageId, long jmsTimestamp) {
-        LOG.debug("SignalMessage={} received", messageId);
+        LOG.debug("SignalMessage=[{}] received", messageId);
         saveUIMessageFromSignalMessageLog(messageId, jmsTimestamp);
     }
 

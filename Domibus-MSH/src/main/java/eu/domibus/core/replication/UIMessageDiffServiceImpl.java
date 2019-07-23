@@ -42,7 +42,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
 
         int recordsToSync = uiMessageDiffDao.countAllNative();
 
-        LOG.debug("{} milliseconds to count the records", System.currentTimeMillis() - startTime);
+        LOG.debug("[{}] milliseconds to count the records", System.currentTimeMillis() - startTime);
         return recordsToSync;
     }
 
@@ -54,7 +54,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
 
         List<UIMessageDiffEntity> uiMessageDiffEntityList = uiMessageDiffDao.findAllNative();
 
-        LOG.debug("{} milliseconds to find all UIMessages to be synced", System.currentTimeMillis() - startTime);
+        LOG.debug("[{}] milliseconds to find all UIMessages to be synced", System.currentTimeMillis() - startTime);
         return uiMessageDiffEntityList;
     }
 
@@ -65,7 +65,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
 
         List<UIMessageDiffEntity> uiMessageDiffEntityList = uiMessageDiffDao.findAllNative(limit);
 
-        LOG.debug("{} milliseconds to find all UIMessages to be synced", System.currentTimeMillis() - startTime);
+        LOG.debug("[{}] milliseconds to find all UIMessages to be synced", System.currentTimeMillis() - startTime);
         return uiMessageDiffEntityList;
     }
 
@@ -77,7 +77,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         LOG.debug("start counting differences for UIReplication");
 
         int rowsToSyncCount = countAll();
-        LOG.debug("found {} differences between native tables and TB_MESSAGE_UI", rowsToSyncCount);
+        LOG.debug("found [{}] differences between native tables and TB_MESSAGE_UI", rowsToSyncCount);
 
         if (rowsToSyncCount == 0) {
             return;
@@ -86,7 +86,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         // check how many rows to sync
         int maxRowsToSync = NumberUtils.toInt(domibusPropertyProvider.getDomainProperty(MAX_ROWS_KEY));
         if (rowsToSyncCount > maxRowsToSync) {
-            LOG.warn(WarningUtil.warnOutput("There are more than {} rows to sync into TB_MESSAGE_UI table " +
+            LOG.warn(WarningUtil.warnOutput("There are more than [{}] rows to sync into TB_MESSAGE_UI table " +
                     "please use the REST resource instead."), maxRowsToSync);
             return;
         }
@@ -112,7 +112,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
      */
     @Override
     public int findAndSyncUIMessages(int limit) {
-        LOG.debug("find and sync first {} UIMessages", limit);
+        LOG.debug("find and sync first [{}] UIMessages", limit);
         int recordsToSync = countAll();
 
         if (recordsToSync == 0) {
@@ -127,7 +127,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
                         map(objects -> convertToUIMessageEntity(objects)).
                         collect(Collectors.toList());
 
-        LOG.debug("{} milliseconds to fetch the records", System.currentTimeMillis() - startTime);
+        LOG.debug("[{}] milliseconds to fetch the records", System.currentTimeMillis() - startTime);
         startTime = System.currentTimeMillis();
 
         if (!uiMessageEntityList.isEmpty()) {
@@ -136,7 +136,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
             uiMessageEntityList.stream().forEach(uiMessageEntity ->
                     uiMessageService.saveOrUpdate(uiMessageEntity));
 
-            LOG.debug("finish to update TB_MESSAGE_UI after {} milliseconds", System.currentTimeMillis() - startTime);
+            LOG.debug("finish to update TB_MESSAGE_UI after [{}] milliseconds", System.currentTimeMillis() - startTime);
         }
         return recordsToSync;
     }
