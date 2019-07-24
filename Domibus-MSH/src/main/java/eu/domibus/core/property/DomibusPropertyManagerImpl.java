@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyChangeNotifier;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    private DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+    private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     /**
      * Returns the properties that this PropertyProvider is able to handle.
@@ -184,7 +184,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
 
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     @Override

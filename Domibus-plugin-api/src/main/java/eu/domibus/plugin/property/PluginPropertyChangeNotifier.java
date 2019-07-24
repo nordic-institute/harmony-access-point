@@ -1,9 +1,9 @@
-package eu.domibus.property;
+package eu.domibus.plugin.property;
 
 /**
  * This notifies the custom action listeners and the other nodes in a cluster environment.
  */
-public interface DomibusPropertyChangeNotifier {
+public interface PluginPropertyChangeNotifier {
 
     /**
      * Dispatch the property change notification to the interested listeners.

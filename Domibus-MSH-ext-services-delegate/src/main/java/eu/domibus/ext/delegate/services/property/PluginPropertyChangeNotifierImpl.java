@@ -3,8 +3,8 @@ package eu.domibus.ext.delegate.services.property;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyChangeListener;
-import eu.domibus.property.DomibusPropertyChangeNotifier;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
+public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
     @Autowired
-    private List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
+    private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -26,7 +26,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
     @Override
     public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         //notify interested listeners that the property changed
-        List<DomibusPropertyChangeListener> listeners = domibusPropertyChangeListeners.stream()
+        List<PluginPropertyChangeListener> listeners = pluginPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
         listeners.forEach(listener -> {

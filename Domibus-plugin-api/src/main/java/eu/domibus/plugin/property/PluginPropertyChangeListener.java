@@ -1,4 +1,4 @@
-package eu.domibus.property;
+package eu.domibus.plugin.property;
 
 /**
  * @author Ion Perpegel
@@ -6,7 +6,7 @@ package eu.domibus.property;
  *
  * Implemented by classes that execute specific code to handle the property value change
  */
-public interface DomibusPropertyChangeListener {
+public interface PluginPropertyChangeListener {
 
     /**
      * If the class handles the property

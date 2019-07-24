@@ -1,13 +1,13 @@
 package eu.domibus.api.property;
 
-public enum Module {
+public class Module {
 
-    MSH,
+    public static final String MSH = "MSH";
 
-    WS_PLUGIN,
+    public static final String WS_PLUGIN= "WS_PLUGIN";
 
-    JMS_PLUGIN,
+    public static final String JMS_PLUGIN= "JMS_PLUGIN";
 
-    FS_PLUGIN
+    public static final String FS_PLUGIN= "FS_PLUGIN";
 
 }

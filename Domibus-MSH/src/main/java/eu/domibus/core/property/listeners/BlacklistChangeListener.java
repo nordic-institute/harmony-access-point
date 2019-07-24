@@ -1,6 +1,6 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.property.DomibusPropertyChangeListener;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.web.rest.validators.BaseBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.util.List;
  * Handles the change of blacklist and whitelist properties
  */
 @Service
-public class BlacklistChangeListener implements DomibusPropertyChangeListener {
+public class BlacklistChangeListener implements PluginPropertyChangeListener {
 
     @Autowired
     List<BaseBlacklistValidator> blacklistValidators;
