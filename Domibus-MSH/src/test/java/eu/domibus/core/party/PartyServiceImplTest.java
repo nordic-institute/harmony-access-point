@@ -866,7 +866,7 @@ public class PartyServiceImplTest {
             removedParty.getName(); result = "removed";
 
             pModeProvider.getRawConfigurationList(); result = Lists.newArrayList(pModeArchiveInfo);
-            pModeProvider.getRawConfiguration(anyInt); result = rawConfiguration;
+            pModeProvider.getRawConfiguration(anyLong); result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any); result = configuration;
 
             rawConfiguration.getConfigurationDate(); result = new Date();
@@ -900,12 +900,12 @@ public class PartyServiceImplTest {
         }};
 
         new Expectations() {{
-            pModeArchiveInfo.getId(); result = anyInt;
+            pModeArchiveInfo.getId(); result = anyLong;
             rawConfiguration.getXml(); result = any;
             removedParty.getName(); result = "removed";
 
             pModeProvider.getRawConfigurationList(); result = Lists.newArrayList(pModeArchiveInfo);
-            pModeProvider.getRawConfiguration(anyInt); result = rawConfiguration;
+            pModeProvider.getRawConfiguration(anyLong); result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any); result = configuration;
 
             rawConfiguration.getConfigurationDate(); result = new Date();
@@ -941,12 +941,12 @@ public class PartyServiceImplTest {
         }};
 
         new Expectations() {{
-            pModeArchiveInfo.getId(); result = anyInt;
+            pModeArchiveInfo.getId(); result = anyLong;
             rawConfiguration.getXml(); result = any;
             removedParty.getName(); result = "removed";
 
             pModeProvider.getRawConfigurationList(); result = Lists.newArrayList(pModeArchiveInfo);
-            pModeProvider.getRawConfiguration(anyInt); result = rawConfiguration;
+            pModeProvider.getRawConfiguration(anyLong); result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any); result = configuration;
 
             rawConfiguration.getConfigurationDate(); result = new Date();

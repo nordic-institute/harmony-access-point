@@ -112,7 +112,7 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
-    public ConfigurationRaw getRawConfiguration(int id) {
+    public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 

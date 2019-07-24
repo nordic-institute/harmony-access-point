@@ -27,7 +27,7 @@ public class AuditIT {
     @Test
     @Transactional
     public void testSaveEntity() {
-        User user=new User();
+        User user = new User();
         user.setUserName("Test33");
         user.setEmail("dussart.thomas@gmail.com");
         user.setPassword("test");
