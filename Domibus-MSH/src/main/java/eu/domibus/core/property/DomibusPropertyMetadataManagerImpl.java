@@ -1,6 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class DomibusPropertyMetadataManager {
+public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetadataManager {
 
     /**
      * Returns the properties that this PropertyProvider is able to handle.

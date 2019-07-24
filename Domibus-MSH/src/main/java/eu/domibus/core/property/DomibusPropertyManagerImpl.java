@@ -33,7 +33,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     @Autowired
-    DomibusPropertyMetadataManager domibusPropertyMetadataManager;
+    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
     /**
      * Returns the properties that this PropertyProvider is able to handle.
