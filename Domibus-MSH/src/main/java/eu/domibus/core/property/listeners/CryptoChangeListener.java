@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -26,7 +28,7 @@ public class CryptoChangeListener implements PluginPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.containsIgnoreCase(propertyName, "domibus.security.keystore")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.security.key.private.alias")
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS)
                 || StringUtils.containsIgnoreCase(propertyName, "domibus.security.truststore");
     }
 

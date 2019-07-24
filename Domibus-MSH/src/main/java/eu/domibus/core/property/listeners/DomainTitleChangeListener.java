@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMAIN_TITLE;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -20,7 +22,7 @@ public class DomainTitleChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domain.title");
+        return StringUtils.equalsIgnoreCase(propertyName, DOMAIN_TITLE);
     }
 
     @Override

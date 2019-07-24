@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -26,7 +28,7 @@ public class StorageChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domibus.attachment.storage.location");
+        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
     }
 
     @Override

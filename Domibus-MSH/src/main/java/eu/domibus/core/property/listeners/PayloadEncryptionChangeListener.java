@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -23,7 +25,7 @@ public class PayloadEncryptionChangeListener implements PluginPropertyChangeList
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domibus.payload.encryption.active");
+        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE);
     }
 
     @Override

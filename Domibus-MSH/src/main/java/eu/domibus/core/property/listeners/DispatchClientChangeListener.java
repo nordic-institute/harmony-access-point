@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.ebms3.sender.DispatchClientDefaultProvider.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -20,10 +22,10 @@ public class DispatchClientChangeListener implements PluginPropertyChangeListene
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.connectionTimeout")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.receiveTimeout")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.allowChunking")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dispatcher.chunkingThreshold");
+        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT)
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_RECEIVETIMEOUT)
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_ALLOWCHUNKING)
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD);
     }
 
     @Override

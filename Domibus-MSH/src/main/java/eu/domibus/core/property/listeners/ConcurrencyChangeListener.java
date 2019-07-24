@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -26,10 +28,10 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
     protected ApplicationContext applicationContext;
 
     private String[] handledProperties = new String[]{
-            "domibus.dispatcher.concurency",
-            "domibus.dispatcher.largeFiles.concurrency",
-            "domibus.retention.jms.concurrency",
-            "domibus.dispatcher.splitAndJoin.concurrency",
+            DOMIBUS_DISPATCHER_CONCURENCY,
+            DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY,
+            DOMIBUS_RETENTION_JMS_CONCURRENCY,
+            DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY,
     };
 
     @Override

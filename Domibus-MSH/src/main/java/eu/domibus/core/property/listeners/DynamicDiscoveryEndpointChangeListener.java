@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -20,10 +22,10 @@ public class DynamicDiscoveryEndpointChangeListener implements PluginPropertyCha
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, "domibus.smlzone")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.peppolclient.mode")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation")
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.dynamicdiscovery.transportprofileas4");
+        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SMLZONE)
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE)
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION)
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
     }
 
     @Override

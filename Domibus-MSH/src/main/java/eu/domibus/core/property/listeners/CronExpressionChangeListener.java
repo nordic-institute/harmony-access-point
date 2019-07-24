@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -35,22 +37,22 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
     protected ApplicationContext applicationContext;
 
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
-            {"domibus.account.unlock.cron", "activateSuspendedUsersJob"}, //todo: handle also the super Job
-            {"domibus.certificate.check.cron", "saveCertificateAndLogRevocationJob"},
-            {"domibus.plugin.account.unlock.cron", "activateSuspendedPluginUsersJob"},
-            {"domibus.passwordPolicies.check.cron", "userPasswordPolicyAlertJob"},
-            {"domibus.plugin_passwordPolicies.check.cron", "pluginUserPasswordPolicyAlertJob"},
-            {"domibus.payload.temp.job.retention.cron", "temporaryPayloadRetentionJob"},
-            {"domibus.msh.retry.cron", "retryWorkerJob"},
-            {"domibus.retentionWorker.cronExpression", "retentionWorkerJob"},
-            {"domibus.msh.pull.cron", "pullRequestWorkerJob"},
-            {"domibus.pull.retry.cron", "pullRetryWorkerJob"},
-            {"domibus.alert.cleaner.cron", "alertCleanerJob"},
-            {"domibus.alert.retry.cron", "alertRetryJob"},
-            {"domibus.alert.super.cleaner.cron", "alertCleanerSuperJob"},
-            {"domibus.alert.super.retry.cron", "alertRetryJSuperJob"},
-            {"domibus.ui.replication.sync.cron", "uiReplicationJob"},
-            {"domibus.splitAndJoin.receive.expiration.cron", "splitAndJoinExpirationJob"},
+            {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
+            {DOMIBUS_CERTIFICATE_CHECK_CRON, "saveCertificateAndLogRevocationJob"},
+            {DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, "activateSuspendedPluginUsersJob"},
+            {DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, "userPasswordPolicyAlertJob"},
+            {DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, "pluginUserPasswordPolicyAlertJob"},
+            {DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, "temporaryPayloadRetentionJob"},
+            {DOMIBUS_MSH_RETRY_CRON, "retryWorkerJob"},
+            {DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, "retentionWorkerJob"},
+            {DOMIBUS_MSH_PULL_CRON, "pullRequestWorkerJob"},
+            {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
+            {DOMIBUS_ALERT_CLEANER_CRON, "alertCleanerJob"},
+            {DOMIBUS_ALERT_RETRY_CRON, "alertRetryJob"},
+            {DOMIBUS_ALERT_SUPER_CLEANER_CRON, "alertCleanerSuperJob"},
+            {DOMIBUS_ALERT_SUPER_RETRY_CRON, "alertRetryJSuperJob"},
+            {DOMIBUS_UI_REPLICATION_SYNC_CRON, "uiReplicationJob"},
+            {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
 
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
