@@ -35,7 +35,7 @@ class Domibus{
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
 
     static def backup_file_sufix = "_backup_for_soapui_tests";
-    static def DEFAULT_LOG_LEVEL = 0;
+    static def DEFAULT_LOG_LEVEL = 1;
     static def DEFAULT_PASSWORD = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
     static def SUPER_USER="super";
     static def SUPER_USER_PWD="123456";
@@ -959,7 +959,7 @@ def findNumberOfDomain(String inputSite) {
 							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 							"-F", "description=" + pmDescription,
 							"-F", "file=@" + pmodeFile,							
-							"-v"]
+							"--trace-ascii", "-"]
             commandResult = runCurlCommand(commandString, log)
             assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected outcome \"" + outcome + "\"."
             if (outcome.toLowerCase() == "successfully") {
@@ -970,7 +970,7 @@ def findNumberOfDomain(String inputSite) {
             } else {
                 log.info "  uploadPmode  [][]  Upload PMode was not done for Domibus: \"" + side + "\".";
                 if (message != null) {
-                    assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload was not done but expected message \"" + message + "\" was not returned."
+                    assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload was not done but expected message \"" + message + "\" was not returned.\n Result:"  + commandResult[0]
                 }
             }
         } finally {
@@ -992,7 +992,7 @@ def findNumberOfDomain(String inputSite) {
 		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode", 
 				"-F", "description=" + pmDescription,
 				"-F", "file=@" + pmodeFile,							
-				"-v"]
+				"--trace-ascii", "-"]
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to connect to domibus."
         if (outcome.toLowerCase() == "successfully") {
