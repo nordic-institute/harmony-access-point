@@ -1,0 +1,129 @@
+package eu.domibus.core.property;
+
+import eu.domibus.api.property.DomibusPropertyMetadata;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+public class DomibusPropertyMetadataManager {
+
+    /**
+     * Returns the properties that this PropertyProvider is able to handle.
+     *
+     * @return a map
+     * @implNote This list will be moved in the database eventually.
+     */
+    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
+
+        return Arrays.stream(new DomibusPropertyMetadata[]{
+                new DomibusPropertyMetadata("domibus.UI.title.name", true, true),
+                new DomibusPropertyMetadata("domibus.ui.replication.enabled", true, true),
+                new DomibusPropertyMetadata("domibus.ui.support.team.name", true, true),
+                new DomibusPropertyMetadata("domibus.ui.support.team.email", true, true),
+
+                new DomibusPropertyMetadata("domibus.security.keystore.location", true, false),
+                new DomibusPropertyMetadata("domibus.security.keystore.type", true, false),
+                new DomibusPropertyMetadata("domibus.security.keystore.password", true, false),
+                new DomibusPropertyMetadata("domibus.security.key.private.alias", true, false),
+
+                new DomibusPropertyMetadata("domibus.security.truststore.location", true, false),
+                new DomibusPropertyMetadata("domibus.security.truststore.type", true, false),
+                new DomibusPropertyMetadata("domibus.security.truststore.password", true, false),
+
+                new DomibusPropertyMetadata("domibus.auth.unsecureLoginAllowed", true, false),
+                new DomibusPropertyMetadata("domibus.console.login.maximum.attempt", true, true),
+                new DomibusPropertyMetadata("domibus.console.login.suspension.time", true, true),
+                new DomibusPropertyMetadata("domibus.certificate.revocation.offset", true, false),
+                new DomibusPropertyMetadata("domibus.certificate.crl.excludedProtocols", true, false),
+
+                new DomibusPropertyMetadata("domibus.plugin.login.maximum.attempt", true, false),
+                new DomibusPropertyMetadata("domibus.plugin.login.suspension.time", true, true),
+
+                new DomibusPropertyMetadata("domibus.passwordPolicy.pattern", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.validationMessage", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.expiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.defaultPasswordExpiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.warning.beforeExpiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.dontReuseLast", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.checkDefaultPassword", false),
+
+                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.pattern", true, true),
+                new DomibusPropertyMetadata("domibus.plugin.passwordPolicy.validationMessage", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.expiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.defaultPasswordExpiration", true, true),
+                new DomibusPropertyMetadata("domibus.passwordPolicy.plugin.dontReuseLast", true, true),
+
+                new DomibusPropertyMetadata("domibus.attachment.storage.location", true, false),
+                new DomibusPropertyMetadata("domibus.payload.encryption.active", true, true),
+
+                new DomibusPropertyMetadata("domibus.msh.messageid.suffix", true, true),
+                new DomibusPropertyMetadata("domibus.msh.retry.messageExpirationDelay", false),
+
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.useDynamicDiscovery", true, true),
+                new DomibusPropertyMetadata("domibus.smlzone", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.client.specification", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.peppolclient.mode", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.responder.role", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.partyid.type", true, true),
+                new DomibusPropertyMetadata("domibus.dynamicdiscovery.transportprofileas4", true, true),
+
+                new DomibusPropertyMetadata("domibus.listPendingMessages.maxCount", false),
+                new DomibusPropertyMetadata("domibus.jms.queue.maxBrowseSize", false), //there is one place at init time that it is not refreshed
+                new DomibusPropertyMetadata("domibus.jms.internalQueue.expression", false),
+
+                new DomibusPropertyMetadata("domibus.receiver.certificate.validation.onsending", true, true),
+                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onsending", true, true),
+                new DomibusPropertyMetadata("domibus.sender.certificate.validation.onreceiving", true, true),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.onreceiving", true, true),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.expression", true, false),
+                new DomibusPropertyMetadata("domibus.sender.certificate.subject.check", true, true),
+                new DomibusPropertyMetadata("domibus.sender.trust.validation.truststore_alias", true, true),
+                new DomibusPropertyMetadata("domibus.sendMessage.messageIdPattern", true, false),
+
+                new DomibusPropertyMetadata("domibus.dispatcher.connectionTimeout", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.receiveTimeout", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.allowChunking", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.chunkingThreshold", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.concurency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.largeFiles.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.cacheable", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.connection.keepAlive", true, true),
+                new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.downloaded.max.delete", true, true),
+                new DomibusPropertyMetadata("domibus.retentionWorker.message.retention.not_downloaded.max.delete", true, true),
+                new DomibusPropertyMetadata("domibus.retention.jms.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatch.ebms.error.unrecoverable.retry", true, true),
+
+                new DomibusPropertyMetadata("domibus.proxy.enabled", false),
+                new DomibusPropertyMetadata("domibus.proxy.http.host", false),
+                new DomibusPropertyMetadata("domibus.proxy.http.port", false),
+                new DomibusPropertyMetadata("domibus.proxy.user", false),
+                new DomibusPropertyMetadata("domibus.proxy.password", false),
+                new DomibusPropertyMetadata("domibus.proxy.nonProxyHosts", false),
+
+                new DomibusPropertyMetadata("domibus.ui.replication.sync.cron.max.rows", true, true),
+                new DomibusPropertyMetadata("domibus.plugin.notification.active", false),
+                new DomibusPropertyMetadata("domibus.nonrepudiation.audit.active", false),
+                new DomibusPropertyMetadata("domibus.sendMessage.failure.delete.payload", true, true),
+                new DomibusPropertyMetadata("domibus.sendMessage.attempt.audit.active", false),
+                new DomibusPropertyMetadata("domibus.fourcornermodel.enabled", false),
+                new DomibusPropertyMetadata("domibus.logging.payload.print", false),
+
+                new DomibusPropertyMetadata("domibus.attachment.temp.storage.location", false),
+                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.dispatcher.splitAndJoin.payloads.schedule.threshold", true, true),
+
+                new DomibusPropertyMetadata("domain.title", true, false),
+                new DomibusPropertyMetadata("domibus.userInput.blackList", false),
+                new DomibusPropertyMetadata("domibus.userInput.whiteList", false),
+        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }
+
+    public boolean hasKnownProperty(String name) {
+        return this.getKnownProperties().containsKey(name);
+    }
+
+}
