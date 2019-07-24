@@ -69,7 +69,7 @@ public class DomibusJPAConfiguration {
             LOG.info("Configuring jpaProperties for multi-tenancy");
             jpaProperties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
             jpaProperties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProviderImpl.get());
-            if(tenantIdentifierResolver.isPresent()) {
+            if (tenantIdentifierResolver.isPresent()) {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
             }
         }

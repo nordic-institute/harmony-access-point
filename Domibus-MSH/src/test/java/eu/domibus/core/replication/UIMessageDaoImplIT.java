@@ -82,6 +82,8 @@ public class UIMessageDaoImplIT {
         uiMessageEntity.setMshRole(mshRole);
         uiMessageEntity.setSendAttempts(0);
         uiMessageEntity.setSendAttemptsMax(5);
+        uiMessageEntity.setLastModified(new Date(System.currentTimeMillis()));
+        uiMessageEntity.setLastModified2(new Date(System.currentTimeMillis()));
 
         uiMessageDao.create(uiMessageEntity);
 

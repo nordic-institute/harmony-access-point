@@ -1,4 +1,4 @@
-package eu.domibus.core.encryption;
+package eu.domibus.core.payload.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
@@ -6,6 +6,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.util.EncryptionUtil;
+import eu.domibus.core.encryption.EncryptionKeyDao;
+import eu.domibus.core.encryption.EncryptionKeyEntity;
+import eu.domibus.core.encryption.EncryptionUsage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +24,9 @@ import java.util.List;
  * @since 4.1
  */
 @Service("EncryptionServiceImpl")
-public class EncryptionServiceImpl implements EncryptionService {
+public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadEncryptionServiceImpl.class);
 
     @Autowired
     protected EncryptionKeyDao encryptionKeyDao;
@@ -44,28 +47,28 @@ public class EncryptionServiceImpl implements EncryptionService {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Override
-    public void createEncryptionKeyForAllDomainsIfNotExists() {
+    public void createPayloadEncryptionKeyForAllDomainsIfNotExists() {
         LOG.debug("Creating encryption key for all domains if not yet exists");
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            createEncryptionKeyIfNotExists(domain);
+            createPayloadEncryptionKeyIfNotExists(domain);
         }
 
         LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
     @Override
-    public void createEncryptionKeyIfNotExists(Domain domain) {
+    public void createPayloadEncryptionKeyIfNotExists(Domain domain) {
         final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
         if (encryptionActive) {
-            domainTaskExecutor.submit(() -> createEncryptionKeyForPayloadIfNotExists(), domain);
+            domainTaskExecutor.submit(() -> createPayloadEncryptionKeyIfNotExists(), domain);
         } else {
             LOG.debug("Payload encryption is not activated for domain [{}]", domain);
         }
     }
 
-    protected void createEncryptionKeyForPayloadIfNotExists() {
+    protected void createPayloadEncryptionKeyIfNotExists() {
         LOG.debug("Checking if the encryption key should be created");
 
         final EncryptionKeyEntity payloadKey = encryptionKeyDao.findByUsage(EncryptionUsage.PAYLOAD);

@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
@@ -53,6 +54,9 @@ public class UserResourceTest {
 
     @Injectable
     ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     private List<UserResponseRO> getUserResponseList() {
         final List<UserResponseRO> userResponseROList = new ArrayList<>();

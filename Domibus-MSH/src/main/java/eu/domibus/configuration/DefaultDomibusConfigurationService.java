@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -70,5 +72,46 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     public boolean isPayloadEncryptionActive(Domain domain) {
         return domibusPropertyProvider.getBooleanDomainProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
     }
+
+    @Override
+    public boolean isPasswordEncryptionActive() {
+        return domibusPropertyProvider.getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+    }
+
+    @Override
+    public boolean isPasswordEncryptionActive(Domain domain) {
+        return domibusPropertyProvider.getBooleanDomainProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+    }
+
+    @Override
+    public String getConfigurationFileName() {
+        return DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+    }
+
+    @Override
+    public String getConfigurationFileName(Domain domain) {
+        String propertyFileName = null;
+        if (DomainService.DEFAULT_DOMAIN.equals(domain)) {
+            final String configurationFile = getConfigLocation() + File.separator + getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+            LOG.debug("Checking if file [{}] exists", configurationFile);
+            if (new File(configurationFile).exists()) {
+                LOG.debug("Using property file [{}]", configurationFile);
+                propertyFileName = configurationFile;
+            } else {
+                LOG.debug("File [{}] does not exists, using [{}]", configurationFile, DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE);
+                propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+            }
+        } else {
+            propertyFileName = getDomainConfigurationFileName(domain);
+            LOG.debug("Using property file [{}]", propertyFileName);
+        }
+
+        return propertyFileName;
+    }
+
+    protected String getDomainConfigurationFileName(Domain domain) {
+        return domain.getCode() + "-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+    }
+
 
 }

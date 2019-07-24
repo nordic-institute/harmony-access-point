@@ -2,7 +2,7 @@ package eu.domibus.tomcat;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.PropertyResolver;
+import eu.domibus.core.property.PropertyResolver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;

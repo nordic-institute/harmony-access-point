@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import com.google.common.base.Strings;
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskException;
@@ -68,6 +69,9 @@ public class UserResource extends BaseResource {
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
+
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
 
     private UserService getUserService() {
         if (authUtils.isSuperAdmin()) {
@@ -163,7 +167,9 @@ public class UserResource extends BaseResource {
 
         return exportToCSV(userResponseROList, UserResponseRO.class,
                 CsvCustomColumns.USER_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
+                domibusConfigurationService.isMultiTenantAware() ?
+                        CsvExcludedItems.USER_RESOURCE_MULTI.getExcludedItems() :
+                        CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
                 "users");
     }
 

@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.encryption.EncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.spring.SpringContextProvider;
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +30,8 @@ public class PayloadEncryptionChangeListener implements PluginPropertyChangeList
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         if (StringUtils.equalsIgnoreCase(propertyValue, "true")) {
             Domain domain = domainService.getDomain(domainCode);
-            final EncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", EncryptionService.class);
-            encryptionService.createEncryptionKeyIfNotExists(domain);
+            final PayloadEncryptionService payloadEncryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
+            payloadEncryptionService.createPayloadEncryptionKeyIfNotExists(domain);
         }
     }
 }
