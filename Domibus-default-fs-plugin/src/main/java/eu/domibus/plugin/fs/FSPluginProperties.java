@@ -5,7 +5,7 @@ import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.property.DomibusPropertyChangeNotifier;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -88,7 +88,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     public static final String ACTION_ARCHIVE = "archive";
 
     @Autowired
-    private DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+    private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     /**
      * @return The available domains set
@@ -408,11 +408,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return StringUtils.substringBefore(unprefixedProp, DOT);
     }
 
-    private String extractPropertyName(String propName) {
-        String unprefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
-        return StringUtils.substringAfter(unprefixedProp, DOT);
-    }
-
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
@@ -447,7 +442,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         this.properties.setProperty(propertyKey, propertyValue);
 
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     private String getKnownPropertyKey(String domain, String propertyName) {

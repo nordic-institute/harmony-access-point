@@ -26,13 +26,13 @@ public class DomibusPropertyMetadata {
 
     private String description;
 
-    private Module module;
+    private String module;
 
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return new DomibusPropertyMetadata(name, false, false);
     }
 
-    public DomibusPropertyMetadata(String name, Module module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadata(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
@@ -104,11 +104,11 @@ public class DomibusPropertyMetadata {
         this.description = description;
     }
 
-    public Module getModule() {
+    public String getModule() {
         return module;
     }
 
-    public void setModule(Module module) {
+    public void setModule(String module) {
         this.module = module;
     }
 }

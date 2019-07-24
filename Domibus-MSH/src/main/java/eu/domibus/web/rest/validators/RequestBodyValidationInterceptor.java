@@ -43,6 +43,7 @@ public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
                                 Class<? extends HttpMessageConverter<?>> converterType) {
         if (shouldSkipValidation(parameter.getMethod())) {
+            LOG.debug("Skipping validation for method [{}]", parameter.getMethod());
             return body;
         }
 

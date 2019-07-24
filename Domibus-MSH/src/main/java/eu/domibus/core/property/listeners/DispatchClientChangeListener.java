@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.common.services.DomibusCacheService;
-import eu.domibus.property.DomibusPropertyChangeListener;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  * Handles the change of dispatcher related properties
  */
 @Service
-public class DispatchClientChangeListener implements DomibusPropertyChangeListener {
+public class DispatchClientChangeListener implements PluginPropertyChangeListener {
 
     @Autowired
     private DomibusCacheService domibusCacheService;

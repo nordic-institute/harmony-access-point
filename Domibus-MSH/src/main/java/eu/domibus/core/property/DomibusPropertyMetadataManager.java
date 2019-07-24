@@ -1,16 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
-import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -18,21 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
-
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyManagerImpl.class);
-
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    private DomainService domainService;
-
-    @Autowired
-    private DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
-    private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
+public class DomibusPropertyMetadataManager {
 
     /**
      * Returns the properties that this PropertyProvider is able to handle.
@@ -40,7 +16,6 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
      * @return a map
      * @implNote This list will be moved in the database eventually.
      */
-    @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
 
         return Arrays.stream(new DomibusPropertyMetadata[]{
@@ -144,75 +119,11 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
                 new DomibusPropertyMetadata("domain.title", true, false),
                 new DomibusPropertyMetadata("domibus.userInput.blackList", false),
                 new DomibusPropertyMetadata("domibus.userInput.whiteList", false),
-
-                DomibusPropertyMetadata.getGlobalProperty("domibus.account.unlock.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.certificate.check.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.plugin.account.unlock.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.passwordPolicies.check.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.plugin_passwordPolicies.check.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.payload.temp.job.retention.cron"),
-                new DomibusPropertyMetadata("domibus.msh.retry.cron", true, true),
-                new DomibusPropertyMetadata("domibus.retentionWorker.cronExpression", true, true),
-                new DomibusPropertyMetadata("domibus.msh.pull.cron", true, true),
-                new DomibusPropertyMetadata("domibus.pull.retry.cron", true, true),
-                new DomibusPropertyMetadata("domibus.alert.cleaner.cron", true, true),
-                new DomibusPropertyMetadata("domibus.alert.retry.cron", true, true),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.cleaner.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.retry.cron"),
-                DomibusPropertyMetadata.getGlobalProperty("domibus.ui.replication.sync.cron"),
-                new DomibusPropertyMetadata("domibus.splitAndJoin.receive.expiration.cron", true, true),
-
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
-    @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
-        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
-        if (meta == null) {
-            throw new IllegalArgumentException(propertyName);
-        }
-
-        Domain domain = domainCode == null ? null : this.domainService.getDomain(domainCode);
-
-        if (!meta.isDomainSpecific()) {
-            return domibusPropertyProvider.getProperty(meta.getName());
-        } else {
-            if (meta.isWithFallback()) {
-                return domibusPropertyProvider.getDomainProperty(domain, meta.getName());
-            } else if (!meta.isWithFallback()) {
-                return domibusPropertyProvider.getProperty(domain, meta.getName());
-            }
-        }
-
-        throw new NotImplementedException("Get value for : " + propertyName);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
-        if (propMeta == null) {
-            throw new IllegalArgumentException(propertyName);
-        }
-
-        Domain propertyDomain = null;
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            propertyDomain = domainCode == null ? null : domainService.getDomain(domainCode);
-            propertyDomain = propMeta.isDomainSpecific() ? propertyDomain : null;
-        }
-        this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
-
-        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-    }
-
-
-    @Override
     public boolean hasKnownProperty(String name) {
         return this.getKnownProperties().containsKey(name);
     }
+
 }

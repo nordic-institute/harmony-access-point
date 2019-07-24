@@ -26,9 +26,9 @@ public class DomibusPropertyMetadataDTO {
 
     private String description;
 
-    private Module module;
+    private String module;
 
-    public DomibusPropertyMetadataDTO(String name, Module module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
@@ -36,7 +36,7 @@ public class DomibusPropertyMetadataDTO {
         this.module = module;
     }
 
-    public DomibusPropertyMetadataDTO(String name, Module module, boolean domainSpecific, boolean withFallback) {
+    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {
         this(name, module, domainSpecific, withFallback, true);
     }
 
@@ -108,11 +108,11 @@ public class DomibusPropertyMetadataDTO {
         this.description = description;
     }
 
-    public Module getModule() {
+    public String getModule() {
         return module;
     }
 
-    public void setModule(Module module) {
+    public void setModule(String module) {
         this.module = module;
     }
 }

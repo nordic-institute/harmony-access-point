@@ -1,8 +1,8 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.property.DomibusPropertyChangeListener;
-import eu.domibus.property.DomibusPropertyChangeNotifier;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -27,10 +27,10 @@ public class FSPluginPropertiesTest {
     FSPluginProperties fsPluginProperties;
 
     @Injectable
-    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     @Injectable
-    List<DomibusPropertyChangeListener> domibusPropertyChangeListeners;
+    List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
 
     @Test
     public void testReadDomains() {
