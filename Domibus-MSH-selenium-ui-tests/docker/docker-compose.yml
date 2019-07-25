@@ -1,0 +1,39 @@
+version: '2'
+services:
+  ##
+  ## Corner 2 - Domibus Tomcat MySQL Blue Configuration
+  # Multitenancy
+  ##
+  mysqlc2:
+    image: domibustest/domibus-multi-mysql:4.1-rc1-snapshot
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_USER=edelivery
+      - MYSQL_PASSWORD=edelivery
+    expose:
+      - "3306"
+    ports:
+      - "3588:3306"
+  ##
+  ## Corner 2 - Domibus Wildfly MySQL Blue Configuration
+  ##
+  wildflyc2:
+    image: domibustest/domibus-wildfly:4.1-snapshot
+    environment:
+       - DB_TYPE=MySQL
+       - DB_HOST=mysqlc2
+       - DB_PORT=3306
+       - DB_USER=edelivery
+       - DB_PASS=edelivery
+       - CHECK_DEFAULT_PASSWD=false
+       - DB_NAME=domibus_general
+       - MULTITENANCY=true
+    ports:
+      - "9088:8080"
+      - "6488:6400"
+    volumes:
+      - ./logs:/data/wildfly/logs
+      - ./conf/:/data/wildfly/conf/domibus
+    command: dockerize -wait tcp://mysqlc2:3306
+    depends_on:
+      - mysqlc2
