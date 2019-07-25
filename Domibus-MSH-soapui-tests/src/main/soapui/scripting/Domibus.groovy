@@ -1680,7 +1680,7 @@ static def ifWindowsEscapeJsonString(json) {
         debugLog("  ====  Calling \"computePathRessources\".", log)
 		def returnPath = null
 		def basePathPropName = ""
-		debugLog("Input extension: " + extension)
+		debugLog("Input extension: " + extension, log)
 		
         if (type.toLowerCase() == "special") 
 			basePathPropName = "specialPModesPath"
@@ -1693,9 +1693,9 @@ static def ifWindowsEscapeJsonString(json) {
 		if (System.properties['os.name'].toLowerCase().contains('windows'))
         	returnPath = returnPath.replace("\\", "\\\\")
 		else 
-			returnPath = returnPath.replace("\\", "/").replace("\", "/")
+			returnPath = returnPath.replace("\\", "/")
 		
-		debugLog("Output computePathRessources: " + returnPath.toString()
+		debugLog("Output computePathRessources: " + returnPath.toString(), log)
         return returnPath.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2045,6 +2045,7 @@ static def void startRestMockService(String restMockServiceName,log,testRunner,s
 // Methods handling Pmode properties overwriting
 static def processFile(log, file, newFileSuffix, Closure processText) {
 	 	 def text = file.text
+		 debugLog("New file to be created: " + file.path.toString() + newFileSuffix, log) 
    		 def outputTextFile = new File(file.path + newFileSuffix)
   		 outputTextFile.write(processText(text))
   		 if (outputTextFile.text == text) 
@@ -2053,6 +2054,7 @@ static def processFile(log, file, newFileSuffix, Closure processText) {
 
 static def changeConfigurationFile(log, testRunner, filePath, newFileSuffix, Closure processText) {    		
 		 // Checkfilefile exists
+		 debugLog("Path to base file: " + filePath, log)
         def file = new File(filePath)
         if (!file.exists()) {
             testRunner.fail("File [${filePath}] does not exist. Can't change value.")
