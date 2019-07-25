@@ -1680,6 +1680,7 @@ static def ifWindowsEscapeJsonString(json) {
         debugLog("  ====  Calling \"computePathRessources\".", log)
 		def returnPath = null
 		def basePathPropName = ""
+		debugLog("Input extension: " + extension)
 		
         if (type.toLowerCase() == "special") 
 			basePathPropName = "specialPModesPath"
@@ -1692,8 +1693,9 @@ static def ifWindowsEscapeJsonString(json) {
 		if (System.properties['os.name'].toLowerCase().contains('windows'))
         	returnPath = returnPath.replace("\\", "\\\\")
 		else 
-			returnPath = returnPath.replace("\\", "/")
-			
+			returnPath = returnPath.replace("\\", "/").replace("\", "/")
+		
+		debugLog("Output computePathRessources: " + returnPath.toString()
         return returnPath.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
