@@ -34,7 +34,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, true, false),
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true, false),
 
-                new DomibusPropertyMetadata(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED, true, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED),
                 new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_REVOCATION_OFFSET, true, false),
