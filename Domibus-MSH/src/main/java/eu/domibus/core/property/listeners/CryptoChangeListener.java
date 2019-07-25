@@ -23,7 +23,10 @@ public class CryptoChangeListener implements PluginPropertyChangeListener {
     protected ApplicationContext applicationContext;
 
     @Autowired
-    MultiDomainCryptoService cryptoService;
+    protected MultiDomainCryptoService cryptoService;
+
+    @Autowired
+    protected GatewayConfigurationValidator gatewayConfigurationValidator;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -36,7 +39,6 @@ public class CryptoChangeListener implements PluginPropertyChangeListener {
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         cryptoService.refresh();
 
-        GatewayConfigurationValidator gatewayConfigurationValidator = applicationContext.getBean(GatewayConfigurationValidator.class);
         gatewayConfigurationValidator.validateConfiguration();
     }
 }
