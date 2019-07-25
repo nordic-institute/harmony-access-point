@@ -12,7 +12,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMAIN_TITL
  * @author Ion Perpegel
  * @since 4.1.1
  *
- * Handles the change of domain title propertiy
+ * Handles the change of domain title property
  */
 @Service
 public class DomainTitleChangeListener implements PluginPropertyChangeListener {

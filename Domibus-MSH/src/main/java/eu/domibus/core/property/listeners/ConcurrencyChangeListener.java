@@ -16,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * @author Ion Perpegel
  * @since 4.1.1
  *
- * Handles the change of concurency properties
+ * Handles the change of concurrency properties
  */
 @Service
 public class ConcurrencyChangeListener implements PluginPropertyChangeListener {

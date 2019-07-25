@@ -33,7 +33,7 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
             } catch (Throwable ex) {
-                LOGGER.error("An error occurred on setting property [{}] : [{}]", propertyName, ex);
+                LOGGER.error("An error occurred on setting property [{}]", propertyName, ex);
             }
         });
 
