@@ -84,6 +84,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   ngOnInit() {
+    super.ngOnInit();
+
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
     this.columnPicker.allColumns = [

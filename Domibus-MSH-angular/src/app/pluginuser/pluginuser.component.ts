@@ -48,6 +48,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   ngOnInit() {
+    super.ngOnInit();
+
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
     this.initColumns();
