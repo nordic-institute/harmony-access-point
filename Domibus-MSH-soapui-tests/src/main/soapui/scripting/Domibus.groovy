@@ -1678,12 +1678,22 @@ static def ifWindowsEscapeJsonString(json) {
 //---------------------------------------------------------------------------------------------------------------------------------
         static def computePathRessources(String type, String extension, context, log) {
         debugLog("  ====  Calling \"computePathRessources\".", log)
-        def returnPath = null;
-        if (type.toLowerCase() == "special") {
-            returnPath = (context.expand('${#Project#specialPModesPath}') + extension).replace("\\\\", "\\").replace("\\", "\\\\")
-        } else {
-            returnPath = (context.expand('${#Project#defaultPModesPath}') + extension).replace("\\\\", "\\").replace("\\", "\\\\")
-        }
+		def returnPath = null
+		def basePathPropName = ""
+		
+        if (type.toLowerCase() == "special") 
+			basePathPropName = "specialPModesPath"
+		else 
+			basePathPropName = "defaultPModesPath"
+			
+		returnPath = (context.expand("\${#Project#${basePathPropName}}") + extension).replace("\\\\", "\\")
+		
+		debugLog("  +++++++++++ Runned on: " + System.properties['os.name'], log)
+		if (System.properties['os.name'].toLowerCase().contains('windows'))
+        	returnPath = returnPath.replace("\\", "\\\\")
+		else 
+			returnPath = returnPath.replace("\\", "/")
+			
         return returnPath.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
