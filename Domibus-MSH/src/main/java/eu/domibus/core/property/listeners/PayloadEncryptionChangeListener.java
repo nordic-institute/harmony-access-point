@@ -7,6 +7,7 @@ import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.spring.SpringContextProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
@@ -23,6 +24,10 @@ public class PayloadEncryptionChangeListener implements PluginPropertyChangeList
     @Autowired
     protected DomainService domainService;
 
+    @Autowired
+    @Qualifier("EncryptionServiceImpl")
+    PayloadEncryptionService payloadEncryptionService;
+
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE);
@@ -32,7 +37,7 @@ public class PayloadEncryptionChangeListener implements PluginPropertyChangeList
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         if (StringUtils.equalsIgnoreCase(propertyValue, "true")) {
             Domain domain = domainService.getDomain(domainCode);
-            final PayloadEncryptionService payloadEncryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
+//            final PayloadEncryptionService payloadEncryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists(domain);
         }
     }

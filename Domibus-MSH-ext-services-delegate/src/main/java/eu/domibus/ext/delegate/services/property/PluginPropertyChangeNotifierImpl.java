@@ -12,6 +12,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Handles the change of a domibus property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
+ */
 @Service
 public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
 
@@ -22,6 +28,9 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private SignalService signalService;
 
     @Override
     public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
@@ -39,7 +48,7 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
 
         //signal for other nodes in the cluster
         if (broadcast) {
-            SignalService signalService = applicationContext.getBean(SignalService.class);
+//            SignalService signalService = applicationContext.getBean(SignalService.class);
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
         }
     }

@@ -36,6 +36,9 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
     @Autowired
     protected ApplicationContext applicationContext;
 
+    @Autowired
+    DomibusQuartzStarter domibusQuartzStarter;
+
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
             {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
             {DOMIBUS_CERTIFICATE_CHECK_CRON, "saveCertificateAndLogRevocationJob"},
@@ -69,7 +72,7 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
             return;
         }
 
-        DomibusQuartzStarter domibusQuartzStarter = applicationContext.getBean(DomibusQuartzStarter.class);
+//        DomibusQuartzStarter domibusQuartzStarter = applicationContext.getBean(DomibusQuartzStarter.class);
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
 
         try {
