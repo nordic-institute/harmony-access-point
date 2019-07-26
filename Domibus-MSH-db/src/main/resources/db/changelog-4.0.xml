@@ -236,7 +236,7 @@
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="PARTY_FK" type="INT">
+            <column name="PARTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
