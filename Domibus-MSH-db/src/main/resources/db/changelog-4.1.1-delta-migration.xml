@@ -286,7 +286,6 @@
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_CONFIGURATION_RAW_AUD"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_CONFIGURATION_RAW_AUD"/>
 
-
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ERROR"/>
         <modifyDataType columnName="SIGNALMESSAGE_ID" newDataType="BIGINT" tableName="TB_ERROR"/>
 
@@ -457,6 +456,10 @@
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_EVENT"/>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_EVENT_PROPERTY"/>
+        <modifyDataType columnName="FK_EVENT" newDataType="BIGINT" tableName="TB_EVENT_PROPERTY"/>
+
+        <modifyDataType columnName="FK_EVENT" newDataType="BIGINT" tableName="TB_EVENT_ALERT"/>
+        <modifyDataType columnName="FK_ALERT" newDataType="BIGINT" tableName="TB_EVENT_ALERT"/>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_UI"/>
     </changeSet>
