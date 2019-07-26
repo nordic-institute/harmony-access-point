@@ -72,7 +72,6 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
             return;
         }
 
-//        DomibusQuartzStarter domibusQuartzStarter = applicationContext.getBean(DomibusQuartzStarter.class);
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
 
         try {

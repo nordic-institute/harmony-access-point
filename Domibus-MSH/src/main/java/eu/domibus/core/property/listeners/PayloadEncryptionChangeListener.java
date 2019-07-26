@@ -25,8 +25,7 @@ public class PayloadEncryptionChangeListener implements PluginPropertyChangeList
     protected DomainService domainService;
 
     @Autowired
-    @Qualifier("EncryptionServiceImpl")
-    PayloadEncryptionService payloadEncryptionService;
+    protected PayloadEncryptionService payloadEncryptionService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -37,7 +36,6 @@ public class PayloadEncryptionChangeListener implements PluginPropertyChangeList
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         if (StringUtils.equalsIgnoreCase(propertyValue, "true")) {
             Domain domain = domainService.getDomain(domainCode);
-//            final PayloadEncryptionService payloadEncryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists(domain);
         }
     }
