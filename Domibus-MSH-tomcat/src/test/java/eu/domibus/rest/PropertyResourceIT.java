@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_TITLE_NAME;
 
 
@@ -50,7 +51,7 @@ public class PropertyResourceIT extends AbstractIT {
     @Test
     public void testSetCronExpression() throws Exception {
 
-        String name = "domibus.retentionWorker.cronExpression";
+        String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;
         String newValue = "0 0/5 * * * ?"; // every 5 minutes
 
         domibusPropertyService.setPropertyValue(name, newValue);

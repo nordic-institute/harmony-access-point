@@ -18,6 +18,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_BLACK_LIST;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_WHITE_LIST;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -28,8 +31,8 @@ import java.util.Set;
 public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
 
-    public static final String WHITELIST_PROPERTY = "domibus.userInput.whiteList";
-    public static final String BLACKLIST_PROPERTY = "domibus.userInput.blackList";
+    public static final String WHITELIST_PROPERTY = DOMIBUS_USER_INPUT_WHITE_LIST;
+    public static final String BLACKLIST_PROPERTY = DOMIBUS_USER_INPUT_BLACK_LIST;
 
     protected String whitelist = null;
     protected Set<Character> blacklist = null;

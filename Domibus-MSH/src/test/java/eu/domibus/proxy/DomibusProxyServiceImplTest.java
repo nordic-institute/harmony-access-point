@@ -12,6 +12,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author idragusa
  * @since 4.1
@@ -30,7 +32,7 @@ public class DomibusProxyServiceImplTest {
     @Test(expected = DomibusCoreException.class)
     public void initDomibusProxyMissingHostTest() {
         new NonStrictExpectations(){{
-            domibusPropertyProvider.getBooleanProperty(domibusProxyService.DOMIBUS_PROXY_ENABLED);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
         }};
@@ -40,10 +42,10 @@ public class DomibusProxyServiceImplTest {
     @Test(expected = DomibusCoreException.class)
     public void initDomibusProxyMissingPortTest() {
         new NonStrictExpectations(){{
-            domibusPropertyProvider.getBooleanProperty(domibusProxyService.DOMIBUS_PROXY_ENABLED);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_HOST);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_HTTP_HOST);
             result = "12.13.14.15";
 
         }};
@@ -53,13 +55,13 @@ public class DomibusProxyServiceImplTest {
     @Test
     public void initDomibusProxyTest() {
         new NonStrictExpectations(){{
-            domibusPropertyProvider.getBooleanProperty(domibusProxyService.DOMIBUS_PROXY_ENABLED);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_HOST);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_HTTP_HOST);
             result = "12.13.14.15";
 
-            domibusPropertyProvider.getIntegerProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_PORT);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROXY_HTTP_PORT);
             result = 8012;
 
         }};
@@ -69,16 +71,16 @@ public class DomibusProxyServiceImplTest {
     @Test(expected = DomibusCoreException.class)
     public void initDomibusProxyMissingPasswordTest() {
         new NonStrictExpectations(){{
-            domibusPropertyProvider.getBooleanProperty(domibusProxyService.DOMIBUS_PROXY_ENABLED);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_HOST);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_HTTP_HOST);
             result = "12.13.14.15";
 
-            domibusPropertyProvider.getIntegerProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_PORT);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROXY_HTTP_PORT);
             result = 8012;
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_USER);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
             result = "idragusa";
 
         }};
@@ -88,22 +90,22 @@ public class DomibusProxyServiceImplTest {
     @Test
     public void initDomibusProxyAuthTest() {
         new NonStrictExpectations(){{
-            domibusPropertyProvider.getBooleanProperty(domibusProxyService.DOMIBUS_PROXY_ENABLED);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_HOST);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_HTTP_HOST);
             result = "12.13.14.15";
 
-            domibusPropertyProvider.getIntegerProperty(domibusProxyService.DOMIBUS_PROXY_HTTP_PORT);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROXY_HTTP_PORT);
             result = 8012;
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_USER);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
             result = "idragusa";
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_PASSWORD);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
             result = "pass";
 
-            domibusPropertyProvider.getProperty(domibusProxyService.DOMIBUS_PROXY_NON_PROXY_HOSTS);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS);
             result = "localhost";
 
 

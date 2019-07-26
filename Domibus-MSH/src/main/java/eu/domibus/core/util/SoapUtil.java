@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LOGGING_PAYLOAD_PRINT;
+
 /**
  * @author idragusa
  * @author Cosmin Baciu
@@ -40,9 +42,6 @@ import java.util.Iterator;
 public class SoapUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);
-
-
-    static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
 
     @Autowired
     protected TransformerFactory transformerFactory;

@@ -79,7 +79,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PROXY_HTTP_HOST = "domibus.proxy.http.host";
     String DOMIBUS_PROXY_HTTP_PORT = "domibus.proxy.http.port";
     String DOMIBUS_PROXY_USER = "domibus.proxy.user";
-    String DOMIBUS_PROXY_PASSWORD = "domibus.proxy.password";
+    String DOMIBUS_PROXY_PASSWORD = "domibus.proxy.password"; //NOSONAR: This is not a hardcoded password, it is just the name of a property
     String DOMIBUS_PROXY_NON_PROXY_HOSTS = "domibus.proxy.nonProxyHosts";
     String DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS = "domibus.ui.replication.sync.cron.max.rows";
     String DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE = "domibus.plugin.notification.active";

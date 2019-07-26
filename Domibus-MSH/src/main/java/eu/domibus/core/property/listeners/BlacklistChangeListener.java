@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_BLACK_LIST;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_WHITE_LIST;
 
 /**
  * @author Ion Perpegel
@@ -25,7 +26,7 @@ public class BlacklistChangeListener implements PluginPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_USER_INPUT_BLACK_LIST)
-                || StringUtils.equalsIgnoreCase(propertyName, "domibus.userInput.whiteList");
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_USER_INPUT_WHITE_LIST);
     }
 
     @Override

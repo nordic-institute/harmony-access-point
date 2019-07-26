@@ -55,7 +55,7 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
             case DOMIBUS_RETENTION_JMS_CONCURRENCY:
                 messageListenerContainerInitializer.createRetentionListenerContainer(domain);
                 break;
-            case "domibus.dispatcher.splitAndJoin.concurrency":
+            case DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY:
                 messageListenerContainerInitializer.createSplitAndJoinListenerContainer(domain);
                 break;
         }

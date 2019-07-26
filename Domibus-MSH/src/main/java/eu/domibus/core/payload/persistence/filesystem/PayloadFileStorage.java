@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION;
 
 /**
  * @version 2.0
@@ -29,7 +30,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATT
 public class PayloadFileStorage {
 
     public static final String ATTACHMENT_STORAGE_LOCATION = DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
-    public static final String TEMPORARY_ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
+    public static final String TEMPORARY_ATTACHMENT_STORAGE_LOCATION = DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadFileStorage.class);
 

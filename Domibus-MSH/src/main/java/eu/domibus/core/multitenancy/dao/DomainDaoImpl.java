@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMAIN_TITLE;
+
 
 /**
  * @author Cosmin Baciu
@@ -32,7 +34,6 @@ public class DomainDaoImpl implements DomainDao {
 
     private static final String[] DOMAIN_FILE_EXTENSION = {"properties"};
     private static final String DOMAIN_FILE_SUFFIX = "-domibus";
-    private static final String DOMAIN_TITLE = "domain.title";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
