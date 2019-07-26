@@ -278,15 +278,15 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected String getTrustStoreLocation() {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location");
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
     }
 
     protected String getTrustStorePassword() {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password", true);
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true);
     }
 
     public String getTrustStoreType() {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type");
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
 
     protected void signalTrustStoreUpdate() {

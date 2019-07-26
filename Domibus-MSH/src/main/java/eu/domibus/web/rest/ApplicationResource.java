@@ -35,8 +35,8 @@ public class ApplicationResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ApplicationResource.class);
 
-    String PASSWORD_POLICY_PATTERN = "domibus.passwordPolicy.pattern";
-    String PASSWORD_POLICY_VALIDATION_MESSAGE = "domibus.passwordPolicy.validationMessage";
+    String PASSWORD_POLICY_PATTERN = DOMIBUS_PASSWORD_POLICY_PATTERN;
+    String PASSWORD_POLICY_VALIDATION_MESSAGE = DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE;
     String PLUGIN_PASSWORD_POLICY_PATTERN = "domibus.plugin.passwordPolicy.pattern";
     String PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE = "domibus.plugin.passwordPolicy.validationMessage";
 

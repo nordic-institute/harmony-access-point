@@ -13,6 +13,9 @@ import eu.domibus.security.UserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -29,9 +32,9 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
     final static String MAXIMUM_PASSWORD_AGE = "domibus.plugin.passwordPolicy.expiration";
     final static String MAXIMUM_DEFAULT_PASSWORD_AGE = "domibus.plugin.passwordPolicy.defaultPasswordExpiration";
 
-    protected static final String MAXIMUM_LOGIN_ATTEMPT = "domibus.plugin.login.maximum.attempt";
+    protected static final String MAXIMUM_LOGIN_ATTEMPT = DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT;
 
-    protected static final String LOGIN_SUSPENSION_TIME = "domibus.plugin.login.suspension.time";
+    protected static final String LOGIN_SUSPENSION_TIME = DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME;
 
     @Autowired
     protected AuthenticationDAO userDao;

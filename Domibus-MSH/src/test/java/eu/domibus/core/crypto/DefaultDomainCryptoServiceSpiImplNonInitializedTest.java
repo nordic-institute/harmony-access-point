@@ -89,9 +89,9 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
             domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true); result = PRIVATE_KEY_PASSWORD;
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION); result = "keystoreLocation";
 
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location"); result = TRUST_STORE_LOCATION;
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password", true); result = "trustStorePassword";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type"); result = TRUST_STORE_TYPE;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION); result = TRUST_STORE_LOCATION;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true); result = "trustStorePassword";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE); result = TRUST_STORE_TYPE;
         }};
     }
 
@@ -1097,7 +1097,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Could not load truststore, truststore location is empty");
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location"); result = null;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION); result = null;
         }};
 
         // When

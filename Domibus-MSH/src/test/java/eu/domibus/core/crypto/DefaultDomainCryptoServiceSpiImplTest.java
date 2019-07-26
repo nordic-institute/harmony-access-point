@@ -71,11 +71,11 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
             result = "keystoreLocation";
 
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
             result = "trustStoreLocation";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password", true);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true);
             result = "trustStorePassword";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
         }};
     }
