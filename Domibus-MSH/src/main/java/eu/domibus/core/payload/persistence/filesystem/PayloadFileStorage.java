@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
+
 /**
  * @version 2.0
  * @author Ioana Dragusanu
@@ -26,7 +28,7 @@ import java.nio.file.Paths;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PayloadFileStorage {
 
-    public static final String ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.storage.location";
+    public static final String ATTACHMENT_STORAGE_LOCATION = DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
     public static final String TEMPORARY_ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadFileStorage.class);

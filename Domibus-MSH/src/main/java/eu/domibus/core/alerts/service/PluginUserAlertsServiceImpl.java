@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -27,8 +30,8 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserAlertsServiceImpl.class);
 
-    protected final static String MAXIMUM_PASSWORD_AGE = "domibus.plugin.passwordPolicy.expiration";
-    protected final static String MAXIMUM_DEFAULT_PASSWORD_AGE = "domibus.plugin.passwordPolicy.defaultPasswordExpiration";
+    protected final static String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION;
+    protected final static String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION;
 
     @Autowired
     protected AuthenticationDAO userDao;

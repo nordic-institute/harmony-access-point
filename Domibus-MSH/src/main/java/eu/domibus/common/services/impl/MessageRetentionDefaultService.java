@@ -23,6 +23,8 @@ import javax.jms.Queue;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
+
 /**
  * This service class is responsible for the retention and clean up of Domibus messages, including signal messages.
  * Notice that only payloads data are really deleted.
@@ -37,7 +39,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     public static final String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     public static final String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
-    public static final String DOMIBUS_ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.storage.location";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

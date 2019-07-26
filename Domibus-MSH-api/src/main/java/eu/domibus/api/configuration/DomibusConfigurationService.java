@@ -2,6 +2,8 @@ package eu.domibus.api.configuration;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -13,7 +15,7 @@ public interface DomibusConfigurationService {
     String FOURCORNERMODEL_ENABLED_KEY = "domibus.fourcornermodel.enabled";
     String CLUSTER_DEPLOYMENT = "domibus.deployment.clustered";
     String EXTERNAL_AUTH_PROVIDER = "domibus.security.ext.auth.provider.enabled";
-    String PAYLOAD_ENCRYPTION_PROPERTY = "domibus.payload.encryption.active";
+    String PAYLOAD_ENCRYPTION_PROPERTY = DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
     String PASSWORD_ENCRYPTION_ACTIVE_PROPERTY = "domibus.password.encryption.active";
 
     String getConfigLocation();

@@ -13,8 +13,7 @@ import eu.domibus.security.UserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Ion Perpegel
@@ -26,11 +25,11 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
 
     final static String WARNING_DAYS_BEFORE_EXPIRATION = "domibus.plugin.passwordPolicy.warning.beforeExpiration";
 
-    static final String PASSWORD_COMPLEXITY_PATTERN = "domibus.plugin.passwordPolicy.pattern";
-    static final String PASSWORD_HISTORY_POLICY = "domibus.plugin.passwordPolicy.dontReuseLast";
+    static final String PASSWORD_COMPLEXITY_PATTERN = DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN;
+    static final String PASSWORD_HISTORY_POLICY = DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST;
 
-    final static String MAXIMUM_PASSWORD_AGE = "domibus.plugin.passwordPolicy.expiration";
-    final static String MAXIMUM_DEFAULT_PASSWORD_AGE = "domibus.plugin.passwordPolicy.defaultPasswordExpiration";
+    final static String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION;
+    final static String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION;
 
     protected static final String MAXIMUM_LOGIN_ATTEMPT = DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT;
 

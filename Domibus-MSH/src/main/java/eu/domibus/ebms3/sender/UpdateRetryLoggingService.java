@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1
@@ -35,7 +37,7 @@ import java.util.Date;
 public class UpdateRetryLoggingService {
 
     public static final String DELETE_PAYLOAD_ON_SEND_FAILURE = "domibus.sendMessage.failure.delete.payload";
-    public static final String MESSAGE_EXPIRATION_DELAY = "domibus.msh.retry.messageExpirationDelay";
+    public static final String MESSAGE_EXPIRATION_DELAY = DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UpdateRetryLoggingService.class);
 
