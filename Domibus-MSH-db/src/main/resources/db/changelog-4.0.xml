@@ -1942,7 +1942,7 @@
             <column name="PROPERTY_TYPE" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="FK_EVENT" type="INT">
+            <column name="FK_EVENT" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="DTYPE" type="VARCHAR(31)"/>
