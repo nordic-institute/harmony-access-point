@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_TITLE_NAME;
+
 
 public class PropertyResourceIT extends AbstractIT {
 
@@ -28,7 +30,7 @@ public class PropertyResourceIT extends AbstractIT {
     @Test
     public void testSet() throws Exception {
 
-        String name = "domibus.UI.title.name";
+        String name = DOMIBUS_UI_TITLE_NAME;
 
         List<DomibusProperty> list = domibusPropertyService.getProperties(name);
         Assert.assertEquals(1, list.size());

@@ -33,6 +33,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -235,10 +237,10 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected Properties getKeystoreProperties() {
-        final String keystoreType = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type");
-        final String keystorePassword = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password", true);
-        final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias");
-        final String keystoreLocation = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.location");
+        final String keystoreType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
+        final String keystorePassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true);
+        final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
+        final String keystoreLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_TYPE, keystoreType);
