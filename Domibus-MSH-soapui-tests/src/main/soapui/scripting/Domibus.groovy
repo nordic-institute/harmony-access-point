@@ -829,7 +829,7 @@ def findNumberOfDomain(String inputSite) {
         // Start Gateway
         static def startMSH(String side, context, log){
         debugLog("  ====  Calling \"startMSH\".", log)
-        def MAX_WAIT_TIME=100000; // Maximum time to wait for the domibus to start.
+        def MAX_WAIT_TIME=150000; // Maximum time to wait for the domibus to start.
         def STEP_WAIT_TIME=2000; // Time to wait before re-checking the domibus status.
         def confirmation = 0;
         def outputCatcher = new StringBuffer()
@@ -896,8 +896,8 @@ def findNumberOfDomain(String inputSite) {
         // Stop Gateway
         static def stopMSH(String side, context, log){
         debugLog("  ====  Calling \"stopMSH\".", log)
-        def MAX_WAIT_TIME=5000; // Maximum time to wait for the domibus to stop.
-        def STEP_WAIT_TIME=500; // Time to wait before re-checking the domibus status.
+        def MAX_WAIT_TIME=150000; // Maximum time to wait for the domibus to stop.
+        def STEP_WAIT_TIME=2000; // Time to wait before re-checking the domibus status.
         def outputCatcher = new StringBuffer()
         def errorCatcher = new StringBuffer()
         def proc = null;
@@ -912,12 +912,17 @@ def findNumberOfDomain(String inputSite) {
             log.info "  stopMSH  [][]  Trying to stop the " + side.toUpperCase()
             switch (side.toLowerCase()) {
             case "sender":
+			case "c2":
+			case "blue":
                 proc = "cmd /c cd ${pathS} && shutdown.bat".execute()
                 break;
             case "receiver":
+			case "c3":
+			case "red":
                 proc = "cmd /c cd ${pathR} && shutdown.bat".execute()
                 break;
             case "receivergreen":
+			case "green":
                 proc = "cmd /c cd ${pathRG} && shutdown.bat".execute()
                 break;
             default:
@@ -1032,7 +1037,7 @@ def findNumberOfDomain(String inputSite) {
 				"-v"]
             commandResult = runCurlCommand(commandString, log)
 			
-            assert(commandResult[0].contains(outcome)),"Error:uploadTruststore: Error while trying to upload the truststore to domibus."
+            assert(commandResult[0].contains(outcome)),"Error:uploadTruststore: Error while trying to upload the truststore to domibus. Returned: "+commandResult[0]
             log.info "  uploadTruststore  [][]  " + commandResult[0] + " Domibus: \"" + side + "\".";
         } finally {
             resetAuthTokens(log)
