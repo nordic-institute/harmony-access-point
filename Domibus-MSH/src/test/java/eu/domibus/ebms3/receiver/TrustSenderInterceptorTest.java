@@ -38,8 +38,8 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
-import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
  * @author idragusa

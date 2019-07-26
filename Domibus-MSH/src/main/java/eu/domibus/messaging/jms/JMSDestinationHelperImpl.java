@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2
@@ -18,7 +20,7 @@ public class JMSDestinationHelperImpl implements JMSDestinationHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSDestinationHelperImpl.class);
 
-    private static final String INTERNALQUEUE_EXPRESSION = "domibus.jms.internalQueue.expression";
+    private static final String INTERNALQUEUE_EXPRESSION = DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

@@ -48,6 +48,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
 import static eu.domibus.common.services.impl.PullContext.MPC;
@@ -64,11 +66,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
 
-    private static final String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
-
-    private static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
-
-    protected static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
+     protected static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
 
     private static final String PULL = "pull";
 

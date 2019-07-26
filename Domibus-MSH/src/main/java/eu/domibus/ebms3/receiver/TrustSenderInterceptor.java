@@ -58,6 +58,9 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+
 /**
  * This interceptor is responsible of the trust of an incoming messages.
  * Useful info on this topic are here: http://tldp.org/HOWTO/SSL-Certificates-HOWTO/x64.html
@@ -66,10 +69,6 @@ import java.util.List;
  * @since 3.3
  */
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
-
-    public static final String DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING = "domibus.sender.trust.validation.onreceiving";
-
-    protected static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING = "domibus.sender.certificate.validation.onreceiving";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
 

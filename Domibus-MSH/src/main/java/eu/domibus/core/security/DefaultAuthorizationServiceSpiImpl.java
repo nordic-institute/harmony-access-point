@@ -30,6 +30,8 @@ import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Thomas Dussart, Ioana Dragusanu
  * @since 4.1
@@ -42,12 +44,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAuthorizationServiceSpiImpl.class);
 
     protected static final String DEFAULT_IAM_AUTHORIZATION_IDENTIFIER = "DEFAULT_AUTHORIZATION_SPI";
-
-    protected static final String DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK = "domibus.sender.certificate.subject.check";
-
-    protected static final String DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION = "domibus.sender.trust.validation.expression";
-
-    protected static final String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
 
     @Autowired
     private CertificateService certificateService;

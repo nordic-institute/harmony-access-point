@@ -46,13 +46,13 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
         final Domain domain = domainService.getDomain(domainCode);
 
         switch (propertyName) {
-            case "domibus.dispatcher.concurency":
+            case DOMIBUS_DISPATCHER_CONCURENCY:
                 messageListenerContainerInitializer.createSendMessageListenerContainer(domain);
                 break;
-            case "domibus.dispatcher.largeFiles.concurrency":
+            case DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY:
                 messageListenerContainerInitializer.createSendLargeMessageListenerContainer(domain);
                 break;
-            case "domibus.retention.jms.concurrency":
+            case DOMIBUS_RETENTION_JMS_CONCURRENCY:
                 messageListenerContainerInitializer.createRetentionListenerContainer(domain);
                 break;
             case "domibus.dispatcher.splitAndJoin.concurrency":

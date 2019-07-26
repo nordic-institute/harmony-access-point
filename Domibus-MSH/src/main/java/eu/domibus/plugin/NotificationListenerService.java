@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
@@ -45,7 +47,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NotificationListenerService.class);
 
-    protected static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "domibus.listPendingMessages.maxCount";
+    protected static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
 
     @Autowired
     private JMSManager jmsManager;

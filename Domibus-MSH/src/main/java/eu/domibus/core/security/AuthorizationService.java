@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
  * @author Thomas Dussart

@@ -22,6 +22,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
 import javax.jms.Queue;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.0
@@ -30,9 +32,9 @@ import javax.jms.Queue;
 public class MessageListenerContainerConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerConfiguration.class);
-    public static final String PROPERTY_LARGE_FILES_CONCURRENCY = "domibus.dispatcher.largeFiles.concurrency";
+    public static final String PROPERTY_LARGE_FILES_CONCURRENCY = DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY;
     public static final String PROPERTY_SPLIT_AND_JOIN_CONCURRENCY = "domibus.dispatcher.splitAndJoin.concurrency";
-    private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
+    private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = DOMIBUS_RETENTION_JMS_CONCURRENCY;
     private static final String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
 
 
@@ -91,7 +93,7 @@ public class MessageListenerContainerConfiguration {
     public DefaultMessageListenerContainer createSendMessageListener(Domain domain) {
         LOG.debug("Instantiating the DefaultMessageListenerContainer for domain [{}]", domain);
         return createDefaultMessageListenerContainer(domain, connectionFactory, sendMessageQueue,
-                messageSenderListener, transactionManager, "domibus.dispatcher.concurency"
+                messageSenderListener, transactionManager, DOMIBUS_DISPATCHER_CONCURENCY
         );
     }
 
