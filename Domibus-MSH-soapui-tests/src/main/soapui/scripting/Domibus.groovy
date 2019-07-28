@@ -35,7 +35,7 @@ class Domibus{
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
 
     static def backup_file_sufix = "_backup_for_soapui_tests";
-    static def DEFAULT_LOG_LEVEL = 1;
+    static def DEFAULT_LOG_LEVEL = 0;
     static def DEFAULT_PASSWORD = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
     static def SUPER_USER="super";
     static def SUPER_USER_PWD="123456";
@@ -829,7 +829,7 @@ def findNumberOfDomain(String inputSite) {
         // Start Gateway
         static def startMSH(String side, context, log){
         debugLog("  ====  Calling \"startMSH\".", log)
-        def MAX_WAIT_TIME=100000; // Maximum time to wait for the domibus to start.
+        def MAX_WAIT_TIME=150000; // Maximum time to wait for the domibus to start.
         def STEP_WAIT_TIME=2000; // Time to wait before re-checking the domibus status.
         def confirmation = 0;
         def outputCatcher = new StringBuffer()
@@ -896,14 +896,15 @@ def findNumberOfDomain(String inputSite) {
         // Stop Gateway
         static def stopMSH(String side, context, log){
         debugLog("  ====  Calling \"stopMSH\".", log)
-        def MAX_WAIT_TIME=5000; // Maximum time to wait for the domibus to stop.
-        def STEP_WAIT_TIME=500; // Time to wait before re-checking the domibus status.
+        def MAX_WAIT_TIME=150000; // Maximum time to wait for the domibus to stop.
+        def STEP_WAIT_TIME=2000; // Time to wait before re-checking the domibus status.
         def outputCatcher = new StringBuffer()
         def errorCatcher = new StringBuffer()
         def proc = null;
         def pathS = context.expand('${#Project#pathExeSender}')
         def pathR = context.expand('${#Project#pathExeReceiver}')
         def pathRG = context.expand('${#Project#pathExeGreen}')
+        def path
         def passedDuration = 0;
 
         if (!pingMSH(side, context, log).equals("200")) {
@@ -912,17 +913,24 @@ def findNumberOfDomain(String inputSite) {
             log.info "  stopMSH  [][]  Trying to stop the " + side.toUpperCase()
             switch (side.toLowerCase()) {
             case "sender":
-                proc = "cmd /c cd ${pathS} && shutdown.bat".execute()
+			case "c2":
+			case "blue":
+                path = pathS
                 break;
             case "receiver":
-                proc = "cmd /c cd ${pathR} && shutdown.bat".execute()
+			case "c3":
+			case "red":
+                path = pathR
                 break;
             case "receivergreen":
-                proc = "cmd /c cd ${pathRG} && shutdown.bat".execute()
+			case "green":
+                path = pathRG
                 break;
             default:
                 assert(false), "Unknown side.";
             }
+            proc = "cmd /c cd ${path} && shutdown.bat".execute()
+            
             if (proc != null) {
                 proc.consumeProcessOutput(outputCatcher, errorCatcher)
                 proc.waitFor()
@@ -959,7 +967,7 @@ def findNumberOfDomain(String inputSite) {
 							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 							"-F", "description=" + pmDescription,
 							"-F", "file=@" + pmodeFile,							
-							"--trace-ascii", "-"]
+							"-v"]
             commandResult = runCurlCommand(commandString, log)
             assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected outcome \"" + outcome + "\"."
             if (outcome.toLowerCase() == "successfully") {
@@ -992,7 +1000,7 @@ def findNumberOfDomain(String inputSite) {
 		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode", 
 				"-F", "description=" + pmDescription,
 				"-F", "file=@" + pmodeFile,							
-				"--trace-ascii", "-"]
+				"-v"]
         commandResult = runCurlCommand(commandString, log)
         assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to connect to domibus."
         if (outcome.toLowerCase() == "successfully") {
@@ -1032,7 +1040,7 @@ def findNumberOfDomain(String inputSite) {
 				"-v"]
             commandResult = runCurlCommand(commandString, log)
 			
-            assert(commandResult[0].contains(outcome)),"Error:uploadTruststore: Error while trying to upload the truststore to domibus."
+            assert(commandResult[0].contains(outcome)),"Error:uploadTruststore: Error while trying to upload the truststore to domibus. Returned: "+commandResult[0]
             log.info "  uploadTruststore  [][]  " + commandResult[0] + " Domibus: \"" + side + "\".";
         } finally {
             resetAuthTokens(log)
@@ -2054,7 +2062,6 @@ static def processFile(log, file, newFileSuffix, Closure processText) {
 
 static def changeConfigurationFile(log, testRunner, filePath, newFileSuffix, Closure processText) {    		
 		 // Checkfilefile exists
-		 debugLog("Path to base file: " + filePath, log)
         def file = new File(filePath)
         if (!file.exists()) {
             testRunner.fail("File [${filePath}] does not exist. Can't change value.")
