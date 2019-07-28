@@ -2079,5 +2079,18 @@ static def updatePmodeEndpoints(log, context, testRunner, filePath, newFileSuffi
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
+
+static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToCheckName, pmodeUploadStepToExecuteName) {
+	//Check status of step reverting Pmode configuration if needed run step
+	Map resultOf = testRunner.getResults().collectEntries { result ->  [ (result.testStep): result.status ] }
+	def myStep = context.getTestCase().getTestStepByName(testStepToCheckName)
+	if (resultOf[myStep]?.toString() != "OK")  {
+		log.info "As test step ${testStepToCheckName} failed or was not run reset PMode in tear down script using ${pmodeUploadStepToExecuteName} test step" 
+		def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps[pmodeUploadStepToExecuteName]
+		tStep.run(testRunner, context)
+	}	
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
 } // Domibus class end
 
