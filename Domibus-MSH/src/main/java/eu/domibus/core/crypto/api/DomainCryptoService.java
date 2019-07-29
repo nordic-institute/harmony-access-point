@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.0
  */
+
+/* New exceptions thrown in here have to be handled in eu.domibus.core.crypto.DomainCryptoServiceInterceptor */
 public interface DomainCryptoService {
 
     /* START - Methods required to be implemented by the org.apache.wss4j.common.crypto.CryptoBase */

@@ -14,12 +14,14 @@ import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
+import net.sf.ehcache.Cache;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -120,6 +122,9 @@ public class DssConfiguration {
 
     @Value("${domibus.authentication.dss.check.revocation.for.untrusted.chains}")
     private boolean checkRevocationForUntrustedChain;
+
+    @Value("${domibus.authentication.dss.cache.name}")
+    private String cacheName;
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -317,7 +322,8 @@ public class DssConfiguration {
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper,
-                                                        final PkiExtService pkiExtService) {
+                                                        final PkiExtService pkiExtService,
+                                                        final DssCache dssCache) {
         //needed to initialize WSS4J property bundles to have correct message in the WSSException.
         WSSConfig.init();
         return new DomibusDssCryptoSpi(
@@ -326,6 +332,17 @@ public class DssConfiguration {
                 tslRepository,
                 validationReport,
                 constraintMapper,
-                pkiExtService);
+                pkiExtService,
+                dssCache);
     }
+
+    @Bean
+    public DssCache dssCache(CacheManager cacheManager) {
+        org.springframework.cache.Cache cache = cacheManager.getCache(cacheName);
+        if (cache == null) {
+            throw new IllegalArgumentException(String.format("Cache named:[%s] not found, please configure it.", cacheName));
+        }
+        return new DssCache((Cache) cache.getNativeCache());
+    }
+
 }

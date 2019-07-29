@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class PartyResponseRo {
 
-    private Integer entityId;
+    protected Integer entityId;
 
     protected Set<IdentifierRo> identifiers; //NOSONAR
 

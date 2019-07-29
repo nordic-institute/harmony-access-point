@@ -42,7 +42,9 @@ public class DomainCryptoServiceInterceptor extends ServiceInterceptor {
         } else if (e instanceof WSSecurityException ||
                 e instanceof KeyStoreException ||
                 e instanceof CryptoException ||
-                e instanceof ConfigurationException) {
+                e instanceof ConfigurationException ||
+                e instanceof DomibusCertificateException) {
+            LOG.trace("No need to convert exception:[{}]", e.getClass());
             return e;
         } else {
             LOG.trace("Unknown exception:[{}] converted to CryptoException", e);

@@ -1,5 +1,6 @@
 package utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -19,9 +20,9 @@ public class DriverManager {
 	static TestRunData data = new TestRunData();
 
 	public static WebDriver getDriver() {
-		if (data.getRunBrowser().equalsIgnoreCase("chrome")){
+		if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "chrome")){
 			return getChromeDriver();
-		}else if (data.getRunBrowser().equalsIgnoreCase("firefox")){
+		}else if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "firefox")){
 			return getFirefoxDriver();
 		}
 		return getChromeDriver();

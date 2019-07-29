@@ -326,14 +326,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            if (MessageStatus.READY_TO_PULL != messageStatus) {
-                // Sends message to the proper queue if not a message to be pulled.
-                userMessageService.scheduleSending(messageId);
-            } else {
-                final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-                LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
-            }
+            prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -349,6 +342,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.error("Error submitting the message [" + userMessage.getMessageInfo().getMessageId() + "] to [" + backendName + "]" + p.getMessage());
             errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
+        }
+    }
+
+    private void prepareForPushOrPull(UserMessage userMessage, String messageId, String pModeKey, Party to, MessageStatus messageStatus) {
+        if (MessageStatus.READY_TO_PULL != messageStatus) {
+            // Sends message to the proper queue if not a message to be pulled.
+            userMessageService.scheduleSending(messageId);
+        } else {
+            final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+            LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
+            pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
         }
     }
 
@@ -458,14 +462,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                if (MessageStatus.READY_TO_PULL != messageStatus) {
-                    // Sends message to the proper queue if not a message to be pulled.
-                    userMessageService.scheduleSending(messageId);
-                } else {
-                    final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-                    LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
-                    pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
-                }
+                prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());

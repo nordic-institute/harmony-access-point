@@ -52,6 +52,14 @@ public class UserMessageLog extends MessageLog {
     @Column(name = "SCHEDULED")
     protected Boolean scheduled;
 
+    public MessageInfo getMessageInfo() {
+        return messageInfo;
+    }
+
+    public void setMessageInfo(MessageInfo messageInfo) {
+        this.messageInfo = messageInfo;
+    }
+
     public UserMessageLog() {
         setMessageType(MessageType.USER_MESSAGE);
         setReceived(new Date());

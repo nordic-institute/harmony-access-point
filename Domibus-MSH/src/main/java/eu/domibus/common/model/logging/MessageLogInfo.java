@@ -134,6 +134,57 @@ public class MessageLogInfo {
         this.sourceMessage = sourceMessage;
     }
 
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public void setMessageStatus(MessageStatus messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
+    public void setNotificationStatus(NotificationStatus notificationStatus) {
+        this.notificationStatus = notificationStatus;
+    }
+
+    public void setReceived(Date received) {
+        this.received = received;
+    }
+
+    public void setMshRole(MSHRole mshRole) {
+        this.mshRole = mshRole;
+    }
+
+    public void setSendAttempts(int sendAttempts) {
+        this.sendAttempts = sendAttempts;
+    }
+
+    public void setSendAttemptsMax(int sendAttemptsMax) {
+        this.sendAttemptsMax = sendAttemptsMax;
+    }
+
+    public void setNextAttempt(Date nextAttempt) {
+        this.nextAttempt = nextAttempt;
+    }
+
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
+
+    public void setMessageSubtype(MessageSubtype messageSubtype) {
+        this.messageSubtype = messageSubtype;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
+
+    public void setFailed(Date failed) {
+        this.failed = failed;
+    }
+
+    public void setRestored(Date restored) {
+        this.restored = restored;
+    }
 
     public String getConversationId() {
         return conversationId;

@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.io.InputStream;
 
 /**
  * @author Arun Raj
@@ -49,11 +50,11 @@ public class PolicyServiceImpl implements PolicyService {
      * @throws ConfigurationException if the policy xml cannot be read or parsed from the file
      */
     @Override
-    @Cacheable("policyCache")
+    @Cacheable(value = "policyCache", sync = true)
     public Policy parsePolicy(final String location) throws ConfigurationException {
         final PolicyBuilder pb = bus.getExtension(PolicyBuilder.class);
-        try {
-            return pb.getPolicy(new FileInputStream(new File(domibusConfigurationService.getConfigLocation(), location)));
+        try (InputStream inputStream = new FileInputStream(new File(domibusConfigurationService.getConfigLocation(), location))){
+            return pb.getPolicy(inputStream);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             throw new ConfigurationException(e);
         }
