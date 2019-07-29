@@ -13,14 +13,14 @@ Domibus 4.1
 - Password policy enforcement for admin users: check complexity, expiration, reuse. Send Alerts on expiration event. Added corresponding properties in configuration.
 - Align the WS Plugin/FS Plugin XSDs with the ebMS3 XSD
 - Remove domibus.msh.retry.tolerance from domibus.properties
-- By default close the connection between C2 and C3; do not use Keep-Alive anymore by default
+- By default close the HTTP connection between C2 and C3; do not use Keep-Alive anymore by default
 - Increase timeout of ListPendingMessages transaction to 5 minutes
 - Added a new Logging page into Admin console  - user can change and reset logging levels at runtime
 - Cluster configuration: reload truststore, PMode and logging set adn reset will be executed on all cluster servers excepting the current one
-- Default password policy enforcement for all users at the back-end level;
+- Default password policy enforcement for all users at the backend level;
 - Added route and component for changing password when default used or about to expire for all users.
 - Renamed property "message.retention.downloaded.max.delete" to "domibus.retentionWorker.message.retention.downloaded.max.delete" and property "message.retention.not_downloaded.max.delete" to "domibus.retentionWorker.message.retention.not_downloaded.max.delete"
-- New property "domibus.msh.retry.messageExpirationDelay" to grant a few seconds for schedulling the retry of the last attempt
+- New property "domibus.msh.retry.messageExpirationDelay" to grant a few seconds for scheduling the retry of the last attempt
 - Allow PayloadInfo with one PartInfo (one payload) as input in the message metadata.xml of the FS plugin
 - Added sendPullReceiptQueue for sending the asynchronous pull receipt
 - Added domibus.ui.support.team.name and domibus.ui.support.team.email properties for Support Team information on GUI
@@ -29,7 +29,7 @@ Domibus 4.1
 - Allow pull processes with 0 or multiple initiators
 - Allow pulling based on mpc containing the initiator
 - Save message for pulling when mpc attribute is provided
-- Implemented default authorization spi
+- Implemented default authorization SPI
 - Added domain properties domibus.sender.trust.validation.expression to validate the certificate subject
 - Added new plugin notifications types for UserMessage fragments
 - Plugin Users: add/update/remove operations on PluginUsers should appear in Audit
@@ -38,20 +38,19 @@ Domibus 4.1
 - User related alerts should also be sent to the user
 - Domibus GUI - add the posibility to hide Domain selector for some pages
 - When C3 receives a message, check that the sender certificate used for the signature belongs to the party present in the from field
-- Sidebar disappears when user presses Esc
+- Fixed sidebar disappearing when user presses Esc
 - Possibility to upload a PKCS12 truststore
 - Alerts management for super users
-- Customize the Connection header in HTTP connection between C2 and C3
 - Remove the retry tolerance mechanism
 - File System Plugin sends files while being copied
-- FS Plugin: Possibilitty to configure the cid and part info properties
-- Update the BouncyCastle in the jboss-deployment-structure.xml
-- Missing message ID information in some domibus logs
+- FS Plugin: Possibility to configure the cid and part info properties
+- WildFly: Update the BouncyCastle in the jboss-deployment-structure.xml
+- Missing message ID information in some Domibus logs
 - Transaction timeout when FS Plugin downloads large files
-- Harmonise the context path across the supported servers
+- Harmonise the context path across the supported servers to /domibus
 - Upgrade several libraries to the latest version
 - Domibus MSH Service should return a text on GET
-- Replace dozer with MapStruct
+- Replace Dozer with MapStruct
 Domibus 4.0.2
 - Improved the logging in the Default JMS Plugin
 - Allow sending an XML payload in the Soap body
