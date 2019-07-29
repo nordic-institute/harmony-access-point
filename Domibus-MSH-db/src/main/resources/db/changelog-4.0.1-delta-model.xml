@@ -6,7 +6,7 @@
 
     <changeSet author="Cosmin Baciu" id="EDELIVERY-3926">
         <createTable tableName="TB_COMMAND">
-            <column autoIncrement="true" name="ID_PK" type="BIGINT">
+            <column autoIncrement="true" name="ID_PK" type="INT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="SERVER_NAME" type="VARCHAR(255)">
