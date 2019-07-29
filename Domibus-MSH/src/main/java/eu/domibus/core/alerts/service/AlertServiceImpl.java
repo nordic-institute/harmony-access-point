@@ -82,17 +82,17 @@ public class AlertServiceImpl implements AlertService {
         final Event eventEntity = eventDao.read(event.getEntityId());
         Alert alert = new Alert();
         alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.getAlertTypeFromEventType(event.getType()));
+        alert.setAlertType(AlertType.getByEventType(event.getType()));
         alert.setAttempts(0);
         final String alertRetryMaxAttemptPropertyName = multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
-        alert.setMaxAttempts(Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(alertRetryMaxAttemptPropertyName, "1")));
+        alert.setMaxAttempts(domibusPropertyProvider.getIntegerOptionalDomainProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
 
         final eu.domibus.core.alerts.model.service.Alert convertedAlert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
         final AlertLevel alertLevel = multiDomainAlertConfigurationService.getAlertLevel(convertedAlert);
         alert.setAlertLevel(alertLevel);
-        LOG.debug("Saving new alert:\n[{}]\n", alert);
+        LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
         return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
     }
@@ -129,7 +129,6 @@ public class AlertServiceImpl implements AlertService {
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
         subject += "[" + serverName + "]";
-
         final String template = alertType.getTemplate();
         return new DefaultMailModel(mailModel, template, subject);
     }

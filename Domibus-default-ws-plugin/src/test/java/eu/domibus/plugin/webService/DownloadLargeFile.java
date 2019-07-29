@@ -42,8 +42,8 @@ public class DownloadLargeFile {
         IOUtils.copy(is, os);
 
         // This will close two streams catching exception
-        IOUtils.closeQuietly(os);
-        IOUtils.closeQuietly(is);
+        os.close();
+        is.close();
 
         System.out.println("Finished downloading " + downloadMessageResponse.value.getPayload().get(0).getValue());
     }

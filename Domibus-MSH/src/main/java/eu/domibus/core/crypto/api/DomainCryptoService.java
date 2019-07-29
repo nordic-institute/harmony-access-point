@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto.api;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.pki.DomibusCertificateException;
+import eu.domibus.api.pki.DomibusCertificateException;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -13,13 +13,14 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0
  */
+
+/* New exceptions thrown in here have to be handled in eu.domibus.core.crypto.DomainCryptoServiceInterceptor */
 public interface DomainCryptoService {
 
     /* START - Methods required to be implemented by the org.apache.wss4j.common.crypto.CryptoBase */
@@ -64,4 +65,5 @@ public interface DomainCryptoService {
 
     void removeCertificate(List<String> aliases);
 
+    String getTrustStoreType();
 }

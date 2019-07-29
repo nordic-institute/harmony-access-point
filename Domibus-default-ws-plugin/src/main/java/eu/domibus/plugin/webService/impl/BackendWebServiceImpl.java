@@ -29,9 +29,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringUtils.trim;
-
-
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
         serviceName = "BackendService_1_1",
@@ -77,6 +74,30 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
+        addPartInfos(submitRequest, ebMSHeaderInfo);
+        if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
+            MessageInfo messageInfo = new MessageInfo();
+            messageInfo.setTimestamp(LocalDateTime.now());
+            ebMSHeaderInfo.getUserMessage().setMessageInfo(messageInfo);
+        }
+        final String messageId;
+        try {
+            messageId = this.submit(ebMSHeaderInfo);
+        } catch (final MessagingProcessingException mpEx) {
+            LOG.error(MESSAGE_SUBMISSION_FAILED, mpEx);
+            throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateFaultDetail(mpEx));
+        }
+        LOG.info("Received message from backend with messageID [{}]", messageId);
+        final SubmitResponse response = WEBSERVICE_OF.createSubmitResponse();
+        response.getMessageID().add(messageId);
+        return response;
+    }
+
+    private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
+
+        if(ebMSHeaderInfo.getUserMessage().getPayloadInfo() == null) {
+            return;
+        }
 
         validateSubmitRequest(submitRequest, ebMSHeaderInfo);
 
@@ -121,22 +142,6 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             }
         }
         partInfoList.addAll(partInfosToAdd);
-        if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
-            MessageInfo messageInfo = new MessageInfo();
-            messageInfo.setTimestamp(LocalDateTime.now());
-            ebMSHeaderInfo.getUserMessage().setMessageInfo(messageInfo);
-        }
-        final String messageId;
-        try {
-            messageId = this.submit(ebMSHeaderInfo);
-        } catch (final MessagingProcessingException mpEx) {
-            LOG.error(MESSAGE_SUBMISSION_FAILED, mpEx);
-            throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateFaultDetail(mpEx));
-        }
-        LOG.info("Received message from backend with messageID [{}]", messageId);
-        final SubmitResponse response = WEBSERVICE_OF.createSubmitResponse();
-        response.getMessageID().add(messageId);
-        return response;
     }
 
     protected void validateSubmitRequest(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -226,7 +231,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, createFault("MessageId is empty"));
         }
 
-        String trimmedMessageId = trim(retrieveMessageRequest.getMessageID()).replace("\t", "");
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
 
         try {
             userMessage = downloadMessage(trimmedMessageId, null);
@@ -307,7 +312,8 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             LOG.error(MESSAGE_ID_EMPTY);
             throw new StatusFault(MESSAGE_ID_EMPTY, createFault("MessageId is empty"));
         }
-        return defaultTransformer.transformFromMessageStatus(messageRetriever.getStatus(statusRequest.getMessageID()));
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
+        return defaultTransformer.transformFromMessageStatus(messageRetriever.getStatus(trimmedMessageId));
     }
 
     @Override

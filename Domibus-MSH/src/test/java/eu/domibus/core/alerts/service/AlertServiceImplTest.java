@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public class AlertServiceImplTest {
             multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
             result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 
-            domibusPropertyProvider.getOptionalDomainProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS, "1");
+            domibusPropertyProvider.getIntegerOptionalDomainProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
             multiDomainAlertConfigurationService.getAlertLevel(withAny(new Alert()));
@@ -155,7 +156,6 @@ public class AlertServiceImplTest {
 
             domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
             result = mailSubjectServerName;
-
         }};
 
         final MailModel mailModelForAlert = alertService.getMailModelForAlert(alert);

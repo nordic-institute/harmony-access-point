@@ -1,28 +1,23 @@
 package eu.domibus.common.validators;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.util.DomibusPropertiesService;
-import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Property;
 import eu.domibus.common.model.configuration.PropertySet;
-import eu.domibus.ebms3.common.UserMessageDefaultServiceHelper;
+import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +30,7 @@ import java.util.Set;
  */
 
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class PropertyProfileValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProfileValidator.class);
 
@@ -48,9 +44,6 @@ public class PropertyProfileValidator {
     DomibusConfigurationService domibusConfigurationService;
 
     public void validate(final Messaging messaging, final String pmodeKey) throws EbMS3Exception {
-        // in the 4-corner model, originalSender and finalRecipient are required properties
-        validateFourCornerModel(messaging);
-
         final List<Property> modifiablePropertyList = new ArrayList<>();
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
         final PropertySet propSet = legConfiguration.getPropertySet();
@@ -111,22 +104,5 @@ public class PropertyProfileValidator {
         }
 
         LOG.businessInfo(DomibusMessageCode.BUS_PROPERTY_PROFILE_VALIDATION, propSet.getName());
-    }
-
-    // in the 4-corner model, originalSender and finalRecipient are required properties
-    protected void validateFourCornerModel(final Messaging messaging) throws EbMS3Exception {
-        if(!domibusConfigurationService.isFourCornerEnabled()) {
-            return;
-        }
-
-        LOG.debug("Validating 4-corner model properties.");
-
-        if(messaging.getUserMessage().getMessageProperties() == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "MessageProperties is REQUIRED in the four corner model.", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
-        }
-
-        if(StringUtils.isEmpty(userMessageDefaultServiceHelper.getOriginalSender(messaging.getUserMessage())) || StringUtils.isEmpty(userMessageDefaultServiceHelper.getFinalRecipient(messaging.getUserMessage()))) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "OriginalSender and FinalRecipient are REQUIRED properties in the four corner model.", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
-        }
     }
 }

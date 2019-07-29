@@ -4,8 +4,8 @@ import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
 import {UserValidatorService} from '../uservalidator.service';
 import {SecurityService} from '../../security/security.service';
 import {UserService} from '../user.service';
-import {Domain} from '../../security/domain';
 import {DomainService} from '../../security/domain.service';
+import {UserState} from '../user';
 
 const ROLE_AP_ADMIN = SecurityService.ROLE_AP_ADMIN;
 const NEW_MODE = 'New User';
@@ -14,7 +14,6 @@ const EDIT_MODE = 'User Edit';
 @Component({
   selector: 'edituser-form',
   templateUrl: 'edituser-form.component.html',
-  providers: [UserService, UserValidatorService]
 })
 
 export class EditUserComponent implements OnInit {
@@ -31,7 +30,8 @@ export class EditUserComponent implements OnInit {
   domain: string;
 
   public emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}';
-  public passwordPattern = '^(?=.*[A-Z])(?=.*[ !#$%&\'()*+,-./:;<=>?@\\[^_`{|}~\\\]"])(?=.*[0-9])(?=.*[a-z]).{8,32}$';
+  public passwordPattern: string;
+  public passwordValidationMessage: string;
 
   editMode: boolean;
   canChangePassword: boolean;
@@ -65,11 +65,13 @@ export class EditUserComponent implements OnInit {
     this.canChangePassword = securityService.isCurrentUserSuperAdmin()
       || (securityService.isCurrentUserAdmin() && this.isCurrentUser());
 
+    const userStatus = data.user.status;
+
     if (this.editMode) {
       this.existingRoles = this.getAllowedRoles(data.userroles, this.role);
 
       this.userForm = fb.group({
-        'userName': new FormControl({value: this.userName, disabled: true}, Validators.nullValidator),
+        'userName': new FormControl({value: this.userName, disabled: userStatus != UserState[UserState.NEW]}, Validators.nullValidator),
         'email': [null, Validators.pattern],
         'role': new FormControl(this.role, Validators.required),
         'domain': this.isDomainVisible ? new FormControl({value: this.domain}, Validators.required) : null,
@@ -97,6 +99,10 @@ export class EditUserComponent implements OnInit {
 
   async ngOnInit () {
     this.isDomainVisible = await this.userService.isDomainVisible();
+
+    const passwordPolicy = await this.securityService.getPasswordPolicy();
+    this.passwordPattern = passwordPolicy.pattern;
+    this.passwordValidationMessage = passwordPolicy.validationMessage;
   }
 
   updateUserName (event) {
@@ -124,7 +130,8 @@ export class EditUserComponent implements OnInit {
   }
 
   isCurrentUser (): boolean {
-    return this.securityService.getCurrentUser().username === this.userName;
+    let currentUser = this.securityService.getCurrentUser();
+    return currentUser && currentUser.username === this.userName;
   }
 
   isSuperAdmin () {

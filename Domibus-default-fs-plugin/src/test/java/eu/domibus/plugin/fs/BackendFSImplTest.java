@@ -1,16 +1,16 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
-import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.worker.FSDomainService;
+import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
@@ -19,16 +19,17 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
-import javax.inject.Inject;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -45,6 +46,9 @@ public class BackendFSImplTest {
 
     @Injectable
     protected MessageSubmitter messageSubmitter;
+
+    @Injectable
+    protected MessagePuller messagePuller;
 
     @Injectable
     private MessageLister lister;
@@ -71,6 +75,18 @@ public class BackendFSImplTest {
     private FSSendMessagesService fsSendMessagesService;
 
     @Injectable
+    private MessageExtService messageExtService;
+
+    @Injectable
+    protected FSProcessFileService fsProcessFileService;
+
+    @Injectable
+    protected DomainTaskExtExecutor domainTaskExtExecutor;
+
+    @Injectable
+    protected FSDomainService fsDomainService;
+
+    @Injectable
     String name = "fsplugin";
 
     @Tested
@@ -81,9 +97,9 @@ public class BackendFSImplTest {
     private FileObject incomingFolder;
 
     private FileObject incomingFolderByRecipient, incomingFolderByMessageId;
-    
+
     private FileObject outgoingFolder;
-    
+
     private FileObject sentFolder;
 
     private FileObject failedFolder;
@@ -107,10 +123,10 @@ public class BackendFSImplTest {
 
         incomingFolderByMessageId = incomingFolderByRecipient.resolveFile(messageId);
         incomingFolderByMessageId.createFolder();
-        
+
         outgoingFolder = rootDir.resolveFile(FSFilesManager.OUTGOING_FOLDER);
         outgoingFolder.createFolder();
-        
+
         sentFolder = rootDir.resolveFile(FSFilesManager.SENT_FOLDER);
         sentFolder.createFolder();
 
@@ -126,7 +142,7 @@ public class BackendFSImplTest {
 
         outgoingFolder.close();
         sentFolder.close();
-        
+
         rootDir.deleteAll();
         rootDir.close();
     }
@@ -142,7 +158,7 @@ public class BackendFSImplTest {
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, payloadFileName, dataHandler));
 
-        expectationsDeliverMessage(null, userMessage, fsPayloads);
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         backendFS.deliverMessage(messageId);
 
@@ -164,21 +180,24 @@ public class BackendFSImplTest {
         FileObject payloadFile = files[1];
 
         Assert.assertEquals(payloadFileName, payloadFile.getName().getBaseName());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream()));
+        Assert.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream(), StandardCharsets.UTF_8));
         payloadFile.delete();
         payloadFile.close();
     }
 
     private void expectationsDeliverMessage(String domain, UserMessage userMessage, Map<String, FSPayload> fsPayloads) throws MessageNotFoundException, FileSystemException {
         new Expectations(1, backendFS) {{
+            backendFS.browseMessage(messageId, null);
+            result = new FSMessage(fsPayloads, userMessage);
+
             backendFS.downloadMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = (domain != null);
+            fsDomainService.getFSPluginDomain((FSMessage) any);
+            result = FSSendMessagesService.DEFAULT_DOMAIN;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
@@ -225,7 +244,7 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", messageHandler));
         fsPayloads.put("cid:invoice", new FSPayload(TEXT_XML, "invoice.xml", invoiceHandler));
 
-        expectationsDeliverMessage(null, userMessage, fsPayloads);
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         //tested method
         backendFS.deliverMessage(messageId);
@@ -245,14 +264,14 @@ public class BackendFSImplTest {
         FileObject fileMessage0 = files[1];
         Assert.assertEquals("message.xml",
                 fileMessage0.getName().getBaseName());
-        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream()));
+        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage0.delete();
         fileMessage0.close();
 
         FileObject fileMessage1 = files[2];
         Assert.assertEquals("invoice.xml",
                 fileMessage1.getName().getBaseName());
-        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream()));
+        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage1.delete();
         fileMessage1.close();
 
@@ -263,13 +282,13 @@ public class BackendFSImplTest {
     public void testDeliverMessage_MessageNotFound(@Injectable final FSMessage fsMessage) throws MessageNotFoundException {
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new MessageNotFoundException("message not found");
         }};
 
         backendFS.deliverMessage(messageId);
     }
-    
+
     @Test(expected = FSPluginException.class)
     public void testDeliverMessage_FSSetUpException(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
@@ -281,35 +300,43 @@ public class BackendFSImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsFilesManager.setUpFileSystem(null);
+            fsDomainService.getFSPluginDomain((FSMessage) any);
+            result = FSSendMessagesService.DEFAULT_DOMAIN;
+
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = new FSSetUpException("Test-forced exception");
         }};
 
         backendFS.deliverMessage(messageId);
     }
-    
+
     @Test(expected = FSPluginException.class)
     public void testDeliverMessage_IOException(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
 
         // the null causes an IOException
-        final DataHandler dataHandler = new DataHandler(new ByteArrayDataSource((byte[])null, TEXT_XML));
+        final DataHandler dataHandler = new DataHandler(new ByteArrayDataSource((byte[]) null, TEXT_XML));
         final UserMessage userMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.downloadMessage(messageId, null);
+            backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
-            
-            fsFilesManager.setUpFileSystem(null);
+
+            fsDomainService.getFSPluginDomain((FSMessage) any);
+            result = FSSendMessagesService.DEFAULT_DOMAIN;
+
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
-            
+
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
+
+
         }};
 
         backendFS.deliverMessage(messageId);
@@ -318,14 +345,14 @@ public class BackendFSImplTest {
     @Test
     public void testGetMessageSubmissionTransformer() {
         MessageSubmissionTransformer<FSMessage> result = backendFS.getMessageSubmissionTransformer();
-        
+
         Assert.assertEquals(defaultTransformer, result);
     }
 
     @Test
     public void testGetMessageRetrievalTransformer() {
         MessageRetrievalTransformer<FSMessage> result = backendFS.getMessageRetrievalTransformer();
-        
+
         Assert.assertEquals(defaultTransformer, result);
     }
 
@@ -338,124 +365,27 @@ public class BackendFSImplTest {
         event.setChangeTimestamp(new Timestamp(new Date().getTime()));
 
         final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.READY_TO_SEND");
-        
+
         new Expectations(1, backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
-            
+
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
-            
+
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
         }};
-        
+
         backendFS.messageStatusChanged(event);
 
         contentFile.close();
-        
+
         new VerificationsInOrder(1) {{
             fsFilesManager.renameFile(contentFile, "content_" + messageId + ".xml.SEND_ENQUEUED");
         }};
     }
 
-    @Test
-    public void testResolveDomain_1() {
-        String serviceDomain1 = "ODRDocumentInvoiceService123";
-        String actionDomain1 = "PrintA";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "ODRDocumentInvoiceService.*#Print.?";
-        }};
-
-        String result = backendFS.resolveDomain(serviceDomain1, actionDomain1);
-        Assert.assertEquals("DOMAIN1", result);
-    }
-
-    @Test
-    public void testResolveDomain_2() {
-        String serviceDomain2 = "BRISReceptionService";
-        String actionDomain2 = "SendEmailAction";
-        String actionDomain2a = "ReceiveBillAction";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN2");
-            result = "BRISReceptionService#.*";
-        }};
-
-        String result = backendFS.resolveDomain(serviceDomain2, actionDomain2);
-        Assert.assertEquals("DOMAIN2", result);
-
-        result = backendFS.resolveDomain(serviceDomain2, actionDomain2a);
-        Assert.assertEquals("DOMAIN2", result);
-    }
-
-    @Test
-    public void testResolveDomain_WithoutMatch() {
-        String serviceDomain1 = "ODRDocumentInvoiceService123";
-        String actionDomain1 = "PrintA";
-
-        String serviceWithoutMatch = "FSService123";
-        String actionWithoutMatch = "SomeAction";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "ODRDocumentInvoiceService.*#Print.?";
-
-            fsPluginProperties.getExpression("DOMAIN2");
-            result = "BRISReceptionService#.*";
-        }};
-
-        String result = backendFS.resolveDomain(serviceWithoutMatch, actionWithoutMatch);
-        Assert.assertNull(result);
-
-        result = backendFS.resolveDomain(serviceDomain1, actionWithoutMatch);
-        Assert.assertNull(result);
-
-        result = backendFS.resolveDomain(serviceWithoutMatch, actionDomain1);
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testResolveDomain_bdxNoprocessTC1Leg1() {
-        String service = "bdx:noprocess";
-        String action = "TC1Leg1";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-
-        new Expectations(1, backendFS) {{
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "bdx:noprocess#TC1Leg1";
-        }};
-
-        String result = backendFS.resolveDomain(service, action);
-        Assert.assertEquals("DOMAIN1", result);
-    }
 
     @Test
     public void testMessageStatusChanged_SendSuccessDelete() throws FileSystemException {
@@ -466,17 +396,17 @@ public class BackendFSImplTest {
         event.setChangeTimestamp(new Timestamp(new Date().getTime()));
 
         final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.ACKNOWLEDGED");
-        
+
         new Expectations(1, backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
-            
+
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
-            
+
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
-            
+            result = new FileObject[]{contentFile};
+
             fsPluginProperties.isSentActionDelete(null);
             result = true;
         }};
@@ -484,7 +414,7 @@ public class BackendFSImplTest {
         backendFS.messageStatusChanged(event);
 
         contentFile.close();
-        
+
         new VerificationsInOrder(1) {{
             fsFilesManager.deleteFile(contentFile);
         }};
@@ -499,38 +429,38 @@ public class BackendFSImplTest {
         event.setChangeTimestamp(new Timestamp(new Date().getTime()));
 
         final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.ACKNOWLEDGED");
-        
+
         new Expectations(1, backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
-            
+
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
-            
+
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
-            
+            result = new FileObject[]{contentFile};
+
             fsPluginProperties.isSentActionDelete(null);
             result = false;
-            
+
             fsPluginProperties.isSentActionArchive(null);
             result = true;
-            
+
             fsFilesManager.getEnsureChildFolder(rootDir, "/BackendFSImplTest/SENT/");
             result = sentFolder;
-            
+
         }};
-        
+
         backendFS.messageStatusChanged(event);
 
         contentFile.close();
-        
+
         new VerificationsInOrder(1) {{
             fsFilesManager.moveFile(contentFile, with(new Delegate<FileObject>() {
-              void delegate(FileObject file) throws IOException {
-                     Assert.assertNotNull(file);
-                     Assert.assertEquals( location + "/SENT/content_" + messageId + ".xml", file.getName().getURI());
-                 }  
+                void delegate(FileObject file) throws IOException {
+                    Assert.assertNotNull(file);
+                    Assert.assertEquals(location + "/SENT/content_" + messageId + ".xml", file.getName().getURI());
+                }
             }));
         }};
     }
@@ -553,7 +483,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
         }};
 
@@ -584,7 +514,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
         }};
 
@@ -620,7 +550,7 @@ public class BackendFSImplTest {
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
+            result = new FileObject[]{contentFile};
 
             backendFS.getErrorsForMessage(messageId);
             result = errorList;
@@ -635,4 +565,20 @@ public class BackendFSImplTest {
         }};
     }
 
+
+    @Test
+    public void payloadProcessedEvent(@Injectable PayloadProcessedEvent event,
+                                      @Injectable FileObject fileObject) throws FileSystemException {
+        new Expectations() {{
+            fsFilesManager.getEnsureRootLocation(event.getFileName());
+            result = fileObject;
+        }};
+
+        backendFS.payloadProcessedEvent(event);
+
+        new Verifications() {{
+            fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+            fsFilesManager.deleteLockFile(fileObject);
+        }};
+    }
 }

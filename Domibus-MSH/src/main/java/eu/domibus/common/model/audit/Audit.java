@@ -30,10 +30,25 @@ public class Audit {
     @Column(name = "AUDIT_DATE")
     private Date changed;
 
-    //needed for dozer.
+    //needed for mapping
     public Audit() {
     }
 
+    public void setId(String id) {
+        this.id = new AuditId(id);
+    }
+
+    public void setId(AuditId id) {
+        this.id = id;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public void setChanged(Date changed) {
+        this.changed = changed;
+    }
 
     public String getUser() {
         return user;

@@ -11,8 +11,9 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
+import eu.domibus.web.rest.ro.PasswordPolicyRO;
+import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Catalin Enache
  * @since 3.3
  * <p>
  * Rest for getting application related information
@@ -32,9 +33,15 @@ public class ApplicationResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ApplicationResource.class);
 
+    String PASSWORD_POLICY_PATTERN = "domibus.passwordPolicy.pattern";
+    String PASSWORD_POLICY_VALIDATION_MESSAGE = "domibus.passwordPolicy.validationMessage";
+    String PLUGIN_PASSWORD_POLICY_PATTERN = "domibus.plugin.passwordPolicy.pattern";
+    String PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE = "domibus.plugin.passwordPolicy.validationMessage";
+
     protected static final String DOMIBUS_CUSTOM_NAME = "domibus.UI.title.name";
 
-    protected static final String DOMIBUS_DEFAULTVALUE_NAME = "Domibus";
+    static final String SUPPORT_TEAM_NAME_KEY = "domibus.ui.support.team.name";
+    static final String SUPPORT_TEAM_EMAIL_KEY = "domibus.ui.support.team.email";
 
     @Autowired
     private DomibusPropertiesService domibusPropertiesService;
@@ -67,6 +74,7 @@ public class ApplicationResource {
         LOG.debug("Getting application info");
         final DomibusInfoRO domibusInfoRO = new DomibusInfoRO();
         domibusInfoRO.setVersion(domibusPropertiesService.getDisplayVersion());
+        domibusInfoRO.setVersionNumber(domibusPropertiesService.getVersionNumber());
         return domibusInfoRO;
     }
 
@@ -86,7 +94,7 @@ public class ApplicationResource {
         if (domain == null) {
             domain = DomainService.DEFAULT_DOMAIN;
         }
-        return domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_CUSTOM_NAME, DOMIBUS_DEFAULTVALUE_NAME);
+        return domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_CUSTOM_NAME);
     }
 
     /**
@@ -117,4 +125,84 @@ public class ApplicationResource {
         return domibusConfigurationService.isFourCornerEnabled();
     }
 
+    /**
+     * Returns true is an external Authentication Provider (e.g. ECAS) is enabled
+     *
+     * @return
+     */
+    @RequestMapping(value = "extauthproviderenabled", method = RequestMethod.GET)
+    public boolean getExtAuthProviderEnabled() {
+        LOG.debug("Getting external authentication provider enabled");
+        return domibusConfigurationService.isExtAuthProviderEnabled();
+    }
+
+    /**
+     * Retrieves the password policy info
+     *
+     * @return password policy info
+     */
+    @RequestMapping(value = "passwordPolicy", method = RequestMethod.GET)
+    public PasswordPolicyRO getPasswordPolicy() {
+        LOG.debug("Getting password policy");
+
+        String pattern = this.getPasswordPattern();
+        String validationMessage = this.getPasswordValidationMessage();
+
+        return new PasswordPolicyRO(pattern, validationMessage);
+    }
+
+    /**
+     * Retrieves the password policy info for plugin users
+     *
+     * @return password policy info
+     */
+    @RequestMapping(value = "pluginPasswordPolicy", method = RequestMethod.GET)
+    public PasswordPolicyRO getPluginUsersPasswordPolicy() {
+        LOG.debug("Getting plugin password policy");
+
+        String pattern = this.getPluginPasswordPattern();
+        String validationMessage = this.getPluginPasswordValidationMessage();
+
+        return new PasswordPolicyRO(pattern, validationMessage);
+    }
+
+    /**
+     * Returns support team name and email address
+     * Info is used in the notAuthorized page
+     * @return {@code SupportTeamInfoRO} object
+     */
+    @RequestMapping(value = "supportteam", method = RequestMethod.GET)
+    public SupportTeamInfoRO getSupportTeamInfo() {
+        LOG.debug("Getting support team info");
+        SupportTeamInfoRO supportTeamInfoRO = new SupportTeamInfoRO();
+        supportTeamInfoRO.setEmail(getSupportTeamEmail());
+        supportTeamInfoRO.setName(getSupportTeamName());
+
+        return supportTeamInfoRO;
+    }
+
+    private String getPasswordPattern() {
+        return domibusPropertyProvider.getDomainProperty(PASSWORD_POLICY_PATTERN);
+    }
+
+    private String getPasswordValidationMessage() {
+        return domibusPropertyProvider.getDomainProperty(PASSWORD_POLICY_VALIDATION_MESSAGE);
+    }
+
+    private String getPluginPasswordPattern() {
+        return domibusPropertyProvider.getDomainProperty(PLUGIN_PASSWORD_POLICY_PATTERN);
+    }
+    private String getPluginPasswordValidationMessage() {
+        return domibusPropertyProvider.getDomainProperty(PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE);
+    }
+
+    private String getSupportTeamName() {
+        return domibusPropertyProvider.getDomainProperty(SUPPORT_TEAM_NAME_KEY);
+    }
+
+    private String getSupportTeamEmail() {
+        /*TBC - should we validate this email address or not?
+         * */
+        return domibusPropertyProvider.getDomainProperty(SUPPORT_TEAM_EMAIL_KEY);
+    }
 }

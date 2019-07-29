@@ -6,11 +6,9 @@ import java.time.format.DateTimeFormatter;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * Custom adapter which extends {@link XmlAdapter} for {@code xsd:date} mapped to {@link Date}
- *
+ * Custom adapter which extends {@link XmlAdapter} for {@code xsd:date} mapped to {@link LocalDate}
  */
 public class DateAdapter extends XmlAdapter<String, LocalDate> {
-
 
     @Override
     public LocalDate unmarshal(String s) throws Exception {

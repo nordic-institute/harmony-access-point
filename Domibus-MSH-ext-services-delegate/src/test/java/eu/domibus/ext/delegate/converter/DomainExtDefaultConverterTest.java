@@ -58,7 +58,6 @@ public class DomainExtDefaultConverterTest {
         toConvertList.add(toConvert1);
         toConvertList.add(toConvert2);
 
-
         final List<MessageAcknowledgementDTO> convertedList = domibusDomainConverter.convert(toConvertList, MessageAcknowledgementDTO.class);
         objectService.assertObjects(convertedList, toConvertList);
     }

@@ -1,16 +1,15 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.*;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.pki.CertificateServiceImpl;
+import eu.domibus.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -19,8 +18,12 @@ import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
+import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -29,8 +32,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(JMockit.class)
 public class CustomAuthenticationProviderTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomAuthenticationProviderTest.class);
 
     private CertificateServiceImpl certificateService = new CertificateServiceImpl();
 
@@ -48,11 +49,17 @@ public class CustomAuthenticationProviderTest {
     @Injectable
     private X509CertificateService securityX509CertificateServiceImpl;
 
-    @Tested
-    CustomAuthenticationProvider securityCustomAuthenticationProvider;
+    @Injectable
+    PluginUserAlertsServiceImpl userAlertsService;
 
     @Injectable
     BCryptPasswordEncoder bcryptEncoder;
+
+    @Injectable
+    PluginUserSecurityPolicyManager passwordValidator;
+
+    @Tested
+    CustomAuthenticationProvider securityCustomAuthenticationProvider;
 
     @Test
     public void authenticateX509Test() {
@@ -60,39 +67,39 @@ public class CustomAuthenticationProviderTest {
 
         new Expectations() {{
             securityAuthenticationDAO.getRolesForCertificateId(anyString);
-            result = createAuthRoles();;
+            result = createAuthRoles();
         }};
 
         securityCustomAuthenticationProvider.authenticate(authentication);
     }
 
     @Test
-    public void authenticateBlueCoatTest()  throws UnsupportedEncodingException, ParseException {
+    public void authenticateBlueCoatTest() throws UnsupportedEncodingException, ParseException {
         Authentication authentication = createBlueCoatAuth();
 
         new Expectations() {{
             securityAuthenticationDAO.getRolesForCertificateId(anyString);
-            result = createAuthRoles();;
+            result = createAuthRoles();
         }};
 
         securityCustomAuthenticationProvider.authenticate(authentication);
     }
 
     @Test
-    public void authenticateBasicTest()  throws UnsupportedEncodingException, ParseException {
+    public void authenticateBasicTest() throws UnsupportedEncodingException, ParseException {
         Authentication authentication = new BasicAuthentication("admin", "123456");
 
         new Expectations() {{
             AuthenticationEntity basicAuthenticationEntity = new AuthenticationEntity();
             basicAuthenticationEntity.setAuthRoles("ROLE_ADMIN");
-            basicAuthenticationEntity.setUsername("admin");
-            basicAuthenticationEntity.setPasswd("123456");
+            basicAuthenticationEntity.setUserName("admin");
+            basicAuthenticationEntity.setPassword("123456");
 
             securityAuthenticationDAO.findByUser(anyString);
             result = basicAuthenticationEntity;
 
             securityAuthenticationDAO.getRolesForUser(anyString);
-            result = createAuthRoles();;
+            result = createAuthRoles();
         }};
 
         securityCustomAuthenticationProvider.authenticate(authentication);
@@ -106,7 +113,7 @@ public class CustomAuthenticationProviderTest {
     }
 
     private Authentication createX509Auth() {
-        X509Certificate certificate = certificateService.loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
+        X509Certificate certificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         assertNotNull(certificate);
         X509Certificate[] certificates = new X509Certificate[1];
         certificates[0] = certificate;
@@ -122,8 +129,9 @@ public class CustomAuthenticationProviderTest {
         DateFormat df = new SimpleDateFormat("MMM d hh:mm:ss yyyy zzz", Locale.US);
         Date validFrom = df.parse("Jun 01 10:37:53 2015 CEST");
         Date validTo = df.parse("Jun 01 10:37:53 2035 CEST");
-        String certHeaderValue = "serial=" + serial + "&subject=" + subject + "&validFrom="+ df.format(validFrom) +"&validTo=" + df.format(validTo) +"&issuer=" + issuer;
+        String certHeaderValue = "serial=" + serial + "&subject=" + subject + "&validFrom=" + df.format(validFrom) + "&validTo=" + df.format(validTo) + "&issuer=" + issuer;
 
         return new BlueCoatClientCertificateAuthentication(certHeaderValue);
     }
+
 }

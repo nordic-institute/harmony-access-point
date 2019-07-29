@@ -3,28 +3,26 @@ import {UserResponseRO, UserState} from './user';
 import {UserSearchCriteria, UserService} from './user.service';
 import {MdDialog, MdDialogRef} from '@angular/material';
 import {UserValidatorService} from 'app/user/uservalidator.service';
-import {AlertService} from '../alert/alert.service';
+import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {isNullOrUndefined} from 'util';
-import {Headers, Http} from '@angular/http';
+import {Http} from '@angular/http';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {SecurityService} from '../security/security.service';
-import {DownloadService} from '../download/download.service';
-import {AlertComponent} from '../alert/alert.component';
+import {DownloadService} from '../common/download.service';
+import {AlertComponent} from '../common/alert/alert.component';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'user.component.html',
-  providers: [UserService, UserValidatorService],
   styleUrls: ['./user.component.css']
 })
-
 
 export class UserComponent implements OnInit, DirtyOperations {
   static readonly USER_URL: string = 'rest/user';
@@ -52,7 +50,7 @@ export class UserComponent implements OnInit, DirtyOperations {
   enableDelete: boolean;
   enableEdit: boolean;
 
-  rowNumber: number;
+  currentUser: UserResponseRO;
 
   editedUser: UserResponseRO;
 
@@ -65,16 +63,17 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   isBusy = false;
 
-  constructor (private http: Http,
-               private userService: UserService,
-               public dialog: MdDialog,
-               private userValidatorService: UserValidatorService,
-               private alertService: AlertService,
-               private securityService: SecurityService,
-               private domainService: DomainService) {
+  constructor(private http: Http,
+              private userService: UserService,
+              public dialog: MdDialog,
+              private userValidatorService: UserValidatorService,
+              private alertService: AlertService,
+              private securityService: SecurityService,
+              private domainService: DomainService) {
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
+    this.isBusy = true;
     this.offset = 0;
     this.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
@@ -89,7 +88,9 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableSave = false;
     this.enableDelete = false;
     this.enableEdit = false;
-    this.rowNumber = -1;
+    this.currentUser = null;
+    this.editedUser = null;
+
     this.selected = [];
 
     this.columnPicker.allColumns = [
@@ -148,7 +149,7 @@ export class UserComponent implements OnInit, DirtyOperations {
         {
           cellTemplate: this.editableTpl,
           name: 'Domain',
-          prop: 'domain',
+          prop: 'domainName',
           canAutoResize: true
         });
     }
@@ -166,9 +167,12 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.areRowsDeleted = false;
   }
 
-  getUsers (): void {
+  getUsers(): void {
     this.isBusy = true;
     this.userService.getUsers(this.filter).subscribe(results => {
+      results.forEach(user => {
+        this.setDomainName(user);
+      });
       this.users = results;
       this.isBusy = false;
     }, err => {
@@ -178,15 +182,27 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.areRowsDeleted = false;
   }
 
-  getUserRoles (): void {
+  private setDomainName(user) {
+    const domains = this.domains;
+    if (domains) {
+      const domain = domains.find(d => d.code == user.domain);
+      if (domain) {
+        user.domainName = domain.name;
+      }
+    }
+  }
+
+  getUserRoles(): void {
     this.userService.getUserRoles().subscribe(userroles => this.userRoles = userroles);
   }
 
-  async getUserDomains () {
-    this.domains = await this.domainService.getDomains();
+  async getUserDomains(): Promise<Domain[]> {
+    var res = await this.domainService.getDomains();
+    this.domains = res;
+    return res;
   }
 
-  onSelect ({selected}) {
+  onSelect({selected}) {
     if (isNullOrUndefined(selected) || selected.length == 0) {
       // unselect
       this.enableDelete = false;
@@ -196,7 +212,8 @@ export class UserComponent implements OnInit, DirtyOperations {
     }
 
     // select
-    this.rowNumber = this.selected[0].$$index;
+    this.currentUser = this.selected[0];
+    this.editedUser = this.currentUser;
 
     this.selected.splice(0, this.selected.length);
     this.selected.push(...selected);
@@ -204,106 +221,108 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }
 
-  private isLoggedInUserSelected (selected): boolean {
+  private isLoggedInUserSelected(selected): boolean {
+    let currentUser = this.securityService.getCurrentUser();
     for (let entry of selected) {
-      if (this.securityService.getCurrentUser().username === entry.userName) {
+      if (currentUser && currentUser.username === entry.userName) {
         return true;
       }
     }
     return false;
   }
 
-  buttonNew (): void {
-    if(this.isBusy) return;
+  buttonNew(): void {
+    if (this.isBusy) return;
 
-    this.editedUser = new UserResponseRO('', this.currentDomain.code, '', '', true,
-      UserState[UserState.NEW], [], false, false);
-    this.users.push(this.editedUser);
-    this.users = this.users.slice();
-    this.rowNumber = this.users.length - 1;
+    this.setPage(this.getLastPage());
+
+    this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
     this.setIsDirty();
     const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
       data: {
         edit: false,
-        user: this.users[this.rowNumber],
+        user: this.editedUser,
         userroles: this.userRoles,
         userdomains: this.domains
       }
     });
-    formRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.users[this.rowNumber].userName = formRef.componentInstance.userName;
+    formRef.afterClosed().subscribe(ok => {
+      if (ok) {
         this.onSaveEditForm(formRef);
+        this.users.push(this.editedUser);
+        this.currentUser = this.editedUser;
       } else {
-        this.users.pop();
         this.selected = [];
         this.enableEdit = false;
         this.enableDelete = false;
+      }
+      this.setIsDirty();
+    });
+  }
+
+  buttonEdit() {
+    if (this.currentUser && this.currentUser.deleted) {
+      this.alertService.error('You cannot edit a deleted user.', false, 3000);
+      return;
+    }
+    this.buttonEditAction(this.currentUser);
+  }
+
+  buttonEditAction(currentUser) {
+    if (this.isBusy) return;
+
+    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+      data: {
+        edit: true,
+        user: currentUser,
+        userroles: this.userRoles,
+        userdomains: this.domains
+      }
+    });
+    formRef.afterClosed().subscribe(ok => {
+      if (ok) {
+        this.onSaveEditForm(formRef);
         this.setIsDirty();
       }
     });
   }
 
-  buttonEdit () {
-    if (this.rowNumber >= 0 && this.users[this.rowNumber] && this.users[this.rowNumber].deleted) {
-      this.alertService.error('You cannot edit a deleted user.', false, 3000);
-      return;
-    }
-    this.buttonEditAction(this.rowNumber);
-  }
-
-  buttonEditAction (rowNumber) {
-    if(this.isBusy) return;
-
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
-      data: {
-        edit: true,
-        user: this.users[rowNumber],
-        userroles: this.userRoles,
-        userdomains: this.domains
-      }
-    });
-    formRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.onSaveEditForm(formRef);
-      }
-    });
-  }
-
-  private onSaveEditForm (formRef: MdDialogRef<EditUserComponent>) {
+  private onSaveEditForm(formRef: MdDialogRef<EditUserComponent>) {
     const editForm = formRef.componentInstance;
-    const user = this.users[this.rowNumber];
+    const user = this.editedUser;
+    if (!user) return;
 
+    user.userName = editForm.userName || user.userName; // only for add
     user.email = editForm.email;
-    user.roles = editForm.role.toString();
+    user.roles = editForm.role;
     user.domain = editForm.domain;
+    this.setDomainName(user);
     user.password = editForm.password;
     user.active = editForm.active;
+
     if (editForm.userForm.dirty) {
       if (UserState[UserState.PERSISTED] === user.status) {
         user.status = UserState[UserState.UPDATED]
       }
     }
-
-    this.setIsDirty();
   }
 
-  setIsDirty () {
+  setIsDirty() {
     this.dirty = this.areRowsDeleted || this.users.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
 
     this.enableSave = this.dirty;
     this.enableCancel = this.dirty;
   }
 
-  buttonDelete () {
+  buttonDelete() {
     this.deleteUsers(this.selected);
   }
 
-  buttonDeleteAction (row) {
+  buttonDeleteAction(row) {
     this.deleteUsers([row]);
   }
 
-  private deleteUsers (users: UserResponseRO[]) {
+  private deleteUsers(users: UserResponseRO[]) {
     if (this.isLoggedInUserSelected(users)) {
       this.alertService.error('You cannot delete the logged in user: ' + this.securityService.getCurrentUser().username);
       return;
@@ -326,7 +345,7 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.setIsDirty();
   }
 
-  private disableSelectionAndButtons () {
+  private disableSelectionAndButtons() {
     this.selected = [];
     this.enableCancel = false;
     this.enableSave = false;
@@ -334,9 +353,9 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
   }
 
-  cancelDialog () {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
+  cancel() {
+    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
+      if (yes) {
         this.disableSelectionAndButtons();
         this.users = [];
         this.getUsers();
@@ -344,34 +363,33 @@ export class UserComponent implements OnInit, DirtyOperations {
     });
   }
 
-  save (withDownloadCSV: boolean) {
+  async save(withDownloadCSV: boolean) {
     try {
       const isValid = this.userValidatorService.validateUsers(this.users);
       if (!isValid) return;
 
-      this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
-        if (result) {
-          this.disableSelectionAndButtons();
-          const modifiedUsers = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]);
-          this.isBusy = true;
-          this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).subscribe(res => {
-            this.isBusy = false;
-            this.getUsers();
-            this.alertService.success('The operation \'update users\' completed successfully.', false);
-            if (withDownloadCSV) {
-              DownloadService.downloadNative(UserComponent.USER_CSV_URL);
-            }
-          }, err => {
-            this.isBusy = false;
-            this.getUsers();
-            this.alertService.exception('The operation \'update users\' not completed successfully.', err, false);
-          });
-        } else {
+      const proceed = await this.dialog.open(SaveDialogComponent).afterClosed().toPromise();
+      if (proceed) {
+        this.disableSelectionAndButtons();
+        const modifiedUsers = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]);
+        this.isBusy = true;
+        this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).subscribe(res => {
+          this.isBusy = false;
+          this.getUsers();
+          this.alertService.success('The operation \'update users\' completed successfully.', false);
           if (withDownloadCSV) {
             DownloadService.downloadNative(UserComponent.USER_CSV_URL);
           }
+        }, err => {
+          this.isBusy = false;
+          this.getUsers();
+          this.alertService.exception('The operation \'update users\' not completed successfully.', err, false);
+        });
+      } else {
+        if (withDownloadCSV) {
+          DownloadService.downloadNative(UserComponent.USER_CSV_URL);
         }
-      });
+      }
     } catch (err) {
       this.isBusy = false;
       this.alertService.exception('The operation \'update users\' completed with errors.', err);
@@ -381,7 +399,7 @@ export class UserComponent implements OnInit, DirtyOperations {
   /**
    * Saves the content of the datatable into a CSV file
    */
-  saveAsCSV () {
+  saveAsCSV() {
     if (this.isDirty()) {
       this.save(true);
     } else {
@@ -394,16 +412,44 @@ export class UserComponent implements OnInit, DirtyOperations {
     }
   }
 
-  isDirty (): boolean {
+  isDirty(): boolean {
     return this.enableCancel;
   }
 
-  changePageSize (newPageLimit: number) {
+  async checkIsDirty(): Promise<boolean> {
+    if (!this.isDirty()) {
+      return Promise.resolve(true);
+    }
+
+    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
+    return Promise.resolve(ok);
+  }
+
+  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
+  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
+    const isDirty = await this.checkIsDirty();
+    const canChangePage = !isDirty;
+    return canChangePage;
+  };
+
+  changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;
+    this.disableSelectionAndButtons();
+    this.users = [];
     this.getUsers();
   }
 
-  onChangePage (event: any): void {
-    this.offset = event.offset;
+  onChangePage(event: any): void {
+    this.setPage(event.offset);
+  }
+
+  setPage(offset: number): void {
+    this.offset = offset;
+  }
+
+  getLastPage(): number {
+    if (!this.users || !this.rowLimiter || !this.rowLimiter.pageSize)
+      return 0;
+    return Math.floor(this.users.length / this.rowLimiter.pageSize);
   }
 }

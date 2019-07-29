@@ -147,7 +147,7 @@ public class CollaborationInfo {
      */
     public String getConversationId() {
         // this is because Oracle treats empty string as null
-        // if we get space, we transform it as an empty string
+        // if we get space, we transform it to an empty string
         return StringUtils.SPACE.equals(this.conversationId) ? StringUtils.EMPTY : this.conversationId;
     }
 

@@ -3,11 +3,14 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.fs.*;
+import eu.domibus.plugin.fs.BackendFSImpl;
+import eu.domibus.plugin.fs.FSFilesManager;
+import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.FSTestHelper;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
-import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
@@ -17,18 +20,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Qualifier;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
+import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 /**
- * @author FERNANDES Henrique, GONCALVES Bruno
+ * @author FERNANDES Henrique, GONCALVES Bruno, Catalin Enache
  */
 @RunWith(JMockit.class)
 public class FSSendMessagesServiceTest {
@@ -52,7 +53,14 @@ public class FSSendMessagesServiceTest {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    private FSMultiTenancyService fsMultiTenancyService;
+    private FSDomainService fsMultiTenancyService;
+
+    @Injectable
+    private JMSExtService jmsExtService;
+
+    @Injectable
+    @Qualifier("fsPluginSendQueue")
+    private Queue fsPluginSendQueue;
 
     @Tested
     @Injectable
@@ -102,94 +110,117 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void testSendMessages() throws MessagingProcessingException, FileSystemException, FSSetUpException {
-        new Expectations(1, instance) {{
+    public void test_SendMessages_Root_Domain1() {
+        final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
+        final String domain1 = "DOMAIN1";
+        new Expectations(instance) {{
+            domibusConfigurationExtService.isSecuredLoginRequired();
+            result = true;
+
             fsPluginProperties.getDomains();
-            result = Collections.emptyList();
+            result = Arrays.asList(domain0, domain1);
 
-            fsPluginProperties.getPayloadId(null);
-            result = "cid:message";
+            fsMultiTenancyService.verifyDomainExists(domain0);
+            result = true;
 
-            fsFilesManager.setUpFileSystem(null);
+            fsMultiTenancyService.verifyDomainExists(domain1);
+            result = true;
+        }};
+
+        //tested method
+        instance.sendMessages();
+
+        new FullVerifications(instance) {{
+            instance.sendMessages(domain0);
+            times = 1;
+            instance.sendMessages(domain1);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testSendMessages_RootDomain_NoMultitenancy() throws MessagingProcessingException, FileSystemException, FSSetUpException {
+        final String domain = null; //root
+        new Expectations(1, instance) {{
+            domibusConfigurationExtService.isSecuredLoginRequired();
+            result = false;
+
+            fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { metadataFile, contentFile };
+            result = new FileObject[]{metadataFile, contentFile};
 
-            fsFilesManager.resolveSibling(contentFile, "metadata.xml");
-            result = metadataFile;
-
-            fsFilesManager.getDataHandler(contentFile);
-            result = new DataHandler(new FileObjectDataSource(contentFile));
-
-            backendFSPlugin.submit(with(new Delegate<FSMessage>() {
-                void delegate(FSMessage message) throws IOException {
-                    Assert.assertNotNull(message);
-                    Assert.assertNotNull(message.getPayloads());
-                    FSPayload fsPayload = message.getPayloads().get("cid:message");
-                    Assert.assertNotNull(fsPayload);
-                    Assert.assertNotNull(fsPayload.getDataHandler());
-                    Assert.assertNotNull(message.getMetadata());
-
-                    DataSource dataSource = fsPayload.getDataHandler().getDataSource();
-                    Assert.assertNotNull(dataSource);
-                    Assert.assertEquals("content.xml", dataSource.getName());
-                    Assert.assertTrue(
-                            IOUtils.contentEquals(dataSource.getInputStream(), contentFile.getContent().getInputStream())
-                    );
-
-                    Assert.assertEquals(metadata, message.getMetadata());
-                }
-            }));
-            result = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
+            instance.canReadFileSafely((FileObject) any, anyString);
+            result = true;
         }};
 
-        instance.sendMessages();
+        //tested method
+        instance.sendMessages(domain);
 
         new VerificationsInOrder(1) {{
-            fsFilesManager.renameFile(contentFile, "content_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.xml");
+            FileObject fileActual;
+            instance.enqueueProcessableFile(fileActual = withCapture());
+            Assert.assertEquals(contentFile, fileActual);
+        }};
+    }
+
+    @Test
+    public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
+        final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
+        new Expectations(1, instance) {{
+            domibusConfigurationExtService.isSecuredLoginRequired();
+            result = true;
+
+            fsPluginProperties.getAuthenticationUser(domainDefault);
+            result = "user1";
+
+            fsPluginProperties.getAuthenticationPassword(domainDefault);
+            result = "pass1";
+
+            fsFilesManager.setUpFileSystem(domainDefault);
+            result = rootDir;
+
+            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
+            result = outgoingFolder;
+
+            fsFilesManager.findAllDescendantFiles(outgoingFolder);
+            result = new FileObject[]{metadataFile, contentFile};
+
+            instance.canReadFileSafely((FileObject) any, anyString);
+            result = true;
+        }};
+
+        //tested method
+        instance.sendMessages(domainDefault);
+
+        new VerificationsInOrder(1) {{
+            authenticationExtService.basicAuthenticate(anyString, anyString);
+
+            FileObject fileActual;
+            instance.enqueueProcessableFile(fileActual = withCapture());
+            Assert.assertEquals(contentFile, fileActual);
         }};
     }
 
     @Test
     public void testSendMessages_Domain1() throws MessagingProcessingException, FileSystemException {
+        final String domain1 = "DOMAIN1";
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
-            fsMultiTenancyService.verifyDomainExists("DOMAIN1");
-            result = true;
-
-            List domains = new ArrayList<String>();
-            domains.add("default");
-            domains.add("DOMAIN1");
-
-            fsPluginProperties.getDomains();
-            result = domains;
-
-            fsPluginProperties.getPayloadId("DOMAIN1");
-            result = "cid:message";
-
-            fsFilesManager.setUpFileSystem("DOMAIN1");
+            fsFilesManager.setUpFileSystem(domain1);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { metadataFile, contentFile };
-
-            fsFilesManager.resolveSibling(contentFile, "metadata.xml");
-            result = metadataFile;
-
-            fsFilesManager.getDataHandler(contentFile);
-            result = new DataHandler(new FileObjectDataSource(contentFile));
-
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = true;
+            result = new FileObject[]{metadataFile, contentFile};
 
             fsPluginProperties.getAuthenticationUser(anyString);
             result = "user1";
@@ -197,46 +228,27 @@ public class FSSendMessagesServiceTest {
             fsPluginProperties.getAuthenticationPassword(anyString);
             result = "pass1";
 
-            backendFSPlugin.submit(with(new Delegate<FSMessage>() {
-                void delegate(FSMessage message) throws IOException {
-                    Assert.assertNotNull(message);
-                    Assert.assertNotNull(message.getPayloads());
-                    FSPayload fsPayload = message.getPayloads().get("cid:message");
-                    Assert.assertNotNull(fsPayload);
-                    Assert.assertNotNull(fsPayload.getDataHandler());
-                    Assert.assertNotNull(message.getMetadata());
-
-                    DataSource dataSource = fsPayload.getDataHandler().getDataSource();
-                    Assert.assertNotNull(dataSource);
-                    Assert.assertEquals("content.xml", dataSource.getName());
-                    Assert.assertTrue(
-                            IOUtils.contentEquals(dataSource.getInputStream(), contentFile.getContent().getInputStream())
-                    );
-
-                    Assert.assertEquals(metadata, message.getMetadata());
-                }
-            }));
-            result = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
+            instance.canReadFileSafely((FileObject) any, anyString);
+            result = true;
         }};
 
-        instance.sendMessages();
+        instance.sendMessages(domain1);
 
-       new Verifications()  {{
-           fsFilesManager.renameFile(contentFile, "content_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.xml");
+        new Verifications() {{
+            authenticationExtService.basicAuthenticate(anyString, anyString);
+
+            FileObject fileActual;
+            instance.enqueueProcessableFile(fileActual = withCapture());
+            Assert.assertEquals(contentFile, fileActual);
         }};
     }
 
     @Test
     public void testSendMessages_Domain1_BadConfiguration() throws MessagingProcessingException, FileSystemException, FSSetUpException {
+        final String domain1 = "DOMAIN1";
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isMultiTenantAware();
+            domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
-
-            fsMultiTenancyService.verifyDomainExists("DOMAIN1");
-            result = true;
-
-            fsPluginProperties.getDomains();
-            result = Collections.singletonList("DOMAIN1");
 
             fsPluginProperties.getAuthenticationUser(anyString);
             result = "user1";
@@ -248,91 +260,134 @@ public class FSSendMessagesServiceTest {
             result = new FSSetUpException("Test-forced exception");
         }};
 
-        instance.sendMessages();
+        instance.sendMessages(domain1);
 
         new Verifications() {{
-            backendFSPlugin.submit(withAny(new FSMessage(null, null)));
-            maxTimes = 0;
-        }};
-    }
+            authenticationExtService.basicAuthenticate(anyString, anyString);
 
-    @Test()
-    public void testSendMessages_MetaDataException() throws MessagingProcessingException, FileSystemException, FSSetUpException {
-        new Expectations(1, instance) {{
-            fsPluginProperties.getDomains();
-            result = Collections.emptyList();
-
-            fsFilesManager.setUpFileSystem(null);
-            result = rootDir;
-
-            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
-            result = outgoingFolder;
-
-            fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { contentFile };
-
-            fsFilesManager.resolveSibling(contentFile, "metadata.xml");
-            result = rootDir.resolveFile("nonexistent_file");
-        }};
-
-        instance.sendMessages();
-
-        new Verifications() {{
-            backendFSPlugin.submit(withAny(new FSMessage(null, null)));
+            instance.enqueueProcessableFile((FileObject) any);
             maxTimes = 0;
         }};
     }
 
     @Test
-    public void testSendMessages_RenameException() throws MessagingProcessingException, FileSystemException, FSSetUpException {
+    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
+        final String domain = null; //root
+        final String errorMessage = "mock error";
+        final FileObject processableFile = metadataFile;
         new Expectations(1, instance) {{
-            fsPluginProperties.getDomains();
-            result = Collections.emptyList();
-
-            fsPluginProperties.getPayloadId(null);
-            result = "cid:message";
-
-            fsFilesManager.setUpFileSystem(null);
+            fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
-            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
-            result = outgoingFolder;
-
-            fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[] { metadataFile, contentFile };
-
-            fsFilesManager.resolveSibling(contentFile, "metadata.xml");
-            result = metadataFile;
-
-            fsFilesManager.getDataHandler(contentFile);
-            result = new DataHandler(new FileObjectDataSource(contentFile));
-
-            backendFSPlugin.submit(with(new Delegate<FSMessage>() {
-                 void delegate(FSMessage message) throws IOException {
-                     Assert.assertNotNull(message);
-                     Assert.assertNotNull(message.getPayloads());
-                     FSPayload fsPayload = message.getPayloads().get("cid:message");
-                     Assert.assertNotNull(fsPayload);
-                     Assert.assertNotNull(fsPayload.getDataHandler());
-                     Assert.assertNotNull(message.getMetadata());
-
-                     DataSource dataSource = fsPayload.getDataHandler().getDataSource();
-                     Assert.assertNotNull(dataSource);
-                     Assert.assertEquals("content.xml", dataSource.getName());
-                     Assert.assertTrue(
-                             IOUtils.contentEquals(dataSource.getInputStream(), contentFile.getContent().getInputStream())
-                     );
-
-                     Assert.assertEquals(metadata, message.getMetadata());
-                 }
-            }));
-            result = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
-
-            fsFilesManager.renameFile(contentFile, "content_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.xml");
-            result = new FileSystemException("Test-forced exception");
+            fsPluginProperties.isFailedActionArchive(domain);
+            result = true;
         }};
 
-        instance.sendMessages();
+        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
+
+        new Verifications() {{
+            fsFilesManager.createFile((FileObject) any, anyString, anyString);
+        }};
     }
 
+    @Test
+    public void testCanReadFileSafely() {
+        String domain = "domain1";
+        new Expectations(1, instance) {{
+            instance.checkSizeChangedRecently(contentFile, domain);
+            result = false;
+            instance.checkTimestampChangedRecently(contentFile, domain);
+            result = false;
+            instance.checkHasWriteLock(contentFile);
+            result = false;
+        }};
+
+        //tested method
+        boolean actualRes = instance.canReadFileSafely(contentFile, domain);
+
+        Assert.assertEquals(true, actualRes);
+    }
+
+    @Test
+    public void testCanReadFileSafelyFalse() {
+        String domain = "domain1";
+        new Expectations(1, instance) {{
+            instance.checkSizeChangedRecently(contentFile, domain);
+            result = false;
+            instance.checkTimestampChangedRecently(contentFile, domain);
+            result = true;
+        }};
+
+        //tested method
+        boolean actualRes = instance.canReadFileSafely(contentFile, domain);
+
+        Assert.assertEquals(false, actualRes);
+    }
+
+    @Test
+    public void testCheckSizeChangedRecently() throws InterruptedException {
+        final String domain = "default";
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 2000;
+        }};
+
+        //tested method
+        boolean actualRes = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes);
+        Thread.sleep(1000);
+        boolean actualRes2 = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes2);
+        Thread.sleep(4000);
+        boolean actualRes3 = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(false, actualRes3);
+    }
+
+    @Test
+    public void testCheckTimestampChangedRecently() throws InterruptedException {
+        final String domain = "default";
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 2000;
+        }};
+
+        //tested method
+        boolean actualRes = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes);
+        Thread.sleep(1000);
+        boolean actualRes2 = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes2);
+        Thread.sleep(4000);
+        boolean actualRes3 = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(false, actualRes3);
+    }
+
+    @Test
+    public void testCheckHasWriteLock() throws InterruptedException, FileSystemException {
+        final String domain = "default";
+        //tested method
+        boolean actualRes = instance.checkHasWriteLock(contentFile);
+        Assert.assertEquals(true, actualRes);
+    }
+
+    @Test
+    public void testClearObservedFiles() throws InterruptedException {
+        final String domain = "default";
+
+        new Expectations(1, instance) {{
+            fsPluginProperties.getSendDelay(domain);
+            result = 1000;
+            fsPluginProperties.getSendWorkerInterval(domain);
+            result = 3000;
+        }};
+        instance.checkSizeChangedRecently(contentFile, domain);
+
+        //tested method
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        Thread.sleep(8000);
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(0, instance.observedFilesInfo.size());
+    }
 }

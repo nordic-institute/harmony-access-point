@@ -11,20 +11,39 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author Thomas Dussart
+ * @author Thomas Dussart, Catalin Enache
  * @since 3.3
  */
 public class UserDetail implements UserDetails {
     private final UserDetails springUser;
     private boolean defaultPasswordUsed;
     protected String domain;
+    private Integer daysTillExpiration;
+    private boolean externalAuthProvider = false;
 
-    public UserDetail(final User user, boolean defaultPasswordUsed) {
-        this.defaultPasswordUsed = defaultPasswordUsed;
+    public UserDetail(final User user) {
+        this.defaultPasswordUsed = user.hasDefaultPassword();
         springUser = org.springframework.security.core.userdetails.User
                 .withUsername(user.getUserName())
                 .password(user.getPassword())
                 .authorities(getGrantedAuthorities(user.getRoles()))
+                .build();
+    }
+
+    /**
+     * Build the user detail object from Spring principal only
+     *
+     * @param username
+     * @param password
+     * @param authorities
+     */
+    public UserDetail(String username, String password,
+                      Collection<? extends GrantedAuthority> authorities) {
+
+        this.springUser = org.springframework.security.core.userdetails.User
+                .withUsername(username)
+                .password(password)
+                .authorities(authorities)
                 .build();
     }
 
@@ -71,8 +90,10 @@ public class UserDetail implements UserDetails {
         return springUser.isEnabled();
     }
 
-    public boolean isDefaultPasswordUsed() {
-        return defaultPasswordUsed;
+    public boolean isDefaultPasswordUsed() { return defaultPasswordUsed; }
+
+    public void setDefaultPasswordUsed(boolean defaultPasswordUsed) {
+        this.defaultPasswordUsed = defaultPasswordUsed;
     }
 
     public String getDomain() {
@@ -81,5 +102,21 @@ public class UserDetail implements UserDetails {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public Integer getDaysTillExpiration() {
+        return daysTillExpiration;
+    }
+
+    public void setDaysTillExpiration(Integer daysTillExpiration) {
+        this.daysTillExpiration = daysTillExpiration;
+    }
+
+    public boolean isExternalAuthProvider() {
+        return externalAuthProvider;
+    }
+
+    public void setExternalAuthProvider(boolean externalAuthProvider) {
+        this.externalAuthProvider = externalAuthProvider;
     }
 }

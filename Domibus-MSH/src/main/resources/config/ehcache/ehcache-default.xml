@@ -68,5 +68,10 @@
            timeToLiveSeconds="3600"
            overflowToDisk="false">
     </cache>
+    <cache name="dss-cache"
+           maxBytesLocalHeap="5m"
+           timeToLiveSeconds="300"
+           overflowToDisk="false">
+    </cache>
 
 </ehcache>

@@ -209,8 +209,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     protected Collection<String> browseQueue(final NotificationType notificationType, final String finalRecipient) {
 
         final Collection<String> result = new ArrayList<>();
-        final String strMaxPendingMessagesRetrieveCount = domibusPropertyProvider.getProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, "500");
-        final int intMaxPendingMessagesRetrieveCount = Integer.parseInt(strMaxPendingMessagesRetrieveCount);
+        final int intMaxPendingMessagesRetrieveCount = domibusPropertyProvider.getIntegerProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
         LOG.debug("maxPendingMessagesRetrieveCount:" + intMaxPendingMessagesRetrieveCount);
 
         String selector = MessageConstants.NOTIFICATION_TYPE + "='" + notificationType.name() + "'";
@@ -223,6 +222,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
         List<JmsMessage> messages;
         try {
             messages = jmsManager.browseClusterMessages(backendNotificationQueue.getQueueName(), selector);
+            LOG.info("[{}] messages selected from [{}] with selector [{}]", (messages != null ? messages.size() : 0), backendNotificationQueue.getQueueName(), selector);
         } catch (JMSException jmsEx) {
             LOG.error("Error trying to read the queue name", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
@@ -244,7 +244,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void removeFromPending(final String messageId) throws MessageNotFoundException {
 

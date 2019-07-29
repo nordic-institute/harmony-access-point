@@ -3,8 +3,6 @@ package eu.domibus.core.alerts.model.service;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Dussart
@@ -15,7 +13,7 @@ import org.slf4j.LoggerFactory;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = StringPropertyValue.class, name = "StringPropertyValue"),
 
-        @JsonSubTypes.Type(value = DatePropertyValue.class, name = "DatePropertyValue") }
+        @JsonSubTypes.Type(value = DatePropertyValue.class, name = "DatePropertyValue")}
 )
 public abstract class AbstractPropertyValue<T> {
 
@@ -35,7 +33,7 @@ public abstract class AbstractPropertyValue<T> {
 
     public abstract T getValue();
 
-    public abstract void  setValue(T t);
+    public abstract void setValue(T t);
 
 
 }

@@ -15,12 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
  * Created by kochc01 on 02.03.2016.
  */
-
 @Service(value = "controllerListenerService")
 public class ControllerListenerService implements MessageListener {
 
@@ -38,7 +40,7 @@ public class ControllerListenerService implements MessageListener {
     @Override
     @Transactional
     public void onMessage(Message message) {
-        String command = null;
+        String command;
         try {
             command = message.getStringProperty(Command.COMMAND);
         } catch (JMSException e) {
@@ -50,7 +52,7 @@ public class ControllerListenerService implements MessageListener {
             return;
         }
 
-        Domain domain = null;
+        Domain domain;
         try {
             String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             domain = domainService.getDomain(domainCode);
@@ -60,7 +62,30 @@ public class ControllerListenerService implements MessageListener {
             return;
         }
 
-
-        commandService.executeCommand(command, domain);
+        commandService.executeCommand(command, domain,  getCommandProperties(message));
     }
+
+    /**
+     * just extract all message properties (of type {@code String}) excepting Command and Domain
+     *
+     * @param msg JMS Message
+     * @return map of properties
+     */
+    protected Map<String, String> getCommandProperties(Message msg) {
+        HashMap<String, String> properties = new HashMap<>();
+        try {
+            Enumeration srcProperties = msg.getPropertyNames();
+            while (srcProperties.hasMoreElements()) {
+                String propertyName = (String) srcProperties.nextElement();
+                if (!Command.COMMAND.equalsIgnoreCase(propertyName) && !MessageConstants.DOMAIN.equalsIgnoreCase(propertyName)
+                        && msg.getObjectProperty(propertyName) instanceof String) {
+                    properties.put(propertyName, msg.getStringProperty(propertyName));
+                }
+            }
+        } catch (JMSException e) {
+            LOG.error("An error occurred while trying to extract message properties: ", e);
+        }
+        return properties;
+    }
+
 }

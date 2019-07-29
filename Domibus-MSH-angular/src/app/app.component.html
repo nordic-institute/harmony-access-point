@@ -1,5 +1,5 @@
 <md-sidenav-container>
-  <md-sidenav mode="side" opened="true" ngClass="{{menuClass}}">
+  <md-sidenav mode="side" opened="true" ngClass="{{menuClass}}" [disableClose]="true">
     <!-- sidenav content -->
     <div id="topLogo">
       <img src="assets/images/Domibus_logo_icon.svg" [attr.height]="fullMenu ? '74px' : '40px'" [attr.width]="fullMenu ? '74px' : '40px'"/>
@@ -12,8 +12,7 @@
       <md-icon md-tooltip="Messages" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">message</md-icon>
       <span>Messages</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()"
-            id="messagefilter_id">
+    <button md-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()" id="messagefilter_id">
       <md-icon md-tooltip="Message Filter" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">filter_list
       </md-icon>
       <span>Message Filter</span>
@@ -31,15 +30,15 @@
       </md-expansion-panel-header>
       <!--[ngClass]="{ 'alert': message, 'alert-success': message.type === 'success', 'alert-error': message.type === 'error' }"-->
       <div class="sideNavSubmenu">
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" >
+        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" id="current_pmode_id">
           <md-icon md-tooltip="Current PMode" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">receipt</md-icon>
           <span>Current</span>
         </button>
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']">
+        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" id="pmode_archive_id">
           <md-icon md-tooltip="PMode Archive" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">history</md-icon>
           <span>Archive</span>
         </button>
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-party']">
+        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" id="pmode_party_id">
           <md-icon md-tooltip="Party management" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">device_hub</md-icon>
           <span>Parties</span>
         </button>
@@ -53,11 +52,11 @@
       <md-icon md-tooltip="Truststore" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">vpn_key</md-icon>
       <span>Truststore</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/user']" *ngIf="isAdmin()" id="user_id">
+    <button md-raised-button class="sideNavButton" [routerLink]="['/user']" *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
       <md-icon md-tooltip="Users" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">people</md-icon>
       <span>Users</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()" id="user_id">
+    <button md-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()" id="plugin_user_id">
       <md-icon md-tooltip="Plugin Users" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">people_outline</md-icon>
       <span>Plugin Users</span>
     </button>
@@ -72,6 +71,10 @@
     <button md-raised-button class="sideNavButton" [routerLink]="['/testservice']" *ngIf="isAdmin()" id="testservice_id">
       <md-icon md-tooltip="Test Service" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">import_export</md-icon>
       <span *ngIf="fullMenu">Test Service</span>
+    </button>
+    <button md-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdmin()" id="logging_id">
+      <md-icon md-tooltip="Logging" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">list_alt</md-icon>
+      <span *ngIf="fullMenu">Logging</span>
     </button>
 
     <div class="collapse-button">
@@ -127,6 +130,11 @@
             </button>
 
             <hr/>
+
+            <button md-menu-item (click)="changePassword()" id="changePassword_id" *ngIf="!isExtAuthProviderEnabled()">
+              <md-icon>edit</md-icon>
+              <span>Change Password</span>
+            </button>
 
             <button md-menu-item (click)="logout($event)" id="logout_id">
               <md-icon>power_settings_new</md-icon>

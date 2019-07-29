@@ -1,11 +1,13 @@
 package eu.domibus.jms.weblogic;
 
 import eu.domibus.api.cluster.Command;
+import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJMSManager;
@@ -86,6 +88,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private CommandService commandService;
+
+    @Autowired
+    private ServerInfoService serverInfoService;
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -367,6 +372,10 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination) {
+       sendMessageToTopic(internalJmsMessage, destination, false);
+    }
+
+    protected void sendMessage(InternalJmsMessage internalJmsMessage, Topic destination) {
         final boolean isClusterDeployment = domibusConfigurationService.isClusterDeployment();
         if (!isClusterDeployment) {
             LOG.debug("Sending JMS message to topic");
@@ -378,12 +387,27 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         LOG.debug("Cluster deployment: using command signaling via database instead of uniform distributed topic");
         String command = (String) internalJmsMessage.getProperty(Command.COMMAND);
         String domain = (String) internalJmsMessage.getProperty(MessageConstants.DOMAIN);
+        String originServer = (String) internalJmsMessage.getProperty(CommandProperty.ORIGIN_SERVER);
 
         final List<String> managedServerNames = getManagedServerNames();
         LOG.debug("Found managed servers [{}]", managedServerNames);
-        for (String managedServerName : managedServerNames) {
-            commandService.createClusterCommand(command, domain, managedServerName);
+
+        if(StringUtils.isNotBlank(originServer)) {
+            managedServerNames.remove(originServer);
+            LOG.debug("Managed servers [{}] after exclusion of origin server [{}]", managedServerNames, originServer);
         }
+
+        for (String managedServerName : managedServerNames) {
+            commandService.createClusterCommand(command, domain, managedServerName, internalJmsMessage.getCustomProperties());
+        }
+    }
+
+    @Override
+    public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin) {
+        if (excludeOrigin) {
+            internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
+        }
+        sendMessage(internalJmsMessage, destination);
     }
 
     protected ObjectName getMessageDestinationName(String source) {
@@ -794,4 +818,5 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         }
         return null;
     }
+
 }

@@ -15,11 +15,11 @@ import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.PluginUserResultRO;
 import org.apache.cxf.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,17 +48,12 @@ public class PluginUserResource {
     @Autowired
     private CsvServiceImpl csvServiceImpl;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
-        LOG.error(ex.getMessage(), ex);
-
-        ErrorRO error = new ErrorRO(ex.getMessage());
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.CONNECTION, "close");
-        //keep this for the moment in case the connection close header proves not good in the end
-        //headers.set(HttpHeaders.CONTENT_LENGTH, String.valueOf(error.getContentLength()));
-
-        return new ResponseEntity(error, headers, HttpStatus.CONFLICT);
+        return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);
     }
 
     @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
@@ -95,6 +90,7 @@ public class PluginUserResource {
         List<AuthenticationEntity> addedUsers = domainConverter.convert(addedUsersRO, AuthenticationEntity.class);
         List<AuthenticationEntity> updatedUsers = domainConverter.convert(updatedUsersRO, AuthenticationEntity.class);
         List<AuthenticationEntity> removedUsers = domainConverter.convert(removedUsersRO, AuthenticationEntity.class);
+
         pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers);
     }
 
@@ -137,20 +133,28 @@ public class PluginUserResource {
      * @return a list of PluginUserROs and the pagination info
      */
     private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, Long count, int pageStart, int pageSize) {
-        List<PluginUserRO> pluginUserROs = domainConverter.convert(users, PluginUserRO.class);
-        for (PluginUserRO pluginUserRO : pluginUserROs) {
-            pluginUserRO.setStatus(UserState.PERSISTED.name());
-            pluginUserRO.setPasswd(null);
-            if (StringUtils.isEmpty(pluginUserRO.getCertificateId())) {
-                pluginUserRO.setAuthenticationType(AuthType.BASIC.name());
+        List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
+
+        // this is business, should be located somewhere else
+        for (int i = 0; i < users.size(); i++ ){
+            PluginUserRO userRO = userROs.get(i);
+            AuthenticationEntity entity = users.get(i);
+
+            userRO.setStatus(UserState.PERSISTED.name());
+            userRO.setPassword(null);
+            if (StringUtils.isEmpty(userRO.getCertificateId())) {
+                userRO.setAuthenticationType(AuthType.BASIC.name());
             } else {
-                pluginUserRO.setAuthenticationType(AuthType.CERTIFICATE.name());
+                userRO.setAuthenticationType(AuthType.CERTIFICATE.name());
             }
+
+            boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
+            userRO.setSuspended(isSuspended);
         }
 
         PluginUserResultRO result = new PluginUserResultRO();
 
-        result.setEntries(pluginUserROs);
+        result.setEntries(userROs);
         result.setCount(count);
         result.setPage(pageStart);
         result.setPageSize(pageSize);

@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
@@ -37,10 +38,12 @@ public class FSProcessFileService {
     @Autowired
     private FSPluginProperties fsPluginProperties;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void processFile(FileObject processableFile, String domain) throws FileSystemException, JAXBException, MessagingProcessingException {
+        LOG.debug("processFile start for file: {}", processableFile);
 
-        try(FileObject metadataFile = fsFilesManager.resolveSibling(processableFile, FSSendMessagesService.METADATA_FILE_NAME);) {
+        try (FileObject metadataFile = fsFilesManager.resolveSibling(processableFile, FSSendMessagesService.METADATA_FILE_NAME)) {
             if (metadataFile.exists()) {
                 UserMessage metadata = parseMetadata(metadataFile);
                 LOG.debug("Metadata found and valid: [{}]", processableFile.getName());
@@ -50,24 +53,31 @@ public class FSProcessFileService {
 
                 //we add mimetype later, base name and dataHandler now
                 String payloadId = fsPluginProperties.getPayloadId(domain);
-                fsPayloads.put(payloadId, new FSPayload(null, processableFile.getName().getBaseName(), dataHandler));
+                final FSPayload fsPayload = new FSPayload(null, processableFile.getName().getBaseName(), dataHandler);
+                fsPayload.setFileSize(processableFile.getContent().getSize());
+                fsPayload.setFilePath(processableFile.getURL().getPath());
+                fsPayloads.put(payloadId, fsPayload);
                 FSMessage message = new FSMessage(fsPayloads, metadata);
                 String messageId = backendFSPlugin.submit(message);
-                LOG.info("Message submitted: [{}]", processableFile.getName());
 
-                renameProcessedFile(processableFile, messageId);
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+                LOG.info("Message [{}] submitted: [{}]", messageId, processableFile.getName());
+
             } else {
                 LOG.error("Metadata file is missing for " + processableFile.getName().getURI());
             }
         }
     }
 
-    private void renameProcessedFile(FileObject processableFile, String messageId) {
-        String newFileName = FSFileNameHelper.deriveFileName(processableFile.getName().getBaseName(), messageId);
+    public void renameProcessedFile(FileObject processableFile, String messageId) {
+        final String baseName = processableFile.getName().getBaseName();
+        String newFileName = FSFileNameHelper.deriveFileName(baseName, messageId);
+
+        LOG.debug("Renaming file [{}] to [{}]", baseName, newFileName);
 
         try {
             fsFilesManager.renameFile(processableFile, newFileName);
-        } catch(FileSystemException ex) {
+        } catch (FileSystemException ex) {
             throw new FSPluginException("Error renaming file [" + processableFile.getName().getURI() + "] to [" + newFileName + "]", ex);
         }
     }

@@ -3,10 +3,8 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.api.user.UserManagementException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +58,14 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
             // this block needs to called inside a transaction;
             // for this the whole code inside the block needs to reside into a Spring bean service marked with transaction REQUIRED
             super.updateUsers(superUsers);
-            return null;
+        });
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String username, String currentPassword, String newPassword) {
+        domainTaskExecutor.submit(() -> {
+            super.changePassword(username, currentPassword, newPassword);
         });
     }
 

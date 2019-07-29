@@ -15,13 +15,22 @@
         <!--You may enter the following 4 items in any order-->
         <!--Optional:-->
         <!-- <AgreementRef type="">A1</AgreementRef> -->
+        <!--Optional:-->
+        <!-- <ConversationId>C1</ConversationId> -->
         <Service type="tc1">bdx:noprocess</Service>
-        <Action>TC1Leg1</Action>        
+        <Action>TC1Leg1</Action>
     </CollaborationInfo>
     <MessageProperties>
         <!--1 or more repetitions:-->
         <!--originalSender and finalRecipient are mandatory-->
         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>
         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>
-    </MessageProperties>    
+    </MessageProperties>
+    <PayloadInfo>
+        <PartInfo href="cid:message">
+            <PartProperties>
+                <Property name="MimeType">text/xml</Property>
+            </PartProperties>
+        </PartInfo>
+    </PayloadInfo>
 </UserMessage>

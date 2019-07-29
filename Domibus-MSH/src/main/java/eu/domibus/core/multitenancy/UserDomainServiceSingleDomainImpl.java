@@ -1,6 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.user.User;
 import eu.domibus.logging.DomibusLogger;
@@ -66,12 +67,4 @@ public class UserDomainServiceSingleDomainImpl implements UserDomainService {
         return;
     }
 
-    /**
-     * Retrieves all users from general schema.
-     * In single domain mode, this is always an empty list.
-     */
-    @Override
-    public List<String> getAllUserNames() {
-        return new ArrayList<>();
-    }
 }

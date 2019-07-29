@@ -3,14 +3,17 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.common.model.configuration.RetryStrategy;
+import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -23,18 +26,22 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 import java.util.UUID;
 
+import static eu.domibus.ebms3.sender.UpdateRetryLoggingService.DELETE_PAYLOAD_ON_SEND_FAILURE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JMockit.class)
 public class UpdateRetryLoggingServiceTest {
 
     private static final int RETRY_TIMEOUT_IN_MINUTES = 60;
-    private static final int RETRY_COUNT = 4;
-    private static final long SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016 = 1451602800000L; //This is the reference time returned by System.correntTImeMillis() mock
-    private static final long FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016 = SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016 - (60 * 5 * 1000);
-    private static final long ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016 = SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016 - (60 * 60 * 1000);
 
-    private static final String DELETE_PAYLOAD_ON_SEND_FAILURE = "domibus.sendMessage.failure.delete.payload";
+    private static final int RETRY_COUNT = 4;
+
+    private static final long SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016 = 1451602800000L; //This is the reference time returned by System.correntTImeMillis() mock
+
+    private static final long FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016 = SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016 - (60 * 5 * 1000);
+
+    private static final long ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016 = SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016 - (60 * 60 * 1000);
 
     @Tested
     private UpdateRetryLoggingService updateRetryLoggingService;
@@ -54,10 +61,16 @@ public class UpdateRetryLoggingServiceTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    private RawEnvelopeLogDao rawEnvelopeLogDao;
+
     private LegConfiguration legConfiguration = new LegConfiguration();
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    UserMessageService userMessageService;
 
     @Before
     public void setupExpectations() {
@@ -70,6 +83,8 @@ public class UpdateRetryLoggingServiceTest {
             result = RETRY_TIMEOUT_IN_MINUTES;
             legConfiguration.getReceptionAwareness().getRetryCount();
             result = RETRY_COUNT;
+            domibusPropertyProvider.getIntegerProperty(updateRetryLoggingService.MESSAGE_EXPIRATION_DELAY);
+            result = 6000;
         }};
     }
 
@@ -99,7 +114,7 @@ public class UpdateRetryLoggingServiceTest {
         userMessageLog.setMessageId(messageId);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE, "false");
+            domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -146,7 +161,7 @@ public class UpdateRetryLoggingServiceTest {
         userMessageLog.setRestored(new Date(restoredTime));
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE, "false");
+            domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -225,7 +240,7 @@ public class UpdateRetryLoggingServiceTest {
         userMessageLog.setMessageId(messageId);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE, "false");
+            domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -306,7 +321,7 @@ public class UpdateRetryLoggingServiceTest {
         userMessageLog.setMessageId(messageId);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE, "false");
+            domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -350,7 +365,7 @@ public class UpdateRetryLoggingServiceTest {
         userMessageLog.setMessageId(messageId);
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE, "false");
+            domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -395,13 +410,29 @@ public class UpdateRetryLoggingServiceTest {
             result = userMessageLog;
         }};
 
-
         updateRetryLoggingService.updatePushedMessageRetryLogging(messageId, legConfiguration);
-
 
         assertEquals(MessageStatus.WAITING_FOR_RETRY, userMessageLog.getMessageStatus());
         assertEquals(1, userMessageLog.getSendAttempts());
 
+    }
+
+    @Test
+    public void testMessageExpirationDate(@Mocked final MessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration) throws InterruptedException {
+        final int timeOut = 10;
+        final long timeOutInMillis = 60000 * timeOut ;
+        int delay = domibusPropertyProvider.getIntegerProperty(updateRetryLoggingService.MESSAGE_EXPIRATION_DELAY);
+        final long currentTime = System.currentTimeMillis() - (timeOutInMillis + delay) ;
+        final Date expectedDate = new Date(currentTime+timeOutInMillis);
+        new NonStrictExpectations() {{
+            userMessageLog.getRestored();
+            result = currentTime;
+            legConfiguration.getReceptionAwareness().getRetryTimeout();
+            result = timeOut;
+
+        }};
+        assertEquals(expectedDate, updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration));
+        assertTrue(updateRetryLoggingService.isExpired(legConfiguration, userMessageLog));
     }
 
     private static class SystemMockFirstOfJanuary2016 extends MockUp<System> {

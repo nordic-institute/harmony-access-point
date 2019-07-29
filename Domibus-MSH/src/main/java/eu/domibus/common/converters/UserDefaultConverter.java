@@ -3,9 +3,6 @@ package eu.domibus.common.converters;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserState;
 import eu.domibus.common.model.security.UserRole;
-import org.dozer.Mapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -26,10 +23,10 @@ public class UserDefaultConverter implements UserConverter {
         for (UserRole role : roles) {
             authorities.add(role.getName());
         }
-        return new eu.domibus.api.user.User(
+        return new User(
                 userEntity.getUserName(),
                 userEntity.getEmail(),
-                userEntity.getActive(),
+                userEntity.isActive(),
                 authorities,
                 UserState.PERSISTED,
                 userEntity.getSuspensionDate(),

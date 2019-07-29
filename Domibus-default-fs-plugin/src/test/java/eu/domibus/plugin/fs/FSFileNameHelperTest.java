@@ -1,13 +1,19 @@
 package eu.domibus.plugin.fs;
 
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.integration.junit4.JMockit;
+import org.apache.commons.vfs2.FileObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import eu.domibus.common.MessageStatus;
+import org.junit.runner.RunWith;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
+@RunWith(JMockit.class)
 public class FSFileNameHelperTest {
     
     public FSFileNameHelperTest() {
@@ -79,7 +85,28 @@ public class FSFileNameHelperTest {
         
         Assert.assertFalse(result);
     }
-    
+
+    @Test
+    public void testIsLockFile() {
+        boolean result = FSFileNameHelper.isLockFile("large_invoice.pdf.lock");
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testIsLockFile_Fail() {
+        boolean result = FSFileNameHelper.isLockFile("large_invoice.pdf");
+
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void testStripLockSuffix() {
+        String result = FSFileNameHelper.stripLockSuffix("large_invoice.pdf.lock");
+
+        Assert.assertEquals("large_invoice.pdf", result);
+    }
+
     @Test
     public void testIsMessageRelated_Fail2() {
         // missing one character in UUID in message ID
@@ -165,5 +192,19 @@ public class FSFileNameHelperTest {
 
         Assert.assertEquals("smb://example.org/fs_plugin_data/OUTDOMAIN/SENT/OUTGOING", result);
     }
+
+
+    @Test
+    public void testGetLockFilename(@Injectable FileObject file) {
+        final String filename = "invoice.pdf";
+        new Expectations() {{
+            file.getName().getBaseName();
+            this.result = filename;
+        }};
+
+        final String lockFilename = FSFileNameHelper.getLockFilename(file);
+        Assert.assertEquals(lockFilename, filename + ".lock");
+    }
+
     
 }

@@ -38,7 +38,8 @@ public class ConfigurationLoader<E> {
         if (this.configuration.get(key) == null) {
             synchronized (this.configuration) {
                 if (this.configuration.get(key) == null) {
-                    this.configuration.put(key, configurationReader.readConfiguration(domain));
+                    E conf = configurationReader.readConfiguration(domain);
+                    this.configuration.put(key, conf);
                 }
             }
         }
@@ -46,7 +47,6 @@ public class ConfigurationLoader<E> {
         LOG.debug("Alert messaging configuration:[{}]", result);
         return result;
     }
-
 }
 
 

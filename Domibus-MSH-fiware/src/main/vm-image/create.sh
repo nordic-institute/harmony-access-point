@@ -1,14 +1,20 @@
 #!/bin/bash -ex
 
+### This script creates a Domibus image based on Ubuntu 18.04 ###
+
 export DEBIAN_FRONTEND=noninteractive
 sudo sed -i "s/127.0.0.1 localhost/127.0.0.1 localhost $(hostname)/g" /etc/hosts
 sudo apt-get update -q
 sudo apt-get install dialog
 
 ######### Install & configure JRE ########
-sudo apt-get -y install default-jre
+sudo add-apt-repository ppa:webupd8team/java --yes
+sudo apt-get update
+echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+DEBIAN_FRONTEND=noninteractive sudo apt install openjdk-8-jre-headless --yes --force-yes --assume-yes
 
-JAVA_HOME=$(sudo update-alternatives --config java | awk '{print $12}')
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 
 sudo echo >> /home/ubuntu/.bashrc
 sudo echo "JAVA_HOME=$JAVA_HOME" >> /home/ubuntu/.bashrc
@@ -17,17 +23,15 @@ source /home/ubuntu/.bashrc
 
 ######### Install MySql ##########
 
-sudo debconf-set-selections <<< 'mysql-server-5.6 mysql-server/root_password password root'
-sudo debconf-set-selections <<< 'mysql-server-5.6 mysql-server/root_password_again password root'
-sudo apt-get -y install mysql-server-5.6
+sudo debconf-set-selections <<< 'mysql-server-5.7 mysql-server/root_password password root'
+sudo debconf-set-selections <<< 'mysql-server-5.7 mysql-server/root_password_again password root'
+sudo apt-get -y install mysql-server-5.7
 
 ########## Create domibus db and user ########
 mysql -h localhost -u root --password=root -e "drop schema if exists domibus; create schema domibus; alter database domibus charset=utf8; create user edelivery identified by 'edelivery'; grant all on domibus.* to edelivery;"
 
 ########## Install Domibus ########
-#FROM java:7-jre
-
-export DOMIBUS_VERSION="3.3.2"
+export DOMIBUS_VERSION="4.0"
 
 export TOMCAT_MAJOR="8"
 export TOMCAT_VERSION="8.0.24"
@@ -57,16 +61,18 @@ sudo cp -R $DOMIBUS_DIST/conf/domibus/keystores $CATALINA_HOME/conf/domibus/
 
 sudo chmod 777 $CATALINA_HOME/bin/*.sh
 sudo sed -i 's/\r$//' $CATALINA_HOME/bin/setenv.sh
-sudo sed -i 's/#export CATALINA_HOME=<YOUR_INSTALLATION_PATH>/sleep 300;/g' $CATALINA_HOME/bin/setenv.sh
 sudo sed -i 's/#JAVA_OPTS/JAVA_OPTS/g' $CATALINA_HOME/bin/setenv.sh
 
+sudo tar xzf data.tgz
+
 ########## Create domibus tables ########
-mysql -h localhost -u root --password=root domibus < $TOMCAT_FULL_DISTRIBUTION/sql-scripts/mysql5innoDb-3.3.2.ddl
+mysql -h localhost -u root --password=root domibus < $TOMCAT_FULL_DISTRIBUTION/sql-scripts/mysql5innoDb-4.0.ddl
+mysql -h localhost -u root --password=root domibus < $TOMCAT_FULL_DISTRIBUTION/sql-scripts/mysql5innoDb-4.0-data.ddl
 
 sudo sed -i 's/gateway_truststore.jks/ceftestparty9gwtruststore.jks/g' $CATALINA_HOME/conf/domibus/domibus.properties
 sudo sed -i 's/gateway_keystore.jks/ceftestparty9gwkeystore.jks/g' $CATALINA_HOME/conf/domibus/domibus.properties
 sudo sed -i 's/blue_gw/ceftestparty9gw/g' $CATALINA_HOME/conf/domibus/domibus.properties
-sudo tar xzf data.tgz
+
 sudo mv data/domibus-ceftestparty9gw-pmode.xml $DOMIBUS_DIST/conf/pmodes/
 sudo mv data/* $CATALINA_HOME/conf/domibus/keystores/
 
@@ -74,18 +80,25 @@ sudo chown -R ubuntu:ubuntu $CATALINA_HOME
 
 ########## Configure Tomcat as a service ###########
 sudo bash -c 'cat << EOF > /etc/init.d/domibus
-# Domibus auto-start
+#!/bin/bash
 #
-# description: Auto-starts domibus
-# processname: domibus(tomcat)
-# pidfile: /var/run/tomcat.pid
+### BEGIN INIT INFO
+# Provides:          domibus
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Domibus ...
+### END INIT INFO
 
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 
 case \$1 in
         start)
+		echo "start .... "
             sh /usr/local/tomcat/domibus/bin/startup.sh
-            ;;
+                echo "after start ... "
+	    ;;
         stop)
             sh /usr/local/tomcat/domibus/bin/shutdown.sh
             ;;
@@ -94,13 +107,30 @@ case \$1 in
             sh /usr/local/tomcat/domibus/bin/startup.sh
             ;;
         esac
-            exit 0
+            #exit 0
 EOF'
 
 sudo chmod 755 /etc/init.d/domibus
 
 sudo ln -s /etc/init.d/domibus /etc/rc1.d/K99domibus
 sudo ln -s /etc/init.d/domibus /etc/rc2.d/S99domibus
+
+sudo bash -c 'cat << EOF > /lib/systemd/system/domibus.service
+[Unit]
+Description = Domibus daemon
+After=mysql.service
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/domibus start
+
+[Install]
+WantedBy=multi-user.target
+Alias=domibus.service
+
+EOF'
+
+sudo systemctl enable domibus
 
 ######### Start the service #########
 cd $CATALINA_HOME
@@ -131,3 +161,5 @@ curl http://localhost:8080/domibus/rest/pmode \
 -H "X-XSRF-TOKEN: ${XSRFTOKEN}" \
 -F  file=@"$DOMIBUS_DIST/conf/pmodes/domibus-ceftestparty9gw-pmode.xml" \
 -F  description="Connectivity Test Platform"
+
+

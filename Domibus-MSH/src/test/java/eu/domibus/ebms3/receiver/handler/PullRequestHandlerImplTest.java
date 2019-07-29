@@ -3,6 +3,7 @@ package eu.domibus.ebms3.receiver.handler;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.dao.MessagingDao;
@@ -19,7 +20,6 @@ import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.receiver.MessageTestUtility;
 import eu.domibus.ebms3.sender.*;
-import eu.domibus.pki.DomibusCertificateException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -132,7 +132,7 @@ public class PullRequestHandlerImplTest {
             legConfiguration.getReliability().isNonRepudiation();
             result = true;
 
-            pullRequestMatcher.matchReliableCallBack(withAny(legConfiguration));
+            pullRequestMatcher.matchReliableCallBack(withAny(legConfiguration.getReliability()));
             result = true;
 
             pullContext.filterLegOnMpc();
@@ -167,12 +167,12 @@ public class PullRequestHandlerImplTest {
                                                     @Mocked final LegConfiguration legConfiguration,
                                                     @Mocked final PullContext pullContext) throws EbMS3Exception {
 
-        pullRequestHandler.notifyNoMessage(pullContext);
+        pullRequestHandler.notifyNoMessage(pullContext, null);
         new Verifications() {{
 
-            SignalMessage signal;
-            messageBuilder.buildSOAPMessage(signal = withCapture(), withAny(legConfiguration));
-            Assert.assertEquals(1, signal.getError().size());
+            EbMS3Exception exception;
+            messageBuilder.getSoapMessage(exception = withCapture());
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0006, exception.getErrorCode());
         }};
     }
 
@@ -281,6 +281,4 @@ public class PullRequestHandlerImplTest {
             times = 0;
         }};
     }
-
-
 }

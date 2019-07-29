@@ -680,7 +680,52 @@
 
         <addColumn tableName="TB_USER_AUD">
             <column name="USER_DELETED" type="BOOLEAN"></column>
+            <column name="DELETED_MOD" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
 
+    <changeSet id="EDELIVERY-4801" author="nperpion">
+        <createIndex indexName="FK_BACKEND_FILTER_AUD_REV" tableName="TB_BACKEND_FILTER_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_BACK_RCRITERIA_AUD" tableName="TB_BACK_RCRITERIA_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_CONFIGURATION_AUD_REV" tableName="TB_CONFIGURATION_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_CONFIGURATION_RAW_AUD" tableName="TB_CONFIGURATION_RAW_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="FK_MSG_ACKNOWLEDGE"/>
+        </createIndex>
+        <createIndex indexName="FK_PARTY_AUD_REV" tableName="TB_PARTY_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_PARTY_IDENTIFIER_AUD_REV" tableName="TB_PARTY_IDENTIFIER_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_PARTY_ID_TYPE_AUD_REV" tableName="TB_PARTY_ID_TYPE_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_REV_CHANGES_REV" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_ROUTING_CRITERIA_AUD_REV" tableName="TB_ROUTING_CRITERIA_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_USER_AUD_REV" tableName="TB_USER_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_USER_ROLE_AUD" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <createIndex indexName="FK_signalmsg_id_fk_rawenv_id" tableName="TB_RAWENVELOPE_LOG">
+            <column name="SIGNALMESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="FK_usermsg_id_fk_rawenv_id" tableName="TB_RAWENVELOPE_LOG">
+            <column name="USERMESSAGE_ID_FK"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

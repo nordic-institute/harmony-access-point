@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Headers, Response} from '@angular/http';
-import {AlertService} from '../alert/alert.service';
+import {Http, Response} from '@angular/http';
+import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
 import {isNullOrUndefined} from 'util';
 import {MdDialog, MdDialogRef} from '@angular/material';
@@ -11,15 +11,18 @@ import {DirtyOperations} from '../common/dirty-operations';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {Observable} from 'rxjs/Observable';
-import {DownloadService} from '../download/download.service';
-import {AlertComponent} from '../alert/alert.component';
+import {DownloadService} from '../common/download.service';
+import {AlertComponent} from '../common/alert/alert.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
-export class JmsComponent implements OnInit, DirtyOperations {
+export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -38,6 +41,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
   @ViewChild('rowActions') rowActions: TemplateRef<any>;
 
   queues: any[];
+  orderedQueues: any[];
 
   currentSearchSelectedSource;
 
@@ -47,24 +51,30 @@ export class JmsComponent implements OnInit, DirtyOperations {
 
   rows: Array<any>;
   request: MessagesRequestRO;
-  private headers = new Headers({'Content-Type': 'application/json'});
 
   private _selectedSource: any;
-  get selectedSource (): any {
+  offset: any;
+
+  get selectedSource(): any {
     return this._selectedSource;
   }
 
-  set selectedSource (value: any) {
+  set selectedSource(value: any) {
     this._selectedSource = value;
-    this.request.source = value.name;
+    this.filter.source = value.name;
     this.defaultQueueSet.emit();
   }
 
-  constructor (private http: Http, private alertService: AlertService, public dialog: MdDialog) {
-    this.request = new MessagesRequestRO();
+  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+    super();
   }
 
-  ngOnInit () {
+  ngOnInit() {
+    super.ngOnInit();
+
+    this.filter = new MessagesRequestRO();
+
+    this.offset = 0;
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
@@ -73,6 +83,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
     this.queuesInfoGot = new EventEmitter(false);
 
     this.queues = [];
+    this.orderedQueues = [];
 
     this.columnPicker.allColumns = [
       {
@@ -121,8 +132,8 @@ export class JmsComponent implements OnInit, DirtyOperations {
     });
 
     // set toDate equals to now
-    this.request.toDate = new Date();
-    this.request.toDate.setHours(23, 59, 59, 999);
+    this.filter.toDate = new Date();
+    this.filter.toDate.setHours(23, 59, 59, 999);
 
     this.selectedMessages = [];
     this.markedForDeletionMessages = [];
@@ -139,16 +150,15 @@ export class JmsComponent implements OnInit, DirtyOperations {
     this.defaultQueueSet.subscribe(result => {
       this.search();
     });
-
   }
 
-  private getDestinations (): Observable<Response> {
+  private getDestinations(): Observable<Response> {
     return this.http.get('rest/jms/destinations')
       .map(response => response.json().jmsDestinations)
       .catch((error: Response) => this.alertService.handleError('Could not load queues: ' + error));
   }
 
-  private loadDestinations (): Observable<Response> {
+  private loadDestinations(): Observable<Response> {
     const result = this.getDestinations();
     result.subscribe(
       (destinations) => {
@@ -163,14 +173,15 @@ export class JmsComponent implements OnInit, DirtyOperations {
     return result;
   }
 
-  private refreshDestinations (): Observable<Response> {
+  private refreshDestinations(): Observable<Response> {
     const result = this.getDestinations();
     result.subscribe(
       (destinations) => {
         for (const key in destinations) {
-          const queue = this.queues.find(el => el.name === key);
+          var src = destinations[key];
+          const queue = this.queues.find(el => el.name === src.name);
           if (queue) {
-            Object.assign(queue, destinations[key]);
+            Object.assign(queue, src);
           }
         }
       }
@@ -178,7 +189,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
     return result;
   }
 
-  private setDefaultQueue (queueName: string) {
+  private setDefaultQueue(queueName: string) {
     if (!this.queues || this.queues.length == 0) return;
 
     const matching = this.queues.find((el => el.name && el.name.match(queueName)));
@@ -187,36 +198,55 @@ export class JmsComponent implements OnInit, DirtyOperations {
     this.selectedSource = toSelect;
   }
 
-  changePageSize (newPageSize: number) {
+  changePageSize(newPageSize: number) {
+    super.resetFilters();
     this.rowLimiter.pageSize = newPageSize;
-    this.search();
+    this.refresh();
   }
 
-  onSelect ({selected}) {
+  refresh() {
+    // ugly but the grid does not feel the paging changes otherwise
+    this.loading = true;
+    const rows = this.rows;
+    this.rows = [];
+
+    setTimeout(() => {
+      this.rows = rows;
+      this.selectedMessages.length = 0;
+      this.loading = false;
+    }, 50);
+  }
+
+  onSelect({selected}) {
     this.selectedMessages.splice(0, this.selectedMessages.length);
     this.selectedMessages.push(...selected);
   }
 
-  onActivate (event) {
+  onActivate(event) {
     if ('dblclick' === event.type) {
       this.details(event.row);
     }
   }
 
-  onTimestampFromChange (event) {
+  onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
   }
 
-  onTimestampToChange (event) {
+  onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
   }
 
-  canSearch () {
-    return this.request.source && !this.loading;
+  canSearch() {
+    return this.filter.source && !this.loading;
   }
 
-  search () {
-    if (!this.request.source) {
+  search() {
+    super.setActiveFilter();
+    this.doSearch();
+  }
+
+  private doSearch() {
+    if (!this.filter.source) {
       this.alertService.error('Source should be set');
       return;
     }
@@ -229,14 +259,16 @@ export class JmsComponent implements OnInit, DirtyOperations {
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
     this.http.post('rest/jms/messages', {
-      source: this.request.source,
-      jmsType: this.request.jmsType,
-      fromDate: !isNullOrUndefined(this.request.fromDate) ? this.request.fromDate.getTime() : undefined,
-      toDate: !isNullOrUndefined(this.request.toDate) ? this.request.toDate.getTime() : undefined,
-      selector: this.request.selector,
-    }, {headers: this.headers}).subscribe(
+      source: this.activeFilter.source,
+      jmsType: this.activeFilter.jmsType,
+      fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
+      toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
+      selector: this.activeFilter.selector,
+    }).subscribe(
       (response: Response) => {
         this.rows = response.json().messages;
+        this.offset = 0;
+        this.refresh();
         this.loading = false;
 
         this.refreshDestinations();
@@ -248,23 +280,23 @@ export class JmsComponent implements OnInit, DirtyOperations {
     );
   }
 
-  cancel () {
-    let dialogRef: MdDialogRef<CancelDialogComponent> = this.dialog.open(CancelDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
+  cancel() {
+    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
       if (result) {
-        this.search();
+        super.resetFilters();
+        this.doSearch();
       }
     });
   }
 
-  save () {
+  save() {
     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
     //because the user can change the source after pressing search and then select the messages and press delete
     //in this case I need to use currentSearchSelectedSource
     this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
   }
 
-  move () {
+  move() {
     const dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
@@ -290,8 +322,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
               }
               break;
             }
-          }
-          catch (e) {
+          } catch (e) {
             console.error(e);
           }
         }
@@ -315,7 +346,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
     });
   }
 
-  moveAction (row) {
+  moveAction(row) {
     let dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
@@ -332,8 +363,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
         if (queues.length == 1) {
           dialogRef.componentInstance.destinationsChoiceDisabled = true;
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.error(e);
       }
 
@@ -353,7 +383,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
     });
   }
 
-  details (selectedRow: any) {
+  details(selectedRow: any) {
     let dialogRef: MdDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
@@ -362,7 +392,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
     });
   }
 
-  deleteAction (row) {
+  deleteAction(row) {
     this.markedForDeletionMessages.push(row);
     let newRows = this.rows.filter((element) => {
       return row !== element;
@@ -371,7 +401,7 @@ export class JmsComponent implements OnInit, DirtyOperations {
     this.rows = newRows;
   }
 
-  delete () {
+  delete() {
     this.markedForDeletionMessages.push(...this.selectedMessages);
     let newRows = this.rows.filter((element) => {
       return !this.selectedMessages.includes(element);
@@ -380,14 +410,14 @@ export class JmsComponent implements OnInit, DirtyOperations {
     this.rows = newRows;
   }
 
-  serverMove (source: string, destination: string, messageIds: Array<any>) {
+  serverMove(source: string, destination: string, messageIds: Array<any>) {
     console.log('serverMove');
     this.http.post('rest/jms/messages/action', {
       source: source,
       destination: destination,
       selectedMessages: messageIds,
       action: 'MOVE'
-    }, {headers: this.headers}).subscribe(
+    }).subscribe(
       () => {
         this.alertService.success('The operation \'move messages\' completed successfully.');
 
@@ -409,12 +439,12 @@ export class JmsComponent implements OnInit, DirtyOperations {
     )
   }
 
-  serverRemove (source: string, messageIds: Array<any>) {
+  serverRemove(source: string, messageIds: Array<any>) {
     this.http.post('rest/jms/messages/action', {
       source: source,
       selectedMessages: messageIds,
       action: 'REMOVE'
-    }, {headers: this.headers}).subscribe(
+    }).subscribe(
       () => {
         this.alertService.success('The operation \'updates on message(s)\' completed successfully.');
         this.refreshDestinations();
@@ -426,28 +456,28 @@ export class JmsComponent implements OnInit, DirtyOperations {
     )
   }
 
-  getFilterPath () {
+  getFilterPath() {
     let result = '?';
-    if (!isNullOrUndefined(this.request.source)) {
-      result += 'source=' + this.request.source + '&';
+    if (!isNullOrUndefined(this.activeFilter.source)) {
+      result += 'source=' + this.activeFilter.source + '&';
     }
-    if (!isNullOrUndefined(this.request.jmsType)) {
-      result += 'jmsType=' + this.request.jmsType + '&';
+    if (!isNullOrUndefined(this.activeFilter.jmsType)) {
+      result += 'jmsType=' + this.activeFilter.jmsType + '&';
     }
-    if (!isNullOrUndefined(this.request.fromDate)) {
-      result += 'fromDate=' + this.request.fromDate.getTime() + '&';
+    if (!isNullOrUndefined(this.activeFilter.fromDate)) {
+      result += 'fromDate=' + this.activeFilter.fromDate.getTime() + '&';
     }
-    if (!isNullOrUndefined(this.request.toDate)) {
-      result += 'toDate=' + this.request.toDate.getTime() + '&';
+    if (!isNullOrUndefined(this.activeFilter.toDate)) {
+      result += 'toDate=' + this.activeFilter.toDate.getTime() + '&';
     }
-    if (!isNullOrUndefined(this.request.selector)) {
-      result += 'selector=' + this.request.selector + '&';
+    if (!isNullOrUndefined(this.activeFilter.selector)) {
+      result += 'selector=' + this.activeFilter.selector + '&';
     }
     return result;
   }
 
-  saveAsCSV () {
-    if (!this.request.source) {
+  saveAsCSV() {
+    if (!this.activeFilter.source) {
       this.alertService.error('Source should be set');
       return;
     }
@@ -455,12 +485,20 @@ export class JmsComponent implements OnInit, DirtyOperations {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;
     }
-
+    super.resetFilters();
     DownloadService.downloadNative('rest/jms/csv' + this.getFilterPath());
   }
 
-  isDirty (): boolean {
+  isDirty(): boolean {
     return !isNullOrUndefined(this.markedForDeletionMessages) && this.markedForDeletionMessages.length > 0;
   }
 
+  onPage($event) {
+    this.offset = $event.offset;
+    super.resetFilters();
+  }
+
+  onSort() {
+    super.resetFilters();
+  }
 }

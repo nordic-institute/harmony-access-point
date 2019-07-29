@@ -40,6 +40,13 @@ public interface MessageExchangeService {
     void initiatePullRequest();
 
     /**
+     * Load pmode and find pull process in order to initialize pull request.
+     *
+     * @param mpc the mpc of the exchange
+     */
+    void initiatePullRequest(final String mpc);
+
+    /**
      * Check if a message exist for the association mpc/responder. If it does it returns the first one that arrived.
      *
      * @param mpc       the mpc contained in the pull request.
@@ -78,4 +85,19 @@ public interface MessageExchangeService {
     void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName);
 
     void verifySenderCertificate(LegConfiguration legConfiguration, String receiverName);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#forcePullOnMpc(String)}
+     */
+    boolean forcePullOnMpc(String mpc);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#extractInitiator(String)}
+     */
+    String extractInitiator(String mpc);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#extractBaseMpc(String)}
+     */
+    String extractBaseMpc(String mpc);
 }

@@ -10,6 +10,9 @@ public class CertificateEntry {
     String alias;
     X509Certificate certificate;
 
+    public CertificateEntry() {
+    }
+
     public CertificateEntry(String alias, X509Certificate certificate) {
         this.alias = alias;
         this.certificate = certificate;
@@ -21,5 +24,13 @@ public class CertificateEntry {
 
     public X509Certificate getCertificate() {
         return this.certificate;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public void setCertificate(X509Certificate certificate) {
+        this.certificate = certificate;
     }
 }

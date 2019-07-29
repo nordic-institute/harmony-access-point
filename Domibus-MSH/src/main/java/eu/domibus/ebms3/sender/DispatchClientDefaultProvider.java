@@ -1,15 +1,21 @@
 package eu.domibus.ebms3.sender;
 
-import com.google.common.base.Strings;
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.proxy.DomibusProxy;
+import eu.domibus.proxy.DomibusProxyService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.jaxws.DispatchImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.local.LocalConduit;
+import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.neethi.Policy;
@@ -37,15 +43,14 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     public static final String ASYMMETRIC_SIG_ALGO_PROPERTY = "ASYMMETRIC_SIG_ALGO_PROPERTY";
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final QName SERVICE_NAME = new QName("http://domibus.eu", "msh-dispatch-service");
+    public static final QName LOCAL_SERVICE_NAME = new QName("http://domibus.eu", "local-msh-dispatch-service");
     public static final QName PORT_NAME = new QName("http://domibus.eu", "msh-dispatch");
+    public static final QName LOCAL_PORT_NAME = new QName("http://domibus.eu", "local-msh-dispatch");
     public static final String DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT = "domibus.dispatcher.connectionTimeout";
-    public static final String DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT_DEFAULT = "120000";
     public static final String DOMIBUS_DISPATCHER_RECEIVETIMEOUT = "domibus.dispatcher.receiveTimeout";
-    public static final String DOMIBUS_DISPATCHER_RECEIVETIMEOUT_DEFAULT = "120000";
     public static final String DOMIBUS_DISPATCHER_ALLOWCHUNKING = "domibus.dispatcher.allowChunking";
-    public static final String DOMIBUS_DISPATCHER_ALLOWCHUNKING_DEFAULT = "true";
     public static final String DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD = "domibus.dispatcher.chunkingThreshold";
-    public static final String DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD_DEFAULT = "104857600";
+    public static final String DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE = "domibus.dispatcher.connection.keepAlive";
 
 
     @Autowired
@@ -58,6 +63,9 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    @Qualifier("domibusProxyService")
+    protected DomibusProxyService domibusProxyService;
 
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
@@ -71,31 +79,59 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
         final HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
         final HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
+
         httpConduit.setClient(httpClientPolicy);
+        setHttpClientPolicy(httpClientPolicy);
+
+        if (endpoint.startsWith("https://")) {
+            final TLSClientParameters params = tlsReader.getTlsClientParameters(domain);
+            if (params != null) {
+                httpConduit.setTlsClientParameters(params);
+            }
+        }
+
+        configureProxy(httpClientPolicy, httpConduit);
+        return dispatch;
+    }
+
+
+    @Override
+    public Dispatch<SOAPMessage> getLocalClient(String domain, String endpoint) {
+        LOG.debug("Creating the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
+        Dispatch<SOAPMessage> dispatch = createLocalWSServiceDispatcher(endpoint);
+
+        final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
+        final LocalConduit httpConduit = (LocalConduit) client.getConduit();
+
+        httpConduit.setMessageObserver(new MessageObserver() {
+            @Override
+            public void onMessage(Message message) {
+                message.getExchange().getOutMessage().put(ClientImpl.SYNC_TIMEOUT, 0);
+                message.getExchange().put(ClientImpl.FINISHED, Boolean.TRUE);
+                LOG.debug("on message");
+            }
+        });
+
+
+        return dispatch;
+    }
+
+    protected void setHttpClientPolicy(HTTPClientPolicy httpClientPolicy) {
         //ConnectionTimeOut - Specifies the amount of time, in milliseconds, that the consumer will attempt to establish a connection before it times out. 0 is infinite.
-        int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT, DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT_DEFAULT));
+        int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT));
         httpClientPolicy.setConnectionTimeout(connectionTimeout);
         //ReceiveTimeOut - Specifies the amount of time, in milliseconds, that the consumer will wait for a response before it times out. 0 is infinite.
-        int receiveTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_RECEIVETIMEOUT, DOMIBUS_DISPATCHER_RECEIVETIMEOUT_DEFAULT));
+        int receiveTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_RECEIVETIMEOUT));
         httpClientPolicy.setReceiveTimeout(receiveTimeout);
-        httpClientPolicy.setAllowChunking(Boolean.valueOf(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_ALLOWCHUNKING, DOMIBUS_DISPATCHER_ALLOWCHUNKING_DEFAULT)));
-        httpClientPolicy.setChunkingThreshold(Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD, DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD_DEFAULT)));
+        httpClientPolicy.setAllowChunking(Boolean.valueOf(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_ALLOWCHUNKING)));
+        httpClientPolicy.setChunkingThreshold(Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD)));
 
-        final TLSClientParameters params = tlsReader.getTlsClientParameters();
-        if (params != null && endpoint.startsWith("https://")) {
-            httpConduit.setTlsClientParameters(params);
+        Boolean keepAlive = Boolean.parseBoolean(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE));
+        ConnectionType connectionType = ConnectionType.CLOSE;
+        if (keepAlive) {
+            connectionType = ConnectionType.KEEP_ALIVE;
         }
-        final SOAPMessage result;
-
-        String useProxy = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_ENABLED, "false");
-        Boolean useProxyBool = Boolean.parseBoolean(useProxy);
-        if (useProxyBool) {
-            LOG.info("Usage of Proxy required");
-            configureProxy(httpClientPolicy, httpConduit);
-        } else {
-            LOG.info("No proxy configured");
-        }
-        return dispatch;
+        httpClientPolicy.setConnection(connectionType);
     }
 
     protected Dispatch<SOAPMessage> createWSServiceDispatcher(String endpoint) {
@@ -107,26 +143,36 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     }
 
     protected void configureProxy(final HTTPClientPolicy httpClientPolicy, HTTPConduit httpConduit) {
-        String httpProxyHost = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_HTTP_HOST);
-        String httpProxyPort = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_HTTP_PORT);
-        String httpProxyUser = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_USER);
-        String httpProxyPassword = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_PASSWORD);
-        String httpNonProxyHosts = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_NON_PROXY_HOSTS);
-        if (!Strings.isNullOrEmpty(httpProxyHost) && !Strings.isNullOrEmpty(httpProxyPort)) {
-            httpClientPolicy.setProxyServer(httpProxyHost);
-            httpClientPolicy.setProxyServerPort(Integer.valueOf(httpProxyPort));
-            httpClientPolicy.setProxyServerType(org.apache.cxf.transports.http.configuration.ProxyServerType.HTTP);
+        if (!domibusProxyService.useProxy()) {
+            LOG.debug("Usage of proxy not required");
+            return;
         }
-        if (!Strings.isNullOrEmpty(httpProxyHost)) {
-            httpClientPolicy.setNonProxyHosts(httpNonProxyHosts);
+
+        DomibusProxy domibusProxy = domibusProxyService.getDomibusProxy();
+        LOG.debug("Configuring proxy [{}] [{}] [{}] [{}] ", domibusProxy.getHttpProxyHost(),
+                domibusProxy.getHttpProxyPort(), domibusProxy.getHttpProxyUser(), domibusProxy.getNonProxyHosts());
+        httpClientPolicy.setProxyServer(domibusProxy.getHttpProxyHost());
+        httpClientPolicy.setProxyServerPort(domibusProxy.getHttpProxyPort());
+        httpClientPolicy.setProxyServerType(org.apache.cxf.transports.http.configuration.ProxyServerType.HTTP);
+
+        if (!StringUtils.isBlank(domibusProxy.getNonProxyHosts())) {
+            httpClientPolicy.setNonProxyHosts(domibusProxy.getNonProxyHosts());
         }
-        if (!Strings.isNullOrEmpty(httpProxyUser) && !Strings.isNullOrEmpty(httpProxyPassword)) {
+
+        if (!domibusProxyService.isProxyUserSet()) {
             ProxyAuthorizationPolicy policy = new ProxyAuthorizationPolicy();
-            policy.setUserName(httpProxyUser);
-            policy.setPassword(httpProxyPassword);
+            policy.setUserName(domibusProxy.getHttpProxyUser());
+            policy.setPassword(domibusProxy.getHttpProxyPassword());
             httpConduit.setProxyAuthorization(policy);
         }
     }
 
+    protected Dispatch<SOAPMessage> createLocalWSServiceDispatcher(String endpoint) {
+        final javax.xml.ws.Service service = javax.xml.ws.Service.create(LOCAL_SERVICE_NAME);
+        service.setExecutor(executor);
+        service.addPort(LOCAL_PORT_NAME, SOAPBinding.SOAP12HTTP_BINDING, endpoint);
+        final Dispatch<SOAPMessage> dispatch = service.createDispatch(LOCAL_PORT_NAME, SOAPMessage.class, javax.xml.ws.Service.Mode.MESSAGE);
+        return dispatch;
+    }
 
 }

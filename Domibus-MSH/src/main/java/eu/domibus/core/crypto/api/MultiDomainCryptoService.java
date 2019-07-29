@@ -2,7 +2,7 @@ package eu.domibus.core.crypto.api;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.pki.DomibusCertificateException;
+import eu.domibus.api.pki.DomibusCertificateException;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -42,7 +42,7 @@ public interface MultiDomainCryptoService {
 
     void refreshTrustStore(Domain domain);
 
-    void replaceTrustStore(Domain domain, byte[] store, String password) throws CryptoException;
+    void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException;
 
     KeyStore getKeyStore(Domain domain);
 
@@ -61,4 +61,5 @@ public interface MultiDomainCryptoService {
     boolean removeCertificate(Domain domain, String alias);
 
     void removeCertificate(Domain domain, List<String> aliases);
+
 }

@@ -14,18 +14,14 @@ import eu.domibus.ebms3.common.model.PayloadInfo;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -200,22 +196,22 @@ public class BackendMessageValidator {
     }
 
     public void validatePayloads(PayloadInfo payloadInfo) throws EbMS3Exception {
-        if(payloadInfo == null || CollectionUtils.isEmpty(payloadInfo.getPartInfo())) {
+        if (payloadInfo == null || CollectionUtils.isEmpty(payloadInfo.getPartInfo())) {
             return;
         }
 
-        for(PartInfo partInfo : payloadInfo.getPartInfo()) {
+        for (PartInfo partInfo : payloadInfo.getPartInfo()) {
             validateCompressionProperty(partInfo.getPartProperties());
         }
     }
 
-    protected void validateCompressionProperty(PartProperties properties) throws SubmissionValidationException{
-        if(properties == null || CollectionUtils.isEmpty(properties.getProperties())) {
+    protected void validateCompressionProperty(PartProperties properties) throws SubmissionValidationException {
+        if (properties == null || CollectionUtils.isEmpty(properties.getProperties())) {
             return;
         }
 
-        for(Property property : properties.getProperties()) {
-            if(CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
+        for (Property property : properties.getProperties()) {
+            if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
                 throw new SubmissionValidationException("The occurrence of the property " + CompressionService.COMPRESSION_PROPERTY_KEY + " and its value are fully controlled by the AS4 compression feature");
             }
         }

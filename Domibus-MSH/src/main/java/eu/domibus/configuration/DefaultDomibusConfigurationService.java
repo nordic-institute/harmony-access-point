@@ -2,8 +2,6 @@ package eu.domibus.configuration;
 
 import eu.domibus.api.configuration.DataBaseEngine;
 import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -41,7 +39,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isClusterDeployment() {
-        return Boolean.parseBoolean(domibusPropertyProvider.getProperty(CLUSTER_DEPLOYMENT, "false"));
+        return domibusPropertyProvider.getBooleanProperty(CLUSTER_DEPLOYMENT);
     }
 
     @Override
@@ -58,29 +56,13 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
-    public boolean useProxy() {
-        String useProxy = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_ENABLED, "false");
-        if (StringUtils.isEmpty(useProxy) || !Boolean.parseBoolean(useProxy)) {
-            LOG.debug("Proxy not required. The property domibus.proxy.enabled is not configured");
-            return false;
-        }
-
-        String httpProxyHost = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_HTTP_HOST);
-        String httpProxyPort = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_HTTP_PORT);
-        String httpProxyUser = domibusPropertyProvider.getProperty(DomibusConfigurationService.DOMIBUS_PROXY_USER);
-
-        if (StringUtils.isEmpty(httpProxyHost) || StringUtils.isEmpty(httpProxyPort)) {
-            LOG.error("Proxy is enabled but httpProxyHost or httpProxyPort are not configured.");
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_006, "Proxy is enabled but the configuration is invalid.");
-        }
-        LOG.info("Proxy configured: httpProxyHost=" + httpProxyHost + ", httpProxyPort=" + httpProxyPort + ", httpProxyUser=" +
-                (httpProxyUser != null ? httpProxyUser : "null"));
-
-        return Boolean.parseBoolean(useProxy);
+    public boolean isFourCornerEnabled() {
+        return domibusPropertyProvider.getBooleanProperty(FOURCORNERMODEL_ENABLED_KEY);
     }
 
     @Override
-    public boolean isFourCornerEnabled() {
-        return Boolean.parseBoolean(domibusPropertyProvider.getProperty(FOURCORNERMODEL_ENABLED_KEY, "true"));
+    public boolean isExtAuthProviderEnabled() {
+        return domibusPropertyProvider.getBooleanProperty(EXTERNAL_AUTH_PROVIDER);
     }
+
 }

@@ -1,10 +1,7 @@
 
 package eu.domibus.plugin;
 
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.MessageStatusChangeEvent;
+import eu.domibus.common.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
@@ -18,6 +15,7 @@ import java.util.List;
  * Implementations should extend eu.domibus.plugin.AbstractBackendConnector instead.
  *
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 public interface BackendConnector<U, T> {
 
@@ -55,6 +53,18 @@ public interface BackendConnector<U, T> {
     T downloadMessage(final String messageId, final T target) throws MessageNotFoundException;
 
     /**
+     * Browses the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
+     * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
+     * factory (i.e. a JMS session).
+     *
+     * @param messageId the messageId of the message to browse
+     * @param target    the target object to be filled.
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message was not found
+     */
+    T browseMessage(final String messageId, final T target) throws MessageNotFoundException;
+
+    /**
      * provides a list of messageIds which have not been downloaded yet. Only available for Mode.PULL plugins
      *
      * @return a list of messages that have not been downloaded yet.
@@ -88,6 +98,13 @@ public interface BackendConnector<U, T> {
     void deliverMessage(final String messageId);
 
     /**
+     * Initiates a pull request for the given mpc
+     *
+     * @param mpc the MPC to be used in the pull request
+     */
+    void initiatePull(final String mpc);
+
+    /**
      * The name of the plugin instance. To allow for multiple deployments of the same plugin this value should be externalized.
      *
      * @return the name of the plugin
@@ -96,15 +113,32 @@ public interface BackendConnector<U, T> {
 
     /**
      * This method gets called when an incoming message is rejected by the MSH
+     *
      * @param messageReceiveFailureEvent event containing details about the message receive failure event
      */
     void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent);
 
     /**
      * This method gets called when the status of a User Message changes
+     *
      * @param event event containing details about the message status change event
      */
     void messageStatusChanged(MessageStatusChangeEvent event);
+
+    /**
+     * Notifies the plugins for every payload that has been submitted to C2 but not yet saved
+     *
+     * @param event The event containing the details of the payload submitted event
+     */
+    void payloadSubmittedEvent(PayloadSubmittedEvent event);
+
+    /**
+     * Notifies the plugins for every payload that has been saved by C2
+     *
+     * @param event The event containing the details of the payload processed event
+     */
+    void payloadProcessedEvent(PayloadProcessedEvent event);
+
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin and an associated
@@ -137,9 +171,11 @@ public interface BackendConnector<U, T> {
         PULL("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull");
 
         private final String fileMapping;
+
         Mode(String fileMapping) {
-            this.fileMapping=fileMapping;
+            this.fileMapping = fileMapping;
         }
+
         public String getFileMapping() {
             return fileMapping;
         }
@@ -160,8 +196,9 @@ public interface BackendConnector<U, T> {
 
 
         private final String fileMapping;
+
         Mep(String fileMapping) {
-           this.fileMapping = fileMapping;
+            this.fileMapping = fileMapping;
         }
 
         public String getFileMapping() {

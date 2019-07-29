@@ -1,9 +1,11 @@
 package eu.domibus.jms.wildfly;
 
+import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJMSManager;
@@ -23,8 +25,8 @@ import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.jms.*;
 import javax.jms.Queue;
+import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
@@ -82,6 +84,9 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    private ServerInfoService serverInfoService;
+
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
 
@@ -116,7 +121,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         String[] queueNames = jmsServerControl.getQueueNames();
 
         for (String queueName : queueNames) {
-            String mbeanObjectName = MBEAN_PREFIX_QUEUE_TOPIC + domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY, "default")
+            String mbeanObjectName = MBEAN_PREFIX_QUEUE_TOPIC + domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY)
                     + "\",module=JMS,serviceType=Queue,name=\"" + queueName + "\"";
 
             try {
@@ -137,7 +142,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         topicMap = new HashMap<>();
         String[] topicNames = jmsServerControl.getTopicNames();
         for (String topicName : topicNames) {
-            String mbeanObjectName = MBEAN_PREFIX_QUEUE_TOPIC + domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY, "default")
+            String mbeanObjectName = MBEAN_PREFIX_QUEUE_TOPIC + domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY)
                     + "\",module=JMS,serviceType=Topic,name=\"" + topicName + "\"";
 
             try {
@@ -205,7 +210,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     protected Topic lookupTopic(String destName) throws NamingException {
         String destinationJndi = getJndiName(getTopicControl(destName).getAddress());
-        LOG.debug("Found JNDI [" + destinationJndi + "] for topic [" + destName + "]");
+        LOG.debug("Found JNDI [{}] for topic [{}]", destinationJndi, destName);
         return InitialContext.doLookup(destinationJndi);
     }
 
@@ -225,6 +230,14 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination) {
+        sendMessageToTopic(internalJmsMessage, destination, false);
+    }
+
+    @Override
+    public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin) {
+        if (excludeOrigin) {
+            internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
+        }
         sendMessage(internalJmsMessage, destination);
     }
 
@@ -344,7 +357,6 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         InternalJmsMessage result = new InternalJmsMessage();
 
         result.setType(mapMessage.getJMSType());
-        mapMessage.getJMSTimestamp();
         Long jmsTimestamp = mapMessage.getJMSTimestamp();
         if (jmsTimestamp != null) {
             result.setTimestamp(new Date(jmsTimestamp));
@@ -352,10 +364,10 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setId(mapMessage.getJMSMessageID());
 
         Map<String, Object> properties = new HashMap<>();
-        Enumeration<String> mapNames = mapMessage.getMapNames();
-        while (mapNames.hasMoreElements()) {
-            String mapKey = mapNames.nextElement();
-            properties.put(mapKey, mapMessage.getObject(mapKey));
+        Enumeration<String> propertyNames = mapMessage.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String mapKey = propertyNames.nextElement();
+            properties.put(mapKey, mapMessage.getObjectProperty(mapKey));
         }
         result.setProperties(properties);
         return result;
@@ -390,4 +402,5 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         }
         return intJmsMsg;
     }
+
 }

@@ -22,7 +22,7 @@
         </md-input-container>
 
         <div class="searchArea">
-          <button md-raised-button color="primary" id="searchbutton_id" (click)="getUsers()">
+          <button md-raised-button color="primary" id="searchbutton_id" (click)="getUsers()" button-click-behaviour>
             <md-icon>search</md-icon>
             <span>Search</span>
           </button>
@@ -37,14 +37,14 @@
 
   <div class="group-filter-button">
     <span class="row-button">
-    <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
+    <app-row-limiter [pageSizes]="rowLimiter.pageSizes" [onPageSizeChanging]="onPageSizeChanging"
                      (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
     </span>
     <span class="column-filter-button">
     <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                        (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()"
+    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
             id="saveascsvbutton_id" md-tooltip="Export as CSV">
       <img src="assets/images/exportCSV.svg" width="30" height="30">
     </button>
@@ -96,12 +96,12 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="userEditButtonRow{{row.$$index}}_id" md-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row.$$index)"
-            color="primary" tooltip="Edit">
+    <button id="userEditButtonRow{{row.$$index}}_id" md-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row)"
+            color="primary" tooltip="Edit" button-click-behaviour>
       <md-icon>edit</md-icon>
     </button>
     <button id="userDeleteButtonRow{{row.$$index}}_id" md-icon-button [disabled]="row.deleted || isBusy" (click)="buttonDeleteAction(row)" color="primary"
-            tooltip="Delete">
+            tooltip="Delete" button-click-behaviour>
       <md-icon>delete</md-icon>
     </button>
   </ng-template>
@@ -109,24 +109,28 @@
   <table class="group-action-button">
     <tr>
       <td>
-        <button id="userCancelButton" md-raised-button (click)="cancelDialog()" color="primary"
-                [disabled]="!enableCancel">
+        <button id="userCancelButton" md-raised-button (click)="cancel()" color="primary"
+                [disabled]="!enableCancel" button-click-behaviour>
           <md-icon>cancel</md-icon>
           <span>Cancel</span>
         </button>
-        <button id="userSaveButton" md-raised-button (click)="save(false)" color="primary" [disabled]="!enableSave">
+        <button id="userSaveButton" md-raised-button (click)="save(false)" color="primary" [disabled]="!enableSave || isBusy"
+                button-click-behaviour>
           <md-icon>save</md-icon>
           <span>Save</span>
         </button>
-        <button id="userNewButton" md-raised-button (click)="buttonNew()" [disabled]="isBusy" color="primary">
+        <button id="userNewButton" md-raised-button (click)="buttonNew()" [disabled]="isBusy" color="primary"
+                button-click-behaviour>
           <md-icon>add</md-icon>
           <span>New</span>
         </button>
-        <button id="userEditButton" md-raised-button (click)="buttonEdit()" [disabled]="!enableEdit || isBusy" color="primary">
+        <button id="userEditButton" md-raised-button (click)="buttonEdit()" [disabled]="!enableEdit || isBusy" color="primary"
+                button-click-behaviour>
           <md-icon>edit</md-icon>
           <span>Edit</span>
         </button>
-        <button id="userDeleteButton" md-raised-button (click)="buttonDelete()" [disabled]="!enableDelete || isBusy" color="primary">
+        <button id="userDeleteButton" md-raised-button (click)="buttonDelete()" [disabled]="!enableDelete || isBusy" color="primary"
+                button-click-behaviour>
           <md-icon>delete</md-icon>
           <span>Delete</span>
         </button>

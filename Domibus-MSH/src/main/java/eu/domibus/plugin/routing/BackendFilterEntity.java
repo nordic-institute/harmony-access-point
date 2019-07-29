@@ -39,6 +39,10 @@ public class BackendFilterEntity extends AbstractBaseEntity implements Comparabl
         this.index = index;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
     /**
      * Gets the value of the routingCriteria property.
      * <p>

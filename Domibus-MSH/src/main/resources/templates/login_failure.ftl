@@ -78,12 +78,13 @@
                             <tr>
                               <td valign="top" align="left" style=" font-size: 13px; font-family: Arial, Helvetica, sans-serif; color: #000;"><br/>
                                 <br/>
+                                <p><strong>User type:</strong> ${USER_TYPE}</p>
                                 <p><strong>User:</strong> ${USER}</p>
                               	<p><strong>Login time:</strong> ${LOGIN_TIME}</p>
 								<p><strong>Account disabled:</strong> ${ACCOUNT_DISABLED}</p>
 								<p><strong>Reporting time:</strong> ${REPORTING_TIME}</p>
 								<p><strong>Alert level:</strong> ${ALERT_LEVEL}</p>
-                                <p><strong>Server name:</strong> ${SERVER_NAME}</p>
+								<p><strong>Server name:</strong> ${SERVER_NAME}</p>
 								</td>
                             </tr>
                             <!-- / MAIN CONTENT -->

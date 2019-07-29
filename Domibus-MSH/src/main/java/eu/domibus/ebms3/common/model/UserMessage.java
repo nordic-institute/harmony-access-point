@@ -1,5 +1,7 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.core.message.fragment.MessageFragmentEntity;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -47,22 +49,44 @@ public class UserMessage extends AbstractBaseEntity {
     @XmlElement(name = "MessageInfo", required = true)
     @OneToOne(cascade = CascadeType.ALL)
     protected MessageInfo messageInfo;
+
     @XmlElement(name = "PartyInfo", required = true)
     @Embedded
     protected PartyInfo partyInfo; //NOSONAR
+
     @XmlElement(name = "CollaborationInfo", required = true)
     @Embedded
     protected CollaborationInfo collaborationInfo; //NOSONAR
+
     @XmlElement(name = "MessageProperties")
     @Embedded
     protected MessageProperties messageProperties; //NOSONAR
+
     @XmlElement(name = "PayloadInfo")
     @Embedded
     protected PayloadInfo payloadInfo; //NOSONAR
+
     @XmlAttribute(name = "mpc")
     @XmlSchemaType(name = "anyURI")
     @Column(name = "MPC")
     protected String mpc = Ebms3Constants.DEFAULT_MPC;
+
+    @XmlTransient
+    @Column(name = "SPLIT_AND_JOIN")
+    protected Boolean splitAndJoin;
+
+    @XmlTransient
+    @JoinColumn(name = "FK_MESSAGE_FRAGMENT_ID")
+    @OneToOne(cascade = CascadeType.ALL)
+    protected MessageFragmentEntity messageFragment;
+
+    public MessageFragmentEntity getMessageFragment() {
+        return messageFragment;
+    }
+
+    public void setMessageFragment(MessageFragmentEntity messageFragment) {
+        this.messageFragment = messageFragment;
+    }
 
     /**
      * This REQUIRED element occurs once,
@@ -218,6 +242,22 @@ public class UserMessage extends AbstractBaseEntity {
         return false;
     }
 
+    public Boolean isSplitAndJoin() {
+        return BooleanUtils.toBoolean(splitAndJoin);
+    }
+
+    public void setSplitAndJoin(Boolean splitAndJoin) {
+        this.splitAndJoin = splitAndJoin;
+    }
+
+    public boolean isUserMessageFragment() {
+        return isSplitAndJoin() && messageFragment != null;
+    }
+
+    public boolean isSourceMessage() {
+        return isSplitAndJoin() && messageFragment == null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -262,4 +302,17 @@ public class UserMessage extends AbstractBaseEntity {
                 .toString();
     }
 
+    public String getFromFirstPartyId() {
+        if (getPartyInfo() != null && getPartyInfo().getFrom() != null) {
+            return getPartyInfo().getFrom().getFirstPartyId();
+        }
+        return null;
+    }
+
+    public String getToFirstPartyId() {
+        if (getPartyInfo() != null && getPartyInfo().getTo() != null) {
+            return getPartyInfo().getTo().getFirstPartyId();
+        }
+        return null;
+    }
 }

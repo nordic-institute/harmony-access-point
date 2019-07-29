@@ -3,6 +3,8 @@ package eu.domibus.ebms3.receiver;
 import eu.domibus.ebms3.common.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Qualifier("userMessageLegConfigurationFactory")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UserMessageLegConfigurationFactory extends AbstractMessageLegConfigurationFactory {
 
     @Override

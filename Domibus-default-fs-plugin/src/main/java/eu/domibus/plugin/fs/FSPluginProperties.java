@@ -13,7 +13,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
  * File System Plugin Properties
- *
+ * <p>
  * All the plugin configurable properties must be accessed and handled through this component.
  *
  * @author @author FERNANDES Henrique, GONCALVES Bruno
@@ -45,6 +45,12 @@ public class FSPluginProperties {
 
     private static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "messages.received.purge.worker.cronExpression";
 
+    private static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
+
+    private static final String SEND_DELAY = "messages.send.delay";
+
+    private static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
+
     private static final String USER = "messages.user";
 
     private static final String PAYLOAD_ID = "messages.payload.id";
@@ -64,6 +70,8 @@ public class FSPluginProperties {
     private static final String EXPRESSION = "messages.expression";
 
     private static final String ORDER = "order";
+
+    private static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
 
     @Resource(name = "fsPluginProperties")
     private Properties properties;
@@ -139,6 +147,17 @@ public class FSPluginProperties {
     }
 
     /**
+     * Gets the threshold value that will be used to schedule payloads for async saving
+     *
+     * @param domain The domain for which the value will be retrieved
+     * @return The threshold value in MB
+     */
+    public Long getPayloadsScheduleThresholdMB(String domain) {
+        String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD, "1000");
+        return Long.parseLong(value);
+    }
+
+    /**
      * @return The plugin action when message fails
      */
     public String getFailedAction() {
@@ -211,7 +230,6 @@ public class FSPluginProperties {
      * Returns the payload identifier for messages belonging to a particular domain or the default payload identifier if none is defined.
      *
      * @param domain the domain property qualifier; {@code null} for the non-multitenant default domain
-     *
      * @return The identifier used to reference payloads of messages belonging to a particular domain.
      */
     public String getPayloadId(String domain) {
@@ -268,6 +286,34 @@ public class FSPluginProperties {
     }
 
     /**
+     * FSPluginOut queue concurrency
+     *
+     * @param domain the domain
+     * @return concurrency value
+     */
+    public String getMessageOutQueueConcurrency(final String domain) {
+        return getDomainProperty(domain, OUT_QUEUE_CONCURRENCY, "5-10");
+    }
+
+    /**
+     * @param domain The domain property qualifier
+     * @return delay value in milliseconds
+     */
+    public Integer getSendDelay(String domain) {
+        String value = getDomainProperty(domain, SEND_DELAY, null);
+        return getInteger(value, 2000);
+    }
+
+    /**
+     * @param domain The domain property qualifier
+     * @return send worker interval in milliseconds
+     */
+    public Integer getSendWorkerInterval(String domain) {
+        String value = getDomainProperty(domain, SEND_WORKER_INTERVAL, null);
+        return getInteger(value, 10000);
+    }
+
+    /**
      * @param domain The domain property qualifier
      * @return True if the sent messages action is "archive"
      */
@@ -299,6 +345,7 @@ public class FSPluginProperties {
         return ACTION_DELETE.equals(getFailedAction(domain));
     }
 
+
     private String getDomainProperty(String domain, String propertyName, String defaultValue) {
         String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
         if (properties.containsKey(domainFullPropertyName)) {
@@ -312,7 +359,7 @@ public class FSPluginProperties {
         if (properties.containsKey(domainFullPropertyName)) {
             return properties.getProperty(domainFullPropertyName, defaultValue);
         }
-        if(DEFAULT_DOMAIN.equals(domain)) {
+        if (DEFAULT_DOMAIN.equals(domain)) {
             return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
         }
         // cannot use default values
@@ -331,7 +378,7 @@ public class FSPluginProperties {
         return result;
     }
 
-    private List<String> readDomains() {
+    protected List<String> readDomains() {
         List<String> tempDomains = new ArrayList<>();
 
         for (String propName : properties.stringPropertyNames()) {
@@ -342,6 +389,10 @@ public class FSPluginProperties {
                 }
             }
         }
+        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
+            tempDomains.add(DEFAULT_DOMAIN);
+        }
+
 
         Collections.sort(tempDomains, (domain1, domain2) -> {
             Integer domain1Order = getOrder(domain1);

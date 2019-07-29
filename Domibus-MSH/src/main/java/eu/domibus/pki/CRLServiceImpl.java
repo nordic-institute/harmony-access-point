@@ -29,7 +29,7 @@ public class CRLServiceImpl implements CRLService {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    private List<String> supportedCrlProtocols;
+    private volatile List<String> supportedCrlProtocols;
 
     private Object supportedCrlProtocolsLock = new Object();
 
@@ -37,6 +37,7 @@ public class CRLServiceImpl implements CRLService {
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
+        LOG.debug("CRL check for certificate: [{}]", getSubjectDN(cert));
         if (crlDistributionPoints == null || crlDistributionPoints.isEmpty()) {
             LOG.debug("No CRL distribution points found for certificate: [{}]", getSubjectDN(cert));
             return false;

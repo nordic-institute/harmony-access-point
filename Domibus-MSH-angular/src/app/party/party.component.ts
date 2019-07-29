@@ -5,13 +5,16 @@ import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
 import {Observable} from 'rxjs/Observable';
-import {AlertService} from '../alert/alert.service';
-import {AlertComponent} from '../alert/alert.component';
+import {AlertService} from '../common/alert/alert.service';
+import {AlertComponent} from '../common/alert/alert.component';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
 import {Http} from '@angular/http';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -25,14 +28,7 @@ import {Http} from '@angular/http';
   styleUrls: ['./party.component.css']
 })
 
-export class PartyComponent implements OnInit, DirtyOperations {
-
-  name: string;
-  endPoint: string;
-  partyID: string;
-  process: string;
-  process_role: string;
-
+export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
   rows: PartyResponseRo[];
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
@@ -51,14 +47,16 @@ export class PartyComponent implements OnInit, DirtyOperations {
   allProcesses: string[];
 
   pModeExists: boolean;
+  isBusy: boolean;
 
-  constructor (public dialog: MdDialog,
-               public partyService: PartyService,
-               public alertService: AlertService,
-               private http: Http) {
+  constructor(public dialog: MdDialog, public partyService: PartyService, public alertService: AlertService, private http: Http) {
+    super();
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
+    super.ngOnInit();
+
+    this.isBusy = false;
     this.rows = [];
     this.allRows = [];
     this.selected = [];
@@ -76,30 +74,38 @@ export class PartyComponent implements OnInit, DirtyOperations {
     const res = await this.http.get(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
     if (res && res.text()) {
       this.pModeExists = true;
-      this.listPartiesAndProcesses();
+      this.search();
     } else {
       this.pModeExists = false;
     }
   }
 
-  isDirty (): boolean {
+  isDirty(): boolean {
     return this.newParties.length + this.updatedParties.length + this.deletedParties.length > 0;
   }
 
-  resetDirty () {
+  resetDirty() {
     this.newParties.length = 0;
     this.updatedParties.length = 0;
     this.deletedParties.length = 0;
   }
 
-  searchIfOK () {
-    this.checkIsDirtyAndThen(this.listPartiesAndProcesses);
+  searchIfOK() {
+    this.checkIsDirtyAndThen(() => {
+      this.search();
+    });
   }
 
-  listPartiesAndProcesses () {
+  private search() {
+    super.setActiveFilter();
+    this.listPartiesAndProcesses();
+  }
+
+  listPartiesAndProcesses() {
     this.offset = 0;
     return Observable.forkJoin([
-      this.partyService.listParties(this.name, this.endPoint, this.partyID, this.process, this.process_role),
+      this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
+        this.activeFilter.process, this.activeFilter.process_role),
       this.partyService.listProcesses()
     ])
       .subscribe((data: any[]) => {
@@ -123,7 +129,7 @@ export class PartyComponent implements OnInit, DirtyOperations {
       );
   }
 
-  refresh () {
+  refresh() {
     // ugly but the grid does not feel the paging changes otherwise
     this.loading = true;
     const rows = this.rows;
@@ -131,7 +137,6 @@ export class PartyComponent implements OnInit, DirtyOperations {
 
     setTimeout(() => {
       this.rows = rows;
-
       this.selected.length = 0;
 
       this.loading = false;
@@ -139,7 +144,7 @@ export class PartyComponent implements OnInit, DirtyOperations {
     }, 50);
   }
 
-  initColumns () {
+  initColumns() {
     this.columnPicker.allColumns = [
       {
         name: 'Party Name',
@@ -167,57 +172,65 @@ export class PartyComponent implements OnInit, DirtyOperations {
     })
   }
 
-  changePageSize (newPageLimit: number) {
+  changePageSize(newPageLimit: number) {
+    super.resetFilters();
     this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
-
     this.refresh();
   }
 
-  onPageChange (event: any) {
+  onPageChange(event: any) {
+    super.resetFilters();
     this.offset = event.offset;
   }
 
-  saveAsCSV () {
+  saveAsCSV() {
     if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;
     }
 
-    this.partyService.saveAsCsv(this.name, this.endPoint, this.partyID, this.process, this.process_role);
+    super.resetFilters();
+    this.partyService.saveAsCsv(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
+      this.activeFilter.process, this.activeFilter.process_role);
   }
 
-  onActivate (event) {
+  onActivate(event) {
     if ('dblclick' === event.type) {
       this.edit(event.row);
     }
   }
 
-  canAdd () {
-    return !!this.pModeExists;
+  canAdd() {
+    return !!this.pModeExists && !this.isBusy;
   }
 
-  canSave () {
-    return this.isDirty();
+  canSave() {
+    return this.isDirty() && !this.isBusy;
   }
 
-  canEdit () {
-    return !!this.pModeExists && this.selected.length === 1;
+  canEdit() {
+    return !!this.pModeExists && this.selected.length === 1 && !this.isBusy;
   }
 
-  canCancel () {
-    return this.isDirty();
+  canCancel() {
+    return this.isDirty() && !this.isBusy;
   }
 
-  canDelete () {
-    return !!this.pModeExists && this.selected.length === 1;
+  canDelete() {
+    return !!this.pModeExists && this.selected.length === 1 && !this.isBusy;
   }
 
-  cancel () {
+  cancel() {
+    if (this.isBusy) return;
+
+    super.resetFilters();
     this.listPartiesAndProcesses();
   }
 
-  save () {
+  save() {
+    if (this.isBusy) return;
+
     try {
       this.partyService.validateParties(this.rows)
     } catch (err) {
@@ -225,15 +238,22 @@ export class PartyComponent implements OnInit, DirtyOperations {
       return;
     }
 
+    this.isBusy = true;
     this.partyService.updateParties(this.rows)
       .then(() => {
         this.resetDirty();
+        this.isBusy = false;
         this.alertService.success('Parties saved successfully.', false);
       })
-      .catch(err => this.alertService.exception('Party update error:', err, false));
+      .catch(err => {
+        this.isBusy = false;
+        this.alertService.exception('Party update error:', err, false);
+      })
   }
 
-  async add () {
+  async add() {
+    if (this.isBusy) return;
+
     const newParty = this.partyService.initParty();
     this.rows.push(newParty);
     this.allRows.push(newParty);
@@ -249,7 +269,9 @@ export class PartyComponent implements OnInit, DirtyOperations {
     }
   }
 
-  remove () {
+  remove() {
+    if (this.isBusy) return;
+
     const deletedParty = this.selected[0];
     if (!deletedParty) return;
 
@@ -265,7 +287,7 @@ export class PartyComponent implements OnInit, DirtyOperations {
       this.newParties.splice(this.newParties.indexOf(deletedParty), 1);
   }
 
-  async edit (row): Promise<boolean> {
+  async edit(row): Promise<boolean> {
     row = row || this.selected[0];
 
     await this.manageCertificate(row);
@@ -293,7 +315,7 @@ export class PartyComponent implements OnInit, DirtyOperations {
     return ok;
   }
 
-  manageCertificate (party: PartyResponseRo): Promise<CertificateRo> {
+  manageCertificate(party: PartyResponseRo): Promise<CertificateRo> {
     return new Promise((resolve, reject) => {
       if (!party.certificate) {
         this.partyService.getCertificate(party.name)
@@ -309,7 +331,7 @@ export class PartyComponent implements OnInit, DirtyOperations {
     });
   }
 
-  checkIsDirtyAndThen (func: Function) {
+  checkIsDirtyAndThen(func: Function) {
     if (this.isDirty()) {
       this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
         if (yes) {
@@ -321,4 +343,7 @@ export class PartyComponent implements OnInit, DirtyOperations {
     }
   }
 
+  OnSort() {
+    super.resetFilters();
+  }
 }

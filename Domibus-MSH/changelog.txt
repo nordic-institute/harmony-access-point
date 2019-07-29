@@ -1,9 +1,62 @@
+Domibus 4.1
+- Implement the Split And Join feature
+- Implement EU Login Support
+- Integrate DSS library
+- Support for WebLogic 12.2.x
+- Remove support for Wildfly 9
+- Add drop wizard statistics to Domibus.
+- Add new authentication module using the DSS library.
+- Multitenancy - Posibility to sort the list of tenants
+- Add pull pace control on sender side in case of receiver triggering exception.
+- Add a new path:${domibus.config.location}/extensions/lib for loading identity and authorization extensions.
+- Upgrade the Tomcat distribution to 8.5.38
+- Password policy enforcement for admin users: check complexity, expiration, reuse. Send Alerts on expiration event. Added corresponding properties in configuration.
+- Align the WS Plugin/FS Plugin XSDs with the ebMS3 XSD
+- Remove domibus.msh.retry.tolerance from domibus.properties
+- By default close the HTTP connection between C2 and C3; do not use Keep-Alive anymore by default
+- Increase timeout of ListPendingMessages transaction to 5 minutes
+- Added a new Logging page into Admin console  - user can change and reset logging levels at runtime
+- Cluster configuration: reload truststore, PMode and logging set adn reset will be executed on all cluster servers excepting the current one
+- Default password policy enforcement for all users at the backend level;
+- Added route and component for changing password when default used or about to expire for all users.
+- Renamed property "message.retention.downloaded.max.delete" to "domibus.retentionWorker.message.retention.downloaded.max.delete" and property "message.retention.not_downloaded.max.delete" to "domibus.retentionWorker.message.retention.not_downloaded.max.delete"
+- New property "domibus.msh.retry.messageExpirationDelay" to grant a few seconds for scheduling the retry of the last attempt
+- Allow PayloadInfo with one PartInfo (one payload) as input in the message metadata.xml of the FS plugin
+- Added sendPullReceiptQueue for sending the asynchronous pull receipt
+- Added domibus.ui.support.team.name and domibus.ui.support.team.email properties for Support Team information on GUI
+- Added a new JMS queue in Default FS Plugin - DomibusFSPluginSendQueue - for improving the speed of sending files in OUT folder
+- Allow pull processes with multiple legs configured with the same mpc (enforce same security policy)
+- Allow pull processes with 0 or multiple initiators
+- Allow pulling based on mpc containing the initiator
+- Save message for pulling when mpc attribute is provided
+- Implemented default authorization SPI
+- Added domain properties domibus.sender.trust.validation.expression to validate the certificate subject
+- Added new plugin notifications types for UserMessage fragments
+- Plugin Users: add/update/remove operations on PluginUsers should appear in Audit
+- Configuration of the standalone WildFly server using the WildFly configuration scripting language instead of XML manipulation
+- UI admin console: confirmation message on the Plugin Users page
+- User related alerts should also be sent to the user
+- Domibus GUI - add the posibility to hide Domain selector for some pages
+- When C3 receives a message, check that the sender certificate used for the signature belongs to the party present in the from field
+- Fixed sidebar disappearing when user presses Esc
+- Possibility to upload a PKCS12 truststore
+- Alerts management for super users
+- Remove the retry tolerance mechanism
+- File System Plugin sends files while being copied
+- FS Plugin: Possibility to configure the cid and part info properties
+- WildFly: Update the BouncyCastle in the jboss-deployment-structure.xml
+- Missing message ID information in some Domibus logs
+- Transaction timeout when FS Plugin downloads large files
+- Harmonise the context path across the supported servers to /domibus
+- Upgrade several libraries to the latest version
+- Domibus MSH Service should return a text on GET
+- Replace Dozer with MapStruct
 Domibus 4.0.2
 - Improved the logging in the Default JMS Plugin
 - Allow sending an XML payload in the Soap body
 - Adapt the configuration for the connection pooling in Tomcat
 - Fixed the caching for the downloaded CRLs
-- Allow proxy configuration in without user/password
+- Allow proxy configuration without user/password
 - Improved the duplicate detection
 - Default FS Plugin: add configuration for message payload identifiers
 - Allow proxy configuration without user/password

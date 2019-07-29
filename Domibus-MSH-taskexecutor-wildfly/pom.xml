@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.0.2</version>
+        <version>4.1-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-taskexecutor-wildfly</artifactId>
     <packaging>jar</packaging>
@@ -33,7 +33,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <scope>provided</scope>
-        </dependency>      
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>

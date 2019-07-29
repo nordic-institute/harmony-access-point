@@ -1,9 +1,9 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.ro.*;
@@ -16,7 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -41,7 +43,7 @@ public class JmsResourceTest {
     @Test
     public void testDestinations() {
         // Given
-        final Map<String, JMSDestination> resultMap = new HashMap<>();
+        final SortedMap<String, JMSDestination> resultMap = new TreeMap<>();
         JMSDestination destination1 = new JMSDestination();
         destination1.setName("destination1");
         resultMap.put("test1", destination1);
@@ -76,8 +78,8 @@ public class JmsResourceTest {
         jmsMessageList.add(jmsMessage);
 
         new Expectations() {{
-           jmsManager.browseMessages(anyString, anyString, (Date)any, (Date)any, anyString);
-           result = jmsMessageList;
+            jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString);
+            result = jmsMessageList;
         }};
 
         // When
@@ -89,7 +91,38 @@ public class JmsResourceTest {
     }
 
     @Test
+    public void testActionMoveNoValidParam() {
+        // Given
+        SortedMap<String, JMSDestination> dests = new TreeMap<>();
+        dests.put("domibus.queue1", new JMSDestination());
+        new Expectations() {{
+            jmsManager.getDestinations();
+            result = dests;
+        }};
+
+        List<String> selectedMessages = new ArrayList<>();
+        selectedMessages.add("message1");
+        MessagesActionRequestRO request = new MessagesActionRequestRO();
+        request.setAction(MessagesActionRequestRO.Action.MOVE);
+        request.setSource("source1");
+        request.setDestination("domibus.queue2");
+        request.setSelectedMessages(selectedMessages);
+
+        // When
+        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
+
+        // Then
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
     public void testActionMove() {
+        SortedMap<String, JMSDestination> dests = new TreeMap<>();
+        dests.put("domibus.queue1", new JMSDestination() {{ setName("domibus.queue1"); }});
+        new Expectations() {{
+            jmsManager.getDestinations();
+            result = dests;
+        }};
         testAction(MessagesActionRequestRO.Action.MOVE);
     }
 
@@ -105,7 +138,7 @@ public class JmsResourceTest {
         MessagesActionRequestRO request = new MessagesActionRequestRO();
         request.setAction(action);
         request.setSource("source1");
-        request.setDestination("destination1");
+        request.setDestination("domibus.queue1");
         request.setSelectedMessages(selectedMessages);
 
         // When
@@ -133,4 +166,33 @@ public class JmsResourceTest {
         Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
         Assert.assertNull(responseEntity.getBody().getOutcome());
     }
+
+
+    @Test
+    public void testGetCsv() throws EbMS3Exception {
+        // Given
+        String source = "";
+        String jmsType = null;
+        Long fromDate = LocalDate.now().plusDays(-10).toEpochDay();
+        Long toDate = LocalDate.now().toEpochDay();
+        String selector = "";
+        JmsMessage jmsMessage = new JmsMessage();
+        List<JmsMessage> jmsMessageList = Arrays.asList(jmsMessage);
+        String mockCsvResult = "csv";
+
+        new Expectations(jmsResource) {{
+            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
+            result = jmsMessageList;
+            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
+            result = mockCsvResult;
+        }};
+
+        // When
+        final ResponseEntity<String> csv = jmsResource.getCsv(source, jmsType, fromDate, toDate, selector);
+
+        // Then
+        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assert.assertEquals(mockCsvResult, csv.getBody());
+    }
+
 }

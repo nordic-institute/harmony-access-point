@@ -4,6 +4,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptBuilder;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -16,7 +17,6 @@ import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
@@ -24,7 +24,6 @@ import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.DomibusCertificateException;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -69,35 +68,23 @@ public class PullRequestHandler {
     @Autowired
     private PullMessageService pullMessageService;
 
-    public SOAPMessage handlePullRequest(String messageId, PullContext pullContext) {
+    public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
-            LOG.info("Message id [{}] ", messageId);
-            return handleRequest(messageId, pullContext);
+            LOG.info("Message id [{}], refToMessageId [{}]", messageId, refToMessageId);
+            // Sonar Bug: ignored because the following call happens within a transaction that gets started by the web service calling this method
+            return handleRequest(messageId, pullContext); // NOSONAR
         } else {
-            return notifyNoMessage(pullContext);
+            return notifyNoMessage(pullContext, refToMessageId);
         }
     }
 
-    SOAPMessage notifyNoMessage(PullContext pullContext) {
+    SOAPMessage notifyNoMessage(PullContext pullContext, String refToMessageId) {
         LOG.trace("No message for received pull request with mpc " + pullContext.getMpcQualifiedName());
         EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0006, "There is no message available for\n" +
-                "pulling from this MPC at this moment.", null, null);
-        return getSoapMessage(ebMS3Exception);
+                "pulling from this MPC at this moment.", refToMessageId, null);
+        return messageBuilder.getSoapMessage(ebMS3Exception);
     }
 
-    public SOAPMessage getSoapMessage(EbMS3Exception ebMS3Exception) {
-        final SignalMessage signalMessage = new SignalMessage();
-        signalMessage.getError().add(ebMS3Exception.getFaultInfoError());
-        try {
-            return messageBuilder.buildSOAPMessage(signalMessage, null);
-        } catch (EbMS3Exception e) {
-            try {
-                return messageBuilder.buildSOAPFaultMessage(e.getFaultInfoError());
-            } catch (EbMS3Exception e1) {
-                throw new WebServiceException(e1);
-            }
-        }
-    }
 
     @Transactional
     public SOAPMessage handleRequest(String messageId, PullContext pullContext) {
@@ -112,12 +99,23 @@ public class PullRequestHandler {
             userMessage = messagingDao.findUserMessageByMessageId(messageId);
             leg = pullContext.filterLegOnMpc();
             try {
-                messageExchangeService.verifyReceiverCertificate(leg, pullContext.getInitiator().getName());
+                String initiatorPartyName = null;
+                final String mpc = userMessage.getMpc();
+                if (pullContext.getInitiator() != null) {
+                    LOG.debug("Get initiator from pull context");
+                    initiatorPartyName = pullContext.getInitiator().getName();
+                } else if (initiatorPartyName == null && messageExchangeService.forcePullOnMpc(mpc)) {
+                    LOG.debug("Extract initiator from mpc");
+                    initiatorPartyName = messageExchangeService.extractInitiator(mpc);
+                }
+                LOG.info("Initiator is [{}]", initiatorPartyName);
+
+                messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
                 messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
                 leg = pullContext.filterLegOnMpc();
                 soapMessage = messageBuilder.buildSOAPMessage(userMessage, leg);
                 PhaseInterceptorChain.getCurrentMessage().getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.USER_MESSAGE);
-                if (pullRequestMatcher.matchReliableCallBack(leg) &&
+                if (pullRequestMatcher.matchReliableCallBack(leg.getReliability()) &&
                         leg.getReliability().isNonRepudiation()) {
                     PhaseInterceptorChain.getCurrentMessage().getExchange().put(DispatchClientDefaultProvider.MESSAGE_ID, messageId);
                 }

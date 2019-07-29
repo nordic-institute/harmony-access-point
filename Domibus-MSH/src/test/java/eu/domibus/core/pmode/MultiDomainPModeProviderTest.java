@@ -1,12 +1,13 @@
 package eu.domibus.core.pmode;
 
-import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -17,7 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jms.Topic;
 import javax.persistence.EntityManager;
 import javax.xml.bind.JAXBContext;
 import java.util.HashMap;
@@ -48,12 +48,6 @@ public class MultiDomainPModeProviderTest {
     private JAXBContext jaxbContextConfig;
 
     @Injectable
-    protected JMSManager jmsManager;
-
-    @Injectable
-    protected Topic clusterCommandTopic;
-
-    @Injectable
     XMLUtil xmlUtil;
 
     @Injectable
@@ -61,6 +55,12 @@ public class MultiDomainPModeProviderTest {
 
     @Injectable
     protected ProcessDao processDao;
+
+    @Injectable
+    protected SignalService signalService;
+
+    @Injectable
+    protected MpcService mpcService;
 
     @Tested
     MultiDomainPModeProvider multiDomainPModeProvider;
