@@ -18,16 +18,16 @@
             <column name="DEFAULT_PASSWORD" type="BOOLEAN" defaultValueBoolean="false" />
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"></column>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"></column>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="DEFAULT_PASSWORD" type="BOOLEAN"></column>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"></column>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
         </addColumn>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
