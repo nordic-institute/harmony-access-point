@@ -250,6 +250,15 @@
 
         <dropForeignKeyConstraint baseTableName="TB_PARTY_ID"
                                   constraintName="FK_ylub8lptgvsch02mj71euuil"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                 constraintName="UK_LEG_SPLT"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
+                                 constraintName="FK_PLUGIN_USER_PASSWD_HISTORY"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
+                                 constraintName="FK_AUTH_ENTRY_AUD_REV" />
     </changeSet>
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-2">
         <comment>Modify data types to BIGINT</comment>
@@ -320,6 +329,7 @@
         <modifyDataType columnName="FK_SECURITY" newDataType="BIGINT" tableName="TB_LEG"/>
         <modifyDataType columnName="FK_SERVICE" newDataType="BIGINT" tableName="TB_LEG"/>
         <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_SPLITTING" newDataType="BIGINT" tableName="TB_LEG"/>
 
         <modifyDataType columnName="LegConfiguration_ID_PK" newDataType="BIGINT" tableName="TB_LEG_TB_MPC"/>
         <modifyDataType columnName="partyMpcMap_ID_PK" newDataType="BIGINT" tableName="TB_LEG_TB_MPC"/>
@@ -462,6 +472,30 @@
         <modifyDataType columnName="FK_ALERT" newDataType="BIGINT" tableName="TB_EVENT_ALERT"/>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_UI"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_COMMAND"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_PASSWORD_HISTORY"/>
+
+        <modifyDataType columnName="FK_COMMAND" newDataType="BIGINT" tableName="TB_COMMAND_PROPERTY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_SPLITTING"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_SPLITTING"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_HEADER"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_GROUP"/>
+        <modifyDataType columnName="FK_MESSAGE_HEADER_ID" newDataType="BIGINT" tableName="TB_MESSAGE_GROUP"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_FRAGMENT"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PLUGIN_USER_PASSWD_HISTORY"/>
+        <modifyDataType columnName="USER_ID" newDataType="BIGINT" tableName="TB_PLUGIN_USER_PASSWD_HISTORY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ENCRYPTION_KEY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
     </changeSet>
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-3">
         <comment>Add FK constraints back</comment>
@@ -942,6 +976,21 @@
                                  constraintName="FK_ylub8lptgvsch02mj71euuil" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_LEG"
+                                 constraintName="UK_LEG_SPLT" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SPLITTING"/>
+
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
+                                 constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
+                                 constraintName="FK_AUTH_ENTRY_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
     </changeSet>
 
 

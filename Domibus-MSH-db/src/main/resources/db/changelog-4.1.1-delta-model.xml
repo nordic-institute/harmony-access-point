@@ -10,7 +10,7 @@
         </addColumn>
 
         <createTable tableName="TB_ENCRYPTION_KEY">
-            <column autoIncrement="true" name="ID_PK" type="INT">
+            <column autoIncrement="true" name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="KEY_USAGE" type="VARCHAR(255)"/>
