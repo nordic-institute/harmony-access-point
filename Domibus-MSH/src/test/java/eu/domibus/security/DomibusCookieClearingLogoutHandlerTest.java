@@ -44,6 +44,12 @@ public class DomibusCookieClearingLogoutHandlerTest {
         thenCookiesHavingTheirPathsBothEndingAndNotEndingWithSlashAddedToResponseToBeRemoved();
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionWhenCookiesToRemoveIsNull() {
+        givenCookieClearingLogoutHandler((String[])null);
+    }
+
+
     private void givenContextPath(String contextPath) {
         new Expectations() {{
            request.getContextPath(); result = "domibus";
