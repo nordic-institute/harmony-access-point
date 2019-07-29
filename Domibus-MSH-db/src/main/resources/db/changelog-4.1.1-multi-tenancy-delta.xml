@@ -22,7 +22,7 @@
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-2">
-        <comment>Modify data types to BIGINT</comment>
+        <comment>Modify data types</comment>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_REV_CHANGES"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_REV_CHANGES"/>
