@@ -236,7 +236,7 @@
             <column name="PROCESS_FK" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="PARTY_FK" type="BIGINT">
+            <column name="PARTY_FK" type="INT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -882,8 +882,8 @@
         <createTable tableName="TB_USER_ROLES_AUD">
             <column name="REV" type="INT"/>
             <column name="REVTYPE" type="TINYINT"/>
-            <column name="USER_ID" type="BIGINT"/>
-            <column name="ROLE_ID" type="BIGINT"/>
+            <column name="USER_ID" type="INT"/>
+            <column name="ROLE_ID" type="INT"/>
         </createTable>
 
         <addPrimaryKey columnNames="ID_PK, REV" constraintName="PK_BACK_RCRITERIA_AUD" tableName="TB_BACK_RCRITERIA_AUD"/>
@@ -1942,7 +1942,7 @@
             <column name="PROPERTY_TYPE" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="FK_EVENT" type="BIGINT">
+            <column name="FK_EVENT" type="INT">
                 <constraints nullable="false"/>
             </column>
             <column name="DTYPE" type="VARCHAR(31)"/>
@@ -1959,8 +1959,8 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EVENT"/>
 
         <createTable tableName="TB_EVENT_ALERT">
-            <column name="FK_EVENT" type="BIGINT"/>
-            <column name="FK_ALERT" type="BIGINT"/>
+            <column name="FK_EVENT" type="INT"/>
+            <column name="FK_ALERT" type="INT"/>
         </createTable>
 
         <addPrimaryKey
