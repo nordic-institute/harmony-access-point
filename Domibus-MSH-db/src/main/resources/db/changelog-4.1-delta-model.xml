@@ -166,7 +166,7 @@
         </addColumn>
 
         <createTable tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
-            <column autoIncrement="true" name="ID_PK" type="INT">
+            <column autoIncrement="true" name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="USER_ID" type="BIGINT">

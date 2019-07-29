@@ -882,8 +882,8 @@
         <createTable tableName="TB_USER_ROLES_AUD">
             <column name="REV" type="BIGINT"/>
             <column name="REVTYPE" type="TINYINT"/>
-            <column name="USER_ID" type="INT"/>
-            <column name="ROLE_ID" type="INT"/>
+            <column name="USER_ID" type="BIGINT"/>
+            <column name="ROLE_ID" type="BIGINT"/>
         </createTable>
 
         <addPrimaryKey columnNames="ID_PK, REV" constraintName="PK_BACK_RCRITERIA_AUD" tableName="TB_BACK_RCRITERIA_AUD"/>

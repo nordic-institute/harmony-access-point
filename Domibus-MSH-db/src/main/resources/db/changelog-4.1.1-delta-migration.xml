@@ -460,6 +460,8 @@
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_USER_ROLE_AUD"/>
 
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_USER_ROLES_AUD"/>
+        <modifyDataType columnName="USER_ID" newDataType="BIGINT" tableName="TB_USER_ROLES_AUD"/>
+        <modifyDataType columnName="ROLE_ID" newDataType="BIGINT" tableName="TB_USER_ROLES_AUD"/>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ALERT"/>
 
