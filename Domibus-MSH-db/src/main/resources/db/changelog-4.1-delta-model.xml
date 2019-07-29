@@ -17,16 +17,16 @@
             <column name="DEFAULT_PASSWORD" type="BOOLEAN" defaultValueBoolean="false" />
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"></column>
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"></column>
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"></column>
         </addColumn>
         <addColumn tableName="TB_USER_AUD">
-            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"></column>
         </addColumn>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
@@ -229,10 +229,10 @@
             <column name="BACKEND_MOD" type="BOOLEAN"/>
             <column name="USER_ENABLED" type="BOOLEAN"/>
             <column name="ACTIVE_MOD" type="BOOLEAN"/>
-            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
-            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
-            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
-            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"></column>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"></column>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"></column>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"></column>
         </createTable>
 
         <addPrimaryKey columnNames="ID_PK, REV" constraintName="PK_AUTHENTICATION_ENTRY_AUD" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
