@@ -106,10 +106,10 @@
     <changeSet author="Ion Perpegel" id="EDELIVERY-3338-audit">
 
         <createTable tableName="TB_REV_CHANGES">
-            <column autoIncrement="true" name="ID_PK" type="BIGINT">
+            <column autoIncrement="true" name="ID_PK" type="INT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="REV" type="BIGINT"/>
+            <column name="REV" type="INT"/>
             <column name="AUDIT_ORDER" type="INT"/>
             <column name="ENTIY_NAME" type="VARCHAR(255)"/>
             <column name="GROUP_NAME" type="VARCHAR(255)"/>
@@ -118,7 +118,7 @@
         </createTable>
 
         <createTable tableName="TB_REV_INFO">
-            <column autoIncrement="true" name="ID" type="BIGINT">
+            <column autoIncrement="true" name="ID" type="INT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="TIMESTAMP" type="BIGINT"/>
@@ -127,10 +127,10 @@
         </createTable>
 
         <createTable tableName="TB_USER_AUD">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV" type="BIGINT">
+            <column name="REV" type="INT">
                 <constraints nullable="false"/>
             </column>
             <column name="REVTYPE" type="TINYINT"/>
@@ -150,10 +150,10 @@
         </createTable>
 
         <createTable tableName="TB_USER_ROLE_AUD">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV" type="BIGINT">
+            <column name="REV" type="INT">
                 <constraints nullable="false"/>
             </column>
             <column name="REVTYPE" type="TINYINT"/>
@@ -163,10 +163,10 @@
         </createTable>
 
         <createTable tableName="TB_USER_ROLES_AUD">
-            <column name="REV" type="BIGINT"/>
+            <column name="REV" type="INT"/>
             <column name="REVTYPE" type="TINYINT"/>
-            <column name="USER_ID" type="BIGINT"/>
-            <column name="ROLE_ID" type="BIGINT"/>
+            <column name="USER_ID" type="INT"/>
+            <column name="ROLE_ID" type="INT"/>
         </createTable>
     </changeSet>
 
