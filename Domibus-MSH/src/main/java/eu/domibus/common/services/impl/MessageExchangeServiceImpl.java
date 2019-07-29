@@ -200,7 +200,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 validPullProcesses.add(pullProcess);
             } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try " + e.getMessage());
+                LOG.warn("Invalid pull process configuration found during pull try", e);
             }
         }
         return validPullProcesses;
