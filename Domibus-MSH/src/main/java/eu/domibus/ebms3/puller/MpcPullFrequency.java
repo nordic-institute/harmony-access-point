@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Thomas Dussart
  * @since 4.0
  */
-public class ResponderPullFrequency {
+public class MpcPullFrequency {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResponderPullFrequency.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MpcPullFrequency.class);
 
-    private Integer maxRequestPerJobCycle;
+    private Integer maxRequestsPerMpc;
 
     private Integer recoveringTimeInSeconds;
 
@@ -33,17 +33,16 @@ public class ResponderPullFrequency {
 
     private AtomicInteger increment = new AtomicInteger(0);
 
-    private String responderName;
+    private String mpc;
 
-
-    public ResponderPullFrequency(
-            final Integer maxRequestPerJobCycle,
+    public MpcPullFrequency(
+            final Integer maxRequestsPerMpc,
             final Integer recoveringTimeInSeconds,
-            final Integer numberOfErrorToTriggerFrequencyDecrease, String responderName) {
-        this.maxRequestPerJobCycle = maxRequestPerJobCycle;
+            final Integer numberOfErrorToTriggerFrequencyDecrease, String mpc) {
+        this.maxRequestsPerMpc = maxRequestsPerMpc;
         this.recoveringTimeInSeconds = recoveringTimeInSeconds;
         this.numberOfErrorToTriggerFrequencyDecrease = numberOfErrorToTriggerFrequencyDecrease;
-        this.responderName = responderName;
+        this.mpc = mpc;
     }
 
     private synchronized void error() {
@@ -70,25 +69,25 @@ public class ResponderPullFrequency {
         if (recoveringTimeInSeconds != 0 && !lowCapacity.get()) {
             final int numberOfError = errorCounter.incrementAndGet();
             if (numberOfError >= numberOfErrorToTriggerFrequencyDecrease) {
-                LOG.trace("Number of pull errors:[{}] >= number of error to trigger frequency decrease:[{}] for responder:[{}]-> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease,responderName);
+                LOG.trace("Number of pull errors:[{}] >= number of error to trigger frequency decrease:[{}] for mpc:[{}]-> reset frequency", numberOfError, numberOfErrorToTriggerFrequencyDecrease, mpc);
                 error();
             }
         }
     }
 
-    public Integer getMaxRequestPerJobCycle() {
-        LOG.trace("recoveringTimeInSeconds:[{}], fullCapacity:[{}], low capacity:[{}], maxRequestPerJobCycle:[{}]", recoveringTimeInSeconds, fullCapacity, lowCapacity, 1);
+    public Integer getMaxRequestsPerMpc() {
+        LOG.trace("recoveringTimeInSeconds:[{}], fullCapacity:[{}], low capacity:[{}], maxRequestsPerMpc:[{}]", recoveringTimeInSeconds, fullCapacity, lowCapacity, 1);
         if (lowCapacity.get()) {
-            LOG.trace("get max pull request for Low capacity activated for responderName:[{}], pull request pace=1", responderName);
+            LOG.trace("get max pull request for Low capacity activated for mpc:[{}], pull request pace=1", mpc);
             return 1;
         }
         if (recoveringTimeInSeconds == 0) {
             fullCapacity.compareAndSet(false,true);
-            LOG.trace("Recovering time is 0 therefore set full capacity:[{}] for responder:[{}]", fullCapacity, responderName);
+            LOG.trace("Recovering time is 0 therefore set full capacity:[{}] for mpc:[{}]", fullCapacity, mpc);
         }
         if(fullCapacity.get()){
-            LOG.trace("Max request per job for responder:[{}] is:[{}] ", responderName,maxRequestPerJobCycle);
-            return maxRequestPerJobCycle;
+            LOG.trace("Max request per job for mpc:[{}] is:[{}] ", mpc, maxRequestsPerMpc);
+            return maxRequestsPerMpc;
         }
 
         final long previousTime = executionTime.get();
@@ -101,23 +100,23 @@ public class ResponderPullFrequency {
         );
         if (previousTime != updatedTime) {
             final int newValue = this.increment.addAndGet(1);
-            final double ratio = newValue * (maxRequestPerJobCycle / Double.valueOf(recoveringTimeInSeconds));
-            final double i = maxRequestPerJobCycle / ratio;
-            final Double temporaryPace = maxRequestPerJobCycle / i;
+            final double ratio = newValue * (maxRequestsPerMpc / Double.valueOf(recoveringTimeInSeconds));
+            final double i = maxRequestsPerMpc / ratio;
+            final Double temporaryPace = maxRequestsPerMpc / i;
             adaptableRequestPerJobCycle.set(temporaryPace.intValue() + 1);
-            if (adaptableRequestPerJobCycle.get() >= maxRequestPerJobCycle) {
+            if (adaptableRequestPerJobCycle.get() >= maxRequestsPerMpc) {
                 fullCapacity.set(true);
             }
             int newPace = adaptableRequestPerJobCycle.get();
-            LOG.trace("New pull frequency pace calculate:[{}] at :[{}] for responder party:[{}]", newPace,previousTime, responderName);
+            LOG.trace("New pull frequency pace calculate:[{}] at :[{}] for mpc:[{}]", newPace,previousTime, mpc);
         }
         return adaptableRequestPerJobCycle.get();
     }
 
     @Override
     public String toString() {
-        return "DomainPullFrequency{" +
-                "maxRequestPerJobCycle=" + maxRequestPerJobCycle +
+        return "MpcPullFrequency {" +
+                "maxRequestsPerMpc=" + maxRequestsPerMpc +
                 ", recoveringTimeInSeconds=" + recoveringTimeInSeconds +
                 ", numberOfErrorToTriggerFrequencyDecrease=" + numberOfErrorToTriggerFrequencyDecrease +
                 ", adaptableRequestPerJobCycle=" + adaptableRequestPerJobCycle +
