@@ -19,6 +19,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -160,8 +162,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
     }
 
-    //TODO add cache
-    public String decryptProperty(final File encryptedKeyFile, String propertyName, String encryptedFormatValue) {
+    protected String decryptProperty(final File encryptedKeyFile, String propertyName, String encryptedFormatValue) {
         final boolean valueEncrypted = isValueEncrypted(encryptedFormatValue);
         if (!valueEncrypted) {
             LOG.trace("Property [{}] is not encrypted: skipping decrypting value", propertyName);
@@ -180,10 +181,37 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = DomibusEncryptionException.class)
+    @Override
+    public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
+        LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);
+
+        final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+
+        final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
+        if (!encryptionActive) {
+            throw new DomibusEncryptionException(String.format("Password encryption is not active for domain [%s]", domain));
+        }
+
+        final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
+        if (!encryptedKeyFile.exists()) {
+            throw new DomibusEncryptionException(String.format("Could not found encrypted key file for domain [%s]", domain));
+        }
+
+        PasswordEncryptionSecret secret = passwordEncryptionDao.getSecret(encryptedKeyFile);
+        LOG.debug("Using encrypted key file [{}]", encryptedKeyFile);
+
+        final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
+        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+        return encryptProperty(secretKey, secretKeySpec, propertyName, propertyValue);
+    }
 
     protected PasswordEncryptionResult encryptProperty(PasswordEncryptionContext passwordEncryptionContext, SecretKey secretKey, IvParameterSpec secretKeySpec, String propertyName) {
         final String propertyValue = passwordEncryptionContext.getProperty(propertyName);
+        return encryptProperty(secretKey, secretKeySpec, propertyName, propertyValue);
+    }
 
+    protected PasswordEncryptionResult encryptProperty(SecretKey secretKey, IvParameterSpec secretKeySpec, String propertyName, String propertyValue) {
         if (isValueEncrypted(propertyValue)) {
             LOG.debug("Property [{}] is already encrypted", propertyName);
             return null;
@@ -199,6 +227,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         passwordEncryptionResult.setFormattedBase64EncryptedValue(formatEncryptedValue(base64EncryptedValue));
         return passwordEncryptionResult;
     }
+
 
     protected String formatEncryptedValue(String value) {
         return String.format(ENC_START + "%s" + ENC_END, value);

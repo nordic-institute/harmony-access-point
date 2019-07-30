@@ -2,14 +2,16 @@ package eu.domibus.core.property.encryption.plugin;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.ext.services.PluginPasswordEncryptionContext;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +53,17 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     @Override
     public String decryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
         LOG.debug("Decrypting property [{}] for domain [{}]", propertyName, domainDTO);
+
         final Domain domain = domainExtConverter.convert(domainDTO, Domain.class);
         return passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
+    }
+
+    @Override
+    public PasswordEncryptionResultDTO encryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
+        LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domainDTO);
+
+        final Domain domain = domainExtConverter.convert(domainDTO, Domain.class);
+        final PasswordEncryptionResult passwordEncryptionResult = passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
+        return domainExtConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
     }
 }

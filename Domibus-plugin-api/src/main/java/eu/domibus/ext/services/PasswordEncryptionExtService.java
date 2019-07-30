@@ -1,6 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 
 /**
  * @author Cosmin Baciu
@@ -13,4 +14,6 @@ public interface PasswordEncryptionExtService {
     boolean isValueEncrypted(final String propertyValue);
 
     String decryptProperty(DomainDTO domain, String propertyName, String encryptedFormatValue);
+
+    PasswordEncryptionResultDTO encryptProperty(DomainDTO domain, String propertyName, String propertyValue);
 }
