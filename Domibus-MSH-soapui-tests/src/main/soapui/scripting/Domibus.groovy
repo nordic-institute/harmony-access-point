@@ -626,8 +626,8 @@ def findNumberOfDomain(String inputSite) {
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema="BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
-        def MAX_WAIT_TIME=10_000;
-        def STEP_WAIT_TIME=1000;
+        def MAX_WAIT_TIME=50_000;
+        def STEP_WAIT_TIME=2000;
         def sqlSender = null;
         int total = 0;
         openAllDbConnections()
@@ -904,6 +904,7 @@ def findNumberOfDomain(String inputSite) {
         def pathS = context.expand('${#Project#pathExeSender}')
         def pathR = context.expand('${#Project#pathExeReceiver}')
         def pathRG = context.expand('${#Project#pathExeGreen}')
+        def path
         def passedDuration = 0;
 
         if (!pingMSH(side, context, log).equals("200")) {
@@ -914,20 +915,22 @@ def findNumberOfDomain(String inputSite) {
             case "sender":
 			case "c2":
 			case "blue":
-                proc = "cmd /c cd ${pathS} && shutdown.bat".execute()
+                path = pathS
                 break;
             case "receiver":
 			case "c3":
 			case "red":
-                proc = "cmd /c cd ${pathR} && shutdown.bat".execute()
+                path = pathR
                 break;
             case "receivergreen":
 			case "green":
-                proc = "cmd /c cd ${pathRG} && shutdown.bat".execute()
+                path = pathRG
                 break;
             default:
                 assert(false), "Unknown side.";
             }
+            proc = "cmd /c cd ${path} && shutdown.bat".execute()
+            
             if (proc != null) {
                 proc.consumeProcessOutput(outputCatcher, errorCatcher)
                 proc.waitFor()
@@ -975,7 +978,7 @@ def findNumberOfDomain(String inputSite) {
             } else {
                 log.info "  uploadPmode  [][]  Upload PMode was not done for Domibus: \"" + side + "\".";
                 if (message != null) {
-                    assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload was not done but expected message \"" + message + "\" was not returned."
+                    assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload was not done but expected message \"" + message + "\" was not returned.\n Result:"  + commandResult[0]
                 }
             }
         } finally {
@@ -1683,12 +1686,24 @@ static def ifWindowsEscapeJsonString(json) {
 //---------------------------------------------------------------------------------------------------------------------------------
         static def computePathRessources(String type, String extension, context, log) {
         debugLog("  ====  Calling \"computePathRessources\".", log)
-        def returnPath = null;
-        if (type.toLowerCase() == "special") {
-            returnPath = (context.expand('${#Project#specialPModesPath}') + extension).replace("\\\\", "\\").replace("\\", "\\\\")
-        } else {
-            returnPath = (context.expand('${#Project#defaultPModesPath}') + extension).replace("\\\\", "\\").replace("\\", "\\\\")
-        }
+		def returnPath = null
+		def basePathPropName = ""
+		debugLog("Input extension: " + extension, log)
+		
+        if (type.toLowerCase() == "special") 
+			basePathPropName = "specialPModesPath"
+		else 
+			basePathPropName = "defaultPModesPath"
+			
+		returnPath = (context.expand("\${#Project#${basePathPropName}}") + extension).replace("\\\\", "\\")
+		
+		debugLog("  +++++++++++ Runned on: " + System.properties['os.name'], log)
+		if (System.properties['os.name'].toLowerCase().contains('windows'))
+        	returnPath = returnPath.replace("\\", "\\\\")
+		else 
+			returnPath = returnPath.replace("\\", "/")
+		
+		debugLog("Output computePathRessources: " + returnPath.toString(), log)
         return returnPath.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2038,6 +2053,7 @@ static def void startRestMockService(String restMockServiceName,log,testRunner,s
 // Methods handling Pmode properties overwriting
 static def processFile(log, file, newFileSuffix, Closure processText) {
 	 	 def text = file.text
+		 debugLog("New file to be created: " + file.path.toString() + newFileSuffix, log) 
    		 def outputTextFile = new File(file.path + newFileSuffix)
   		 outputTextFile.write(processText(text))
   		 if (outputTextFile.text == text) 
@@ -2067,6 +2083,19 @@ static def updatePmodeEndpoints(log, context, testRunner, filePath, newFileSuffi
 	    text = text.replaceAll("${defaulEndpointBlue}", "${newEndpointBlue}")
 	    text.replaceAll("${defaulEndpointRed}", "${newEndpointRed}")    
 	}
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+
+static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToCheckName, pmodeUploadStepToExecuteName) {
+	//Check status of step reverting Pmode configuration if needed run step
+	Map resultOf = testRunner.getResults().collectEntries { result ->  [ (result.testStep): result.status ] }
+	def myStep = context.getTestCase().getTestStepByName(testStepToCheckName)
+	if (resultOf[myStep]?.toString() != "OK")  {
+		log.info "As test step ${testStepToCheckName} failed or was not run reset PMode in tear down script using ${pmodeUploadStepToExecuteName} test step" 
+		def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps[pmodeUploadStepToExecuteName]
+		tStep.run(testRunner, context)
+	}	
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
