@@ -7,7 +7,6 @@
     <property name="now" value="sysdate" dbms="oracle"/>
     <property name="now" value="now()" dbms="mysql"/>
 
-
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
         <comment>create sequence</comment>
