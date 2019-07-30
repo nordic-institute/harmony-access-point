@@ -18,6 +18,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
+import utils.Order;
 import utils.TestRunData;
 import utils.TestUtils;
 
@@ -41,7 +42,7 @@ public class DGrid extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "span.datatable-header-cell-wrapper > span")
+	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
 
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
@@ -54,7 +55,6 @@ public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
-
 
 	//	------------------------------------------------
 	public Pagination getPagination() {
@@ -188,7 +188,7 @@ public class DGrid extends DComponent {
 
 	public void sortBy(String columnName) throws Exception {
 		for (int i = 0; i < gridHeaders.size(); i++) {
-			DObject column = new DObject(driver, gridHeaders.get(i));
+			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.tagName("span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.click();
 				return;
@@ -359,8 +359,6 @@ public class DGrid extends DComponent {
 		}
 	}
 
-
-
 	public void checkCSVAgainstGridInfo(String filename, SoftAssert soft) throws Exception {
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
@@ -420,6 +418,41 @@ public class DGrid extends DComponent {
 		}
 		return true;
 	}
+
+	public String getSortedColumnName() throws Exception {
+		String sortClassName = "sort-active";
+		for (WebElement gridHeader : gridHeaders) {
+			DObject headerObj = weToDobject(gridHeader);
+			String classes = headerObj.getAttribute("class");
+			if(classes.contains(sortClassName)){
+				return headerObj.getText();
+			}
+		}
+		return null;
+	}
+
+	public Order getSortOrder() throws Exception {
+		String sortIndicatorDesc = "sort-desc";
+		String sortIndicatorAsc = "sort-asc";
+		String columnName = getSortedColumnName();
+		if(null == columnName){return null;	}
+
+		for (WebElement gridHeader : gridHeaders) {
+			DObject headerObj = weToDobject(gridHeader);
+			if(StringUtils.equalsIgnoreCase(headerObj.getText(), columnName)){
+				String classes = headerObj.getAttribute("class");
+				if(classes.contains(sortIndicatorDesc)){
+					return Order.DESC;
+				}
+				if(classes.contains(sortIndicatorAsc)){
+					return Order.ASC;
+				}
+			}
+
+		}
+		throw new Exception("Sort order cannot be determined");
+	}
+
 
 
 }

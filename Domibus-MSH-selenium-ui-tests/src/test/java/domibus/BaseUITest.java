@@ -1,4 +1,4 @@
-package domibus.ui;
+package domibus;
 
 import ddsl.dcomponents.DomibusPage;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 */
 
 @Listeners(ExcelTestReporter.class)
-public class BaseTest {
+public class BaseUITest {
 
 	public static WebDriver driver;
 	public static TestRunData data = new TestRunData();

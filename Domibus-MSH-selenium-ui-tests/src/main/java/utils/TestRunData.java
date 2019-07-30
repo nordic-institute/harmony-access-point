@@ -90,7 +90,7 @@ public class TestRunData {
 		return prop.getProperty("webdriver.gecko.driver");
 	}
 
-	public String getIEDriverPath() {
+	public String getEdgeDriverPath() {
 		return prop.getProperty("webdriver.ie.driver");
 	}
 

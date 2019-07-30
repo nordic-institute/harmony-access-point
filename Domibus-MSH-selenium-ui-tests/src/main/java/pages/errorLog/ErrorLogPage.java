@@ -1,6 +1,6 @@
 package pages.errorLog;
 
-import ddsl.dcomponents.DatePicker;
+import ddsl.dobjects.DatePicker;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
@@ -11,7 +11,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -27,6 +26,11 @@ public class ErrorLogPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
+	ErrFilters filters = new ErrFilters(driver);
+
+	public ErrFilters getFilters() {
+		return filters;
+	}
 
 	@FindBy(id = "errorLogTable")
 	private WebElement errorLogTableContainer;

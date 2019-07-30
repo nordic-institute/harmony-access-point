@@ -1,9 +1,10 @@
-package domibus.ui;
+package domibus.ui.functional;
 
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
+import domibus.BaseUITest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -19,7 +20,7 @@ import java.util.HashMap;
  */
 
 
-public class LoginPgTest extends BaseTest {
+public class LoginPgTest extends BaseUITest {
 
 	/**Checks whether login as system admin works*/
 	@Test(description = "LGN-1", groups = {"multiTenancy"})

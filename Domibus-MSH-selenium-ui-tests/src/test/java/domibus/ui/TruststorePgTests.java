@@ -1,13 +1,13 @@
 package domibus.ui;
 
 import ddsl.enums.PAGES;
+import domibus.BaseUITest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TrustStorePage;
 import pages.truststore.TruststoreModal;
 import rest.RestServicePaths;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,7 +15,7 @@ import java.util.Map;
  * @description:
  * @since 4.1
  */
-public class TruststorePgTests extends BaseTest {
+public class TruststorePgTests extends BaseUITest {
 
 	private static String name = "Name";
 	private static String subject = "Subject";

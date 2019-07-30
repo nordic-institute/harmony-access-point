@@ -4,6 +4,7 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
+import domibus.BaseUITest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -35,7 +36,7 @@ import java.util.zip.ZipInputStream;
  * @description:
  * @since 4.1
  */
-public class MessagesPgTest extends BaseTest {
+public class MessagesPgTest extends BaseUITest {
 
 	List<String> columnList = Arrays.asList("Message Id", "From Party Id", "To Party Id", "Message Status", "Notification Status", "Received", "AP Role", "Send Attempts", "Send Attempts Max", "Next Attempt", "Conversation Id", "Message Type", "Message Subtype", "Deleted", "Original Sender", "Final Recipient", "Ref To Message Id", "Failed", "Restored", "Actions");
 

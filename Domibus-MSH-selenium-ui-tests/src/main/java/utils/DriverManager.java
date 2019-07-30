@@ -1,17 +1,10 @@
 package utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.ie.InternetExplorerDriverLogLevel;
-import org.openqa.selenium.ie.InternetExplorerDriverService;
-import org.openqa.selenium.ie.InternetExplorerOptions;
-
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -51,7 +44,7 @@ public class DriverManager {
 
 	private static WebDriver getEdgeDriver() {
 
-		System.setProperty("webdriver.edge.driver", "MicrosoftWebDriver.exe");
+		System.setProperty("webdriver.edge.driver", data.getEdgeDriverPath());
 		WebDriver driver = new EdgeDriver();
 
 		driver.manage().window().maximize();

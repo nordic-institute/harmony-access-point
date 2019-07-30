@@ -1,6 +1,5 @@
 package pages.jms;
 
-import ddsl.dcomponents.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;

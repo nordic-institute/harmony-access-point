@@ -1,8 +1,9 @@
-package domibus.ui;
+package domibus.ui.functional;
 
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
+import domibus.BaseUITest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -16,7 +17,7 @@ import utils.Generator;
  */
 
 
-public class AccessRightsTest extends BaseTest {
+public class AccessRightsTest extends BaseUITest {
 
 	@Test(description = "RGT-1", groups = {"multiTenancy"})
 	public void superAdminRights() throws Exception {

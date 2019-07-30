@@ -1,7 +1,7 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.DObject;
 import org.apache.commons.lang3.StringUtils;

@@ -1,5 +1,6 @@
-package ddsl.dcomponents;
+package ddsl.dobjects;
 
+import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.WebDriver;

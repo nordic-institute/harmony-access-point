@@ -162,7 +162,7 @@
 							<groups>singleTenancy</groups>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
-								<runBrowser>edge</runBrowser>
+								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>

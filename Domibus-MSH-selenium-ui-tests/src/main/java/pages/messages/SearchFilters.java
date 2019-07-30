@@ -1,7 +1,7 @@
 package pages.messages;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DLink;
@@ -10,7 +10,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 /**
  * @author Catalin Comanici

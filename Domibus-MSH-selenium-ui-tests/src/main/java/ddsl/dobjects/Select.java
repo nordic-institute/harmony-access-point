@@ -1,5 +1,6 @@
-package ddsl.dcomponents;
+package ddsl.dobjects;
 
+import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import org.apache.commons.lang3.StringUtils;
