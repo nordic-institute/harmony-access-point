@@ -205,8 +205,9 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     protected List<String> getPmodeKeyValues(SoapMessage message) {
         String pmodeKey = (String) message.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
-        if (StringUtils.isEmpty(pmodeKey))
+        if (StringUtils.isEmpty(pmodeKey)) {
             return null;
+        }
 
         return StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
     }
