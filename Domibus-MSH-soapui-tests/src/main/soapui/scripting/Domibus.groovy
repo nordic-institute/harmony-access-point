@@ -626,8 +626,8 @@ def findNumberOfDomain(String inputSite) {
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema="BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
-        def MAX_WAIT_TIME=10_000;
-        def STEP_WAIT_TIME=1000;
+        def MAX_WAIT_TIME=50_000;
+        def STEP_WAIT_TIME=2000;
         def sqlSender = null;
         int total = 0;
         openAllDbConnections()
