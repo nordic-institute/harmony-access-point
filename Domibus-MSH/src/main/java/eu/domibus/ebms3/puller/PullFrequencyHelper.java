@@ -2,7 +2,6 @@ package eu.domibus.ebms3.puller;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.common.model.configuration.Party;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.internal.Function;
 
@@ -27,24 +26,24 @@ public class PullFrequencyHelper {
     private Map<Domain, DomainPullFrequencyHelper> domainPullFrequencyHelperMap = new HashMap<>();
 
 
-    public void setResponders(Set<Party> responderParties) {
-        getDomainPullFrequencyHelper().setResponders(responderParties);
+    public void setMpcNames(Set<String> mpcNames) {
+        getDomainPullFrequencyHelper().setMpcNames(mpcNames);
     }
 
     public int getTotalPullRequestNumberPerJobCycle() {
         return getDomainPullFrequencyHelper().getTotalPullRequestNumberPerJobCycle();
     }
 
-    public Integer getPullRequestNumberForResponder(final String responderName) {
-        return getDomainPullFrequencyHelper().getPullRequestNumberForResponder(responderName);
+    public Integer getPullRequestNumberForMpc(final String mpc) {
+        return getDomainPullFrequencyHelper().getPullRequestsNumberForMpc(mpc);
     }
 
-    public void success(final String partyName) {
-        getDomainPullFrequencyHelper().success(partyName);
+    public void success(final String mpc) {
+        getDomainPullFrequencyHelper().success(mpc);
     }
 
-    public void increaseError(final String partyName) {
-        getDomainPullFrequencyHelper().increaseError(partyName);
+    public void increaseError(final String mpc) {
+        getDomainPullFrequencyHelper().increaseError(mpc);
     }
 
     private synchronized DomainPullFrequencyHelper configureNewDomain(Domain currentDomain) {

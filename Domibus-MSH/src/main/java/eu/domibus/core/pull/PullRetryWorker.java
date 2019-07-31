@@ -42,7 +42,7 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
         try {
             retryService.resetWaitingForReceiptPullMessages();
         } catch (Exception e) {
-            LOG.error("Error while reseting waiting for receipt.", e);
+            LOG.error("Error while resetting waiting for receipt.", e);
         }
 
         try {
