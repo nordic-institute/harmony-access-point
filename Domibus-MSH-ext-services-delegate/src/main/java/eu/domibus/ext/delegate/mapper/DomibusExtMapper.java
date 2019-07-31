@@ -38,5 +38,5 @@ public interface DomibusExtMapper {
 
     PModeArchiveInfoDTO pModeArchiveInfoToPModeArchiveInfoDto(PModeArchiveInfo pModeArchiveInfo);
 
-    PasswordEncryptionResultDTO passwordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
+    PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 }

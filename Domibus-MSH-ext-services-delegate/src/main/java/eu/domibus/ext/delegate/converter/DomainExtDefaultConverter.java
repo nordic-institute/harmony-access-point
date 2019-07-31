@@ -83,7 +83,7 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         }
         if (typeOfT == PasswordEncryptionResultDTO.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
-            return (T) domibusExtMapper.passwordEncryptionResultDTO((PasswordEncryptionResult) source);
+            return (T) domibusExtMapper.passwordEncryptionResultToPasswordEncryptionResultDTO((PasswordEncryptionResult) source);
         }
         String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
         LOG.error(errorMsg);
