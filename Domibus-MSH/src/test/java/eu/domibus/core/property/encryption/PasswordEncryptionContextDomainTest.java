@@ -3,7 +3,7 @@ package eu.domibus.core.property.encryption;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.property.encryption.PasswordEncryptionContextDomain;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -13,12 +13,15 @@ import org.junit.Test;
 
 /**
  * @author Cosmin Baciu
- * @since
+ * @since 4.1.1
  */
 public class PasswordEncryptionContextDomainTest {
 
     @Injectable
     Domain domain;
+
+    @Injectable
+    protected PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
