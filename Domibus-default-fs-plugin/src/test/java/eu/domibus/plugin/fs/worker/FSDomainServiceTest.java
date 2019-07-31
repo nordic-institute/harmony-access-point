@@ -5,7 +5,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSMessage;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import mockit.Expectations;
 import mockit.Injectable;

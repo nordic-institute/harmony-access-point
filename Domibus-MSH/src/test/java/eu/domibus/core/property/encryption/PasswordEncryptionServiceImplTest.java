@@ -1,21 +1,21 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.PasswordEncryptionContext;
-import eu.domibus.api.property.PasswordEncryptionResult;
-import eu.domibus.api.property.PasswordEncryptionSecret;
+import eu.domibus.api.property.encryption.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.EncryptionUtil;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -25,14 +25,15 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.core.property.PasswordEncryptionServiceImpl.*;
+import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.BACKUP_FILE_FORMATTER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
- * @since
+ * @since 4.1.1
  */
+@RunWith(JMockit.class)
 public class PasswordEncryptionServiceImplTest {
 
     @Injectable
@@ -53,11 +54,12 @@ public class PasswordEncryptionServiceImplTest {
     @Injectable
     protected DateUtil dateUtil;
 
-    @Mocked
-    DomibusLoggerFactory domibusLoggerFactory;
 
-    @Mocked
-    DomibusLogger domibusLogger;
+    @Injectable
+    protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
+
+    @Injectable
+    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
     @Tested
     PasswordEncryptionServiceImpl passwordEncryptionService;
@@ -68,7 +70,7 @@ public class PasswordEncryptionServiceImplTest {
             domibusConfigurationService.isMultiTenantAware();
             result = false;
 
-            passwordEncryptionService.encryptPasswordsIfConfigured((PasswordEncryptionContextDefault) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
         }};
 
         passwordEncryptionService.encryptPasswords();
@@ -93,8 +95,8 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             result = domains;
 
-            passwordEncryptionService.encryptPasswordsIfConfigured((PasswordEncryptionContextDefault) any);
-            passwordEncryptionService.encryptPasswordsIfConfigured((PasswordEncryptionContextDomain) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
         }};
 
         passwordEncryptionService.encryptPasswords();
@@ -103,7 +105,7 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             times = 1;
 
-            passwordEncryptionService.encryptPasswordsIfConfigured((PasswordEncryptionContext) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContext) any);
             times = 3;
         }};
     }
@@ -118,30 +120,7 @@ public class PasswordEncryptionServiceImplTest {
         Assert.assertTrue(passwordEncryptionService.isValueEncrypted("ENC(nonEncrypted)"));
     }
 
-    @Test
-    public void getPropertiesToEncrypt(@Injectable PasswordEncryptionContext passwordEncryptionContext) {
-        String propertyName1 = "property1";
-        String value1 = "value1";
 
-        String propertyName2 = "property2";
-        String value2 = "value2";
-
-        new Expectations() {{
-            passwordEncryptionContext.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES);
-            result = propertyName1 + "," + propertyName2;
-
-            passwordEncryptionContext.getProperty(propertyName1);
-            result = value1;
-
-            passwordEncryptionContext.getProperty(propertyName2);
-            result = value2;
-        }};
-
-        final List<String> propertiesToEncrypt = passwordEncryptionService.getPropertiesToEncrypt(passwordEncryptionContext);
-        assertEquals(propertiesToEncrypt.size(), 2);
-        Assert.assertTrue(propertiesToEncrypt.contains(propertyName1));
-        Assert.assertTrue(propertiesToEncrypt.contains(propertyName2));
-    }
 
     @Test
     public void encryptPasswordsIfConfigured(@Injectable PasswordEncryptionContext passwordEncryptionContext,
@@ -166,10 +145,10 @@ public class PasswordEncryptionServiceImplTest {
             passwordEncryptionContext.isPasswordEncryptionActive();
             result = true;
 
-            passwordEncryptionService.getPropertiesToEncrypt(passwordEncryptionContext);
+            passwordEncryptionContext.getPropertiesToEncrypt();
             result = propertiesToEncrypt;
 
-            passwordEncryptionService.getEncryptedKeyFile(passwordEncryptionContext);
+            passwordEncryptionContext.getEncryptedKeyFile();
             result = encryptedKeyFile;
 
             encryptedKeyFile.exists();
@@ -197,21 +176,10 @@ public class PasswordEncryptionServiceImplTest {
 
         }};
 
-        passwordEncryptionService.encryptPasswordsIfConfigured(passwordEncryptionContext);
+        passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
     }
 
-    @Test
-    public void getEncryptedKeyFile(@Injectable PasswordEncryptionContext passwordEncryptionContext) throws IOException {
-        String encryptionKeyLocation = "home" + File.separator + "location";
 
-        new Expectations(passwordEncryptionService) {{
-            passwordEncryptionContext.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
-            result = encryptionKeyLocation;
-        }};
-
-        final File encryptedKeyFile = passwordEncryptionService.getEncryptedKeyFile(passwordEncryptionContext);
-        assertEquals(PasswordEncryptionServiceImpl.ENCRYPTED_KEY, encryptedKeyFile.getName());
-    }
 
     @Test
     public void encryptProperties(@Injectable PasswordEncryptionContext passwordEncryptionContext,
@@ -244,6 +212,36 @@ public class PasswordEncryptionServiceImplTest {
                                 @Injectable PasswordEncryptionSecret secret,
                                 @Injectable SecretKey secretKey,
                                 @Injectable IvParameterSpec secretKeySpec,
+                                @Mocked Base64 base64,
+                                @Injectable Domain domain) {
+        String propertyName = "myProperty";
+        String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
+        byte[] encryptedValue = new byte[2];
+
+        new Expectations(passwordEncryptionService) {{
+            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            result = passwordEncryptionContext;
+
+            passwordEncryptionContext.getEncryptedKeyFile();
+            result = encryptedKeyFile;
+
+            passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
+        }};
+
+        passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
+
+        new Verifications() {{
+            passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void decryptProperty1(@Injectable PasswordEncryptionContext passwordEncryptionContext,
+                                @Injectable File encryptedKeyFile,
+                                @Injectable PasswordEncryptionSecret secret,
+                                @Injectable SecretKey secretKey,
+                                @Injectable IvParameterSpec secretKeySpec,
                                 @Mocked Base64 base64) {
         String propertyName = "myProperty";
         String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
@@ -252,9 +250,6 @@ public class PasswordEncryptionServiceImplTest {
         new Expectations(passwordEncryptionService) {{
             passwordEncryptionService.isValueEncrypted(encryptedFormatValue);
             result = true;
-
-            passwordEncryptionService.getEncryptedKeyFile(passwordEncryptionContext);
-            result = encryptedKeyFile;
 
             passwordEncryptionDao.getSecret(encryptedKeyFile);
             result = secret;
@@ -272,7 +267,7 @@ public class PasswordEncryptionServiceImplTest {
             result = encryptedValue;
         }};
 
-        passwordEncryptionService.decryptProperty(passwordEncryptionContext, propertyName, encryptedFormatValue);
+        passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
 
         new Verifications() {{
             encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
@@ -336,7 +331,7 @@ public class PasswordEncryptionServiceImplTest {
         encryptedProperties.add(passwordEncryptionResult);
 
         new Expectations(passwordEncryptionService) {{
-            passwordEncryptionService.getConfigurationFile(passwordEncryptionContext);
+            passwordEncryptionContext.getConfigurationFile();
             result = configurationFile;
 
             passwordEncryptionService.getConfigurationFileBackup(configurationFile);
@@ -397,21 +392,4 @@ public class PasswordEncryptionServiceImplTest {
         assertEquals(parentDirectory, configurationFileBackup.getParent());
     }
 
-    @Test
-    public void getConfigurationFile(@Injectable PasswordEncryptionContext passwordEncryptionContext) throws IOException {
-        final String configurationFileName = "domibus.properties";
-        String configLocation = "home";
-
-        new Expectations() {{
-            passwordEncryptionContext.getConfigurationFileName();
-            result = configurationFileName;
-
-            domibusConfigurationService.getConfigLocation();
-            result = configLocation;
-        }};
-
-        final File configurationFile = passwordEncryptionService.getConfigurationFile(passwordEncryptionContext);
-        assertEquals(configurationFileName, configurationFile.getName());
-        assertEquals(configLocation, configurationFile.getParent());
-    }
 }

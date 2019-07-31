@@ -1,6 +1,6 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
-import eu.domibus.api.property.PasswordEncryptionSecret;
+import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 
 import java.io.File;
 

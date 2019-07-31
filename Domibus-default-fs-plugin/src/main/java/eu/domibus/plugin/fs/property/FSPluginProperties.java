@@ -1,6 +1,13 @@
-package eu.domibus.plugin.fs;
+package eu.domibus.plugin.fs.property;
 
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -20,6 +27,8 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  */
 @Component
 public class FSPluginProperties {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
     private static final String DOT = ".";
 
@@ -73,8 +82,16 @@ public class FSPluginProperties {
 
     private static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
 
+    private static final String PASSWORD_ENCRYPTION_ACTIVE = "password.encryption.active";
+
     @Resource(name = "fsPluginProperties")
     private Properties properties;
+
+    @Autowired
+    protected PasswordEncryptionExtService pluginPasswordEncryptionService;
+
+    @Autowired
+    protected DomainExtService domainExtService;
 
     private List<String> domains;
 
@@ -241,7 +258,13 @@ public class FSPluginProperties {
      * @return the password used to access the location specified by the property
      */
     public String getPassword(String domain) {
-        return getDomainProperty(domain, PASSWORD, null);
+        String result = getDomainProperty(domain, PASSWORD, null);
+        if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
+            LOG.debug("Decrypting property [{}] for domain [{}]", PASSWORD, domain);
+            final DomainDTO domainDTO = domainExtService.getDomain(domain);
+            result = pluginPasswordEncryptionService.decryptProperty(domainDTO, PASSWORD, result);
+        }
+        return result;
     }
 
     /**
@@ -257,7 +280,13 @@ public class FSPluginProperties {
      * @return the password used to authenticate
      */
     public String getAuthenticationPassword(String domain) {
-        return getDomainPropertyNoDefault(domain, AUTHENTICATION_PASSWORD, null);
+        String result = getDomainPropertyNoDefault(domain, AUTHENTICATION_PASSWORD, null);
+        if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
+            LOG.debug("Decrypting property [{}] for domain [{}]", AUTHENTICATION_PASSWORD, domain);
+            final DomainDTO domainDTO = domainExtService.getDomain(domain);
+            result = pluginPasswordEncryptionService.decryptProperty(domainDTO, AUTHENTICATION_PASSWORD, result);
+        }
+        return result;
     }
 
     /**
@@ -345,8 +374,16 @@ public class FSPluginProperties {
         return ACTION_DELETE.equals(getFailedAction(domain));
     }
 
+    /**
+     * @return True if password encryption is active
+     */
+    public boolean isPasswordEncryptionActive() {
+        final String passwordEncryptionActive = getDomainPropertyNoDefault(DEFAULT_DOMAIN, PASSWORD_ENCRYPTION_ACTIVE, "false");
+        return BooleanUtils.toBoolean(passwordEncryptionActive);
+    }
 
-    private String getDomainProperty(String domain, String propertyName, String defaultValue) {
+
+    public String getDomainProperty(String domain, String propertyName, String defaultValue) {
         String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
         if (properties.containsKey(domainFullPropertyName)) {
             return properties.getProperty(domainFullPropertyName, defaultValue);
@@ -354,19 +391,22 @@ public class FSPluginProperties {
         return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
     }
 
-    private String getDomainPropertyNoDefault(String domain, String propertyName, String defaultValue) {
+    public String getDomainPropertyNoDefault(String domain, String propertyName, String defaultValue) {
         String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
         if (properties.containsKey(domainFullPropertyName)) {
             return properties.getProperty(domainFullPropertyName, defaultValue);
         }
         if (DEFAULT_DOMAIN.equals(domain)) {
-            return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
+            if (!StringUtils.startsWith(propertyName, PROPERTY_PREFIX)) {
+                propertyName = PROPERTY_PREFIX + propertyName;
+            }
+            return properties.getProperty(propertyName, defaultValue);
         }
         // cannot use default values
         return null;
     }
 
-    protected String getDomainPropertyName(String domain, String propertyName) {
+    public String getDomainPropertyName(String domain, String propertyName) {
         return DOMAIN_PREFIX + domain + DOT + propertyName;
     }
 

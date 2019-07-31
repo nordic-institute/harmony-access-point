@@ -1,22 +1,27 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
-public class PasswordEncryptionContextDefaultTest {
+public class PasswordEncryptionContextDomainTest {
+
+    @Injectable
+    Domain domain;
+
+    @Injectable
+    protected PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -25,25 +30,25 @@ public class PasswordEncryptionContextDefaultTest {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Tested
-    PasswordEncryptionContextDefault passwordEncryptionContextDefault;
+    PasswordEncryptionContextDomain passwordEncryptionContextDomain;
 
     @Test
     public void isPasswordEncryptionActive() {
         new Expectations() {{
-            domibusConfigurationService.isPasswordEncryptionActive();
+            domibusConfigurationService.isPasswordEncryptionActive(domain);
             result = true;
         }};
 
-        Assert.assertTrue(passwordEncryptionContextDefault.isPasswordEncryptionActive());
+        Assert.assertTrue(passwordEncryptionContextDomain.isPasswordEncryptionActive());
     }
 
     @Test
     public void getProperty() {
         String myProperty = "myProperty";
-        passwordEncryptionContextDefault.getProperty(myProperty);
+        passwordEncryptionContextDomain.getProperty(myProperty);
 
         new Verifications() {{
-            domibusPropertyProvider.getProperty(myProperty);
+            domibusPropertyProvider.getProperty(domain, myProperty);
         }};
     }
 
@@ -52,10 +57,10 @@ public class PasswordEncryptionContextDefaultTest {
         String myConfFile = "myConfFile";
 
         new Expectations() {{
-            domibusConfigurationService.getConfigurationFileName();
+            domibusConfigurationService.getConfigurationFileName(domain);
             result = myConfFile;
         }};
 
-        Assert.assertEquals(myConfFile, passwordEncryptionContextDefault.getConfigurationFileName());
+        Assert.assertEquals(myConfFile, passwordEncryptionContextDomain.getConfigurationFileName());
     }
 }
