@@ -2405,7 +2405,7 @@ Domibus.checkSmokeTestsResult(testRunner, testCase, log)</con:tearDownScript><co
 
 def test = new Domibus(log,messageExchange,context);
 test.waitForStatus("ACKNOWLEDGED","RECEIVED");
-test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:username>${#Project#adminC1Default}</con:username><con:password>${#Project#adminDefaultPassword}</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:preemptive>true</con:preemptive><con:authType>Preemptive</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="a89fa469-63b3-44f2-aabe-13b013f95214" name="Submit Message in revers direction"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message in revers direction" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
+test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:username>${#Project#adminC1Default}</con:username><con:password>${#Project#adminDefaultPassword}</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:preemptive>true</con:preemptive><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="a89fa469-63b3-44f2-aabe-13b013f95214" name="Submit Message in revers direction"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message in revers direction" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
    <soap:Header>\r
       <ns:Messaging>\r
          <ns:UserMessage>\r
@@ -2518,8 +2518,8 @@ test.waitForStatus("ACKNOWLEDGED","RECEIVED");
 test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="Restore default truststores Sender" id="7f3b1959-8c32-4cb3-8627-eba69ad84830" disabled="true"><con:settings/><con:config><script>// Upload truststores: default truststores (blue for sender and red for receiver)  
 Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Restore default truststore Sender'].run(testRunner, context);
 //ExcelReporting.reportTestCase(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom303_Dom400-Pull-Basic flow-READY_TO_PULL" searchProperties="true" id="7de2b1d5-8bb8-44d4-885f-77c213319506">
-            <con:description>Merge between "Dom303-Pull-Submit Message-Exceptional flow-No receipt" and "Dom400-Pull-Get Status-Basic flow-READY_TO_PULL"</con:description><con:settings/>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom003_Dom096_Dom100-Push-Exceptional flow-No receipt" searchProperties="true" id="a4b6694c-f0f1-47d1-b333-c88df6bd4f28">
+            <con:description>Merge of test cases "Dom003-Push-Submit Message-Exceptional flow-No receipt", "Dom096-Push-Get Status-Basic flow-WAITING_FOR_RETRY" and "Dom100-Push-Get Errors-Basic flow".</con:description><con:settings/>
             
             
             
@@ -2532,13 +2532,13 @@ Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",con
             
             
             
-            <con:testStep type="groovy" name="Change C3 Pmode to contains incorrect C2 endpoint" id="783bf665-0cab-4b1b-a225-76e7758096f2"><con:settings/><con:config><script>Domibus.uploadPmode("receiver","special","/invalidEndpoint/domibus-pmode-red-blue_invalid.xml", context, log)
-</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="32f697cf-ab06-456e-86f3-bafa7f14b9ba"><con:settings/><con:config><delay>10000</delay></con:config></con:testStep><con:testStep type="request" id="583450fe-9642-47f2-8422-d1c18c9e8b4e" name="Submit Message"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
+            <con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="2f1a3120-cbcb-4972-b52d-a6a2aa06b1d8"><con:settings/><con:config><script>Domibus.uploadPmode("sender","special","/invalidEndpoint/domibus-pmode-blue-red_invalid.xml", context, log)
+</script></con:config></con:testStep><con:testStep type="request" id="7d1fd426-e4bc-4161-8aa9-573d6c5c4659" name="Submit Message"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
    <soap:Header>
       <ns:Messaging>
          <ns:UserMessage>
             <ns:MessageInfo>
-               <ns:MessageId>-Dom400-</ns:MessageId>
+               <ns:MessageId>-Dom003-</ns:MessageId>
             </ns:MessageInfo>
             <ns:PartyInfo>
                <ns:From>
@@ -2551,8 +2551,8 @@ Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",con
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
-               <ns:Service type="tc13">bdx:noprocess</ns:Service>
-               <ns:Action>TC13Leg1</ns:Action>
+               <ns:Service type="tc1">bdx:noprocess</ns:Service>
+               <ns:Action>TC1Leg1</ns:Action>
             </ns:CollaborationInfo>
             <ns:MessageProperties>
                <ns:Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</ns:Property>
@@ -2575,25 +2575,33 @@ Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",con
          </payload>\r
       </_1:submitRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c3edbbd5-09bd-4522-b73e-6160e6919a3c"/><con:assertion type="SOAP Fault Assertion" name="Not SOAP Fault" id="38efed14-a7a2-4d9d-8bf2-f7f6c211c1c2"/><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="cd2977f6-0a2b-4661-abda-2583dffe3423"><con:configuration><scriptText>def test = new Domibus(log,messageExchange,context);
-test.waitForStatus("READY_TO_PULL",null);
-test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="delay" name="D2" id="a152e692-c640-49b4-bd42-735cab266275"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="request" id="e332f600-b5d3-43d9-9b59-568f7360f640" name="getStatus"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5bfa294e-cfc1-45e2-8020-c01c115a9252"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:_1="http://org.ecodex.backend/1_1/">\r
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="b09ff2a9-7316-406b-aacc-cd6273c563f2"/><con:assertion type="SOAP Fault Assertion" name="Not SOAP Fault" id="48b4f9c8-c628-4cd0-92ec-6fe237c596ee"/><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="a7594c9b-fffe-42e9-b335-3eeea24c0ff4"><con:configuration><scriptText>def test = new Domibus(log,messageExchange,context);
+test.waitForStatus("WAITING_FOR_RETRY",null);
+test.verifyMessagePresence(1,0);
+test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="delay" name="D1" id="db9f6cdb-422d-4e63-8465-682a254fb756"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="request" id="a9129e2c-e633-4787-a171-45af326ef380" name="getStatus"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5bfa294e-cfc1-45e2-8020-c01c115a9252"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:_1="http://org.ecodex.backend/1_1/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <_1:statusRequest>\r
-         <messageID>-Dom400-</messageID>\r
+         <messageID>-Dom003-</messageID>\r
       </_1:statusRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="1b383b2d-70b6-40c8-b3bf-8faf5204f16a"/><con:assertion type="Simple Contains" id="59fcd4ea-92ef-4772-a3cb-38ac9a60e6a1" name="Contains"><con:configuration><token>READY_TO_PULL</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default Pmodes" id="bb9ecc8c-05a4-46f4-913d-89fbbefc00bd" disabled="true"><con:settings/><con:config><script>def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps["Default Pmodes upload step for reuse"]
-tStep.run(testRunner, context)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
-test.cleanDBMessageIDStartsWith("-Dom400-");
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="1b383b2d-70b6-40c8-b3bf-8faf5204f16a"/><con:assertion type="Simple Contains" id="53981115-0384-49b1-9fa8-77f593be643b" name="Contains"><con:configuration><token>WAITING_FOR_RETRY</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="Valid HTTP Status Codes" id="354b29fa-2792-482b-a389-a8199743d8d5" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="SOAP Fault Assertion" id="9254dbde-1271-4f6f-a2bf-54f6793af212" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="delay" name="D2" id="6f523515-7cd5-490c-bfd0-575de3548679"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="request" id="24087a9f-a5ba-4e4e-b6df-06461102d2ff" name="getMessageErrors"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>getMessageErrors</con:operation><con:request name="getMessageErrors" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="09238c4e-7ac6-40b4-ba5c-2264716c4cfd"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:_1="http://org.ecodex.backend/1_1/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <_1:getErrorsRequest>\r
+         <messageID>-Dom003-</messageID>\r
+      </_1:getErrorsRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="14959e78-9253-43b1-9271-0d664fe66f35" name="SOAP Response"/><con:assertion type="Simple Contains" id="09983b28-9862-41a0-bb87-b18212415292" name="Contains"><con:configuration><token>EBMS_0005</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="Simple Contains" id="50ae5fc2-ca8f-4fb0-a65c-06d8c3e832c8" name="Contains 1"><con:configuration><token>Error dispatching message</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/getMessageErrors"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="47cf623d-6b95-4cd7-9870-218f907f6d65" disabled="true"><con:settings/><con:config><script>def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps["Default blue Pmodes upload step for reuse"]
+tStep.run(testRunner, context)</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context)
+test.cleanDBMessageIDStartsWith("-Dom003-");
 test.finalize();
 
-Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - upload default Pmodes", "Default Pmodes upload step for reuse")
+Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - upload default blue Pmode", "Default blue Pmodes upload step for reuse")
 
 //ExcelReporting.reportTestCase(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>4ac485d6-ac6d-4736-bbac-4fa0adfdbb27</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom304-Pull-Submit message-Exceptional flow-retry max not reached" searchProperties="true" id="c3d443a4-6e2e-4219-b824-0f1d173de8ad">
-            <con:description>Merge between "Dom303-Pull-Submit Message-Exceptional flow-No receipt" and "Dom400-Pull-Get Status-Basic flow-READY_TO_PULL"</con:description><con:settings/>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom004_Dom005_Dom097-Push-Submit message-Exceptional flow-retry max check" searchProperties="true" id="c18fbecb-953b-481c-b7b0-6bd250810570">
+            <con:description>Merge between "Dom004", "Dom005" and "Dom097-Push-Get Status-Basic flow-SEND_FAILURE".</con:description><con:settings/>
             
             
             
@@ -2606,13 +2614,14 @@ Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - uplo
             
             
             
-            <con:testStep type="groovy" name="Change C3 Pmode to contains incorrect C2 endpoint" id="6afa45b1-2b4b-42af-a6cc-e1a7f22b7dd7"><con:settings/><con:config><script>Domibus.uploadPmode("receiver","special","/invalidEndpoint/domibus-pmode-red-blue_invalid.xml", context, log)
-</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="115f730e-f991-4def-9217-dc31ec957d59"><con:settings/><con:config><delay>10000</delay></con:config></con:testStep><con:testStep type="request" id="52117f16-878f-4fa1-9200-a92a008085c8" name="Submit Message"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
+            <con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="47f93c04-605e-422a-b9a7-38dd61a48396"><con:settings/><con:config><script>Domibus.uploadPmode("sender","special","/invalidEndpoint/domibus-pmode-blue-red_invalid.xml", context, log)
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="2db00986-5f82-414a-b124-2eaeabe9abab"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="request" id="db50cbfb-05d5-40cd-94bc-6bbb30cdbbe8" name="Submit Message - Dom005 - retry max reached"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message - Dom005 - retry max reached" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
    <soap:Header>
       <ns:Messaging>
          <ns:UserMessage>
             <ns:MessageInfo>
-               <ns:MessageId>-Dom304-</ns:MessageId>
+               <ns:MessageId>-Dom005-</ns:MessageId>
             </ns:MessageInfo>
             <ns:PartyInfo>
                <ns:From>
@@ -2625,8 +2634,53 @@ Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - uplo
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
-               <ns:Service type="tc13">bdx:noprocess</ns:Service>
-               <ns:Action>TC13Leg1</ns:Action>
+               <ns:Service type="tc1">bdx:noprocess</ns:Service>
+               <ns:Action>TC1Leg1</ns:Action>
+            </ns:CollaborationInfo>
+            <ns:MessageProperties>
+               <ns:Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</ns:Property>
+               <ns:Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</ns:Property>
+            </ns:MessageProperties>
+            <ns:PayloadInfo>
+               <ns:PartInfo href="cid:message">
+                  <ns:PartProperties>
+                     <ns:Property name="MimeType">text/xml</ns:Property>
+                  </ns:PartProperties>
+               </ns:PartInfo>
+            </ns:PayloadInfo>
+         </ns:UserMessage>
+      </ns:Messaging>
+   </soap:Header>
+   <soap:Body>\r
+      <_1:submitRequest>\r
+         <payload payloadId="cid:message" contentType="text/xml">
+         	<value>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=</value>
+         </payload>\r
+      </_1:submitRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="e2c31f13-fb10-4ffe-9a4c-76755dea6b0a"/><con:assertion type="SOAP Fault Assertion" name="Not SOAP Fault" id="869a6d8e-b30b-4457-8d71-859c592ca01f"/><con:assertion type="XPath Match" name="XPath Match" id="f7a7981f-8343-4fa5-a3e1-80a3f7b27207"><con:configuration><path>exists(//messageID)</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="156319d9-23bc-4d24-bdaa-228b7cb44bab"><con:configuration><scriptText>def test = new Domibus(log,messageExchange,context);
+test.waitForStatus("WAITING_FOR_RETRY",null,null,'30');
+test.verifyMessagePresence(1,0);
+test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="delay" name="Wait short as wait in assertion of submit exists 1" id="7af0ec48-013c-4a00-ba4b-ba13b2a05c55"><con:settings/><con:config><delay>120000</delay></con:config></con:testStep><con:testStep type="request" id="f90f6db0-64af-4456-bd32-bab0e18caddb" name="Submit Message - Dom004 - retry max NOT reached"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message - Dom004 - retry max NOT reached" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
+   <soap:Header>
+      <ns:Messaging>
+         <ns:UserMessage>
+            <ns:MessageInfo>
+               <ns:MessageId>-Dom004-</ns:MessageId>
+            </ns:MessageInfo>
+            <ns:PartyInfo>
+               <ns:From>
+                  <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+               </ns:From>
+               <ns:To>
+                  <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+               </ns:To>
+            </ns:PartyInfo>
+            <ns:CollaborationInfo>
+               <ns:Service type="tc1">bdx:noprocess</ns:Service>
+               <ns:Action>TC1Leg1</ns:Action>
             </ns:CollaborationInfo>
             <ns:MessageProperties>
                <ns:Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</ns:Property>
@@ -2649,20 +2703,31 @@ Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - uplo
          </payload>\r
       </_1:submitRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c3edbbd5-09bd-4522-b73e-6160e6919a3c"/><con:assertion type="SOAP Fault Assertion" name="Not SOAP Fault" id="38efed14-a7a2-4d9d-8bf2-f7f6c211c1c2"/><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="cd2977f6-0a2b-4661-abda-2583dffe3423"><con:configuration><scriptText>def test = new Domibus(log,messageExchange,context);
-test.waitForStatus("READY_TO_PULL",null);
-test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="delay" name="D2" id="bd79e585-b0ac-44e5-a44f-8278332b6762"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="upload default Pmodes" id="3d6945be-cdb8-4e9a-8919-9a808df8419b"><con:settings/><con:config><script>def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps["Default Pmodes upload step for reuse"]
-tStep.run(testRunner, context)</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="653d1cdb-9fc2-489f-ad8e-5d4a1375551f"><con:settings/><con:config><delay>2000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Acknowledged" id="5806af59-7ce4-417f-8b6a-1b590958a371"><con:settings/><con:config><script>def test = new Domibus(log,null,context);
-test.waitForStatus("ACKNOWLEDGED","RECEIVED","-Dom304-");
-test.finalize();</script></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default Pmodes" id="0712412c-cea2-4af1-8d64-c4d233fdef57" disabled="true"><con:settings/><con:config><script>def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps["Default Pmodes upload step for reuse"]
-tStep.run(testRunner, context)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
-test.cleanDBMessageIDStartsWith("-Dom304-");
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="42b93b9b-3898-43eb-ae9e-17ddca308a06"/><con:assertion type="SOAP Fault Assertion" name="Not SOAP Fault" id="1a2d4133-cf3b-456e-93ec-863668d51326"/><con:assertion type="XPath Match" name="XPath Match" id="b864a879-3367-4810-90bf-228f6ecc56c8"><con:configuration><path>exists(//messageID)</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="1082515e-e592-4d94-b25d-8698cfa053d2"><con:configuration><scriptText>def test = new Domibus(log,messageExchange,context);
+test.waitForStatus("WAITING_FOR_RETRY",null,null,'30');
+test.verifyMessagePresence(1,0);
+test.finalize();</scriptText></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/submitMessage"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="delay" name="Wait short as wait in assertion of submit exists 2" id="639e59e3-9a4d-4817-b345-09445a0c160e"><con:settings/><con:config><delay>120000</delay></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="88faed11-c1f1-4c29-8361-cd0cf0afa03f"><con:settings/><con:config><script>def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps["Default blue Pmodes upload step for reuse"]
+tStep.run(testRunner, context)</script></con:config></con:testStep><con:testStep type="groovy" name="Check message submitted - Dom004 - resending OK" id="b92d333e-e5b6-4d27-be88-a273397fefa6"><con:settings/><con:config><script>def test = new Domibus(log,null,context);
+test.waitForStatus("ACKNOWLEDGED","RECEIVED","-Dom004-","Long");
+test.finalize();</script></con:config></con:testStep><con:testStep type="groovy" name="Check message submitted - Dom005 - Sending failled" id="961ef4ca-cc56-4ff4-9c41-eb53817f296e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE",null,"-Dom005-")
+test.verifyMessagePresence(1,0,"-Dom005-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="request" id="79b0df3b-2746-45f3-98a5-6029603c50a9" name="getStatus"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5bfa294e-cfc1-45e2-8020-c01c115a9252"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:_1="http://org.ecodex.backend/1_1/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <_1:statusRequest>\r
+         <messageID>-Dom005-</messageID>\r
+      </_1:statusRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" name="SOAP Response" id="c43c3368-1509-4000-899a-c4e8b5cdd72e"/><con:assertion type="Simple Contains" id="d377a650-0774-4982-be58-094010a2d046" name="Contains"><con:configuration><token>SEND_FAILURE</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="SOAP Fault Assertion" id="f2f692fb-63ac-41cd-9030-3413734c4b7f" name="Not SOAP Fault"/><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://org.ecodex.backend/1_1/BackendInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageID("-Dom004-");
+test.cleanDBMessageID("-Dom005-");
 test.finalize();
 
-Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - upload default Pmodes", "Default Pmodes upload step for reuse")
+Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - upload default blue Pmode", "Default blue Pmodes upload step for reuse")
 
 //ExcelReporting.reportTestCase(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>4ac485d6-ac6d-4736-bbac-4fa0adfdbb27</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/></con:testSuite><con:testSuite id="846b6795-5a70-4007-9b06-b1e3387e1d06" name="WS-Auto-Not-for-Bamboo"><con:settings><con:setting id="IncludeOverview">true</con:setting><con:setting id="IncludeResults">true</con:setting><con:setting id="FlowLayout">false</con:setting><con:setting id="ErrorDetails">true</con:setting><con:setting id="IncludeCoverage">true</con:setting><con:setting id="GeneratableJUnitReport@Style">Single Page (Print)</con:setting><con:setting id="GeneratableJUnitReport@Folder"/></con:settings><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom020&amp;Dom035-Push-Submit message-Exceptional flow-Data-From/PartyId-Maximum length" searchProperties="true" id="3f8285a6-23d1-4004-9aaa-56cfeeeca744">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>fec5eaa6-eb1f-4928-91f2-18cbee9d9a0e</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/></con:testSuite><con:testSuite id="846b6795-5a70-4007-9b06-b1e3387e1d06" name="WS-Auto-Not-for-Bamboo"><con:settings><con:setting id="IncludeOverview">true</con:setting><con:setting id="IncludeResults">true</con:setting><con:setting id="FlowLayout">false</con:setting><con:setting id="ErrorDetails">true</con:setting><con:setting id="IncludeCoverage">true</con:setting><con:setting id="GeneratableJUnitReport@Style">Single Page (Print)</con:setting><con:setting id="GeneratableJUnitReport@Folder"/></con:settings><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom020&amp;Dom035-Push-Submit message-Exceptional flow-Data-From/PartyId-Maximum length" searchProperties="true" id="3f8285a6-23d1-4004-9aaa-56cfeeeca744">
             <con:settings/>
             
             

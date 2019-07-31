@@ -2,7 +2,6 @@
 <db:configuration xmlns:db="http://domibus.eu/configuration" party="red_gw">
 	<mpcs>
 		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
-		<mpc name="defaultMpcOne" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCOne" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
 	</mpcs>
 	<businessProcesses>
 		<roles>
@@ -76,7 +75,6 @@
 		</as4>
 		<legConfigurations>
 			<legConfiguration name="pushTestcase1tc1Action" service="testService1" action="tc1Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			<legConfiguration name="pullTestcase13tc13Action" service="testService13" action="tc13Action" defaultMpc="defaultMpcOne" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			</legConfigurations>
 		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
@@ -89,17 +87,6 @@
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase1tc1Action"/>
-			</legs>
-		</process>
-		<process name="tc13Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pullTestcase13tc13Action"/>
 			</legs>
 		</process>
 	</businessProcesses>
