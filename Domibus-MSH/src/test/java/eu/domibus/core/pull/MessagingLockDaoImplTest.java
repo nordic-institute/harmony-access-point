@@ -38,7 +38,7 @@ public class MessagingLockDaoImplTest {
     @Test
     public void getNextPullMessageToProcessFirstAttempt(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-        final int idPk = 6;
+        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -67,7 +67,7 @@ public class MessagingLockDaoImplTest {
     @Test
     public void getNextPullMessageToProcessWithRetry(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-        final int idPk = 6;
+        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -77,7 +77,7 @@ public class MessagingLockDaoImplTest {
 
         final Date date=new Date(System.currentTimeMillis()+10000);
         createExpectation(query, messagingLock, messageId, sendAttempts, sendAttemptsMax, date);
-        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess((int) idPk);
+        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess(idPk);
         assertNotNull(nextPullMessageToProcess);
         assertEquals(messageId, nextPullMessageToProcess.getMessageId());
         assertEquals(PullMessageState.RETRY, nextPullMessageToProcess.getState());
@@ -96,7 +96,7 @@ public class MessagingLockDaoImplTest {
     public void getNextPullMessageToProcessExpired(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
 
-        final int idPk = 6;
+        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -107,7 +107,7 @@ public class MessagingLockDaoImplTest {
         final Date date=new Date(System.currentTimeMillis()-20000);
 
         createExpectation(query, messagingLock, messageId, sendAttempts, sendAttemptsMax, date);
-        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess((int) idPk);
+        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess(idPk);
         assertNotNull(nextPullMessageToProcess);
         assertEquals(messageId, nextPullMessageToProcess.getMessageId());
         assertEquals(PullMessageState.EXPIRED, nextPullMessageToProcess.getState());
@@ -125,7 +125,7 @@ public class MessagingLockDaoImplTest {
     @Test
     public void getNextPullMessageToProcessMaxAttemptsReached(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-        final int idPk = 6;
+        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -134,7 +134,7 @@ public class MessagingLockDaoImplTest {
         final int sendAttemptsMax = 5;
 
         createExpectation(query, messagingLock, messageId, sendAttempts, sendAttemptsMax, new Date());
-        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess((int) idPk);
+        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess(idPk);
         assertNotNull(nextPullMessageToProcess);
         assertEquals(messageId, nextPullMessageToProcess.getMessageId());
         assertEquals(PullMessageState.EXPIRED, nextPullMessageToProcess.getState());
@@ -154,7 +154,7 @@ public class MessagingLockDaoImplTest {
 
     @Test
     public void getNextPullMessageToProcessNoMessage(@Mocked final Query query) {
-        final int idPk = 6;
+        final long idPk = 6;
         new Expectations() {{
             entityManager.createNativeQuery(LOCK_BY_ID_QUERY, MessagingLock.class);
             result = query;

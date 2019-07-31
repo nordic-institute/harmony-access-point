@@ -439,12 +439,12 @@
         "readable" : {
           "type" : "boolean"
         },
-        "filename" : {
-          "type" : "string"
-        },
         "uri" : {
           "type" : "string",
           "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
         }
       }
     },
@@ -512,7 +512,7 @@
       "properties" : {
         "id" : {
           "type" : "integer",
-          "format" : "int32"
+          "format" : "int64"
         },
         "messageId" : {
           "type" : "string"

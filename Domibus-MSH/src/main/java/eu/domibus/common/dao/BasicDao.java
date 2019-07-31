@@ -45,7 +45,7 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         em.remove(em.merge(entity));
     }
 
-    public T read(final int id) {
+    public T read(final long id) {
         return em.find(this.typeOfT, id);
     }
 
