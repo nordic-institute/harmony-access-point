@@ -6,7 +6,6 @@ import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.persist.*;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
@@ -43,7 +42,7 @@ public class AlertDao extends BasicDao<Alert> {
         //create root entity specifying that we want to eager fetch. (Avoid the N+1 hibernate problem)
         final Root<Alert> root = criteria.from(Alert.class);
 
-        final Subquery<Integer> subQuery = criteria.subquery(Integer.class);
+        final Subquery<Long> subQuery = criteria.subquery(Long.class);
         Root<Alert> subRoot = subQuery.from(Alert.class);
 
         //Do first a subQuery to retrieve the filtered alerts id based on criteria.
@@ -134,7 +133,7 @@ public class AlertDao extends BasicDao<Alert> {
         //create root entity specifying that we want to eager fetch. (Avoid the N+1 hibernate problem)
         final Root<Alert> root = criteria.from(Alert.class);
 
-        final Subquery<Integer> subQuery = criteria.subquery(Integer.class);
+        final Subquery<Long> subQuery = criteria.subquery(Long.class);
         Root<Alert> subRoot = subQuery.from(Alert.class);
 
         //Do first a subQuery to retrieve the filtered alerts id based on criteria.

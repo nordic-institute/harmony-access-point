@@ -46,7 +46,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
 
 
     private User initTestUser(String userName) {
-        UserRole userRole = entityManager.find(UserRole.class, 1);
+        UserRole userRole = entityManager.find(UserRole.class, 1L);
         if (userRole == null) {
             userRole = new UserRole("ROLE_USER");
             entityManager.persist(userRole);

@@ -333,7 +333,7 @@ public class UIReplicationDataServiceImplTest {
 
         new FullVerifications(uiMessageEntity) {{
 
-            uiMessageEntity.setEntityId(anyInt);
+            uiMessageEntity.setEntityId(anyLong);
 
             String actualValue;
             uiMessageEntity.setMessageId(actualValue = withCapture());
@@ -407,7 +407,7 @@ public class UIReplicationDataServiceImplTest {
 
         new FullVerifications(uiMessageEntity) {{
 
-            uiMessageEntity.setEntityId(anyInt);
+            uiMessageEntity.setEntityId(anyLong);
 
             String actualValue;
             uiMessageEntity.setMessageId(actualValue = withCapture());
