@@ -106,6 +106,7 @@ public abstract class AbstractIT {
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
 
         System.setProperty("activeMQ.connectorPort", String.valueOf(SocketUtils.findAvailableTcpPort(2000, 2100)));
+        System.setProperty("activeMQ.rmiServerPort", String.valueOf(SocketUtils.findAvailableTcpPort(1200, 1300)));
 
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
