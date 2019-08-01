@@ -7,7 +7,7 @@ import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.BackendFSImpl;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.FSTestHelper;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSSetUpException;

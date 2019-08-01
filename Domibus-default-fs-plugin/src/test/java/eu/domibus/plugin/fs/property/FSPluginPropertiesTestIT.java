@@ -1,4 +1,4 @@
-package eu.domibus.plugin.fs;
+package eu.domibus.plugin.fs.property;
 
 import org.junit.Assert;
 import org.junit.Before;

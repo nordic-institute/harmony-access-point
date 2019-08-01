@@ -1,20 +1,22 @@
-package eu.domibus.core.property;
+package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.PasswordEncryptionContext;
+import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-public class PasswordEncryptionContextDefault implements PasswordEncryptionContext {
+public class PasswordEncryptionContextDefault extends PasswordEncryptionContextAbstract {
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    protected DomibusConfigurationService domibusConfigurationService;
-
-    public PasswordEncryptionContextDefault(DomibusPropertyProvider domibusPropertyProvider, DomibusConfigurationService domibusConfigurationService) {
+    public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,
+                                            DomibusPropertyProvider domibusPropertyProvider,
+                                            DomibusConfigurationService domibusConfigurationService) {
+        super(passwordEncryptionService, domibusConfigurationService);
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
     }
@@ -30,7 +32,7 @@ public class PasswordEncryptionContextDefault implements PasswordEncryptionConte
     }
 
     @Override
-    public String getConfigurationFileName() {
+    protected String getConfigurationFileName() {
         return domibusConfigurationService.getConfigurationFileName();
     }
 }

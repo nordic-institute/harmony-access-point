@@ -1,4 +1,4 @@
-package eu.domibus.plugin.fs;
+package eu.domibus.plugin.fs.property;
 
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import mockit.Expectations;
