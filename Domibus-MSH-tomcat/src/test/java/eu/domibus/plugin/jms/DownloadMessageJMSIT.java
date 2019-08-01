@@ -64,6 +64,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
      */
     @Test(expected = RuntimeException.class)
     public void testDownloadMessageInvalidId() throws RuntimeException {
+        System.out.println("Print JMS port: " + System.getProperty("activeMQ.connectorPort"));
 
         // Prepare the request to the backend
         String messageId = "invalid@e-delivery.eu";
