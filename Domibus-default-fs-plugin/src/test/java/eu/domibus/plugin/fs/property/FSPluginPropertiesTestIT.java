@@ -1,14 +1,26 @@
 package eu.domibus.plugin.fs.property;
 
+import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.io.IOException;
 import java.util.Properties;
 
 /**
- * @author FERNANDES Henrique, GONCALVES Bruno
+ * @author FERNANDES Henrique, GONCALVES Bruno, Cosmin Baciu
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class FSPluginPropertiesTestIT {
 
     private static final String DOMAIN1 = "DOMAIN1";
@@ -22,15 +34,34 @@ public class FSPluginPropertiesTestIT {
     private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
     private static final String DOMAIN1_LOCATION = "/tmp/fs_plugin_data/DOMAIN1";
 
-
+    @Autowired
     private FSPluginProperties fSPluginProperties;
 
-    @Before
-    public void setUp() throws Exception {
-        fSPluginProperties = new FSPluginProperties();
-        Properties properties = new Properties();
-        properties.load(this.getClass().getResourceAsStream("FSPluginPropertiesTest_fs-plugin.properties"));
-        fSPluginProperties.setProperties(properties);
+    @Configuration
+    static class ContextConfiguration {
+
+        @Bean
+        public FSPluginProperties pluginProperties() {
+            FSPluginProperties fsPluginProperties = new FSPluginProperties();
+            return fsPluginProperties;
+        }
+
+        @Bean
+        public Properties fsPluginProperties() throws IOException {
+            Properties properties = new Properties();
+            properties.load(this.getClass().getResourceAsStream("FSPluginPropertiesTest_fs-plugin.properties"));
+            return properties;
+        }
+
+        @Bean
+        public PasswordEncryptionExtService passwordEncryptionExtService() {
+            return Mockito.mock(PasswordEncryptionExtService.class);
+        }
+
+        @Bean
+        public DomainExtService domainExtService() {
+            return Mockito.mock(DomainExtService.class);
+        }
     }
 
     @Test

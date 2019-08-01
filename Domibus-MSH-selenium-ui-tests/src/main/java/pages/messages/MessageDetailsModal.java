@@ -2,6 +2,7 @@ package pages.messages;
 
 import ddsl.dcomponents.popups.InfoModal;
 import ddsl.dobjects.DInput;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -28,7 +29,7 @@ public class MessageDetailsModal extends InfoModal {
 	public String getValue(String fieldName){
 		for (WebElement input : inputs) {
 			String curentFieldName = input.getAttribute("placeholder").trim();
-			if(curentFieldName.equalsIgnoreCase(fieldName)){
+			if(StringUtils.equalsIgnoreCase(curentFieldName, fieldName)){
 				return new DInput(driver, input).getText();
 			}
 		}

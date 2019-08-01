@@ -60,10 +60,10 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
      */
     @Override
     public String getUniqueIdentifier() {
-        if (StringUtils.isNotBlank(getUserName())) {
-            return getUserName();
+        if (StringUtils.isNotBlank(getCertificateId())) {
+            return getCertificateId();
         }
-        return getCertificateId();
+        return getUserName();
     }
 
     public String getCertificateId() {

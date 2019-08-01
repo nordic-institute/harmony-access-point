@@ -25,6 +25,13 @@ public class AuditId implements Serializable {
     @Column(name = "ACTION_TYPE")
     private String action;
 
+    public AuditId() {
+    }
+
+    public AuditId(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }

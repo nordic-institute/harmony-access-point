@@ -32,8 +32,10 @@ import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.PartPropertiesDTO;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;
@@ -195,7 +197,7 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.userToUserResponseRO((User) source);
         }
-        if (typeOfT == User.class) {
+        if (typeOfT == User.class && source.getClass() == UserResponseRO.class) {
             LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.userResponseROToUser((UserResponseRO) source);
         }
@@ -353,7 +355,16 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.userMessageToUserMessageApi((UserMessage) source);
         }
 
-        String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        if (typeOfT == PartProperties.class && source.getClass() == PartPropertiesDTO.class) {
+            LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.partPropertiesDTOToPartProperties((PartPropertiesDTO) source);
+        }
+        if (typeOfT == PartPropertiesDTO.class && source.getClass() == PartProperties.class) {
+            LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.partPropertiesToPartPropertiesDTO((PartProperties) source);
+        }
+
+        String errorMsg = String.format("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
         LOG.error(errorMsg);
         throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
     }

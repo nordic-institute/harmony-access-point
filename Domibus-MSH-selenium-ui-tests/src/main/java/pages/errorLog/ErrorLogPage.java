@@ -25,8 +25,6 @@ public class ErrorLogPage extends DomibusPage {
 	public ErrorLogPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-
-		wait.forElementToBe(searchButton);
 	}
 
 
@@ -52,7 +50,7 @@ public class ErrorLogPage extends DomibusPage {
 	@FindBy(id = "totimestamp_id")
 	WebElement errToContainer;
 
-	public DGrid getGrid() {
+	public DGrid grid() {
 		return new DGrid(driver, errorLogTableContainer);
 	}
 

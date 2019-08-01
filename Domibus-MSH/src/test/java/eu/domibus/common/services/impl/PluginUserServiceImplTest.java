@@ -64,6 +64,9 @@ public class PluginUserServiceImplTest {
     @Injectable
     private PluginUserSecurityPolicyManager userSecurityPolicyManager;
 
+    @Injectable
+    PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
+
     @Test(expected = UserManagementException.class)
     public void testUpdateUsersWithDuplicateName() {
         AuthenticationEntity user1 = new AuthenticationEntity();

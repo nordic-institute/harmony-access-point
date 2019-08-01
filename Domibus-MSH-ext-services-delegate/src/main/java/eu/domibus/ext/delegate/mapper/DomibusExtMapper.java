@@ -30,7 +30,7 @@ public interface DomibusExtMapper {
 
     JmsMessageDTO jmsMessageToJmsMessageDTO(JmsMessage jmsMessage);
 
-    JmsMessageDTO jmsMessageDTOToJmsMessage(JmsMessageDTO jmsMessageDTO);
+    JmsMessage jmsMessageDTOToJmsMessage(JmsMessageDTO jmsMessageDTO);
 
     UserMessage userMessageDTOToUserMessage(UserMessageDTO userMessageDTO);
 

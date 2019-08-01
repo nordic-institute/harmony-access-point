@@ -68,6 +68,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   async ngOnInit() {
+    super.ngOnInit();
+
     this.columnPicker = new ColumnPickerBase();
     this.rowLimiter = new RowLimiterBase();
 

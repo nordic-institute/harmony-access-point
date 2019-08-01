@@ -49,9 +49,9 @@ If this is your first contact with the CEF eDelivery Access Point, it is highly 
 
 ## Build
 
-To build Domibus for Tomcat 8, Wildfly 9 and Weblogic 12c, including all release artifacts use the following profiles:
+In order to build Domibus for Tomcat including all release artifacts use the following profiles:
 
-    mvn clean install -Ptomcat -Pweblogic -Pwildfly -Pdefault-plugins -Pdatabase -Psample-configuration -PUI -Pdistribution
+    mvn clean install -Ptomcat -Pdefault-plugins -Pdatabase -Psample-configuration -PUI -Pdistribution
 
 
 [Top](#top)

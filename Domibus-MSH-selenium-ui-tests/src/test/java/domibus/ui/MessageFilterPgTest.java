@@ -11,7 +11,9 @@ import pages.login.LoginPage;
 import pages.msgFilter.MessageFilterGrid;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
+import rest.RestServicePaths;
 import utils.Generator;
+import utils.TestUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -635,8 +637,6 @@ public class MessageFilterPgTest extends BaseTest {
 
 	@Test(description = "MSGF-19", groups = {"multiTenancy"})
 	public void persistedCheckbox() throws Exception {
-//		Create a filter to edit
-		String actionName = Generator.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
 
 		MessageFilterPage page = new MessageFilterPage(driver);
@@ -649,6 +649,20 @@ public class MessageFilterPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
+	@Test(description = "MSGF-20", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
 
+		MessageFilterPage page = new MessageFilterPage(driver);
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+
+		List<String> gridHeaders = page.grid().getColumnNames();
+		gridHeaders.remove("Actions");
+
+
+		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
+	}
 
 }

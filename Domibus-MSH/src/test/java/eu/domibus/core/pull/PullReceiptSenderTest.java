@@ -1,6 +1,7 @@
 package eu.domibus.core.pull;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.util.MessageUtil;
@@ -72,7 +73,7 @@ public class PullReceiptSenderTest {
         messsageId = "123123123123@domibus.eu";
         SignalMessage signalMessage = new SignalMessage();
         Error error = new Error();
-        error.setErrorCode("EBMS:0001");
+        error.setErrorCode(ErrorCode.EBMS_0001.getErrorCodeName());
         error.setErrorDetail("Some details about the test error");
         error.setRefToMessageInError(messsageId);
         signalMessage.getError().add(error);

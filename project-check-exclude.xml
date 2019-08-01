@@ -98,6 +98,8 @@
         <!-- This cve applies if an application has a pre-existing XSS vulnerability.
              Domibus already tacled the XSS vulnerabilities, Jira tasks to secure against XSS: EDELIVERY-4489, EDELIVERY-4488, EDELIVERY-4507 -->
         <cve>CVE-2018-11039</cve>
+        <!-- This cve is for apps that support plain text passwords using PlaintextPasswordEncoder, not used in Domibus -->
+        <cve>CVE-2019-11272</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -128,6 +130,10 @@
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.WRAPPER_ARRAY); -->
         <cve>CVE-2019-12086</cve>
+        <!-- Default Typing -->
+        <cve>CVE-2019-12384</cve>
+        <!-- Default Typing -->
+        <cve>CVE-2019-12814</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[

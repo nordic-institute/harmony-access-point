@@ -2,6 +2,7 @@ package domibus.ui;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.PModePartiesPage;
@@ -176,10 +177,14 @@ public class PModePartiesPgTest extends BaseTest {
 		modal.fillNewPartyForm(newPatyName, "http://test.com", "pid");
 		modal.clickOK();
 
+		page.wait.forXMillis(1000);
 		page.getSaveButton().click();
+		page.wait.forXMillis(5000);
+
 
 		soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equalsIgnoreCase(DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
+		soft.assertTrue(StringUtils.equalsIgnoreCase(page.getAlertArea().getAlertMessage(),
+				DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
 
 
 		soft.assertTrue(page.grid().scrollTo(partyName, newPatyName)>=0, "party is shown in grid");
@@ -207,7 +212,11 @@ public class PModePartiesPgTest extends BaseTest {
 		modal.getNameInput().fill(newPatyName);
 		modal.getEndpointInput().fill("http://" + newPatyName.toLowerCase()+".com");
 		modal.clickOK();
+
+		page.wait.forXMillis(1000);
 		page.getSaveButton().click();
+		page.wait.forXMillis(5000);
+
 
 		soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
 
