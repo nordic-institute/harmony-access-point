@@ -7,7 +7,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.ejb.Init;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -34,24 +33,31 @@ public class DomibusX509TrustManager implements X509TrustManager {
     @Autowired
     protected DomainContextProvider domainProvider;
 
-
-    protected X509TrustManager defaultTm;
-    protected X509TrustManager domibusTm;
-
-    @Init
-    public void init() throws NoSuchAlgorithmException {
-        this.defaultTm = getX509TrustManager(true);
-        this.domibusTm = getX509TrustManager(false);
-    }
-
     @Override
     public X509Certificate[] getAcceptedIssuers() {
+        X509TrustManager defaultTm;
+        try {
+            defaultTm = getX509TrustManager(true);
+        } catch (NoSuchAlgorithmException | KeyStoreException exc) {
+            LOG.warn("Could not load default certificates.");
+            return null;
+        }
         return defaultTm.getAcceptedIssuers();
     }
 
     @Override
     public void checkServerTrusted(X509Certificate[] chain,
                                    String authType) throws CertificateException {
+        X509TrustManager defaultTm;
+        X509TrustManager domibusTm;
+        try {
+            defaultTm = getX509TrustManager(true);
+            domibusTm = getX509TrustManager(false);
+        } catch (NoSuchAlgorithmException | KeyStoreException exc) {
+            LOG.warn("Could not load default/custom certificates.");
+            throw new CertificateException("Could not load default/custom certificates.", exc);
+        }
+
         try {
             domibusTm.checkServerTrusted(chain, authType);
         } catch (CertificateException e) {
@@ -63,13 +69,20 @@ public class DomibusX509TrustManager implements X509TrustManager {
     @Override
     public void checkClientTrusted(X509Certificate[] chain,
                                    String authType) throws CertificateException {
+        X509TrustManager defaultTm;
+        try {
+            defaultTm = getX509TrustManager(true);
+        } catch (NoSuchAlgorithmException | KeyStoreException exc) {
+            LOG.warn("Could not load default certificates.");
+            throw new CertificateException("Could not load default certificates.", exc);
+        }
         defaultTm.checkClientTrusted(chain, authType);
     }
 
-    protected X509TrustManager getX509TrustManager(boolean isDefaultTrust) throws NoSuchAlgorithmException {
+    protected X509TrustManager getX509TrustManager(boolean isDefaultTrust) throws NoSuchAlgorithmException, KeyStoreException {
         KeyStore trustStore = null;
         X509TrustManager trustManager = null;
-        if(!isDefaultTrust) {
+        if (!isDefaultTrust) {
             LOG.debug("Getting custom certificates [{}]", trustStore);
             trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         } else {
@@ -89,7 +102,7 @@ public class DomibusX509TrustManager implements X509TrustManager {
             }
         } catch (NoSuchAlgorithmException | KeyStoreException exc) {
             LOG.warn("Could not load trustManager for ssl exchange. ", exc);
-            return null;
+            throw exc;
         }
 
         return trustManager;
