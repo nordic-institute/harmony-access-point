@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.util.ProxyUtil;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.pki.DomibusX509TrustManager;
 import eu.domibus.proxy.DomibusProxyService;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
@@ -51,6 +52,9 @@ public class HttpUtilImplTest {
 
     @Injectable
     DomainContextProvider domainProvider;
+
+    @Injectable
+    DomibusX509TrustManager domibusX509TrustManager;
 
     @Test
     @Ignore

@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -129,7 +131,7 @@ public class CRLUtil {
         return new BigInteger(serial.trim().replaceAll("\\s", ""), 16);
     }
 
-    protected InputStream getCrlInputStream(URL crlURL) throws IOException {
+    protected InputStream getCrlInputStream(URL crlURL) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         InputStream result;
         if (CRLUrlType.HTTP.canHandleURL(crlURL.toString()) || CRLUrlType.HTTPS.canHandleURL(crlURL.toString())) {
             result = httpUtil.downloadURL(crlURL.toString());
