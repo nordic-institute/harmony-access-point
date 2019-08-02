@@ -107,10 +107,14 @@ public abstract class AbstractIT {
 
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
         int activeMQRmiServerPort = SocketUtils.findAvailableTcpPort(1200, 1300);
+        int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 61690);
         System.setProperty("activeMQ.connectorPort", String.valueOf(activeMQConnectorPort));
         System.setProperty("activeMQ.rmiServerPort", String.valueOf(activeMQRmiServerPort));
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
         LOG.info("activeMQ.rmiServerPort=[{}]", activeMQRmiServerPort);
+
+        System.setProperty("activeMQ.transportConnector.uri", "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
+        LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
