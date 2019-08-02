@@ -44,6 +44,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -103,6 +104,13 @@ public abstract class AbstractIT {
 
         FileUtils.deleteDirectory(new File("target/temp"));
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
+
+        int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
+        int activeMQRmiServerPort = SocketUtils.findAvailableTcpPort(1200, 1300);
+        System.setProperty("activeMQ.connectorPort", String.valueOf(activeMQConnectorPort));
+        System.setProperty("activeMQ.rmiServerPort", String.valueOf(activeMQRmiServerPort));
+        LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
+        LOG.info("activeMQ.rmiServerPort=[{}]", activeMQRmiServerPort);
 
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
