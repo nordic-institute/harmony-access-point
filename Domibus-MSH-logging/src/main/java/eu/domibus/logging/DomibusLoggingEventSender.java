@@ -21,6 +21,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventSender.class);
 
     static final String CONTENT_TYPE = "Content-Type:";
+    static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
     private boolean printPayload;
 
@@ -30,9 +31,12 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     @Override
     protected String getLogMessage(LogEvent event) {
-        LOG.debug("printPayload={}", printPayload);
+        LOG.debug("printPayload=[{}]", printPayload);
 
-        if (!printPayload) {
+        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
+        LOG.debug("[{}] set to INFO=[{}]", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled);
+
+        if (isCxfLoggingInfoEnabled && !printPayload) {
             stripPayload(event);
         }
 
