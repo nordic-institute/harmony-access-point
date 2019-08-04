@@ -64,8 +64,8 @@
             </column>
         </createTable>
 
-        <createTable tableName="TB_EVENT_PROPERTY" autoIncrement="true">
-            <column name="ID_PK" type="BIGINT">
+        <createTable tableName="TB_EVENT_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_EVENT_PROPERTY"/>
             </column>
             <column name="PROPERTY_TYPE" type="VARCHAR(50)">
@@ -91,8 +91,8 @@
             <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
         </createTable>
 
-        <createTable tableName="TB_REV_INFO" autoIncrement="true">
-            <column name="ID" type="INT">
+        <createTable tableName="TB_REV_INFO">
+            <column name="ID" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
             </column>
             <column name="TIMESTAMP" type="BIGINT"/>
