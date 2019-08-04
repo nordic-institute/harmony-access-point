@@ -20,7 +20,7 @@
     <changeSet author="Catalin Enache" id="1564496480476-13">
         <comment>create tables</comment>
         <createTable tableName="TB_ALERT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ALERT"/>
             </column>
             <column name="ALERT_TYPE" type="VARCHAR(50)">
@@ -45,7 +45,7 @@
         </createTable>
 
         <createTable tableName="TB_EVENT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_EVENT"/>
             </column>
             <column name="EVENT_TYPE" type="VARCHAR(50)">
@@ -64,7 +64,7 @@
             </column>
         </createTable>
 
-        <createTable tableName="TB_EVENT_PROPERTY">
+        <createTable tableName="TB_EVENT_PROPERTY" autoIncrement="true">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_EVENT_PROPERTY"/>
             </column>
@@ -80,7 +80,7 @@
         </createTable>
 
         <createTable tableName="TB_REV_CHANGES">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_REV_CHANGES"/>
             </column>
             <column name="REV" type="BIGINT"/>
@@ -91,7 +91,7 @@
             <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
         </createTable>
 
-        <createTable tableName="TB_REV_INFO">
+        <createTable tableName="TB_REV_INFO" autoIncrement="true">
             <column name="ID" type="INT">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
             </column>
@@ -101,7 +101,7 @@
         </createTable>
 
         <createTable tableName="TB_USER">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER"/>
             </column>
             <column name="USER_EMAIL" type="VARCHAR(255)"/>
@@ -154,7 +154,7 @@
         </createTable>
 
         <createTable tableName="TB_USER_DOMAIN">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_DOMAIN"/>
             </column>
             <column name="USER_NAME" type="VARCHAR(255)"/>
@@ -163,7 +163,7 @@
         </createTable>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_PASSWORD_HISTORY"/>
             </column>
             <column name="USER_ID" type="BIGINT">
@@ -176,7 +176,7 @@
         </createTable>
 
         <createTable tableName="TB_USER_ROLE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_ROLE"/>
             </column>
             <column name="ROLE_NAME" type="VARCHAR(255)">
