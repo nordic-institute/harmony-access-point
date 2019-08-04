@@ -78,7 +78,7 @@ public class PullMessageServiceTest {
 
         new Expectations() {
             {
-                messagingLockDao.getNextPullMessageToProcess(6);
+                messagingLockDao.getNextPullMessageToProcess(6L);
                 result = MESSAGE_ID;
             }
         };

@@ -7,7 +7,11 @@ export class MessagesRequestRO {
   public selector: string;
 
   constructor() {
-
+    this.source = null;
+    this.jmsType = null;
+    this.fromDate = null;
+    this.toDate = null;
+    this.selector = null;
   }
 
 }

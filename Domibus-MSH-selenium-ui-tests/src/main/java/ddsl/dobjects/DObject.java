@@ -56,7 +56,7 @@ public class DObject {
 			throw new DObjectNotPresentException();
 		}
 		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
-		String text = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent;", element).toString();
+		String text = ((JavascriptExecutor) driver).executeScript("return arguments[0].innerText;", element).toString();
 		return text.trim();
 	}
 

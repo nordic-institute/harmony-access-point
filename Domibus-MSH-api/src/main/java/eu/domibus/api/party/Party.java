@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public class Party {
 
-    private Integer entityId;
+    protected Integer entityId;
 
     protected Set<Identifier> identifiers; //NOSONAR
 
@@ -25,6 +25,14 @@ public class Party {
     protected String userName;
 
     protected String endpoint;
+
+    public Integer getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(Integer entityId) {
+        this.entityId = entityId;
+    }
 
     public Set<Identifier> getIdentifiers() {
         return identifiers;

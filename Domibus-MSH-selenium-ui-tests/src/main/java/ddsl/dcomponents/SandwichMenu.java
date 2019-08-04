@@ -1,5 +1,6 @@
 package ddsl.dcomponents;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -63,8 +64,8 @@ public class SandwichMenu extends DComponent {
 
 	public boolean isLoggedIn() throws Exception {
 		expandMenu();
-
-		boolean toReturn = !driver.findElement(currentUserID).getText().equalsIgnoreCase("Not logged in");
+		String userIDStr = driver.findElement(currentUserID).getText();
+		boolean toReturn = !StringUtils.equalsIgnoreCase(userIDStr, "Not logged in");
 		log.info("User login status is: " + toReturn);
 
 		contractMenu();

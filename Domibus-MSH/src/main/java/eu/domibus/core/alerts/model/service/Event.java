@@ -23,7 +23,7 @@ public class Event {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(Event.class);
 
-    private int entityId;
+    private long entityId;
 
     private Date reportingTime;
 
@@ -39,11 +39,11 @@ public class Event {
     public Event() {
     }
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(long entityId) {
         this.entityId = entityId;
     }
 

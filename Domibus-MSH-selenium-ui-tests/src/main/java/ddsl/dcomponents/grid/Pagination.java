@@ -4,6 +4,7 @@ import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.Select;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.DObject;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -61,7 +62,7 @@ public class Pagination extends DComponent {
 	public boolean hasNextPage() {
 
 		try {
-			return !("disabled".equalsIgnoreCase(getNextPageLnk().getAttribute("class")));
+			return !(StringUtils.equalsIgnoreCase("disabled", getNextPageLnk().getAttribute("class")));
 		} catch (Exception e) {
 		}
 		return false;
@@ -70,7 +71,7 @@ public class Pagination extends DComponent {
 	public boolean hasPrevPage() {
 
 		try {
-			return !("disabled".equalsIgnoreCase(getPrevPageLnk().getAttribute("class")));
+			return !(StringUtils.equalsIgnoreCase("disabled", getPrevPageLnk().getAttribute("class")));
 		} catch (Exception e) {
 		}
 		return false;

@@ -10,6 +10,7 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.services.PluginUserService;
+import eu.domibus.core.security.PluginUserPasswordHistoryDao;
 import eu.domibus.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
@@ -55,6 +56,9 @@ public class PluginUserServiceImpl implements PluginUserService {
 
     @Autowired
     PluginUserAlertsServiceImpl userAlertsService;
+
+    @Autowired
+    PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     @Override
     public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
@@ -142,14 +146,16 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
         authenticationDAO.create(u);
 
-        String userIdentifier = u.getCertificateId() != null ? u.getCertificateId() : u.getUserName();
-        userDomainService.setDomainForUser(userIdentifier, domain.getCode());
+        userDomainService.setDomainForUser(u.getUniqueIdentifier(), domain.getCode());
     }
 
     protected void updateUser(AuthenticationEntity modified) {
         AuthenticationEntity existing = authenticationDAO.read(modified.getEntityId());
 
-        userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+        if (StringUtils.isBlank(existing.getCertificateId())) {
+            // locking policy is only applicable to Basic auth plugin users
+            userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+        }
 
         if (!StringUtils.isEmpty(modified.getPassword())) {
             changePassword(existing, modified.getPassword());
@@ -167,9 +173,15 @@ public class PluginUserServiceImpl implements PluginUserService {
 
     protected void deleteUser(AuthenticationEntity u) {
         AuthenticationEntity entity = authenticationDAO.read(u.getEntityId());
-        authenticationDAO.delete(entity);
+        delete(entity);
 
-        String userIdentifier = u.getCertificateId() != null ? u.getCertificateId() : u.getUserName();
-        userDomainService.deleteDomainForUser(userIdentifier);
+        userDomainService.deleteDomainForUser(u.getUniqueIdentifier());
+    }
+
+    private void delete(AuthenticationEntity user) {
+        //delete password history
+        pluginUserPasswordHistoryDao.removePasswords(user, 0);
+        //delete actual user
+        authenticationDAO.delete(user);
     }
 }

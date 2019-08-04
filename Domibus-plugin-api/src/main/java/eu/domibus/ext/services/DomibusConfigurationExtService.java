@@ -16,4 +16,9 @@ public interface DomibusConfigurationExtService {
     boolean isMultiTenantAware();
 
     boolean isSecuredLoginRequired();
+
+    String getConfigLocation();
+
+    boolean isClusterDeployment();
+
 }

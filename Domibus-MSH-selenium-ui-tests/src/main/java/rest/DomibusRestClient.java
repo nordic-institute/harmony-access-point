@@ -7,6 +7,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +35,7 @@ public class DomibusRestClient {
 
 	private Client client = Client.create();
 	private TestRunData data = new TestRunData();
+	private ObjectProvider provider = new ObjectProvider();
 	private WebResource resource = client.resource(data.getUiBaseUrl());
 
 	private List<NewCookie> cookies;
@@ -43,6 +45,11 @@ public class DomibusRestClient {
 		refreshCookies();
 	}
 
+	private String sanitizeResponse(String response) {
+		return response.replaceFirst("\\)]}',\n", "");
+	}
+
+	// -------------------------------------------- Login --------------------------------------------------------------
 	private void refreshCookies() {
 		if (isLoggedIn()) {
 			return;
@@ -53,7 +60,7 @@ public class DomibusRestClient {
 
 		if (null != cookies) {
 			for (NewCookie cookie : cookies) {
-				if (cookie.getName().equalsIgnoreCase("XSRF-TOKEN")) {
+				if (StringUtils.equalsIgnoreCase(cookie.getName(), "XSRF-TOKEN")) {
 					token = cookie.getValue();
 				}
 			}
@@ -70,10 +77,6 @@ public class DomibusRestClient {
 		WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.USERNAME));
 		int response = builder.get(ClientResponse.class).getStatus();
 		return (response == 200);
-	}
-
-	private String sanitizeResponse(String response) {
-		return response.replaceFirst("\\)]}',\n", "");
 	}
 
 	private WebResource.Builder decorateBuilder(WebResource resource) {
@@ -129,7 +132,7 @@ public class DomibusRestClient {
 
 	}
 
-	//	------------------------------------------------------------------------------------------
+	//	---------------------------------------Default request methods -------------------------------------------------
 	private ClientResponse requestGET(WebResource resource, HashMap<String, String> params) {
 		if (params != null) {
 			for (Map.Entry<String, String> param : params.entrySet()) {
@@ -139,28 +142,6 @@ public class DomibusRestClient {
 
 		WebResource.Builder builder = decorateBuilder(resource);
 		return builder.get(ClientResponse.class);
-	}
-
-	private ClientResponse requestPOST(WebResource resource, HashMap<String, String> params) {
-		WebResource.Builder builder = decorateBuilder(resource);
-		JSONObject object = new JSONObject();
-		if (params != null) {
-			object = new JSONObject(params);
-		}
-
-		return builder
-				.accept(MediaType.APPLICATION_JSON_TYPE)
-				.type(MediaType.APPLICATION_JSON_TYPE)
-				.post(ClientResponse.class, object.toString());
-	}
-
-	private ClientResponse requestPOST(WebResource resource, String params) {
-
-		WebResource.Builder builder = decorateBuilder(resource);
-		return builder
-				.accept(MediaType.APPLICATION_JSON_TYPE)
-				.type(MediaType.APPLICATION_JSON_TYPE)
-				.post(ClientResponse.class, params);
 	}
 
 	private ClientResponse requestPOSTFile(WebResource resource, String filePath, HashMap<String, String> fields) {
@@ -191,7 +172,7 @@ public class DomibusRestClient {
 				.put(ClientResponse.class, params);
 	}
 
-	// ------------------------------------------------------------------------------------------------------------
+	// -------------------------------------------- Users --------------------------------------------------------------
 	public JSONArray getUsers() {
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
@@ -207,15 +188,13 @@ public class DomibusRestClient {
 		return null;
 	}
 
-	public void createUser(String username, String role, String pass, String domain) {
+	public void createUser(String username, String role, String pass, String domain) throws JSONException {
 		switchDomain(domain);
 		if (null == domain || domain.isEmpty()) {
 			domain = "default";
 		}
 
-		String payloadTemplate = "[{\"roles\":\"%s\",\"domain\":\"%s\",\"userName\":\"%s\",\"email\":\"\",\"password\":\"%s\",\"status\":\"NEW\",\"active\":true,\"suspended\":false,\"authorities\":[],\"deleted\":false,\"$$index\":2}]";
-		int index = getUsers().length();
-		String payload = String.format(payloadTemplate, role, domain, username, pass);
+		String payload = provider.createUserObj(username, role, pass, domain);
 
 		ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), payload);
 		if (response.getStatus() != 200) {
@@ -232,7 +211,7 @@ public class DomibusRestClient {
 		JSONArray pusers = new JSONArray(sanitizeResponse(getResponse));
 		JSONArray toDelete = new JSONArray();
 		for (int i = 0; i < pusers.length(); i++) {
-			if (pusers.getJSONObject(i).getString("userName").equalsIgnoreCase(username)) {
+			if (StringUtils.equalsIgnoreCase(pusers.getJSONObject(i).getString("userName"), username)) {
 				JSONObject tmpUser = pusers.getJSONObject(i);
 				tmpUser.put("status", "REMOVED");
 				tmpUser.put("deleted", true);
@@ -247,39 +226,6 @@ public class DomibusRestClient {
 		}
 	}
 
-	public void createPluginUser(String username, String role, String pass, String domain) {
-		String payloadTemplate = "[{\"status\":\"NEW\",\"userName\":\"%s\",\"active\":true,\"suspended\":false,\"authenticationType\":\"BASIC\",\"$$index\":0,\"authRoles\":\"%s\",\"password\":\"%s\"}]";
-		String payload = String.format(payloadTemplate, username, role, pass);
-
-		switchDomain(domain);
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
-		if (response.getStatus() != 204) {
-			throw new RuntimeException("Could not create plugin user");
-		}
-	}
-
-	public void deletePluginUser(String username, String domain) throws Exception {
-
-		switchDomain(domain);
-
-		String getResponse = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), null).getEntity(String.class);
-
-		JSONArray pusers = new JSONObject(sanitizeResponse(getResponse)).getJSONArray("entries");
-		JSONArray toDelete = new JSONArray();
-		for (int i = 0; i < pusers.length(); i++) {
-			if (pusers.getJSONObject(i).getString("userName").equalsIgnoreCase(username)) {
-				JSONObject tmpUser = pusers.getJSONObject(i);
-				tmpUser.put("status", "REMOVED");
-				toDelete.put(tmpUser);
-			}
-		}
-
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
-		if (response.getStatus() != 204) {
-			throw new RuntimeException("Could not delete plugin user");
-		}
-	}
-
 	public void updateUser(String username, HashMap<String, String> toUpdate) {
 		HashMap<String, String> adminUser = data.getAdminUser();
 		JSONObject user = null;
@@ -288,7 +234,7 @@ public class DomibusRestClient {
 			JSONArray array = getUsers();
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tmpUser = array.getJSONObject(i);
-				if (tmpUser.getString("userName").equalsIgnoreCase(username)) {
+				if (StringUtils.equalsIgnoreCase(tmpUser.getString("userName"), username)) {
 					user = tmpUser;
 				}
 			}
@@ -312,6 +258,51 @@ public class DomibusRestClient {
 		}
 	}
 
+	// ----------------------------------------- Plugin Users ----------------------------------------------------------
+
+	public void createPluginUser(String username, String role, String pass, String domain) throws JSONException {
+		String payload = provider.createPluginUserObj(username, role, pass);
+
+		switchDomain(domain);
+		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		if (response.getStatus() != 204) {
+			throw new RuntimeException("Could not create plugin user");
+		}
+	}
+
+	public void createCertPluginUser(String username, String role, String domain) throws JSONException {
+		String payload = provider.createCertPluginUserObj(username, role);
+
+		switchDomain(domain);
+		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		if (response.getStatus() != 204) {
+			throw new RuntimeException("Could not create plugin user");
+		}
+	}
+
+	public void deletePluginUser(String username, String domain) throws Exception {
+
+		switchDomain(domain);
+
+		String getResponse = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), null).getEntity(String.class);
+
+		JSONArray pusers = new JSONObject(sanitizeResponse(getResponse)).getJSONArray("entries");
+		JSONArray toDelete = new JSONArray();
+		for (int i = 0; i < pusers.length(); i++) {
+			if (StringUtils.equalsIgnoreCase(pusers.getJSONObject(i).getString("userName"), username)) {
+				JSONObject tmpUser = pusers.getJSONObject(i);
+				tmpUser.put("status", "REMOVED");
+				toDelete.put(tmpUser);
+			}
+		}
+
+		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
+		if (response.getStatus() != 204) {
+			throw new RuntimeException("Could not delete plugin user");
+		}
+	}
+
+	// -------------------------------------------- Domains ------------------------------------------------------------
 	private JSONArray getDomains(){
 		JSONArray domainArray = null;
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMAINS), null);
@@ -360,7 +351,7 @@ public class DomibusRestClient {
 				JSONArray domainArray = getDomains();
 				for (int i = 0; i < domainArray.length(); i++) {
 					String currentName = domainArray.getJSONObject(i).getString("name");
-					if(currentName.equalsIgnoreCase(name)){
+					if(StringUtils.equalsIgnoreCase(currentName, name)){
 						return domainArray.getJSONObject(i).getString("code");
 					}
 				}
@@ -370,9 +361,11 @@ public class DomibusRestClient {
 		return null;
 	}
 
-	public void createMessageFilter(String actionName, String domain) {
-		String payloadTemplate = "{\"entityId\":0,\"index\":0,\"backendName\":\"backendWebservice\",\"routingCriterias\":[{\"entityId\":0,\"name\":\"action\",\"expression\":\"%s\"}],\"persisted\":false,\"from\":null,\"to\":null,\"action\":{\"entityId\":0,\"name\":\"action\",\"expression\":\"%s\"},\"service\":null,\"$$index\":2}";
-		String payload = String.format(payloadTemplate, actionName, actionName);
+
+	// -------------------------------------------- Message Filters ----------------------------------------------------
+	public void createMessageFilter(String actionName, String domain) throws JSONException {
+
+		String payload = provider.createMessageFilterObj(actionName);
 
 
 		switchDomain(domain);
@@ -423,6 +416,7 @@ public class DomibusRestClient {
 		}
 	}
 
+	// -------------------------------------------- PMode --------------------------------------------------------------
 	public void uploadPMode(String pmodeFilePath, String domain) throws Exception {
 		switchDomain(domain);
 
@@ -444,20 +438,22 @@ public class DomibusRestClient {
 		return entries.length() > 0;
 	}
 
+	// -------------------------------------------- Get Grid -----------------------------------------------------------
 	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception{
 		switchDomain(domain);
 
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_CSV), params);
+		ClientResponse clientResponse = requestGET(resource.path(path), params);
 		System.out.println(clientResponse.getStatus());
 		InputStream in= clientResponse.getEntity(InputStream.class);
 
-		File file = File.createTempFile("domibus", "");
+		File file = File.createTempFile("domibus", ".csv");
 		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 		in.close();
 		return file.getAbsolutePath();
 	}
 
+	// -------------------------------------------- Message ------------------------------------------------------------
 	public String downloadMessage(String id, String domain) throws Exception{
 		switchDomain(domain);
 

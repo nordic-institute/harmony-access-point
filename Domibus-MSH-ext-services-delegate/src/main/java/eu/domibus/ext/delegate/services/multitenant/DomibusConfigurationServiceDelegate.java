@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 public class DomibusConfigurationServiceDelegate implements DomibusConfigurationExtService {
 
     @Autowired
-    DomibusConfigurationService domibusConfigurationService;
+    protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    AuthUtils authUtils;
+    protected AuthUtils authUtils;
 
     @Override
     public boolean isMultiTenantAware() {
@@ -27,5 +27,15 @@ public class DomibusConfigurationServiceDelegate implements DomibusConfiguration
     @Override
     public boolean isSecuredLoginRequired() {
         return !authUtils.isUnsecureLoginAllowed();
+    }
+
+    @Override
+    public String getConfigLocation() {
+        return domibusConfigurationService.getConfigLocation();
+    }
+
+    @Override
+    public boolean isClusterDeployment() {
+        return domibusConfigurationService.isClusterDeployment();
     }
 }

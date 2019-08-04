@@ -46,28 +46,43 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private PkiExtService pkiExtService;
 
+    private DssCache dssCache;
+
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
             final CertificateVerifier certificateVerifier,
             final TSLRepository tslRepository,
             final ValidationReport validationReport,
             final ValidationConstraintPropertyMapper constraintMapper,
-            PkiExtService pkiExtService) {
+            final PkiExtService pkiExtService,
+            final DssCache dssCache) {
         super(defaultDomainCryptoService);
         this.certificateVerifier = certificateVerifier;
         this.tslRepository = tslRepository;
         this.validationReport = validationReport;
         this.constraintMapper = constraintMapper;
         this.pkiExtService = pkiExtService;
+        this.dssCache = dssCache;
     }
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
         //display some trusted list information.
         logDebugTslInfo();
-        //should receive at least two certificates.
+        //should receive at least one certificates.
         if (ArrayUtils.isEmpty(certs)) {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Certificate chain expected with a minimum size of 1 but is empty"});
+        }
+        StringBuilder cacheKeyBuilder = new StringBuilder();
+        for (X509Certificate cert : certs) {
+            cacheKeyBuilder.
+                    append(cert.getSerialNumber()).
+                    append(cert.getIssuerDN()!=null?cert.getIssuerDN().getName():"");
+        }
+        String cacheKey = cacheKeyBuilder.toString();
+        if (dssCache.isChainValid(cacheKey)) {
+            LOG.debug("Certificate with cache key:[{}] validated from dss cache",dssCache);
+            return;
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
         //add signing certificate to DSS.
@@ -78,6 +93,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate);
         //Validate.
         validate(certificateValidator);
+        dssCache.addToCache(cacheKey, true);
         LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
     }
 

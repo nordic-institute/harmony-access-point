@@ -5,8 +5,9 @@
  * More common functionality will be added in time
  */
 import {Constructable} from '../base-list.component';
+import {OnInit} from '@angular/core';
 
-let FilterableListMixin = (superclass: Constructable) => class extends superclass {
+let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit{
   public filter: any;
   public activeFilter: any;
 
@@ -15,11 +16,17 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.filter = {};
   }
 
+  ngOnInit() {
+    this.filter = {};
+    this.activeFilter = {};
+  }
+
   /**
    * The method takes the filter params set through widgets and copies them to the active params
    * active params are the ones that are used for actual filtering of data and can be different from the ones set by the user in the UI
    */
   protected setActiveFilter() {
+    //just in case ngOnInit wasn't called from coresponding component class
     if (!this.activeFilter) {
       this.activeFilter = {};
     }

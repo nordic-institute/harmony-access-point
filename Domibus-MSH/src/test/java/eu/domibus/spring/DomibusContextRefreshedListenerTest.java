@@ -4,7 +4,7 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.PasswordEncryptionService;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import mockit.*;
 import org.junit.Test;

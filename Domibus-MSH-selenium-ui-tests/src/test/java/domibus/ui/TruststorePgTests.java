@@ -5,7 +5,9 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TrustStorePage;
 import pages.truststore.TruststoreModal;
+import rest.RestServicePaths;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,5 +59,33 @@ public class TruststorePgTests extends BaseTest {
 		soft.assertAll();
 	}
 
+	@Test(description = "TRST-3", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		TrustStorePage page = new TrustStorePage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
+	}
+
+	@Test(description = "TRST-4", groups = {"multiTenancy", "singleTenancy"})
+	public void gridSelfAssert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		TrustStorePage page = new TrustStorePage(driver);
+
+		page.grid().assertControls(soft);
+
+		soft.assertAll();
+	}
 
 }

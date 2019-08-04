@@ -62,7 +62,10 @@ public class AuditResource extends BaseResource {
      */
     @PostMapping(value = {"/list"})
     public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
-        LOG.debug("Audit criteria received: {}", auditCriteria.toString());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Audit criteria received:");
+            LOG.debug(auditCriteria.toString());
+        }
 
         List<AuditLog> sourceList = auditService.listAudit(
                 auditCriteria.getAuditTargetName(),
@@ -73,7 +76,9 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getStart(),
                 auditCriteria.getMax());
 
-        return domainConverter.convert(sourceList, AuditResponseRo.class);
+        List<AuditResponseRo> list = domainConverter.convert(sourceList, AuditResponseRo.class);
+        list.forEach(entry -> entry.setAction(getActionTypeLabelFromCode(entry.getAction())));
+        return list;
     }
 
 
@@ -89,25 +94,33 @@ public class AuditResource extends BaseResource {
 
     /**
      * Action type send from the admin console are different from the one used in the database.
-     * Eg: In the admin console the filter for a modified entity is Modified where in the database a modified reccord
+     * Eg: In the admin console the filter for a modified entity is Modified where in the database a modified record
      * has the MOD flag. This method does the translation.
      *
      * @param actions
      * @return
      */
     private Set<String> changeActionType(Set<String> actions) {
-        Set<String> modificationTypes = new HashSet<>();
         if (actions == null || actions.isEmpty()) {
-            return modificationTypes;
+            return new HashSet<>();
         }
-        actions.forEach(action -> {
-            Set<String> collect = Arrays.stream(ModificationType.values()).
-                    filter(modificationType -> modificationType.getLabel().equals(action)).
-                    map(Enum::name).
-                    collect(Collectors.toSet());
-            modificationTypes.addAll(collect);
-        });
-        return modificationTypes;
+        return actions.stream()
+                .map(action -> getActionTypesFromLabel(action))
+                .flatMap(Set::stream).collect(Collectors.toSet());
+    }
+
+    private Set<String> getActionTypesFromLabel(String label) {
+        return Arrays.stream(ModificationType.values()).
+                filter(modificationType -> modificationType.getLabel().equals(label)).
+                map(Enum::name).
+                collect(Collectors.toSet());
+    }
+
+    private String getActionTypeLabelFromCode(String code) {
+        return Arrays.stream(ModificationType.values()).
+                filter(modificationType -> modificationType.toString().equals(code)).
+                map(ModificationType::getLabel).
+                findFirst().orElse(code);
     }
 
     @GetMapping(value = {"/targets"})

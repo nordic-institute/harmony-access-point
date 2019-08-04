@@ -1,5 +1,6 @@
 package utils.customReporter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -119,21 +120,21 @@ public class ExcelTestReporter implements ITestListener {
 		XSSFFont font = workbook.createFont();
 		font.setBold(true);
 
-		if (type.equalsIgnoreCase("Pass")) {
+		if (StringUtils.equalsIgnoreCase(type, "Pass")) {
 			style.setFillBackgroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
 			style.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
 
-		} else if (type.equalsIgnoreCase("Fail")) {
+		} else if (StringUtils.equalsIgnoreCase(type, "Fail")) {
 			style.setFillBackgroundColor(IndexedColors.RED.getIndex());
 			style.setFillForegroundColor(IndexedColors.RED.getIndex());
 			style.setFont(font);
 
-		} else if (type.equalsIgnoreCase("Skipped")) {
+		} else if (StringUtils.equalsIgnoreCase(type, "Skipped")) {
 			style.setFillBackgroundColor(IndexedColors.WHITE.getIndex());
 			style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
 			style.setFont(font);
 
-		} else if (type.equalsIgnoreCase("Header")) {
+		} else if (StringUtils.equalsIgnoreCase(type, "Header")) {
 			style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 			style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 			style.setFont(font);
