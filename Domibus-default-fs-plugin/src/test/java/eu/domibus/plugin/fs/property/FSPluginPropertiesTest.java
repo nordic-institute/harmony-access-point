@@ -34,12 +34,6 @@ public class FSPluginPropertiesTest {
     @Tested
     FSPluginProperties fsPluginProperties;
 
-    @Injectable
-    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
-
-    @Injectable
-    List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
-
     @Test
     public void testReadDomains() {
         Set<String> domains = new HashSet<>();

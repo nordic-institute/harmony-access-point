@@ -9,7 +9,6 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,9 +100,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     public static final String ACTION_DELETE = "delete";
 
     public static final String ACTION_ARCHIVE = "archive";
-
-    @Autowired
-    private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     /**
      * @return The available domains set
@@ -478,9 +474,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
             throw new IllegalArgumentException(propertyName);
         }
         this.properties.setProperty(propertyKey, propertyValue);
-
-        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     private String getKnownPropertyKey(String domain, String propertyName) {

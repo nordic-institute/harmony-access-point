@@ -60,11 +60,6 @@ public class FSPluginPropertiesTestIT {
         }
 
         @Bean
-        public PluginPropertyChangeNotifier pluginPropertyChangeNotifier() {
-            return Mockito.mock(PluginPropertyChangeNotifier.class);
-        }
-
-        @Bean
         public DomainExtService domainExtService() {
             return Mockito.mock(DomainExtService.class);
         }

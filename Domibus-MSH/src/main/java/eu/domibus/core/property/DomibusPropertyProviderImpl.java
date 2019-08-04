@@ -46,9 +46,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
-    @Autowired
-    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
-
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     protected String getPropertyName(Domain domain, String propertyName) {
