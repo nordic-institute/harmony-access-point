@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public interface UserEntityBase extends UserBase {
 
-    int getEntityId();
+    long getEntityId();
 
     UserEntityBase.Type getType();
 

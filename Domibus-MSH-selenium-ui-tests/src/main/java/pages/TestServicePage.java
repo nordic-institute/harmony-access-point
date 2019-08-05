@@ -5,6 +5,7 @@ import ddsl.dcomponents.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.enums.DMessages;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -15,7 +16,6 @@ import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
@@ -107,19 +107,18 @@ public class TestServicePage extends DomibusPage {
 
 	public boolean invalidConfigurationState() throws Exception {
 		return (getAlertArea().isError()
-				&& getAlertArea().getAlertMessage().equalsIgnoreCase(DMessages.TESTSERVICE_NOTCONFIGURED)
+				&& StringUtils.equalsIgnoreCase(getAlertArea().getAlertMessage(), DMessages.TESTSERVICE_NOTCONFIGURED)
 				&& !getTestBtn().isEnabled()
 				&& !getUpdateBtn().isEnabled()
 				&& getPartySelector().getOptionsTexts().size() == 1
 		);
 	}
 
-	public void waitForEchoRequestData(){
+	public void waitForEchoRequestData() {
 		wait.forAttributeToContain(toAccessPoint, "value", "http");
 	}
 
-
-	public boolean isLoaded() throws Exception{
+	public boolean isLoaded() throws Exception {
 		return (getPartySelector().isDisplayed()
 				&& getTestBtn().isPresent()
 				&& getUpdateBtn().isPresent()

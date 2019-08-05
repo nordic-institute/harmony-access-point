@@ -21,6 +21,9 @@ public class DynamicDiscoveryClientChangeListener implements PluginPropertyChang
     @Autowired
     protected ApplicationContext applicationContext;
 
+    @Autowired
+    protected PModeProvider pModeProvider;
+
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION);
@@ -28,7 +31,6 @@ public class DynamicDiscoveryClientChangeListener implements PluginPropertyChang
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        PModeProvider pModeProvider = applicationContext.getBean(PModeProvider.class);
         pModeProvider.refresh();
     }
 }

@@ -4,7 +4,7 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.PasswordEncryptionService;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -77,10 +77,6 @@ public class DomibusContextRefreshedListener {
         } catch (Exception e) {
             LOG.error("Error encrypting passwords", e);
         }
-
-
-        //signal to plugins that's ok to encrypt passwords
-        //the operation must be idempotent
     }
 
     protected boolean useLockForEncryption() {
@@ -117,8 +113,6 @@ public class DomibusContextRefreshedListener {
 
         return false;
     }
-
-
 
     protected File getLockFileLocation() {
         return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);

@@ -19,14 +19,14 @@ import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
+import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
-import eu.domibus.core.pull.ToExtractor;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.messaging.DispatchMessageCreator;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
@@ -38,7 +38,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -129,6 +128,11 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     DatabaseMessageHandler databaseMessageHandler;
+
+    @Injectable
+    PModeProvider pModeProvider;
+
+
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -358,8 +362,8 @@ public class UserMessageDefaultServiceTest {
             times = 0;
             messagingDao.findUserMessageByMessageId(messageId);
             times = 1;
-            ToExtractor toExtractor = null;
-            pullMessageService.addPullMessageLock(withAny(toExtractor), userMessage, userMessageLog);
+            PartyExtractor partyExtractor = null;
+            pullMessageService.addPullMessageLock(withAny(partyExtractor), userMessage, userMessageLog);
             times = 1;
         }};
     }

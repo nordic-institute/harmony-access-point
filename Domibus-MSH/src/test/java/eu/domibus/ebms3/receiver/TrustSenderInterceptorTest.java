@@ -181,6 +181,12 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
             result = true;
         }};
         trustSenderInterceptor.handleMessage(soapMessage);
+        String senderPartyName = LOG.getMDC(DomibusLogger.MDC_FROM);
+        String receiverPartyName = LOG.getMDC(DomibusLogger.MDC_TO);
+
+        Assert.assertEquals("blue_gw", senderPartyName);
+        Assert.assertEquals("red_gw", receiverPartyName);
+
     }
 
     @Test

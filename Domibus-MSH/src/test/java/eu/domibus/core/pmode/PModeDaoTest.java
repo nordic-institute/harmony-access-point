@@ -9,8 +9,8 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
@@ -152,7 +152,7 @@ public class PModeDaoTest {
         final byte[] xmlBytes = {1, 0, 1};
         resultConfigurationRaw.setXml(xmlBytes);
         new Expectations(pModeDao) {{
-            pModeDao.getRawConfiguration(anyInt);
+            pModeDao.getRawConfiguration(anyLong);
             result = resultConfigurationRaw;
         }};
 
@@ -167,7 +167,7 @@ public class PModeDaoTest {
     public void testGetPModeFileNull() {
         // Given
         new Expectations(pModeDao) {{
-            pModeDao.getRawConfiguration(anyInt);
+            pModeDao.getRawConfiguration(anyLong);
             result = null;
         }};
 
@@ -185,7 +185,7 @@ public class PModeDaoTest {
         rawConfiguration.setDescription("description");
         rawConfiguration.setXml(new byte[]{1, 0, 1});
         new Expectations(configurationRawDAO) {{
-            configurationRawDAO.getConfigurationRaw(anyInt);
+            configurationRawDAO.getConfigurationRaw(anyLong);
             result = rawConfiguration;
         }};
 

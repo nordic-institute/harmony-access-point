@@ -109,6 +109,82 @@ public class UIMessageDiffEntity {
     @Column(name = "TO_SCHEME")
     private String toScheme;
 
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public void setMessageStatus(MessageStatus messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
+    public void setNotificationStatus(NotificationStatus notificationStatus) {
+        this.notificationStatus = notificationStatus;
+    }
+
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
+
+    public void setMessageSubtype(MessageSubtype messageSubtype) {
+        this.messageSubtype = messageSubtype;
+    }
+
+    public void setMshRole(MSHRole mshRole) {
+        this.mshRole = mshRole;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
+
+    public void setReceived(Date received) {
+        this.received = received;
+    }
+
+    public void setRestored(Date restored) {
+        this.restored = restored;
+    }
+
+    public void setFailed(Date failed) {
+        this.failed = failed;
+    }
+
+    public void setSendAttempts(int sendAttempts) {
+        this.sendAttempts = sendAttempts;
+    }
+
+    public void setSendAttemptsMax(int sendAttemptsMax) {
+        this.sendAttemptsMax = sendAttemptsMax;
+    }
+
+    public void setNextAttempt(Date nextAttempt) {
+        this.nextAttempt = nextAttempt;
+    }
+
+    public void setFromId(String fromId) {
+        this.fromId = fromId;
+    }
+
+    public void setFromScheme(String fromScheme) {
+        this.fromScheme = fromScheme;
+    }
+
+    public void setToId(String toId) {
+        this.toId = toId;
+    }
+
+    public void setToScheme(String toScheme) {
+        this.toScheme = toScheme;
+    }
+
+    public void setRefToMessageId(String refToMessageId) {
+        this.refToMessageId = refToMessageId;
+    }
+
     @Column(name = "REF_TO_MESSAGE_ID")
     private String refToMessageId;
 

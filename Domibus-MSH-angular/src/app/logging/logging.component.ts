@@ -44,6 +44,8 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   }
 
   ngOnInit() {
+    super.ngOnInit();
+
     this.columnPicker.allColumns = [
       {
         name: 'Logger Name',

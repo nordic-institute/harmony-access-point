@@ -65,7 +65,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     @Autowired
     private TransformerFactory transformerFactory;
 
-
     @Qualifier("messageFactory")
     @Autowired
     private MessageFactory messageFactory;

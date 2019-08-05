@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * New exceptions thrown in here have to be handled in eu.domibus.core.crypto.DomainCryptoServiceInterceptor
+ *
  * @author Cosmin Baciu
  * @since 4.0
  */

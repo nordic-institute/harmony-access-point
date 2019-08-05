@@ -44,7 +44,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public PullMessageId getNextPullMessageToProcess(final Integer idPk) {
+    public PullMessageId getNextPullMessageToProcess(final Long idPk) {
         try {
             Query q = entityManager.createNativeQuery(LOCK_BY_ID_QUERY, MessagingLock.class);
             q.setParameter(1, idPk);

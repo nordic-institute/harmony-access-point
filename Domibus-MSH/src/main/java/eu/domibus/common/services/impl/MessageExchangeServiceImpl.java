@@ -1,6 +1,7 @@
 package eu.domibus.common.services.impl;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
@@ -45,8 +46,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
@@ -66,7 +70,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
 
-     protected static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
+    private static final String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
+
+    private static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
 
     private static final String PULL = "pull";
 
@@ -174,28 +180,36 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.trace("No pull process configured !");
             return;
         }
-        pullProcesses.
-                stream().
-                map(Process::getResponderParties).
-                forEach(pullFrequencyHelper::setResponders);
+
+        final List<Process> validPullProcesses = getValidProcesses(pullProcesses);
+        final Set<String> mpcNames = validPullProcesses.stream()
+                .flatMap(pullProcess -> pullProcess.getLegs().stream().map(leg -> leg.getDefaultMpc().getName()))
+                .collect(Collectors.toSet());
+        pullFrequencyHelper.setMpcNames(mpcNames);
 
         final Integer maxPullRequestNumber = pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle();
-        if (pause(pullProcesses, maxPullRequestNumber)) {
+        if (pause(maxPullRequestNumber)) {
             return;
         }
+        validPullProcesses.forEach(pullProcess ->
+                pullProcess.getLegs().stream().forEach(legConfiguration ->
+                        preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
+    }
+
+    private List<Process> getValidProcesses(List<Process> pullProcesses) {
+        final List<Process> validPullProcesses = new ArrayList<>();
         for (Process pullProcess : pullProcesses) {
             try {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
-                for (LegConfiguration legConfiguration : pullProcess.getLegs()) {
-                    preparePullRequestForResponder(mpc, initiator, pullProcess, legConfiguration);
-                }
+                validPullProcesses.add(pullProcess);
             } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try " + e.getMessage());
+                LOG.warn("Invalid pull process configuration found during pull try", e);
             }
         }
+        return validPullProcesses;
     }
 
-    private void preparePullRequestForResponder(String mpc, Party initiator, Process pullProcess, LegConfiguration legConfiguration) {
+    private void preparePullRequestForMpc(String mpc, Party initiator, Process pullProcess, LegConfiguration legConfiguration) {
         for (Party responder : pullProcess.getResponderParties()) {
             String mpcQualifiedName = legConfiguration.getDefaultMpc().getQualifiedName();
             if (mpc != null && !mpc.equals(mpcQualifiedName)) {
@@ -212,8 +226,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     legConfiguration.getAction().getName(),
                     legConfiguration.getName());
             LOG.debug("messageExchangeConfiguration:[{}]", messageExchangeConfiguration);
-            Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForResponder(responder.getName());
-            LOG.debug("Sending:[{}] pull request for mpc:[{}] to party:[{}]", pullRequestNumberForResponder, mpcQualifiedName, responder.getName());
+            String mpcName = legConfiguration.getDefaultMpc().getName();
+            Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForMpc(mpcName);
+            LOG.debug("Sending:[{}] pull request for mpcFQN:[{}] to mpc:[{}]", pullRequestNumberForResponder, mpcQualifiedName, mpcName);
             for (int i = 0; i < pullRequestNumberForResponder; i++) {
                 jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
                         .property(MPC, mpcQualifiedName)
@@ -225,24 +240,16 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         }
     }
 
-    private boolean pause(List<Process> pullProcesses, int numberOfPullRequestPerMpc) {
+    private boolean pause(Integer maxPullRequestNumber) {
         LOG.trace("Checking if the system should pause the pulling mechanism.");
-        int numberOfPullMpc = 0;
         final long queueMessageNumber = jmsManager.getDestinationSize(PULL);
-        for (Process pullProcess : pullProcesses) {
-            try {
-                processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
-                numberOfPullMpc++;
-            } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try ", e);
-            }
-        }
-        final int pullRequestsToSendCount = numberOfPullMpc * numberOfPullRequestPerMpc;
-        final boolean shouldPause = queueMessageNumber > pullRequestsToSendCount;
+
+        final boolean shouldPause = queueMessageNumber > maxPullRequestNumber;
+
         if (shouldPause) {
-            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, pullRequestsToSendCount);
+            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, maxPullRequestNumber);
         } else {
-            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, pullRequestsToSendCount);
+            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, maxPullRequestNumber);
         }
         return shouldPause;
     }
@@ -344,7 +351,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
                 LOG.info("Receiver certificate exists and is valid [{}}]", receiverName);
-            } catch (DomibusCertificateException e) {
+            } catch (DomibusCertificateException | CryptoException e) {
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, e);
             }
         }
@@ -384,7 +391,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
                 LOG.info("Sender certificate exists and is valid [{}]", senderName);
-            } catch (DomibusCertificateException | KeyStoreException ex) {
+            } catch (DomibusCertificateException | KeyStoreException | CryptoException ex) {
                 // Is this an error and we stop the sending or we just log a warning that we were not able to validate the cert?
                 // my opinion is that since the option is enabled, we should validate no matter what => this is an error
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, ex);

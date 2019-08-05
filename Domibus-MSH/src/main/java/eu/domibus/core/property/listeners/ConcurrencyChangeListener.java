@@ -27,6 +27,9 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
     @Autowired
     protected ApplicationContext applicationContext;
 
+    @Autowired
+    MessageListenerContainerInitializer messageListenerContainerInitializer;
+
     private String[] handledProperties = new String[]{
             DOMIBUS_DISPATCHER_CONCURENCY,
             DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY,
@@ -41,7 +44,6 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        MessageListenerContainerInitializer messageListenerContainerInitializer = applicationContext.getBean(MessageListenerContainerInitializer.class);
 
         final Domain domain = domainService.getDomain(domainCode);
 

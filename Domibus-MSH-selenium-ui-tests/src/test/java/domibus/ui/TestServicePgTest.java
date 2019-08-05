@@ -1,6 +1,7 @@
 package domibus.ui;
 
 import ddsl.enums.PAGES;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.TestServicePage;
@@ -71,12 +72,13 @@ public class TestServicePgTest extends BaseTest {
 
 		page.getTestBtn().click();
 
+
 		page.waitForEchoRequestData();
 
 		soft.assertTrue(page.getUpdateBtn().isEnabled(), "Update button is enabled after test button is clicked");
 
 
-		soft.assertTrue(page.getToParty().getText().equalsIgnoreCase("domibus-blue"), "Correct party is listed");
+		soft.assertTrue(StringUtils.equalsIgnoreCase(page.getToParty().getText(), "domibus-blue"), "Correct party is listed");
 		soft.assertTrue(!page.getToAccessPoint().getText().isEmpty(), "To access point contains data");
 		soft.assertTrue(!page.getTimeSent().getText().isEmpty(), "Time sent contains data");
 		soft.assertTrue(!page.getToMessage().getText().isEmpty(), "To Message id contains data");

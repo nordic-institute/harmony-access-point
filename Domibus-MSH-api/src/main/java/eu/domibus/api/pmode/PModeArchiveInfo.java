@@ -4,21 +4,21 @@ import java.util.Date;
 
 public class PModeArchiveInfo {
 
-    private int id;
+    private long id;
     private Date configurationDate;
     private String username;
     private String description;
 
     public PModeArchiveInfo(){}
 
-    public PModeArchiveInfo(int id, Date configurationDate, String username, String description) {
+    public PModeArchiveInfo(long id, Date configurationDate, String username, String description) {
         this.id = id;
         this.configurationDate = configurationDate;
         this.username = username;
         this.description = description;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
