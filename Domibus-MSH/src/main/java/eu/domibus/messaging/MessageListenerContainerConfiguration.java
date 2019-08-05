@@ -97,6 +97,7 @@ public class MessageListenerContainerConfiguration {
 
     /**
      * Creates the large message JMS listener(domain dependent)
+     *
      * @param domain
      * @return
      */
@@ -112,6 +113,7 @@ public class MessageListenerContainerConfiguration {
 
     /**
      * Creates the SplitAndJoin JMS listener(domain dependent)
+     *
      * @param domain
      * @return
      */
@@ -165,7 +167,7 @@ public class MessageListenerContainerConfiguration {
     private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
                                                                                   MessageListener messageListener, PlatformTransactionManager transactionManager,
                                                                                   String domainPropertyConcurrency) {
-        DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
+        DefaultMessageListenerContainer messageListenerContainer = new DomainMessageListenerContainer(domain);
 
         final String messageSelector = MessageConstants.DOMAIN + "='" + domain.getCode() + "'";
         messageListenerContainer.setMessageSelector(messageSelector);
@@ -174,14 +176,16 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
-        messageListenerContainer.setConcurrency(domibusPropertyProvider.getDomainProperty(domain, domainPropertyConcurrency));
+
+        final String concurrency = domibusPropertyProvider.getDomainProperty(domain, domainPropertyConcurrency);
+        messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
 
         messageListenerContainer.afterPropertiesSet();
 
+        LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
         return messageListenerContainer;
-
     }
 
 }

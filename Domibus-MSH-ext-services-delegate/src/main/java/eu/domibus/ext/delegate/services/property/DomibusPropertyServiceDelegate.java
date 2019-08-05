@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public String getDomainProperty(DomainDTO domainCode, String propertyName, String defaultValue) {
         final Domain domain = domainConverter.convert(domainCode, Domain.class);
-        return domibusPropertyProvider.getProperty(domain, propertyName, defaultValue);
+        String value = domibusPropertyProvider.getProperty(domain, propertyName);
+        if (StringUtils.isEmpty(value)) {
+            value = defaultValue;
+        }
+        return value;
     }
 
     @Override

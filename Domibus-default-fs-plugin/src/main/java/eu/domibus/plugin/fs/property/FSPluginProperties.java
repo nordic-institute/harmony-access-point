@@ -1,20 +1,22 @@
+
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
@@ -26,7 +28,9 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author @author FERNANDES Henrique, GONCALVES Bruno
  */
 @Component
-public class FSPluginProperties {
+public class FSPluginProperties implements DomibusPropertyManagerExt {
+
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
@@ -51,8 +55,6 @@ public class FSPluginProperties {
     private static final String FAILED_PURGE_EXPIRED = "messages.failed.purge.expired";
 
     private static final String RECEIVED_PURGE_EXPIRED = "messages.received.purge.expired";
-
-    private static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "messages.received.purge.worker.cronExpression";
 
     private static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
 
@@ -226,13 +228,6 @@ public class FSPluginProperties {
     public Integer getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
         return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
-    }
-
-    /**
-     * @return The cron expression that defines the frequency of the received messages purge job
-     */
-    public String getReceivedPurgeWorkerCronExpression() {
-        return properties.getProperty(PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -444,7 +439,62 @@ public class FSPluginProperties {
 
     private String extractDomainName(String propName) {
         String unprefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
-        return StringUtils.substringBefore(unprefixedProp, ".");
+        return StringUtils.substringBefore(unprefixedProp, DOT);
     }
+
+    @Override
+    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+        return Arrays.stream(new DomibusPropertyMetadataDTO[]{
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
+                // with fallback from the default domain:
+                new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
+        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }
+
+    @Override
+    public boolean hasKnownProperty(String name) {
+        return this.getKnownProperties().containsKey(name);
+    }
+
+    @Override
+    public String getKnownPropertyValue(String domain, String propertyName) {
+        String propertyKey = getKnownPropertyKey(domain, propertyName);
+
+        return this.properties.getProperty(propertyKey);
+    }
+
+    @Override
+    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+        String propertyKey = getKnownPropertyKey(domainCode, propertyName);
+        DomibusPropertyMetadataDTO propMeta = this.getKnownProperties().get(propertyKey);
+        if (propMeta == null) {
+            throw new IllegalArgumentException(propertyName);
+        }
+        this.properties.setProperty(propertyKey, propertyValue);
+    }
+
+    private String getKnownPropertyKey(String domain, String propertyName) {
+        final DomibusPropertyMetadataDTO meta = getKnownProperties().get(propertyName);
+        if (meta == null) {
+            throw new IllegalArgumentException(propertyName);
+        }
+        final String propertyKey;
+        if (domain == null) {
+            propertyKey = propertyName;
+        } else {
+            propertyKey = this.getDomainPropertyName(domain, propertyName);
+        }
+        return propertyKey;
+    }
+
+    @Override
+    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    }
+
 
 }

@@ -2,6 +2,7 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.pmode.PModeProvider;
@@ -33,6 +34,9 @@ public class MessageRetentionServiceTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private DomainContextProvider domainContextProvider;
 
     @Injectable
     private PModeProvider pModeProvider;

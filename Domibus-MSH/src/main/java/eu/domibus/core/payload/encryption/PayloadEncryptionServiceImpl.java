@@ -52,17 +52,21 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
-            if (encryptionActive) {
-                domainTaskExecutor.submit(() -> createPayloadEncryptionKeyIfNotExists(), domain);
-            } else {
-                LOG.debug("Payload encryption is not activated for domain [{}]", domain);
-            }
+            createPayloadEncryptionKeyIfNotExists(domain);
         }
 
         LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
+    @Override
+    public void createPayloadEncryptionKeyIfNotExists(Domain domain) {
+        final Boolean encryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
+        if (encryptionActive) {
+            domainTaskExecutor.submit(() -> createPayloadEncryptionKeyIfNotExists(), domain);
+        } else {
+            LOG.debug("Payload encryption is not activated for domain [{}]", domain);
+        }
+    }
 
     protected void createPayloadEncryptionKeyIfNotExists() {
         LOG.debug("Checking if the encryption key should be created");
