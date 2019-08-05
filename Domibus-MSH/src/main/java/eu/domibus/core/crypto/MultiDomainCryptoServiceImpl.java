@@ -48,20 +48,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return domainCertificateProvider.getX509Certificates(cryptoType);
     }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
-        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
-        if (domainCertificateProviderMap.get(domain) == null) {
-            synchronized (domainCertificateProviderMap) {
-                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
-                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCertificateProviderFactory.createDomainCryptoService(domain);
-                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
-                }
-            }
-        }
-        return domainCertificateProviderMap.get(domain);
-    }
-
     @Override
     public String getX509Identifier(Domain domain, X509Certificate cert) throws WSSecurityException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
@@ -197,4 +183,22 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.removeCertificate(aliases);
     }
 
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
+        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
+        if (domainCertificateProviderMap.get(domain) == null) {
+            synchronized (domainCertificateProviderMap) {
+                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
+                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
+                    DomainCryptoService domainCertificateProvider = domainCertificateProviderFactory.createDomainCryptoService(domain);
+                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
+                }
+            }
+        }
+        return domainCertificateProviderMap.get(domain);
+    }
+
+    @Override
+    public void refresh() {
+        domainCertificateProviderMap.values().stream().forEach(service -> service.refresh());
+    }
 }

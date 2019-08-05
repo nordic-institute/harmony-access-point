@@ -84,7 +84,11 @@ public class DomainDaoImpl implements DomainDao {
     }
 
     protected String getDomainTitle(Domain domain) {
-        return domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE, domain.getCode());
+        String domainTitle = domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
+        if (StringUtils.isEmpty(domainTitle)) {
+            domainTitle = domain.getCode();
+        }
+        return domainTitle;
     }
 }
 

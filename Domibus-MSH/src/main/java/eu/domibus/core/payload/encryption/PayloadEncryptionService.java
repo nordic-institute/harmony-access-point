@@ -1,5 +1,7 @@
 package eu.domibus.core.payload.encryption;
 
+import eu.domibus.api.multitenancy.Domain;
+
 import javax.crypto.Cipher;
 
 /**
@@ -12,6 +14,11 @@ public interface PayloadEncryptionService {
      * Creates the payload encryption key for all available domains if does not yet exists
      */
     void createPayloadEncryptionKeyForAllDomainsIfNotExists();
+
+    /**
+     * Creates the encryption key for the given domain if it does not yet exist
+     */
+    void createPayloadEncryptionKeyIfNotExists(Domain domain);
 
     Cipher getEncryptCipherForPayload();
 

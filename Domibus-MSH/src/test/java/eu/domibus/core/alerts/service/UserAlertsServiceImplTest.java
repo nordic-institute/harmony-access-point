@@ -102,8 +102,8 @@ public class UserAlertsServiceImplTest {
             result = howManyDaysToGenerateAlertsAfterExpiration;
             userAlertsService.getMaximumPasswordAgeProperty();
             result = ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE;
-            domibusPropertyProvider.getOptionalDomainProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
-            result = maxPasswordAge.toString();
+            domibusPropertyProvider.getIntegerDomainProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
+            result = maxPasswordAge;
             userAlertsService.getUserDao();
             result = dao;
             dao.findWithPasswordChangedBetween(from, to, false);
@@ -150,8 +150,8 @@ public class UserAlertsServiceImplTest {
             result = true;
             alertConfiguration.getRepetitiveAlertConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION).getEventDelay();
             result = howManyDaysBeforeExpirationToGenerateAlerts;
-            domibusPropertyProvider.getOptionalDomainProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
-            result = maxPasswordAge.toString();
+            domibusPropertyProvider.getIntegerDomainProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
+            result = maxPasswordAge;
             userAlertsService.getEventTypeForPasswordImminentExpiration();
             result = EventType.PASSWORD_IMMINENT_EXPIRATION;
             userAlertsService.getUserDao();

@@ -26,7 +26,7 @@ public class PayloadPersistenceHelper {
     boolean isPayloadEncryptionActive(UserMessage userMessage) {
         //EDELIVERY-4749 - SplitAndJoin limitation
         final boolean isPayloadEncryptionActive = !userMessage.isSplitAndJoin() && domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
-        LOG.debug("Is payload persistence active? [{}]", isPayloadEncryptionActive);
+        LOG.debug("Is payload encryption active? [{}]", isPayloadEncryptionActive);
         return isPayloadEncryptionActive;
     }
 }

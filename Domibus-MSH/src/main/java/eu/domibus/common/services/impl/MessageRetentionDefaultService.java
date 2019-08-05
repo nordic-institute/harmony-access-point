@@ -3,6 +3,8 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.pmode.PModeProvider;
@@ -39,6 +41,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    private DomainContextProvider domainContextProvider;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -80,7 +85,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
         LOG.debug("Deleting expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit);
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
-        String fileLocation = domibusPropertyProvider.getDomainProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        String fileLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
         if (messageRetentionDownloaded > 0 || (StringUtils.isNotEmpty(fileLocation) && messageRetentionDownloaded >= 0)) {
             List<String> downloadedMessageIds = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),

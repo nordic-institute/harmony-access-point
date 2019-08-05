@@ -217,9 +217,9 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             result = sender;
             domibusPropertyProvider.getProperty(domain, DOMIBUS_ALERT_RECEIVER_EMAIL);
             result = receiver;
-            domibusPropertyProvider.getBooleanOptionalDomainProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = true;
-            domibusPropertyProvider.getIntegerOptionalDomainProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
+            domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
             result = 20;
         }};
         final CommonConfiguration commonConfiguration = configurationService.readCommonConfiguration(domain);

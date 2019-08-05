@@ -3,6 +3,8 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

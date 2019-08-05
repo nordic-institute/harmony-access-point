@@ -1,4 +1,4 @@
-package eu.domibus.core.crypto;
+package eu.domibus.core.property;
 
 import mockit.Deencapsulation;
 import mockit.integration.junit4.JMockit;

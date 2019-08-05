@@ -34,8 +34,7 @@ public class DomainPullFrequencyHelperTest {
         // GIVEN
         new Expectations() {{
             domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE); result = defaultPullFrequency;
-            domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + "defaultMPC", defaultPullFrequency);
-            result = defaultPullFrequency;
+            domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + "defaultMPC"); result = defaultPullFrequency;
             domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME); result = "10";
             domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT); result = "10";
         }};
@@ -58,8 +57,7 @@ public class DomainPullFrequencyHelperTest {
         final String customPullFrequency = "5";
         new Expectations() {{
             domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE); result = defaultPullFrequency;
-            domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + "defaultMPC", defaultPullFrequency);
-            result = customPullFrequency;
+            domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + "defaultMPC"); result = customPullFrequency;
             domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME); result = "10";
             domibusPropertyProvider.getDomainProperty(DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT); result = "10";
         }};
