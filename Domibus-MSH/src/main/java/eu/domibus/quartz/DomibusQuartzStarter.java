@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -77,7 +78,7 @@ public class DomibusQuartzStarter {
         LOG.debug("Shutting down Quartz Schedulers");
 
         // General Schedulers
-        for(Scheduler scheduler : generalSchedulers) {
+        for (Scheduler scheduler : generalSchedulers) {
             try {
                 scheduler.shutdown(true);
             } catch (SchedulerException e) {
@@ -136,14 +137,15 @@ public class DomibusQuartzStarter {
 
     /**
      * Checks for all the jobs related with trigger group {@code triggerGroup}
-     * @param scheduler Scheduler
+     *
+     * @param scheduler    Scheduler
      * @param triggerGroup Trigger Group name
      * @throws SchedulerException Quartz scheduler exception
      */
     protected void checkSchedulerJobsByTriggerGroup(Scheduler scheduler, String triggerGroup) throws SchedulerException {
         LOG.info("Start Quartz jobs with trigger group [{}]...", triggerGroup);
 
-        for(TriggerKey triggerKey : scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroup))) {
+        for (TriggerKey triggerKey : scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroup))) {
             Trigger trigger = scheduler.getTrigger(triggerKey);
             JobKey jobKey = trigger.getJobKey();
 
@@ -164,6 +166,7 @@ public class DomibusQuartzStarter {
 
     /**
      * goes through scheduler jobs and check for {@code ClassNotFoundException}
+     *
      * @param scheduler the scheduler
      * @throws SchedulerException Quartz scheduler exception
      */
@@ -203,6 +206,38 @@ public class DomibusQuartzStarter {
                     }
                 }
             }
+        }
+    }
+
+    public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws SchedulerException {
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+        for (String groupName : scheduler.getJobGroupNames()) {
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                final String jobName = jobKey.getName();
+                final String jobGroup = jobKey.getGroup();
+
+                if (StringUtils.equalsIgnoreCase(jobName, jobNameToReschedule)) {
+                    LOG.debug("Job [{}] found in group [{}]", jobName, jobGroup);
+                    rescheduleJob(scheduler, jobKey, newCronExpression);
+                }
+            }
+        }
+    }
+
+    protected void rescheduleJob(Scheduler scheduler, JobKey jobKey, String cronExpression) throws SchedulerException {
+        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+        JobDataMap jobDataMap = jobDetail.getJobDataMap();
+
+        for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
+            TriggerKey triggerKey = trigger.getKey();
+            LOG.debug("Trigger found [{}]", triggerKey.getName());
+            CronTrigger newTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity(triggerKey.getName())
+                    .forJob(jobDetail)
+                    .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
+                    .usingJobData(jobDataMap)
+                    .build();
+            scheduler.rescheduleJob(triggerKey, newTrigger);
         }
     }
 

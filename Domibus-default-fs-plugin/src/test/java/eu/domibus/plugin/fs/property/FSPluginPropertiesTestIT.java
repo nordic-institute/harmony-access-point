@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,11 +113,6 @@ public class FSPluginPropertiesTestIT {
     @Test
     public void testGetReceivedPurgeExpired() throws Exception {
         Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired());
-    }
-
-    @Test
-    public void testGetReceivedPurgeWorkerCronExpression() throws Exception {
-        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getReceivedPurgeWorkerCronExpression());
     }
 
     @Test

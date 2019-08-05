@@ -224,4 +224,9 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     protected void setDomainCryptoServiceSpiList(List<DomainCryptoServiceSpi> domainCryptoServiceSpiList) {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
     }
+
+    @Override
+    public void refresh(){
+        this.init();
+    }
 }

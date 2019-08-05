@@ -80,8 +80,7 @@ public class UserSecurityPolicyManagerTest {
     @Test
     public void checkPasswordComplexity() throws Exception {
         new Expectations() {{
-            domibusPropertyProvider.getOptionalDomainProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
-//            domibusPropertyProvider.getOptionalDomainProperty("domibus.passwordPolicy.warning.beforeExpiration");
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
 
@@ -173,7 +172,7 @@ public class UserSecurityPolicyManagerTest {
         String username = "user1";
         String testPassword = "testPassword123.";
         new Expectations() {{
-            domibusPropertyProvider.getOptionalDomainProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
             result = "0";
         }};
 
@@ -198,7 +197,7 @@ public class UserSecurityPolicyManagerTest {
         List<UserPasswordHistory> oldPasswords = Arrays.asList(new UserPasswordHistory(user, testPassword, LocalDateTime.now()));
 
         new Expectations() {{
-            domibusPropertyProvider.getOptionalDomainProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
             result = oldPasswordsToCheck;
             securityPolicyManager.getUserDao();
             result = userDao;
@@ -237,11 +236,11 @@ public class UserSecurityPolicyManagerTest {
             result = today;
         }};
         new Expectations() {{
-            domibusPropertyProvider.getOptionalDomainProperty(securityPolicyManager.getWarningDaysBeforeExpiration());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getWarningDaysBeforeExpiration());
             result = "20";
             securityPolicyManager.getMaximumDefaultPasswordAgeProperty();
             result = maximumDefaultPasswordAgeProperty;
-            domibusPropertyProvider.getOptionalDomainProperty(maximumDefaultPasswordAgeProperty);
+            domibusPropertyProvider.getDomainProperty(maximumDefaultPasswordAgeProperty);
             result = maxPasswordAge.toString();
         }};
 
@@ -258,7 +257,7 @@ public class UserSecurityPolicyManagerTest {
     public void testValidateDaysTillExpirationDisabled() {
         final String username = "user1";
         new Expectations() {{
-            domibusPropertyProvider.getOptionalDomainProperty(securityPolicyManager.getWarningDaysBeforeExpiration());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getWarningDaysBeforeExpiration());
             result = "0";
         }};
 
@@ -272,7 +271,7 @@ public class UserSecurityPolicyManagerTest {
         final Integer defaultAge = 5;
 
         new Expectations() {{
-            domibusPropertyProvider.getOptionalDomainProperty(securityPolicyManager.getMaximumDefaultPasswordAgeProperty());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getMaximumDefaultPasswordAgeProperty());
             result = defaultAge.toString();
         }};
 
@@ -341,11 +340,11 @@ public class UserSecurityPolicyManagerTest {
         new Expectations() {{
             securityPolicyManager.getPasswordComplexityPatternProperty();
             result = "prop2";
-            domibusPropertyProvider.getOptionalDomainProperty("prop2");
+            domibusPropertyProvider.getDomainProperty("prop2");
             result = StringUtils.EMPTY;
             securityPolicyManager.getPasswordHistoryPolicyProperty();
             result = "prop3";
-            domibusPropertyProvider.getOptionalDomainProperty("prop3");
+            domibusPropertyProvider.getDomainProperty("prop3");
             result = 0;
             bCryptEncoder.encode(newPassword);
             result = "encoded_password";

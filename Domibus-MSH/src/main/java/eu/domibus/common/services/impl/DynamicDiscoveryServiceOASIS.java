@@ -13,7 +13,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.proxy.DomibusProxy;
 import eu.domibus.proxy.DomibusProxyService;
-import eu.domibus.proxy.DomibusProxyServiceImpl;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscoveryBuilder;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.impl.DefaultURLFetcher;
@@ -34,14 +33,16 @@ import java.security.KeyStore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+
 /**
  * Service to query a compliant eDelivery SMP profile based on the OASIS BDX Service Metadata Publishers
  * (SMP) to extract the required information about the unknown receiver AP.
  * The SMP Lookup is done using an SMP Client software, with the following input:
- *       The End Receiver Participant ID (C4)
- *       The Document ID
- *       The Process ID
- *
+ * The End Receiver Participant ID (C4)
+ * The Document ID
+ * The Process ID
+ * <p>
  * Upon a successful lookup, the result contains the endpoint address and also the public
  * certificate of the receiver.
  */
@@ -70,7 +71,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     @Autowired
     DomibusProxyService domibusProxyService;
 
-    @Cacheable(value = "lookupInfo", key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
+    @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
                                           final String participantIdScheme,
@@ -112,7 +113,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         }
 
         final String certRegex = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
-        if(StringUtils.isEmpty(certRegex)) {
+        if (StringUtils.isEmpty(certRegex)) {
             LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
         }
 
@@ -160,7 +161,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             return null;
         }
         DomibusProxy domibusProxy = domibusProxyService.getDomibusProxy();
-        if(StringUtils.isBlank(domibusProxy.getHttpProxyUser())) {
+        if (StringUtils.isBlank(domibusProxy.getHttpProxyUser())) {
             return new DefaultProxy(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), null, null, domibusProxy.getNonProxyHosts());
         }
         return new DefaultProxy(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), domibusProxy.getHttpProxyUser(), domibusProxy.getHttpProxyPassword(), domibusProxy.getNonProxyHosts());
@@ -168,11 +169,19 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     @Override
     public String getPartyIdType() {
-        return domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE, URN_TYPE_VALUE);
+        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
+        if (StringUtils.isEmpty(propVal)) {
+            propVal = URN_TYPE_VALUE;
+        }
+        return propVal;
     }
 
     @Override
-    public String getResponderRole(){
-        return domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE, DEFAULT_RESPONDER_ROLE);
+    public String getResponderRole() {
+        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
+        if (StringUtils.isEmpty(propVal)) {
+            propVal = DEFAULT_RESPONDER_ROLE;
+        }
+        return propVal;
     }
 }

@@ -32,7 +32,7 @@ public class MessageListenerContainerInitializer {
     ApplicationContext applicationContext;
 
     @Autowired
-    protected MessageListenerContainerFactory messageListenerContainerFactory;
+    protected DomainMessageListenerContainerFactory messageListenerContainerFactory;
 
     @Autowired
     protected DomainService domainService;
@@ -70,7 +70,8 @@ public class MessageListenerContainerInitializer {
     }
 
     /**
-     * It will collect and instantiates all {@link PluginMessageListenerContainer} defined in plugins
+     * It will collect and instantiate all {@link PluginMessageListenerContainer} defined in plugins
+     *
      * @param domain
      */
     public void createMessageListenersForPlugins(Domain domain) {
@@ -90,37 +91,60 @@ public class MessageListenerContainerInitializer {
     }
 
     public void createSendMessageListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createSendLargeMessageListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createSendLargeMessageListenerContainer(domain);
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendLargeMessageListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("LargeMessageListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createPullReceiptListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createPullReceiptListenerContainer(domain);
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createPullReceiptListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("PullReceiptListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createSplitAndJoinListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createSplitAndJoinListenerContainer(domain);
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSplitAndJoinListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("SplitAndJoinListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createRetentionListenerContainer(Domain domain) {
-        MessageListenerContainer instance = messageListenerContainerFactory.createRetentionListenerContainer(domain);
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createRetentionListenerContainer(domain);
+        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);
     }
+
+    private void removeInstance(Domain domain, String beanName) {
+        DomainMessageListenerContainer oldInstance = instances.stream()
+                .filter(instance -> instance instanceof DomainMessageListenerContainer)
+                .map(instance -> (DomainMessageListenerContainer) instance)
+                .filter(instance -> domain.equals(instance.getDomain()))
+                .filter(instance -> beanName.equals(instance.getName()))
+                .findFirst().orElse(null);
+        if (oldInstance != null) {
+            try {
+                oldInstance.shutdown();
+            } catch (Exception e) {
+                LOG.error("Error while shutting down [{}] MessageListenerContainer for domain [{}]", beanName, domain, e);
+            }
+            instances.remove(oldInstance);
+        }
+    }
+
 }

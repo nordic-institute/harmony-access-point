@@ -2,6 +2,7 @@ package eu.domibus.ebms3.puller;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +63,10 @@ public class DomainPullFrequencyHelper {
 
     private int getNumberOfPullRequestsPerMpc(String mpc) {
         final String defaultNumberOfPullRequestsPerMpc = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE);
-        final String numberOfPullRequestsPerMpc = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + mpc,
-                defaultNumberOfPullRequestsPerMpc);
+        String numberOfPullRequestsPerMpc = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + mpc);
+        if (StringUtils.isEmpty(numberOfPullRequestsPerMpc)) {
+            numberOfPullRequestsPerMpc = defaultNumberOfPullRequestsPerMpc;
+        }
         LOG.debug("Number of pull requests [{}] per mpc [{}]", numberOfPullRequestsPerMpc, mpc);
         return NumberUtils.toInt(numberOfPullRequestsPerMpc);
     }

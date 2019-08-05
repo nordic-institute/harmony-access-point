@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author migueti, Cosmin Baciu, idragusa
@@ -102,6 +104,20 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         for (U sourceObject : sourceList) {
             result.add(convert(sourceObject, typeOfT));
 
+        }
+        return result;
+    }
+
+    @Override
+    public <T, U> Map<String, T> convert(Map<String, U> source, Class<T> typeOfT) {
+        LOG.debug("Ext convert map to T=[{} ", typeOfT);
+        if (source == null) {
+            LOG.debug("Ext source map is null for T=[{}", typeOfT);
+            return null;
+        }
+        Map<String, T> result = new HashMap<>();
+        for (Map.Entry<String, U> src : source.entrySet()) {
+            result.put(src.getKey(), convert(src.getValue(), typeOfT));
         }
         return result;
     }

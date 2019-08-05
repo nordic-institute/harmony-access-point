@@ -9,6 +9,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.process.Process;
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -355,6 +356,10 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.userMessageToUserMessageApi((UserMessage) source);
         }
 
+        if (typeOfT == DomibusPropertyRO.class && source.getClass() == DomibusProperty.class) {
+            LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.propertyApiToPropertyRO((DomibusProperty) source);
+        }
         if (typeOfT == PartProperties.class && source.getClass() == PartPropertiesDTO.class) {
             LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.partPropertiesDTOToPartProperties((PartPropertiesDTO) source);

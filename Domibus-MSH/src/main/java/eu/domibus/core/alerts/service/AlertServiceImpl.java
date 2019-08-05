@@ -85,7 +85,7 @@ public class AlertServiceImpl implements AlertService {
         alert.setAlertType(AlertType.getByEventType(event.getType()));
         alert.setAttempts(0);
         final String alertRetryMaxAttemptPropertyName = multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
-        alert.setMaxAttempts(domibusPropertyProvider.getIntegerOptionalDomainProperty(alertRetryMaxAttemptPropertyName));
+        alert.setMaxAttempts(domibusPropertyProvider.getIntegerDomainProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
 
@@ -154,7 +154,7 @@ public class AlertServiceImpl implements AlertService {
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
             final String alertRetryTimePropertyName = multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
-            final Integer minutesBetweenAttempt = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(alertRetryTimePropertyName));
+            final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerDomainProperty(alertRetryTimePropertyName);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);
             alertEntity.setAttempts(attempts);

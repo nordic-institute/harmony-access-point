@@ -17,19 +17,20 @@ import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.configuration.DefaultDomibusConfigurationService;
-import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.mpc.MpcServiceImpl;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
+import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.core.property.PropertyResolver;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -190,12 +191,17 @@ public class PModeDaoTestIT {
         }
 
         @Bean
-        public PasswordEncryptionService passwordEncryptionService(){
+        public List<PluginPropertyChangeListener> domibusPropertyChangeListeners() {
+            return null;
+        }
+
+        @Bean
+        public PasswordEncryptionService passwordEncryptionService() {
             return Mockito.mock(PasswordEncryptionService.class);
         }
 
         @Bean
-        public PasswordEncryptionContextFactory passwordEncryptionContextFactory(){
+        public PasswordEncryptionContextFactory passwordEncryptionContextFactory() {
             return Mockito.mock(PasswordEncryptionContextFactory.class);
         }
     }
