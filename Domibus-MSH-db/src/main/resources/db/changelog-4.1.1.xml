@@ -21,7 +21,7 @@
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
         <createTable tableName="TB_ACTION">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ACTION"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -30,7 +30,7 @@
         </createTable>
 
         <createTable tableName="TB_ACTION_AUDIT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ACTION_AUDIT"/>
             </column>
             <column name="AUDIT_TYPE" type="VARCHAR(31)">
@@ -45,7 +45,7 @@
         </createTable>
 
         <createTable tableName="TB_AGREEMENT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_AGREEMENT"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -55,7 +55,7 @@
         </createTable>
 
         <createTable tableName="TB_ALERT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ALERT"/>
             </column>
             <column name="ALERT_TYPE" type="VARCHAR(50)">
@@ -80,7 +80,7 @@
         </createTable>
 
         <createTable tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_AUTHENTICATION_ENTRY"/>
             </column>
             <column name="CERTIFICATE_ID" type="VARCHAR(255)"/>
@@ -131,7 +131,7 @@
         </createTable>
 
         <createTable tableName="TB_BACKEND_FILTER">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_BACKEND_FILTER"/>
             </column>
             <column name="BACKEND_NAME" type="VARCHAR(255)"/>
@@ -166,13 +166,13 @@
         </createTable>
 
         <createTable tableName="TB_BUSINESS_PROCESS">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_BUSINESS_PROCESS"/>
             </column>
         </createTable>
 
         <createTable tableName="TB_CERTIFICATE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_CERTIFICATE"/>
             </column>
             <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)">
@@ -192,7 +192,7 @@
         </createTable>
 
         <createTable tableName="TB_COMMAND">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
             </column>
             <column name="SERVER_NAME" type="VARCHAR(255)">
@@ -218,7 +218,7 @@
         </createTable>
 
         <createTable tableName="TB_CONFIGURATION">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_CONFIGURATION"/>
             </column>
             <column name="FK_BUSINESSPROCESSES" type="BIGINT"/>
@@ -240,7 +240,7 @@
         </createTable>
 
         <createTable tableName="TB_CONFIGURATION_RAW">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_CONFIGURATION_RAW"/>
             </column>
             <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
@@ -265,7 +265,7 @@
         </createTable>
 
         <createTable tableName="TB_ENCRYPTION_KEY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ENCRYPTION_KEY"/>
             </column>
             <column name="KEY_USAGE" type="VARCHAR(255)"/>
@@ -278,7 +278,7 @@
         </createTable>
 
         <createTable tableName="TB_ERROR">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR"/>
             </column>
             <column name="CATEGORY" type="VARCHAR(255)"/>
@@ -294,7 +294,7 @@
         </createTable>
 
         <createTable tableName="TB_ERROR_HANDLING">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_HANDLING"/>
             </column>
             <column name="BUSINESS_ERROR_NOTIFY_CONSUMER" type="BOOLEAN"/>
@@ -306,7 +306,7 @@
         </createTable>
 
         <createTable tableName="TB_ERROR_LOG">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_LOG"/>
             </column>
             <column name="ERROR_CODE" type="VARCHAR(255)"/>
@@ -319,7 +319,7 @@
         </createTable>
 
         <createTable tableName="TB_EVENT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_EVENT"/>
             </column>
             <column name="EVENT_TYPE" type="VARCHAR(50)">
@@ -339,7 +339,7 @@
         </createTable>
 
         <createTable tableName="TB_EVENT_PROPERTY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_EVENT_PROPERTY"/>
             </column>
             <column name="PROPERTY_TYPE" type="VARCHAR(50)">
@@ -399,7 +399,7 @@
         </createTable>
 
         <createTable tableName="TB_LEG">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_LEG"/>
             </column>
             <column name="COMPRESS_PAYLOADS" type="BOOLEAN"/>
@@ -430,7 +430,7 @@
         </createTable>
 
         <createTable tableName="TB_MEP">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MEP"/>
             </column>
             <column name="LEG_COUNT" type="INT"/>
@@ -440,7 +440,7 @@
         </createTable>
 
         <createTable tableName="TB_MEP_BINDING">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MEP_BINDING"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -449,7 +449,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_ACKNW"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
@@ -461,7 +461,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_ACKNW_PROP">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_ACKNW_PROP"/>
             </column>
             <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
@@ -470,7 +470,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_FRAGMENT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_FRAGMENT"/>
             </column>
             <column name="GROUP_ID" type="VARCHAR(255)"/>
@@ -478,7 +478,7 @@
         </createTable>
 
         <createTable remarks="Stores information about the message group for SplitAndJoin" tableName="TB_MESSAGE_GROUP">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_GROUP"/>
             </column>
             <column name="GROUP_ID" remarks="The group id" type="VARCHAR(255)">
@@ -499,7 +499,7 @@
         </createTable>
 
         <createTable remarks="Stores the message header details for SplitAndJoin" tableName="TB_MESSAGE_HEADER">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_HEADER"/>
             </column>
             <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
@@ -507,7 +507,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_INFO">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_INFO"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)">
@@ -518,7 +518,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_LOG">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_LOG"/>
             </column>
             <column name="DELETED" type="TIMESTAMP"/>
@@ -545,7 +545,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_PROPERTY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_PROPERTY"/>
             </column>
             <column name="DATATYPE" type="VARCHAR(255)"/>
@@ -556,7 +556,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_PROPERTY_SET">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_PROPERTY_SET"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -564,7 +564,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGE_UI">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_UI"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
@@ -605,7 +605,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGING">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGING"/>
             </column>
             <column name="ID" type="VARCHAR(255)"/>
@@ -614,7 +614,7 @@
         </createTable>
 
         <createTable tableName="TB_MESSAGING_LOCK">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGING_LOCK"/>
             </column>
             <column name="MESSAGE_TYPE" type="VARCHAR(10)"/>
@@ -630,7 +630,7 @@
         </createTable>
 
         <createTable tableName="TB_MPC">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MPC"/>
             </column>
             <column name="DEFAULT_MPC" type="BOOLEAN"/>
@@ -643,7 +643,7 @@
         </createTable>
 
         <createTable tableName="TB_PARTY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY"/>
             </column>
             <column name="ENDPOINT" type="VARCHAR(255)"/>
@@ -672,7 +672,7 @@
         </createTable>
 
         <createTable tableName="TB_PARTY_ID">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_ID"/>
             </column>
             <column name="TYPE" type="VARCHAR(255)"/>
@@ -682,7 +682,7 @@
         </createTable>
 
         <createTable tableName="TB_PARTY_IDENTIFIER">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_IDENTIFIER"/>
             </column>
             <column name="PARTY_ID" type="VARCHAR(255)"/>
@@ -702,7 +702,7 @@
         </createTable>
 
         <createTable tableName="TB_PARTY_ID_TYPE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_ID_TYPE"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -725,7 +725,7 @@
         </createTable>
 
         <createTable tableName="TB_PART_INFO">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PART_INFO"/>
             </column>
             <column name="BINARY_DATA" type="BLOB"/>
@@ -748,7 +748,7 @@
         </createTable>
 
         <createTable tableName="TB_PAYLOAD">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PAYLOAD"/>
             </column>
             <column name="CID" type="VARCHAR(255)"/>
@@ -762,7 +762,7 @@
         </createTable>
 
         <createTable tableName="TB_PAYLOAD_PROFILE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PAYLOAD_PROFILE"/>
             </column>
             <column name="MAX_SIZE" type="INT"/>
@@ -771,7 +771,7 @@
         </createTable>
 
         <createTable tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PLUGIN_USER_PASSWD_HISTO"/>
             </column>
             <column name="USER_ID" type="BIGINT">
@@ -784,7 +784,7 @@
         </createTable>
 
         <createTable tableName="TB_PROCESS">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PROCESS"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -803,7 +803,7 @@
         </createTable>
 
         <createTable tableName="TB_PROPERTY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
             </column>
             <column name="NAME" type="VARCHAR(255)">
@@ -816,7 +816,7 @@
         </createTable>
 
         <createTable tableName="TB_RAWENVELOPE_LOG">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RAWENVELOPE_LOG"/>
             </column>
             <column name="USERMESSAGE_ID_FK" type="BIGINT"/>
@@ -826,7 +826,7 @@
         </createTable>
 
         <createTable tableName="TB_RECEIPT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RECEIPT"/>
             </column>
         </createTable>
@@ -839,7 +839,7 @@
         </createTable>
 
         <createTable tableName="TB_RECEPTION_AWARENESS">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RECEPTION_AWARENESS"/>
             </column>
             <column name="DUPLICATE_DETECTION" type="BOOLEAN"/>
@@ -851,7 +851,7 @@
         </createTable>
 
         <createTable tableName="TB_RELIABILITY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RELIABILITY"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -861,7 +861,7 @@
         </createTable>
 
         <createTable tableName="TB_REV_CHANGES">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_REV_CHANGES"/>
             </column>
             <column name="REV" type="BIGINT"/>
@@ -873,7 +873,7 @@
         </createTable>
 
         <createTable tableName="TB_REV_INFO">
-            <column name="ID" type="BIGINT">
+            <column name="ID" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
             </column>
             <column name="TIMESTAMP" type="BIGINT"/>
@@ -882,7 +882,7 @@
         </createTable>
 
         <createTable tableName="TB_ROLE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ROLE"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -891,7 +891,7 @@
         </createTable>
 
         <createTable tableName="TB_ROUTING_CRITERIA">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ROUTING_CRITERIA"/>
             </column>
             <column name="EXPRESSION" type="VARCHAR(255)"/>
@@ -915,7 +915,7 @@
         </createTable>
 
         <createTable tableName="TB_SECURITY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SECURITY"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -925,7 +925,7 @@
         </createTable>
 
         <createTable tableName="TB_SEND_ATTEMPT">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SEND_ATTEMPT"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)">
@@ -944,7 +944,7 @@
         </createTable>
 
         <createTable tableName="TB_SERVICE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SERVICE"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -954,7 +954,7 @@
         </createTable>
 
         <createTable tableName="TB_SIGNAL_MESSAGE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SIGNAL_MESSAGE"/>
             </column>
             <column name="PULL_REQUEST_MPC" type="VARCHAR(255)"/>
@@ -963,7 +963,7 @@
         </createTable>
 
         <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode" tableName="TB_SPLITTING">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SPLITTING"/>
             </column>
             <column name="NAME" remarks="Splitting configuration name" type="VARCHAR(255)"/>
@@ -975,7 +975,7 @@
         </createTable>
 
         <createTable tableName="TB_USER">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER"/>
             </column>
             <column name="USER_EMAIL" type="VARCHAR(255)"/>
@@ -1028,7 +1028,7 @@
         </createTable>
 
         <createTable tableName="TB_USER_MESSAGE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE"/>
             </column>
             <column name="COLLABORATION_INFO_ACTION" type="VARCHAR(255)"/>
@@ -1049,7 +1049,7 @@
         </createTable>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_PASSWORD_HISTORY"/>
             </column>
             <column name="USER_ID" type="BIGINT">
@@ -1062,7 +1062,7 @@
         </createTable>
 
         <createTable tableName="TB_USER_ROLE">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_ROLE"/>
             </column>
             <column name="ROLE_NAME" type="VARCHAR(255)">
