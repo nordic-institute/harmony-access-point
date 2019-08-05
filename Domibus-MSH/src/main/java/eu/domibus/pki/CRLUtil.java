@@ -85,6 +85,7 @@ public class CRLUtil {
         }
 
         try (InputStream crlStream = getCrlInputStream(url)) {
+            LOG.debug("Downloaded [{}] [{}]", url, crlStream.available());
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return (X509CRL) cf.generateCRL(crlStream);
         } catch (final Exception exc) {
