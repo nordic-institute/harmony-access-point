@@ -873,7 +873,7 @@
         </createTable>
 
         <createTable tableName="TB_REV_INFO">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="ID" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
             </column>
             <column name="TIMESTAMP" type="BIGINT"/>
