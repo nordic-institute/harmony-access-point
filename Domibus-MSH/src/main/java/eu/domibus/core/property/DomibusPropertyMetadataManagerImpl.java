@@ -112,6 +112,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, false),
                 new DomibusPropertyMetadata(DOMIBUS_FOURCORNERMODEL_ENABLED, false),
                 new DomibusPropertyMetadata(DOMIBUS_LOGGING_PAYLOAD_PRINT, false),
+                new DomibusPropertyMetadata(DOMIBUS_LOGGING_CXF_LIMIT, false),
 
                 new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION, false),
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY, true, true),
