@@ -40,13 +40,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Iterator;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
 @Service
 public class ReliabilityChecker {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
-    private final String UNRECOVERABLE_ERROR_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
+    private final String UNRECOVERABLE_ERROR_RETRY = DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
 
     @Autowired
     @Qualifier("jaxbContextEBMS")

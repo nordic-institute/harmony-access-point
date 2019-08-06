@@ -15,13 +15,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
-    public static final String CHECK_DEFAULT_PASSWORD = "domibus.passwordPolicy.checkDefaultPassword";
+    public static final String CHECK_DEFAULT_PASSWORD = DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Autowired

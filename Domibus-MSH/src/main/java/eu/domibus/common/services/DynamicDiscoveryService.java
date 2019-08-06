@@ -3,20 +3,22 @@ package eu.domibus.common.services;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.util.EndpointInfo;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Ioana Dragusanu (idragusa)
  * @since 3.2.5
  */
 public interface DynamicDiscoveryService {
-    String SMLZONE_KEY = "domibus.smlzone";
-    String DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4 = "domibus.dynamicdiscovery.transportprofileas4";
-    String DYNAMIC_DISCOVERY_MODE = "domibus.dynamicdiscovery.peppolclient.mode";
-    String DYNAMIC_DISCOVERY_CERT_REGEX = "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation";
+    String SMLZONE_KEY = DOMIBUS_SMLZONE;
+    String DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4 = DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4;
+    String DYNAMIC_DISCOVERY_MODE = DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE;
+    String DYNAMIC_DISCOVERY_CERT_REGEX = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION;
     // TODO Split the following two properties into different properties, one per specification (i.e. OASIS or PEPPOL),
     //  in order to be able to define default values in the  property files and remove the hardcoded ones
-    String DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.partyid.responder.role";
-    String DYNAMIC_DISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
-    String USE_DYNAMIC_DISCOVERY = "domibus.dynamicdiscovery.useDynamicDiscovery";
+    String DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE = DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE;
+    String DYNAMIC_DISCOVERY_PARTYID_TYPE = DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE;
+    String USE_DYNAMIC_DISCOVERY = DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
 
     EndpointInfo lookupInformation(final String domain,
                                    final String participantId,

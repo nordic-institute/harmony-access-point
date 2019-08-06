@@ -14,13 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
+
 @Service
 public class UIMessageDiffServiceImpl implements UIMessageDiffService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIMessageDiffServiceImpl.class);
 
     /** max no of records to be synchronized using cron job */
-    static final String MAX_ROWS_KEY = "domibus.ui.replication.sync.cron.max.rows";
+    static final String MAX_ROWS_KEY = DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
 
     @Autowired
     private UIMessageDiffDao uiMessageDiffDao;

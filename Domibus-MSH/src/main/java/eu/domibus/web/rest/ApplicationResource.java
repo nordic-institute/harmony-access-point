@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Cosmin Baciu, Catalin Enache
  * @since 3.3
@@ -33,15 +35,15 @@ public class ApplicationResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ApplicationResource.class);
 
-    String PASSWORD_POLICY_PATTERN = "domibus.passwordPolicy.pattern";
-    String PASSWORD_POLICY_VALIDATION_MESSAGE = "domibus.passwordPolicy.validationMessage";
-    String PLUGIN_PASSWORD_POLICY_PATTERN = "domibus.plugin.passwordPolicy.pattern";
-    String PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE = "domibus.plugin.passwordPolicy.validationMessage";
+    String PASSWORD_POLICY_PATTERN = DOMIBUS_PASSWORD_POLICY_PATTERN;
+    String PASSWORD_POLICY_VALIDATION_MESSAGE = DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE;
+    String PLUGIN_PASSWORD_POLICY_PATTERN = DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN;
+    String PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE = DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE;
 
-    protected static final String DOMIBUS_CUSTOM_NAME = "domibus.UI.title.name";
+    protected static final String DOMIBUS_CUSTOM_NAME = DOMIBUS_UI_TITLE_NAME;
 
-    static final String SUPPORT_TEAM_NAME_KEY = "domibus.ui.support.team.name";
-    static final String SUPPORT_TEAM_EMAIL_KEY = "domibus.ui.support.team.email";
+    static final String SUPPORT_TEAM_NAME_KEY = DOMIBUS_UI_SUPPORT_TEAM_NAME;
+    static final String SUPPORT_TEAM_EMAIL_KEY = DOMIBUS_UI_SUPPORT_TEAM_EMAIL;
 
     @Autowired
     private DomibusPropertiesService domibusPropertiesService;

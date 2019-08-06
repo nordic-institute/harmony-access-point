@@ -30,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
+
 /**
  * @author Ioana Dragusanu
  * @author Cosmin Baciu
@@ -41,7 +43,7 @@ public class MessagingServiceImpl implements MessagingService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagingServiceImpl.class);
 
     public static final String MIME_TYPE_APPLICATION_UNKNOWN = "application/unknown";
-    public static final String PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD = "domibus.dispatcher.splitAndJoin.payloads.schedule.threshold";
+    public static final String PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
 
     protected static Long BYTES_IN_MB = 1048576L;
 

@@ -16,12 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
+
 @Service
 public class CRLServiceImpl implements CRLService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImpl.class);
 
-    public static final String CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
+    public static final String CRL_EXCLUDED_PROTOCOLS = DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
 
     @Autowired
     protected CRLUtil crlUtil;

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_ENABLED;
+
 /**
  * Signals creation or update of a User or Signal message
  *
@@ -30,7 +32,7 @@ public class UIReplicationSignalService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationSignalService.class);
 
-    static final String UI_REPLICATION_ENABLED = "domibus.ui.replication.enabled";
+    static final String UI_REPLICATION_ENABLED = DOMIBUS_UI_REPLICATION_ENABLED;
 
     @Autowired
     @Qualifier("uiReplicationQueue")

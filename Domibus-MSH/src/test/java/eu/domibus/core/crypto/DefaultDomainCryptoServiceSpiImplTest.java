@@ -22,6 +22,7 @@ import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
 
 /**
@@ -59,22 +60,22 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     @Before
     public void setUp() {
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = "keystoreType";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password", true);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true);
             result = "keystorePassword";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
             result = "privateKeyAlias";
             domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true);
             result = PRIVATE_KEY_PASSWORD;
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.location");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
             result = "keystoreLocation";
 
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.location");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
             result = "trustStoreLocation";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password", true);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true);
             result = "trustStorePassword";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type");
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
         }};
     }

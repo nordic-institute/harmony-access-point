@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
+
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
  * Dynamic discovery is activated when the pMode is configured with a dynamic
@@ -53,7 +55,7 @@ import java.util.Set;
  */
 public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
-    private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = "domibus.dynamicdiscovery.client.specification";
+    private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProvider.class);
 

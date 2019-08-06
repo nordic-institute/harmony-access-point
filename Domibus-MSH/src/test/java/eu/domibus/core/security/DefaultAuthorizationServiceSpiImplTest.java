@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.assertNotNull;
 
@@ -93,7 +94,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstCertificateCNMatchTestDisabled() {
         X509Certificate signingCertificate = null;
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
         }};
 
@@ -104,7 +105,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstCertificateCNMatchTestNullCert() {
         X509Certificate signingCertificate = null;
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = true;
         }};
 
@@ -116,7 +117,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         ;
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = true;
         }};
         try {
@@ -132,7 +133,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         ;
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = true;
         }};
 
@@ -145,7 +146,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         String regExp = ".*TEST.EU.*";
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = regExp;
             regexUtil.matches(regExp, signingCertificate.getSubjectDN().getName());
             result = regexUtilLocal.matches(regExp, signingCertificate.getSubjectDN().getName());
@@ -160,7 +161,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         defaultAuthorizationServiceSpi.authorizeAgainstCertificateSubjectExpression(signingCertificate);
         new Verifications() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             times = 0;
         }};
 
@@ -170,7 +171,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstCertificateSubjectExpressionTestException() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "TEST.EU";
         }};
 
@@ -186,7 +187,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstCertificateSubjectExpressionTestDisable() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
         }};
 
@@ -197,7 +198,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstTruststoreAliasTestDisable() {
         X509Certificate signingCertificate = null;
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
         }};
 
@@ -208,7 +209,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstTruststoreAliasTestNullCert() {
         X509Certificate signingCertificate = null;
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = true;
         }};
 
@@ -220,7 +221,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstTruststoreAliasTestOK() throws KeyStoreException {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = true;
             certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
             result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
@@ -234,7 +235,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstTruststoreAliasTestNullTruststore() throws KeyStoreException {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = true;
             certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
             result = null;
@@ -248,7 +249,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstTruststoreAliasTestNotOK() throws KeyStoreException {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = true;
             certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
             result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
@@ -261,11 +262,11 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void doAuthorizeTest() throws KeyStoreException {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
-            domibusPropertyProvider.getProperty((Domain) any, DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
         }};
 
@@ -287,11 +288,11 @@ public class DefaultAuthorizationServiceSpiImplTest {
         UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData("service", "action", ALIAS_TEST_AUTH);
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
-            domibusPropertyProvider.getProperty((Domain) any, DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
         }};
 
@@ -315,11 +316,11 @@ public class DefaultAuthorizationServiceSpiImplTest {
         process.addInitiator(party);
         PullContext pullContext = new PullContext(process, new Party(), testQualifiedMpc);
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
-            domibusPropertyProvider.getProperty((Domain) any, DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
-            domibusPropertyProvider.getBooleanDomainProperty(DefaultAuthorizationServiceSpiImpl.DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
             pModeProvider.findMpcUri(testMpc);
             result = testQualifiedMpc;

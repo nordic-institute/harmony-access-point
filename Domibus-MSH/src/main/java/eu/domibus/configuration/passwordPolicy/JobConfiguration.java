@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICIES_CHECK_CRON;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -34,7 +37,7 @@ public class JobConfiguration {
         CronTriggerFactoryBean bean = new CronTriggerFactoryBean();
 
         bean.setJobDetail(userPasswordPolicyAlertJob().getObject());
-        bean.setCronExpression(domibusPropertyProvider.getProperty("domibus.passwordPolicies.check.cron"));
+        bean.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON));
 
         return bean;
     }
@@ -58,7 +61,7 @@ public class JobConfiguration {
         CronTriggerFactoryBean bean = new CronTriggerFactoryBean();
 
         bean.setJobDetail(superUserPasswordPolicyAlertJob().getObject());
-        bean.setCronExpression(domibusPropertyProvider.getProperty("domibus.passwordPolicies.check.cron"));
+        bean.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON));
 
         bean.setGroup(GROUP_GENERAL);
         return bean;
@@ -82,7 +85,7 @@ public class JobConfiguration {
         CronTriggerFactoryBean bean = new CronTriggerFactoryBean();
 
         bean.setJobDetail(pluginUserPasswordPolicyAlertJob().getObject());
-        bean.setCronExpression(domibusPropertyProvider.getProperty("domibus.plugin_passwordPolicies.check.cron"));
+        bean.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON));
 
         return bean;
     }

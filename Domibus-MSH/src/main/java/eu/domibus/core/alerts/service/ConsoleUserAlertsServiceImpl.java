@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -25,8 +28,8 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAlertsServiceImpl.class);
 
-    public final static String MAXIMUM_PASSWORD_AGE = "domibus.passwordPolicy.expiration";
-    public final static String MAXIMUM_DEFAULT_PASSWORD_AGE = "domibus.passwordPolicy.defaultPasswordExpiration";
+    public final static String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+    public final static String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
 
     @Autowired
     protected UserDao userDao;
