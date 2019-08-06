@@ -151,6 +151,15 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata("domibus.alert.retry.max_attempts", true, true),
                 DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.cleaner.alert.lifetime"),
                 DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.active"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.mail.sending.active"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.retry.time"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.retry.max_attempts"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.sender.email"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.receiver.email"),
+                new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.states", true, true),
+                new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.mail.subject", true, true),
 //
 
 

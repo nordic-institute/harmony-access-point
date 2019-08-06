@@ -20,7 +20,8 @@ public class AlertMailChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.sender.smtp.");
+        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.sender.smtp.")
+                || StringUtils.equalsAnyIgnoreCase(propertyName, "domibus.alert.mail.sending.active", "domibus.alert.super.mail.sending.active");
     }
 
     @Override

@@ -28,8 +28,9 @@ public class AlertCommonConfigurationChangeListener implements PluginPropertyCha
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsAnyIgnoreCase(propertyName,
                 "domibus.alert.mail.sending.active",
-                "domibus.alert.sender.email",
-                "domibus.alert.receiver.email",
+                "domibus.alert.super.mail.sending.active",
+                "domibus.alert.sender.email", "domibus.alert.super.sender.email",
+                "domibus.alert.receiver.email", "domibus.alert.super.receiver.email",
                 "domibus.alert.cleaner.alert.lifetime",
                 "domibus.alert.super.cleaner.alert.lifetime");
     }
