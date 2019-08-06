@@ -205,6 +205,14 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata("domibus.alert.plugin_password.expired.level", true, true),
                 new DomibusPropertyMetadata("domibus.alert.plugin_password.expired.mail.subject", true, true),
 
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.login_failure.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.login_failure.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.login_failure.mail.subject", true, true),
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.account_disabled.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.account_disabled.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.account_disabled.moment", true, true),
+                new DomibusPropertyMetadata("domibus.alert.plugin.user.account_disabled.subject", true, true),
+
 //
 
 
