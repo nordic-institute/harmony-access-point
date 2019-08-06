@@ -26,7 +26,7 @@ public class RepetitiveAlertConfigurationHolder {
 
     private final HashMap<AlertType, ConfigurationLoader<RepetitiveAlertModuleConfiguration>> configurations = new HashMap<>();
 
-    public ConfigurationLoader<RepetitiveAlertModuleConfiguration> get(AlertType alertType) {
+    public ConfigurationLoader<RepetitiveAlertModuleConfiguration> getOrCreate(AlertType alertType) {
         LOG.debug("Retrieving repetitive alert configuration for alert type :[{}]", alertType);
         if (this.configurations.get(alertType) == null) {
             synchronized (this.configurations) {
@@ -38,6 +38,13 @@ public class RepetitiveAlertConfigurationHolder {
             }
         }
         return configurations.get(alertType);
+    }
+
+    public void resetConfiguration(AlertType alertType, Domain domain) {
+        ConfigurationLoader<RepetitiveAlertModuleConfiguration> conf = configurations.get(AlertType.PASSWORD_IMMINENT_EXPIRATION);
+        if(conf != null) {
+            conf.resetConfiguration(domain);
+        }
     }
 
     public void resetConfiguration(Domain domain) {

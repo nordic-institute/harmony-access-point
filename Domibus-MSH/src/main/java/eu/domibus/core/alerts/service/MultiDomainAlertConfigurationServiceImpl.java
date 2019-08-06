@@ -2,7 +2,6 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.model.common.AlertLevel;
@@ -553,7 +552,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
      */
     @Override
     public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
-        ConfigurationLoader<RepetitiveAlertModuleConfiguration> configurationLoader = passwordExpirationAlertsConfigurationHolder.get(alertType);
+        ConfigurationLoader<RepetitiveAlertModuleConfiguration> configurationLoader = passwordExpirationAlertsConfigurationHolder.getOrCreate(alertType);
         return configurationLoader.getConfiguration(new RepetitiveAlertConfigurationReader(alertType)::readConfiguration);
     }
 
