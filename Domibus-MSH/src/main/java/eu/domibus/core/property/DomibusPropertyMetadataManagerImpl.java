@@ -160,6 +160,21 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.states", true, true),
                 new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.level", true, true),
                 new DomibusPropertyMetadata("domibus.alert.msg.communication_failure.mail.subject", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.login_failure.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.login_failure.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.login_failure.mail.subject", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.account_disabled.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.account_disabled.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.account_disabled.moment", true, true),
+                new DomibusPropertyMetadata("domibus.alert.user.account_disabled.subject", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.login_failure.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.login_failure.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.login_failure.mail.subject", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.account_disabled.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.account_disabled.level", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.account_disabled.moment", true, true),
+                new DomibusPropertyMetadata("domibus.alert.super.user.account_disabled.subject", true, true),
+
 //
 
 
