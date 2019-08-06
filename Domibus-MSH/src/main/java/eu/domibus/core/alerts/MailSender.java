@@ -84,6 +84,7 @@ public class MailSender {
             javaMailSender.setPort(port);
             javaMailSender.setUsername(user);
             javaMailSender.setPassword(password);
+
             //Non static properties.
             final Properties javaMailProperties = javaMailSender.getJavaMailProperties();
             final Set<String> mailPropertyNames = domibusPropertyProvider.filterPropertiesName(s -> s.startsWith(DOMIBUS_ALERT_MAIL));
@@ -95,6 +96,10 @@ public class MailSender {
                         javaMailProperties.put(mailPropertyName, propertyValue);
                     });
         }
+    }
+
+    public void reset() {
+        mailSenderInitiated = false;
     }
 
     public <T extends MailModel> void sendMail(final T model, final String from, final String to) {

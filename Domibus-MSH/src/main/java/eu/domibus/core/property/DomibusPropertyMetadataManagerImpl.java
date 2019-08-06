@@ -138,6 +138,22 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON),
                 new DomibusPropertyMetadata(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, true, true),
 
+                new DomibusPropertyMetadata("domibus.alert.active", true, true),
+                new DomibusPropertyMetadata("domibus.alert.mail.sending.active", true, true),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.sender.smtp.url"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.sender.smtp.port"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.sender.smtp.user"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.sender.smtp.password"),
+                new DomibusPropertyMetadata("domibus.alert.sender.email", true, false),
+                new DomibusPropertyMetadata("domibus.alert.receiver.email", true, false),
+                new DomibusPropertyMetadata("domibus.alert.cleaner.alert.lifetime", true, true),
+                new DomibusPropertyMetadata("domibus.alert.retry.time", true, true),
+                new DomibusPropertyMetadata("domibus.alert.retry.max_attempts", true, true),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.cleaner.alert.lifetime"),
+                DomibusPropertyMetadata.getGlobalProperty("domibus.alert.super.active"),
+//
+
+
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

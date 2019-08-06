@@ -246,7 +246,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public Boolean isAlertModuleEnabled() {
         String propertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_ACTIVE, DOMIBUS_ALERT_SUPER_ACTIVE);
-        return domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, propertyName);
+        return domibusPropertyProvider.getBooleanDomainProperty(propertyName);
     }
 
     @Override
@@ -279,6 +279,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     protected CommonConfiguration readCommonConfiguration(Domain domain) {
+        //TODO: revisit this: I am receiving the domain as a parameter but I am reading the bellow properties for the current domain!! Is it OK?
         final boolean emailActive = domibusPropertyProvider.getBooleanDomainProperty(getSendEmailActivePropertyName());
         final String alertCleanerLifeTimePropertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME, DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME);
         final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerDomainProperty(alertCleanerLifeTimePropertyName);
