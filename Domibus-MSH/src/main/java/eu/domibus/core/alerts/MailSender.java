@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.Set;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -32,14 +34,6 @@ import java.util.Set;
 public class MailSender {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MailSender.class);
-
-    static final String DOMIBUS_ALERT_SENDER_SMTP_URL = "domibus.alert.sender.smtp.url";
-
-    static final String DOMIBUS_ALERT_SENDER_SMTP_PORT = "domibus.alert.sender.smtp.port";
-
-    static final String DOMIBUS_ALERT_SENDER_SMTP_USER = "domibus.alert.sender.smtp.user";
-
-    public static final String DOMIBUS_ALERT_SENDER_SMTP_PASSWORD = "domibus.alert.sender.smtp.password";
 
     static final String DOMIBUS_ALERT_MAIL = "domibus.alert.mail";
 

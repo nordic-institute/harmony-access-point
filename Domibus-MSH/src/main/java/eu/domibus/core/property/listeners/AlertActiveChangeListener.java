@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_ACTIVE;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -57,7 +59,7 @@ public class AlertActiveChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsAnyIgnoreCase(propertyName, "domibus.alert.active", "domibus.alert.super.active");
+        return StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_ACTIVE, "domibus.alert.super.active");
     }
 
     @Override

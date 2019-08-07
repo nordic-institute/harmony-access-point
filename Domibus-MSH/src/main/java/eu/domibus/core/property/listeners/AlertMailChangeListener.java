@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -21,7 +23,7 @@ public class AlertMailChangeListener implements PluginPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.sender.smtp.")
-                || StringUtils.equalsAnyIgnoreCase(propertyName, "domibus.alert.mail.sending.active", "domibus.alert.super.mail.sending.active");
+                || StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, "domibus.alert.super.mail.sending.active");
     }
 
     @Override

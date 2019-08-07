@@ -21,6 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -99,11 +102,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     private static final String DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL = "domibus.alert.super.receiver.email";
 
-    static final String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
-
     private static final String DOMIBUS_ALERT_SUPER_ACTIVE = "domibus.alert.super.active";
-
-    static final String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
 
     private static final String DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE = "domibus.alert.super.mail.sending.active";
 
