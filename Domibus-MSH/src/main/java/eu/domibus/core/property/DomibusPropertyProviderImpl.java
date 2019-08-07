@@ -70,13 +70,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     /**
-     * Get the value from the system properties; if not found get the value from Domibus properties; if still not found, look inside the Domibus default properties.
+     * Get the value from the system environment properties; if not found get the value from the system properties; if not found get the value from Domibus properties;
+     * if still not found, look inside the Domibus default properties.
      *
      * @param propertyName the property name
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
     protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
         String result = System.getenv(propertyName);
+        if (StringUtils.isEmpty(result)) {
+            result = System.getProperty(propertyName);
+        }
         if (StringUtils.isEmpty(result)) {
             result = domibusProperties.getProperty(propertyName);
 
