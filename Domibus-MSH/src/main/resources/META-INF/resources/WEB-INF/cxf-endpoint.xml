@@ -9,7 +9,6 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
-
     <bean id="mshWebservice" class="eu.domibus.ebms3.receiver.MSHWebservice"/>
     <bean id="mshWebserviceSerializer" class="eu.domibus.ebms3.receiver.MSHSourceMessageWebservice"/>
 
@@ -23,6 +22,10 @@
     </cxf:bus>
 
     <!--Message logger configuration-->
+    <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+        <property name="sender" ref="loggingSender"/>
+        <property name="limit" value="${domibus.logging.cxf.limit}"/>
+    </bean>
     <bean id="loggingSender" class="eu.domibus.logging.DomibusLoggingEventSender">
         <property name="printPayload" value="${domibus.logging.payload.print}"/>
     </bean>
@@ -105,13 +108,11 @@
         </jaxws:handlers>
 
         <jaxws:features>
-            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
-                <property name="sender" ref="loggingSender"/>
-            </bean>
+            <ref bean="loggingFeature"/>
         </jaxws:features>
-        </jaxws:endpoint>
+    </jaxws:endpoint>
 
-        <!--MSH Webservice client-->
+    <!--MSH Webservice client-->
     <jaxws:client id="{http://domibus.eu}msh-dispatch" name="{http://domibus.eu}msh-dispatch" createdFromAPI="true">
         <jaxws:outInterceptors>
             <ref bean="setPolicyOutInterceptor"/>
@@ -132,9 +133,7 @@
             <entry key="exceptionMessageCauseEnabled" value="false"/>
         </jaxws:properties>
         <jaxws:features>
-            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
-                <property name="sender" ref="loggingSender"/>
-            </bean>
+            <ref bean="loggingFeature"/>
         </jaxws:features>
     </jaxws:client>
 
@@ -161,9 +160,7 @@
             <entry key="exceptionMessageCauseEnabled" value="false"/>
         </jaxws:properties>
         <jaxws:features>
-            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
-                <property name="sender" ref="loggingSender"/>
-            </bean>
+            <ref bean="loggingFeature"/>
         </jaxws:features>
     </jaxws:client>
 

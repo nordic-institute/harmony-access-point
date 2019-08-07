@@ -10,6 +10,23 @@ Domibus 4.1.1 (from 4.1):
                             - for the database general schema run the appropriate DB migration script(mysql5innoDb-4.1-to-4.1.1-multi-tenancy-migration.ddl for MySQL or oracle10g-4.1-to-4.1.1-multi-tenancy-migration.ddl for Oracle)
                             - for each tenant schema in the database run the appropriate DB migration script(mysql5innoDb-4.1-to-4.1.1-migration.ddl for MySQL or oracle10g-4.1-to-4.1.1-migration.ddl for Oracle)
                             - for Oracle database, for each tenant schema in the database, grant privileges to the general schema using oracle10g-4.1.1-multi-tenancy-rights.sql. Please update the schema name before execution.
+                - in file "\conf\domibus\plugins\config\ws-plugin.xml" locate the following section and add the following beans:
+                    <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">
+                    .....
+                        <jaxws:features>
+                            <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
+                                <property name="sender" ref="wsPluginLoggingSender"/>
+                                <property name="limit" value="${domibus.logging.cxf.limit}"/>
+                            </bean>
+                        </jaxws:features>
+                    ......
+                    </jaxws:endpoint>
+
+                    <!--Message logger configuration-->
+                    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.logging.DomibusWSPluginLoggingEventSender">
+                        <property name="printPayload" value="${domibus.logging.payload.print}"/>
+                    </bean>
+
 Domibus 4.1 (from 4.0.2):
                 - Run the appropriate DB migration script(mysql5innoDb-4.0.2-to-4.1-migration.ddl for MySQL or oracle10g-4.0.2-to-4.1-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
