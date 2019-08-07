@@ -22,7 +22,7 @@ public class ProxyChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWith(propertyName, "domibus.proxy.");
+        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.proxy.");
     }
 
     @Override

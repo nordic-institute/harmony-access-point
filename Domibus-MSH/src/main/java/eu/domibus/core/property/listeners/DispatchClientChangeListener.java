@@ -11,7 +11,7 @@ import static eu.domibus.ebms3.sender.DispatchClientDefaultProvider.*;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Handles the change of dispatcher related properties
  */
 @Service
@@ -22,10 +22,11 @@ public class DispatchClientChangeListener implements PluginPropertyChangeListene
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT)
-                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_RECEIVETIMEOUT)
-                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_ALLOWCHUNKING)
-                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD);
+        return StringUtils.equalsAnyIgnoreCase(propertyName,
+                DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT,
+                DOMIBUS_DISPATCHER_RECEIVETIMEOUT,
+                DOMIBUS_DISPATCHER_ALLOWCHUNKING,
+                DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD);
     }
 
     @Override

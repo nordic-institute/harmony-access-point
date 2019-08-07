@@ -30,9 +30,8 @@ public class CryptoChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.containsIgnoreCase(propertyName, "domibus.security.keystore")
-                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS)
-                || StringUtils.containsIgnoreCase(propertyName, "domibus.security.truststore");
+        return StringUtils.startsWithAny(propertyName, "domibus.security.keystore.", "domibus.security.truststore.")
+                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
     }
 
     @Override

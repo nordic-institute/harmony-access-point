@@ -26,8 +26,9 @@ public class AlertAccountDisabledConfigurationChangeListener implements PluginPr
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.user.account_disabled.")
-                || StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.super.user.account_disabled.");
+        return StringUtils.startsWithAny(propertyName,
+                "domibus.alert.user.account_disabled.",
+                "domibus.alert.super.user.account_disabled.");
     }
 
     @Override

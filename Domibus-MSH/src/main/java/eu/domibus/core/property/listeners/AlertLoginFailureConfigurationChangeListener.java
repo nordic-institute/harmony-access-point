@@ -26,8 +26,9 @@ public class AlertLoginFailureConfigurationChangeListener implements PluginPrope
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.user.login_failure.")
-                || StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.super.user.login_failure.");
+        return StringUtils.startsWithAny(propertyName,
+                "domibus.alert.user.login_failure.",
+                "domibus.alert.super.user.login_failure.");
     }
 
     @Override
