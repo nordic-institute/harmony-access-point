@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Ion Perpegel
@@ -30,11 +30,11 @@ public class AlertCommonConfigurationChangeListener implements PluginPropertyCha
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsAnyIgnoreCase(propertyName,
                 DOMIBUS_ALERT_MAIL_SENDING_ACTIVE,
-                "domibus.alert.super.mail.sending.active",
-                "domibus.alert.sender.email", "domibus.alert.super.sender.email",
-                "domibus.alert.receiver.email", "domibus.alert.super.receiver.email",
-                "domibus.alert.cleaner.alert.lifetime",
-                "domibus.alert.super.cleaner.alert.lifetime");
+                DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE,
+                DOMIBUS_ALERT_SENDER_EMAIL, DOMIBUS_ALERT_SUPER_SENDER_EMAIL,
+                DOMIBUS_ALERT_RECEIVER_EMAIL, DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL,
+                DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME,
+                DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME);
     }
 
     @Override

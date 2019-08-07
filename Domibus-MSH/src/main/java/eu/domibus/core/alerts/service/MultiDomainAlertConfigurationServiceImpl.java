@@ -21,8 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 
 /**
@@ -33,86 +32,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALE
 public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAlertConfigurationService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MultiDomainAlertConfigurationServiceImpl.class);
-
-    static final String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE = "domibus.alert.msg.communication_failure.active";
-
-    static final String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES = "domibus.alert.msg.communication_failure.states";
-
-    static final String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL = "domibus.alert.msg.communication_failure.level";
-
-    static final String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT = "domibus.alert.msg.communication_failure.mail.subject";
-
-    static final String DOMIBUS_ALERT_CERT_EXPIRED_MAIL_SUBJECT = "domibus.alert.cert.expired.mail.subject";
-
-    static final String DOMIBUS_ALERT_CERT_EXPIRED_LEVEL = "domibus.alert.cert.expired.level";
-
-    static final String DOMIBUS_ALERT_CERT_EXPIRED_DURATION_DAYS = "domibus.alert.cert.expired.duration_days";
-
-    static final String DOMIBUS_ALERT_CERT_EXPIRED_FREQUENCY_DAYS = "domibus.alert.cert.expired.frequency_days";
-
-    static final String DOMIBUS_ALERT_CERT_EXPIRED_ACTIVE = "domibus.alert.cert.expired.active";
-
-    static final String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_MAIL_SUBJECT = "domibus.alert.cert.imminent_expiration.mail.subject";
-
-    static final String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_LEVEL = "domibus.alert.cert.imminent_expiration.level";
-
-    static final String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_FREQUENCY_DAYS = "domibus.alert.cert.imminent_expiration.frequency_days";
-
-    static final String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_DELAY_DAYS = "domibus.alert.cert.imminent_expiration.delay_days";
-
-    static final String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE = "domibus.alert.cert.imminent_expiration.active";
-
-    static final String DOMIBUS_ALERT_USER_LOGIN_FAILURE_MAIL_SUBJECT = "domibus.alert.user.login_failure.mail.subject";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_MAIL_SUBJECT = "domibus.alert.super.user.login_failure.mail.subject";
-
-    static final String DOMIBUS_ALERT_USER_LOGIN_FAILURE_LEVEL = "domibus.alert.user.login_failure.level";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_LEVEL = "domibus.alert.super.user.login_failure.level";
-
-    static final String DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE = "domibus.alert.user.login_failure.active";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_ACTIVE = "domibus.alert.super.user.login_failure.active";
-
-    static final String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT = "domibus.alert.user.account_disabled.subject";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_SUBJECT = "domibus.alert.super.user.account_disabled.subject";
-
-    static final String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_MOMENT = "domibus.alert.user.account_disabled.moment";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_MOMENT = "domibus.alert.super.user.account_disabled.moment";
-
-    static final String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_LEVEL = "domibus.alert.user.account_disabled.level";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_LEVEL = "domibus.alert.super.user.account_disabled.level";
-
-    static final String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_ACTIVE = "domibus.alert.user.account_disabled.active";
-
-    private static final String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_ACTIVE = "domibus.alert.super.user.account_disabled.active";
-
-    static final String DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME = "domibus.alert.cleaner.alert.lifetime";
-
-    private static final String DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME = "domibus.alert.super.cleaner.alert.lifetime";
-
-    static final String DOMIBUS_ALERT_SENDER_EMAIL = "domibus.alert.sender.email";
-
-    private static final String DOMIBUS_ALERT_SUPER_SENDER_EMAIL = "domibus.alert.super.sender.email";
-
-    static final String DOMIBUS_ALERT_RECEIVER_EMAIL = "domibus.alert.receiver.email";
-
-    private static final String DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL = "domibus.alert.super.receiver.email";
-
-    private static final String DOMIBUS_ALERT_SUPER_ACTIVE = "domibus.alert.super.active";
-
-    private static final String DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE = "domibus.alert.super.mail.sending.active";
-
-    static final String DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS = "domibus.alert.retry.max_attempts";
-
-    private static final String DOMIBUS_ALERT_SUPER_RETRY_MAX_ATTEMPTS = "domibus.alert.super.retry.max_attempts";
-
-    static final String DOMIBUS_ALERT_RETRY_TIME = "domibus.alert.retry.time";
-
-    private static final String DOMIBUS_ALERT_SUPER_RETRY_TIME = "domibus.alert.super.retry.time";
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = "domibus.instance.name";
 
@@ -445,22 +364,22 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         protected String getAlertActivePropertyName() {
-            return "domibus.alert.plugin.user.account_disabled.active";
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_ACTIVE;
         }
 
         @Override
         protected String getAlertLevelPropertyName() {
-            return "domibus.alert.plugin.user.account_disabled.level";
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_LEVEL;
         }
 
         @Override
         protected String getAlertMomentPropertyName() {
-            return "domibus.alert.plugin.user.account_disabled.moment";
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT;
         }
 
         @Override
         protected String getAlertEmailSubjectPropertyName() {
-            return "domibus.alert.plugin.user.account_disabled.subject";
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT;
         }
     }
 
@@ -651,17 +570,17 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         protected String getAlertActivePropertyName() {
-            return "domibus.alert.plugin.user.login_failure.active";
+            return DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE;
         }
 
         @Override
         protected String getAlertLevelPropertyName() {
-            return "domibus.alert.plugin.user.login_failure.level";
+            return DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_LEVEL;
         }
 
         @Override
         protected String getAlertEmailSubjectPropertyName() {
-            return "domibus.alert.plugin.user.login_failure.mail.subject";
+            return DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_MAIL_SUBJECT;
         }
     }
 

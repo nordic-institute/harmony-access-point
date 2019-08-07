@@ -13,9 +13,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
-import static eu.domibus.core.alerts.service.MultiDomainAlertConfigurationServiceImpl.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 import static org.junit.Assert.*;
 
 /**
@@ -400,13 +399,13 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             result = DomainService.DEFAULT_DOMAIN;
             domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
-            domibusPropertyProvider.getBooleanDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.active");
+            domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_ACTIVE);
             result = true;
-            domibusPropertyProvider.getDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.level");
+            domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_LEVEL);
             result = "HIGH";
-            domibusPropertyProvider.getDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.moment");
+            domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT);
             result = "AT_LOGON";
-            domibusPropertyProvider.getDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.subject");
+            domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT);
             this.result = mailSubject;
         }};
         final AccountDisabledModuleConfiguration accountDisabledConfiguration = configurationService.new
