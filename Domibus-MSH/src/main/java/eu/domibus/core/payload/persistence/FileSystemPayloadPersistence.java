@@ -65,7 +65,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
         LOG.debug("Saving incoming payload [{}] to file disk", partInfo.getHref());
 
-        final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + ".payload");
+        final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + PAYLOAD_EXTENSION);
         partInfo.setFileName(attachmentStore.getAbsolutePath());
         try (final InputStream inputStream = partInfo.getPayloadDatahandler().getInputStream()) {
             final long fileLength = saveIncomingFileToDisk(attachmentStore, inputStream, encryptionActive);
