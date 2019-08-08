@@ -65,7 +65,7 @@ public class AlertActiveChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        LOG.debug("Global active property for alerts has cjanged for domain [{}]. Reseting all configuration loaders.", domainCode);
+        LOG.debug("Global active property for alerts has changed for domain [{}]. Resetting all configuration loaders.", domainCode);
 
         mailSender.reset();
 
