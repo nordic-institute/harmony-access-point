@@ -261,16 +261,13 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected List<String> getReplacedLines(List<PasswordEncryptionResult> encryptedProperties, File configurationFile) {
-        final Stream<String> lines;
-        try {
-            lines = Files.lines(configurationFile.toPath());
+        try(final Stream<String> lines = Files.lines(configurationFile.toPath())) {
+            return lines
+                    .map(line -> replaceLine(encryptedProperties, line))
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not replace properties: could not read configuration file [%s]", configurationFile), e);
         }
-
-        return lines
-                .map(line -> replaceLine(encryptedProperties, line))
-                .collect(Collectors.toList());
     }
 
     protected String replaceLine(List<PasswordEncryptionResult> encryptedProperties, String line) {

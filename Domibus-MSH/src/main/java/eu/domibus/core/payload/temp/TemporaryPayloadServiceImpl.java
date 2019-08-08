@@ -58,8 +58,8 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
 
     protected void deleteFileSafely(File file) {
         try {
-            file.delete();
-            LOG.debug("File deleted [{}]", file);
+            final boolean deleted = file.delete();
+            LOG.debug("File [{}] deleted [{}] ?", file, deleted);
         } catch (Exception e) {
             LOG.warn("Error deleting file [{}]", file, e);
         }
