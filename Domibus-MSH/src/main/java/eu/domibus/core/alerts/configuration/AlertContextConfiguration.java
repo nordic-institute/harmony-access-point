@@ -12,7 +12,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.ObjectMessage;
 
 import static org.springframework.jms.support.converter.MessageType.TEXT;
 /**
