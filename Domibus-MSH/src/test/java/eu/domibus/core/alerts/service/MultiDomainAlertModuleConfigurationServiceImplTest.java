@@ -651,7 +651,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
                 domainContextProvider.getCurrentDomainSafely();
                 result = DomainService.DEFAULT_DOMAIN;
 
-                domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, "domibus.alert.active");
+                domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
 
                 domibusPropertyProvider.getDomainProperty(domain, property + ".active");
