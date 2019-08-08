@@ -2,18 +2,18 @@ package eu.domibus.api.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  */
 public interface EncryptionUtil {
 
     SecretKey getSecretKey(byte[] secretKey);
 
-    IvParameterSpec getSecretKeySpec(byte[] IV);
+    GCMParameterSpec getSecretKeySpec(byte[] IV);
 
     /**
      * Generates a random key
@@ -25,13 +25,13 @@ public interface EncryptionUtil {
 
     byte[] generateIV();
 
-    Cipher getEncryptCipher(SecretKey key, IvParameterSpec ivSpec);
+    Cipher getEncryptCipher(SecretKey key, GCMParameterSpec ivSpec);
 
-    Cipher getDecryptCipher(SecretKey key, IvParameterSpec ivSpec);
+    Cipher getDecryptCipher(SecretKey key, GCMParameterSpec ivSpec);
 
-    byte[] encrypt(byte[] content, SecretKey key, IvParameterSpec ivSpec);
+    byte[] encrypt(byte[] content, SecretKey key, GCMParameterSpec ivSpec);
 
-    String decrypt(byte[] cipherText, SecretKey key, IvParameterSpec ivSpec);
+    String decrypt(byte[] cipherText, SecretKey key, GCMParameterSpec ivSpec);
 
 
 }
