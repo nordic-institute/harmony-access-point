@@ -11,7 +11,7 @@ import javax.persistence.TypedQuery;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  */
 
 @Repository

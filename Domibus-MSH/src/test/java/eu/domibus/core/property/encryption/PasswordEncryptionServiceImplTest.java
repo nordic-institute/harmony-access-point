@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -129,7 +129,7 @@ public class PasswordEncryptionServiceImplTest {
                                              @Injectable byte[] secretKeyValue,
                                              @Injectable byte[] initVectorValue,
                                              @Injectable SecretKey secretKey,
-                                             @Injectable IvParameterSpec secretKeySpec,
+                                             @Injectable GCMParameterSpec secretKeySpec,
                                              @Injectable List<PasswordEncryptionResult> encryptedProperties) {
         String propertyName1 = "property1";
         String value1 = "value1";
@@ -184,7 +184,7 @@ public class PasswordEncryptionServiceImplTest {
     @Test
     public void encryptProperties(@Injectable PasswordEncryptionContext passwordEncryptionContext,
                                   @Injectable SecretKey secretKey,
-                                  @Injectable IvParameterSpec secretKeySpec,
+                                  @Injectable GCMParameterSpec secretKeySpec,
                                   @Injectable PasswordEncryptionResult passwordEncryptionResult1,
                                   @Injectable PasswordEncryptionResult passwordEncryptionResult2) {
         String propertyName1 = "property1";
@@ -211,7 +211,7 @@ public class PasswordEncryptionServiceImplTest {
                                 @Injectable File encryptedKeyFile,
                                 @Injectable PasswordEncryptionSecret secret,
                                 @Injectable SecretKey secretKey,
-                                @Injectable IvParameterSpec secretKeySpec,
+                                @Injectable GCMParameterSpec secretKeySpec,
                                 @Mocked Base64 base64,
                                 @Injectable Domain domain) {
         String propertyName = "myProperty";
@@ -241,7 +241,7 @@ public class PasswordEncryptionServiceImplTest {
                                 @Injectable File encryptedKeyFile,
                                 @Injectable PasswordEncryptionSecret secret,
                                 @Injectable SecretKey secretKey,
-                                @Injectable IvParameterSpec secretKeySpec,
+                                @Injectable GCMParameterSpec secretKeySpec,
                                 @Mocked Base64 base64) {
         String propertyName = "myProperty";
         String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
@@ -279,7 +279,7 @@ public class PasswordEncryptionServiceImplTest {
                                 @Injectable File encryptedKeyFile,
                                 @Injectable PasswordEncryptionSecret secret,
                                 @Injectable SecretKey secretKey,
-                                @Injectable IvParameterSpec secretKeySpec,
+                                @Injectable GCMParameterSpec secretKeySpec,
                                 @Mocked Base64 base64) {
         String propertyName = "myProperty";
         String propertyValue = "myValue";
