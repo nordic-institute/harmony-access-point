@@ -2,6 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.RepetitiveAlertConfigurationHolder;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -26,7 +27,7 @@ public class AlertPasswordImminentExpirationConfigurationChangeListener implemen
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.password.imminent_expiration.");
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX);
     }
 
     @Override

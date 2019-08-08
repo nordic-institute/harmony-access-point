@@ -2,6 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -26,7 +27,7 @@ public class AlertMessagingConfigurationChangeListener implements PluginProperty
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, "domibus.alert.msg.communication_failure.");
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX);
     }
 
     @Override

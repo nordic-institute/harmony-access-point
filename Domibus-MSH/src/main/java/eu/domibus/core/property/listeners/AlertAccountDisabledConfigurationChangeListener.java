@@ -2,6 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -27,8 +28,8 @@ public class AlertAccountDisabledConfigurationChangeListener implements PluginPr
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                "domibus.alert.user.account_disabled.",
-                "domibus.alert.super.user.account_disabled.");
+                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX,
+                DomibusPropertyMetadataManager.DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX);
     }
 
     @Override
