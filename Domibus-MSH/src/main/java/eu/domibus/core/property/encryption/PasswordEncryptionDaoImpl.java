@@ -3,6 +3,7 @@ package eu.domibus.core.property.encryption;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
+import eu.domibus.core.util.EncryptionUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -41,7 +42,7 @@ public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
             throw new DomibusEncryptionException(String.format("Could not read secret key from file [%s] ", encryptedKeyFile), e);
         }
         final byte[] decodeBase64 = Base64.decodeBase64(fileContent);
-        int IVBytesLength = 16;
+        int IVBytesLength = EncryptionUtilImpl.INIT_VECTOR_LENGTH;
         final byte[] IVBytes = new byte[IVBytesLength];
         final int secretKeyLength = decodeBase64.length - IVBytesLength;
         final byte[] secretKeyBytes = new byte[secretKeyLength];
