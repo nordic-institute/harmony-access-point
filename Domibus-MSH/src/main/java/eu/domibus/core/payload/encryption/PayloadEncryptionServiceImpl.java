@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import java.util.List;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  */
 @Service("EncryptionServiceImpl")
 public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
@@ -98,7 +98,7 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         final EncryptionKeyEntity encryptionKeyEntity = encryptionKeyDao.findByUsageCacheable(currentDomain.getCode(), EncryptionUsage.PAYLOAD);
         final SecretKey secretKey = encryptionUtil.getSecretKey(encryptionKeyEntity.getSecretKey());
-        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(encryptionKeyEntity.getInitVector());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(encryptionKeyEntity.getInitVector());
         final Cipher encryptCipher = encryptionUtil.getEncryptCipher(secretKey, secretKeySpec);
 
         LOG.debug("Finished getting the encrypt cipher for payload");
@@ -113,7 +113,7 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         final EncryptionKeyEntity encryptionKeyEntity = encryptionKeyDao.findByUsageCacheable(currentDomain.getCode(), EncryptionUsage.PAYLOAD);
         final SecretKey secretKey = encryptionUtil.getSecretKey(encryptionKeyEntity.getSecretKey());
-        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(encryptionKeyEntity.getInitVector());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(encryptionKeyEntity.getInitVector());
         final Cipher decryptCipher = encryptionUtil.getDecryptCipher(secretKey, secretKeySpec);
 
         LOG.debug("Finished getting the decrypt cipher for payload");

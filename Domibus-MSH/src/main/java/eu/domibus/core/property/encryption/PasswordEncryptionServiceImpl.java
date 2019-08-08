@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -120,7 +120,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         LOG.debug("Using encrypted key file [{}]", encryptedKeyFile);
         final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
-        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
         final List<PasswordEncryptionResult> encryptedProperties = encryptProperties(passwordEncryptionContext, propertiesToEncrypt, secretKey, secretKeySpec);
 
         replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
@@ -138,7 +138,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
 
-    protected List<PasswordEncryptionResult> encryptProperties(PasswordEncryptionContext passwordEncryptionContext, List<String> propertiesToEncrypt, SecretKey secretKey, IvParameterSpec secretKeySpec) {
+    protected List<PasswordEncryptionResult> encryptProperties(PasswordEncryptionContext passwordEncryptionContext, List<String> propertiesToEncrypt, SecretKey secretKey, GCMParameterSpec secretKeySpec) {
         List<PasswordEncryptionResult> result = new ArrayList<>();
 
         LOG.debug("Encrypting properties");
@@ -173,7 +173,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Using encrypted key file for decryption [{}]", encryptedKeyFile);
 
         final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
-        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
 
         String base64EncryptedValue = extractValueFromEncryptedFormat(encryptedFormatValue);
         final byte[] encryptedValue = Base64.decodeBase64(base64EncryptedValue);
@@ -202,16 +202,16 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Using encrypted key file [{}]", encryptedKeyFile);
 
         final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
-        final IvParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
         return encryptProperty(secretKey, secretKeySpec, propertyName, propertyValue);
     }
 
-    protected PasswordEncryptionResult encryptProperty(PasswordEncryptionContext passwordEncryptionContext, SecretKey secretKey, IvParameterSpec secretKeySpec, String propertyName) {
+    protected PasswordEncryptionResult encryptProperty(PasswordEncryptionContext passwordEncryptionContext, SecretKey secretKey, GCMParameterSpec secretKeySpec, String propertyName) {
         final String propertyValue = passwordEncryptionContext.getProperty(propertyName);
         return encryptProperty(secretKey, secretKeySpec, propertyName, propertyValue);
     }
 
-    protected PasswordEncryptionResult encryptProperty(SecretKey secretKey, IvParameterSpec secretKeySpec, String propertyName, String propertyValue) {
+    protected PasswordEncryptionResult encryptProperty(SecretKey secretKey, GCMParameterSpec secretKeySpec, String propertyName, String propertyValue) {
         if (isValueEncrypted(propertyValue)) {
             LOG.debug("Property [{}] is already encrypted", propertyName);
             return null;
