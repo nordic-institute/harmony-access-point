@@ -1,6 +1,3 @@
-
-
-
 <http-conf:tlsClientParameters
         xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
         xmlns:security="http://cxf.apache.org/configuration/security">

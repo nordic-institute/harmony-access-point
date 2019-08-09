@@ -3,19 +3,26 @@ package eu.domibus.pki;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.ebms3.sender.TLSReader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 
@@ -35,6 +42,9 @@ public class DomibusX509TrustManager implements X509TrustManager {
     @Autowired
     protected DomainContextProvider domainProvider;
 
+    @Autowired
+    protected TLSReader tlsReader;
+
     @Override
     public X509Certificate[] getAcceptedIssuers() {
         X509TrustManager defaultTm;
@@ -45,6 +55,17 @@ public class DomibusX509TrustManager implements X509TrustManager {
             return null;
         }
         return defaultTm.getAcceptedIssuers();
+    }
+
+    @PostConstruct
+    public void init(){
+        try {
+            instantiateTrustStoreFromTrustManager();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -112,18 +133,50 @@ public class DomibusX509TrustManager implements X509TrustManager {
 
     public KeyStore instantiateTrustStoreFromTrustManager() throws KeyStoreException, NoSuchAlgorithmException {
         X509TrustManager cacertTrustManager = getX509TrustManager(true);
-        X509TrustManager customTrustManager = getX509TrustManager(false);
         List<X509Certificate> cacertCertificates = Lists.newArrayList(cacertTrustManager.getAcceptedIssuers());
-        List<X509Certificate> customTlsCertificates = Lists.newArrayList(customTrustManager.getAcceptedIssuers());
+        TLSClientParameters tlsClientParameters = tlsReader.getTlsClientParameters(domainProvider.getCurrentDomain().getCode());
+        List<X509Certificate> tlsCertificates=new ArrayList<>();
+        if(tlsClientParameters!=null){
+            TrustManager[] trustManagers = tlsClientParameters.getTrustManagers();
+            for (TrustManager trustManager : trustManagers) {
+                if (trustManager instanceof X509TrustManager) {
+                    X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
+                    X509Certificate[] acceptedIssuers = x509TrustManager.getAcceptedIssuers();
+                    tlsCertificates.addAll(Arrays.asList(acceptedIssuers));
+                }
+            }
+        }
+        tlsCertificates.addAll(cacertCertificates);
+
+        /*KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+        List<X509Certificate> businessCertificates = new ArrayList<>();
+        Enumeration<String> aliases = trustStore.aliases();
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+            businessCertificates.add((X509Certificate) trustStore.getCertificate(alias));
+        }*/
         if (LOG.isDebugEnabled()) {
             LOG.debug("Cacert certificate:");
             for (X509Certificate cacX509Certificate : cacertCertificates) {
-                LOG.debug("Serical:[{}], subject:[{}]", cacX509Certificate.getSerialNumber(), cacX509Certificate.getSubjectDN());
+                LOG.debug("Serial:[{}], subject:[{}]", cacX509Certificate.getSerialNumber(), cacX509Certificate.getSubjectDN());
             }
+           /* LOG.debug("Business certificates");
+            for (X509Certificate businesCertificate : businessCertificates) {
+                LOG.debug("Serial:[{}], subject:[{}]", businesCertificate.getSerialNumber(), businesCertificate.getSubjectDN());
+            }*/
             LOG.debug("Custom TLS certificates");
-            for (X509Certificate customTlsCertificate : customTlsCertificates) {
-                LOG.debug("Serical:[{}], subject:[{}]", customTlsCertificate.getSerialNumber(), customTlsCertificate.getSubjectDN());
+            for (X509Certificate tlsCertificate : tlsCertificates) {
+                LOG.debug("Serial:[{}], subject:[{}]", tlsCertificate.getSerialNumber(), tlsCertificate.getSubjectDN());
             }
+        }
+        KeyStore tlsTrustStore = KeyStore.getInstance("jsk");
+        try {
+            tlsTrustStore.load(null,null);
+            for (X509Certificate tlsCertificate : tlsCertificates) {
+                tlsTrustStore.setCertificateEntry(tlsCertificate.getA);
+            }
+        } catch (IOException|CertificateException e) {
+            LOG.error("Impossible to instanciate TLS trust store",e);
         }
         return null;
     }
