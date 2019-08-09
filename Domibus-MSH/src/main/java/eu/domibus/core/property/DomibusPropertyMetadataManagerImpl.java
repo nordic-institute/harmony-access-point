@@ -213,6 +213,15 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT, true, true),
 
+                new DomibusPropertyMetadata("domibus.pull.request.send.per.job.cycle", true, true),
+                new DomibusPropertyMetadata("domibus.pull.request.frequency.recovery.time", true, true),
+                new DomibusPropertyMetadata("domibus.pull.request.frequency.error.count", true, true),
+                new DomibusPropertyMetadata("domibus.pull.dynamic.initiator", true, true),
+                new DomibusPropertyMetadata("domibus.pull.multiple_legs", true, true),
+                new DomibusPropertyMetadata("domibus.pull.force_by_mpc", true, true),
+                new DomibusPropertyMetadata("domibus.pull.mpc_initiator_separator", true, true),
+                new DomibusPropertyMetadata("domibus.pull.receipt.queue.concurrency", true, true),
+                //
 
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
