@@ -221,6 +221,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata("domibus.pull.force_by_mpc", true, true),
                 new DomibusPropertyMetadata("domibus.pull.mpc_initiator_separator", true, true),
                 new DomibusPropertyMetadata("domibus.pull.receipt.queue.concurrency", true, true),
+                new DomibusPropertyMetadata("domibus.pull.queue.concurency", true, true),
                 //
 
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));

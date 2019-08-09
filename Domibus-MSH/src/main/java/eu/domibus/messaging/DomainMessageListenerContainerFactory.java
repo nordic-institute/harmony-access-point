@@ -17,4 +17,6 @@ public interface DomainMessageListenerContainerFactory {
     DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain);
 
     DomainMessageListenerContainer createRetentionListenerContainer(Domain domain);
+
+    DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain);
 }
