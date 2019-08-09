@@ -1,5 +1,6 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.common.validators.GatewayConfigurationValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -13,7 +14,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEC
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Handles the change of crypto related properties
  */
 @Service
@@ -30,7 +31,9 @@ public class CryptoChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithAny(propertyName, "domibus.security.keystore.", "domibus.security.truststore.")
+        return StringUtils.startsWithAny(propertyName,
+                DomibusPropertyMetadataManager.DOMIBUS_SECURITY_KEYSTORE_PREFIX,
+                DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_PREFIX)
                 || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
     }
 

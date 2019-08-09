@@ -2,6 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -27,8 +28,8 @@ public class AlertLoginFailureConfigurationChangeListener implements PluginPrope
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                "domibus.alert.user.login_failure.",
-                "domibus.alert.super.user.login_failure.");
+                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX,
+                DomibusPropertyMetadataManager.DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX);
     }
 
     @Override
