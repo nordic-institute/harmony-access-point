@@ -38,6 +38,8 @@ public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
 
+    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty.";
+
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
 
@@ -71,7 +73,7 @@ public class TruststoreResource extends BaseResource {
             return ResponseEntity.badRequest().body("Failed to upload the truststore file since it was empty.");
         }
         if (StringUtils.isBlank(password)) {
-            return ResponseEntity.badRequest().body("Failed to upload the truststore file since its password was empty.");
+            return ResponseEntity.badRequest().body(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
         multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststore.getOriginalFilename(), truststore.getBytes(), password);
