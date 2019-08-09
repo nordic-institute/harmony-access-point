@@ -32,6 +32,7 @@ public class ConfigurationLoader<E> {
 
     public E getConfiguration(ConfigurationReader<E> configurationReader) {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        //TODO: revisit this after we decide what to do with super properties
         final Domain key = currentDomain == null ? SUPER_DOMAIN : currentDomain;
         final Domain domain = currentDomain == null ? DomainService.DEFAULT_DOMAIN : currentDomain;
         LOG.debug("Retrieving alert messaging configuration for domain:[{}]", currentDomain);
@@ -46,6 +47,13 @@ public class ConfigurationLoader<E> {
         E result = this.configuration.get(key);
         LOG.debug("Alert messaging configuration:[{}]", result);
         return result;
+    }
+
+    public void resetConfiguration(Domain domain) {
+        final Domain key = domain == null ? SUPER_DOMAIN : domain;
+        synchronized (this.configuration) {
+            this.configuration.remove(key);
+        }
     }
 }
 
