@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  * <p>
  * Entity class containing the key used for symmetric encryption
  */

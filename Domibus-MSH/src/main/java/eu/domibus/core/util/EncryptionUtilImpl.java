@@ -6,7 +6,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -15,24 +15,25 @@ import java.security.SecureRandom;
 
 /**
  * @author Cosmin Baciu
- * @since 4.1
+ * @since 4.1.1
  */
 @Service
 public class EncryptionUtilImpl implements EncryptionUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionUtilImpl.class);
 
-    private static final String ALGORITHM = "AES";
-    private static final String CIPHER = "AES/CBC/PKCS5Padding";
+    public static final String ALGORITHM = "AES";
+    public static final String CIPHER = "AES/GCM/NoPadding";
+    public static final int INIT_VECTOR_LENGTH = 12;
+    public static final int GCM_TLEN = 128;
 
     public SecretKey getSecretKey(byte[] secretKey) {
         return new SecretKeySpec(secretKey, ALGORITHM);
     }
 
-    public IvParameterSpec getSecretKeySpec(byte[] IV) {
-        return new IvParameterSpec(IV);
+    public GCMParameterSpec getSecretKeySpec(byte[] IV) {
+        return new GCMParameterSpec(GCM_TLEN, IV);
     }
-
 
     public SecretKey generateSecretKey() {
         LOG.debug("Generating secret key");
@@ -53,7 +54,7 @@ public class EncryptionUtilImpl implements EncryptionUtil {
     public byte[] generateIV() {
         LOG.debug("Generating initialization vector");
 
-        byte[] IV = new byte[16];
+        byte[] IV = new byte[INIT_VECTOR_LENGTH];
         SecureRandom random = new SecureRandom();
         random.nextBytes(IV);
 
@@ -61,7 +62,7 @@ public class EncryptionUtilImpl implements EncryptionUtil {
         return IV;
     }
 
-    public Cipher getEncryptCipher(SecretKey key, IvParameterSpec ivSpec) {
+    public Cipher getEncryptCipher(SecretKey key, GCMParameterSpec ivSpec) {
         //Get Cipher Instance
         Cipher cipher = getCipher();
 
@@ -79,7 +80,7 @@ public class EncryptionUtilImpl implements EncryptionUtil {
     }
 
 
-    public Cipher getDecryptCipher(SecretKey key, IvParameterSpec ivSpec) {
+    public Cipher getDecryptCipher(SecretKey key, GCMParameterSpec ivSpec) {
         //Get Cipher Instance
         Cipher cipher = getCipher();
 
@@ -96,7 +97,7 @@ public class EncryptionUtilImpl implements EncryptionUtil {
         return cipher;
     }
 
-    public byte[] encrypt(byte[] content, SecretKey key, IvParameterSpec ivSpec) {
+    public byte[] encrypt(byte[] content, SecretKey key, GCMParameterSpec ivSpec) {
         //Get Cipher Instance
         Cipher cipher = getEncryptCipher(key, ivSpec);
 
@@ -111,7 +112,7 @@ public class EncryptionUtilImpl implements EncryptionUtil {
         return cipherText;
     }
 
-    public String decrypt(byte[] cipherText, SecretKey key, IvParameterSpec ivSpec) {
+    public String decrypt(byte[] cipherText, SecretKey key, GCMParameterSpec ivSpec) {
         //Get Cipher Instance
         Cipher cipher = getDecryptCipher(key, ivSpec);
 

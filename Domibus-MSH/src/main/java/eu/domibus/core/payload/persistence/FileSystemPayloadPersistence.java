@@ -65,7 +65,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
         LOG.debug("Saving incoming payload [{}] to file disk", partInfo.getHref());
 
-        final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + ".payload");
+        final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + PAYLOAD_EXTENSION);
         partInfo.setFileName(attachmentStore.getAbsolutePath());
         try (final InputStream inputStream = partInfo.getPayloadDatahandler().getInputStream()) {
             final long fileLength = saveIncomingFileToDisk(attachmentStore, inputStream, encryptionActive);
@@ -79,7 +79,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected long saveIncomingFileToDisk(File file, InputStream is, final Boolean encryptionActive) throws IOException {
         OutputStream outputStream = null;
         try {
-            outputStream = new FileOutputStream(file);
+            outputStream = new FileOutputStream(file);//NO SONAR the stream is closed in the finally block
 
             if (encryptionActive) {
                 LOG.debug("Using encryption for file [{}]", file);
@@ -141,12 +141,12 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             if (encryptionActive) {
                 LOG.debug("Using encryption for file [{}]", file);
                 final Cipher encryptCipherForPayload = encryptionService.getEncryptCipherForPayload();
-                outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload);
+                outputStream = new CipherOutputStream(outputStream, encryptCipherForPayload); //NO SONAR the stream is closed in the finally block
             }
 
             if (useCompression) {
                 LOG.debug("Using compression for storing the file [{}]", file);
-                outputStream = new GZIPOutputStream(outputStream);
+                outputStream = new GZIPOutputStream(outputStream); //NO SONAR the stream is closed in the finally block
             }
 
             final long total = IOUtils.copy(is, outputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
