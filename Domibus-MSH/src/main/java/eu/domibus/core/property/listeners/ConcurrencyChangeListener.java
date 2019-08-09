@@ -36,8 +36,8 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
                 DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY,
                 DOMIBUS_RETENTION_JMS_CONCURRENCY,
                 DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY,
-                "domibus.pull.receipt.queue.concurrency",
-                "domibus.pull.queue.concurency");
+                DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY,
+                DOMIBUS_PULL_QUEUE_CONCURENCY);
     }
 
     @Override
@@ -57,10 +57,10 @@ public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
             case DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY:
                 messageListenerContainerInitializer.createSplitAndJoinListenerContainer(domain);
                 break;
-            case "domibus.pull.receipt.queue.concurrency":
+            case DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY:
                 messageListenerContainerInitializer.createPullReceiptListenerContainer(domain);
                 break;
-            case "domibus.pull.queue.concurency":
+            case DOMIBUS_PULL_QUEUE_CONCURENCY:
                 messageListenerContainerInitializer.createPullMessageListenerContainer(domain);
                 break;
         }

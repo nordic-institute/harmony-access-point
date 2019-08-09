@@ -26,7 +26,7 @@
 //public class PullJmsListenerContainerConfiguration {
 //
 //    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullJmsListenerContainerConfiguration.class);
-//    private static final String PULL_QUEUE_CONCURRENCY = "domibus.pull.queue.concurency";
+//    private static final String PULL_QUEUE_CONCURRENCY = DOMIBUS_PULL_QUEUE_CONCURENCY;
 //
 //    @Autowired
 //    @Qualifier("domibusJMS-XAConnectionFactory")
