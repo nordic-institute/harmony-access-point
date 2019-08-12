@@ -29,4 +29,13 @@ public class MessageServiceImplTest {
         Assert.assertEquals("Should have returned the message as is when cleaning it if the message does not contain control characters",
                 "-Dom138--", trimmedMessageId);
     }
+
+    @Test
+    public void testMessageId_isValid() {
+        String messageId = " -Dom137-- ";
+
+        boolean isValid = messageService.validateMessageIdentifierRfc2822(messageId);
+        Assert.assertTrue(isValid);
+
+    }
 }

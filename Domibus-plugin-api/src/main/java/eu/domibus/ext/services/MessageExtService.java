@@ -19,4 +19,6 @@ public interface MessageExtService {
      */
     String cleanMessageIdentifier(String messageId) throws MessageExtException;
 
+    boolean validateMessageIdentifierRfc2822(String messageId) throws MessageExtException;
+
 }
