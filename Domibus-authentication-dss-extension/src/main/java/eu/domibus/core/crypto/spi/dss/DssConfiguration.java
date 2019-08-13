@@ -32,11 +32,18 @@ import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,6 +143,18 @@ public class DssConfiguration {
     @Value("${domibus.dss.ssl.trust.store.password}")
     private String dssTlsTrustStorePassword;
 
+    @Value("${domibus.dss.ssl.cacert.path.override}")
+    private Boolean cacertPathOverride;
+
+    @Value("${domibus.dss.ssl.cacert.path}")
+    private String cacertPath;
+
+    @Value("${domibus.dss.ssl.cacert.type}")
+    private String cacertType;
+
+    @Value("${domibus.dss.ssl.cacert.password}")
+    private String cacertPassword;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -217,14 +236,59 @@ public class DssConfiguration {
             }
         }
         dataLoader.setProxyConfig(proxyConfig);
-        if (!NONE.equals(dssTlsTrustStorePath)) {
-            LOG.debug("Setting dss tls trust store:[{}]",dssTlsTrustStorePath);
-            dataLoader.setSslTruststorePath(dssTlsTrustStorePath);
-            dataLoader.setSslTruststoreType(dssTlsTrustStoreType);
-            dataLoader.setSslTruststorePassword(dssTlsTrustStorePassword);
-        }
+        dataLoader.setSslTrustStore(mergeKeystore());
         return dataLoader;
     }
+
+    private KeyStore mergeKeystore() {
+        if (!NONE.equals(dssTlsTrustStorePath)) {
+            try {
+                KeyStore customTlsTrustore = KeyStore.getInstance(dssTlsTrustStoreType);
+                customTlsTrustore.load(new FileInputStream(dssTlsTrustStorePath), dssTlsTrustStorePassword.toCharArray());
+                KeyStore cacertTrustStore = loadCacertFromDefaultOrCustomLocation();
+                Enumeration enumeration = cacertTrustStore.aliases();
+                while (enumeration.hasMoreElements()) {
+                    // Determine the current alias
+                    String alias = (String) enumeration.nextElement();
+                    LOG.debug("Retrieving certificate with alias:[{}] and add it to custom tls trustore.",alias);
+                    Certificate cert = cacertTrustStore.getCertificate(alias);
+                    customTlsTrustore.setCertificateEntry(alias, cert);
+                }
+                return customTlsTrustore;
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+                LOG.warn("Could not instanciate custom tls trust store with path:[{}], type:[{}]", dssTlsTrustStorePath, dssTlsTrustStoreType, e);
+                return null;
+            }
+        }
+        return null;
+
+    }
+
+    private KeyStore loadCacertFromDefaultOrCustomLocation() {
+        String filename = System.getProperty("java.home") + "/lib/security/cacerts".replace('/', File.separatorChar);
+        String password = dssTlsTrustStorePassword;
+        KeyStore cacertTrustStore;
+        LOG.debug("Loading cacert from default location:[{}]", filename);
+        cacertTrustStore = loadCacert(filename, KeyStore.getDefaultType(), cacertPassword);
+        if (cacertTrustStore == null) {
+            LOG.debug("Loading cacert from custom location:[{}], with type:[{}]", dssTlsTrustStorePath, dssTlsTrustStoreType);
+            cacertTrustStore = loadCacert(dssTlsTrustStorePath, dssTlsTrustStoreType, password);
+        }
+        return cacertTrustStore;
+    }
+
+    private KeyStore loadCacert(String filename, String type, String password) {
+        KeyStore cacertTrustStore;
+        try (FileInputStream is = new FileInputStream(filename)) {
+            cacertTrustStore = KeyStore.getInstance(type);
+            cacertTrustStore.load(is, password.toCharArray());
+            return cacertTrustStore;
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+            LOG.debug("Cacert cannot be loaded from  path:[{}]", filename,e);
+            return null;
+        }
+    }
+
 
     //TODO remove proxy properties and use the one from domibus.
     private ProxyProperties getProxyProperties(final String host,
