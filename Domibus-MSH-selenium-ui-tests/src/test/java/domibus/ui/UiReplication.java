@@ -16,7 +16,10 @@ import java.sql.*;
 import java.util.HashMap;
 import static domibus.ui.BaseTest.messageSender;
 
-public class Edelivery4839 {
+/**
+ * This file is referred for ticket 4839
+ */
+public class UiReplication {
 
     private Connection connection;
     private static ResultSet rs;
