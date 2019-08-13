@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.*;
+import eu.europa.esig.dss.client.crl.OnlineCRLSource;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
@@ -126,6 +127,15 @@ public class DssConfiguration {
     @Value("${domibus.authentication.dss.cache.name}")
     private String cacheName;
 
+    @Value("${domibus.dss.ssl.trust.store.path:NONE}")
+    private String dssTlsTrustStorePath;
+
+    @Value("${domibus.dss.ssl.trust.store.type}")
+    private String dssTlsTrustStoreType;
+
+    @Value("${domibus.dss.ssl.trust.store.password}")
+    private String dssTlsTrustStorePassword;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -166,8 +176,9 @@ public class DssConfiguration {
     @Bean
     public CertificateVerifier certificateVerifier(DomibusDataLoader dataLoader, TrustedListsCertificateSource trustedListSource) {
         CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
-        certificateVerifier.setTrustedCertSource(trustedListSource);
         certificateVerifier.setDataLoader(dataLoader);
+        certificateVerifier.setTrustedCertSource(trustedListSource);
+        certificateVerifier.setCrlSource(new OnlineCRLSource(dataLoader));
 
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
@@ -206,6 +217,12 @@ public class DssConfiguration {
             }
         }
         dataLoader.setProxyConfig(proxyConfig);
+        if (!NONE.equals(dssTlsTrustStorePath)) {
+            LOG.debug("Setting dss tls trust store:[{}]",dssTlsTrustStorePath);
+            dataLoader.setSslTruststorePath(dssTlsTrustStorePath);
+            dataLoader.setSslTruststoreType(dssTlsTrustStoreType);
+            dataLoader.setSslTruststorePassword(dssTlsTrustStorePassword);
+        }
         return dataLoader;
     }
 
