@@ -53,6 +53,9 @@ public class TestRunData {
 		return prop.getProperty("default.password");
 	}
 
+	public String getNewTestPass() {
+		return prop.getProperty("new.password");
+	}
 
 	public HashMap<String, String> getAdminUser() {
 		if (isIsMultiDomain()) {
@@ -98,6 +101,8 @@ public class TestRunData {
 		return System.getenv("runBrowser");
 	}
 
-
+	public Integer getUiReplicationcronTime() {
+		return Integer.valueOf(prop.getProperty("UIReplication_CronTime"));
+	}
 
 }

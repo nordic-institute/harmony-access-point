@@ -192,6 +192,7 @@ public class Pagination extends DComponent {
 				for (String split : splits) {
 					if (split.contains("total")) {
 						String total = split.replaceAll("\\D", "");
+						log.info("Total number of records  "+ Integer.valueOf(total));
 						return Integer.valueOf(total);
 					}
 				}

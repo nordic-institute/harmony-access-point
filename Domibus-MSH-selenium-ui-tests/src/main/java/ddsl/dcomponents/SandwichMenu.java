@@ -30,6 +30,9 @@ public class SandwichMenu extends DComponent {
 	By currentUserID = By.cssSelector("button[role=\"menuitem\"]:nth-of-type(1) span");
 
 	By logoutLnk = By.id("logout_id");
+	By ChangePassLnk =By.cssSelector(".mat-menu-item#changePassword_id");
+	By ChangePassId =By.id("changePassword_id");
+
 
 
 	public String getCurrentUserID() throws Exception{
@@ -83,5 +86,26 @@ public class SandwichMenu extends DComponent {
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 
+	/**This method is implemented to open Change Password page from Sandwich menu*/
+
+	public void OpenchangePassword() throws Exception {
+
+		clickVoidSpace();
+
+		expandMenu();
+		log.info("Opening ChangePasswordPage ...");
+		driver.findElement(ChangePassId).click();
+		//contractMenu();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
+	}
+	/**This method is implemented to check presence of link in Sandwich menu*/
+	public boolean isPresent() throws Exception {
+		expandMenu();
+		String userIDStr = driver.findElement(ChangePassLnk).getText();
+		boolean toReturn = !StringUtils.equalsIgnoreCase(userIDStr, "Change Password");
+		log.info("Availability of Change Password link is : " + toReturn);
+
+		return toReturn;
+	}
 
 }

@@ -34,6 +34,9 @@ public class PModeCurrentPage extends DomibusPage {
 	WebElement uploadBtn;
 	@FindBy(css = "table > tbody > tr > td > button:nth-child(4)")
 	WebElement downloadBtn;
+	@FindBy(css = ".pModeInfo >span")
+	WebElement infoTxt;
+
 
 	public DInput getTextArea() {
 		return new DInput(driver, textArea);
@@ -54,4 +57,15 @@ public class PModeCurrentPage extends DomibusPage {
 	public DButton getDownloadBtn() {
 		return new DButton(driver, downloadBtn);
 	}
+
+
+	public void getPmodeInfoText() {
+		log.info("Check if Pmode is uploaded or not ");
+		wait.forElementToBeVisible(infoTxt);
+		if (!infoTxt.isDisplayed()) {
+			log.info("Pmode is already uploaded");
+		}
+		log.info("Pmode status on pmode current page : " + infoTxt.getText().trim());
+	}
 }
+
