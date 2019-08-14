@@ -4,7 +4,7 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import domibus.BaseUITest;
+import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -23,7 +23,7 @@ import java.util.List;
  */
 
 
-public class UsersPgTest extends BaseUITest {
+public class UsersPgTest extends BaseUXTest {
 
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
 //		login with Admin and go to users page

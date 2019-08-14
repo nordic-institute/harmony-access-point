@@ -4,7 +4,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import domibus.BaseUITest;
+import domibus.BaseUXTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 
 
-public class MessageFilterPgTest extends BaseUITest {
+public class MessageFilterPgTest extends BaseUXTest {
 
 	@BeforeMethod(alwaysRun = true)
 	private void login() throws Exception {

@@ -187,10 +187,13 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
+		log.info("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
-			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.tagName("span")));
+			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.click();
+				wait.forAttributeNotEmpty(gridHeaders.get(i), "class");
+				wait.forAttributeToContain(gridHeaders.get(i), "class", "sort-active");
 				return;
 			}
 		}
@@ -279,7 +282,17 @@ public class DGrid extends DComponent {
 		return values;
 	}
 
-
+	public boolean isColumnSortable(String columnName) throws Exception {
+		List<String> columns = getColumnNames();
+		int index = columns.indexOf(columnName);
+		if(index<0){
+			throw new Exception("Column not visible,. cannot get sortable status");
+		}
+		WebElement header = gridHeaders.get(index);
+		wait.forAttributeNotEmpty(header, "class");
+		String classStr = header.getAttribute("class");
+		return classStr.contains("sortable");
+	}
 
 
 	public void assertControls(SoftAssert soft)throws Exception{
@@ -292,23 +305,22 @@ public class DGrid extends DComponent {
 		checkShowLink(soft);
 		checkHideLink(soft);
 		checkModifyVisibleColumns(soft, chkOptions);
-		checkAllLink(soft, chkOptions);
+		checkAllLink(soft);
 		checkNoneLink(soft);
 		checkChangeNumberOfRows(soft);
 	}
 
-	private void checkShowLink(SoftAssert soft) throws Exception{
+	public void checkShowLink(SoftAssert soft) throws Exception{
 		//-----------Show
 		getGridCtrl().showCtrls();
 		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
-
 	}
-	private void checkHideLink(SoftAssert soft) throws Exception{
+	public void checkHideLink(SoftAssert soft) throws Exception{
 		//-----------Hide
 		getGridCtrl().hideCtrls();
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
-	private void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
+	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
 		//-----------Show - Modify - Hide
 		for (String colName : chkOptions) {
 			getGridCtrl().showCtrls();
@@ -319,16 +331,16 @@ public class DGrid extends DComponent {
 			soft.assertTrue(columnsVsCheckboxes());
 		}
 	}
-	private void checkAllLink(SoftAssert soft, List<String> chkOptions) throws Exception{
+	public void checkAllLink(SoftAssert soft) throws Exception{
 		//-----------All link
 		getGridCtrl().showCtrls();
 		getGridCtrl().getAllLnk().click();
 		getGridCtrl().hideCtrls();
 
 		List<String> visibleColumns = getColumnNames();
-		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, chkOptions), "All the desired columns are visible");
+		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, getGridCtrl().getAllCheckboxLabels()), "All the desired columns are visible");
 	}
-	private void checkNoneLink(SoftAssert soft) throws Exception{
+	public void checkNoneLink(SoftAssert soft) throws Exception{
 		//-----------None link
 		getGridCtrl().showCtrls();
 		getGridCtrl().getNoneLnk().click();
@@ -338,7 +350,7 @@ public class DGrid extends DComponent {
 		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
 
 	}
-	private void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
+	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
 		//----------Rows
 		getGridCtrl().showCtrls();
 		getGridCtrl().getAllLnk().click();

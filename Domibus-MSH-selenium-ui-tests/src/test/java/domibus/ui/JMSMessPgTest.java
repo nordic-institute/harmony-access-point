@@ -3,7 +3,7 @@ package domibus.ui;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import domibus.BaseUITest;
+import domibus.BaseUXTest;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -21,7 +21,7 @@ import java.util.HashMap;
  * @description:
  * @since 4.1
  */
-public class JMSMessPgTest extends BaseUITest {
+public class JMSMessPgTest extends BaseUXTest {
 
 	@Test(description = "JMS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openJMSMessagesPage() throws Exception {

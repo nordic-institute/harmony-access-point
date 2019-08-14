@@ -1,10 +1,8 @@
 package pages.messages;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dobjects.Select;
-import ddsl.dobjects.DButton;
-import ddsl.dobjects.DInput;
-import ddsl.dobjects.DLink;
+import ddsl.dcomponents.FilterArea;
+import ddsl.dobjects.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -16,64 +14,58 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
  * @description:
  * @since 4.1
  */
-public class SearchFilters extends DComponent {
-	public SearchFilters(WebDriver driver) {
+public class MessageFilters extends FilterArea {
+	public MessageFilters(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements( new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-
-	@FindBy(id = "advancedlink_id")
-	WebElement advancedSearchExpandLnk;
-
-	@FindBy(id = "searchbutton_id")
-	WebElement searchButton;
-
+//	-------------------- Basic filters ---------------------------
 	@FindBy(id = "messageid_id")
-	WebElement messageIDInput;
-
-	@FindBy(id = "frompartyid_id")
-	WebElement fromPartyInput;
-
-	@FindBy(id = "topartyid_id")
-	WebElement toPartyInput;
+	public WebElement messageIDInput;
 
 	@FindBy(id = "messagestatus_id")
-	WebElement messageStatusContainer;
+	public WebElement messageStatusContainer;
 
-	@FindBy(id = "basiclink_id")
-	WebElement basicSearchLnk;
+	@FindBy(id = "frompartyid_id")
+	public WebElement fromPartyInput;
+
+	@FindBy(id = "topartyid_id")
+	public WebElement toPartyInput;
+
+//	-------------------- Advanced filters ---------------------------
 
 
 	@FindBy(id = "conversationid_id")
-	WebElement conversationIDInput;
-
-	@FindBy(id = "referencemessageid_id")
-	WebElement referenceMessageIDInput;
-
-	@FindBy(id = "originalsender_id")
-	WebElement originalSenderInput;
-
-	@FindBy(id = "finalrecipient_id")
-	WebElement finalRecipientInput;
+	public WebElement conversationIDInput;
 
 	@FindBy(id = "aprole_id")
-	WebElement apRoleContainer;
+	public WebElement apRoleContainer;
 
 	@FindBy(id = "messagetype_id")
-	WebElement messageTypeContainer;
+	public WebElement messageTypeContainer;
 
 	@FindBy(id = "notificationstatus_id")
-	WebElement notificationStatusContainer;
+	public WebElement notificationStatusContainer;
 
+	@FindBy(id = "referencemessageid_id")
+	public WebElement referenceMessageIDInput;
 
-	public DLink getAdvancedSearchExpandLnk() {
-		return new DLink(driver, advancedSearchExpandLnk);
-	}
+	@FindBy(id = "originalsender_id")
+	public WebElement originalSenderInput;
 
-	public DButton getSearchButton() {
-		return new DButton(driver, searchButton);
-	}
+	@FindBy(id = "finalrecipient_id")
+	public WebElement finalRecipientInput;
+
+	@FindBy(id = "receivedfrom_id")
+	public WebElement receivedFromContainer;
+
+	@FindBy(id = "receivedto_id")
+	public WebElement receivedToContainer;
+
+	@FindBy(id = "showTestMessages_id")
+	public WebElement showTestMessagesChk;
+
 
 	public DInput getMessageIDInput() {
 		return new DInput(driver, messageIDInput);
@@ -89,10 +81,6 @@ public class SearchFilters extends DComponent {
 
 	public Select getMessageStatus() {
 		return new Select(driver, messageStatusContainer);
-	}
-
-	public DLink getBasicSearchLnk() {
-		return new DLink(driver, basicSearchLnk);
 	}
 
 	public DInput getConversationIDInput() {
@@ -149,4 +137,7 @@ public class SearchFilters extends DComponent {
 		);
 	}
 
+	public DatePicker getReceivedTo() {
+		return weToDatePicker(receivedToContainer);
+	}
 }

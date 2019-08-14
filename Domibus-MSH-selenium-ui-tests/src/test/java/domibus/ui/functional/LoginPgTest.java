@@ -4,7 +4,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
-import domibus.BaseUITest;
+import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -20,96 +20,98 @@ import java.util.HashMap;
  */
 
 
-public class LoginPgTest extends BaseUITest {
+public class LoginPgTest extends BaseUXTest {
+
+
+	private void checkUserLogin(String role, SoftAssert soft) throws Exception {
+		String username = Generator.randomAlphaNumeric(10);
+		rest.createUser(username, role, data.getDefaultTestPass(), null);
+		log.info(String.format("Created user %s with role %s", username, role));
+
+		log.info(String.format("Loging in %s with role %s", username, role));
+		login(username, data.getDefaultTestPass());
+
+		DomibusPage page = new DomibusPage(driver);
+		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
+
+		log.info("Logout");
+		page.getSandwichMenu().logout();
+
+		rest.deleteUser(username, null);
+	}
 
 	/**Checks whether login as system admin works*/
-	@Test(description = "LGN-1", groups = {"multiTenancy"})
-	public void loginSuccessfulSuperAdminTest() throws Exception {
+	@Test(description = "LGN-1", groups = {"multiTenancy", "singleTenancy"})
+	public void validLogin() throws Exception {
+		log.info("Testing valid login with every type of user");
 		SoftAssert soft = new SoftAssert();
 
-		LoginPage loginPage = new LoginPage(driver);
-		soft.assertTrue(loginPage.isLoaded());
+		if(data.isIsMultiDomain()){
+			checkUserLogin(DRoles.SUPER, soft);
+		}
+		checkUserLogin(DRoles.ADMIN, soft);
+		checkUserLogin(DRoles.USER, soft);
 
-		loginPage.login(data.getAdminUser());
-
-		DomibusPage page = new DomibusPage(driver);
-		page.clickVoidSpace();
-
-		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
-
-		page.getSandwichMenu().logout();
 		soft.assertAll();
 	}
 
-
-	/**Checks whether login as admin works*/
+	/**Login using invalid username*/
 	@Test(description = "LGN-2", groups = {"multiTenancy", "singleTenancy"})
-	public void loginSuccessfulAdminTest() throws Exception {
+	public void invalidUsername() throws Exception {
+		log.info("Testing login using invalid username");
 		SoftAssert soft = new SoftAssert();
 
-		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
-
-		LoginPage loginPage = new LoginPage(driver);
-
-		soft.assertTrue(loginPage.isLoaded());
-		loginPage.login(username, data.getDefaultTestPass());
-
-		DomibusPage page = new DomibusPage(driver);
-		page.clickVoidSpace();
-
-		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
-
-		rest.deleteUser(username, null);
-		soft.assertAll();
-	}
-
-	/**Checks whether login as simple user works*/
-	@Test(description = "LGN-3", groups = {"multiTenancy", "singleTenancy"})
-	public void loginSuccessfulUserTest() throws Exception {
-		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
-		LoginPage loginPage = new LoginPage(driver);
+		LoginPage page = new LoginPage(driver);
 
-		soft.assertTrue(loginPage.isLoaded());
-		loginPage.login(username, data.getDefaultTestPass());
+		page.login("invalidUserTest", data.getDefaultTestPass());
 
-		DomibusPage page = new DomibusPage(driver);
-		page.clickVoidSpace();
+		soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
+		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 
-		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
 		rest.deleteUser(username, null);
 		soft.assertAll();
 	}
 
-	/**Checks whether login doesn't work with a invalid user and proper error message appears*/
-	@Test(description = "LGN-4", groups = {"multiTenancy", "singleTenancy"})
-	public void loginWithErrorTest() throws Exception {
+	/**Login using invalid password but valid username*/
+	@Test(description = "LGN-3", groups = {"multiTenancy", "singleTenancy"})
+	public void invalidPassword() throws Exception {
+		log.info("Testing login using invalid password");
 		SoftAssert soft = new SoftAssert();
-		LoginPage loginPage = new LoginPage(driver);
 
-		soft.assertTrue(loginPage.isLoaded());
+		String username = Generator.randomAlphaNumeric(10);
+		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
-		loginPage.login("invalidTest", "invalidTest");
+		LoginPage page = new LoginPage(driver);
 
-		soft.assertFalse(loginPage.getSandwichMenu().isLoggedIn(), "User not logged in");
-		soft.assertTrue(loginPage.isLoaded(), "User is still on Login page");
+		page.login(username, "invalidPassword");
 
-		soft.assertTrue(loginPage.getAlertArea().isError(), "Error message is displayed");
-		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
+		soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
+		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 
+		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
+
+		rest.deleteUser(username, null);
 		soft.assertAll();
 	}
 
-	/**Checks whether repeated unsuccessful attempts to login block the account*/
-	@Test(description = "LGN-5", groups = {"multiTenancy", "singleTenancy"})
+	/**Try to login with valid username and invalid password more than 5 times*/
+	@Test(description = "LGN-4", groups = {"multiTenancy", "singleTenancy"})
 	public void blockUserAccountTest() throws Exception {
+		log.info("Try to login with valid username and nvalid password more than 5 times");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
+		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
+
 
 		LoginPage page = new LoginPage(driver);
 
@@ -143,6 +145,40 @@ public class LoginPgTest extends BaseUITest {
 		page.login(username, data.getDefaultTestPass());
 		soft.assertTrue(new DomibusPage(driver).getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
+		rest.deleteUser(username, null);
+		soft.assertAll();
+	}
+
+	/**Admin unlocks account and user tries to login with valid username and password*/
+	@Test(description = "LGN-5", groups = {"multiTenancy", "singleTenancy"})
+	public void unblockedAccountCanLogin() throws Exception {
+		log.info("Admin unlocks account and user tries to login with valid username and password");
+		SoftAssert soft = new SoftAssert();
+		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
+		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
+
+
+		LoginPage page = new LoginPage(driver);
+
+		for (int i = 0; i < 5; i++) {
+			page.login(username, "password So Wrong");
+		}
+
+		page.login(username, data.getDefaultTestPass());
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
+
+		HashMap<String, String> toUpdate = new HashMap<>();
+		toUpdate.put("active", "true");
+		rest.updateUser(username, toUpdate);
+
+//		wait required because the unlock is done trough REST API
+		page.wait.forXMillis(500);
+
+		page.login(username, data.getDefaultTestPass());
+		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
+
+		rest.deleteUser(username, null);
 		soft.assertAll();
 	}
 

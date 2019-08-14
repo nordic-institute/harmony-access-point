@@ -148,6 +148,7 @@ public class ExcelTestReporter implements ITestListener {
 	private void writeRowToReportFile(ITestResult iTestResult, String result) throws Exception {
 
 		String qualifiedName = iTestResult.getMethod().getQualifiedName();
+
 		String testType = "";
 		if (qualifiedName.contains(".ui.")) {
 			testType = "UI";

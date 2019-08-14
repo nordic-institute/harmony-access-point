@@ -5,7 +5,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import domibus.BaseUITest;
+import domibus.BaseUXTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 
 
-public class PluginUsersPgTest extends BaseUITest {
+public class PluginUsersPgTest extends BaseUXTest {
 
 	@Test(description = "PU-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {

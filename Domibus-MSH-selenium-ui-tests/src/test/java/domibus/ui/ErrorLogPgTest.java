@@ -3,7 +3,7 @@ package domibus.ui;
 		import ddsl.dcomponents.grid.DGrid;
 		import ddsl.dcomponents.grid.Pagination;
 		import ddsl.enums.PAGES;
-		import domibus.BaseUITest;
+		import domibus.BaseUXTest;
 		import org.testng.SkipException;
 		import org.testng.annotations.Test;
 		import org.testng.asserts.SoftAssert;
@@ -19,7 +19,7 @@ package domibus.ui;
  */
 
 
-public class ErrorLogPgTest extends BaseUITest {
+public class ErrorLogPgTest extends BaseUXTest {
 
 
 	@Test(description = "ERR-1", groups = {"multiTenancy", "singleTenancy"})

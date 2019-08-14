@@ -151,7 +151,9 @@ public class Pagination extends DComponent {
 		log.info("skip to FIRST page of results");
 
 		try {
-			getSkipFirstLnk().click();
+			weToDLink(pgLinks.get(0)).click();
+//			getSkipFirstLnk().click();
+			wait.forAttributeToContain(pgLinks.get(0), "class", "active");
 		} catch (Exception e) {
 		}
 		PageFactory.initElements(driver, this);

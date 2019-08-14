@@ -1,17 +1,17 @@
-package domibus.ui;
+package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
-import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import domibus.BaseUITest;
+import ddsl.enums.PAGES;
+import domibus.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
-import pages.messages.SearchFilters;
+import pages.messages.MessageFilters;
 import rest.RestServicePaths;
 import utils.Generator;
 import utils.soap_client.MessageConstants;
@@ -36,75 +36,9 @@ import java.util.zip.ZipInputStream;
  * @description:
  * @since 4.1
  */
-public class MessagesPgTest extends BaseUITest {
+public class MessagesFunctionalTest extends BaseTest {
 
 	List<String> columnList = Arrays.asList("Message Id", "From Party Id", "To Party Id", "Message Status", "Notification Status", "Received", "AP Role", "Send Attempts", "Send Attempts Max", "Next Attempt", "Conversation Id", "Message Type", "Message Subtype", "Deleted", "Original Sender", "Final Recipient", "Ref To Message Id", "Failed", "Restored", "Actions");
-
-	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
-	public void openMessagesPage() throws Exception{
-		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
-
-		soft.assertTrue(page.isLoaded(), "Page elements are loaded");
-		soft.assertTrue(page.getFilters().basicFiltersLoaded(), "Basic filters are present");
-		soft.assertTrue(!page.getFilters().advancedFiltersLoaded(), "Advanced filters are NOT present");
-		soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download button is not enabled");
-		soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is not enabled");
-
-		soft.assertAll();
-	}
-
-	@Test(description = "MSG-2", groups = {"multiTenancy", "singleTenancy"})
-	public void messageRowSelect() throws Exception{
-		SoftAssert soft = new SoftAssert();
-
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
-
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
-
-
-		page.refreshPage();
-		page.grid().scrollToAndSelect("Message Id", messID);
-
-		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
-
-		rest.deletePluginUser(user, null);
-		soft.assertAll();
-	}
-
-	@Test(description = "MSG-2.1", groups = {"multiTenancy", "singleTenancy"})
-	public void selectAnotherRow() throws Exception{
-		SoftAssert soft = new SoftAssert();
-
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID1 = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
-		String messID2 = messageSender.sendMessage(user, data.getDefaultTestPass(),null, null);
-
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
-		DGrid grid = page.grid();
-
-		int index1 = grid.scrollTo("Message Id", messID1);
-		int index2 = grid.scrollTo("Message Id", messID2);
-
-		grid.selectRow(index1);
-		grid.selectRow(index2);
-
-		int selectedRow = grid.getSelectedRowIndex();
-		soft.assertEquals(index2, selectedRow, "Selected row index is correct");
-
-
-
-		rest.deletePluginUser(user, null);
-		soft.assertAll();
-	}
 
 	@Test(description = "MSG-3", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickMessageRow() throws Exception{
@@ -154,7 +88,7 @@ public class MessagesPgTest extends BaseUITest {
 		List<HashMap<String, String>> allRowInfo = grid.getAllRowInfo();
 
 		page.getFilters().getMessageIDInput().fill(messageIDs.get(0));
-		page.getFilters().getSearchButton().click();
+//		page.getFilters().
 		page.grid().waitForRowsToLoad();
 
 		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
@@ -167,21 +101,6 @@ public class MessagesPgTest extends BaseUITest {
 		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
-
-	@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"})
-	public void openAdvancedMessageFilters() throws Exception{
-		SoftAssert soft = new SoftAssert();
-
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
-
-		page.getFilters().getAdvancedSearchExpandLnk().click();
-
-		soft.assertTrue(page.getFilters().advancedFiltersLoaded(), "Advanced filters ");
-
-		soft.assertAll();
-	}
-
 
 	@Test(description = "MSG-6", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesAdvancedFilters() throws Exception{
@@ -202,9 +121,9 @@ public class MessagesPgTest extends BaseUITest {
 
 		DGrid grid = page.grid();
 
-		SearchFilters filters = page.getFilters();
+		MessageFilters filters = page.getFilters();
 
-		filters.getAdvancedSearchExpandLnk().click();
+//		filters.getAdvancedSearchExpandLnk().click();
 		filters.getFromPartyInput().fill(MessageConstants.From_Party_Id);
 		filters.getToPartyInput().fill(MessageConstants.To_Party_Id);
 		filters.getFinalRecipientInput().fill(MessageConstants.Final_Recipient);
@@ -213,7 +132,7 @@ public class MessagesPgTest extends BaseUITest {
 		filters.getReferenceMessageIDInput().fill(messageRefID);
 		filters.getApRoleSelect().selectOptionByText(MessageConstants.AP_Role);
 
-		filters.getSearchButton().click();
+//		filters.getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 
 		for (int i = 0; i < page.grid().getRowsNo(); i++) {
@@ -248,7 +167,7 @@ public class MessagesPgTest extends BaseUITest {
 		int allRows = page.grid().getPagination().getTotalItems();
 
 		page.getFilters().getMessageIDInput().fill("testEmptyGrid");
-		page.getFilters().getSearchButton().click();
+//		page.getFilters().getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
@@ -463,16 +382,6 @@ public class MessagesPgTest extends BaseUITest {
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-13", groups = {"multiTenancy", "singleTenancy"})
-	public void gridSelfAssert() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
-
-		page.grid().assertControls(soft);
-
-		soft.assertAll();
-	}
 
 
 
