@@ -25,8 +25,7 @@ public class BlacklistChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_USER_INPUT_BLACK_LIST)
-                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_USER_INPUT_WHITE_LIST);
+        return StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_USER_INPUT_BLACK_LIST, DOMIBUS_USER_INPUT_WHITE_LIST);
     }
 
     @Override

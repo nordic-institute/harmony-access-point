@@ -27,11 +27,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.MessageEvent.MESSAGE_ID;
 import static eu.domibus.core.alerts.model.common.MessageEvent.OLD_STATUS;
 import static eu.domibus.core.alerts.service.AlertServiceImpl.*;
-import static eu.domibus.core.alerts.service.MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-import static eu.domibus.core.alerts.service.MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_RETRY_TIME;
 import static org.junit.Assert.*;
 
 /**

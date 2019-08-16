@@ -48,6 +48,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
     public static final String LINE_COMMENT_PREFIX = "#";
     public static final String PROPERTY_VALUE_DELIMITER = "=";
+    protected static final String BACKUP_EXT = ".backup-";
 
     @Autowired
     protected DomainService domainService;
@@ -300,7 +301,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected File getConfigurationFileBackup(File configurationFile) {
-        return new File(configurationFile.getParent(), configurationFile.getName() + ".backup-" + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER));
+        return new File(configurationFile.getParent(), configurationFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER));
     }
 
 
