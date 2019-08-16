@@ -54,7 +54,6 @@ public class PasswordEncryptionServiceImplTest {
     @Injectable
     protected DateUtil dateUtil;
 
-
     @Injectable
     protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
 
@@ -388,7 +387,7 @@ public class PasswordEncryptionServiceImplTest {
 
         File configurationFile = new File(parentDirectory, configurationFileName);
         final File configurationFileBackup = passwordEncryptionService.getConfigurationFileBackup(configurationFile);
-        assertEquals(configurationFileName + ".backup-" + timePart, configurationFileBackup.getName());
+        assertEquals(configurationFileName + PasswordEncryptionServiceImpl.BACKUP_EXT + timePart, configurationFileBackup.getName());
         assertEquals(parentDirectory, configurationFileBackup.getParent());
     }
 
