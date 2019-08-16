@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto;
 
+import com.mchange.io.FileUtils;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -157,5 +159,20 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
         // Then
         Assert.assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
+    }
+
+    @Test
+    public void testBackupTruststore() throws IOException {
+        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+        String TEST_KEYSTORE = "testkeystore.jks";
+        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+
+        String backupname = domainCryptoService.backupTrustStore(testFile);
+
+        File backupFile = new File(backupname);
+
+        Assert.assertEquals(FileUtils.getContentsAsString(testFile), FileUtils.getContentsAsString(backupFile));
+        boolean deleted = backupFile.delete();
+        Assert.assertTrue(deleted);
     }
 }
