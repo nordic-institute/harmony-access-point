@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -16,10 +18,10 @@ public enum AlertType {
     USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl"),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
-    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", "domibus.alert.password.imminent_expiration", "Password imminent expiration"),
-    PASSWORD_EXPIRED("password_expired.ftl", "domibus.alert.password.expired", "Password expired"),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", "domibus.alert.plugin_password.imminent_expiration", "Plugin password imminent expiration"),
-    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", "domibus.alert.plugin_password.expired", "Plugin password expired");
+    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Password imminent expiration"),
+    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, "Password expired"),
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Plugin password imminent expiration"),
+    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired");
 
 
     private final String template;

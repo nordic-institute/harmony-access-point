@@ -13,7 +13,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.core.alerts.service.MultiDomainAlertConfigurationServiceImpl.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 import static org.junit.Assert.*;
 
 /**
@@ -234,7 +235,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             this.result = true;
         }};
         assertEquals(true, configurationService.isAlertModuleEnabled());
@@ -247,7 +248,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -272,7 +273,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -297,7 +298,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -317,7 +318,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             this.result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = false;
@@ -333,7 +334,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             this.result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -353,7 +354,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             this.result = false;
         }};
         final AccountDisabledModuleConfiguration accountDisabledConfiguration = configurationService.new ConsoleAccountDisabledConfigurationReader().readConfiguration(domain);
@@ -368,7 +369,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_ACTIVE);
             result = true;
@@ -396,15 +397,15 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
-            domibusPropertyProvider.getBooleanDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.active");
+            domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_ACTIVE);
             result = true;
-            domibusPropertyProvider.getDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.level");
+            domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_LEVEL);
             result = "HIGH";
-            domibusPropertyProvider.getDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.moment");
+            domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT);
             result = "AT_LOGON";
-            domibusPropertyProvider.getDomainProperty(domain, "domibus.alert.plugin.user.account_disabled.subject");
+            domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT);
             this.result = mailSubject;
         }};
         final AccountDisabledModuleConfiguration accountDisabledConfiguration = configurationService.new
@@ -425,7 +426,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_ACTIVE);
             result = true;
@@ -443,7 +444,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             {
                 domainContextProvider.getCurrentDomainSafely();
                 result = DomainService.DEFAULT_DOMAIN;
-                domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+                domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
                 result = false;
                 domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE);
                 result = true;
@@ -460,7 +461,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             {
                 domainContextProvider.getCurrentDomainSafely();
                 result = DomainService.DEFAULT_DOMAIN;
-                domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+                domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
                 domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE);
                 result = false;
@@ -479,7 +480,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             {
                 domainContextProvider.getCurrentDomainSafely();
                 result = DomainService.DEFAULT_DOMAIN;
-                domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+                domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
                 domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE);
                 result = true;
@@ -504,7 +505,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             {
                 domainContextProvider.getCurrentDomainSafely();
                 result = DomainService.DEFAULT_DOMAIN;
-                domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+                domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
                 domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE);
                 result = true;
@@ -522,7 +523,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = false;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE);
             result = true;
@@ -537,7 +538,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE);
             result = false;
@@ -554,7 +555,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE);
             result = true;
@@ -584,7 +585,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = false;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_CERT_EXPIRED_ACTIVE);
             result = true;
@@ -599,7 +600,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_CERT_EXPIRED_ACTIVE);
             result = false;
@@ -615,7 +616,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_ACTIVE);
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             domibusPropertyProvider.getBooleanDomainProperty(domain, DOMIBUS_ALERT_CERT_EXPIRED_ACTIVE);
             result = true;
@@ -650,7 +651,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
                 domainContextProvider.getCurrentDomainSafely();
                 result = DomainService.DEFAULT_DOMAIN;
 
-                domibusPropertyProvider.getBooleanDomainProperty(DomainService.DEFAULT_DOMAIN, "domibus.alert.active");
+                domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
 
                 domibusPropertyProvider.getDomainProperty(domain, property + ".active");

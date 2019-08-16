@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 import static eu.domibus.core.alerts.MailSender.*;
 
 /**
@@ -71,8 +72,8 @@ public class MailSenderTest {
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PASSWORD);
             result = password;
             multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
-            result = "domibus.alert.mail.sending.active";
-            domibusPropertyProvider.getBooleanDomainProperty("domibus.alert.mail.sending.active");
+            result = DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = true;
             javaMailSender.getJavaMailProperties();
             result = javaMailProperties;

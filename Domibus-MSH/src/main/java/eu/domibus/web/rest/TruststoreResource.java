@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
+
+    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty.";
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
@@ -68,6 +71,9 @@ public class TruststoreResource extends BaseResource {
                                                        @RequestParam("password") String password) throws IOException {
         if (truststore.isEmpty()) {
             return ResponseEntity.badRequest().body("Failed to upload the truststore file since it was empty.");
+        }
+        if (StringUtils.isBlank(password)) {
+            return ResponseEntity.badRequest().body(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
         multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststore.getOriginalFilename(), truststore.getBytes(), password);
