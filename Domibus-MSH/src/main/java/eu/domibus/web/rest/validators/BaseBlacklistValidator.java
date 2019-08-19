@@ -13,10 +13,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_BLACK_LIST;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_WHITE_LIST;
@@ -123,36 +120,39 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     }
 
     protected boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation) {
-        LOG.debug("Validating value [{}] in whitelist", value);
+        LOG.trace("Validating value [{}] in whitelist", value);
         if (whitelist == null) {
-            LOG.debug("Whitelist is empty, exiting");
+            LOG.trace("Whitelist is empty, exiting");
             return true;
         }
         if (Strings.isNullOrEmpty(value)) {
-            LOG.debug("Value is empty, exiting");
+            LOG.trace("Value is empty, exiting");
             return true;
         }
 
-        boolean res;
-        if (customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
-            res = value.matches(whitelist)
-                    || value.chars().mapToObj(c -> (char) c).map(c -> c.toString())
-                    .allMatch(el -> el.matches(whitelist) || customAnnotation.permitted().contains(el));
-        } else {
-            res = value.matches(whitelist);
+        boolean valid = value.matches(whitelist);
+        if (!valid && customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
+            Optional<Character> forbiddenChar = value.chars().mapToObj(c -> (char) c).map(c -> c.toString())
+                    .filter(el -> !el.matches(whitelist) && !customAnnotation.permitted().contains(el))
+                    .map(s -> s.charAt(0))
+                    .findFirst();
+            valid = !forbiddenChar.isPresent();
+            if (!valid) {
+                LOG.debug("Forbidden char: [{}]", forbiddenChar.get());
+            }
         }
-        LOG.debug("Validated value [{}] for whitelist and the outcome is [{}]", value, res);
-        return res;
+        LOG.trace("Validated value [{}] for whitelist and the outcome is [{}]", value, valid);
+        return valid;
     }
 
     protected boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {
-        LOG.debug("Validating value [{}] in blacklist", value);
+        LOG.trace("Validating value [{}] in blacklist", value);
         if (blacklist == null) {
-            LOG.debug("Blacklist is empty, exiting");
+            LOG.trace("Blacklist is empty, exiting");
             return true;
         }
         if (Strings.isNullOrEmpty(value)) {
-            LOG.debug("Value is empty, exiting");
+            LOG.trace("Value is empty, exiting");
             return true;
         }
 
@@ -163,7 +163,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         } else {
             res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el));
         }
-        LOG.debug("Validated value [{}] for blacklist and the outcome is [{}]", value, res);
+        LOG.trace("Validated value [{}] for blacklist and the outcome is [{}]", value, res);
         return res;
     }
 

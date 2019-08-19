@@ -21,7 +21,7 @@ public class PartyResponseRo {
 
     protected String userName;
 
-    @CustomWhiteListed(permitted = ":/")
+    @CustomWhiteListed(permitted = ":/=?&")
     protected String endpoint;
 
     private String joinedIdentifiers;
@@ -33,6 +33,7 @@ public class PartyResponseRo {
 
     private List<ProcessRo> processesWithPartyAsResponder = new ArrayList<>();
 
+    @CustomWhiteListed(permitted = "/+-=\n ") // base64 characters
     protected String certificateContent;
 
     public Set<IdentifierRo> getIdentifiers() {
