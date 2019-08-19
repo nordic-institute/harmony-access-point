@@ -16,6 +16,6 @@
   limitations under the License.
 -->
 <!-- Use the same value for context path and session cookie path -->
-<Context patch="/domibus" sessionCookiePath="/domibus">
+<Context patch="/domibus" sessionCookiePath="/">
 
 </Context>

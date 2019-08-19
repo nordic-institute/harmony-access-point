@@ -1,0 +1,74 @@
+<page-header id="propertiesheader_id">Properties</page-header>
+
+<div class="selectionCriteria">
+  <md-card>
+    <md-card-content>
+      <div class="panel">
+        <form name="filterForm" #filterForm="ngForm">
+
+          <div>
+            <md-input-container>
+              <input mdInput placeholder="Property Name..." name="filterPropertyName" [(ngModel)]="filter.propertyName" #filterPropertyName="ngModel" id="filterPropertyName_id" (ngModelChange)="onPropertyNameChanged()">
+            </md-input-container>
+          </div>
+
+        </form>
+      </div>
+    </md-card-content>
+  </md-card>
+</div>
+<div>
+  <md-card>
+    <md-card-content>
+
+      <div class="panel">
+        <div class="group-filter-button">
+    <span class="row-button">
+      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
+                       (onPageSizeChanged)="onChangePageSize($event.value)"></app-row-limiter>
+    </span>
+        </div>
+
+        <ngx-datatable
+          id="propertiesTable"
+          class="material striped"
+          [rows]="rows"
+          [columnMode]="'force'"
+          [columns]="columns"
+          [headerHeight]="50"
+          [footerHeight]="50"
+          [rowHeight]="'auto'"
+          [scrollbarH]="true"
+          [externalPaging]="true"
+          [externalSorting]="true"
+          [loadingIndicator]="loading"
+          [count]="count"
+          [offset]="offset"
+          [limit]="rowLimiter.pageSize"
+          (page)="onPage($event)"
+        >
+        </ngx-datatable>
+
+        <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+
+          <div class="input-group property-edit">
+            <input mdInput type="text" autocomplete="off" class="form-control property-value"
+                   [(ngModel)]="row.value"
+                   (focus)="onPropertyValueFocus(row)"
+                   (blur)="onPropertyValueBlur(row)"
+                   (keydown.enter)="updateProperty(row)"
+                   (keydown.escape)="revertProperty(row)">
+
+            <span class="property-edit-buttons input-group-addon">
+              <button md-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)"><md-icon md-tooltip="Save" mdTooltipPosition="above">save</md-icon></button>
+              <button md-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)"><md-icon md-tooltip="Undo" mdTooltipPosition="above">undo</md-icon></button>
+            </span>
+
+          </div>
+
+        </ng-template>
+      </div>
+
+    </md-card-content>
+  </md-card>
+</div>

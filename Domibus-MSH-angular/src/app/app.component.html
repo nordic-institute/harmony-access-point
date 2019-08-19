@@ -76,7 +76,11 @@
       <md-icon md-tooltip="Logging" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">list_alt</md-icon>
       <span *ngIf="fullMenu">Logging</span>
     </button>
-
+    <button md-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
+      <md-icon md-tooltip="Properties" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">settings
+      </md-icon>
+      <span>Properties</span>
+    </button>
     <div class="collapse-button">
       <button *ngIf="fullMenu" md-raised-button id="expand_id" (click)="toggleMenu()">
         <md-icon md-tooltip="Collapse" mdTooltipPosition="right">chevron_left</md-icon>
