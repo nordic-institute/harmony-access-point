@@ -1,40 +1,39 @@
 version: '2'
 services:
   ##
-  ## Corner 2 - Domibus Tomcat MySQL Blue Configuration
-  # Multitenancy
+  ## Corner 3 - Domibus Tomcat MySQL Red Configuration
   ##
-  mysqlc2:
-    image: domibustest/domibus-multi-mysql:4.1.1-SNAPSHOT
+  mysqlc3:
+    image: domibustest/domibus-mysql:4.1-snapshot
     environment:
       - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=domibus
       - MYSQL_USER=edelivery
       - MYSQL_PASSWORD=edelivery
+    volumes:
+      - my-datavolume-tomcat-c3:/var/lib/mysql
     expose:
       - "3306"
     ports:
       - "3588:3306"
-  ##
-  ## Corner 2 - Domibus Wildfly MySQL Blue Configuration
-  ##
-  wildflyc2:
-    image: domibustest/domibus-wildfly:4.1.1-SNAPSHOT
+  tomcatc3:
+    image: domibustest/domibus-tomcat:4.1-snapshot
     environment:
       - DB_TYPE=MySQL
-      - DB_HOST=mysqlc2
+      - DB_HOST=mysqlc3
       - DB_PORT=3306
       - DB_USER=edelivery
       - DB_PASS=edelivery
+      - CERT_ALIAS=red_gw
       - CHECK_DEFAULT_PASSWD=false
-      - DB_NAME=domibus_general
-      - MULTITENANCY=true
     ports:
-      - "9087:9990"
       - "9088:8080"
       - "6488:6400"
     volumes:
-      - ./logs:/data/wildfly/logs
-      - ./conf/:/data/wildfly/conf/domibus
-    command: dockerize -wait tcp://mysqlc2:3306
+      - ./conf/domibus:/data/tomcat/conf/domibus
+      - ./logs:/data/tomcat/logs
+    command: dockerize -wait tcp://mysqlc3:3306 -timeout 20s
     depends_on:
-      - mysqlc2
+      - mysqlc3
+volumes:
+  my-datavolume-tomcat-c3:
