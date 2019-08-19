@@ -112,6 +112,9 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
         return suspensionInterval;
     }
 
+    @Override
+    protected UserEntityBase.Type getUserType() { return UserEntityBase.Type.CONSOLE; }
+
     private Domain getCurrentOrDefaultDomainForUser(User user) {
         String domainCode;
         boolean isSuperAdmin = user.isSuperAdmin();

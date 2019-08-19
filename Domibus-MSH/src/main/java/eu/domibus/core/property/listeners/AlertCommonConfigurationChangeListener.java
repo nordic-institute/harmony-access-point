@@ -1,9 +1,6 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.alerts.model.service.CommonConfiguration;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 public class AlertCommonConfigurationChangeListener implements PluginPropertyChangeListener {
 
     @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    private ConfigurationLoader<CommonConfiguration> commonConfigurationConfigurationLoader;
+    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -39,9 +33,7 @@ public class AlertCommonConfigurationChangeListener implements PluginPropertyCha
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        final Domain domain = domainService.getDomain(domainCode);
-
-        commonConfigurationConfigurationLoader.resetConfiguration(domain);
+        multiDomainAlertConfigurationService.clearCommonConfiguration();
     }
 
 }
