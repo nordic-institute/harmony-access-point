@@ -1,39 +1,28 @@
-version: '2'
+version: '3.2'
 services:
   ##
-  ## Corner 3 - Domibus Tomcat MySQL Red Configuration
+  ## Corner 2 - Domibus Tomcat MySQL Red Configuration
   ##
-  mysqlc3:
-    image: domibustest/domibus-mysql:4.1-SNAPSHOT
+  mysqlc2:
+    image: domibustest/domibus-mysql:4.1.1-SNAPSHOT
     environment:
       - MYSQL_ROOT_PASSWORD=123456
       - MYSQL_DATABASE=domibus
       - MYSQL_USER=edelivery
       - MYSQL_PASSWORD=edelivery
-    volumes:
-      - my-datavolume-tomcat-c3:/var/lib/mysql
-    expose:
-      - "3306"
-    ports:
-      - "3588:3306"
-  tomcatc3:
-    image: domibustest/domibus-tomcat:4.1-SNAPSHOT
+  tomcatc2:
+    image: domibustest/domibus-tomcat:4.1.1-SNAPSHOT
     environment:
       - DB_TYPE=MySQL
-      - DB_HOST=mysqlc3
+      - DB_HOST=mysqlc2
       - DB_PORT=3306
       - DB_USER=edelivery
       - DB_PASS=edelivery
-      - CERT_ALIAS=red_gw
       - CHECK_DEFAULT_PASSWD=false
     ports:
       - "9088:8080"
-      - "6488:6400"
     volumes:
-      - ./conf:/data/tomcat/conf/domibus
-#      - ./logs:/data/tomcat/logs
-    command: dockerize -wait tcp://mysqlc3:3306 -timeout 20s
+      - ./c2/conf/domibus/policies:/data/tomcat/conf/domibus/policies
+    command: dockerize -wait tcp://mysqlc2:3306 -timeout 20s
     depends_on:
-      - mysqlc3
-volumes:
-  my-datavolume-tomcat-c3:
+      - mysqlc2
