@@ -30,7 +30,7 @@ services:
       - "9088:8080"
       - "6488:6400"
     volumes:
-      - ./conf/domibus:/data/tomcat/conf/domibus
+      - ./conf:/data/tomcat/conf/domibus
       - ./logs:/data/tomcat/logs
     command: dockerize -wait tcp://mysqlc3:3306 -timeout 20s
     depends_on:
