@@ -80,6 +80,8 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract int getSuspensionInterval();
 
+    protected abstract UserEntityBase.Type getUserType();
+
     // public interface
     public void validateComplexity(final String userName, final String password) throws DomibusCoreException {
 
@@ -276,6 +278,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
         //user will not be reactivated.
         if (suspensionInterval <= 0) {
+            LOG.trace("Suspended [{}] are not reactivated", getUserType().getName());
             return;
         }
 

@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
@@ -17,15 +18,24 @@ public interface MultiDomainAlertConfigurationService {
      */
     MessagingModuleConfiguration getMessageCommunicationConfiguration();
 
+    void clearMessageCommunicationConfiguration();
+
     /**
      * @return account disabled module configuration
      */
     AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
 
+    void clearAccountDisabledConfiguration();
+
     /**
      * @return login failure module configuration
      */
     LoginFailureModuleConfiguration getLoginFailureConfiguration();
+
+    /**
+     * Clear login failure module configuration
+     */
+    void clearLoginFailureConfiguration();
 
     /**
      * @return certificate imminent expiration module configuration
@@ -83,19 +93,16 @@ public interface MultiDomainAlertConfigurationService {
     String getSendEmailActivePropertyName();
 
     /**
-     *
      * @return name of the alert retry max attempts property.
      */
     String getAlertRetryMaxAttemptPropertyName();
 
     /**
-     *
      * @return name of the alert time between retry property.
      */
     String getAlertRetryTimePropertyName();
 
     /**
-     *
      * @return name of the property for adding Domibus instance/server name to email subject
      */
     String getAlertSuperServerNameSubjectPropertyName();
@@ -109,4 +116,18 @@ public interface MultiDomainAlertConfigurationService {
      * @return account disabled module configuration for plugin users
      */
     AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration();
+
+    void clearCommonConfiguration();
+
+    void clearPasswordExpirationAlertConfiguration(AlertType alertType);
+
+    void clearPluginLoginFailureConfiguration();
+
+    void clearImminentExpirationCertificateConfiguration();
+
+    void clearExpiredCertificateConfiguration();
+
+    void clearAllConfigurations();
+
+    void clearPluginAccountDisabledConfiguration();
 }
