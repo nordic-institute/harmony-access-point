@@ -49,7 +49,8 @@ public class ConfigurationLoader<E> {
         return result;
     }
 
-    public void resetConfiguration(Domain domain) {
+    public void resetConfiguration() {
+        final Domain domain = domainContextProvider.getCurrentDomainSafely();
         final Domain key = domain == null ? SUPER_DOMAIN : domain;
         synchronized (this.configuration) {
             this.configuration.remove(key);
