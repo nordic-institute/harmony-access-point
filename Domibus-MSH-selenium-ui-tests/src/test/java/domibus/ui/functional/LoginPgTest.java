@@ -60,7 +60,7 @@ public class LoginPgTest extends BaseUXTest {
 //	public void invalidUsername() throws Exception {
 //		log.info("Testing login using invalid username");
 //		SoftAssert soft = new SoftAssert();
-//
+
 //		String username = Generator.randomAlphaNumeric(10);
 //		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 //		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
