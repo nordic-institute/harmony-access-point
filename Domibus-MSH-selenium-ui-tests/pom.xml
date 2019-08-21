@@ -161,7 +161,7 @@
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
 							<environmentVariables>
-								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
+								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
 								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
 							<properties>
@@ -194,7 +194,7 @@
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
 							<environmentVariables>
-								<propertiesFile>./src/main/resources/equality-e2-s.properties</propertiesFile>
+								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
 								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
 							<properties>

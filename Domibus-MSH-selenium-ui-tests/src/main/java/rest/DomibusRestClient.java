@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.TestRunData;
 
 import javax.ws.rs.core.Cookie;
@@ -33,6 +35,7 @@ import java.util.Map;
 
 public class DomibusRestClient {
 
+	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	private Client client = Client.create();
 	private TestRunData data = new TestRunData();
 	private ObjectProvider provider = new ObjectProvider();
@@ -55,7 +58,6 @@ public class DomibusRestClient {
 			return;
 		}
 
-		HashMap<String, String> user = data.getAdminUser();
 		cookies = login();
 
 		if (null != cookies) {
@@ -104,6 +106,7 @@ public class DomibusRestClient {
 
 	public List<NewCookie> login() {
 		HashMap<String, String> adminUser = data.getAdminUser();
+		log.info("Rest client using to login: " + adminUser.toString());
 		HashMap<String, String> params = new HashMap<>();
 		params.put("username", adminUser.get("username"));
 		params.put("password", adminUser.get("pass"));
