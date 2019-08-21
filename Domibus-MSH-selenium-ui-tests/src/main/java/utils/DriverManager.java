@@ -3,6 +3,7 @@ package utils;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -30,7 +31,9 @@ public class DriverManager {
 
 	private static WebDriver getChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", data.getChromeDriverPath());
-		WebDriver driver = new ChromeDriver();
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+		WebDriver driver = new ChromeDriver(options);
 		driver.manage().window().maximize();
 		return driver;
 	}
