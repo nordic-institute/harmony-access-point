@@ -18,6 +18,9 @@ public interface MultiDomainAlertConfigurationService {
      */
     MessagingModuleConfiguration getMessageCommunicationConfiguration();
 
+    /**
+     * Clears/removes the message communication configuration so that a new one will be created when calls to it are made
+     */
     void clearMessageCommunicationConfiguration();
 
     /**
@@ -25,6 +28,9 @@ public interface MultiDomainAlertConfigurationService {
      */
     AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
 
+    /**
+     * Clears/removes the account disabled configuration so that a new one will be created when calls to it are made
+     */
     void clearAccountDisabledConfiguration();
 
     /**
@@ -117,17 +123,38 @@ public interface MultiDomainAlertConfigurationService {
      */
     AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration();
 
+    /**
+     * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made
+     */
     void clearCommonConfiguration();
 
+    /**
+     * Clears/removes the password expiration alert configuration so that a new one will be created when calls to it are made
+     */
     void clearPasswordExpirationAlertConfiguration(AlertType alertType);
 
+    /**
+     * Clears/removes the plugin login failure configuration so that a new one will be created when calls to it are made
+     */
     void clearPluginLoginFailureConfiguration();
 
+    /**
+     * Clears/removes the imminent certification expiration configuration so that a new one will be created when calls to it are made
+     */
     void clearImminentExpirationCertificateConfiguration();
 
+    /**
+     * Clears/removes the expired certificate configuration so that a new one will be created when calls to it are made
+     */
     void clearExpiredCertificateConfiguration();
 
+    /**
+     * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling
+     */
     void clearAllConfigurations();
 
+    /**
+     * Clears/removes the plugin account disabled configuration so that a new one will be created when calls to it are made
+     */
     void clearPluginAccountDisabledConfiguration();
 }
