@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Properties;
 
@@ -149,6 +152,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
                 throw new CryptoException("Could not create parent directory for truststore", e);
             }
         }
+        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
+        backupTrustStore(trustStoreFile);
 
         LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
         try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
@@ -164,6 +169,23 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         signalTrustStoreUpdate();
     }
+
+    protected String backupTrustStore(File trustStoreFile) throws CryptoException {
+        if(trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
+            LOG.warn("Truststore file was null, nothing to backup!");
+            return null;
+        }
+
+        try {
+            String backupName = trustStoreFile.getAbsolutePath() + ".backup-" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            File backupFile = new File(backupName);
+            FileUtils.copyFile(trustStoreFile, backupFile);
+            return backupName;
+        } catch (IOException e) {
+            throw new CryptoException("Could not create backup file for truststore", e);
+        }
+    }
+
 
     @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class)
