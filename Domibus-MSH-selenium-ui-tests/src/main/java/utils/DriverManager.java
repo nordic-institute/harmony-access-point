@@ -40,6 +40,9 @@ public class DriverManager {
 
 	private static WebDriver getFirefoxDriver() {
 		System.setProperty("webdriver.gecko.driver", data.getFirefoxDriverPath());
+		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
+		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+
 		WebDriver driver = new FirefoxDriver();
 		driver.manage().window().maximize();
 		return driver;

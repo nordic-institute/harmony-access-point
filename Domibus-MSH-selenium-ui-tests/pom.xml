@@ -162,7 +162,7 @@
 							<groups>singleTenancy</groups>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
+								<runBrowser>firefox</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>
