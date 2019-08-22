@@ -1,13 +1,9 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.*;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALE
  * Handles the change of alert enabled property
  */
 @Service
-public class AlertActiveChangeListener implements PluginPropertyChangeListener {
+public class AlertActiveChangeListener implements DomibusPropertyChangeListener {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertActiveChangeListener.class);
 

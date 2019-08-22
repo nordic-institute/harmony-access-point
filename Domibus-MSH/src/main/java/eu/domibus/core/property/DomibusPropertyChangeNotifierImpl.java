@@ -1,10 +1,10 @@
-package eu.domibus.ext.delegate.services.property;
+package eu.domibus.core.property;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
  * Handles the change of a domibus property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
  */
 @Service
-public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
+public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
 
     @Autowired
-    private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
+    private List<DomibusPropertyChangeListener> propertyChangeListeners;
 
     @Autowired
     private SignalService signalService;
@@ -31,7 +31,7 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
     @Override
     public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         //notify interested listeners that the property changed
-        List<PluginPropertyChangeListener> listeners = pluginPropertyChangeListeners.stream()
+        List<DomibusPropertyChangeListener> listeners = propertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
         listeners.forEach(listener -> {
