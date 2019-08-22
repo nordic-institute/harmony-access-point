@@ -119,6 +119,13 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return res;
     }
 
+    /**
+     *
+     * @param value the string value to be validated
+     * @param customAnnotation optional custom annotation for permitting some more characters beside the general/common set defined in domibus properties
+     *                         it is used for some properties, like endpoint, that need to allow some characters that otherwise are not permitted
+     * @return if the value contain only characters that are defined in the whitelist domibus property and custom annotation, if specified
+     */
     protected boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation) {
         LOG.trace("Validating value [{}] in whitelist", value);
         if (whitelist == null) {

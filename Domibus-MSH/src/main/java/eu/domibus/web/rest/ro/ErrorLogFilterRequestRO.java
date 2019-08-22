@@ -13,18 +13,30 @@ import java.io.Serializable;
 
 public class ErrorLogFilterRequestRO implements Serializable {
     private int page = 0;
+
     private int pageSize = 10;
+
     private Boolean asc = true;
+
     private String orderBy;
+
     private String errorSignalMessageId;
+
     private MSHRole mshRole;
+
     private String messageInErrorId;
+
     private ErrorCode errorCode;
+
     @CustomWhiteListed(permitted = ":/=?&")
     private String errorDetail;
+
     private String timestampFrom;
+
     private String timestampTo;
+
     private String notifiedFrom;
+
     private String notifiedTo;
 
     public int getPage() {
