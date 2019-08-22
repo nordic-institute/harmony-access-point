@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * Template method pattern algorithm class responsible for security validations for both console and plugin users
  */
 
 @Service
@@ -59,7 +60,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    // abstract methods
     protected abstract String getPasswordComplexityPatternProperty();
 
     public abstract String getPasswordHistoryPolicyProperty();
@@ -82,9 +82,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract UserEntityBase.Type getUserType();
 
-    // public interface
     public void validateComplexity(final String userName, final String password) throws DomibusCoreException {
-
         String errorMessage = "The password of " + userName + " user does not meet the minimum complexity requirements";
         if (StringUtils.isBlank(password)) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMessage);
@@ -103,7 +101,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
-
         int oldPasswordsToCheck = Integer.valueOf(domibusPropertyProvider.getDomainProperty(getPasswordHistoryPolicyProperty()));
         if (oldPasswordsToCheck == 0) {
             return;
