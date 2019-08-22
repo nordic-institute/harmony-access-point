@@ -40,18 +40,18 @@ public class RepetitiveAlertConfigurationHolder {
         return configurations.get(alertType);
     }
 
-    public void resetConfiguration(AlertType alertType, Domain domain) {
+    public void clearConfiguration(AlertType alertType) {
         ConfigurationLoader<RepetitiveAlertModuleConfiguration> conf = configurations.get(AlertType.PASSWORD_IMMINENT_EXPIRATION);
         if(conf != null) {
-            conf.resetConfiguration(domain);
+            conf.resetConfiguration();
         }
     }
 
-    public void resetConfiguration(Domain domain) {
+    public void clearConfiguration() {
         Arrays.asList(AlertType.values()).forEach(alertType -> {
             if (configurations.containsKey(alertType)) {
                 try {
-                    configurations.get(alertType).resetConfiguration(domain);
+                    configurations.get(alertType).resetConfiguration();
                 } catch (Exception ex) {
                     LOG.debug("Error reseting repetitive alert configuration for alert type :[{}]", alertType);
                 }
