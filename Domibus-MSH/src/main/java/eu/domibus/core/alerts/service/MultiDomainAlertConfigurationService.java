@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
@@ -18,14 +19,29 @@ public interface MultiDomainAlertConfigurationService {
     MessagingModuleConfiguration getMessageCommunicationConfiguration();
 
     /**
+     * Clears/removes the message communication configuration so that a new one will be created when calls to it are made
+     */
+    void clearMessageCommunicationConfiguration();
+
+    /**
      * @return account disabled module configuration
      */
     AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
 
     /**
+     * Clears/removes the account disabled configuration so that a new one will be created when calls to it are made
+     */
+    void clearAccountDisabledConfiguration();
+
+    /**
      * @return login failure module configuration
      */
     LoginFailureModuleConfiguration getLoginFailureConfiguration();
+
+    /**
+     * Clear login failure module configuration
+     */
+    void clearLoginFailureConfiguration();
 
     /**
      * @return certificate imminent expiration module configuration
@@ -83,19 +99,16 @@ public interface MultiDomainAlertConfigurationService {
     String getSendEmailActivePropertyName();
 
     /**
-     *
      * @return name of the alert retry max attempts property.
      */
     String getAlertRetryMaxAttemptPropertyName();
 
     /**
-     *
      * @return name of the alert time between retry property.
      */
     String getAlertRetryTimePropertyName();
 
     /**
-     *
      * @return name of the property for adding Domibus instance/server name to email subject
      */
     String getAlertSuperServerNameSubjectPropertyName();
@@ -109,4 +122,39 @@ public interface MultiDomainAlertConfigurationService {
      * @return account disabled module configuration for plugin users
      */
     AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration();
+
+    /**
+     * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made
+     */
+    void clearCommonConfiguration();
+
+    /**
+     * Clears/removes the password expiration alert configuration so that a new one will be created when calls to it are made
+     */
+    void clearPasswordExpirationAlertConfiguration(AlertType alertType);
+
+    /**
+     * Clears/removes the plugin login failure configuration so that a new one will be created when calls to it are made
+     */
+    void clearPluginLoginFailureConfiguration();
+
+    /**
+     * Clears/removes the imminent certification expiration configuration so that a new one will be created when calls to it are made
+     */
+    void clearImminentExpirationCertificateConfiguration();
+
+    /**
+     * Clears/removes the expired certificate configuration so that a new one will be created when calls to it are made
+     */
+    void clearExpiredCertificateConfiguration();
+
+    /**
+     * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling
+     */
+    void clearAllConfigurations();
+
+    /**
+     * Clears/removes the plugin account disabled configuration so that a new one will be created when calls to it are made
+     */
+    void clearPluginAccountDisabledConfiguration();
 }

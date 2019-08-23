@@ -29,7 +29,7 @@ public class ActivateSuspendedPluginUsersJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
 
-        LOG.debug("Executing job to unlock suspended plugin account at " + new Date());
+        LOG.debug("Executing job to unlock suspended plugin accounts at " + new Date());
 
         userService.reactivateSuspendedUsers();
     }
