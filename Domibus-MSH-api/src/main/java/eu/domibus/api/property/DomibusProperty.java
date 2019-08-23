@@ -3,6 +3,8 @@ package eu.domibus.api.property;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
+ *
+ * REST service class for getting the current value of a domibus property along with its metadata
  */
 public class DomibusProperty {
     private String value;

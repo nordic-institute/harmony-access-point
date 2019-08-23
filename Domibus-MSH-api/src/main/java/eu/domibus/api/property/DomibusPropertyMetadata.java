@@ -1,5 +1,10 @@
 package eu.domibus.api.property;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * Class that encapsulates the properties of a domibus configuration property;
+ */
 public class DomibusPropertyMetadata {
 
     private String name;

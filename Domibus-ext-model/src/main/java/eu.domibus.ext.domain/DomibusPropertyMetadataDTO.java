@@ -1,5 +1,12 @@
 package eu.domibus.ext.domain;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * It is the plugin api equivalent of the DomibusPropertyMetadata
+ * Class that encapsulates the properties of a domibus configuration property;
+ */
 public class DomibusPropertyMetadataDTO {
 
     private String name;

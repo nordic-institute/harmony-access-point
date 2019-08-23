@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- * <p>
+ *
  * Handles the change of a domibus property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
  */
 @Service
