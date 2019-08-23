@@ -6,12 +6,11 @@ import java.io.Serializable;
  * @author Ion Perpegel
  * @since 4.1
  */
-
 public class AlertFilterRequestRO implements Serializable {
     private int page = 0;
     private int pageSize = 10;
-    private Boolean ask = true;
-    private String column;
+    private Boolean asc = true;
+    private String orderBy;
     private String processed;
     private String alertType;
     private String alertStatus;
@@ -42,20 +41,20 @@ public class AlertFilterRequestRO implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public Boolean getAsk() {
-        return ask;
+    public Boolean getAsc() {
+        return asc;
     }
 
-    public void setAsk(Boolean ask) {
-        this.ask = ask;
+    public void setAsc(Boolean asc) {
+        this.asc = asc;
     }
 
-    public String getColumn() {
-        return column;
+    public String getOrderBy() {
+        return orderBy;
     }
 
-    public void setColumn(String column) {
-        this.column = column;
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
     }
 
     public String getProcessed() {
