@@ -4,8 +4,10 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
-import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +27,19 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceImpl.class);
 
     @Autowired
+    protected DomainExtConverter domainConverter;
+
+    @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
+    /**
+     * We inject here all managers: one for each plugin + domibus property manager delegate( which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+     */
     @Autowired
-    private List<DomibusPropertyManager> domibusPropertyManagers;
+    private List<DomibusPropertyManagerExt> propertyManagers;
 
     public List<DomibusProperty> getProperties(String name) {
         List<DomibusProperty> list = new ArrayList<>();
@@ -39,8 +47,8 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
 
-        for (DomibusPropertyManager propertyManager : domibusPropertyManagers) {
-            List<DomibusPropertyMetadata> knownProps = propertyManager.getKnownProperties().values().stream()
+        for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
+            List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
                     .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                     .collect(Collectors.toList());
 
@@ -52,11 +60,14 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
                 }
             }
 
-            for (DomibusPropertyMetadata p : knownProps) {
+            for (DomibusPropertyMetadataDTO p : knownProps) {
                 String value = propertyManager.getKnownPropertyValue(domainCode, p.getName());
+                DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+
                 DomibusProperty prop = new DomibusProperty();
-                prop.setName(p.getName());
+                prop.setMetadata(meta);
                 prop.setValue(value);
+
                 list.add(prop);
             }
         }
@@ -70,7 +81,7 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
 
         boolean handled = false;
-        for (DomibusPropertyManager propertyManager : domibusPropertyManagers) {
+        for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
             if (propertyManager.hasKnownProperty(name)) {
                 propertyManager.setKnownPropertyValue(domainCode, name, value);
                 handled = true;

@@ -5,15 +5,16 @@ package eu.domibus.api.property;
  * @since 4.1.1
  */
 public class DomibusProperty {
-    private String name;
     private String value;
 
-    public String getName() {
-        return name;
+    private DomibusPropertyMetadata metadata;
+
+    public DomibusPropertyMetadata getMetadata() {
+        return metadata;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMetadata(DomibusPropertyMetadata metadata) {
+        this.metadata = metadata;
     }
 
     public String getValue() {
