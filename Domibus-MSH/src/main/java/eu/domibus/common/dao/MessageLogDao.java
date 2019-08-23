@@ -14,7 +14,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -22,7 +25,7 @@ import java.util.*;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends BasicDao {
+public abstract class MessageLogDao<F extends MessageLog> extends FilterableDao<F> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
 
@@ -31,7 +34,7 @@ public abstract class MessageLogDao<F extends MessageLog> extends BasicDao {
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void setMessageStatus(MessageLog messageLog, MessageStatus messageStatus) {
+    public void setMessageStatus(F messageLog, MessageStatus messageStatus) {
         messageLog.setMessageStatus(messageStatus);
 
         switch (messageStatus) {
@@ -76,7 +79,8 @@ public abstract class MessageLogDao<F extends MessageLog> extends BasicDao {
 
     protected abstract List<F> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<? extends MessageLog> mle) {
+    @Override
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> mle) {
         List<Predicate> predicates = new ArrayList<>();
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {

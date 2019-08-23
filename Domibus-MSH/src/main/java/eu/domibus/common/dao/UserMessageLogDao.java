@@ -4,9 +4,7 @@ import com.google.common.collect.Maps;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
+import eu.domibus.common.model.logging.*;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -17,10 +15,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.*;
 
 /**
@@ -116,35 +110,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public Long countMessages(Map<String, Object> filters) {
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<UserMessageLog> mle = cq.from(UserMessageLog.class);
-        cq.select(cb.count(mle));
-        List<Predicate> predicates = getPredicates(filters, cb, mle);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        TypedQuery<Long> query = em.createQuery(cq);
-        return query.getSingleResult();
+        return super.countEntries(filters, UserMessageLog.class);
     }
 
-    public List<UserMessageLog> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<UserMessageLog> cq = cb.createQuery(UserMessageLog.class);
-        Root<UserMessageLog> mle = cq.from(UserMessageLog.class);
-        cq.select(mle);
-        List<Predicate> predicates = getPredicates(filters, cb, mle);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        if (column != null) {
-            if (asc) {
-                cq.orderBy(cb.asc(mle.get(column)));
-            } else {
-                cq.orderBy(cb.desc(mle.get(column)));
-            }
-
-        }
-        TypedQuery<UserMessageLog> query = this.em.createQuery(cq);
-        query.setFirstResult(from);
-        query.setMaxResults(max);
-        return query.getResultList();
+    public List<UserMessageLog> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters) {
+        return super.findPaged(from, max, sortColumn, asc, filters, UserMessageLog.class);
     }
 
     public List<String> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
