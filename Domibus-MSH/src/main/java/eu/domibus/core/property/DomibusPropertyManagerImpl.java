@@ -3,6 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -14,6 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
+ */
 
 @Service
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
@@ -30,7 +38,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
+    private DomibusPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
