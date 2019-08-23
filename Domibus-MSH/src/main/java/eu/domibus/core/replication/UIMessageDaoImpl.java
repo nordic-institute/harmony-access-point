@@ -3,7 +3,7 @@ package eu.domibus.core.replication;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.common.dao.FilterableDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
@@ -27,16 +26,23 @@ import java.util.*;
  * @since 4.0
  */
 @Repository
-public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMessageDao {
+public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements UIMessageDao {
 
-    /** logger */
+    /**
+     * logger
+     */
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIMessageDaoImpl.class);
 
-    /** message id */
+    /**
+     * message id
+     */
     private static final String MESSAGE_ID = "MESSAGE_ID";
 
-    /** just map special column names which doesn't match filterKey with the same name */
+    /**
+     * just map special column names which doesn't match filterKey with the same name
+     */
     private static Map<String, String> filterKeyToColumnMap = new HashMap<>();
+
     static {
         filterKeyToColumnMap.put("fromPartyId", "fromId");
         filterKeyToColumnMap.put("toPartyId", "toId");
@@ -76,15 +82,8 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
     public int countMessages(Map<String, Object> filters) {
         long startTime = System.currentTimeMillis();
 
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<UIMessageEntity> uiMessageEntity = cq.from(UIMessageEntity.class);
-        cq.select(cb.count(uiMessageEntity));
-        List<Predicate> predicates = getPredicates(filters, cb, uiMessageEntity);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        TypedQuery<Long> query = em.createQuery(cq);
+        Long result = super.countEntries(filters, UIMessageEntity.class);
 
-        Long result = query.getSingleResult();
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] milliseconds to countMessages", endTime - startTime);
@@ -95,46 +94,32 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
     /**
      * list the messages from {@code TB_MESSAGE_UI} table with pagination
      *
-     * @param from    the beginning of the page
-     * @param max     how many messages in a page
-     * @param column  which column to order by
-     * @param asc     ordering type - ascending or descending
-     * @param filters it should include messageType always - User or Signal message
+     * @param from       the beginning of the page
+     * @param max        how many messages in a page
+     * @param sortColumn which column to order by
+     * @param asc        ordering type - ascending or descending
+     * @param filters    it should include messageType always - User or Signal message
      * @return a list of {@link UIMessageEntity}
      */
     @Override
-    public List<UIMessageEntity> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
+    public List<UIMessageEntity> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters) {
         long startTime = System.currentTimeMillis();
 
-        List<UIMessageEntity> result;
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<UIMessageEntity> cq = cb.createQuery(UIMessageEntity.class);
-
-        Root<UIMessageEntity> root = cq.from(UIMessageEntity.class);
-        cq.select(root);
-        List<Predicate> predicates = getPredicates(filters, cb, root);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        if (column != null) {
-            String filterColumn = filterKeyToColumnMap.get(column);
-            if (StringUtils.isNotBlank(filterColumn)) {
-                column = filterColumn;
-            }
-            if (asc) {
-                cq.orderBy(cb.asc(root.get(column)));
-            } else {
-                cq.orderBy(cb.desc(root.get(column)));
-            }
-
-        }
-        TypedQuery<UIMessageEntity> query = this.em.createQuery(cq);
-        query.setFirstResult(from);
-        query.setMaxResults(max);
-
-        result = query.getResultList();
+        List<UIMessageEntity> result = super.findPaged(from, max, sortColumn, asc, filters, UIMessageEntity.class);
 
         final long endTime = System.currentTimeMillis();
         LOG.debug("[{}] milliseconds to findPaged [{}] messages", endTime - startTime, max);
         return result;
+    }
+
+    @Override
+    protected String getSortColumn(String sortColumn) {
+        String filterColumn = filterKeyToColumnMap.get(sortColumn);
+        if (StringUtils.isNotBlank(filterColumn)) {
+            return filterColumn;
+        } else {
+            return sortColumn;
+        }
     }
 
     /**
