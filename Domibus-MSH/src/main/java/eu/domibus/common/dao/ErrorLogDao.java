@@ -1,4 +1,3 @@
-
 package eu.domibus.common.dao;
 
 import eu.domibus.common.model.logging.ErrorLogEntry;
@@ -9,20 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
 import java.util.*;
-
 
 @Repository
 @Transactional
 /**
  * @author Christian Koch, Stefan Mueller
  */
-public class ErrorLogDao extends BasicDao<ErrorLogEntry> {
-
+public class ErrorLogDao extends FilterableDao<ErrorLogEntry> {
 
     @Autowired
     private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
@@ -37,47 +33,17 @@ public class ErrorLogDao extends BasicDao<ErrorLogEntry> {
         return query.getResultList();
     }
 
-
-    public List<ErrorLogEntry> getUnnotifiedErrorsForMessage(final String messageId) {
-        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findUnnotifiedErrorsByMessageId", ErrorLogEntry.class);
-        query.setParameter("MESSAGE_ID", messageId);
-        return query.getResultList();
-    }
-
     public long countEntries(HashMap<String, Object> filters) {
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<ErrorLogEntry> mle = cq.from(ErrorLogEntry.class);
-        cq.select(cb.count(mle));
-        List<Predicate> predicates = getPredicates(filters, cb, mle);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        TypedQuery<Long> query = em.createQuery(cq);
-        return query.getSingleResult();
-
+        return super.countEntries(filters, ErrorLogEntry.class);
     }
 
-    public List<ErrorLogEntry> findPaged(final int from, final int max, final String column, final boolean asc, final HashMap<String, Object> filters) {
-        final CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        final CriteriaQuery<ErrorLogEntry> cq = cb.createQuery(ErrorLogEntry.class);
-        final Root<ErrorLogEntry> ele = cq.from(ErrorLogEntry.class);
-        cq.select(ele);
-        List<Predicate> predicates = getPredicates(filters, cb, ele);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        if (column != null) {
-            if (asc) {
-                cq.orderBy(cb.asc(ele.get(column)));
-            } else {
-                cq.orderBy(cb.desc(ele.get(column)));
-            }
-
-        }
-        final TypedQuery<ErrorLogEntry> query = this.em.createQuery(cq);
-        query.setFirstResult(from);
-        query.setMaxResults(max);
-        return query.getResultList();
+    public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc,
+                                         final HashMap<String, Object> filters) {
+        return super.findPaged(from, max, sortColumn, asc, filters, ErrorLogEntry.class);
     }
 
-    protected List<Predicate> getPredicates(HashMap<String, Object> filters, CriteriaBuilder cb, Root<ErrorLogEntry> ele) {
+    @Override
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) {
         List<Predicate> predicates = new ArrayList<Predicate>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {
