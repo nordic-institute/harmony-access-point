@@ -34,8 +34,8 @@ public class BaseTest {
 	 * Starts the browser and navigates to the homepage. This happens once before the test
 	 * suite and the browser window is reused for all tests in suite
 	 */
-	@BeforeClass(alwaysRun = true)
-	public void beforeClass(){
+	@BeforeSuite(alwaysRun = true)
+	public void beforeClass() throws Exception {
 		log.info("-------- Starting -------");
 		driver = DriverManager.getDriver();
 		driver.get(data.getUiBaseUrl());
@@ -43,11 +43,9 @@ public class BaseTest {
 
 
 	/**After the test suite is done we close the browser*/
-	@AfterClass(alwaysRun = true)
 	@AfterSuite(alwaysRun = true)
 	public void afterClassSuite(){
 		log.info("-------- Quitting -------");
-
 		try {
 			driver.quit();
 		} catch (Exception e) {
