@@ -87,7 +87,7 @@ public class DomibusRestClient {
 			for (NewCookie cookie : cookies) {
 				builder = builder.cookie(
 						new Cookie(cookie.getName(),
-						cookie.getValue(),
+								cookie.getValue(),
 								"/",
 								""
 						)
@@ -303,7 +303,7 @@ public class DomibusRestClient {
 	}
 
 	// -------------------------------------------- Domains ------------------------------------------------------------
-	private JSONArray getDomains(){
+	private JSONArray getDomains() {
 		JSONArray domainArray = null;
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMAINS), null);
 		try {
@@ -318,7 +318,8 @@ public class DomibusRestClient {
 	}
 
 	public List<String> getDomainNames() {
-		List<String> toReturn = new ArrayList<>();;
+		List<String> toReturn = new ArrayList<>();
+		;
 		try {
 			JSONArray domainArray = getDomains();
 			for (int i = 0; i < domainArray.length(); i++) {
@@ -332,7 +333,8 @@ public class DomibusRestClient {
 
 	public List<String> getDomainCodes() {
 
-		List<String> toReturn = new ArrayList<>();;
+		List<String> toReturn = new ArrayList<>();
+		;
 		try {
 			JSONArray domainArray = getDomains();
 			if (null != domainArray) {
@@ -348,16 +350,16 @@ public class DomibusRestClient {
 
 	public String getDomainCodeForName(String name) {
 		try {
-				JSONArray domainArray = getDomains();
-				for (int i = 0; i < domainArray.length(); i++) {
-					String currentName = domainArray.getJSONObject(i).getString("name");
-					if(StringUtils.equalsIgnoreCase(currentName, name)){
-						return domainArray.getJSONObject(i).getString("code");
-					}
+			JSONArray domainArray = getDomains();
+			for (int i = 0; i < domainArray.length(); i++) {
+				String currentName = domainArray.getJSONObject(i).getString("name");
+				if (StringUtils.equalsIgnoreCase(currentName, name)) {
+					return domainArray.getJSONObject(i).getString("code");
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
 			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 
@@ -423,7 +425,7 @@ public class DomibusRestClient {
 		HashMap<String, String> fields = new HashMap<>();
 		fields.put("description", "automatic red");
 		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
-		if(response.getStatus() != 200){
+		if (response.getStatus() != 200) {
 			throw new Exception("Could not upload PMODE file!!!");
 		}
 	}
@@ -439,12 +441,12 @@ public class DomibusRestClient {
 	}
 
 	// -------------------------------------------- Get Grid -----------------------------------------------------------
-	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception{
+	public String  downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception {
 		switchDomain(domain);
 
 		ClientResponse clientResponse = requestGET(resource.path(path), params);
 		System.out.println(clientResponse.getStatus());
-		InputStream in= clientResponse.getEntity(InputStream.class);
+		InputStream in = clientResponse.getEntity(InputStream.class);
 
 		File file = File.createTempFile("domibus", ".csv");
 		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -454,14 +456,14 @@ public class DomibusRestClient {
 	}
 
 	// -------------------------------------------- Message ------------------------------------------------------------
-	public String downloadMessage(String id, String domain) throws Exception{
+	public String downloadMessage(String id, String domain) throws Exception {
 		switchDomain(domain);
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put("messageId", id);
 
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
-		InputStream in= clientResponse.getEntity(InputStream.class);
+		InputStream in = clientResponse.getEntity(InputStream.class);
 
 		File file = File.createTempFile("message", ".zip");
 		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -470,4 +472,18 @@ public class DomibusRestClient {
 
 		return file.getAbsolutePath();
 	}
-}
+
+	public void syncRecord() {
+		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
+		if (response.getStatus() != 200) {
+			throw new RuntimeException("Data is not sync now ");
+		}
+		else
+		{
+			System.out.println("Data is syncronized now with response code:"+ response.getStatus());
+		}
+	}
+
+	}
+
+

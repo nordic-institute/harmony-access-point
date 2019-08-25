@@ -91,11 +91,10 @@ public class SandwichMenu extends DComponent {
 	public void OpenchangePassword() throws Exception {
 
 		clickVoidSpace();
-
+		log.debug("Expand Sandwich menu");
 		expandMenu();
-		log.info("Opening ChangePasswordPage ...");
+		log.debug("click on Change password link");
 		driver.findElement(ChangePassId).click();
-		//contractMenu();
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 	/**This method is implemented to check presence of link in Sandwich menu*/

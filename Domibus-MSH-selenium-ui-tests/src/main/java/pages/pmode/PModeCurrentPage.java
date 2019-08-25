@@ -36,11 +36,15 @@ public class PModeCurrentPage extends DomibusPage {
 	WebElement downloadBtn;
 	@FindBy(css = ".pModeInfo >span")
 	WebElement infoTxt;
+	@FindBy(id="pmodetextarea_id")
+	WebElement CurrentPmodeXml;
+
 
 
 	public DInput getTextArea() {
 		return new DInput(driver, textArea);
 	}
+
 
 	public DButton getCancelBtn() {
 		return new DButton(driver, cancelBtn);
@@ -67,5 +71,8 @@ public class PModeCurrentPage extends DomibusPage {
 		}
 		log.info("Pmode status on pmode current page : " + infoTxt.getText().trim());
 	}
-}
+
+
+	}
+
 

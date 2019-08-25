@@ -5,13 +5,19 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
+import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
 import ddsl.enums.PAGES;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import rest.RestServicePaths;
+import utils.Generator;
+
+import javax.xml.bind.annotation.XmlAccessOrder;
 
 public class PModeArchivePage extends DomibusPage {
 
@@ -37,14 +43,18 @@ public class PModeArchivePage extends DomibusPage {
     @FindBy(id="restoreButtonRow0_id")
     private WebElement CRowRestoreIcon;
     @FindBy(css = ".mat-button-wrapper>img")
-    private WebElement DownloadCsv;
+    private WebElement DownloadCurrentFile;
     @FindBy(xpath = ".//*[contains(text(),'[CURRENT]: Restored')]")
     private WebElement cDescription;
     @FindBy(id="pmodeheader_id")
-    private WebElement pModeView;
+    private WebElement pModeViewHeader;
+    @FindBy(css = "div>textarea")
+    private WebElement XmlTextArea;
+    @FindBy(css=".mat-raised-button.mat-primary:last-child")
+    private WebElement OkButton;
 
     public DObject getDownloadCSV(){
-        return new DObject(driver,DownloadCsv);}
+        return new DObject(driver,DownloadCurrentFile);}
     public DGrid grid() {
         return new DGrid(driver, archiveGridContainer);
     }
@@ -62,6 +72,10 @@ public class PModeArchivePage extends DomibusPage {
     public Pagination getpagination() {  return new Pagination(driver);}
     public Dialog getConfirmation() { return new Dialog(driver);}
     public PModeCurrentPage getPage() { return new PModeCurrentPage(driver); }
+    public DInput getXml() { return new DInput(driver, XmlTextArea); }
+    public DButton getOkButton() {
+        return new DButton(driver, OkButton);
+    }
 
 
     public boolean isArchiveGridEmpty() {
@@ -93,10 +107,13 @@ public class PModeArchivePage extends DomibusPage {
     }
 
     public void getPmodeStatus() throws Exception {
+        log.debug("wait for grid container to be visible");
         wait.forElementToBeVisible(archiveGridContainer);
         if (isArchiveGridEmpty()) {
+            log.info("Navigate to pmode current page as grid container is empty on Pmode archive page");
             getPage().getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
-            log.info(getPage().infoTxt.getText().trim());
+
+            log.info("Info text shown on Pmode current page "+getPage().infoTxt.getText().trim());
 
         }else{
 
@@ -111,18 +128,51 @@ public Boolean getCurDescTxt(){
         return true;
 }
 
-public boolean pModeView(){
-        wait.forElementToBeVisible(pModeView);
-        if(!pModeView.isDisplayed()){
-            return false;
+public void pModeView(){
+        wait.forElementToBeVisible(pModeViewHeader);
+        if(!pModeViewHeader.isDisplayed()){
+            log.info("View pop up for pmode is opened");
         }
-        return true;
 }
-    public void clickOk() throws Exception {
-        log.info("dialog .. confirm");
-//        new DButton(driver, yesBtn).click();
-//        wait.forElementToBeGone(yesBtn);
+
+    public String getXpathOfPmodeViewPopUpHeader(String FieldName)  {
+        return ".//*[@id='pmodeheader_id'][contains(text(),'"+FieldName+"')]";
     }
+public void DoubleClickRow()throws Exception{
+        int rIndex;
+        log.info("Grid row count is: "+  grid().getRowsNo() );
+       if(grid().getRowsNo()>10){
+           log.info("Generate random row count");
+            rIndex = Generator.randomNumber(10);}
+        else{
+            rIndex=Generator.randomNumber(grid().getRowsNo());}
+        if(rIndex==0){
+            log.info("Row number is zero");
+            log.debug("Double click 0th row ");
+            grid().doubleClickRow(rIndex);
+            log.info("Validate View pop up ");
+            pModeView();
+            WebElement cRow = driver.findElement(By.xpath(getXpathOfPmodeViewPopUpHeader("Current PMode:")));
+            wait.forElementToBeVisible(cRow);
+            log.info("View pop up is opened on double click:"+ cRow.isDisplayed());
+           }
+    else{
+            log.info("Row number is :" +rIndex);
+            grid().doubleClickRow(rIndex);
+            log.info("Validate View pop up ");
+            pModeView();
+            WebElement gRow = driver.findElement(By.xpath(getXpathOfPmodeViewPopUpHeader("Archive")));
+            wait.forElementToBeVisible(gRow);
+            log.info("View pop up is opened on double click:"+ gRow.isDisplayed());
+
+    }
+}
+
+public String getRestServicePath()throws Exception{
+       String restPath= RestServicePaths.PMODE_CURRENT_DOWNLOAD.concat(String.valueOf(getpagination().getTotalItems()));
+       return restPath;
+}
+
 }
 
 

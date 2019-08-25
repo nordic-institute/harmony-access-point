@@ -1,10 +1,10 @@
 package pages.ChangePassword;
 
+import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -20,6 +20,9 @@ public class ChangePasswordPage extends DomibusPage {
         super(driver);
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
     }
+    public static final String NewPassword_Field_label ="New Password";
+    public static final String CurrentPassword_Field_label="Current Password";
+    public static final String Confirmation_Field_label="Confirmation";
 
 
     @FindBy(xpath = "//p[contains(text(),'Change Password')]")
@@ -62,7 +65,7 @@ public class ChangePasswordPage extends DomibusPage {
      * This method will verify field header of ChangePassword page
      */
 
-    public Boolean VerifyFieldHeader() throws Exception {
+    public Boolean verifyFieldHeader() throws Exception {
         log.info("Verifying Field Header...");
         String rawTitle = getPageNameObj().getText();
         boolean toReturn = StringUtils.equalsIgnoreCase(rawTitle, "Change Password");
