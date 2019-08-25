@@ -18,6 +18,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
+import utils.Order;
 import utils.TestRunData;
 import utils.TestUtils;
 
@@ -41,7 +42,7 @@ public class DGrid extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "span.datatable-header-cell-wrapper > span")
+	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
 
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
@@ -54,7 +55,6 @@ public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
-
 
 	//	------------------------------------------------
 	public Pagination getPagination() {
@@ -187,10 +187,13 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
+		log.info("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
-			DObject column = new DObject(driver, gridHeaders.get(i));
+			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.click();
+				wait.forAttributeNotEmpty(gridHeaders.get(i), "class");
+				wait.forAttributeToContain(gridHeaders.get(i), "class", "sort-active");
 				return;
 			}
 		}
@@ -279,7 +282,17 @@ public class DGrid extends DComponent {
 		return values;
 	}
 
-
+	public boolean isColumnSortable(String columnName) throws Exception {
+		List<String> columns = getColumnNames();
+		int index = columns.indexOf(columnName);
+		if(index<0){
+			throw new Exception("Column not visible,. cannot get sortable status");
+		}
+		WebElement header = gridHeaders.get(index);
+		wait.forAttributeNotEmpty(header, "class");
+		String classStr = header.getAttribute("class");
+		return classStr.contains("sortable");
+	}
 
 
 	public void assertControls(SoftAssert soft)throws Exception{
@@ -292,23 +305,22 @@ public class DGrid extends DComponent {
 		checkShowLink(soft);
 		checkHideLink(soft);
 		checkModifyVisibleColumns(soft, chkOptions);
-		checkAllLink(soft, chkOptions);
+		checkAllLink(soft);
 		checkNoneLink(soft);
 		checkChangeNumberOfRows(soft);
 	}
 
-	private void checkShowLink(SoftAssert soft) throws Exception{
+	public void checkShowLink(SoftAssert soft) throws Exception{
 		//-----------Show
 		getGridCtrl().showCtrls();
 		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
-
 	}
-	private void checkHideLink(SoftAssert soft) throws Exception{
+	public void checkHideLink(SoftAssert soft) throws Exception{
 		//-----------Hide
 		getGridCtrl().hideCtrls();
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
-	private void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
+	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
 		//-----------Show - Modify - Hide
 		for (String colName : chkOptions) {
 			getGridCtrl().showCtrls();
@@ -319,16 +331,16 @@ public class DGrid extends DComponent {
 			soft.assertTrue(columnsVsCheckboxes());
 		}
 	}
-	private void checkAllLink(SoftAssert soft, List<String> chkOptions) throws Exception{
+	public void checkAllLink(SoftAssert soft) throws Exception{
 		//-----------All link
 		getGridCtrl().showCtrls();
 		getGridCtrl().getAllLnk().click();
 		getGridCtrl().hideCtrls();
 
 		List<String> visibleColumns = getColumnNames();
-		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, chkOptions), "All the desired columns are visible");
+		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, getGridCtrl().getAllCheckboxLabels()), "All the desired columns are visible");
 	}
-	private void checkNoneLink(SoftAssert soft) throws Exception{
+	public void checkNoneLink(SoftAssert soft) throws Exception{
 		//-----------None link
 		getGridCtrl().showCtrls();
 		getGridCtrl().getNoneLnk().click();
@@ -338,7 +350,7 @@ public class DGrid extends DComponent {
 		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
 
 	}
-	private void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
+	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
 		//----------Rows
 		getGridCtrl().showCtrls();
 		getGridCtrl().getAllLnk().click();
@@ -358,8 +370,6 @@ public class DGrid extends DComponent {
 			soft.assertTrue(getPagination().hasNextPage(), "If there are more than 25 items there are more than one pages");
 		}
 	}
-
-
 
 	public void checkCSVAgainstGridInfo(String filename, SoftAssert soft) throws Exception {
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
@@ -420,6 +430,41 @@ public class DGrid extends DComponent {
 		}
 		return true;
 	}
+
+	public String getSortedColumnName() throws Exception {
+		String sortClassName = "sort-active";
+		for (WebElement gridHeader : gridHeaders) {
+			DObject headerObj = weToDobject(gridHeader);
+			String classes = headerObj.getAttribute("class");
+			if(classes.contains(sortClassName)){
+				return headerObj.getText();
+			}
+		}
+		return null;
+	}
+
+	public Order getSortOrder() throws Exception {
+		String sortIndicatorDesc = "sort-desc";
+		String sortIndicatorAsc = "sort-asc";
+		String columnName = getSortedColumnName();
+		if(null == columnName){return null;	}
+
+		for (WebElement gridHeader : gridHeaders) {
+			DObject headerObj = weToDobject(gridHeader);
+			if(StringUtils.equalsIgnoreCase(headerObj.getText(), columnName)){
+				String classes = headerObj.getAttribute("class");
+				if(classes.contains(sortIndicatorDesc)){
+					return Order.DESC;
+				}
+				if(classes.contains(sortIndicatorAsc)){
+					return Order.ASC;
+				}
+			}
+
+		}
+		throw new Exception("Sort order cannot be determined");
+	}
+
 
 
 }

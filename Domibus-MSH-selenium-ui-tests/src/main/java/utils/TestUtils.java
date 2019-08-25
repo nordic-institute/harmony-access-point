@@ -1,21 +1,20 @@
 package utils;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import ddsl.dcomponents.DComponent;
+import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.DObject;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.asserts.SoftAssert;
 
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.Collator;
+import java.lang.reflect.Field;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -27,29 +26,102 @@ import java.util.stream.Collectors;
 
 public class TestUtils {
 
-	/* Checks if List provided is sorted desc*/
-	public static boolean isStringListSorted(List<String> strings) {
-		return strings.stream().sorted().collect(Collectors.toList()).equals(strings);
-	}
+	protected static Logger log = LoggerFactory.getLogger("thename");
 
-	/* Checks if List provided is sorted desc*/
-	public static boolean isDateListSorted(List<Date> dates) {
-		for (int i = 0; i < dates.size() - 1; i++) {
-			if (dates.get(i).compareTo(dates.get(i + 1)) < 0) {
-				return false;
-			}
+	/* Checks if List provided is sorted*/
+	public static boolean isStringListSorted(List<String> strings, Order order) {
+		List<String> sorted = new ArrayList<>();
+		if (order.equals(Order.DESC)) {
+			Comparator c = Collections.reverseOrder();
+			sorted = (List<String>) strings.stream().sorted(c).collect(Collectors.toList());
+		}else {
+			sorted = (List<String>) strings.stream().sorted().collect(Collectors.toList());
 		}
-		return true;
+		return ListUtils.isEqualList(strings, sorted);
 	}
 
-	public static boolean areListsEqual(List<Object> flist, List<Object> slist) {
-		if (flist.size() != slist.size()) {
-			return false;
+	/* Checks if List provided is sorted asc*/
+	public static boolean isIntegerListSorted(List<Integer> integers, Order order) {
+		List<Integer> sorted = new ArrayList<>();
+		if (order.equals(Order.DESC)) {
+			Comparator c = Collections.reverseOrder();
+			sorted = (List<Integer>) integers.stream().sorted(c).collect(Collectors.toList());
+		}else {
+			sorted = (List<Integer>) integers.stream().sorted().collect(Collectors.toList());
 		}
-		flist.removeAll(slist);
-		return flist.size() == 0;
+		return ListUtils.isEqualList(integers, sorted);
 	}
 
+	/* Checks if List provided is sorted desc*/
+	public static boolean isDateListSorted(List<Date> dates, Order order) {
+		List<Date> sortedDates = new ArrayList<>();
+		if (order.equals(Order.DESC)) {
+			Comparator c = Collections.reverseOrder();
+			sortedDates = (List<Date>) dates.stream().sorted(c).collect(Collectors.toList());
+		}else {
+			sortedDates = (List<Date>) dates.stream().sorted().collect(Collectors.toList());
+		}
+		return ListUtils.isEqualList(dates, sortedDates);
+	}
+
+//	public static boolean areListsEqual(List<Object> flist, List<Object> slist) {
+//		if (flist.size() != slist.size()) {
+//			return false;
+//		}
+//		flist.removeAll(slist);
+//		return flist.size() == 0;
+//	}
+
+	public static <T extends DGrid> void testSortingForColumn(SoftAssert soft, T grid, JSONObject colDesc) throws Exception {
+		System.out.println("testing " + colDesc.getString("name"));
+
+		String columnName = colDesc.getString("name");
+		List<String> columns = grid.getColumnNames();
+		if (!columns.contains(columnName)) {
+			log.info(String.format("Column %s is not visible, sort testing for it is skipped", columnName));
+			return;
+		}
+		if (!colDesc.getBoolean("sortable")) {
+			log.info(String.format("Column %s is not sortable, sort testing for it is skipped", columnName));
+			return;
+		}
+		if (!StringUtils.equalsIgnoreCase(grid.getSortedColumnName(), columnName)) {
+			grid.sortBy(columnName);
+			Order order = grid.getSortOrder();
+			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getValuesOnColumn(columnName));
+		}
+	}
+
+	private static void checkSortOrder(SoftAssert soft, String columnName, String type, Order order, List<String> values) throws Exception {
+		log.info("Checking sort for " + columnName);
+		if (StringUtils.equalsIgnoreCase(type, "text")) {
+			soft.assertTrue(isStringListSorted(values, order), "Text sorting for column " + columnName);
+		} else if (StringUtils.equalsIgnoreCase(type, "datetime")) {
+			soft.assertTrue(isDateListSorted(listStringToDate(values), order), "Date sorting for column " + columnName);
+		} else if (StringUtils.equalsIgnoreCase(type, "integer")) {
+			soft.assertTrue(isIntegerListSorted(listStringToInt(values), order), "Integer sorting for column " + columnName);
+		} else {
+			throw new Exception("Unknown data type, cannot check sort for " + columnName);
+		}
+	}
+
+	private static List<Integer> listStringToInt(List<String> list) {
+		List<Integer> toReturn = new ArrayList<>();
+
+		for (int i = 0; i < list.size(); i++) {
+			toReturn.add(Integer.valueOf(list.get(i).trim()));
+		}
+		return toReturn;
+	}
+
+	private static List<Date> listStringToDate(List<String> list) throws ParseException {
+		List<Date> toReturn = new ArrayList<>();
+
+		for (int i = 0; i < list.size(); i++) {
+			toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
+		}
+		return toReturn;
+	}
 
 
 

@@ -11,10 +11,8 @@ import org.testng.asserts.SoftAssert;
 import rest.DomibusRestClient;
 import utils.Generator;
 import utils.TestRunData;
-
 import java.sql.*;
-
-import static domibus.ui.BaseTest.messageSender;
+import static domibus.BaseTest.messageSender;
 
 /**
  * This file is referred for ticket 4839

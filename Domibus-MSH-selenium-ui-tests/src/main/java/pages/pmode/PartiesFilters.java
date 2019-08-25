@@ -1,7 +1,7 @@
 package pages.pmode;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;

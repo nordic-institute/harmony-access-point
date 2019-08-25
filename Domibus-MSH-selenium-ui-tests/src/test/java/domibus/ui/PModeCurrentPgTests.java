@@ -2,6 +2,7 @@ package domibus.ui;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.PModeCofirmationModal;
@@ -12,7 +13,7 @@ import pages.pmode.PModeCurrentPage;
  * @description:
  * @since 4.1
  */
-public class PModeCurrentPgTests extends BaseTest {
+public class PModeCurrentPgTests extends BaseUXTest {
 
 	@Test(description = "PMC-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openPModeCurrentWindow() throws Exception{

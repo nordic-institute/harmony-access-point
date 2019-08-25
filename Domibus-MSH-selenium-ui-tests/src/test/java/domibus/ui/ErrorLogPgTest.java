@@ -1,20 +1,16 @@
 package domibus.ui;
 
-		import ddsl.dcomponents.DomibusPage;
 		import ddsl.dcomponents.grid.DGrid;
-		import ddsl.dcomponents.grid.GridControls;
 		import ddsl.dcomponents.grid.Pagination;
 		import ddsl.enums.PAGES;
+		import domibus.BaseUXTest;
 		import org.testng.SkipException;
 		import org.testng.annotations.Test;
 		import org.testng.asserts.SoftAssert;
 		import pages.errorLog.ErrorLogPage;
 		import rest.RestServicePaths;
-		import utils.TestUtils;
 
-		import java.util.ArrayList;
 		import java.util.HashMap;
-		import java.util.List;
 
 
 /**
@@ -23,7 +19,7 @@ package domibus.ui;
  */
 
 
-public class ErrorLogPgTest extends BaseTest {
+public class ErrorLogPgTest extends BaseUXTest {
 
 
 	@Test(description = "ERR-1", groups = {"multiTenancy", "singleTenancy"})

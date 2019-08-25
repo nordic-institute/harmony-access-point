@@ -12,6 +12,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -102,6 +103,16 @@ public class GridControls extends DComponent {
 		}
 
 		return statuses;
+	}
+	public List<String> getAllCheckboxLabels() throws Exception{
+		showCtrls();
+		List<String> labels = new ArrayList<>();
+
+		for (WebElement chk : chkContainer) {
+			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
+			labels.add(labelFor.getText());
+		}
+		return labels;
 	}
 
 	public void showCtrls() throws Exception{

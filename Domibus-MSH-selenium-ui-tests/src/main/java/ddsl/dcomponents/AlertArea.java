@@ -26,6 +26,9 @@ public class AlertArea extends DComponent {
 	@FindBy(id = "alertmessage_id")
 	public WebElement alertMessage;
 
+	@FindBy(css = "#alertmessage_id span")
+	public WebElement closeButton;
+
 	public String getAlertMessage() throws Exception {
 
 		DObject alertObject = new DObject(driver, alertMessage);
@@ -35,9 +38,8 @@ public class AlertArea extends DComponent {
 			return null;
 		}
 
-
-		log.info("alertObject.getText() = " + alertObject.getText());
-		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.\\\\' ]", "").trim();
+//		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.\\\\' ]", "").trim();
+		String messageTxt = alertMessage.getText().replace(closeButton.getText(), "").replaceAll("\n", "").trim();
 
 		log.info("messageTxt = " + messageTxt);
 

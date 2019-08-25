@@ -1,7 +1,7 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.DObject;
 import org.apache.commons.lang3.StringUtils;
@@ -151,7 +151,9 @@ public class Pagination extends DComponent {
 		log.info("skip to FIRST page of results");
 
 		try {
-			getSkipFirstLnk().click();
+			weToDLink(pgLinks.get(0)).click();
+//			getSkipFirstLnk().click();
+			wait.forAttributeToContain(pgLinks.get(0), "class", "active");
 		} catch (Exception e) {
 		}
 		PageFactory.initElements(driver, this);

@@ -1,8 +1,8 @@
 package pages.errorLog;
 
+import ddsl.dcomponents.FilterArea;
 import ddsl.dobjects.DatePicker;
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DLink;
@@ -12,51 +12,54 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-
 /**
  * @author Catalin Comanici
-
- * @version 4.1
+ * @description:
+ * @since 4.1
  */
+public class ErrFilters extends FilterArea {
 
-
-public class ErrorLogPage extends DomibusPage {
-	public ErrorLogPage(WebDriver driver) {
+	public ErrFilters(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	ErrFilters filters = new ErrFilters(driver);
+	@FindBy(id = "searchbutton_id")
+	public WebElement searchButton;
 
-	public ErrFilters getFilters() {
-		return filters;
-	}
-
-	@FindBy(id = "errorLogTable")
-	private WebElement errorLogTableContainer;
-
+//-------------------------------------- Basic filters --------------------------
 	@FindBy(id = "signalmessageid_id")
-	WebElement signalMessIDInput;
-
+	public WebElement signalMessIDInput;
 
 	@FindBy(id = "messageid_id")
-	WebElement messageIDInput;
-
-	@FindBy(id = "searchbutton_id")
-	WebElement searchButton;
+	public WebElement messageIDInput;
 
 	@FindBy(id = "advancedlink_id")
-	WebElement advancedLink;
+	public WebElement advancedLink;
 
 	@FindBy(id = "fromtimestamp_id")
-	WebElement errFromContainer;
+	public WebElement errFromContainer;
 
 	@FindBy(id = "totimestamp_id")
-	WebElement errToContainer;
+	public WebElement errToContainer;
 
-	public DGrid grid() {
-		return new DGrid(driver, errorLogTableContainer);
-	}
+	//-------------------------------------- Advanced filters --------------------------
+	@FindBy(id = "errordetail_id")
+	public WebElement errordetailInput;
+
+	@FindBy(id = "aprole_id")
+	public WebElement apRole;
+
+	@FindBy(id = "errorcode_id")
+	public WebElement errorCode;
+
+	@FindBy(id = "notifiedfrom_id")
+	public WebElement notifiedFrom;
+
+	@FindBy(id = "notifiedto_id")
+	public WebElement notifiedto;
+
+
 
 	public DInput getSignalMessIDInput() {
 		return new DInput(driver, signalMessIDInput);
@@ -99,10 +102,4 @@ public class ErrorLogPage extends DomibusPage {
 
 	}
 
-
-	public boolean isLoaded() throws Exception {
-		return (getSearchButton().isEnabled()
-				&& getMessageIDInput().isEnabled()
-				&& getSignalMessIDInput().isEnabled());
-	}
 }

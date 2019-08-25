@@ -2,6 +2,7 @@ package domibus.ui;
 
 
 import ddsl.enums.PAGES;
+import domibus.BaseTest;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.annotations.Test;

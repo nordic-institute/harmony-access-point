@@ -1,12 +1,11 @@
 package utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -20,24 +19,40 @@ public class DriverManager {
 	static TestRunData data = new TestRunData();
 
 	public static WebDriver getDriver() {
-		if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "chrome")){
+		if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "chrome")) {
 			return getChromeDriver();
-		}else if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "firefox")){
+		} else if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "firefox")) {
 			return getFirefoxDriver();
+		} else if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "edge")) {
+			return getEdgeDriver();
 		}
 		return getChromeDriver();
 	}
 
 	private static WebDriver getChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", data.getChromeDriverPath());
-		WebDriver driver = new ChromeDriver();
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+		WebDriver driver = new ChromeDriver(options);
 		driver.manage().window().maximize();
 		return driver;
 	}
 
 	private static WebDriver getFirefoxDriver() {
 		System.setProperty("webdriver.gecko.driver", data.getFirefoxDriverPath());
+		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
+		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+
 		WebDriver driver = new FirefoxDriver();
+		driver.manage().window().maximize();
+		return driver;
+	}
+
+	private static WebDriver getEdgeDriver() {
+
+		System.setProperty("webdriver.edge.driver", data.getEdgeDriverPath());
+		WebDriver driver = new EdgeDriver();
+
 		driver.manage().window().maximize();
 		return driver;
 	}
