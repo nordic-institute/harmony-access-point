@@ -75,10 +75,6 @@ public abstract class MessageLogDao<F extends MessageLog> extends FilterableDao<
 
     protected abstract MessageLog findByMessageId(String messageId, MSHRole mshRole);
 
-    protected abstract Long countMessages(Map<String, Object> filters);
-
-    protected abstract List<F> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
-
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> mle) {
         List<Predicate> predicates = new ArrayList<>();

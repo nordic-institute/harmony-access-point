@@ -25,7 +25,7 @@ import java.util.Map;
 
 public abstract class BasicDao<T extends AbstractBaseEntity> {
 
-    private final Class<T> typeOfT;
+    protected final Class<T> typeOfT;
 
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager em;

@@ -33,15 +33,6 @@ public class ErrorLogDao extends FilterableDao<ErrorLogEntry> {
         return query.getResultList();
     }
 
-    public long countEntries(HashMap<String, Object> filters) {
-        return super.countEntries(filters, ErrorLogEntry.class);
-    }
-
-    public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc,
-                                         final HashMap<String, Object> filters) {
-        return super.findPaged(from, max, sortColumn, asc, filters, ErrorLogEntry.class);
-    }
-
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) {
         List<Predicate> predicates = new ArrayList<Predicate>();

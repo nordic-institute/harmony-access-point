@@ -109,14 +109,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public Long countMessages(Map<String, Object> filters) {
-        return super.countEntries(filters, UserMessageLog.class);
-    }
-
-    public List<UserMessageLog> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters) {
-        return super.findPaged(from, max, sortColumn, asc, filters, UserMessageLog.class);
-    }
-
     public List<String> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }

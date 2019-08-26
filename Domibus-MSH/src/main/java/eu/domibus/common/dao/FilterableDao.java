@@ -34,10 +34,10 @@ public abstract class FilterableDao<T extends AbstractBaseEntity> extends BasicD
         return sortColumn;
     }
 
-    public long countEntries(Map<String, Object> filters, Class clazz) {
+    public long countEntries(Map<String, Object> filters) {
         CriteriaBuilder cb = this.em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<?> mle = cq.from(clazz);
+        Root<?> mle = cq.from(typeOfT);
         cq.select(cb.count(mle));
         List<Predicate> predicates = getPredicates(filters, cb, mle);
         cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -45,10 +45,10 @@ public abstract class FilterableDao<T extends AbstractBaseEntity> extends BasicD
         return query.getSingleResult();
     }
 
-    public <E> List<E> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters, Class<E> EClass) {
+    public List<T> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
         final CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        final CriteriaQuery<E> cq = cb.createQuery(EClass);
-        final Root<E> ele = cq.from(EClass);
+        final CriteriaQuery<T> cq = cb.createQuery(typeOfT);
+        final Root<T> ele = cq.from(typeOfT);
         cq.select(ele);
         List<Predicate> predicates = getPredicates(filters, cb, ele);
         cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -60,7 +60,7 @@ public abstract class FilterableDao<T extends AbstractBaseEntity> extends BasicD
                 cq.orderBy(cb.desc(ele.get(newSortColumn)));
             }
         }
-        final TypedQuery<E> query = this.em.createQuery(cq);
+        final TypedQuery<T> query = this.em.createQuery(cq);
         query.setFirstResult(from);
         query.setMaxResults(max);
         return query.getResultList();

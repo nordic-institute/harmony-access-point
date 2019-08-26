@@ -79,14 +79,6 @@ public class AuthenticationDAO extends FilterableDao<AuthenticationEntity> imple
         return authRoles;
     }
 
-    public long countEntries(Map<String, Object> filters) {
-        return super.countEntries(filters, AuthenticationEntity.class);
-    }
-
-    public List<AuthenticationEntity> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
-        return super.findPaged(from, max, sortColumn, asc, filters, AuthenticationEntity.class);
-    }
-
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) {
         List<Predicate> predicates = new ArrayList<>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {

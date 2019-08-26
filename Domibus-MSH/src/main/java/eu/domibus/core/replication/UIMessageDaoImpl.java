@@ -79,16 +79,16 @@ public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements 
      * @return number of messages
      */
     @Override
-    public int countMessages(Map<String, Object> filters) {
+    public long countEntries(Map<String, Object> filters) {
         long startTime = System.currentTimeMillis();
 
-        Long result = super.countEntries(filters, UIMessageEntity.class);
+        Long result = super.countEntries(filters);
 
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] milliseconds to countMessages", endTime - startTime);
         }
-        return result.intValue();
+        return result;
     }
 
     /**
@@ -105,7 +105,7 @@ public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements 
     public List<UIMessageEntity> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters) {
         long startTime = System.currentTimeMillis();
 
-        List<UIMessageEntity> result = super.findPaged(from, max, sortColumn, asc, filters, UIMessageEntity.class);
+        List<UIMessageEntity> result = super.findPaged(from, max, sortColumn, asc, filters);
 
         final long endTime = System.currentTimeMillis();
         LOG.debug("[{}] milliseconds to findPaged [{}] messages", endTime - startTime, max);

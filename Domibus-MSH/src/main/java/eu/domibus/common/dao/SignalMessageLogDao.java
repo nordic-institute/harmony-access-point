@@ -51,14 +51,6 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         }
     }
 
-    public Long countMessages(Map<String, Object> filters) {
-        return super.countEntries(filters, SignalMessageLog.class);
-    }
-
-    public List<SignalMessageLog> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters) {
-        return super.findPaged(from, max, sortColumn, asc, filters, SignalMessageLog.class);
-    }
-
     public int countAllInfo(boolean asc, Map<String, Object> filters) {
         final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
         if (filteredEntries.size() == 0) {

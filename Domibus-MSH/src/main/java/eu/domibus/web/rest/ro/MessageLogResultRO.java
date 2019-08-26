@@ -24,7 +24,7 @@ public class MessageLogResultRO implements Serializable {
     private MessageStatus[] msgStatus;
     private NotificationStatus[] notifStatus;
 
-    private Integer count;
+    private Long count;
     private Integer page;
     private Integer pageSize;
 
@@ -76,11 +76,11 @@ public class MessageLogResultRO implements Serializable {
         this.notifStatus = notifStatus;
     }
 
-    public Integer getCount() {
+    public Long getCount() {
         return count;
     }
 
-    public void setCount(Integer count) {
+    public void setCount(Long count) {
         this.count = count;
     }
 
