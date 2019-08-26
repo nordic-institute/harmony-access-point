@@ -26,7 +26,7 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
         super(typeOfT);
     }
 
-    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) ;
+    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<T> ele) ;
 
     /**
      * Overridden solely in UIMessageDaoImpl, otherwise returns the parameter
@@ -40,7 +40,7 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
     public long countEntries(Map<String, Object> filters) {
         CriteriaBuilder cb = this.em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<?> mle = cq.from(typeOfT);
+        Root<T> mle = cq.from(typeOfT);
         cq.select(cb.count(mle));
         List<Predicate> predicates = getPredicates(filters, cb, mle);
         cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));

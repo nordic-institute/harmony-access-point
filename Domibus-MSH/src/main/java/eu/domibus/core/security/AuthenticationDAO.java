@@ -79,7 +79,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
         return authRoles;
     }
 
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) {
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<AuthenticationEntity> ele) {
         List<Predicate> predicates = new ArrayList<>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() == null || StringUtils.isEmpty((String) filter.getValue()) || StringUtils.isEmpty(filter.getKey())) {

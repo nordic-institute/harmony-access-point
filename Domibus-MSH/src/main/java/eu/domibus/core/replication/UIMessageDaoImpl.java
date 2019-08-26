@@ -212,7 +212,7 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
      * @param ume
      * @return
      */
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ume) {
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<UIMessageEntity> ume) {
         List<Predicate> predicates = new ArrayList<>();
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             String filterKey = filter.getKey();

@@ -34,7 +34,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     }
 
     @Override
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) {
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<ErrorLogEntry> ele) {
         List<Predicate> predicates = new ArrayList<Predicate>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {

@@ -76,7 +76,7 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
     protected abstract MessageLog findByMessageId(String messageId, MSHRole mshRole);
 
     @Override
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> mle) {
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<F> mle) {
         List<Predicate> predicates = new ArrayList<>();
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {
