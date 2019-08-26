@@ -1,7 +1,5 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
@@ -14,13 +12,10 @@ import org.springframework.stereotype.Service;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Handles the change of alert properties that are related to login failure configuration for console users
+ * Handles the change of alert properties that are related to disabled plugin accounts configuration
  */
 @Service
 public class AlertPluginAccountDisabledConfigurationChangeListener implements PluginPropertyChangeListener {
-
-    @Autowired
-    protected DomainService domainService;
 
     @Autowired
     private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
@@ -32,8 +27,6 @@ public class AlertPluginAccountDisabledConfigurationChangeListener implements Pl
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        final Domain domain = domainService.getDomain(domainCode);
-
-        pluginAccountDisabledConfigurationLoader.resetConfiguration(domain);
+        pluginAccountDisabledConfigurationLoader.resetConfiguration();
     }
 }

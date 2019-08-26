@@ -626,10 +626,10 @@ def findNumberOfDomain(String inputSite) {
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema="BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
-        def MAX_WAIT_TIME=50_000;
-        def STEP_WAIT_TIME=2000;
-        def sqlSender = null;
-        int total = 0;
+        def MAX_WAIT_TIME=50_000
+        def STEP_WAIT_TIME=2000
+        def sqlSender = null
+        int total = 0
         openAllDbConnections()
 
         sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
@@ -948,12 +948,12 @@ def findNumberOfDomain(String inputSite) {
     static def uploadPmode(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String message = null, String authUser = null, authPwd = null){
         debugLog("  ====  Calling \"uploadPmode\".", log)
         log.info "  uploadPmode  [][]  Start upload PMode for Domibus \"" + side + "\".";
-        def commandString = null;
-        def commandResult = null;
-        def pmDescription = "SoapUI sample test description for PMode upload. Used Pmode: " + extFilePath ;
-        def multitenancyOn = false;
-        def authenticationUser = authUser;
-        def authenticationPwd = authPwd;
+        def commandString = null
+        def commandResult = null
+        def pmDescription = "SoapUI sample test description for PMode upload. Used Pmode: "// + extFilePath
+        def multitenancyOn = false
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
         def String pmodeFile = computePathRessources(baseFilePath, extFilePath, context, log)
 
         log.info "  uploadPmode  [][]  PMODE FILE PATH: " + pmodeFile;

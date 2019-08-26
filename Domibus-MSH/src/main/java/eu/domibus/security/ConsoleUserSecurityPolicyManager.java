@@ -12,7 +12,6 @@ import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
-import eu.domibus.security.UserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +20,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * Template method pattern derived class responsible for particularities of console users
  */
 
 @Service
@@ -36,7 +36,6 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
     protected static final String MAXIMUM_LOGIN_ATTEMPT = DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT;
 
     protected static final String LOGIN_SUSPENSION_TIME = DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME;
-
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -110,6 +109,11 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
             suspensionInterval = domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
         }
         return suspensionInterval;
+    }
+
+    @Override
+    protected UserEntityBase.Type getUserType() {
+        return UserEntityBase.Type.CONSOLE;
     }
 
     private Domain getCurrentOrDefaultDomainForUser(User user) {

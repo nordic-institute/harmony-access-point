@@ -160,7 +160,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
             httpClientPolicy.setNonProxyHosts(domibusProxy.getNonProxyHosts());
         }
 
-        if (!domibusProxyService.isProxyUserSet()) {
+        if (domibusProxyService.isProxyUserSet()) {
             ProxyAuthorizationPolicy policy = new ProxyAuthorizationPolicy();
             policy.setUserName(domibusProxy.getHttpProxyUser());
             policy.setPassword(domibusProxy.getHttpProxyPassword());

@@ -5,7 +5,7 @@ import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
-import {Headers, Http, Response, URLSearchParams} from '@angular/http';
+import {Http, Response, URLSearchParams} from '@angular/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {MdDialog} from '@angular/material';
@@ -14,6 +14,7 @@ import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import SortableListMixin from "../common/mixins/sortable-list.mixin";
 
 @Component({
   moduleId: module.id,
@@ -21,7 +22,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   providers: []
 })
 
-export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
+export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';
@@ -136,7 +137,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     return body || {};
   }
 
-  getAlertsEntries(offset: number, pageSize: number, orderBy: string, asc: boolean): Observable<AlertsResult> {
+  getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
     const searchParams = this.createSearchParams();
 
     searchParams.set('page', offset.toString());
@@ -221,15 +222,13 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     return searchParams;
   }
 
-  page(offset, pageSize, orderBy, asc) {
+  page(offset, pageSize) {
     this.loading = true;
     this.resetFilters();
-    this.getAlertsEntries(offset, pageSize, orderBy, asc).subscribe((result: AlertsResult) => {
+    this.getAlertsEntries(offset, pageSize).subscribe((result: AlertsResult) => {
       console.log('alerts response: ' + result);
       this.offset = offset;
       this.rowLimiter.pageSize = pageSize;
-      this.orderBy = orderBy;
-      this.asc = asc;
       this.count = result.count;
       const start = offset * pageSize;
       const end = start + pageSize;
@@ -253,7 +252,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   search() {
     console.log('Searching using filter:' + this.filter);
     this.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize, this.orderBy, this.asc);
+    this.page(0, this.rowLimiter.pageSize);
   }
 
   toggleAdvancedSearch() {
@@ -311,20 +310,12 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   onPage(event) {
     console.log('Page Event', event);
-    this.page(event.offset, event.pageSize, this.orderBy, this.asc);
-  }
-
-  onSort(event) {
-    let ascending = true;
-    if (event.newValue === 'desc') {
-      ascending = false;
-    }
-    this.page(0, this.rowLimiter.pageSize, event.column.prop, ascending);
+    this.page(event.offset, event.pageSize);
   }
 
   changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;
-    this.page(0, newPageLimit, this.orderBy, this.asc);
+    this.page(0, newPageLimit);
   }
 
   saveAsCSV() {
@@ -348,7 +339,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       .afterClosed().subscribe(result => {
       if (result) {
         this.isDirty = false;
-        this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
+        this.page(this.offset, this.rowLimiter.pageSize);
       }
     });
   }
@@ -359,14 +350,14 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       if (result) {
         this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
           this.alertService.success('The operation \'update alerts\' completed successfully.', false);
-          this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
+          this.page(this.offset, this.rowLimiter.pageSize);
           this.isDirty = false;
           if (withDownloadCSV) {
             DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
           }
         }, err => {
           this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
-          this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
+          this.page(this.offset, this.rowLimiter.pageSize);
         });
       } else {
         if (withDownloadCSV) {

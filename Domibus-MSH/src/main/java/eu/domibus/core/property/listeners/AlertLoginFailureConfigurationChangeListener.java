@@ -1,10 +1,7 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +17,7 @@ import org.springframework.stereotype.Service;
 public class AlertLoginFailureConfigurationChangeListener implements PluginPropertyChangeListener {
 
     @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
+    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -34,9 +28,7 @@ public class AlertLoginFailureConfigurationChangeListener implements PluginPrope
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        final Domain domain = domainService.getDomain(domainCode);
-
-        loginFailureConfigurationLoader.resetConfiguration(domain);
+        multiDomainAlertConfigurationService.clearLoginFailureConfiguration();
     }
 
 }
