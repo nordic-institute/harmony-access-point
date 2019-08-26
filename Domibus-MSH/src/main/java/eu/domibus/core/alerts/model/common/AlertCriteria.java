@@ -16,9 +16,9 @@ public class AlertCriteria {
 
     private int pageSize;
 
-    private Boolean ask;
+    private Boolean asc;
 
-    private String column;
+    private String orderBy;
 
     private Boolean processed;
 
@@ -62,20 +62,20 @@ public class AlertCriteria {
         this.pageSize = pageSize;
     }
 
-    public Boolean getAsk() {
-        return ask;
+    public Boolean getAsc() {
+        return asc;
     }
 
-    public void setAsk(Boolean ask) {
-        this.ask = ask;
+    public void setAsc(Boolean asc) {
+        this.asc = asc;
     }
 
-    public String getColumn() {
-        return column;
+    public String getOrderBy() {
+        return orderBy;
     }
 
-    public void setColumn(String column) {
-        this.column = column;
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
     }
 
     public Boolean isProcessed() {

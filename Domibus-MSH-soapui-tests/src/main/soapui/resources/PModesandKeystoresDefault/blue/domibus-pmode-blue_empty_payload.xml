@@ -22,21 +22,19 @@
 			<role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
 			<role name="defaultInitiatorRoleEmpty" value=" "/>
 			<role name="defaultResponderRoleEmpty" value=" "/>
-			<role name="peppolSenderRole" value="urn:fdc:peppol.eu:2017:roles:ap:sender"/> 
-			<role name="peppolReceiverRole" value="urn:fdc:peppol.eu:2017:roles:ap:receiver"/>
 		</roles>
 		<parties>
 			<partyIdTypes>
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-
+				<partyIdType name="partyTypeEmpty" value=""/>
 			</partyIdTypes>
 			<party name="red_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
+			<party name="blue_gw" endpoint="http://localhost:8280/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="white_gw" endpoint="http://localhost:8380/domibus/services/msh" allowChunking="false">
+			<party name="white_gw" endpoint="http://localhost:8280/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-white" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="black_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
@@ -83,9 +81,6 @@
 				<attachment name="businessContentPayloadInBodyTwo"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadOptionalAttachment" maxSize="40894464">
-				<attachment name="businessContentAttachment"/>
-			</payloadProfile>				
 		</payloadProfiles>
 		<securities>
 			<security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
@@ -99,7 +94,6 @@
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
 			<!-- <errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="true" businessErrorNotifyConsumer="true" deliveryFailureNotifyProducer="true"/> -->
-			<errorHandling name="secondErrorHandlingAllTrue" errorAsResponse="true" businessErrorNotifyProducer="true"  businessErrorNotifyConsumer="true"  deliveryFailureNotifyProducer="true"/>
 		</errorHandlings>
 		<agreements>
 			<agreement name="agreementEmpty" value="" type=""/>
@@ -138,8 +132,8 @@
 			<service name="testService25" value="bdx:noprocess" type="tc25"/>
 			<service name="testService26" value="bdx:noprocess" type="tc26"/>
 			<service name="connectivityservice" value="http://ec.europa.eu/e-delivery/services/connectivity-service" type="edelivery"/>			
-			<service name="InboxBundleTransmissionService" value="InboxBundleTransmissionService" type="eDeliverySecond"/>
-			<service name="testService27" value="bdx:noprocess" type="tc27"/>			
+
+            <service name="InboxBundleTransmissionService"      value="InboxBundleTransmissionService"      type="eDelivery"/>			
 		</services>
 		<actions>
 			<action name="tc1Action" value="TC1Leg1"/>
@@ -169,8 +163,8 @@
 			<action name="tc25Action" value="TC25Leg1"/>
 			<action name="tc26Action" value="TC26Leg1"/>
 			<action name="submitMessage" value="submitMessage"/>			
-            <action name="ackInboxBundleNotification" value="AckInboxBundleNotification"/>			
-			<action name="tc27Action" value="TC27Leg1"/>			
+			
+            <action name="ackInboxBundleNotification"             value="AckInboxBundleNotification"/>			
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
@@ -205,11 +199,23 @@
 			<legConfiguration name="pushTestcase24tc24Action" service="testService24" action="tc24Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBody" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase25tc25Action" service="testService25" action="tc25Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBodyTwo" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase26tc26Action" service="testService26" action="tc26Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyNoBodyEncrypt" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBody" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			<!-- backendToNodeAckBundleTxResponse is missing payloadProfile part -->
-			<legConfiguration name="backendToNodeAckBundleTxResponse" service="InboxBundleTransmissionService" action="ackInboxBundleNotification" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet"               errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>	
-			<legConfiguration name="pushTestcase27tc27Action" service="testService27" action="tc27Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadOptionalAttachment" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			
+			<legConfiguration name="backendToNodeAckBundleTxResponse"               service="InboxBundleTransmissionService"        action="ackInboxBundleNotification"             compressPayloads="true" defaultMpc="defaultMpc"      reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness"      propertySet="ecodexPropertySet"                                          errorHandling="defaultErrorHandling"/>
+						
 			</legConfigurations>
-
+		<process name="etxAS4_PUSHProcess" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="backendToNodeAckBundleTxResponse"/>
+			</legs>
+		</process>			
 			
 		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
@@ -562,32 +568,5 @@
 				<leg name="pushTestcase26tc26Action"/>
 			</legs>
 		</process>
-		<process name="etxAS4_PUSHProcess" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="backendToNodeAckBundleTxResponse"/>
-			</legs>
-		</process>	
-		<process name="tc27Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="peppolSenderRole" responderRole="peppolReceiverRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase27tc27Action"/>
-			</legs>
-		</process>
-		
 	</businessProcesses>
 </db:configuration>
