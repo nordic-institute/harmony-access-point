@@ -67,7 +67,7 @@ public class AlertResourceTest {
         }};
         String[] params = {"USER"};
         AlertFilterRequestRO req = new AlertFilterRequestRO(){{
-            setColumn("col1");
+            setOrderBy("col1");
             setProcessed("false");
             setParameters(params);
             setDomainAlerts(true);
