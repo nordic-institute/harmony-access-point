@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.testng.ISuiteListener;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
@@ -34,7 +35,7 @@ public class ExcelTestReporter implements ITestListener {
 	private static String filename;
 
 
-	@Override
+
 	/*Creates the report file, the sheet and writes the headers of the table with style as well*/
 	public void onStart(ITestContext iTestContext) {
 
@@ -66,12 +67,12 @@ public class ExcelTestReporter implements ITestListener {
 
 	}
 
-	@Override
+
 	public void onFinish(ITestContext iTestContext) {
 
 	}
 
-	@Override
+
 	public void onTestStart(ITestResult iTestResult) {
 		System.out.println("---------------------------------------------------");
 		System.out.println(iTestResult.getTestClass().getName() + " - " + iTestResult.getName());
@@ -79,7 +80,7 @@ public class ExcelTestReporter implements ITestListener {
 	}
 
 	/* Writes a row in the report file with the test id, name  and Pass as status */
-	@Override
+
 	public void onTestSuccess(ITestResult iTestResult) {
 		try {
 			writeRowToReportFile(iTestResult, "Pass");
@@ -89,7 +90,7 @@ public class ExcelTestReporter implements ITestListener {
 	}
 
 	/* Writes a row in the report file with the test id, name  and FAIL as status*/
-	@Override
+
 	public void onTestFailure(ITestResult iTestResult) {
 		try {
 			writeRowToReportFile(iTestResult, "FAIL");
@@ -99,7 +100,7 @@ public class ExcelTestReporter implements ITestListener {
 	}
 
 	/* Writes a row in the report file with the test id, name and Skipped as status */
-	@Override
+
 	public void onTestSkipped(ITestResult iTestResult) {
 		try {
 			writeRowToReportFile(iTestResult, "Skipped");
@@ -108,7 +109,6 @@ public class ExcelTestReporter implements ITestListener {
 		}
 	}
 
-	@Override
 	public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
 
 	}
