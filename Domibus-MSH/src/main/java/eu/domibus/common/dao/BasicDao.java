@@ -22,7 +22,6 @@ import java.util.Map;
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
-
 public abstract class BasicDao<T extends AbstractBaseEntity> {
 
     protected final Class<T> typeOfT;

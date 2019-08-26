@@ -16,7 +16,6 @@ import java.util.Map;
  * @author Ion Perpegel
  * @since 4.1
  */
-
 public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> {
 
     /**
