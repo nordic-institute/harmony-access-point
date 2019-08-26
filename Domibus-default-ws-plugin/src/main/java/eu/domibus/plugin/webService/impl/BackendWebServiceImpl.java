@@ -111,7 +111,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
             boolean foundPayload = false;
             final String href = extendedPartInfo.getHref();
-            LOG.debug("Looking for payload: " + href);
+            LOG.debug("Looking for payload: {}", href);
             for (final LargePayloadType payload : submitRequest.getPayload()) {
                 LOG.debug("comparing with payload id: " + payload.getPayloadId());
                 if (StringUtils.equalsIgnoreCase(payload.getPayloadId(), href)) {
@@ -268,6 +268,11 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     }
 
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
+        if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
+            LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
+            return;
+        }
+
         for (final PartInfo partInfo : messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
             ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
@@ -282,6 +287,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
                 retrieveMessageResponse.value.getPayload().add(payloadType);
             }
         }
+
     }
 
     private FaultDetail createDownloadMessageFault(Exception ex) {
