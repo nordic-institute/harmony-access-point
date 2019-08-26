@@ -17,6 +17,7 @@ import static pages.Audit.AuditPage.*;
 public class AuditSearchFilters extends DComponent {
     public AuditSearchFilters(WebDriver driver) {
         super(driver);
+        log.debug("AuditSearchfilter page init");
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
     }
 
@@ -68,11 +69,12 @@ public class AuditSearchFilters extends DComponent {
     }
 
     public WebElement getElementByFieldLabel(String fieldLabel) {
+        wait.forElementToBeVisible(driver.findElement(By.xpath(getXpathOfSearchFilter(fieldLabel))));
         return driver.findElement(By.xpath(getXpathOfSearchFilter(fieldLabel)));
     }
 
     public boolean advanceFiltersLoaded() throws Exception {
-        log.info("Loading Advanced filter ");
+        log.debug("Loading Advanced filter ");
         return (getElementByFieldLabel(Table_FieldLabel).isDisplayed()
                 && getElementByFieldLabel(Action_FieldLabel).isDisplayed()
                 && getElementByFieldLabel(User_FieldLabel).isDisplayed()
@@ -84,19 +86,19 @@ public class AuditSearchFilters extends DComponent {
 
     public void setFilterData(String fieldLabel, String data) {
         if (fieldLabel.equalsIgnoreCase("table")) {
-            log.info("Input field label is :" + fieldLabel);
+            log.debug("Input field label is :" + fieldLabel);
             wait.forElementToBeVisible(tableContainerArrow);
             tableContainerArrow.click();
         } else if (fieldLabel.equalsIgnoreCase("action")) {
-            log.info("Input field label is :" + fieldLabel);
+            log.debug("Input field label is :" + fieldLabel);
             wait.forElementToBeVisible(actionContainerArrow);
             actionContainerArrow.click();
         } else if (fieldLabel.equalsIgnoreCase("user")) {
-            log.info("Input field label is :" + fieldLabel);
+            log.debug("Input field label is :" + fieldLabel);
             wait.forElementToBeVisible(userContainerArrow);
             userContainerArrow.click();
         } else {
-            log.info("Invalid Input field label is passed");
+            log.debug("Invalid Input field label is passed");
         }
         getInputFieldValue(data);
         getPage().clickVoidSpace();
@@ -109,6 +111,7 @@ public class AuditSearchFilters extends DComponent {
     }
 
     public WebElement getInputFieldValue(String fieldLabel) {
+        wait.forElementToBeVisible(driver.findElement(By.xpath(getXpathOfInputCheckbox(fieldLabel))));
         return driver.findElement(By.xpath(getXpathOfInputCheckbox(fieldLabel)));
     }
 

@@ -18,6 +18,7 @@ import utils.Generator;
 public class ChangePasswordPage extends DomibusPage {
     public ChangePasswordPage(WebDriver driver) {
         super(driver);
+        log.debug("Change Password  page init");
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
     }
     public static final String NewPassword_Field_label ="New Password";
@@ -66,10 +67,10 @@ public class ChangePasswordPage extends DomibusPage {
      */
 
     public Boolean verifyFieldHeader() throws Exception {
-        log.info("Verifying Field Header...");
+        log.debug("Verifying Field Header...");
         String rawTitle = getPageNameObj().getText();
         boolean toReturn = StringUtils.equalsIgnoreCase(rawTitle, "Change Password");
-        log.info("Opened Page is  : " + toReturn);
+        log.debug("Opened Page is  : " + toReturn);
         return toReturn;
     }
 
@@ -79,27 +80,27 @@ public class ChangePasswordPage extends DomibusPage {
 
     public boolean isLoaded() {
 
-        log.info("check if is loaded");
+        log.debug("check if is loaded");
         wait.forElementToBeVisible(CurrentPassField);
         wait.forElementToBeVisible(NewPassField);
         wait.forElementToBeVisible(ConfirmationField);
         if (!CurrentPassField.isEnabled()) {
-            log.error("Could not find current password  input");
+            log.debug("Could not find current password  input");
             return false;
         }
         if (!NewPassField.isEnabled()) {
-            log.error("Could not find new password  input");
+            log.debug("Could not find new password  input");
             return false;
         }
         if (!ConfirmationField.isEnabled()) {
-            log.error("Could not find Confirmation input");
+            log.debug("Could not find Confirmation input");
             return false;
         }
         if (UpdateButton.isEnabled()) {
-            log.error("Could not find disable Update Button");
+            log.debug("Could not find disable Update Button");
             return false;
         }
-        log.info("Change Password page controls loaded");
+        log.debug("Change Password page controls loaded");
         return true;
     }
 
@@ -109,11 +110,11 @@ public class ChangePasswordPage extends DomibusPage {
      * @param ConfirmPass:- Data for Confirmation Field
       */
     public void setPassFields(String CPass, String NPass, String ConfirmPass) throws Exception {
-        log.info("User enters data in current password field");
+        log.debug("User enters data in current password field");
         getCPassField().fill(CPass);
-        log.info("User enters data in New password field");
+        log.debug("User enters data in New password field");
         getNPassField().fill(NPass);
-        log.info("User enters data in Confirmation field");
+        log.debug("User enters data in Confirmation field");
         getConfirmationField().fill(ConfirmPass);
 
     }
@@ -149,7 +150,7 @@ This method print message under provided FieldLabel
     public String getValidationMsg(String fieldName) throws Exception {
         WebElement elm = driver.findElement(By.xpath(getXpathOfValidationMsg(fieldName)));
         wait.forElementToBeVisible(elm);
-        log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
+        log.debug("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
         return elm.getText().trim();
     }
 

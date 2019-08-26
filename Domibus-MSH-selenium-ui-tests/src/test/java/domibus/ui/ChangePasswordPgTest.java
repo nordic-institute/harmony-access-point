@@ -4,12 +4,17 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import domibus.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
 import pages.errorLog.ErrorLogPage;
 import pages.login.LoginPage;
+import pages.messages.MessagesPage;
 import utils.Generator;
+
+import static org.reflections.Reflections.log;
+
 
 /**
  * @author Rupam
@@ -33,7 +38,7 @@ public class ChangePasswordPgTest extends BaseTest {
         loginPage.login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
-        log.info("Validated if Change password link is available in Sandwich menu");
+        log.info("Validate if Change password link is available in Sandwich menu");
         soft.assertTrue(page.getSandwichMenu().isPresent(), "Change Password link is available");
         log.info("Open ChangePassword Page by clicking link");
         page.getSandwichMenu().OpenchangePassword();
@@ -103,6 +108,7 @@ public class ChangePasswordPgTest extends BaseTest {
     public void NavigationwithoutClickingUpdate() throws Exception {
         SoftAssert soft = new SoftAssert();
         LoginPage loginPage = new LoginPage(driver);
+        MessagesPage Mpage= new MessagesPage(driver);
         log.info("Validate login page ");
         soft.assertTrue(loginPage.isLoaded(),"page is opened successfully");
         log.info("Login into application with admin credentials");
@@ -124,7 +130,7 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("login into application with previous admin credentials");
         loginPage.login(data.getAdminUser());
         log.info("Validate User is logged in into application");
-        soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
+        soft.assertTrue(Mpage.isLoaded(), "User logged in");
         soft.assertAll();
     }
 
@@ -176,7 +182,7 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("press tab key");
         Cpage.pressTABKey();
         log.info("Validation message appears");
-        soft.assertTrue(!Cpage.getValidationMsg(Cpage.Confirmation_Field_label).isEmpty(),"Message is displayed");
+        soft.assertEquals(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Passwords do not match");
         soft.assertAll();
     }
 

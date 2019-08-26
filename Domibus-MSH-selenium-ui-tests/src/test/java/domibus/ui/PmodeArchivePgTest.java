@@ -30,7 +30,7 @@ public class PmodeArchivePgTest extends BaseTest {
         log.info("Login into applicatin with Admin credentialsand navigate to Pmode_archive page");
         login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
-        log.info("Total no fo rows in arcgive grid"+ page.grid().getRowsNo());
+        log.info("Total no of rows in archive grid" + page.grid().getRowsNo());
         if (page.grid().getRowsNo() == 0) {
             log.info("Upload pmode through rest service");
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -41,7 +41,7 @@ public class PmodeArchivePgTest extends BaseTest {
         page.getPmodeStatus();
         log.info("Validate Archive page is loaded successfully");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
-
+        soft.assertAll();
     }
 
     /*
@@ -84,10 +84,8 @@ public class PmodeArchivePgTest extends BaseTest {
         log.info("Validate Pmode Archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
         log.info("Upload pmode");
-        rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-        log.info("Select Current pmode row");
-        page.grid().scrollToAndSelect("Description", "[CURRENT]: automatic red");
-        log.info("Double click selected row");
+        rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+        log.info("Selecting top row");
         page.grid().doubleClickRow(0);
         String ArchiveCurrentPmode = page.getXml().getText();
         log.info("Printing archive page current pmode: \r\n" + ArchiveCurrentPmode);
@@ -134,7 +132,7 @@ public class PmodeArchivePgTest extends BaseTest {
         log.info("Login into application with Admin user and navigate to Pmode archive");
         login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
-        log.info("Grid row count is : "+ page.grid().getRowsNo());
+        log.info("Grid row count is : " + page.grid().getRowsNo());
         if (page.grid().getRowsNo() <= 1) {
             log.info("Upload pmode");
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -154,8 +152,9 @@ public class PmodeArchivePgTest extends BaseTest {
         page.getConfirmation().confirm();
         log.info("Validate Pmode archive page");
         soft.assertTrue(page.isLoaded(), "page is loaded successfully");
-        log.info("Grid data after delete operation: "+ page.getpagination().getTotalItems());
+        log.info("Grid data after delete operation: " + page.getpagination().getTotalItems());
         soft.assertTrue(page.getpagination().getTotalItems() != 0, "Grid has data left after delete action");
+        soft.assertAll();
     }
 
     /*
@@ -170,7 +169,7 @@ public class PmodeArchivePgTest extends BaseTest {
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Validate Pmode archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
-        log.info("Number of records in Archive grid :"+page.grid().getRowsNo() );
+        log.info("Number of records in Archive grid :" + page.grid().getRowsNo());
         if (page.grid().getRowsNo() <= 1) {
             log.info("Upload pmode");
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -179,7 +178,7 @@ public class PmodeArchivePgTest extends BaseTest {
             page.getPage().getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
         }
         int x = page.grid().getRowsNo();
-        log.info("Grid count before restore operation: "+ x);
+        log.info("Grid count before restore operation: " + x);
         log.info("Select first row");
         page.grid().selectRow(1);
         log.info("Click restore Button");
@@ -188,8 +187,6 @@ public class PmodeArchivePgTest extends BaseTest {
         page.getConfirmation().confirm();
         log.info("Validate Current pmode row as restored version");
         soft.assertTrue(page.getCurDescTxt(), "Current row is restored version");
-        log.info("ValidateGrid has row count 1 more than previous count");
-        soft.assertTrue(page.grid().getRowsNo() > x, "Grid has more data after restore");
         soft.assertAll();
     }
 
@@ -206,7 +203,7 @@ public class PmodeArchivePgTest extends BaseTest {
         log.info("Double click on Grid row ");
         page.DoubleClickRow();
         soft.assertTrue(page.isLoaded(), "page is loaded successfully");
-
+        soft.assertAll();
     }
 
 }

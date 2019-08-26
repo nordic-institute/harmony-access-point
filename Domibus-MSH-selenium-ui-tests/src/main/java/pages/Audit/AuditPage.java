@@ -15,7 +15,7 @@ public class AuditPage extends DomibusPage {
 
     public AuditPage(WebDriver driver) {
         super(driver);
-        log.info("Messages page init");
+        log.debug("Audit page init");
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
     }
@@ -69,7 +69,7 @@ public class AuditPage extends DomibusPage {
 
     public boolean isGridEmpty() {
         if (grid().getRowsNo() != 0) {
-            log.info("Data is found in Archive grid");
+            log.debug("Data is found in Archive grid");
             return false;
         }
         return true;

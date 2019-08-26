@@ -62,7 +62,7 @@ public class UiReplicationTest {
         log.info("Create plugin user with rest call");
         rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 50; i++) {
             log.info("Upload pmode");
             rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
             log.info("send message through rest call");
