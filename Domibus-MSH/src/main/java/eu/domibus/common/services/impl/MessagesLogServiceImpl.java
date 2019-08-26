@@ -96,13 +96,17 @@ public class MessagesLogServiceImpl implements MessagesLogService {
             int numberOfSignalMessageLogs = signalMessageLogDao.countAllInfo(asc, filters);
             LOG.debug("count Signal Messages Logs [{}]", numberOfSignalMessageLogs);
             result.setCount(numberOfSignalMessageLogs);
-            resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            if (numberOfSignalMessageLogs > 0) {
+                resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            }
 
         } else if (messageType == MessageType.USER_MESSAGE) {
             int numberOfUserMessageLogs = userMessageLogDao.countAllInfo(asc, filters);
             LOG.debug("count User Messages Logs [{}]", numberOfUserMessageLogs);
             result.setCount(numberOfUserMessageLogs);
-            resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            if (numberOfUserMessageLogs > 0) {
+                resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            }
         }
         result.setMessageLogEntries(resultList
                 .stream()

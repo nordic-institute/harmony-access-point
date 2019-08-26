@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A basic DAO implementation providing the standard CRUD operations,
+ * A basic DAO implementation providing standard list operations (filter, page, sort, count)
  *
- * @author Christian Koch, Stefan Mueller, Federico Martini
- * @since 3.0
+ * @author Ion Perpegel
+ * @since 4.1
  */
 
 public abstract class FilterableDao<T extends AbstractBaseEntity> extends BasicDao<T> {
