@@ -212,7 +212,7 @@ public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements 
      * @param ume
      * @return
      */
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<? extends UIMessageEntity> ume) {
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ume) {
         List<Predicate> predicates = new ArrayList<>();
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             String filterKey = filter.getKey();
@@ -234,7 +234,7 @@ public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements 
         return predicates;
     }
 
-    private void addStringPredicates(CriteriaBuilder cb, Root<? extends UIMessageEntity> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {
+    private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {
         if (StringUtils.isNotBlank(filterKey) && !filter.getValue().toString().isEmpty()) {
 
             String filterColumn = filterKeyToColumnMap.get(filterKey);
@@ -242,7 +242,7 @@ public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements 
         }
     }
 
-    private void addDatePredicates(CriteriaBuilder cb, Root<? extends UIMessageEntity> ume, List<Predicate> predicates, String filterKey, Object filterValue) {
+    private void addDatePredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, String filterKey, Object filterValue) {
         if (!filterValue.toString().isEmpty()) {
             switch (filterKey) {
                 case "receivedFrom":
