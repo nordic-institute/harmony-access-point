@@ -1,11 +1,8 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
+import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,13 +14,10 @@ import org.springframework.stereotype.Service;
  * Handles the change of alert properties that are related to login failure configuration for console users
  */
 @Service
-public class AlertLoginFailureConfigurationChangeListener implements PluginPropertyChangeListener {
+public class AlertLoginFailureConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
+    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -34,9 +28,7 @@ public class AlertLoginFailureConfigurationChangeListener implements PluginPrope
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        final Domain domain = domainService.getDomain(domainCode);
-
-        loginFailureConfigurationLoader.resetConfiguration(domain);
+        multiDomainAlertConfigurationService.clearLoginFailureConfiguration();
     }
 
 }

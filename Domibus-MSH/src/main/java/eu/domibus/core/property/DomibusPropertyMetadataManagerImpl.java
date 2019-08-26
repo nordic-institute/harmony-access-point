@@ -125,8 +125,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CHECK_CRON),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, true, true),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON),
                 new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_CRON, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, true, true),
@@ -212,6 +212,16 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_LEVEL, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT, true, true),
+
+                new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_DYNAMIC_INITIATOR, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_MULTIPLE_LEGS, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_FORCE_BY_MPC, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PULL_QUEUE_CONCURENCY, true, true),
 
 
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));

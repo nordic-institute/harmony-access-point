@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,7 @@ public class TruststoreResource extends BaseResource {
 
     @PostMapping(value = "/save")
     public ResponseEntity<String> uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststore,
-                                                       @RequestParam("password") String password) throws IOException {
+                                                       @SkipWhiteListed @RequestParam("password") String password) throws IOException {
         if (truststore.isEmpty()) {
             return ResponseEntity.badRequest().body("Failed to upload the truststore file since it was empty.");
         }

@@ -50,6 +50,7 @@ public class MessageListenerContainerInitializer {
             createSendLargeMessageListenerContainer(domain);
             createSplitAndJoinListenerContainer(domain);
             createPullReceiptListenerContainer(domain);
+            createPullMessageListenerContainer(domain);
             createRetentionListenerContainer(domain);
 
             createMessageListenersForPlugins(domain);
@@ -128,6 +129,14 @@ public class MessageListenerContainerInitializer {
         instance.start();
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);
+    }
+
+    public void createPullMessageListenerContainer(Domain domain) {
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createPullMessageListenerContainer(domain);
+        removeInstance(domain, instance.getName());
+        instance.start();
+        instances.add(instance);
+        LOG.info("PullListenerContainer initialized for domain [{}]", domain);
     }
 
     private void removeInstance(Domain domain, String beanName) {

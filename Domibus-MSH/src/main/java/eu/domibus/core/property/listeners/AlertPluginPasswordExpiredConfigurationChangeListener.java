@@ -1,11 +1,9 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.RepetitiveAlertConfigurationHolder;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
+import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,16 +12,13 @@ import org.springframework.stereotype.Service;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Handles the change of alert properties that are related to configuration of imminent certificate expiration alerts
+ * Handles the change of alert properties that are related to configuration of expired plugin password alerts
  */
 @Service
-public class AlertPluginPasswordExpiredConfigurationChangeListener implements PluginPropertyChangeListener {
+public class AlertPluginPasswordExpiredConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    private RepetitiveAlertConfigurationHolder passwordExpirationAlertsConfigurationHolder;
+    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -32,9 +27,7 @@ public class AlertPluginPasswordExpiredConfigurationChangeListener implements Pl
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        final Domain domain = domainService.getDomain(domainCode);
-
-        passwordExpirationAlertsConfigurationHolder.resetConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED, domain);
+        multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED);
     }
 }
 

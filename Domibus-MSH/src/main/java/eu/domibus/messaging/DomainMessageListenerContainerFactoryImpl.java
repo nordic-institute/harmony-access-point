@@ -49,4 +49,10 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
         return (DomainMessageListenerContainer) applicationContext.getBean("retentionContainer", domain);
     }
 
+    @Override
+    public DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain) {
+        LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("pullMessageContainer", domain);
+    }
+
 }

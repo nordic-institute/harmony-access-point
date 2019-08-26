@@ -1,11 +1,9 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.model.service.*;
+import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALE
  * Handles the change of alert enabled property
  */
 @Service
-public class AlertActiveChangeListener implements PluginPropertyChangeListener {
+public class AlertActiveChangeListener implements DomibusPropertyChangeListener {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertActiveChangeListener.class);
 
@@ -29,34 +27,7 @@ public class AlertActiveChangeListener implements PluginPropertyChangeListener {
     private MailSender mailSender;
 
     @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    private ConfigurationLoader<MessagingModuleConfiguration> messagingConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<AccountDisabledModuleConfiguration> accountDisabledConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> pluginLoginFailureConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<ImminentExpirationCertificateModuleConfiguration> imminentExpirationCertificateConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<ExpiredCertificateModuleConfiguration> expiredCertificateConfigurationLoader;
-
-    @Autowired
-    private ConfigurationLoader<CommonConfiguration> commonConfigurationConfigurationLoader;
-
-    @Autowired
-    private RepetitiveAlertConfigurationHolder passwordExpirationAlertsConfigurationHolder;
+    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -69,16 +40,7 @@ public class AlertActiveChangeListener implements PluginPropertyChangeListener {
 
         mailSender.reset();
 
-        final Domain domain = domainService.getDomain(domainCode);
-        messagingConfigurationLoader.resetConfiguration(domain);
-        accountDisabledConfigurationLoader.resetConfiguration(domain);
-        pluginAccountDisabledConfigurationLoader.resetConfiguration(domain);
-        loginFailureConfigurationLoader.resetConfiguration(domain);
-        pluginLoginFailureConfigurationLoader.resetConfiguration(domain);
-        imminentExpirationCertificateConfigurationLoader.resetConfiguration(domain);
-        expiredCertificateConfigurationLoader.resetConfiguration(domain);
-        commonConfigurationConfigurationLoader.resetConfiguration(domain);
-        passwordExpirationAlertsConfigurationHolder.resetConfiguration(domain);
+        multiDomainAlertConfigurationService.clearAllConfigurations();
     }
 
 }

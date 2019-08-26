@@ -204,6 +204,16 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT = DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_PREFIX + "moment";
     String DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT = DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_PREFIX + "subject";
 
+    String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
+    String DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME = "domibus.pull.request.frequency.recovery.time";
+    String DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT = "domibus.pull.request.frequency.error.count";
+    String DOMIBUS_PULL_DYNAMIC_INITIATOR = "domibus.pull.dynamic.initiator";
+    String DOMIBUS_PULL_MULTIPLE_LEGS = "domibus.pull.multiple_legs";
+    String DOMIBUS_PULL_FORCE_BY_MPC = "domibus.pull.force_by_mpc";
+    String DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR = "domibus.pull.mpc_initiator_separator";
+    String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
+    String DOMIBUS_PULL_QUEUE_CONCURENCY = "domibus.pull.queue.concurency";
+
 
     /**
      * Get all the properties metadata that support changing at runtime

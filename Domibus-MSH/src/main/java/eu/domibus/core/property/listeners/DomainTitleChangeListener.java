@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.common.services.DomibusCacheService;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,11 +11,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMAIN_TITL
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Handles the change of domain title property
  */
 @Service
-public class DomainTitleChangeListener implements PluginPropertyChangeListener {
+public class DomainTitleChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     private DomibusCacheService domibusCacheService;

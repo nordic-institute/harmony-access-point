@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.proxy.DomibusProxyService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Handles the change of proxy property
  */
 @Service
-public class ProxyChangeListener implements PluginPropertyChangeListener {
+public class ProxyChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     @Qualifier("domibusProxyService")

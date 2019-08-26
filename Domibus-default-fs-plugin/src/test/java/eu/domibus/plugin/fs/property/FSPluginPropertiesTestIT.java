@@ -2,7 +2,6 @@ package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

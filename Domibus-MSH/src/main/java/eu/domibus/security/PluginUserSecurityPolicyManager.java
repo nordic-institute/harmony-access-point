@@ -98,4 +98,6 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
         return domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
     }
 
+    @Override
+    protected UserEntityBase.Type getUserType() { return UserEntityBase.Type.PLUGIN; }
 }

@@ -36,7 +36,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (shouldSkipValidation((HandlerMethod) handler)) {
+        if (handler instanceof HandlerMethod && shouldSkipValidation((HandlerMethod) handler)) {
             return true;
         }
 

@@ -1,5 +1,10 @@
 package eu.domibus.api.property;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * Class that encapsulates the properties of a domibus configuration property;
+ */
 public class DomibusPropertyMetadata {
 
     private String name;
@@ -30,6 +35,9 @@ public class DomibusPropertyMetadata {
 
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return new DomibusPropertyMetadata(name, false, false);
+    }
+
+    public DomibusPropertyMetadata() {
     }
 
     public DomibusPropertyMetadata(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {

@@ -8,6 +8,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_FORCE_BY_MPC;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR;
+
 /**
  * @author idragusa
  * @since 4.1
@@ -15,10 +18,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class MpcServiceImpl implements MpcService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MpcServiceImpl.class);
-
-    protected static final String DOMIBUS_PULL_FORCE_BY_MPC = "domibus.pull.force_by_mpc";
-
-    protected static final String DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR = "domibus.pull.mpc_initiator_separator";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
