@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends FilterableDao<F> {
+public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
 

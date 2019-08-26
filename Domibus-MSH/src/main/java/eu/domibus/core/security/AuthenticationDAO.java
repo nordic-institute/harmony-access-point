@@ -1,7 +1,7 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.common.dao.FilterableDao;
+import eu.domibus.common.dao.ListDao;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Repository("securityAuthenticationDAO")
 @Transactional
-public class AuthenticationDAO extends FilterableDao<AuthenticationEntity> implements UserDaoBase<AuthenticationEntity> {
+public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements UserDaoBase<AuthenticationEntity> {
 
     public AuthenticationDAO() {
         super(AuthenticationEntity.class);

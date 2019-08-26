@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * @author Christian Koch, Stefan Mueller
  */
-public class ErrorLogDao extends FilterableDao<ErrorLogEntry> {
+public class ErrorLogDao extends ListDao<ErrorLogEntry> {
 
     @Autowired
     private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;

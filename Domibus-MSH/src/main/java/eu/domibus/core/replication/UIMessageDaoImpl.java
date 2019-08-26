@@ -3,7 +3,7 @@ package eu.domibus.core.replication;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.FilterableDao;
+import eu.domibus.common.dao.ListDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,7 @@ import java.util.*;
  * @since 4.0
  */
 @Repository
-public class UIMessageDaoImpl extends FilterableDao<UIMessageEntity> implements UIMessageDao {
+public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMessageDao {
 
     /**
      * logger

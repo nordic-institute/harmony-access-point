@@ -17,19 +17,22 @@ import java.util.Map;
  * @since 4.1
  */
 
-public abstract class FilterableDao<T extends AbstractBaseEntity> extends BasicDao<T> {
+public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> {
 
     /**
      * @param typeOfT The entity class this DAO provides access to
      */
-    public FilterableDao(final Class<T> typeOfT) {
+    public ListDao(final Class<T> typeOfT) {
         super(typeOfT);
     }
 
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) {
-        return null;
-    }
+    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<?> ele) ;
 
+    /**
+     * Overridden solely in UIMessageDaoImpl, otherwise returns the parameter
+     * @param sortColumn
+     * @return
+     */
     protected String getSortColumn(String sortColumn) {
         return sortColumn;
     }
