@@ -37,6 +37,9 @@ public class DomibusPropertyMetadata {
         return new DomibusPropertyMetadata(name, false, false);
     }
 
+    public DomibusPropertyMetadata() {
+    }
+
     public DomibusPropertyMetadata(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;

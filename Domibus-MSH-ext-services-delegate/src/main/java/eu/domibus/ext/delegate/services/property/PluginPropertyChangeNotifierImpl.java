@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
  * @since 4.1.1
  *
  * The plugin api equivalent of DomibusPropertyChangeNotifierImpl
- * Handles the change of a domibus property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
+ * Handles the change of a domibus plugin property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
  */
 @Service
 public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
-    @Autowired
+    @Autowired(required = false)
     private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
 
     @Autowired
