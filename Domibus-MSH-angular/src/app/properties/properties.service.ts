@@ -43,8 +43,8 @@ export class PropertiesService {
 }
 
 export class PropertyModel {
-  name: string;
   value: string;
+  metadata: any;
 }
 
 export class PropertyListModel {

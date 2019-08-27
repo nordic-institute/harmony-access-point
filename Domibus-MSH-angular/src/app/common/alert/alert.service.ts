@@ -125,7 +125,7 @@ export class AlertService {
       } catch (e) {
       }
     }
-    if (errMsg) {
+    if (errMsg && errMsg.replace) {
       errMsg = errMsg.replace('Uncaught (in promise):', '');
       errMsg = errMsg.replace('[object ProgressEvent]', '');
     }

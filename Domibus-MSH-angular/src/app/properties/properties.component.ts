@@ -33,11 +33,10 @@ export class PropertiesComponent implements OnInit {
 
     this.loadProperties(this.rowLimiter.pageSize);
 
-    console.log('this.propertyValueTpl ', this.propertyValueTpl)
     this.columns = [
       {
         name: 'Property Name',
-        prop: 'name'
+        prop: 'metadata.name'
       },
       {
         cellTemplate: this.propertyValueTpl,
@@ -88,10 +87,11 @@ export class PropertiesComponent implements OnInit {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
-      await this.propertiesService.updateProperty(row.name, row.value);
+      await this.propertiesService.updateProperty(row.metadata.name, row.value);
     } catch (ex) {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
+      if (!ex.handled)
       this.alertService.exception('Could not update property ', ex, false);
     }
   }
