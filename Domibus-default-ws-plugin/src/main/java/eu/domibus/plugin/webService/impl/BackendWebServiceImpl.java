@@ -15,6 +15,7 @@ import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.generated.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,13 +96,13 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
 
-        if(ebMSHeaderInfo.getUserMessage().getPayloadInfo() == null) {
+        if (getPayloadInfo(ebMSHeaderInfo) == null) {
             return;
         }
 
         validateSubmitRequest(submitRequest, ebMSHeaderInfo);
 
-        List<PartInfo> partInfoList = ebMSHeaderInfo.getUserMessage().getPayloadInfo().getPartInfo();
+        List<PartInfo> partInfoList = getPartInfo(ebMSHeaderInfo);
         List<ExtendedPartInfo> partInfosToAdd = new ArrayList<>();
 
         for (Iterator<PartInfo> i = partInfoList.iterator(); i.hasNext(); ) {
@@ -268,12 +269,12 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     }
 
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
-        if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
+        if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
             LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
             return;
         }
 
-        for (final PartInfo partInfo : messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
+        for (final PartInfo partInfo : getPartInfo(messaging)) {
             ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
             if (extPartInfo.getPayloadDatahandler() != null) {
@@ -287,7 +288,21 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
                 retrieveMessageResponse.value.getPayload().add(payloadType);
             }
         }
+    }
 
+    private PayloadInfo getPayloadInfo(Messaging messaging) {
+        if (messaging.getUserMessage() == null) {
+            return null;
+        }
+        return messaging.getUserMessage().getPayloadInfo();
+    }
+
+    private List<PartInfo> getPartInfo(Messaging messaging) {
+        PayloadInfo payloadInfo = getPayloadInfo(messaging);
+        if (payloadInfo == null) {
+            return new ArrayList<>();
+        }
+        return payloadInfo.getPartInfo();
     }
 
     private FaultDetail createDownloadMessageFault(Exception ex) {
