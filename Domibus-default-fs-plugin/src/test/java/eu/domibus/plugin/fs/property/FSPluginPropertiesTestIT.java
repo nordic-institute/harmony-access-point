@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,11 +63,16 @@ public class FSPluginPropertiesTestIT {
         public DomainExtService domainExtService() {
             return Mockito.mock(DomainExtService.class);
         }
+
+        @Bean
+        public DomibusConfigurationExtService domibusConfigurationExtService() {
+            return Mockito.mock(DomibusConfigurationExtService.class);
+        }
     }
 
     @Test
     public void testGetLocation() throws Exception {
-        Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation());
+        Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation(null));
     }
 
     @Test
@@ -81,7 +87,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetSentAction() throws Exception {
-        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fSPluginProperties.getSentAction());
+        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fSPluginProperties.getSentAction(null));
     }
 
     @Test
@@ -91,12 +97,12 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetSentPurgeExpired() throws Exception {
-        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired());
+        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired(null));
     }
 
     @Test
     public void testGetFailedAction() throws Exception {
-        Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fSPluginProperties.getFailedAction());
+        Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fSPluginProperties.getFailedAction(null));
     }
 
     @Test
@@ -106,12 +112,12 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetFailedPurgeExpired() throws Exception {
-        Assert.assertEquals(null, fSPluginProperties.getFailedPurgeExpired());
+        Assert.assertEquals(null, fSPluginProperties.getFailedPurgeExpired(null));
     }
 
     @Test
     public void testGetReceivedPurgeExpired() throws Exception {
-        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired());
+        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired(null));
     }
 
     @Test

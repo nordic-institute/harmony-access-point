@@ -114,15 +114,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     /**
      * @return The location of the directory that the plugin will use to manage the messages to be sent and received
-     * in case no domain expression matches
-     */
-    public String getLocation() {
-        return getLocation(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getLocation()}
      */
     public String getLocation(String domain) {
         return getDomainProperty(domain, LOCATION, System.getProperty("java.io.tmpdir"));
@@ -130,14 +122,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     /**
      * @return The plugin action when message is sent successfully from C2 to C3 ('delete' or 'archive')
-     */
-    public String getSentAction() {
-        return getSentAction(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getSentAction()}
      */
     public String getSentAction(String domain) {
         return getDomainProperty(domain, SENT_ACTION, ACTION_DELETE);
@@ -152,14 +137,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     /**
      * @return The time interval (seconds) to purge sent messages
-     */
-    public Integer getSentPurgeExpired() {
-        return getSentPurgeExpired(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getSentPurgeExpired()}
      */
     public Integer getSentPurgeExpired(String domain) {
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
@@ -179,14 +157,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     /**
      * @return The plugin action when message fails
-     */
-    public String getFailedAction() {
-        return getFailedAction(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getFailedAction()}
      */
     public String getFailedAction(String domain) {
         return getDomainProperty(domain, FAILED_ACTION, ACTION_DELETE);
@@ -201,14 +172,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     /**
      * @return The time interval (seconds) to purge failed messages
-     */
-    public Integer getFailedPurgeExpired() {
-        return getFailedPurgeExpired(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getFailedPurgeExpired()}
      */
     public Integer getFailedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, FAILED_PURGE_EXPIRED, "600");
@@ -217,14 +181,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     /**
      * @return The time interval (seconds) to purge received messages
-     */
-    public Integer getReceivedPurgeExpired() {
-        return getReceivedPurgeExpired(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getReceivedPurgeExpired()}
      */
     public Integer getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
