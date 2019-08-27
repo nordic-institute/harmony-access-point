@@ -4,9 +4,7 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -94,6 +92,9 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Autowired
     protected DomainExtService domainExtService;
+
+    @Autowired
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     private List<String> domains;
 
@@ -446,22 +447,31 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
+                new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, true, false),
+                new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
                 // with fallback from the default domain:
                 new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true), // TODO add listener
+                new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, true, true), // TODO: reset job trigger
+                new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(FAILED_ACTION, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(SENT_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, true, true),
+
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
     @Override
-    public boolean hasKnownProperty(String name) {
-        return this.getKnownProperties().containsKey(name);
-    }
+    public boolean hasKnownProperty(String name) { return this.getKnownPropertyMetadata(name) != null; }
 
     @Override
     public String getKnownPropertyValue(String domain, String propertyName) {
         String propertyKey = getKnownPropertyKey(domain, propertyName);
-
         return this.properties.getProperty(propertyKey);
     }
 
@@ -469,21 +479,27 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         String propertyKey = getKnownPropertyKey(domainCode, propertyName);
-        DomibusPropertyMetadataDTO propMeta = this.getKnownProperties().get(propertyKey);
-        if (propMeta == null) {
-            throw new IllegalArgumentException(propertyName);
-        }
         this.properties.setProperty(propertyKey, propertyValue);
     }
 
+    private DomibusPropertyMetadataDTO getKnownPropertyMetadata(String propertyName) {
+        return this.getKnownProperties().get(propertyName);
+    }
+
     private String getKnownPropertyKey(String domain, String propertyName) {
-        final DomibusPropertyMetadataDTO meta = getKnownProperties().get(propertyName);
+        final DomibusPropertyMetadataDTO meta = getKnownPropertyMetadata(propertyName);
         if (meta == null) {
-            throw new IllegalArgumentException(propertyName);
+            throw new IllegalArgumentException("Property " + propertyName + " not found");
         }
+
+        // TODO: handle multiple fsplugin domains in single-tenancy mode
+        if (!domibusConfigurationExtService.isMultiTenantAware()) {
+            domain = null;
+        }
+
         final String propertyKey;
         if (domain == null) {
-            propertyKey = propertyName;
+            propertyKey = PROPERTY_PREFIX + propertyName;
         } else {
             propertyKey = this.getDomainPropertyName(domain, propertyName);
         }
