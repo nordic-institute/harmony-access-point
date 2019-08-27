@@ -32,86 +32,6 @@ public class MessagesLogServiceImplTest {
     @Injectable
     private DomainCoreConverter domainConverter;
 
-    @Test
-    public void findUserMessageLogs() {
-        int page = 1, size = 20;
-        String column = "col1";
-        boolean asc = true;
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageType", MessageType.USER_MESSAGE);
-
-        List<? extends MessageLog> res = messagesLogServiceImpl.findMessageLogs(page, size, column, asc, filters);
-
-        new Verifications() {{
-            userMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-            times = 1;
-            signalMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-            times = 0;
-        }};
-    }
-
-    @Test
-    public void findSignalMessageLogs() {
-        int page = 1, size = 20;
-        String column = "col1";
-        boolean asc = true;
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageType", MessageType.SIGNAL_MESSAGE);
-
-        List<? extends MessageLog> res = messagesLogServiceImpl.findMessageLogs(page, size, column, asc, filters);
-
-        new Verifications() {{
-            userMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-            times = 0;
-            signalMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void countMessagesTest1() {
-        int size = 20;
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageType", MessageType.USER_MESSAGE);
-
-        new Expectations() {{
-            userMessageLogDao.countMessages(filters);
-            result = 50;
-        }};
-
-        Long pages = messagesLogServiceImpl.countMessages(size, filters);
-
-        new Verifications() {{
-            userMessageLogDao.countMessages(filters);
-            times = 1;
-            signalMessageLogDao.countMessages(filters);
-            times = 0;
-        }};
-        Assert.assertEquals(Long.valueOf(3), pages);
-    }
-
-    @Test
-    public void countMessagesTest2() {
-        int size = 0;
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageType", MessageType.SIGNAL_MESSAGE);
-
-        new Expectations() {{
-            signalMessageLogDao.countMessages(filters);
-            result = 15;
-        }};
-
-        Long pages = messagesLogServiceImpl.countMessages(size, filters);
-
-        new Verifications() {{
-            userMessageLogDao.countMessages(filters);
-            times = 0;
-            signalMessageLogDao.countMessages(filters);
-            times = 1;
-        }};
-
-        Assert.assertEquals(Long.valueOf(2), pages);
-    }
 
     @Test
     public void countAndFindPagedTest1() {
@@ -120,7 +40,7 @@ public class MessagesLogServiceImplTest {
         boolean asc = true;
         MessageType messageType = MessageType.USER_MESSAGE;
         HashMap<String, Object> filters = new HashMap<>();
-        int numberOfUserMessageLogs = 1;
+        long numberOfUserMessageLogs = 1;
         MessageLogInfo item1 = new MessageLogInfo();
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
@@ -140,7 +60,7 @@ public class MessagesLogServiceImplTest {
             times = 1;
         }};
 
-        Assert.assertEquals(Integer.valueOf(numberOfUserMessageLogs), res.getCount());
+        Assert.assertEquals(Long.valueOf(numberOfUserMessageLogs), res.getCount());
     }
 
     @Test
@@ -150,7 +70,7 @@ public class MessagesLogServiceImplTest {
         boolean asc = true;
         MessageType messageType = MessageType.SIGNAL_MESSAGE;
         HashMap<String, Object> filters = new HashMap<>();
-        int numberOfLogs = 2;
+        long numberOfLogs = 2;
         MessageLogInfo item1 = new MessageLogInfo();
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
@@ -170,7 +90,7 @@ public class MessagesLogServiceImplTest {
             times = 1;
         }};
 
-        Assert.assertEquals(Integer.valueOf(numberOfLogs), res.getCount());
+        Assert.assertEquals(Long.valueOf(numberOfLogs), res.getCount());
     }
 
     @Test

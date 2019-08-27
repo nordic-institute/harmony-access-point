@@ -299,7 +299,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        Long result = userMessageLogDao.countMessages(filters);
+        Long result = userMessageLogDao.countEntries(filters);
 
         // THEN
         new Verifications() {{
