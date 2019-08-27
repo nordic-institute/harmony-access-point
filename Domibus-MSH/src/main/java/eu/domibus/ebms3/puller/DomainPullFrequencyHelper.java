@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Thomas Dussart
  * @since 4.1
@@ -22,13 +24,7 @@ public class DomainPullFrequencyHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomainPullFrequencyHelper.class);
 
-    public static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
-
     public static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX = "domibus.pull.request.send.per.job.cycle.per.mpc.";
-
-    public static final String DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME = "domibus.pull.request.frequency.recovery.time";
-
-    public static final String DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT = "domibus.pull.request.frequency.error.count";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

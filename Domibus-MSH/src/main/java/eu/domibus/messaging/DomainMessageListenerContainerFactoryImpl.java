@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 4.0
+ *
+ * Class for creating Message Listener containers for a specified domain
  */
 @Service
 public class DomainMessageListenerContainerFactoryImpl implements DomainMessageListenerContainerFactory {
@@ -47,6 +49,12 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     public DomainMessageListenerContainer createRetentionListenerContainer(Domain domain) {
         LOG.debug("Creating the RetentionListenerContainer for domain [{}]", domain);
         return (DomainMessageListenerContainer) applicationContext.getBean("retentionContainer", domain);
+    }
+
+    @Override
+    public DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain) {
+        LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("pullMessageContainer", domain);
     }
 
 }
