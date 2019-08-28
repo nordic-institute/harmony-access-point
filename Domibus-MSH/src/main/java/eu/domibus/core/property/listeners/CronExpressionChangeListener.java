@@ -5,10 +5,10 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.quartz.DomibusQuartzStarter;
-import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     protected ApplicationContext applicationContext;
 
     @Autowired
-    DomibusQuartzStarter domibusQuartzStarter;
+    DomibusScheduler domibusScheduler;
 
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
             {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
@@ -75,8 +75,8 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
 
         try {
-            domibusQuartzStarter.rescheduleJob(domain, jobName, propertyValue);
-        } catch (SchedulerException ex) {
+            domibusScheduler.rescheduleJob(domain, jobName, propertyValue);
+        } catch (DomibusSchedulerException ex) {
             LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
         }

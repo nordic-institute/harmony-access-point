@@ -63,7 +63,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private static final String SEND_DELAY = "messages.send.delay";
 
-    private static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
+    public static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
 
     private static final String USER = "messages.user";
 
