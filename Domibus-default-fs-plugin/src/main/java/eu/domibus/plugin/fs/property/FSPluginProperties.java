@@ -4,12 +4,17 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.*;
+import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -78,7 +83,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private static final String EXPRESSION = "messages.expression";
 
-    private static final String ORDER = "order";
+    public static final String ORDER = "order";
 
     private static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
 
@@ -95,6 +100,12 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;
+//
+//    @Autowired
+//    protected PluginPropertyChangeNotifier propertyChangeNotifier;
+
+    @Autowired
+    protected ApplicationContext applicationContext;
 
     private List<String> domains;
 
@@ -112,17 +123,21 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return domains;
     }
 
+    public void resetDomains() {
+        domains = null;
+    }
+
     /**
-     * @return The location of the directory that the plugin will use to manage the messages to be sent and received
      * @param domain The domain property qualifier
+     * @return The location of the directory that the plugin will use to manage the messages to be sent and received
      */
     public String getLocation(String domain) {
         return getDomainProperty(domain, LOCATION, System.getProperty("java.io.tmpdir"));
     }
 
     /**
-     * @return The plugin action when message is sent successfully from C2 to C3 ('delete' or 'archive')
      * @param domain The domain property qualifier
+     * @return The plugin action when message is sent successfully from C2 to C3 ('delete' or 'archive')
      */
     public String getSentAction(String domain) {
         return getDomainProperty(domain, SENT_ACTION, ACTION_DELETE);
@@ -136,8 +151,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The time interval (seconds) to purge sent messages
      * @param domain The domain property qualifier
+     * @return The time interval (seconds) to purge sent messages
      */
     public Integer getSentPurgeExpired(String domain) {
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
@@ -156,8 +171,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The plugin action when message fails
      * @param domain The domain property qualifier
+     * @return The plugin action when message fails
      */
     public String getFailedAction(String domain) {
         return getDomainProperty(domain, FAILED_ACTION, ACTION_DELETE);
@@ -171,8 +186,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The time interval (seconds) to purge failed messages
      * @param domain The domain property qualifier
+     * @return The time interval (seconds) to purge failed messages
      */
     public Integer getFailedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, FAILED_PURGE_EXPIRED, "600");
@@ -180,8 +195,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The time interval (seconds) to purge received messages
      * @param domain The domain property qualifier
+     * @return The time interval (seconds) to purge received messages
      */
     public Integer getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
@@ -386,7 +401,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
             tempDomains.add(DEFAULT_DOMAIN);
         }
 
-
         Collections.sort(tempDomains, (domain1, domain2) -> {
             Integer domain1Order = getOrder(domain1);
             Integer domain2Order = getOrder(domain2);
@@ -400,6 +414,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return StringUtils.substringBefore(unprefixedProp, DOT);
     }
 
+
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
@@ -409,7 +424,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
                 new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
                 // with fallback from the default domain:
                 new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true), // TODO add listener
+                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, true, true), // TODO: reset job trigger
                 new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, true, true),
@@ -424,7 +439,9 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public boolean hasKnownProperty(String name) { return this.getKnownPropertyMetadata(name) != null; }
+    public boolean hasKnownProperty(String name) {
+        return this.getKnownPropertyMetadata(name) != null;
+    }
 
     @Override
     public String getKnownPropertyValue(String domain, String propertyName) {
@@ -437,6 +454,9 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         String propertyKey = getKnownPropertyKey(domainCode, propertyName);
         this.properties.setProperty(propertyKey, propertyValue);
+
+        PluginPropertyChangeNotifier propertyChangeNotifier = applicationContext.getBean(PluginPropertyChangeNotifier.class);
+        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
     }
 
     private DomibusPropertyMetadataDTO getKnownPropertyMetadata(String propertyName) {
@@ -468,6 +488,5 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
-
 
 }
