@@ -47,13 +47,13 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private static final String SENT_ACTION = "messages.sent.action";
 
-    private static final String SENT_PURGE_WORKER_CRONEXPRESSION = "messages.sent.purge.worker.cronExpression";
+    public static final String SENT_PURGE_WORKER_CRONEXPRESSION = "messages.sent.purge.worker.cronExpression";
 
     private static final String SENT_PURGE_EXPIRED = "messages.sent.purge.expired";
 
     private static final String FAILED_ACTION = "messages.failed.action";
 
-    private static final String FAILED_PURGE_WORKER_CRONEXPRESSION = "messages.failed.purge.worker.cronExpression";
+    public static final String FAILED_PURGE_WORKER_CRONEXPRESSION = "messages.failed.purge.worker.cronExpression";
 
     private static final String FAILED_PURGE_EXPIRED = "messages.failed.purge.expired";
 
@@ -64,6 +64,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     private static final String SEND_DELAY = "messages.send.delay";
 
     public static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
+
+    public static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "messages.received.purge.worker.cronExpression";
 
     private static final String USER = "messages.user";
 
@@ -418,6 +420,11 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
+                new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, false, false),
+                new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
+                new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
+                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
+                // without fallback from the default domain :
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
                 new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, true, false),
@@ -425,7 +432,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
                 // with fallback from the default domain:
                 new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, true, true), // TODO: reset job trigger
                 new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, true, true),
