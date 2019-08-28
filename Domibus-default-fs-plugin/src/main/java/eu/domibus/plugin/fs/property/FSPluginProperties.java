@@ -59,7 +59,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private static final String RECEIVED_PURGE_EXPIRED = "messages.received.purge.expired";
 
-    private static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
+    public static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
 
     private static final String SEND_DELAY = "messages.send.delay";
 
@@ -440,7 +440,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
                 new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, true, true),
-
+                new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Module.FS_PLUGIN, true, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

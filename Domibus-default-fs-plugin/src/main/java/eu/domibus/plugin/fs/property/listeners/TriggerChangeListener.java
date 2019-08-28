@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * <p>
+ * Handles the rescheduling of fs-plugin quartz jobs.
+ */
 @Component
 public class TriggerChangeListener implements PluginPropertyChangeListener {
 
