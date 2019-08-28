@@ -39,26 +39,16 @@ import java.util.Scanner;
  * @version 4.1
  */
 
-@Listeners(ExcelTestReporter.class)
-public class BaseUXTest {
-
-	public static WebDriver driver;
-	public static TestRunData data = new TestRunData();
-	public static DomibusRestClient rest = new DomibusRestClient();
-	public static DomibusC1 messageSender = new DomibusC1();
-
-	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
+//@Listeners(ExcelTestReporter.class)
+public class BaseUXTest extends BaseTest {
 
 	/**
 	 * Starts the browser and navigates to the homepage. This happens once before the test
 	 * suite and the browser window is reused for all tests in suite
 	 */
-	@BeforeClass(alwaysRun = true)
-	public void beforeClass() throws Exception {
+	@BeforeTest(alwaysRun = true)
+	public void beforeTest() throws Exception {
 		log.info("-------- Starting -------");
-		driver = DriverManager.getDriver();
-		driver.get(data.getUiBaseUrl());
 		DomibusPage page = new DomibusPage(driver);
 		if (!page.getSandwichMenu().isLoggedIn()) {
 			login(data.getAdminUser());
@@ -66,24 +56,26 @@ public class BaseUXTest {
 	}
 
 
-	/**
-	 * After the test suite is done we close the browser
-	 */
-	@AfterClass(alwaysRun = true)
-	public void afterClass() {
+	/**After UX test pageis refreshed and logout is attempted*/
+	@AfterTest(alwaysRun = true)
+	protected void logout() throws Exception{
+		DomibusPage page = new DomibusPage(driver);
+
+		/*refresh will close any remaining opened modals*/
+		page.refreshPage();
+		if (page.getSandwichMenu().isLoggedIn()) {
+			log.info("Logging out");
+			page.getSandwichMenu().logout();
+		}
+	}
+
+	@AfterMethod(alwaysRun = true)
+	public void refresh() {
 		log.info("-------- Refreshing -------");
 		driver.navigate().refresh();
 	}
 
-	/**
-	 * After each test method page is refreshed and logout is attempted
-	 */
-	@AfterMethod(alwaysRun = true)
-	protected void logout() throws Exception {
-		DomibusPage page = new DomibusPage(driver);
-		/*refresh will close any remaining opened modals*/
-		page.refreshPage();
-	}
+
 
 	protected DomibusPage login(HashMap<String, String> user) {
 		System.out.println("login started");

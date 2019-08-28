@@ -1,4 +1,4 @@
-package domibus.ui;
+package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DatePicker;
