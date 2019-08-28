@@ -69,7 +69,6 @@ public class AuditSearchFilters extends DComponent {
     }
 
     public WebElement getElementByFieldLabel(String fieldLabel) {
-        wait.forElementToBeVisible(driver.findElement(By.xpath(getXpathOfSearchFilter(fieldLabel))));
         return driver.findElement(By.xpath(getXpathOfSearchFilter(fieldLabel)));
     }
 
@@ -100,20 +99,28 @@ public class AuditSearchFilters extends DComponent {
         } else {
             log.debug("Invalid Input field label is passed");
         }
-        getInputFieldValue(data);
+        getInputFieldValue(data).click();
         getPage().clickVoidSpace();
 
     }
 
-
     public String getXpathOfInputCheckbox(String fieldName) {
-        return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')]";
-    }
+        if(fieldName.equals("Pmode") || fieldName.equals("PluginUser") || fieldName.equals("Message"))
+        {
+            return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')][1]";
 
+        }
+        else if(fieldName.equals("Pmode Archive")|| fieldName.equals("User")|| fieldName.equals("Message filter")) {
+            return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')][2]";
+        }
+        else{
+            return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')]";
+
+        }
+    }
     public WebElement getInputFieldValue(String fieldLabel) {
         wait.forElementToBeVisible(driver.findElement(By.xpath(getXpathOfInputCheckbox(fieldLabel))));
         return driver.findElement(By.xpath(getXpathOfInputCheckbox(fieldLabel)));
     }
-
 
 }
