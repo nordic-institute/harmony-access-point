@@ -352,7 +352,7 @@ public class FSSendMessagesService {
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
             if (fileInfo.getDomain().equals(domain) && ((currentTime - fileInfo.getModified()) > delta)) {
-                LOG.debug("File [{}] is old and will be removed from the map", key);
+                LOG.debug("File [{}] is old and will not be observed anymore", key);
                 observedFilesInfo.remove(key);
             }
         }
