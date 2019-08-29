@@ -100,8 +100,8 @@ public class SandwichMenu extends DComponent {
 	/**This method is implemented to check presence of link in Sandwich menu*/
 	public boolean isPresent() throws Exception {
 		expandMenu();
-		String chngLnk = driver.findElement(ChangePassLnk).getText();
-		boolean toReturn = !StringUtils.equalsIgnoreCase(chngLnk, "Change Password");
+		String changeLnk = driver.findElement(ChangePassLnk).getText();
+		boolean toReturn = !StringUtils.equalsIgnoreCase(changeLnk, "Change Password");
 		log.info("Availability of Change Password link is : " + toReturn);
 
 		return toReturn;
