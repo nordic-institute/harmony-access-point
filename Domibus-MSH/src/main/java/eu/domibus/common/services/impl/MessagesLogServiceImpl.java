@@ -38,52 +38,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Override
-    public List<? extends MessageLog> findMessageLogs(int page, int size, String column, boolean asc, HashMap<String, Object> filters) {
-
-        List<? extends MessageLog> messageLogEntries;
-
-        MessageType messageType = (MessageType) filters.get("messageType");
-
-        switch (messageType) {
-            case USER_MESSAGE:
-                messageLogEntries = userMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-                break;
-            case SIGNAL_MESSAGE:
-                messageLogEntries = signalMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-                break;
-            default:
-                messageLogEntries = userMessageLogDao.findPaged(size * (page - 1), size, column, asc, filters);
-        }
-        return messageLogEntries;
-    }
-
-    @Override
-    public Long countMessages(int size, HashMap<String, Object> filters) {
-
-        long entries;
-
-        MessageType messageType = (MessageType) filters.get("messageType");
-
-        switch (messageType) {
-            case USER_MESSAGE:
-                entries = userMessageLogDao.countMessages(filters);
-                break;
-            case SIGNAL_MESSAGE:
-                entries = signalMessageLogDao.countMessages(filters);
-                break;
-            default:
-                entries = userMessageLogDao.countMessages(filters);
-        }
-
-        if (size <= 0) size = 10;
-        long pages = entries / size;
-        if (entries % size != 0) {
-            pages++;
-        }
-        return pages;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -93,16 +47,20 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
         List<MessageLogInfo> resultList = new ArrayList<>();
         if (messageType == MessageType.SIGNAL_MESSAGE) {
-            int numberOfSignalMessageLogs = signalMessageLogDao.countAllInfo(asc, filters);
+            long numberOfSignalMessageLogs = signalMessageLogDao.countAllInfo(asc, filters);
             LOG.debug("count Signal Messages Logs [{}]", numberOfSignalMessageLogs);
             result.setCount(numberOfSignalMessageLogs);
-            resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            if (numberOfSignalMessageLogs > 0) {
+                resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            }
 
         } else if (messageType == MessageType.USER_MESSAGE) {
-            int numberOfUserMessageLogs = userMessageLogDao.countAllInfo(asc, filters);
+            long numberOfUserMessageLogs = userMessageLogDao.countAllInfo(asc, filters);
             LOG.debug("count User Messages Logs [{}]", numberOfUserMessageLogs);
             result.setCount(numberOfUserMessageLogs);
-            resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            if (numberOfUserMessageLogs > 0) {
+                resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            }
         }
         result.setMessageLogEntries(resultList
                 .stream()

@@ -22,6 +22,9 @@ import java.util.Map;
  * @author Ion Perpegel
  * @author Cosmin Baciu
  * @since 4.0
+ *
+ * Class that manages the creation, reset and destruction of message listener containers
+ * The instances are kept so that they can be recreated on property changes at runtime and also stoped at shutdown
  */
 @Service
 public class MessageListenerContainerInitializer {
