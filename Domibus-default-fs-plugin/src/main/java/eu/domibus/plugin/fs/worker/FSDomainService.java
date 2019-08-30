@@ -7,9 +7,9 @@ import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSMessage;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.ebms3.CollaborationInfo;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -147,8 +147,10 @@ public class FSDomainService {
     }
 
     protected Pattern getFSPluginDomainPattern(String domain) {
-        if (domainPatternCache.containsKey(domain)) {
-            return domainPatternCache.get(domain);
+        synchronized (domainPatternCache) {
+            if (domainPatternCache.containsKey(domain)) {
+                return domainPatternCache.get(domain);
+            }
         }
 
         String domainExpression = fsPluginProperties.getExpression(domain);
@@ -166,5 +168,11 @@ public class FSDomainService {
         // domainExpressionPattern may be null, we should still cache null and return it
         domainPatternCache.put(domain, domainExpressionPattern);
         return domainExpressionPattern;
+    }
+
+    public void resetPatterns() {
+        synchronized (domainPatternCache) {
+            domainPatternCache.clear();
+        }
     }
 }

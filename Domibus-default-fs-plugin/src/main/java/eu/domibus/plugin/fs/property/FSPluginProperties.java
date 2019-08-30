@@ -82,7 +82,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     @SuppressWarnings("squid:S2068")
     private static final String AUTHENTICATION_PASSWORD = "authentication.password";
 
-    private static final String EXPRESSION = "messages.expression";
+    public static final String EXPRESSION = "messages.expression";
 
     public static final String ORDER = "order";
 
@@ -439,6 +439,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
                 // with fallback from the default domain:
                 new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(EXPRESSION, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, true, true),
                 new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, true, true),
