@@ -261,6 +261,12 @@ public class DomibusRestClient {
 		}
 	}
 
+	public void unblockUser(String username) {
+		HashMap<String, String> toUpdate = new HashMap<>();
+		toUpdate.put("active", "true");
+		updateUser(username, toUpdate);
+	}
+
 	// ----------------------------------------- Plugin Users ----------------------------------------------------------
 
 	public void createPluginUser(String username, String role, String pass, String domain) throws JSONException {
