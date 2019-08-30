@@ -140,7 +140,7 @@ public class ExcelReportReporter implements IReporter {
 		int rowNum = reportSheet.getLastRowNum() + 1;
 		Row currentRow = reportSheet.createRow(rowNum);
 
-		currentRow.createCell(0).setCellValue(iTestResult.getTestName());
+		currentRow.createCell(0).setCellValue(iTestResult.getTestContext().getName());
 		currentRow.createCell(1).setCellValue(iTestResult.getTestContext().getSuite().getName());
 		currentRow.createCell(2).setCellValue(iTestResult.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class).description());
 		currentRow.createCell(3).setCellValue(iTestResult.getName());

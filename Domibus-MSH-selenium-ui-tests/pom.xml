@@ -208,6 +208,9 @@
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
 								<runBrowser>firefox</runBrowser>

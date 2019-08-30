@@ -20,18 +20,36 @@ import utils.Generator;
 
 public class AccessRightsTest extends BaseTest {
 
-	/*Login with valid user with role ROLE_AP_ADMIN*/
-	@Test(description = "RGT-5", groups = {"multiTenancy"})
-	public void superAdminRights() throws Exception {
+	/* Login with valid user with role ROLE_USER */
+	@Test(description = "RGT-1", groups = {"multiTenancy", "singleTenancy"})
+	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		String username = Generator.randomAlphaNumeric(10);
+		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
+
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(data.getAdminUser());
-		log.info("Logged in with super admin");
+		loginPage.login(username, data.getDefaultTestPass());
 
 		DomibusPage page = new DomibusPage(driver);
 
-		soft.assertTrue(page.getSidebar().isAdminState(), "Options that should be available to an ADMIN are present");
-		soft.assertTrue(null != page.getDomainSelector().getSelectedValue(), "Domain selector is present and selected value is not null");
+		soft.assertTrue(page.getSidebar().isUserState(), "Options that should be available to an ADMIN are present");
+		soft.assertAll();
+	}
+
+	/* Login with valid user with role ROLE_USER */
+	@Test(description = "RGT-2", groups = {"multiTenancy"})
+	public void userAccessDomainSwitch() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = Generator.randomAlphaNumeric(10);
+		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login(username, data.getDefaultTestPass());
+
+		DomibusPage page = new DomibusPage(driver);
+		try {
+			soft.assertTrue(null == page.getDomainSelector().getSelectedValue(), "Domain selector is NOT present");
+		} catch (Exception e) { }
 
 		soft.assertAll();
 	}
@@ -73,40 +91,21 @@ public class AccessRightsTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	/* Login with valid user with role ROLE_USER */
-	@Test(description = "RGT-1", groups = {"multiTenancy", "singleTenancy"})
-	public void userRights() throws Exception {
+	/*Login with valid user with role ROLE_AP_ADMIN*/
+	@Test(description = "RGT-5", groups = {"multiTenancy"})
+	public void superAdminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
-
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
+		loginPage.login(data.getAdminUser());
+		log.info("Logged in with super admin");
 
 		DomibusPage page = new DomibusPage(driver);
 
-		soft.assertTrue(page.getSidebar().isUserState(), "Options that should be available to an ADMIN are present");
-		soft.assertAll();
-	}
-
-	/* Login with valid user with role ROLE_USER */
-	@Test(description = "RGT-2", groups = {"multiTenancy"})
-	public void userAccessDomainSwitch() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
-
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
-
-		DomibusPage page = new DomibusPage(driver);
-		try {
-			soft.assertTrue(null == page.getDomainSelector().getSelectedValue(), "Domain selector is NOT present");
-		} catch (Exception e) { }
+		soft.assertTrue(page.getSidebar().isAdminState(), "Options that should be available to an ADMIN are present");
+		soft.assertTrue(null != page.getDomainSelector().getSelectedValue(), "Domain selector is present and selected value is not null");
 
 		soft.assertAll();
 	}
-
 
 }
 
