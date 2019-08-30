@@ -5,12 +5,10 @@ import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.webService.impl.BackendWebServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import sun.rmi.runtime.Log;
 
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.soap.SOAPBinding;
