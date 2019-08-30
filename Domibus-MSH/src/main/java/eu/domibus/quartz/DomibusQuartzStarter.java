@@ -211,6 +211,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
         try {
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
@@ -222,6 +226,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException {
         try {
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
@@ -252,21 +260,21 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         Trigger oldTrigger = getTrigger(scheduler, jobKey);
         String triggerName = oldTrigger == null ? null : oldTrigger.getKey().getName();
         Trigger newTrigger = initCronTrigger(scheduler.getJobDetail(jobKey), triggerName, cronExpression);
-        rescheduleJob(scheduler, oldTrigger, newTrigger);
+        rescheduleTrigger(scheduler, oldTrigger, newTrigger);
     }
 
     protected void rescheduleJob(Scheduler scheduler, JobKey jobKey, Integer repeatInterval) throws SchedulerException {
         Trigger oldTrigger = getTrigger(scheduler, jobKey);
         String triggerName = oldTrigger == null ? null : oldTrigger.getKey().getName();
         Trigger newTrigger = initSimpleTrigger(scheduler.getJobDetail(jobKey), triggerName, repeatInterval);
-        rescheduleJob(scheduler, oldTrigger, newTrigger);
+        rescheduleTrigger(scheduler, oldTrigger, newTrigger);
     }
 
     private Trigger getTrigger(Scheduler scheduler, JobKey jobKey) throws SchedulerException {
         return scheduler.getTriggersOfJob(jobKey).stream().findFirst().orElse(null);
     }
 
-    private void rescheduleJob(Scheduler scheduler, Trigger oldTrigger, Trigger newTrigger) throws SchedulerException {
+    private void rescheduleTrigger(Scheduler scheduler, Trigger oldTrigger, Trigger newTrigger) throws SchedulerException {
         if (oldTrigger == null) {
             scheduler.scheduleJob(newTrigger);
         } else {
@@ -274,7 +282,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         }
     }
 
-    private CronTrigger initCronTrigger(JobDetail jobDetail, String triggerName, String cronExpression) throws SchedulerException {
+    /**
+     * Initialize a new cron trigger for a given job detail
+     */
+    private CronTrigger initCronTrigger(JobDetail jobDetail, String triggerName, String cronExpression) {
         triggerName = triggerName == null ? jobDetail.getKey().getName() + "CronTrigger" : triggerName;
         return TriggerBuilder.newTrigger()
                 .withIdentity(triggerName)
@@ -284,7 +295,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 .build();
     }
 
-    private SimpleTrigger initSimpleTrigger(JobDetail jobDetail, String triggerName, Integer repeatInterval) throws SchedulerException {
+    /**
+     * Initialize a new simple trigger for a given job detail
+     */
+    private SimpleTrigger initSimpleTrigger(JobDetail jobDetail, String triggerName, Integer repeatInterval) {
         triggerName = triggerName == null ? jobDetail.getKey().getName() + "SimpleTrigger" : triggerName;
         return TriggerBuilder.newTrigger()
                 .withIdentity(triggerName)
