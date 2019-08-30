@@ -3,6 +3,7 @@ package utils;
 import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DObject;
+import ddsl.enums.PAGES;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -12,6 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.asserts.SoftAssert;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.util.*;
@@ -26,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class TestUtils {
 
-	protected static Logger log = LoggerFactory.getLogger("thename");
+	protected static Logger log = LoggerFactory.getLogger("TestUtils");
 
 	/* Checks if List provided is sorted*/
 	public static boolean isStringListSorted(List<String> strings, Order order) {
@@ -123,6 +127,22 @@ public class TestUtils {
 		return toReturn;
 	}
 
+	public static JSONObject getPageDescriptorObject(PAGES page) {
+		String suffix = "PageDescriptor.json";
+		String prefix =  "pageDescriptors/";
+		String pageName = StringUtils.removeAll(page.toString(), "_").toLowerCase();
+		String fileName = prefix+pageName+suffix;
+
+		JSONObject jsonObject;
+		try {
+			InputStream fin = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+			String content = new Scanner(fin).useDelimiter("\\Z").next();
+			jsonObject = new JSONObject(content);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return jsonObject;
+	}
 
 
 }

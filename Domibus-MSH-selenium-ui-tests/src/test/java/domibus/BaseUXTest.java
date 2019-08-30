@@ -165,17 +165,6 @@ public class BaseUXTest extends BaseTest {
 		}
 	}
 
-	protected JSONObject getDescriptorObject(String filePath) {
-		JSONObject jsonObject;
-		try {
-			String content = new Scanner(new File(filePath)).useDelimiter("\\Z").next();
-			jsonObject = new JSONObject(content);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return jsonObject;
-	}
-
 	public <T extends DGrid> void testDefaultColumnPresence(SoftAssert soft, T grid, JSONArray gridDesc) throws Exception {
 		log.info("Asserting grid default state");
 		List<String> columns = new ArrayList<>();

@@ -1,7 +1,6 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.DatePicker;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseUXTest;
@@ -15,7 +14,6 @@ import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,8 +23,7 @@ import java.util.List;
  */
 public class MessagesPgUXTest extends BaseUXTest {
 
-	private String descriptorFile = "C:\\Users\\User\\REPOS\\domibus\\Domibus-MSH-selenium-ui-tests\\src\\main\\resources\\pageDescriptors\\messagesPageDescriptor.json";
-	JSONObject descriptorObj = getDescriptorObject(descriptorFile);
+	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
 
 	/*Login as system admin and open Messages page*/
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
