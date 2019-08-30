@@ -20,7 +20,7 @@ public class SandwichMenu extends DComponent {
 
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
-		log.info("sandwich menu init");
+		log.debug("sandwich menu init");
 	}
 
 	By expandButton = By.id("settingsmenu_id");
@@ -41,7 +41,7 @@ public class SandwichMenu extends DComponent {
 		return driver.findElement(currentUserID).getText().trim();
 	}
 
-	private boolean isMenuExpanded() throws Exception {
+	private boolean isMenuExpanded() {
 		try {
 			driver.findElement(menuContainer);
 			return true;
@@ -69,7 +69,7 @@ public class SandwichMenu extends DComponent {
 		expandMenu();
 		String userIDStr = driver.findElement(currentUserID).getText();
 		boolean toReturn = !StringUtils.equalsIgnoreCase(userIDStr, "Not logged in");
-		log.info("User login status is: " + toReturn);
+		log.debug("User login status is: " + toReturn);
 
 		contractMenu();
 		return toReturn;
@@ -80,7 +80,7 @@ public class SandwichMenu extends DComponent {
 		clickVoidSpace();
 
 		expandMenu();
-		log.info("Logging out...");
+		log.debug("Logging out...");
 		driver.findElement(logoutLnk).click();
 		contractMenu();
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
@@ -102,7 +102,7 @@ public class SandwichMenu extends DComponent {
 		expandMenu();
 		String changeLnk = driver.findElement(ChangePassLnk).getText();
 		boolean toReturn = !StringUtils.equalsIgnoreCase(changeLnk, "Change Password");
-		log.info("Availability of Change Password link is : " + toReturn);
+		log.debug("Availability of Change Password link is : " + toReturn);
 
 		return toReturn;
 	}

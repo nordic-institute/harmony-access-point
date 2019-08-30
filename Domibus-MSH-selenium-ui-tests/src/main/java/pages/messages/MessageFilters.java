@@ -11,16 +11,16 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessageFilters extends FilterArea {
 	public MessageFilters(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements( new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-//	-------------------- Basic filters ---------------------------
+	//	-------------------- Basic filters ---------------------------
 	@FindBy(id = "messageid_id")
 	public WebElement messageIDInput;
 
@@ -71,6 +71,64 @@ public class MessageFilters extends FilterArea {
 		return new DInput(driver, messageIDInput);
 	}
 
+	public void basicFilterBy(String messageID, String messageStatus, String fromParty, String toParty) throws Exception {
+		log.debug("messageID = " + messageID);
+		log.debug("messageStatus = " + messageStatus);
+		log.debug("fromParty = " + fromParty);
+		log.debug("toParty = " + toParty);
+
+		weToDInput(messageIDInput).fill(messageID);
+		weToSelect(messageStatusContainer).selectOptionByText(messageStatus);
+		weToDInput(fromPartyInput).fill(fromParty);
+		weToDInput(toPartyInput).fill(toParty);
+
+		clickSearch();
+	}
+
+	public void advancedFilterBy(String messageID,
+								 String messageStatus,
+								 String fromParty,
+								 String toParty,
+								 String conversationId,
+								 String apRole,
+								 String messageType,
+								 String notificationStatus,
+								 String refMessageId,
+								 String origSender,
+								 String finalRecipient,
+								 String receivedFromDate,
+								 String receivedUpToDate) throws Exception {
+		log.debug("messageID = " + messageID);
+		log.debug("messageStatus = " + messageStatus);
+		log.debug("fromParty = " + fromParty);
+		log.debug("toParty = " + toParty);
+		log.debug("conversationId = " + conversationId);
+		log.debug("apRole = " + apRole);
+		log.debug("messageType = " + messageType);
+		log.debug("notificationStatus = " + notificationStatus);
+		log.debug("refMessageId = " + refMessageId);
+		log.debug("origSender = " + origSender);
+		log.debug("finalRecipient = " + finalRecipient);
+		log.debug("receivedFromDate = " + receivedFromDate);
+		log.debug("receivedUpToDate = " + receivedUpToDate);
+
+		weToDInput(messageIDInput).fill(messageID);
+		weToSelect(messageStatusContainer).selectOptionByText(messageStatus);
+		weToDInput(fromPartyInput).fill(fromParty);
+		weToDInput(toPartyInput).fill(toParty);
+		weToDInput(conversationIDInput).fill(conversationId);
+		weToSelect(apRoleContainer).selectOptionByText(apRole);
+		weToSelect(messageTypeContainer).selectOptionByText(messageType);
+		weToSelect(notificationStatusContainer).selectOptionByText(notificationStatus);
+		weToDInput(referenceMessageIDInput).fill(refMessageId);
+		weToDInput(originalSenderInput).fill(origSender);
+		weToDInput(finalRecipientInput).fill(finalRecipient);
+		weToDatePicker(receivedFromContainer).selectDate(receivedFromDate);
+		weToDatePicker(receivedToContainer).selectDate(receivedUpToDate);
+
+		clickSearch();
+	}
+
 	public DInput getFromPartyInput() {
 		return new DInput(driver, fromPartyInput);
 	}
@@ -111,29 +169,29 @@ public class MessageFilters extends FilterArea {
 		return new Select(driver, notificationStatusContainer);
 	}
 
-	public boolean basicFiltersLoaded()throws Exception{
+	public boolean basicFiltersLoaded() throws Exception {
 		return (getMessageIDInput().isEnabled()
-		&& getMessageStatus().isDisplayed()
-		&& getFromPartyInput().isEnabled()
-		&& getToPartyInput().isEnabled()
-		&& getToPartyInput().isEnabled()
+				&& getMessageStatus().isDisplayed()
+				&& getFromPartyInput().isEnabled()
+				&& getToPartyInput().isEnabled()
+				&& getToPartyInput().isEnabled()
 		);
 	}
 
-	public boolean advancedFiltersLoaded()throws Exception{
+	public boolean advancedFiltersLoaded() throws Exception {
 		return (getMessageIDInput().isEnabled()
-		&& getMessageStatus().isDisplayed()
-		&& getFromPartyInput().isEnabled()
-		&& getToPartyInput().isEnabled()
-		&& getToPartyInput().isEnabled()
+				&& getMessageStatus().isDisplayed()
+				&& getFromPartyInput().isEnabled()
+				&& getToPartyInput().isEnabled()
+				&& getToPartyInput().isEnabled()
 
-		&& getConversationIDInput().isPresent()
-		&& getApRoleSelect().isDisplayed()
-		&& getMessageTypeSelect().isDisplayed()
-		&& getNotificationStatus().isDisplayed()
-		&& getReferenceMessageIDInput().isPresent()
-		&& getOriginalSenderInput().isPresent()
-		&& getFinalRecipientInput().isPresent()
+				&& getConversationIDInput().isPresent()
+				&& getApRoleSelect().isDisplayed()
+				&& getMessageTypeSelect().isDisplayed()
+				&& getNotificationStatus().isDisplayed()
+				&& getReferenceMessageIDInput().isPresent()
+				&& getOriginalSenderInput().isPresent()
+				&& getFinalRecipientInput().isPresent()
 		);
 	}
 

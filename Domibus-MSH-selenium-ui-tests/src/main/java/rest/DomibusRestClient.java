@@ -106,7 +106,7 @@ public class DomibusRestClient {
 
 	public List<NewCookie> login() {
 		HashMap<String, String> adminUser = data.getAdminUser();
-		log.info("Rest client using to login: " + adminUser.toString());
+		log.debug("Rest client using to login: " + adminUser.toString());
 		HashMap<String, String> params = new HashMap<>();
 		params.put("username", adminUser.get("username"));
 		params.put("password", adminUser.get("pass"));
@@ -328,7 +328,6 @@ public class DomibusRestClient {
 
 	public List<String> getDomainNames() {
 		List<String> toReturn = new ArrayList<>();
-		;
 		try {
 			JSONArray domainArray = getDomains();
 			for (int i = 0; i < domainArray.length(); i++) {
@@ -343,7 +342,7 @@ public class DomibusRestClient {
 	public List<String> getDomainCodes() {
 
 		List<String> toReturn = new ArrayList<>();
-		;
+
 		try {
 			JSONArray domainArray = getDomains();
 			if (null != domainArray) {
@@ -404,7 +403,7 @@ public class DomibusRestClient {
 		switchDomain(domain);
 
 		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
-		JSONArray currentMSGF = null;
+		JSONArray currentMSGF;
 		JSONArray deletedL = new JSONArray();
 
 		try {

@@ -80,14 +80,14 @@ public class PModeArchivePage extends DomibusPage {
 
     public boolean isArchiveGridEmpty() {
         if (grid().getRowsNo() != 0) {
-            log.info("Data is found in Archive grid");
+            log.debug("Data is found in Archive grid");
             return false;
         }
         return true;
     }
 
     public Boolean isLoaded() {
-        log.info("check if is loaded");
+        log.debug("check if is loaded");
         wait.forElementToBeVisible(cancelButton);
         wait.forElementToBeVisible(saveButton);
         wait.forElementToBeVisible(deleteButton);
@@ -102,7 +102,7 @@ public class PModeArchivePage extends DomibusPage {
             return false;
         }
 
-        log.info("Pmode Archive page is loaded");
+        log.debug("Pmode Archive page is loaded");
         return true;
     }
 
@@ -110,14 +110,14 @@ public class PModeArchivePage extends DomibusPage {
         log.debug("wait for grid container to be visible");
         wait.forElementToBeVisible(archiveGridContainer);
         if (isArchiveGridEmpty()) {
-            log.info("Navigate to pmode current page as grid container is empty on Pmode archive page");
+            log.debug("Navigate to pmode current page as grid container is empty on Pmode archive page");
             getPage().getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
 
-            log.info("Info text shown on Pmode current page "+getPage().infoTxt.getText().trim());
+            log.debug("Info text shown on Pmode current page "+getPage().infoTxt.getText().trim());
 
         }else{
 
-        log.info("Uploaded Pmode count:" + getpagination().getTotalItems());}
+        log.debug("Uploaded Pmode count:" + getpagination().getTotalItems());}
     }
 public Boolean getCurDescTxt(){
         wait.forElementToBeVisible(cDescription);
@@ -131,7 +131,7 @@ public Boolean getCurDescTxt(){
 public void pModeView(){
         wait.forElementToBeVisible(pModeViewHeader);
         if(!pModeViewHeader.isDisplayed()){
-            log.info("View pop up for pmode is opened");
+            log.debug("View pop up for pmode is opened");
         }
 }
 
@@ -140,30 +140,30 @@ public void pModeView(){
     }
 public void DoubleClickRow()throws Exception{
         int rIndex;
-        log.info("Grid row count is: "+  grid().getRowsNo() );
+        log.debug("Grid row count is: "+  grid().getRowsNo() );
        if(grid().getRowsNo()>10){
-           log.info("Generate random row count");
+           log.debug("Generate random row count");
             rIndex = Generator.randomNumber(10);}
         else{
             rIndex=Generator.randomNumber(grid().getRowsNo());}
         if(rIndex==0){
-            log.info("Row number is zero");
+            log.debug("Row number is zero");
             log.debug("Double click 0th row ");
             grid().doubleClickRow(rIndex);
-            log.info("Validate View pop up ");
+            log.debug("Validate View pop up ");
             pModeView();
             WebElement cRow = driver.findElement(By.xpath(getXpathOfPmodeViewPopUpHeader("Current PMode:")));
             wait.forElementToBeVisible(cRow);
-            log.info("View pop up is opened on double click:"+ cRow.isDisplayed());
+            log.debug("View pop up is opened on double click:"+ cRow.isDisplayed());
            }
     else{
-            log.info("Row number is :" +rIndex);
+            log.debug("Row number is :" +rIndex);
             grid().doubleClickRow(rIndex);
-            log.info("Validate View pop up ");
+            log.debug("Validate View pop up ");
             pModeView();
             WebElement gRow = driver.findElement(By.xpath(getXpathOfPmodeViewPopUpHeader("Archive")));
             wait.forElementToBeVisible(gRow);
-            log.info("View pop up is opened on double click:"+ gRow.isDisplayed());
+            log.debug("View pop up is opened on double click:"+ gRow.isDisplayed());
 
     }
 }

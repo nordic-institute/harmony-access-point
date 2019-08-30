@@ -18,7 +18,7 @@ import java.util.*;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class ExcelReportReporter implements IReporter {
@@ -173,5 +173,5 @@ public class ExcelReportReporter implements IReporter {
 }
 
 enum Status{
-	Pass, FAIL, Skipped;
+	Pass, FAIL, Skipped
 }

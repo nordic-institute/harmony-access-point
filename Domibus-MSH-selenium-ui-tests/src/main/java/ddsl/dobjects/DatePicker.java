@@ -92,7 +92,7 @@ public class DatePicker extends DComponent {
 	}
 
 	public void selectDate(String date) throws Exception {
-		log.info("inputting date... " + date);
+		log.debug("inputting date... " + date);
 
 		DInput pickerInput = new DInput(driver, input);
 		pickerInput.fill(date);
@@ -106,7 +106,7 @@ public class DatePicker extends DComponent {
 		new DInput(driver, input).clear();
 	}
 
-	public void selectDate(Date date) throws Exception {
+	public void selectDate(Date date){
 		try {
 			expandoBtn.click();
 		} catch (Exception e) {
@@ -136,7 +136,7 @@ public class DatePicker extends DComponent {
 
 	}
 
-	public void selectMonth(String month) throws Exception {
+	public void selectMonth(String month){
 
 
 

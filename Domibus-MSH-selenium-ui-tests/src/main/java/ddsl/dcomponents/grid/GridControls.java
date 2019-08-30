@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class GridControls extends DComponent {
@@ -132,7 +132,7 @@ public class GridControls extends DComponent {
 		}
 	}
 
-	public boolean areCheckboxesVisible() throws Exception{
+	public boolean areCheckboxesVisible(){
 		try {
 			return getAllLnk().isPresent();
 		}catch (Exception e){

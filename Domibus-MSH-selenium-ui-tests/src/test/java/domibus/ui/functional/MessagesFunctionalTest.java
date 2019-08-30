@@ -33,7 +33,7 @@ import java.util.zip.ZipInputStream;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessagesFunctionalTest extends BaseTest {
@@ -389,7 +389,7 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		String destDir = zipFilePath.replaceAll(".zip", "");
 
-		HashMap<String, String> zipContent = new HashMap<String, String>();
+		HashMap<String, String> zipContent = new HashMap<>();
 
 		File dir = new File(destDir);
 		// create output directory if it doesn't exist

@@ -43,13 +43,13 @@ public class Dialog extends DComponent {
 	}
 
 	public void confirm() throws Exception {
-		log.info("dialog .. confirm");
+		log.debug("dialog .. confirm");
 		new DButton(driver, yesBtn).click();
 		wait.forElementToBeGone(yesBtn);
 	}
 
 	public void cancel() throws Exception {
-		log.info("dialog .. cancel");
+		log.debug("dialog .. cancel");
 		new DButton(driver, noBtn).click();
 		wait.forElementToBeGone(noBtn);
 	}

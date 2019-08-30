@@ -12,7 +12,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class PartiesFilters extends DomibusPage {
@@ -21,7 +21,7 @@ public class PartiesFilters extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	public enum PROCESS_ROLE {I, R, IR;}
+	public enum PROCESS_ROLE {I, R, IR}
 
 	@FindBy(id = "name_id")
 	WebElement nameInput;

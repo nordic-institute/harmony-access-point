@@ -29,21 +29,21 @@ public class AlertArea extends DComponent {
 	@FindBy(css = "#alertmessage_id span")
 	public WebElement closeButton;
 
-	public String getAlertMessage() throws Exception {
+	public String getAlertMessage(){
 
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (!alertObject.isPresent()) {
-			log.info("No messages displayed.");
+			log.debug("No messages displayed.");
 			return null;
 		}
 
 //		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.\\\\' ]", "").trim();
 		String messageTxt = alertMessage.getText().replace(closeButton.getText(), "").replaceAll("\n", "").trim();
 
-		log.info("messageTxt = " + messageTxt);
+		log.debug("messageTxt = " + messageTxt);
 
-		log.info("Getting alert message ...");
+		log.debug("Getting alert message ...");
 		return messageTxt.trim();
 	}
 

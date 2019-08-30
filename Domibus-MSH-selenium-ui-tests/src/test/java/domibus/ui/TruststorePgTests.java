@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class TruststorePgTests extends BaseUXTest {

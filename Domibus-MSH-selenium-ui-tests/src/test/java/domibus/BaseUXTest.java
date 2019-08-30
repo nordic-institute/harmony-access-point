@@ -61,7 +61,7 @@ public class BaseUXTest extends BaseTest {
 
 
 	protected DomibusPage login(HashMap<String, String> user) {
-		System.out.println("login started");
+		log.info("login started");
 		LoginPage loginPage = new LoginPage(driver);
 
 		try {

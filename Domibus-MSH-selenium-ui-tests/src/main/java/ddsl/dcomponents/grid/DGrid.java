@@ -38,7 +38,7 @@ public class DGrid extends DComponent {
 
 	public DGrid(WebDriver driver, WebElement container) {
 		super(driver);
-		log.info("init grid ...");
+		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
@@ -85,7 +85,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void selectRow(int rowNumber) throws Exception {
-		log.info("selecting row with number ... " + rowNumber);
+		log.debug("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
 			new DObject(driver, gridRows.get(rowNumber)).click();
 			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
@@ -94,7 +94,7 @@ public class DGrid extends DComponent {
 
 	public void doubleClickRow(int rowNumber) throws Exception {
 
-		log.info("double clicking row ... " + rowNumber);
+		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}
@@ -187,7 +187,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
-		log.info("column = " + columnName);
+		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
 			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {

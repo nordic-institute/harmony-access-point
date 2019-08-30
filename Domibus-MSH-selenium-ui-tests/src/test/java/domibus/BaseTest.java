@@ -33,7 +33,7 @@ public class BaseTest {
 	 * suite and the browser window is reused for all tests in suite
 	 */
 	@BeforeSuite(alwaysRun = true)
-	public void beforeClass() throws Exception {
+	public void beforeClass(){
 		log.info("-------- Starting -------");
 		driver = DriverManager.getDriver();
 		driver.get(data.getUiBaseUrl());
@@ -65,8 +65,14 @@ public class BaseTest {
 		}
 	}
 
+	/**Before each test method we will log a separator to make logs more readable*/
+	@BeforeMethod(alwaysRun = true)
+	protected void logSeparator() throws Exception{
+		log.info("----------------------------------------------");
+	}
+
 	protected DomibusPage login(HashMap<String, String> user){
-		System.out.println("login started");
+		log.info("login started");
 		LoginPage loginPage = new LoginPage(driver);
 
 		try {

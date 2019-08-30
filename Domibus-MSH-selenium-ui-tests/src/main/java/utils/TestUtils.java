@@ -82,11 +82,11 @@ public class TestUtils {
 		String columnName = colDesc.getString("name");
 		List<String> columns = grid.getColumnNames();
 		if (!columns.contains(columnName)) {
-			log.info(String.format("Column %s is not visible, sort testing for it is skipped", columnName));
+			log.debug(String.format("Column %s is not visible, sort testing for it is skipped", columnName));
 			return;
 		}
 		if (!colDesc.getBoolean("sortable")) {
-			log.info(String.format("Column %s is not sortable, sort testing for it is skipped", columnName));
+			log.debug(String.format("Column %s is not sortable, sort testing for it is skipped", columnName));
 			return;
 		}
 		if (!StringUtils.equalsIgnoreCase(grid.getSortedColumnName(), columnName)) {
@@ -97,7 +97,7 @@ public class TestUtils {
 	}
 
 	private static void checkSortOrder(SoftAssert soft, String columnName, String type, Order order, List<String> values) throws Exception {
-		log.info("Checking sort for " + columnName);
+		log.debug("Checking sort for " + columnName);
 		if (StringUtils.equalsIgnoreCase(type, "text")) {
 			soft.assertTrue(isStringListSorted(values, order), "Text sorting for column " + columnName);
 		} else if (StringUtils.equalsIgnoreCase(type, "datetime")) {

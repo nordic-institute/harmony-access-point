@@ -13,7 +13,7 @@ import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class PartyIdentifierModal extends DomibusPage {

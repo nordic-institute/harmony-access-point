@@ -14,7 +14,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class ErrFilters extends FilterArea {
@@ -87,7 +87,7 @@ public class ErrFilters extends FilterArea {
 
 
 	public void basicSearch(String signalMessID, String messageID, String fromDate, String toDate) throws Exception {
-		log.info("submit basic search");
+		log.debug("submit basic search");
 
 		getSignalMessIDInput().fill(signalMessID);
 		getMessageIDInput().fill(messageID);
