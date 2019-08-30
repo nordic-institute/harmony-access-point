@@ -101,9 +101,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;
-//
-//    @Autowired
-//    protected PluginPropertyChangeNotifier propertyChangeNotifier;
 
     @Autowired
     protected ApplicationContext applicationContext;
@@ -455,8 +452,10 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
         Map<String, DomibusPropertyMetadataDTO> knownProperties = new HashMap<>();
 
-        // in multi-domain in single-tenancy mode:
-        // replace each domain property with one property for every domain
+        // in single-domain mode - we only expose the "base" properties
+        // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
+        // in multi-tenancy mode - we only expose the "base" properties from the current domain
+
         boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
 
         for (DomibusPropertyMetadataDTO prop : baseProperties) {
@@ -524,8 +523,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         propertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
     }
 
-    @Override
-    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
+    @Override 
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
