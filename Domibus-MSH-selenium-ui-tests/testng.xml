@@ -3,6 +3,7 @@
 <suite name="TestAll">
 
 	<test name="UX">
+		<method-selectors></method-selectors>
 		<packages>
 			<package name="domibus.ui.ux.*" />
 		</packages>
@@ -12,4 +13,7 @@
 			<package name="domibus.ui.functional.*" />
 		</packages>
 	</test>
+	<listeners>
+		<listener class-name="utils.customReporter.ExcelReportReporter" />
+	</listeners>
 </suite>

@@ -19,7 +19,7 @@ import java.util.HashMap;
  * @version 4.1
 */
 
-@Listeners(ExcelTestReporter.class)
+//@Listeners(ExcelTestReporter.class)
 public class BaseTest {
 
 	public static WebDriver driver;

@@ -5,28 +5,23 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.testng.ISuiteListener;
-import org.testng.ITestContext;
-import org.testng.ITestListener;
-import org.testng.ITestResult;
+import org.testng.*;
 import org.testng.annotations.Test;
+import org.testng.xml.XmlSuite;
 import utils.TestRunData;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-
+import java.util.*;
 
 /**
  * @author Catalin Comanici
-
- * @version 4.1
+ * @description:
+ * @since 4.1
  */
-
-
-public class ExcelTestReporter implements ITestListener{
+public class ExcelReportReporter implements IReporter {
 
 	private TestRunData data = new TestRunData();
 	private static final String[] headers = {"Type", "Test Suite Name", "Test Case ID", "Test Case Name", "Can be run on Bamboo", "TC is disabled", "Test Result", "Last Execution Started", "Execution time", "JIRA tickets", "Impact", "Comment"};
@@ -35,12 +30,10 @@ public class ExcelTestReporter implements ITestListener{
 	private static String filename;
 
 
-
 	/*Creates the report file, the sheet and writes the headers of the table with style as well*/
-	public void onStart(ITestContext iTestContext) {
+	private void onStart() {
 
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-		String dateStr = format.format(iTestContext.getStartDate());
+		String dateStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm").format(Calendar.getInstance().getTime());
 		filename = data.getReportsFolder() + "TestRunReport" + dateStr + ".xlsx";
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
@@ -66,49 +59,43 @@ public class ExcelTestReporter implements ITestListener{
 
 	}
 
+	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
 
-	public void onFinish(ITestContext iTestContext) {
+		onStart();
 
-	}
+		//Iterating over each suite included in the test
+		for (ISuite suite : suites) {
+
+			//Following code gets the suite name
+			String suiteName = suite.getName();
+			System.out.println("suiteName = " + suiteName);
 
 
-	public void onTestStart(ITestResult iTestResult) {
-		System.out.println("---------------------------------------------------");
-		System.out.println(iTestResult.getTestClass().getName() + " - " + iTestResult.getName());
-		System.out.println("---------------------------------------------------");
-	}
+			//Getting the results for the said suite
+			Map<String, ISuiteResult> suiteResults = suite.getResults();
+			System.out.println("suiteResults = " + suiteResults);
 
-	/* Writes a row in the report file with the test id, name  and Pass as status */
-	public void onTestSuccess(ITestResult iTestResult) {
-		try {
-			writeRowToReportFile(iTestResult, "Pass");
-		} catch (Exception e) {
-			e.printStackTrace();
+			for (ISuiteResult sr : suiteResults.values()) {
+				ITestContext tc = sr.getTestContext();
+				writeResultsToFile(tc.getPassedTests().getAllResults());
+				writeResultsToFile(tc.getFailedTests().getAllResults());
+				writeResultsToFile(tc.getSkippedTests().getAllResults());
+			}
 		}
 	}
 
-	/* Writes a row in the report file with the test id, name  and FAIL as status*/
-	public void onTestFailure(ITestResult iTestResult) {
-		try {
-			writeRowToReportFile(iTestResult, "FAIL");
-		} catch (Exception e) {
-			e.printStackTrace();
+	private void writeResultsToFile(Set<ITestResult> trs){
+		Status[] vals = Status.values();
+
+		for (ITestResult tr : trs) {
+			String stat = vals[tr.getStatus()-1].name();
+			try {
+				writeRowToReportFile(tr, stat);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
-
-	/* Writes a row in the report file with the test id, name and Skipped as status */
-	public void onTestSkipped(ITestResult iTestResult) {
-		try {
-			writeRowToReportFile(iTestResult, "Skipped");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
-
-	}
-
 
 	/* depending on the type of cell returns the desired style. The supported type are "Header", "Fail", "Pass" */
 	private XSSFCellStyle composeCellStyle(XSSFWorkbook workbook, String type) {
@@ -145,14 +132,6 @@ public class ExcelTestReporter implements ITestListener{
 
 		String qualifiedName = iTestResult.getMethod().getQualifiedName();
 
-		String testType = "";
-		if (qualifiedName.contains(".ui.")) {
-			testType = "UI";
-		}
-		if (qualifiedName.contains(".rest.")) {
-			testType = "REST";
-		}
-
 		File myFile = new File(filename);
 		FileInputStream inputStream = new FileInputStream(myFile);
 		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
@@ -161,7 +140,7 @@ public class ExcelTestReporter implements ITestListener{
 		int rowNum = reportSheet.getLastRowNum() + 1;
 		Row currentRow = reportSheet.createRow(rowNum);
 
-		currentRow.createCell(0).setCellValue(testType);
+		currentRow.createCell(0).setCellValue(iTestResult.getTestName());
 		currentRow.createCell(1).setCellValue(iTestResult.getTestContext().getSuite().getName());
 		currentRow.createCell(2).setCellValue(iTestResult.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class).description());
 		currentRow.createCell(3).setCellValue(iTestResult.getName());
@@ -189,4 +168,10 @@ public class ExcelTestReporter implements ITestListener{
 	}
 
 
+
+
+}
+
+enum Status{
+	Pass, FAIL, Skipped;
 }
