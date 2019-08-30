@@ -4,8 +4,6 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -38,7 +36,7 @@ public class FSPluginPropertiesTest {
 
     @Injectable
     protected ApplicationContext applicationContext;
-    
+
     @Tested
     FSPluginProperties fsPluginProperties;
 
@@ -59,7 +57,20 @@ public class FSPluginPropertiesTest {
         final List<String> domainsList = fsPluginProperties.readDomains();
         Assert.assertEquals(4, domainsList.size());
         Assert.assertTrue(domainsList.contains(FSSendMessagesService.DEFAULT_DOMAIN));
+    }
 
+    @Test
+    public void testHasKnownProperty() {
+        final String propertyName = "fsplugin.messages.location";
+
+        new Expectations(Collections.class) {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+        }};
+
+        final Boolean isKnownFSProperty = fsPluginProperties.hasKnownProperty(propertyName);
+
+        Assert.assertEquals(true, isKnownFSProperty);
     }
 
 }

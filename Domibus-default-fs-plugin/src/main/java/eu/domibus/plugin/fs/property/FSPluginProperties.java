@@ -482,6 +482,10 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public String getKnownPropertyValue(String domain, String propertyName) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException("Unknown property name: " + propertyName);
+        }
+
         // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
         if (propertyName.startsWith(DOMAIN_PREFIX)) {
             if (this.properties.containsKey(propertyName)) {
@@ -504,6 +508,10 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue,
                                       boolean broadcast) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException("Unknown property name: " + propertyName);
+        }
+
         String propertyKey = propertyName;
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             propertyKey = getDomainPropertyName(domainCode, propertyName);
