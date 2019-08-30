@@ -3,6 +3,10 @@ package eu.domibus.api.scheduler;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ */
 public class DomibusSchedulerException extends DomibusCoreException {
 
     public DomibusSchedulerException(String message, Throwable cause) {

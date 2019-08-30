@@ -8,6 +8,10 @@ import eu.domibus.ext.services.DomibusSchedulerExtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ */
 @Service
 public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtService {
 
