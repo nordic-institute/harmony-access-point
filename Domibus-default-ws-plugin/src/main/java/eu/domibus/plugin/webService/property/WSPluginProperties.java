@@ -3,10 +3,14 @@ package eu.domibus.plugin.webService.property;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.webService.impl.BackendWebServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import sun.rmi.runtime.Log;
 
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.soap.SOAPBinding;
@@ -20,6 +24,8 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     private static final String SCHEMA_VALIDATION_ENABLED_PROPERTY = "wsplugin.schema.validation.enabled";
 
     private static final String MTOM_ENABLED_PROPERTY = "wsplugin.mtom.enabled";
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginProperties.class);
 
     @Autowired
     protected ApplicationContext applicationContext;
@@ -45,6 +51,7 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
             case MTOM_ENABLED_PROPERTY:
                 return this.isMtomEnabled().toString();
             default:
+                LOG.debug("Property [{}] not found in known property list", propertyName);
                 return null;
         }
     }
@@ -64,6 +71,8 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
             case MTOM_ENABLED_PROPERTY:
                 this.setMtomEnabled(value);
                 break;
+            default:
+                LOG.debug("Property [{}] cannot be set because it is not found", propertyName);
         }
     }
 
