@@ -3,17 +3,20 @@ package eu.domibus.api.property;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
+ *
+ * REST service class for getting the current value of a domibus property along with its metadata
  */
 public class DomibusProperty {
-    private String name;
     private String value;
 
-    public String getName() {
-        return name;
+    private DomibusPropertyMetadata metadata;
+
+    public DomibusPropertyMetadata getMetadata() {
+        return metadata;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMetadata(DomibusPropertyMetadata metadata) {
+        this.metadata = metadata;
     }
 
     public String getValue() {

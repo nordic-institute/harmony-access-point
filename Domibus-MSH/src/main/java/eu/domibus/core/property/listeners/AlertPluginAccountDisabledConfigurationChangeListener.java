@@ -1,9 +1,9 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  * Handles the change of alert properties that are related to disabled plugin accounts configuration
  */
 @Service
-public class AlertPluginAccountDisabledConfigurationChangeListener implements PluginPropertyChangeListener {
+public class AlertPluginAccountDisabledConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;

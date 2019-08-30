@@ -1,8 +1,8 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALE
  * Handles the change of alert email properties
  */
 @Service
-public class AlertMailChangeListener implements PluginPropertyChangeListener {
+public class AlertMailChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     private MailSender mailSender;

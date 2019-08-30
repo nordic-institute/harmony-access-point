@@ -2,8 +2,8 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.messaging.MessageListenerContainerInitializer;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -18,7 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Handles the change of concurrency properties
  */
 @Service
-public class ConcurrencyChangeListener implements PluginPropertyChangeListener {
+public class ConcurrencyChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     protected DomainService domainService;

@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- * Resource responsible with getting the domibus properties that can be changed at runtime, getting and setting their values throught REST Api
+ *
+ * Resource responsible with getting the domibus properties that can be changed at runtime, getting and setting their values through REST Api
  */
 @RestController
 @RequestMapping(value = "/rest/configuration")

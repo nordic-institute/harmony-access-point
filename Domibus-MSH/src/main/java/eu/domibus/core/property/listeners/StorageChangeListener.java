@@ -2,9 +2,9 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -15,11 +15,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATT
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Handles the change of attachment storage location property
  */
 @Service
-public class StorageChangeListener implements PluginPropertyChangeListener {
+public class StorageChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     protected ApplicationContext applicationContext;
