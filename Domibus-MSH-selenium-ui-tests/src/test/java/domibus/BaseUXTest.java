@@ -1,45 +1,28 @@
 package domibus;
 
-import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
-import rest.DomibusRestClient;
-import utils.DriverManager;
-import utils.Order;
-import utils.TestRunData;
-import utils.customReporter.ExcelTestReporter;
-import utils.soap_client.DomibusC1;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * @author Catalin Comanici
  * @version 4.1
  */
 
-//@Listeners(ExcelTestReporter.class)
 public class BaseUXTest extends BaseTest {
 
 	/**

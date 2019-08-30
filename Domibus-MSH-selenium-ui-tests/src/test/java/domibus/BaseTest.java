@@ -9,7 +9,6 @@ import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.DriverManager;
 import utils.TestRunData;
-import utils.customReporter.ExcelTestReporter;
 import utils.soap_client.DomibusC1;
 
 import java.util.HashMap;
@@ -19,7 +18,6 @@ import java.util.HashMap;
  * @version 4.1
 */
 
-//@Listeners(ExcelTestReporter.class)
 public class BaseTest {
 
 	public static WebDriver driver;
