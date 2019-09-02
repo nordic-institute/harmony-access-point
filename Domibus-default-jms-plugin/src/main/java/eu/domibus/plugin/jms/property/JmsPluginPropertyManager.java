@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Property manager for the JmsPlugin properties.
+ */
 @Service
 public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
 
