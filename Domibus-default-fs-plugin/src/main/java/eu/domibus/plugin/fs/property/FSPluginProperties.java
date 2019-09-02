@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.*;
 
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
@@ -38,57 +39,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private static final String DOT = ".";
 
-    private static final String PROPERTY_PREFIX = "fsplugin.";
-
-    private static final String DOMAIN_PREFIX = "fsplugin.domains.";
-
-    private static final String LOCATION = "messages.location";
-
-    private static final String SENT_ACTION = "messages.sent.action";
-
-    public static final String SENT_PURGE_WORKER_CRONEXPRESSION = "messages.sent.purge.worker.cronExpression";
-
-    private static final String SENT_PURGE_EXPIRED = "messages.sent.purge.expired";
-
-    private static final String FAILED_ACTION = "messages.failed.action";
-
-    public static final String FAILED_PURGE_WORKER_CRONEXPRESSION = "messages.failed.purge.worker.cronExpression";
-
-    private static final String FAILED_PURGE_EXPIRED = "messages.failed.purge.expired";
-
-    private static final String RECEIVED_PURGE_EXPIRED = "messages.received.purge.expired";
-
-    public static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
-
-    private static final String SEND_DELAY = "messages.send.delay";
-
-    public static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
-
-    public static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "messages.received.purge.worker.cronExpression";
-
-    private static final String USER = "messages.user";
-
-    private static final String PAYLOAD_ID = "messages.payload.id";
-
     private static final String DEFAULT_CONTENT_ID = "cid:message";
-
-    // Sonar confuses this constant with an actual password
-    @SuppressWarnings("squid:S2068")
-    private static final String PASSWORD = "messages.password";
-
-    private static final String AUTHENTICATION_USER = "authentication.user";
-
-    // Sonar confuses this constant with an actual password
-    @SuppressWarnings("squid:S2068")
-    private static final String AUTHENTICATION_PASSWORD = "authentication.password";
-
-    public static final String EXPRESSION = "messages.expression";
-
-    public static final String ORDER = "order";
-
-    private static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
-
-    private static final String PASSWORD_ENCRYPTION_ACTIVE = "password.encryption.active";
 
     @Resource(name = "fsPluginProperties")
     private Properties properties;
@@ -104,6 +55,9 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Autowired
     protected ApplicationContext applicationContext;
+
+    @Autowired
+    FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
 
     private List<String> domains;
 
@@ -426,30 +380,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        DomibusPropertyMetadataDTO[] baseProperties = new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, false, false),
-                new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
-                new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
-                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
-                // without fallback from the default domain :
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
-                new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
-                // with fallback from the default domain:
-                new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(EXPRESSION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(FAILED_ACTION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SENT_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Module.FS_PLUGIN, true, true),
-        };
+
+        Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
 
         Map<String, DomibusPropertyMetadataDTO> knownProperties = new HashMap<>();
 
@@ -459,7 +391,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
         boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
 
-        for (DomibusPropertyMetadataDTO prop : baseProperties) {
+        for (DomibusPropertyMetadataDTO prop : baseProperties.values()) {
             if (multiplyDomainProperties && prop.isDomainSpecific()) {
                 for (String domain : getDomains()) {
                     String name = getDomainPropertyName(domain, prop.getName());

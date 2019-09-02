@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.OUT_QUEUE_CONCURRENCY;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -26,7 +28,7 @@ public class PluginMessageListenerConcurrencyChangeListener implements PluginPro
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, FSPluginProperties.OUT_QUEUE_CONCURRENCY);
+        return StringUtils.equalsIgnoreCase(propertyName, OUT_QUEUE_CONCURRENCY);
     }
 
     @Override
