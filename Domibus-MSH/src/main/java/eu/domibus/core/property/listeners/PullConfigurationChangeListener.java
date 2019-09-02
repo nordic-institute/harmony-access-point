@@ -1,9 +1,8 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.ebms3.puller.PullFrequencyHelper;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
  * Handles the change of pull property values that are cached in PullFrequencyHelper.
  */
 @Service
-public class PullConfigurationChangeListener implements PluginPropertyChangeListener {
+public class PullConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     private PullFrequencyHelper pullFrequencyHelper;

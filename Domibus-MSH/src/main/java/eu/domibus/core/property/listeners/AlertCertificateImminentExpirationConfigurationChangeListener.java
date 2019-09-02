@@ -1,8 +1,8 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * Handles the change of alert properties that are related to configuration of imminent certificate expiration alerts
  */
 @Service
-public class AlertCertificateImminentExpirationConfigurationChangeListener implements PluginPropertyChangeListener {
+public class AlertCertificateImminentExpirationConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
