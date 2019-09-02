@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -24,10 +26,10 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
     protected DomibusSchedulerExtService domibusSchedulerExt;
 
     private Map<String, String> propertyToJobMap = Stream.of(new String[][]{
-            {FSPluginProperties.SEND_WORKER_INTERVAL, "fsPluginSendMessagesWorkerJob"},
-            {FSPluginProperties.SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
-            {FSPluginProperties.FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
-            {FSPluginProperties.RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
+            {SEND_WORKER_INTERVAL, "fsPluginSendMessagesWorkerJob"},
+            {SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
+            {FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
+            {RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override
@@ -38,7 +40,7 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
-        if (StringUtils.equalsIgnoreCase(propertyName, FSPluginProperties.SEND_WORKER_INTERVAL)) {
+        if (StringUtils.equalsIgnoreCase(propertyName, SEND_WORKER_INTERVAL)) {
             Integer repeatInterval = Integer.valueOf(propertyValue);
             domibusSchedulerExt.rescheduleJob(domainCode, jobName, repeatInterval);
         } else {
