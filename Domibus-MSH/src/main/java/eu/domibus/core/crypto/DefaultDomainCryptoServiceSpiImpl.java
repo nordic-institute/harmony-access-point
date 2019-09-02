@@ -53,6 +53,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected Domain domain;
 
+    protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
+    protected static final String BACKUP_EXT = ".backup-";
+
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
@@ -171,13 +174,13 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected String backupTrustStore(File trustStoreFile) throws CryptoException {
-        if(trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
+        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
             LOG.warn("Truststore file was null, nothing to backup!");
             return null;
         }
 
         try {
-            String backupName = trustStoreFile.getAbsolutePath() + ".backup-" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            String backupName = trustStoreFile.getAbsolutePath() + BACKUP_EXT + LocalDateTime.now().format(BACKUP_FILE_FORMATTER);
             File backupFile = new File(backupName);
             FileUtils.copyFile(trustStoreFile, backupFile);
             return backupName;
