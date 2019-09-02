@@ -1,18 +1,24 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.proxy.DomibusProxy;
 import eu.domibus.proxy.DomibusProxyService;
-import eu.domibus.proxy.DomibusProxyServiceImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
+import org.apache.cxf.jaxws.DispatchImpl;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.Dispatch;
 import java.util.concurrent.Executor;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE;
@@ -39,15 +45,13 @@ public class DispatchClientDefaultProviderTest {
     @Tested
     DispatchClientDefaultProvider dispatchClientDefaultProvider;
 
-    @Test
-    public void testSetHttpClientPolicy(@Injectable HTTPClientPolicy httpClientPolicy) {
-        String connectionTimeout = "10";
-        String receiveTimeout = "60";
-        String allowChunking = "true";
-        String keepAlive = "true";
-        String chunkingThreshold = "100";
+    String connectionTimeout = "10";
+    String receiveTimeout = "60";
+    String allowChunking = "true";
+    String keepAlive = "true";
+    String chunkingThreshold = "100";
 
-
+    private void prepareHTTPClientPolicyExpectations() {
         new Expectations() {{
             domibusPropertyProvider.getDomainProperty(DispatchClientDefaultProvider.DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT);
             result = connectionTimeout;
@@ -64,7 +68,12 @@ public class DispatchClientDefaultProviderTest {
             domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE);
             result = keepAlive;
         }};
+    }
 
+    @Test
+    public void testSetHttpClientPolicy(@Injectable HTTPClientPolicy httpClientPolicy) {
+
+        prepareHTTPClientPolicyExpectations();
 
         dispatchClientDefaultProvider.setHttpClientPolicy(httpClientPolicy);
 
@@ -75,5 +84,38 @@ public class DispatchClientDefaultProviderTest {
             httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
             httpClientPolicy.setChunkingThreshold(Integer.parseInt(chunkingThreshold));
         }};
+    }
+
+    @Test
+    public void testGetClient(@Injectable org.apache.neethi.Policy policy) {
+        String endpoint = "https://tbd";
+        String algorithm = "algorithm";
+        String pModeKey = "pModeKey";
+        DomibusProxy domibusProxy = new DomibusProxy();
+        domibusProxy.setEnabled(true);
+        domibusProxy.setHttpProxyHost("localhost");
+        domibusProxy.setHttpProxyPort(8090);
+        domibusProxy.setHttpProxyUser("proxyuser");
+        domibusProxy.setHttpProxyPassword("proxypassword");
+        domibusProxy.setNonProxyHosts("localhost,127.0.0.1");
+
+        prepareHTTPClientPolicyExpectations();
+
+        new Expectations() {{
+            domibusProxyService.useProxy();
+            result = true;
+
+            domibusProxyService.isProxyUserSet();
+            result = true;
+
+            domibusProxyService.getDomibusProxy();
+            result = domibusProxy;
+        }};
+
+        Dispatch<SOAPMessage> dispatch = dispatchClientDefaultProvider.getClient("default", endpoint, algorithm, policy, pModeKey, false);
+
+        ProxyAuthorizationPolicy proxyAuthorizationPolicy = ((URLConnectionHTTPConduit) ((DispatchImpl) dispatch).getClient().getConduit()).getProxyAuthorization();
+        Assert.assertEquals(domibusProxy.getHttpProxyUser(), proxyAuthorizationPolicy.getUserName());
+        Assert.assertEquals(domibusProxy.getHttpProxyPassword(), proxyAuthorizationPolicy.getPassword());
     }
 }
