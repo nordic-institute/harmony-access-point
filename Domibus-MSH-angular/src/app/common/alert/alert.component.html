@@ -1,4 +1,4 @@
 ﻿<div *ngIf="message" [ngClass]="{ 'alert': message, 'alert-success': message.type === 'success', 'alert-error': message.type === 'error' }" id="alertmessage_id">
   <span class="closebtn" (click)="clearAlert()">&times;</span>
-  <pre>{{message.text}}</pre>
+  <span style="white-space:pre-wrap;">{{message.text}}</span>
 </div>
