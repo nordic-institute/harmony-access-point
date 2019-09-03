@@ -1,6 +1,5 @@
 package eu.domibus.plugin.handler;
 
-import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.message.UserMessageLogService;
@@ -290,7 +289,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-            userMessageService.scheduleSending(MESS_ID);
+            userMessageService.scheduleSending(MESS_ID, anyBoolean);
         }};
 
     }
@@ -364,7 +363,7 @@ public class DatabaseMessageHandlerTest {
 //            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-            userMessageService.scheduleSending(MESS_ID);
+            userMessageService.scheduleSending(MESS_ID, anyBoolean);
             times = 0;
         }};
 
@@ -697,7 +696,7 @@ public class DatabaseMessageHandlerTest {
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
-            userMessageService.scheduleSending(MESS_ID);
+            userMessageService.scheduleSending(MESS_ID, anyBoolean);
             times = 0;
         }};
     }
