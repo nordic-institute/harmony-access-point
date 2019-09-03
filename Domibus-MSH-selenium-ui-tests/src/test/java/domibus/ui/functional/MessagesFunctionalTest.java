@@ -6,6 +6,7 @@ import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
@@ -22,7 +23,6 @@ import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -38,22 +38,21 @@ import java.util.zip.ZipInputStream;
  */
 public class MessagesFunctionalTest extends BaseTest {
 
-	List<String> columnList = Arrays.asList("Message Id", "From Party Id", "To Party Id", "Message Status", "Notification Status", "Received", "AP Role", "Send Attempts", "Send Attempts Max", "Next Attempt", "Conversation Id", "Message Type", "Message Subtype", "Deleted", "Original Sender", "Final Recipient", "Ref To Message Id", "Failed", "Restored", "Actions");
 
-	@Test(description = "MSG-3", groups = {"multiTenancy", "singleTenancy"})
+	/*Doubleclik on one message*/
+	@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickMessageRow() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+		String messID = getMessageIDs(null, 1, false).get(0);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
 		DGrid grid = page.grid();
 		int index = grid.scrollTo("Message Id", messID);
+		log.info("Checking message with ID " + messID);
 
 		HashMap<String, String> info = grid.getRowInfo(index);
 		grid.doubleClickRow(index);
@@ -62,85 +61,85 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		for (String s : info.keySet()) {
 			if(s.contains("Action")){ continue;}
+			log.info("Checking info in modal vs grid for field " + s);
 			soft.assertEquals(modal.getValue(s), info.get(s), "Checking info in grid vs modal " + s );
 		}
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"})
-	public void filterMessages() throws Exception{
+	/*Filter messages using basic filters */
+	@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"})
+	public void filterUsingBasicFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		List<String> messageIDs = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), null, null));
-		}
+		List<String> messageIDs = getMessageIDs(null, 5, false);
 
+		log.info("Login with admin");
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
-
 		DGrid grid = page.grid();
 
+		log.info("Getting all listed message info");
 		List<HashMap<String, String>> allRowInfo = grid.getAllRowInfo();
+		HashMap<String, String> fMessage = allRowInfo.get(0);
 
-		page.getFilters().getMessageIDInput().fill(messageIDs.get(0));
-//		page.getFilters().
+		log.info("Basic filtering by " + fMessage);
+		page.getFilters().basicFilterBy(fMessage.get("Message Id")
+				, fMessage.get("Message Status")
+				, fMessage.get("From Party Id")
+				, fMessage.get("To Party Id"));
 		page.grid().waitForRowsToLoad();
 
+		log.info("Getting all listed message info after filtering");
 		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
 
 		List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
-
 		soft.assertTrue(filteredRowInfo.size() == expectedResult.size(), "No of listed items in page matches expected");
 
-
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-6", groups = {"multiTenancy", "singleTenancy"})
+	/*Filter messages using advanced filters */
+	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesAdvancedFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
-
-		String user = Generator.randomAlphaNumeric(10);
-		String messageRefID = Generator.randomAlphaNumeric(10);
-		String conversationID = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		List<String> messageIDs = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			messageIDs.add( messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID));
-		}
+		List<String> messageIDs = getMessageIDs(null, 5, false);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
 		DGrid grid = page.grid();
+		grid.getGridCtrl().showCtrls();
+		grid.getGridCtrl().getAllLnk().click();
+		HashMap<String, String> messInfo = grid.getRowInfo(0);
 
 		MessageFilters filters = page.getFilters();
+		log.info("Filtering using advanced filters by " + messInfo);
+		filters.advancedFilterBy(messInfo.get("Message Id")
+				,messInfo.get("Message Status")
+				,messInfo.get("From Party Id")
+				,messInfo.get("To Party Id")
+				,messInfo.get("Conversation Id")
+				,messInfo.get("AP Role")
+				,messInfo.get("Message Type")
+				,messInfo.get("Notification Status")
+				,messInfo.get("Ref To Message Id")
+				,messInfo.get("Original Sender")
+				,messInfo.get("Final Recipient")
+				,null
+				,null
+		);
 
-//		filters.getAdvancedSearchExpandLnk().click();
-		filters.getFromPartyInput().fill(MessageConstants.From_Party_Id);
-		filters.getToPartyInput().fill(MessageConstants.To_Party_Id);
-		filters.getFinalRecipientInput().fill(MessageConstants.Final_Recipient);
-		filters.getOriginalSenderInput().fill(MessageConstants.Original_Sender);
-		filters.getConversationIDInput().fill(conversationID);
-		filters.getReferenceMessageIDInput().fill(messageRefID);
-		filters.getApRoleSelect().selectOptionByText(MessageConstants.AP_Role);
-
-//		filters.getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 
 		for (int i = 0; i < page.grid().getRowsNo(); i++) {
+			log.info("checking result with number " + i);
 			page.grid().doubleClickRow(i);
 			MessageDetailsModal modal = new MessageDetailsModal(driver);
 			String messID = modal.getValue("Message ID");
-			soft.assertEquals(modal.getValue("Conversation Id"), conversationID, messID + " - check conversation id");
-			soft.assertEquals(modal.getValue("Ref To Message Id"), messageRefID, messID + " - check Ref To Message Id");
+			soft.assertEquals(modal.getValue("Conversation Id"), messInfo.get("Conversation Id"), messID + " - check conversation id");
+			soft.assertEquals(modal.getValue("Ref To Message Id"), messInfo.get("Ref To Message Id"), messID + " - check Ref To Message Id");
 			soft.assertEquals(modal.getValue("From Party Id"), MessageConstants.From_Party_Id, messID + " - check From Party Id");
 			soft.assertEquals(modal.getValue("To Party Id"), MessageConstants.To_Party_Id, messID + " - check To Party Id");
 			soft.assertEquals(modal.getValue("Original Sender"), MessageConstants.Original_Sender, messID + " - check Original Sender");
@@ -150,56 +149,106 @@ public class MessagesFunctionalTest extends BaseTest {
 			page.clickVoidSpace();
 		}
 
-
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
-
-	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"})
+	/* Filter messages so that there are no results */
+	@Test(description = "MSG-8", groups = {"multiTenancy", "singleTenancy"})
 	public void filterEmptyGrid() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
 		int gridRows = page.grid().getRowsNo();
 		int allRows = page.grid().getPagination().getTotalItems();
+		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
 
-		page.getFilters().getMessageIDInput().fill("testEmptyGrid");
-//		page.getFilters().getSearchButton().click();
+		log.info("filtering so that grid shows 0 results");
+		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
 
-//		when there is time replace this with an empty search
-		page.refreshPage();
+		soft.assertAll();
+	}
 
+	/* Filter messages so that there are no results then delete all criteria and press Search in case of Basic /Advance Search both */
+	@Test(description = "MSG-9", groups = {"multiTenancy", "singleTenancy"})
+	public void emptySearchAllResults() throws Exception{
+		SoftAssert soft = new SoftAssert();
+
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+
+		int gridRows = page.grid().getRowsNo();
+		int allRows = page.grid().getPagination().getTotalItems();
+		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
+
+		log.info("filtering so that grid shows 0 results");
+		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
+		page.grid().waitForRowsToLoad();
+
+		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
+
+//		refresh because entering empty string everywhere does not trigger change event
+		page.refreshPage();
+		page.grid().waitForRowsToLoad();
+
+		log.info("checking results after refresh");
 		soft.assertEquals(page.grid().getRowsNo(), gridRows, "Empty search resets grid to original state (2)");
 		soft.assertEquals(page.grid().getPagination().getTotalItems(), allRows, "Empty search resets grid to original state (2)");
 
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-8", groups = {"multiTenancy", "singleTenancy"})
+	/* Download list of messages */
+	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("sorting after column Received");
+		page.grid().sortBy("Received");
+
+		log.info("se page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+
+		soft.assertAll();
+	}
+
+	/* Download message */
+	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String user = Generator.randomAlphaNumeric(10);
-		String messageRefID = Generator.randomAlphaNumeric(10);
-		String conversationID = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageID = messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID);
+		String messageID = getMessageIDs(null, 1, false).get(0);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
 		page.grid().scrollToAndDoubleClick("Message Id", messageID);
+		log.info("double clicked messag with id " + messageID);
 
 		String zipPath = rest.downloadMessage(messageID, null);
-		HashMap<String, String> zipContent = unzip(zipPath);
+		log.info("downloaded message to zip with path " + zipPath);
 
+		HashMap<String, String> zipContent = unzip(zipPath);
+		log.info("checking zip for files message and message.xml");
 		boolean foundXMLfile = false;
 		boolean foundMessfile = false;
 		for (String fileName : zipContent.keySet()) {
@@ -209,10 +258,12 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		soft.assertTrue(foundMessfile, "Found file containing message content");
 		soft.assertTrue(foundXMLfile, "Found file containing message properties");
-
+		log.info("checking the message payload");
 		soft.assertEquals(zipContent.get("message"), MessageConstants.Message_Content, "Correct message content is downloaded");
 
 		String xmlString = zipContent.get("message.xml");
+
+		log.info("checking the message metadata");
 		MessageDetailsModal modal = new MessageDetailsModal(driver);
 		soft.assertEquals(modal.getValue("Message Id"),
 				getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
@@ -227,12 +278,11 @@ public class MessagesFunctionalTest extends BaseTest {
 		soft.assertTrue(xmlString.contains("name=\"finalRecipient\">" + modal.getValue("Final Recipient"))
 				, "Final Recipient - value matches");
 
-
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-9", groups = {"multiTenancy", "singleTenancy"})
+	/* Resend message */
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
 	public void resendMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
@@ -243,13 +293,14 @@ public class MessagesFunctionalTest extends BaseTest {
 		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
 		page.grid().scrollToAndSelect("Message Id", messageID);
 
-
 		page.wait.forElementToBeEnabled(page.getResendButton().element);
 		page.getResendButton().click();
+		log.info("clicked Resend button");
 
 		MessageResendModal modal = new MessageResendModal(driver);
 		modal.getResendButton().click();
@@ -257,7 +308,7 @@ public class MessagesFunctionalTest extends BaseTest {
 		boolean statusChanged = false;
 		int c=0;
 		while(c<20) {
-
+			log.info("checking for status change");
 			HashMap<String, String> info = page.grid().getRowInfo("Message Id", messageID);
 
 			if(StringUtils.equalsIgnoreCase(info.get("Message Status"), "SEND_ENQUEUED")
@@ -267,117 +318,108 @@ public class MessagesFunctionalTest extends BaseTest {
 			}
 			c++;
 		}
+
 		soft.assertTrue(statusChanged, "Message changed to SEND_ENQUEUED");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS, "Page shows corect success message");
 		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
 
-
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-10", groups = {"multiTenancy"})
+	/* Domain admin logs in and views messages */
+	@Test(description = "MSG-13", groups = {"multiTenancy"})
 	public void messagesSegregatedByDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
 		String domainName = rest.getDomainNames().get(1);
 		String domain = rest.getDomainCodeForName(domainName);
-
+		log.info(String.format("Domain name = %, domain code = %s", domainName, domain));
 
 		String userDomain = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(userDomain, DRoles.ADMIN, data.getDefaultTestPass(),domain);
+		log.info("created plugin user " + userDomain);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
 		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null);
+		log.info("sent message with id " + messageIDDomain);
 
+		log.info("Switching to default domain");
 		String userDefault = Generator.randomAlphaNumeric(10);
 		rest.createPluginUser(userDefault, DRoles.ADMIN, data.getDefaultTestPass(),null);
+		log.info("created plugin user " + userDefault);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null);
+		log.info("sent message with id " + messageIDDefault);
 
 		String userAdmin = Generator.randomAlphaNumeric(10);
 		rest.createUser(userAdmin, DRoles.ADMIN, data.getDefaultTestPass(), domain);
+		log.info("created admin with username " + userAdmin);
 
 		login(userAdmin, data.getDefaultTestPass()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in as created admin");
 		MessagesPage page = new MessagesPage(driver);
 
+		log.info("checking if new messages are visible");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Domain admin sees the domain message (1)");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)<0, "Domain admin does NOT see the default domain message (2)");
 
 		page.getSandwichMenu().logout();
+		log.info("logged out");
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in as super admin");
 
+		log.info("checking on default domain if messages are visible");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)<0, "Super admin does NOT see the domain message while on the default domain (3)" );
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)>=0, "Super admin sees the default domain message when on default domain (4)");
 
+		log.info("switching to domain " +domainName);
 		page.getDomainSelector().selectOptionByText(domainName);
 
+		log.info("checking if messages are visible");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Super admin sees the domain message while on the proper domain (5)" );
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)<0, "Super admin doesn't see the default domain message when on domain (6)");
 
 		rest.deletePluginUser(userDefault, null);
 		rest.deletePluginUser(userDomain, domain);
 		rest.deletePluginUser(userAdmin, domain);
-
+		log.info("delete admin and plugin users");
 		soft.assertAll();
 	}
 
-
-	@Test(description = "MSG-11", groups = {"multiTenancy"})
+	/* Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain */
+	@Test(description = "MSG-14", groups = {"multiTenancy"})
 	public void superSelectMessageChangeDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
 		String domainName = rest.getDomainNames().get(1);
 		String domain = rest.getDomainCodeForName(domainName);
 
-
-		String userDomain = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDomain, DRoles.ADMIN, data.getDefaultTestPass(),domain);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
-		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null);
-
-		String userDefault = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDefault, DRoles.ADMIN, data.getDefaultTestPass(),null);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null);
+		String messageIDDomain =  getMessageIDs(domain, 1, false).get(0);
+		String messageIDDefault =  getMessageIDs(null, 1, false).get(0);
 
 		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
 
 		MessagesPage page = new MessagesPage(driver);
 		page.grid().scrollToAndSelect("Message Id", messageIDDefault);
+		log.info("selected message from default domain");
 
 		page.getDomainSelector().selectOptionByText(domainName);
+		log.info("switch domain to " + domainName);
 
+		log.info("check Download and Resend buttons status");
 		soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch");
 		soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch");
 
-		page.grid().scrollToAndSelect("Message Id", messageIDDomain);
-		page.getDomainSelector().selectOptionByText("Default");
 
+		page.grid().scrollToAndSelect("Message Id", messageIDDomain);
+		log.info("selected message from new domain");
+
+		page.getDomainSelector().selectOptionByText("Default");
+		log.info("switch domain to default");
+
+		log.info("check Download and Resend buttons status");
 		soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch (2)");
 		soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch (2)");
-
-
-		rest.deletePluginUser(userDefault, null);
-		rest.deletePluginUser(userDomain, domain);
-
-		soft.assertAll();
-	}
-
-	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
-	public void csvFileDownload() throws Exception{
-		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
-
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
-
-		page.grid().getGridCtrl().showCtrls();
-		page.grid().getGridCtrl().getAllLnk().click();
-
-		page.grid().sortBy("Received");
-
-		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
-
-		page.grid().checkCSVAgainstGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}
@@ -443,6 +485,7 @@ public class MessagesFunctionalTest extends BaseTest {
 		m.find();
 		return m.group(1);
 	}
+
 
 }
 

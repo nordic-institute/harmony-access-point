@@ -99,6 +99,9 @@ public class Select extends DComponent {
 	}
 
 	public boolean selectOptionByText(String text) throws Exception{
+
+		if(StringUtils.isEmpty(text)){return false;}
+
 		List<DObject> optionObj = getOptionElements();
 
 		wait.forElementToHaveText(optionObj.get(optionObj.size()-1).element);

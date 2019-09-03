@@ -24,6 +24,7 @@ public class RestServicePaths {
 
 	public static final String MESSAGE_LOG_CSV = "/rest/messagelog/csv";
 	public static final String MESSAGE_LOG_MESSAGE = "/rest/message/download";
+	public static final String MESSAGE_LOG_MESSAGES = "rest/messagelog";
 	public static final String MESSAGE_FILTERS_CSV = "/rest/messagefilters/csv";
 	public static final String ERROR_LOG_CSV = "/rest/errorlogs/csv";
 	public static final String PMODE_CURRENT_DOWNLOAD = "/rest/pmode/";

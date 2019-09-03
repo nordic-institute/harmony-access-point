@@ -54,10 +54,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+		String messID = getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
@@ -68,7 +65,6 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
 
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
@@ -255,9 +251,6 @@ public class MessagesPgUXTest extends BaseUXTest {
 		}
 		soft.assertAll();
 	}
-
-
-
 
 }
 

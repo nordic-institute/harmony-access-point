@@ -18,7 +18,8 @@ import utils.TestRunData;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -449,7 +450,7 @@ public class DomibusRestClient {
 	}
 
 	// -------------------------------------------- Get Grid -----------------------------------------------------------
-	public String  downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception {
+	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception {
 		switchDomain(domain);
 
 		ClientResponse clientResponse = requestGET(resource.path(path), params);
@@ -481,17 +482,25 @@ public class DomibusRestClient {
 		return file.getAbsolutePath();
 	}
 
+	public JSONArray getListOfMessages(String domain) throws Exception {
+		switchDomain(domain);
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), null);
+		if (clientResponse.getStatus() != 200) {
+			return new JSONArray();
+		}
+
+		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries");
+	}
+
 	public void syncRecord() {
 		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Data is not sync now ");
-		}
-		else
-		{
-			System.out.println("Data is syncronized now with response code:"+ response.getStatus());
+		} else {
+			System.out.println("Data is syncronized now with response code:" + response.getStatus());
 		}
 	}
 
-	}
+}
 
 

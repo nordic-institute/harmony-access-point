@@ -1,10 +1,7 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.popups.InfoModal;
-import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import jdk.nashorn.internal.runtime.ScriptObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -20,14 +17,12 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
 import utils.Order;
 import utils.TestRunData;
-import utils.TestUtils;
 
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -383,7 +378,11 @@ public class DGrid extends DComponent {
 		List<String> columnNames = getColumnNames();
 		columnNames.remove("Actions");
 
-		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvParser.getHeaderMap().keySet()), "Headers between grid and CSV file match");
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		csvFileHeaders.remove("$jacoco Data");
+
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
 
 		for (int i = 0; i < gridInfo.size(); i++) {
 			HashMap<String, String> gridRecord = gridInfo.get(i);

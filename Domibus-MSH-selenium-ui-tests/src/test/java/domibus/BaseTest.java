@@ -1,6 +1,8 @@
 package domibus;
 
 import ddsl.dcomponents.DomibusPage;
+import ddsl.enums.DRoles;
+import org.json.JSONArray;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,10 +10,13 @@ import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.DriverManager;
+import utils.Generator;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Catalin Comanici
@@ -98,6 +103,48 @@ public class BaseTest {
 	}
 
 
+	public List<String> getMessageIDs(String domainCode, int noOfNecessaryMessages, boolean forceNew) throws Exception {
+		JSONArray mess = rest.getListOfMessages(domainCode);
+		List<String> messIDs = new ArrayList<>();
+
+		if(forceNew){
+			return sendMessages(noOfNecessaryMessages, domainCode);
+		}
+
+		if(mess.length() < noOfNecessaryMessages){
+			List<String> sentMess = sendMessages(noOfNecessaryMessages-mess.length(), domainCode);
+			messIDs.addAll(sentMess);
+		}
+
+		for (int i = 0; i < mess.length(); i++) {
+			messIDs.add(mess.getJSONObject(i).getString("messageId"));
+		}
+
+		return messIDs;
+	}
+
+	public List<String> sendMessages(int noOf, String domainCode) throws Exception {
+		List<String> messIDs = new ArrayList<>();
+
+		String user = Generator.randomAlphaNumeric(10);
+		String messageRefID = Generator.randomAlphaNumeric(10);
+		String conversationID = Generator.randomAlphaNumeric(10);
+
+		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),domainCode);
+		log.info("Created plugin user " + user + " on domain " + domainCode);
+
+		log.info("Uploading PMODE ");
+		rest.uploadPMode("pmodes/pmode-blue.xml", null);
+
+		for (int i = 0; i < noOf; i++) {
+			messIDs.add(messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID));
+		}
+		log.info("Sent messages " + noOf);
+
+		rest.deletePluginUser(user, domainCode);
+		log.info("deleted plugin user" + user);
+		return messIDs;
+	}
 
 
 }

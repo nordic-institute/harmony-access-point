@@ -112,6 +112,8 @@ public class MessageFilters extends FilterArea {
 		log.debug("receivedFromDate = " + receivedFromDate);
 		log.debug("receivedUpToDate = " + receivedUpToDate);
 
+		expandArea();
+
 		weToDInput(messageIDInput).fill(messageID);
 		weToSelect(messageStatusContainer).selectOptionByText(messageStatus);
 		weToDInput(fromPartyInput).fill(fromParty);
@@ -128,6 +130,24 @@ public class MessageFilters extends FilterArea {
 
 		clickSearch();
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	public DInput getFromPartyInput() {
 		return new DInput(driver, fromPartyInput);
@@ -169,33 +189,4 @@ public class MessageFilters extends FilterArea {
 		return new Select(driver, notificationStatusContainer);
 	}
 
-	public boolean basicFiltersLoaded() throws Exception {
-		return (getMessageIDInput().isEnabled()
-				&& getMessageStatus().isDisplayed()
-				&& getFromPartyInput().isEnabled()
-				&& getToPartyInput().isEnabled()
-				&& getToPartyInput().isEnabled()
-		);
-	}
-
-	public boolean advancedFiltersLoaded() throws Exception {
-		return (getMessageIDInput().isEnabled()
-				&& getMessageStatus().isDisplayed()
-				&& getFromPartyInput().isEnabled()
-				&& getToPartyInput().isEnabled()
-				&& getToPartyInput().isEnabled()
-
-				&& getConversationIDInput().isPresent()
-				&& getApRoleSelect().isDisplayed()
-				&& getMessageTypeSelect().isDisplayed()
-				&& getNotificationStatus().isDisplayed()
-				&& getReferenceMessageIDInput().isPresent()
-				&& getOriginalSenderInput().isPresent()
-				&& getFinalRecipientInput().isPresent()
-		);
-	}
-
-	public DatePicker getReceivedTo() {
-		return weToDatePicker(receivedToContainer);
-	}
 }
