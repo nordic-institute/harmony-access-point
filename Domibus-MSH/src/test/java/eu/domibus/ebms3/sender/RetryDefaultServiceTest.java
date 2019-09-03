@@ -17,6 +17,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.MessagingLockDao;
 import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.messaging.MessageConstants;
@@ -25,7 +26,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,7 +104,7 @@ public class RetryDefaultServiceTest {
         }};
 
         List<String> result = retryService.getMessagesNotAlreadyScheduled();
-        assertEquals(result.size(), 3);
+        assertEquals(3, result.size());
 
         assertEquals(result, retryMessageIds);
     }
@@ -122,6 +122,10 @@ public class RetryDefaultServiceTest {
         userMessageLog.setSendAttempts(2);
         userMessageLog.setSendAttemptsMax(3);
         userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
+
+        final UserMessage userMessage1 = createUserMessage("expired123@domibus.eu");
+        final UserMessage userMessage2 = createUserMessage("retry123@domibus.eu");
+
         new NonStrictExpectations() {{
             userMessageLogDao.findByMessageId("expired123@domibus.eu", MSHRole.SENDING);
             result = userMessageLog;
@@ -130,15 +134,24 @@ public class RetryDefaultServiceTest {
             updateRetryLoggingService.isExpired((LegConfiguration) any, (UserMessageLog) any);
             result = false;
         }};
-        assertTrue(retryService.failIfExpired("expired123@domibus.eu"));
-        assertFalse(retryService.failIfExpired("retry123@domibus.eu"));
+        assertTrue(retryService.failIfExpired(userMessage1));
+        assertFalse(retryService.failIfExpired(userMessage2));
 
         for (String messageId : messagesNotAlreadyQueued) {
-            retryService.failIfExpired(messageId);
+            UserMessage userMessage3 =  messagingDao.findUserMessageByMessageId(messageId);
+            retryService.failIfExpired(userMessage3);
         }
         new Verifications() {{
             updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
             times = 2; // one outside for and one in for
         }};
+    }
+
+    private UserMessage createUserMessage(final String messageId) {
+        final MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setMessageId(messageId);
+        final UserMessage userMessage = new UserMessage();
+        userMessage.setMessageInfo(messageInfo);
+        return userMessage;
     }
 }
