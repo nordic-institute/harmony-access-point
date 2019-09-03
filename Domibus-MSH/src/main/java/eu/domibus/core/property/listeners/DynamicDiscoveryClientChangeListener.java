@@ -19,9 +19,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYN
 public class DynamicDiscoveryClientChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    protected ApplicationContext applicationContext;
-
-    @Autowired
     protected PModeProvider pModeProvider;
 
     @Override

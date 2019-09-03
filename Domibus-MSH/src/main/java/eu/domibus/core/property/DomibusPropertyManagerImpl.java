@@ -25,8 +25,6 @@ import java.util.Map;
 @Service
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyManagerImpl.class);
-
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
