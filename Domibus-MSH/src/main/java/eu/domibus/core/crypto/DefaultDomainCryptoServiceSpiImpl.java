@@ -10,6 +10,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.spi.*;
+import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
@@ -53,9 +54,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected Domain domain;
 
-    protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
-    protected static final String BACKUP_EXT = ".backup-";
-
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
@@ -67,6 +65,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Autowired
     private DomainCoreConverter domainCoreConverter;
+
+    @Autowired
+    private BackupService backupService;
 
     public void init() {
         LOG.debug("Initializing the certificate provider");
@@ -173,17 +174,18 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         signalTrustStoreUpdate();
     }
 
-    protected String backupTrustStore(File trustStoreFile) throws CryptoException {
+    protected void backupTrustStore(File trustStoreFile) throws CryptoException {
         if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
             LOG.warn("Truststore file was null, nothing to backup!");
-            return null;
+            return;
+        }
+        if (!trustStoreFile.exists()) {
+            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
+            return;
         }
 
         try {
-            String backupName = trustStoreFile.getAbsolutePath() + BACKUP_EXT + LocalDateTime.now().format(BACKUP_FILE_FORMATTER);
-            File backupFile = new File(backupName);
-            FileUtils.copyFile(trustStoreFile, backupFile);
-            return backupName;
+            backupService.backupFile(trustStoreFile);
         } catch (IOException e) {
             throw new CryptoException("Could not create backup file for truststore", e);
         }

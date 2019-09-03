@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
@@ -53,6 +54,9 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
     @Injectable
     private Domain domain;
+
+    @Injectable
+    private BackupService backupService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -160,45 +164,33 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    @Ignore // TODO fix path and enable test
     public void testBackupTruststore() throws IOException {
         String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
         String TEST_KEYSTORE = "testkeystore.jks";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
 
-        String backupname = domainCryptoService.backupTrustStore(testFile);
+        domainCryptoService.backupTrustStore(testFile);
 
-        File backupFile = new File(backupname);
-
-        Assert.assertEquals(FileUtils.readFileToString(testFile), FileUtils.readFileToString(backupFile));
-        boolean deleted = backupFile.delete();
-        Assert.assertTrue(deleted);
+        new Verifications() {{
+            backupService.backupFile(testFile);
+            times = 1;
+        }};
     }
 
     @Test
-    public void testBackupTruststoreFilename() throws IOException {
-        // The backup file should be named using the following convention:
-        // truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
-        // where truststore_name  is the name of the truststore file
+    public void testBackupTruststore_shouldNotBackupMissingFile() throws IOException {
         String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
-        String TEST_KEYSTORE = "testkeystore.jks";
+        String TEST_KEYSTORE = "inexistent_testkeystore.jks";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
 
-        final LocalDateTime now = LocalDateTime.of(2019, 9, 2, 15, 1, 55, 123 * 1000000);
-        final String expectedSuffix = ".backup-2019-09-02_15_01_55.123";
-        final String expectedBackupname = testFile.getAbsolutePath() + expectedSuffix;
+        domainCryptoService.backupTrustStore(testFile);
 
-        new Expectations(LocalDateTime.class) {{
-            LocalDateTime.now();
-            result = now;
+        new Verifications() {{
+            backupService.backupFile((File) any);
+            times = 0;
         }};
-        new Expectations(FileUtils.class) {{
-            FileUtils.copyFile((File) any, (File) any);
-        }};
-
-        String backupname = domainCryptoService.backupTrustStore(testFile);
-
-        Assert.assertEquals(expectedBackupname, backupname);
     }
+
+
 
 }
