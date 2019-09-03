@@ -1,8 +1,11 @@
 package eu.domibus.plugin.fs.property.listeners;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.junit.Assert;
@@ -17,7 +20,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
+
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 
 /**
  * @author Ion Perpegel
@@ -63,7 +69,7 @@ public class FSPluginPropertiesChangeListenerIT {
         }
 
         @Bean
-        public DomibusSchedulerExtService domibusSchedulerExtService() {
+        public DomibusSchedulerExtService domibusSchedulerExt() {
             return Mockito.mock(DomibusSchedulerExtService.class);
         }
 
@@ -73,8 +79,8 @@ public class FSPluginPropertiesChangeListenerIT {
         }
 
         @Bean
-        public PluginMessageListenerContainer pluginMessageListenerContainer() {
-            return Mockito.mock(PluginMessageListenerContainer.class);
+        public FSSendMessageListenerContainer messageListenerContainer() {
+            return Mockito.mock(FSSendMessageListenerContainer.class);
         }
 
         @Bean
@@ -88,13 +94,18 @@ public class FSPluginPropertiesChangeListenerIT {
         }
 
         @Bean
-        public PluginMessageListenerConcurrencyChangeListener pluginMessageListenerConcurrencyChangeListener() {
-            return new PluginMessageListenerConcurrencyChangeListener();
+        public OutQueueConcurrencyChangeListener outQueueConcurrencyChangeListener() {
+            return new OutQueueConcurrencyChangeListener();
         }
 
         @Bean
         public DomainPropertiesChangeListener domainPropertiesChangeListener() {
             return new DomainPropertiesChangeListener();
+        }
+
+        @Bean
+        public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
+            return new FSPluginPropertiesMetadataManagerImpl();
         }
     }
 
@@ -105,10 +116,16 @@ public class FSPluginPropertiesChangeListenerIT {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
+    private DomibusSchedulerExtService domibusSchedulerExt;
+
+    @Autowired
+    private FSSendMessageListenerContainer messageListenerContainer;
+
+    @Autowired
     private DomainPropertiesChangeListener domainPropertiesChangeListener;
 
     @Autowired
-    private PluginMessageListenerConcurrencyChangeListener pluginMessageListenerConcurrencyChangeListener;
+    private OutQueueConcurrencyChangeListener outQueueConcurrencyChangeListener;
 
     @Autowired
     private TriggerChangeListener triggerChangeListener;
@@ -122,8 +139,40 @@ public class FSPluginPropertiesChangeListenerIT {
         boolean notHandled = domainPropertiesChangeListener.handlesProperty("messages.expression.not.handled");
         Assert.assertEquals(false, notHandled);
 
+        final List<String> oldDomains = fSPluginProperties.getDomains();
+
         domainPropertiesChangeListener.propertyValueChanged("default", "order", "10");
         domainPropertiesChangeListener.propertyValueChanged("default", "messages.expression", "bdx:noprocess#TC1Leg1");
 
+        final List<String> newDomains = fSPluginProperties.getDomains();
+        Assert.assertTrue(newDomains != oldDomains);
+    }
+
+    @Test
+    public void testTriggerChangeListener() throws Exception {
+        boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(SEND_WORKER_INTERVAL);
+        Assert.assertTrue(handlesWorkerInterval);
+
+        try {
+            triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "wrong-value");
+            Assert.fail("Expected exception not raised");
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains("Invalid"));
+        }
+
+        triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "3000");
+        triggerChangeListener.propertyValueChanged("default", SENT_PURGE_WORKER_CRONEXPRESSION, "0 0/15 * * * ?");
+
+        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginSendMessagesWorkerJob", 3000);
+        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginPurgeSentWorkerJob", "0 0/15 * * * ?");
+    }
+
+    @Test
+    public void testOutQueueConcurrencyChangeListener() throws Exception {
+        boolean handlesProperty = outQueueConcurrencyChangeListener.handlesProperty(OUT_QUEUE_CONCURRENCY);
+        Assert.assertTrue(handlesProperty);
+
+        outQueueConcurrencyChangeListener.propertyValueChanged("default", OUT_QUEUE_CONCURRENCY, "1-2");
+        Mockito.verify(messageListenerContainer, Mockito.times(1)).updateMessageListenerContainerConcurrency(null, "1-2");
     }
 }

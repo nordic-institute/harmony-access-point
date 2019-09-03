@@ -2,8 +2,7 @@ package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.messaging.PluginMessageListenerContainer;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,10 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
  * Handles the change of the fsplugin.send.queue.concurrency value.
  */
 @Component
-public class PluginMessageListenerConcurrencyChangeListener implements PluginPropertyChangeListener {
+public class OutQueueConcurrencyChangeListener implements PluginPropertyChangeListener {
 
     @Autowired
-    private PluginMessageListenerContainer pluginMessageListenerContainer;
+    private FSSendMessageListenerContainer messageListenerContainer;
 
     @Autowired
     protected DomainExtService domainExtService;
@@ -34,6 +33,6 @@ public class PluginMessageListenerConcurrencyChangeListener implements PluginPro
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         DomainDTO domain = domainExtService.getDomain(domainCode);
-        pluginMessageListenerContainer.updateMessageListenerContainerConcurrency(domain, propertyValue);
+        messageListenerContainer.updateMessageListenerContainerConcurrency(domain, propertyValue);
     }
 }

@@ -231,6 +231,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      */
     @Override
     public void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException {
+        if (newRepeatInterval <= 0) {
+            LOG.warn("Invalid repeat interval: [{}]", newRepeatInterval);
+            throw new DomibusSchedulerException("Invalid repeat interval: " + newRepeatInterval);
+        }
         try {
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
             JobKey jobKey = findJob(scheduler, jobNameToReschedule);

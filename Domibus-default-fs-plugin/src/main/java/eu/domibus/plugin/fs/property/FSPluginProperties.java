@@ -57,7 +57,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     protected ApplicationContext applicationContext;
 
     @Autowired
-    FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+    protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
 
     private List<String> domains;
 

@@ -64,7 +64,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     protected static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
 
-    protected static final String PASSWORD_ENCRYPTION_ACTIVE = "password.encryption.active";
+    protected static final String PASSWORD_ENCRYPTION_ACTIVE = "password.encryption.active"; //NOSONAR
 
     @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;

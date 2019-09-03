@@ -1,7 +1,6 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +40,25 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
         if (StringUtils.equalsIgnoreCase(propertyName, SEND_WORKER_INTERVAL)) {
-            Integer repeatInterval = Integer.valueOf(propertyValue);
-            domibusSchedulerExt.rescheduleJob(domainCode, jobName, repeatInterval);
+            rescheduleWithRepeatInterval(domainCode, jobName, propertyValue);
         } else {
-            domibusSchedulerExt.rescheduleJob(domainCode, jobName, propertyValue);
+            rescheduleWithCronExpression(domainCode, jobName, propertyValue);
         }
+    }
+
+    private void rescheduleWithCronExpression(String domainCode, String jobName, String cronExpression) {
+        domibusSchedulerExt.rescheduleJob(domainCode, jobName, cronExpression);
+    }
+
+    private void rescheduleWithRepeatInterval(String domainCode, String jobName, String repeatInterval) {
+        Integer interval = 0;
+        try {
+            interval = Integer.valueOf(repeatInterval);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid repeat interval: " + repeatInterval, e);
+        }
+
+        domibusSchedulerExt.rescheduleJob(domainCode, jobName, interval);
     }
 
 }

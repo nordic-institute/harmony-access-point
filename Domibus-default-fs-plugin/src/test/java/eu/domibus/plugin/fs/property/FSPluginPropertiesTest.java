@@ -40,6 +40,10 @@ public class FSPluginPropertiesTest {
     protected ApplicationContext applicationContext;
 
     @Tested
+    @Injectable
+    protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+
+    @Tested
     FSPluginProperties fsPluginProperties;
 
     @Test
@@ -70,8 +74,10 @@ public class FSPluginPropertiesTest {
             result = true;
         }};
 
-        final Boolean isKnownFSProperty = fsPluginProperties.hasKnownProperty(propertyName);
+        final Boolean isKnownProperty = fsPluginPropertiesMetadataManager.hasKnownProperty(propertyName);
+        Assert.assertEquals(false, isKnownProperty);
 
+        final Boolean isKnownFSProperty = fsPluginProperties.hasKnownProperty(propertyName);
         Assert.assertEquals(true, isKnownFSProperty);
     }
 

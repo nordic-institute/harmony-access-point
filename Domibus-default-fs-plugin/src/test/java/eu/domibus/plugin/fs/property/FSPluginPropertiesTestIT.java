@@ -79,6 +79,11 @@ public class FSPluginPropertiesTestIT {
         public PluginPropertyChangeNotifier propertyChangeNotifier() {
             return Mockito.mock(PluginPropertyChangeNotifier.class);
         }
+
+        @Bean
+        public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
+            return new FSPluginPropertiesMetadataManagerImpl();
+        }
     }
 
     @Test
