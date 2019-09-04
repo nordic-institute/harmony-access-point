@@ -10,7 +10,7 @@ import pages.pmode.PModeCurrentPage;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class PModeCurrentPgTests extends BaseUXTest {

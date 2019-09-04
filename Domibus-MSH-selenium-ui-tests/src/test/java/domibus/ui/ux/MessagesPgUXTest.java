@@ -1,7 +1,6 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.DatePicker;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseUXTest;
@@ -11,22 +10,21 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
+import rest.RestServicePaths;
 import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessagesPgUXTest extends BaseUXTest {
 
-	private String descriptorFile = "C:\\Users\\User\\REPOS\\domibus\\Domibus-MSH-selenium-ui-tests\\src\\main\\resources\\pageDescriptors\\messagesPageDescriptor.json";
-	JSONObject descriptorObj = getDescriptorObject(descriptorFile);
+	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
 
 	/*Login as system admin and open Messages page*/
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
@@ -57,10 +55,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+		String messID = getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
@@ -71,7 +66,6 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
 
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
@@ -113,6 +107,32 @@ public class MessagesPgUXTest extends BaseUXTest {
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
 		page.getFilters().expandArea();
 		advancedFilterPresence(soft, page.getFilters(), descriptorObj.getJSONArray("filters"));
+		soft.assertAll();
+	}
+
+	/* Download list of messages */
+	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("sorting after column Received");
+		page.grid().sortBy("Received");
+
+		log.info("se page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVvsGridInfo(fileName, soft);
+
 		soft.assertAll();
 	}
 
@@ -259,8 +279,31 @@ public class MessagesPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
+	/* Verify headers in downloaded CSV sheet */
+	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownloadHeaders() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
 
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		log.info("downloaded file with name " + fileName);
 
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("sorting after column Received");
+		page.grid().sortBy("Received");
+
+		log.info("se page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
+
+		soft.assertAll();
+	}
 
 }
 

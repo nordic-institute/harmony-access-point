@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class TruststorePgTests extends BaseUXTest {
@@ -72,7 +72,7 @@ public class TruststorePgTests extends BaseUXTest {
 
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}

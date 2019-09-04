@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSMessPgTest extends BaseUXTest {
@@ -285,7 +285,7 @@ public class JMSMessPgTest extends BaseUXTest {
 
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}

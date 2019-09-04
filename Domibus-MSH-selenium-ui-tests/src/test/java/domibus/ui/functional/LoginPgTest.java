@@ -5,7 +5,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -29,7 +29,7 @@ public class LoginPgTest extends BaseTest {
 		rest.createUser(username, role, data.getDefaultTestPass(), null);
 		log.info(String.format("Created user %s with role %s", username, role));
 
-		log.info(String.format("Loging in %s with role %s", username, role));
+		log.info(String.format("Login %s with role %s", username, role));
 		login(username, data.getDefaultTestPass());
 
 		DomibusPage page = new DomibusPage(driver);
@@ -39,6 +39,7 @@ public class LoginPgTest extends BaseTest {
 		page.getSandwichMenu().logout();
 
 		rest.deleteUser(username, null);
+		log.info("Deleted user: " + username);
 	}
 
 	/**Checks whether login as system admin works*/
@@ -69,14 +70,18 @@ public class LoginPgTest extends BaseTest {
 		LoginPage page = new LoginPage(driver);
 
 		page.login("invalidUserTest", data.getDefaultTestPass());
+		log.info(String.format("Trying to login with user=%s and pass=%s", "invalidUserTest", data.getDefaultTestPass()));
 
 		soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 
+		log.info("Verifying correct error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
 		rest.deleteUser(username, null);
+		log.info("Deleted user: " + username);
+
 		soft.assertAll();
 	}
 
@@ -93,21 +98,25 @@ public class LoginPgTest extends BaseTest {
 		LoginPage page = new LoginPage(driver);
 
 		page.login(username, "invalidPassword");
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, "invalidPassword"));
 
 		soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 
+		log.info("Verifying correct error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
 		rest.deleteUser(username, null);
+		log.info("Deleted user: " + username);
+
 		soft.assertAll();
 	}
 
 	/**Try to login with valid username and invalid password more than 5 times*/
 	@Test(description = "LGN-4", groups = {"multiTenancy", "singleTenancy"})
 	public void blockUserAccountTest() throws Exception {
-		log.info("Try to login with valid username and nvalid password more than 5 times");
+		log.info("Try to login with valid username and invalid password more than 5 times");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
 		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
@@ -117,36 +126,44 @@ public class LoginPgTest extends BaseTest {
 		LoginPage page = new LoginPage(driver);
 
 		for (int i = 0; i < 5; i++) {
+			log.info(String.format("Trying to login with user=%s and pass=%s", username, "password So Wrong"));
 			page.login(username, "password So Wrong");
 
 			soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
 			soft.assertTrue(page.isLoaded(), "User is still on Login page");
 
+			log.info("Verifying error is displayed");
 			soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 
 			if (i <= 4) {
+				log.info("Verifying LOGIN_INVALID_CREDENTIALS error message is displayed");
 				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 			} else {
+				log.info("Verifying LOGIN_ACCOUNT_SUSPENDED error message is displayed");
 				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED, "Account blocked message displayed as expected");
 			}
 		}
 
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.getDefaultTestPass()));
 		page.login(username, data.getDefaultTestPass());
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed (2)");
+		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "Displayed message is correct (2)");
 
-		HashMap<String, String> toUpdate = new HashMap<>();
-		toUpdate.put("active", "true");
-		rest.updateUser(username, toUpdate);
+		rest.unblockUser(username);
+		log.info("Unblocked user account");
 
 //		wait required because the unlock is done trough REST API
 		page.wait.forXMillis(500);
 
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.getDefaultTestPass()));
 		page.login(username, data.getDefaultTestPass());
 		soft.assertTrue(new DomibusPage(driver).getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
 		rest.deleteUser(username, null);
+		log.info("Deleted user: " + username);
+
 		soft.assertAll();
 	}
 
@@ -163,23 +180,28 @@ public class LoginPgTest extends BaseTest {
 		LoginPage page = new LoginPage(driver);
 
 		for (int i = 0; i < 5; i++) {
+			log.info(String.format("Trying to login with user=%s and pass=%s", username, "password So Wrong"));
 			page.login(username, "password So Wrong");
 		}
 
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.getDefaultTestPass()));
 		page.login(username, data.getDefaultTestPass());
+		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
 
-		HashMap<String, String> toUpdate = new HashMap<>();
-		toUpdate.put("active", "true");
-		rest.updateUser(username, toUpdate);
+		rest.unblockUser(username);
+		log.info("Unblocked user account");
 
 //		wait required because the unlock is done trough REST API
 		page.wait.forXMillis(500);
 
+		log.info("Attempting login after account is unblocked");
 		page.login(username, data.getDefaultTestPass());
 		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
 		rest.deleteUser(username, null);
+		log.info("Deleted user: " + username);
+
 		soft.assertAll();
 	}
 

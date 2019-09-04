@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSSelect extends Select {

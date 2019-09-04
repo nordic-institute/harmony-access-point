@@ -22,7 +22,7 @@
 		<commons-csv_version>1.5</commons-csv_version>
 		<selenium-chrome-driver_version>3.14.0</selenium-chrome-driver_version>
 		<selenium-java_version>3.9.1</selenium-java_version>
-		<testng_version>7.0.0-beta1</testng_version>
+		<testng_version>7.0.0</testng_version>
 		<poi-ooxml_version>3.17</poi-ooxml_version>
 		<reflections_version>0.9.11</reflections_version>
 		<jersey-client_version>1.19.4</jersey-client_version>
@@ -172,9 +172,9 @@
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
-<!--							<suiteXmlFiles>-->
-<!--								<suiteXmlFile>testng.xml</suiteXmlFile>-->
-<!--							</suiteXmlFiles>-->
+							<suiteXmlFiles>
+								<suiteXmlFile>testngFRep.xml</suiteXmlFile>
+							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
 								<runBrowser>firefox</runBrowser>
@@ -208,6 +208,9 @@
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
 								<runBrowser>firefox</runBrowser>

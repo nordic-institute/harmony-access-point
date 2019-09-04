@@ -1,10 +1,7 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.popups.InfoModal;
-import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import jdk.nashorn.internal.runtime.ScriptObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -20,14 +17,12 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
 import utils.Order;
 import utils.TestRunData;
-import utils.TestUtils;
 
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -38,7 +33,7 @@ public class DGrid extends DComponent {
 
 	public DGrid(WebDriver driver, WebElement container) {
 		super(driver);
-		log.info("init grid ...");
+		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
@@ -85,7 +80,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void selectRow(int rowNumber) throws Exception {
-		log.info("selecting row with number ... " + rowNumber);
+		log.debug("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
 			new DObject(driver, gridRows.get(rowNumber)).click();
 			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
@@ -94,7 +89,7 @@ public class DGrid extends DComponent {
 
 	public void doubleClickRow(int rowNumber) throws Exception {
 
-		log.info("double clicking row ... " + rowNumber);
+		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}
@@ -187,7 +182,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
-		log.info("column = " + columnName);
+		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
 			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
@@ -371,7 +366,9 @@ public class DGrid extends DComponent {
 		}
 	}
 
-	public void checkCSVAgainstGridInfo(String filename, SoftAssert soft) throws Exception {
+	public void checkCSVvsGridInfo(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
+
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
 				.withTrim());
@@ -380,11 +377,7 @@ public class DGrid extends DComponent {
 
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
 
-		List<String> columnNames = getColumnNames();
-		columnNames.remove("Actions");
-
-		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvParser.getHeaderMap().keySet()), "Headers between grid and CSV file match");
-
+		log.info("checking listed data");
 		for (int i = 0; i < gridInfo.size(); i++) {
 			HashMap<String, String> gridRecord = gridInfo.get(i);
 			CSVRecord record = records.get(i);
@@ -392,8 +385,30 @@ public class DGrid extends DComponent {
 		}
 	}
 
-	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
+	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
 
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+
+		log.info("removing Actions from the list of columns");
+		List<String> columnNames = getColumnNames();
+		columnNames.remove("Actions");
+
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+
+		log.info("checking file headers against column names");
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+
+	}
+
+	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
+		log.debug("record: " + record);
+		log.debug("gridRow: " + gridRow);
 		for (String key : gridRow.keySet()) {
 			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
 				continue;

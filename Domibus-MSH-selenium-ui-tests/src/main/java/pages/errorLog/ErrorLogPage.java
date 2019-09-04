@@ -84,7 +84,7 @@ public class ErrorLogPage extends DomibusPage {
 
 
 	public void basicSearch(String signalMessID, String messageID, String fromDate, String toDate) throws Exception {
-		log.info("submit basic search");
+		log.debug("submit basic search");
 
 		getSignalMessIDInput().fill(signalMessID);
 		getMessageIDInput().fill(messageID);

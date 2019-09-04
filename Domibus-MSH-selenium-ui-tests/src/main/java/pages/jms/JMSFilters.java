@@ -12,7 +12,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSFilters extends DomibusPage {

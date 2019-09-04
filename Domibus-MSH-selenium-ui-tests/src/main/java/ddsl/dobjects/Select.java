@@ -31,7 +31,7 @@ public class Select extends DComponent {
 
 	public Select(WebDriver driver, WebElement container) {
 		super(driver);
-		log.info("initialize select");
+		log.debug("initialize select");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 
 		this.selectContainer = container;
@@ -72,7 +72,7 @@ public class Select extends DComponent {
 		String[] idsAttributes = selectContainer.getAttribute("aria-owns").trim().split(" ");
 		optionIDs.addAll(Arrays.asList(idsAttributes));
 
-		log.info("option ids identified");
+		log.debug("option ids identified");
 	}
 
 	public boolean isDisplayed() throws Exception{
@@ -99,6 +99,9 @@ public class Select extends DComponent {
 	}
 
 	public boolean selectOptionByText(String text) throws Exception{
+
+		if(StringUtils.isEmpty(text)){return false;}
+
 		List<DObject> optionObj = getOptionElements();
 
 		wait.forElementToHaveText(optionObj.get(optionObj.size()-1).element);

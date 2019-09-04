@@ -94,11 +94,11 @@ public class SideNavigation extends DComponent {
 		}
 	}
 
-	public DLink getPageLnk(PAGES page) throws Exception {
+	public DLink getPageLnk(PAGES page){
 
 		wait.forElementToHaveText(sideBar);
 
-		log.info("Get link to " + page.name());
+		log.debug("Get link to " + page.name());
 		switch (page) {
 			case MESSAGES:
 				return new DLink(driver, messagesLnk);
@@ -153,7 +153,7 @@ public class SideNavigation extends DComponent {
 	}
 
 	public void gGoToPage(PAGES page) throws Exception {
-		log.info("Navigating to " + page.name());
+		log.debug("Navigating to " + page.name());
 		getPageLnk(page).click();
 	}
 

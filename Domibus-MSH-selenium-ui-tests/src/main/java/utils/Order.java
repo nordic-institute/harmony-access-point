@@ -2,7 +2,7 @@ package utils;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public enum Order {

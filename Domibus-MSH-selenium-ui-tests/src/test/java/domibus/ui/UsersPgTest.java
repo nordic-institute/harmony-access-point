@@ -557,7 +557,7 @@ public class UsersPgTest extends BaseUXTest {
 
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		page.getUsersGrid().checkCSVAgainstGridInfo(fileName, soft);
+		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}

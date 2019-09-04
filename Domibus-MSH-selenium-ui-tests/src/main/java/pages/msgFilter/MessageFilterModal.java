@@ -24,7 +24,7 @@ public class MessageFilterModal extends EditModal {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
 		wait.forElementToBeEnabled(serviceInput);
-		log.info("Filter details popup initialized");
+		log.debug("Filter details popup initialized");
 	}
 
 	@FindBy(id = "backendfilter_id")

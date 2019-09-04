@@ -11,7 +11,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessagesPage extends DomibusPage {
@@ -19,7 +19,7 @@ public class MessagesPage extends DomibusPage {
 
 	public MessagesPage(WebDriver driver) {
 		super(driver);
-		log.info("Messages page init");
+		log.debug("Messages page init");
 		PageFactory.initElements( new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
 	}

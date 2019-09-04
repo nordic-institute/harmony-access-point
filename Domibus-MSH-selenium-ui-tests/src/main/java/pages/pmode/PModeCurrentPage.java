@@ -64,12 +64,12 @@ public class PModeCurrentPage extends DomibusPage {
 
 
 	public void getPmodeInfoText() {
-		log.info("Check if Pmode is uploaded or not ");
+		log.debug("Check if Pmode is uploaded or not ");
 		wait.forElementToBeVisible(infoTxt);
 		if (!infoTxt.isDisplayed()) {
-			log.info("Pmode is already uploaded");
+			log.debug("Pmode is already uploaded");
 		}
-		log.info("Pmode status on pmode current page : " + infoTxt.getText().trim());
+		log.debug("Pmode status on pmode current page : " + infoTxt.getText().trim());
 	}
 
 
