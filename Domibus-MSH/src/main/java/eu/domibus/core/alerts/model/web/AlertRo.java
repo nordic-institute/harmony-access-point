@@ -1,5 +1,7 @@
 package eu.domibus.core.alerts.model.web;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
+
 import java.util.Date;
 import java.util.List;
 /**
@@ -32,6 +34,7 @@ public class AlertRo {
 
     private Date reportingTimeFailure;
 
+    @SkipWhiteListed
     private List<String> parameters;
 
     private boolean superAdmin;
