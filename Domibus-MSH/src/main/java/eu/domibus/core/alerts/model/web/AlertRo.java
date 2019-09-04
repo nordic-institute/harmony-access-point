@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class AlertRo {
 
-    private int entityId;
+    private long entityId;
 
     private boolean processed;
 
@@ -36,11 +36,11 @@ public class AlertRo {
 
     private boolean superAdmin;
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int alertId) {
+    public void setEntityId(long alertId) {
         this.entityId = alertId;
     }
 
