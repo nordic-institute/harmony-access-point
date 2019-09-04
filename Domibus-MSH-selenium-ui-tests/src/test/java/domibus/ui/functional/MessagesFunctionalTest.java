@@ -6,7 +6,6 @@ import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
@@ -22,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -200,32 +198,6 @@ public class MessagesFunctionalTest extends BaseTest {
 		log.info("checking results after refresh");
 		soft.assertEquals(page.grid().getRowsNo(), gridRows, "Empty search resets grid to original state (2)");
 		soft.assertEquals(page.grid().getPagination().getTotalItems(), allRows, "Empty search resets grid to original state (2)");
-
-		soft.assertAll();
-	}
-
-	/* Download list of messages */
-	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
-	public void csvFileDownload() throws Exception{
-		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
-		log.info("logged in");
-		MessagesPage page = new MessagesPage(driver);
-
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
-		log.info("downloaded file with name " + fileName);
-
-		page.grid().getGridCtrl().showCtrls();
-		page.grid().getGridCtrl().getAllLnk().click();
-
-		log.info("sorting after column Received");
-		page.grid().sortBy("Received");
-
-		log.info("se page size to 100");
-		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
-
-		log.info("checking info in grid against the file");
-		page.grid().checkCSVAgainstGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}

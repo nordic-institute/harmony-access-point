@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
+import rest.RestServicePaths;
 import utils.Generator;
 import utils.TestUtils;
 
@@ -106,6 +107,32 @@ public class MessagesPgUXTest extends BaseUXTest {
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
 		page.getFilters().expandArea();
 		advancedFilterPresence(soft, page.getFilters(), descriptorObj.getJSONArray("filters"));
+		soft.assertAll();
+	}
+
+	/* Download list of messages */
+	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownload() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("sorting after column Received");
+		page.grid().sortBy("Received");
+
+		log.info("se page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVvsGridInfo(fileName, soft);
+
 		soft.assertAll();
 	}
 
@@ -249,6 +276,32 @@ public class MessagesPgUXTest extends BaseUXTest {
 				TestUtils.testSortingForColumn(soft, grid, colDesc);
 			}
 		}
+		soft.assertAll();
+	}
+
+	/* Verify headers in downloaded CSV sheet */
+	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileDownloadHeaders() throws Exception{
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("sorting after column Received");
+		page.grid().sortBy("Received");
+
+		log.info("se page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
+
 		soft.assertAll();
 	}
 

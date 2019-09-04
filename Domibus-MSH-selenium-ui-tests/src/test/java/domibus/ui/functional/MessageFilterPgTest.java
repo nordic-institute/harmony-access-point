@@ -5,7 +5,6 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -627,7 +626,7 @@ public class MessageFilterPgTest extends BaseTest {
 		MessageFilterPage page = new MessageFilterPage(driver);
 		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file" + fileName);
-		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}
@@ -837,6 +836,19 @@ public class MessageFilterPgTest extends BaseTest {
 		for (int i = 0; i < grid.getRowsNo(); i++) {
 			soft.assertTrue(!grid.getPersisted(i).isEnabled(), "Persisted checkbox is disabled for all rows " + i);
 		}
+
+		soft.assertAll();
+	}
+
+	/* Verify headers in downloaded CSV sheet  */
+	@Test(description = "MSGF-31", groups = {"multiTenancy", "singleTenancy"})
+	public void csvFileHeaders() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = new MessageFilterPage(driver);
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+		log.info("downloaded file" + fileName);
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
 		soft.assertAll();
 	}

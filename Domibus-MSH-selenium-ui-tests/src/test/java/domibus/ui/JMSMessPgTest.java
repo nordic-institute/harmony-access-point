@@ -285,7 +285,7 @@ public class JMSMessPgTest extends BaseUXTest {
 
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		page.grid().checkCSVAgainstGridInfo(fileName, soft);
+		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}
