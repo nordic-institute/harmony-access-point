@@ -2,14 +2,21 @@ package pages.pmode;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.TestRunData;
+
+import javax.print.DocFlavor;
+import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * @author Catalin Comanici
@@ -69,6 +76,12 @@ public class PartyModal extends DomibusPage {
 	@FindBy(css = "#processTable")
 	protected WebElement processTable;
 
+	@FindBy(css = "input[type='checkbox']")
+	protected List<WebElement> inputCheckboxes;
+
+	@FindBy(xpath = ".//*[@class='mat-dialog-title'][starts-with(@id,\"md-dialog-title-\")]")
+	protected WebElement partyHeader;
+
 
 	public DInput getNameInput() {
 		return new DInput(driver, nameInput);
@@ -111,18 +124,22 @@ public class PartyModal extends DomibusPage {
 	}
 
 	public DButton getEditIdentifierButton() {
-		return new DButton(driver,editIdentifierButton);
+		return new DButton(driver, editIdentifierButton);
 	}
 
 	public DButton getDelIdentifierButton() {
-		return new DButton(driver,delIdentifierButton);
+		return new DButton(driver, delIdentifierButton);
 	}
 
 	public DGrid getProcessTable() {
 		return new DGrid(driver, processTable);
 	}
 
-	public void fillNewPartyForm(String name, String endpoint, String partyId) throws Exception{
+	public DButton getOkButton() {
+		return new DButton(driver, okBtn);
+	}
+
+	public void fillNewPartyForm(String name, String endpoint, String partyId) throws Exception {
 		getNameInput().fill(name);
 		getEndpointInput().fill(endpoint);
 		getNewIdentifierButton().click();
@@ -132,11 +149,54 @@ public class PartyModal extends DomibusPage {
 		pimodal.clickOK();
 	}
 
-	public void clickOK() throws Exception{
+	public void clickOK() throws Exception {
 		new DButton(driver, okBtn).click();
 		wait.forElementToBeGone(okBtn);
 	}
 
+	public void clickIRCheckboxes() throws Exception{
+		wait.forElementToBeVisible(partyHeader);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		log.info("Scroll horizontally");
+		js.executeScript("window.scrollBy(0,1000)");
+		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >md-checkbox"));
+		WebElement headerElement=driver.findElement(By.xpath(getXpathOfFieldHeader("Processes")));
+		wait.forElementToBeVisible(headerElement);
 
+		if( checkboxes.size()>0){
+			log.info("Click on initiator checkbox");
+			checkboxes.get(0).click();
+			WebElement responderCheckbox=checkboxes.get(checkboxes.size()-1);
+			log.info("Click on Responder checkbox");
+			responderCheckbox.click();
+		}
+		log.info("Click on Ok button");
+		getOkButton().click();
 
+	}
+
+	public Boolean getCheckboxStatus(String fieldName){
+		wait.forElementToBeVisible(partyHeader);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		log.info("Scroll horizontally");
+		js.executeScript("window.scrollBy(0,1000)");
+		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >md-checkbox"));
+		if(fieldName.equals("Initiator")){
+		log.info("Initiator checkbox selection status : "+ checkboxes.get(0).isSelected());
+		return false;
+		}
+		else if(fieldName.equals("Responder")){
+			log.info("Responder checkbox selection status : "+ checkboxes.get(checkboxes.size()-1).isSelected());
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+
+	public String getXpathOfFieldHeader(String fieldName) {
+		return ".//md-card-title[contains(text()," + fieldName + ")]";
+	}
 }
+
+
