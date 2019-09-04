@@ -6,6 +6,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
@@ -17,12 +18,12 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.MessagingLockDao;
 import eu.domibus.core.pull.PullMessageService;
-import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,14 +31,18 @@ import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Ioana Dragusanu,
+ * @author Catalin Enache
+ * @since 4.1
+ */
 @RunWith(JMockit.class)
 public class RetryDefaultServiceTest {
-
     private static List<String> QUEUED_MESSAGEIDS = Arrays.asList("queued123@domibus.eu", "queued456@domibus.eu", "queued789@domibus.eu");
-    private static List<String> RETRY_MESSAGEIDS = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "queued456@domibus.eu", "expired123@domibus.eu");
 
     @Tested
     private RetryDefaultService retryService;
@@ -110,48 +115,159 @@ public class RetryDefaultServiceTest {
     }
 
     @Test
-    public void failIfExpiredTest(@Injectable UserMessage userMessage) throws EbMS3Exception {
-        new Expectations() {{
-            userMessageLogDao.findRetryMessages();
-            result = new ArrayList<>(RETRY_MESSAGEIDS);
-        }};
-
-        List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
+    public void test_failIfExpired_MessageExpired_NotSourceMessage(final @Mocked UserMessage userMessage) throws Exception {
+        final String messageId = "expired123@domibus.eu";
+        final String pModeKey = "pModeKey";
 
         final UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setSendAttempts(2);
         userMessageLog.setSendAttemptsMax(3);
         userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
 
-        final UserMessage userMessage1 = createUserMessage("expired123@domibus.eu");
-        final UserMessage userMessage2 = createUserMessage("retry123@domibus.eu");
+        final LegConfiguration legConfiguration = new LegConfiguration();
+        legConfiguration.setName("myLegConfiguration");
 
-        new NonStrictExpectations() {{
-            userMessageLogDao.findByMessageId("expired123@domibus.eu", MSHRole.SENDING);
+        new Expectations() {{
+            userMessage.getMessageInfo().getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
-            updateRetryLoggingService.isExpired((LegConfiguration) any, userMessageLog);
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            result = pModeKey;
+
+            pModeProvider.getLegConfiguration(pModeKey);
+            result = legConfiguration;
+
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result = true;
-            updateRetryLoggingService.isExpired((LegConfiguration) any, (UserMessageLog) any);
+
+            userMessage.isUserMessageFragment();
             result = false;
         }};
-        assertTrue(retryService.failIfExpired(userMessage1));
-        assertFalse(retryService.failIfExpired(userMessage2));
 
-        for (String messageId : messagesNotAlreadyQueued) {
-            UserMessage userMessage3 =  messagingDao.findUserMessageByMessageId(messageId);
-            retryService.failIfExpired(userMessage3);
-        }
-        new Verifications() {{
+        //tested method
+        boolean result = retryService.failIfExpired(userMessage);
+        Assert.assertTrue(result);
+
+        new FullVerifications() {{
             updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
-            times = 2; // one outside for and one in for
         }};
     }
 
-    private UserMessage createUserMessage(final String messageId) {
-        final MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setMessageId(messageId);
-        final UserMessage userMessage = new UserMessage();
-        userMessage.setMessageInfo(messageInfo);
-        return userMessage;
+    @Test
+    public void test_failIfExpired_ExceptionThrown(final @Mocked UserMessage userMessage) throws Exception {
+        final String messageId = "expired123@domibus.eu";
+        final String pModeKey = "pModeKey";
+
+        final UserMessageLog userMessageLog = new UserMessageLog();
+        userMessageLog.setSendAttempts(2);
+        userMessageLog.setSendAttemptsMax(3);
+        userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
+
+        final LegConfiguration legConfiguration = new LegConfiguration();
+        legConfiguration.setName("myLegConfiguration");
+
+        new Expectations() {{
+            userMessage.getMessageInfo().getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            result = userMessageLog;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, null, UUID.randomUUID().toString(), null);
+        }};
+
+        //tested method
+        boolean result = retryService.failIfExpired(userMessage);
+        Assert.assertFalse(result);
+
+        new FullVerifications() {{
+        }};
     }
+
+    @Test
+    public void test_failIfExpired_MessageExpired_SourceMessage(final @Mocked UserMessage userMessage) throws Exception {
+        final String messageId = "expired123@domibus.eu";
+        final String pModeKey = "pModeKey";
+
+        final UserMessageLog userMessageLog = new UserMessageLog();
+        userMessageLog.setSendAttempts(2);
+        userMessageLog.setSendAttemptsMax(3);
+        userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
+
+        final LegConfiguration legConfiguration = new LegConfiguration();
+        legConfiguration.setName("myLegConfiguration");
+
+        new Expectations(retryService) {{
+            userMessage.getMessageInfo().getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            result = userMessageLog;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            result = pModeKey;
+
+            pModeProvider.getLegConfiguration(pModeKey);
+            result = legConfiguration;
+
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
+            result = true;
+
+            userMessage.isUserMessageFragment();
+            result = true;
+        }};
+
+        //tested method
+        boolean result = retryService.failIfExpired(userMessage);
+        Assert.assertTrue(result);
+
+        new FullVerifications(retryService) {{
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+
+            userMessageService.scheduleSplitAndJoinSendFailed(anyString, anyString);
+        }};
+    }
+
+    @Test
+    public void test_failIfExpired_MessageNotExpired_NotSourceMessage(final @Mocked UserMessage userMessage) throws Exception {
+        final String messageId = "expired123@domibus.eu";
+        final String pModeKey = "pModeKey";
+
+        final UserMessageLog userMessageLog = new UserMessageLog();
+        userMessageLog.setSendAttempts(2);
+        userMessageLog.setSendAttemptsMax(3);
+        userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
+
+        final LegConfiguration legConfiguration = new LegConfiguration();
+        legConfiguration.setName("myLegConfiguration");
+
+        new Expectations() {{
+            userMessage.getMessageInfo().getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            result = userMessageLog;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            result = pModeKey;
+
+            pModeProvider.getLegConfiguration(pModeKey);
+            result = legConfiguration;
+
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
+            result = false;
+        }};
+
+        //tested method
+        boolean result = retryService.failIfExpired(userMessage);
+        Assert.assertFalse(result);
+
+        new FullVerifications() {{
+        }};
+    }
+
 }
