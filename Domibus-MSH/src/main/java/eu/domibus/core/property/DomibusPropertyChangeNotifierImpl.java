@@ -37,7 +37,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
         listeners.forEach(listener -> {
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 LOGGER.error("An error occurred on setting property [{}]", propertyName, ex);
             }
         });

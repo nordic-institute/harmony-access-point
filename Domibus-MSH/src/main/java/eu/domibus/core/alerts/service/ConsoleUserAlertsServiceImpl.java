@@ -26,8 +26,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAS
 @Service
 public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
-    public final static String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_EXPIRATION; //NOSONAR
-    public final static String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION; //NOSONAR
+    public static final String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_EXPIRATION; //NOSONAR
+    public static final String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION; //NOSONAR
 
     @Autowired
     protected UserDao userDao;

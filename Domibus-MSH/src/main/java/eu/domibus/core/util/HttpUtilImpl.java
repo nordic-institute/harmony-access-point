@@ -88,20 +88,14 @@ public class HttpUtilImpl implements HttpUtil {
             HttpGet httpGet = new HttpGet(url);
             httpGet.setConfig(config);
 
-            LOG.debug("Executing request " + httpGet.getRequestLine() + " via " + proxy);
+            LOG.debug("Executing request {} via {}", httpGet.getRequestLine(), proxy);
             return getByteArrayInputStream(httpClient, httpGet);
         }
     }
 
     private ByteArrayInputStream getByteArrayInputStream(CloseableHttpClient httpclient, HttpGet httpGet) throws IOException {
-        CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(httpGet);
+        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             return new ByteArrayInputStream(IOUtils.toByteArray(response.getEntity().getContent()));
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 

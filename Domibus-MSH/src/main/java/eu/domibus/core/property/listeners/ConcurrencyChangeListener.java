@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.messaging.MessageListenerContainerInitializer;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -63,6 +64,8 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
             case DOMIBUS_PULL_QUEUE_CONCURENCY:
                 messageListenerContainerInitializer.createPullMessageListenerContainer(domain);
                 break;
+            default:
+                new NotImplementedException("Unknown property: " + propertyName);
         }
     }
 }

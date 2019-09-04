@@ -15,8 +15,6 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class PayloadFileStorageConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadFileStorageConfiguration.class);
-
     @Bean(name = "storage")
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public PayloadFileStorage storage(Domain domain) {

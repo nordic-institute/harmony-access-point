@@ -5,8 +5,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.core.property.PropertyResolver;
-import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
@@ -29,6 +27,8 @@ import java.util.function.Predicate;
 @Service
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
+
     @Autowired
     @Qualifier("domibusProperties")
     protected Properties domibusProperties;
@@ -46,12 +46,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
-
     protected String getPropertyName(Domain domain, String propertyName) {
         return domain.getCode() + "." + propertyName;
     }
-
 
     @Override
     public String getProperty(Domain domain, String propertyName) {
