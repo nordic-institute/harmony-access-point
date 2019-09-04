@@ -367,6 +367,8 @@ public class DGrid extends DComponent {
 	}
 
 	public void checkCSVAgainstGridInfo(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
+
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
 				.withTrim());
@@ -374,16 +376,19 @@ public class DGrid extends DComponent {
 
 
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
-
+		log.info("removing Actions from the list of columns");
 		List<String> columnNames = getColumnNames();
 		columnNames.remove("Actions");
 
 		List<String> csvFileHeaders = new ArrayList<>();
 		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
 		csvFileHeaders.remove("$jacoco Data");
 
+		log.info("checking file headers against column names");
 		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
 
+		log.info("checking listed data");
 		for (int i = 0; i < gridInfo.size(); i++) {
 			HashMap<String, String> gridRecord = gridInfo.get(i);
 			CSVRecord record = records.get(i);
@@ -392,7 +397,8 @@ public class DGrid extends DComponent {
 	}
 
 	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
-
+		log.debug("record: " + record);
+		log.debug("gridRow: " + gridRow);
 		for (String key : gridRow.keySet()) {
 			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
 				continue;
