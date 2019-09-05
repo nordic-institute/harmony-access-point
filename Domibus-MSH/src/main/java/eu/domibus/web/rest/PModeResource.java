@@ -109,7 +109,7 @@ public class PModeResource extends BaseResource {
             List<String> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
-                message += " but some issues were detected: \n " + StringUtils.join(pmodeUpdateMessage, " \n ");
+                message += " but some issues were detected: <br>" + StringUtils.join(pmodeUpdateMessage, " <br>");
             }
             return ResponseEntity.ok(message);
         } catch (XmlProcessingException e) {
