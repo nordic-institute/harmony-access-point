@@ -159,7 +159,7 @@ public class PModeResourceTest {
         // Then
         Assert.assertNotNull(stringResponseEntity);
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected: \ntrue",
+        Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected: <br>true",
                 stringResponseEntity.getBody());
     }
 

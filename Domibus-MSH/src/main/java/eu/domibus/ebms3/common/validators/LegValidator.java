@@ -41,6 +41,12 @@ public class LegValidator implements ConfigurationValidator {
         return Collections.unmodifiableList(issues);
     }
 
+    /**
+     * Validates a legConfiguration object
+     *
+     * @param issues
+     * @param legConfiguration
+     */
     private void validateLegConfiguration(List<String> issues, LegConfiguration legConfiguration) {
         String message;
 
@@ -54,20 +60,27 @@ public class LegValidator implements ConfigurationValidator {
         }
     }
 
-    private String validateAttributeAgainstNull(Object object, String fieldName) {
-        if (object == null) {
+    /**
+     * Validates the attribute of a leg
+     *
+     * @param legConfiguration
+     * @param attribute
+     * @return
+     */
+    private String validateAttributeAgainstNull(Object legConfiguration, String attribute) {
+        if (legConfiguration == null) {
             return StringUtils.EMPTY;
         }
-        Class clazz = object.getClass();
+        Class clazz = legConfiguration.getClass();
         try {
-            Field field = clazz.getDeclaredField(fieldName);
+            Field field = clazz.getDeclaredField(attribute);
             field.setAccessible(true);
-            Object fieldObject = field.get(object);
+            Object fieldObject = field.get(legConfiguration);
             if (null == fieldObject) {
-                return "Invalid " + fieldName + " specified ";
+                return "Invalid " + attribute + " specified ";
             }
         } catch (NoSuchFieldException | IllegalAccessException | SecurityException e) {
-            LOG.debug("Unable to access attribute: " + fieldName, e);
+            LOG.debug("Unable to access attribute: " + attribute, e);
         }
         return StringUtils.EMPTY;
     }
