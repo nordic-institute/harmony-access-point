@@ -88,6 +88,7 @@ public class BaseUXTest extends BaseTest {
 
 	protected <T extends FilterArea> void basicFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {
 
+		log.info("checking basic filter presence");
 		Field[] fields = filtersArea.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			if (!field.getType().toString().contains("WebElement")) {
@@ -119,6 +120,8 @@ public class BaseUXTest extends BaseTest {
 	}
 
 	protected <T extends FilterArea> void advancedFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {
+
+		log.info("checking advanced filter presence");
 
 		Field[] fields = filtersArea.getClass().getDeclaredFields();
 		for (Field field : fields) {
@@ -193,9 +196,11 @@ public class BaseUXTest extends BaseTest {
 	}
 
 	protected <T extends DGrid> void testColumnControlsAvailableOptions(SoftAssert soft, T grid, JSONArray columns) throws Exception {
+		log.info("checking column controls and avaialable options");
 		List<String> controlOptions = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
 		for (int i = 0; i < columns.length(); i++) {
 			String currentColumn = columns.getJSONObject(i).getString("name");
+			log.info("Check option for " + currentColumn);
 			soft.assertTrue(controlOptions.contains(currentColumn),
 					String.format("Column %s present in the list of options in column controls", currentColumn));
 		}

@@ -96,10 +96,42 @@ public class ErrFilters extends FilterArea {
 		getErrTo().selectDate(toDate);
 
 		getSearchButton().click();
+	}
 
-		PageFactory.initElements(driver, this);
+	public void advancedSearch(String signalMessID
+			, String messageID
+			, String fromDate
+			, String toDate
+			, String errDetail
+			, String apRoleStr
+			, String errCode
+			, String notifiedDateFrom
+			, String notifiedDateTo	) throws Exception {
 
+		log.debug("signalMessID = " + signalMessID);
+		log.debug("messageID = " + messageID);
+		log.debug("fromDate = " + fromDate);
+		log.debug("toDate = " + toDate);
+		log.debug("errDetail = " + errDetail);
+		log.debug("apRoleStr = " + apRoleStr);
+		log.debug("errCode = " + errCode);
+		log.debug("notifiedDateFrom = " + notifiedDateFrom);
+		log.debug("notifiedDateTo = " + notifiedDateTo);
 
+		expandArea();
+
+		getSignalMessIDInput().fill(signalMessID);
+		getMessageIDInput().fill(messageID);
+		getErrFrom().selectDate(fromDate);
+		getErrTo().selectDate(toDate);
+
+		weToDInput(errordetailInput).fill(errDetail);
+		weToSelect(apRole).selectOptionByText(apRoleStr);
+		weToSelect(errorCode).selectOptionByText(errCode);
+		weToDatePicker(notifiedFrom).selectDate(notifiedDateFrom);
+		weToDatePicker(notifiedto).selectDate(notifiedDateTo);
+
+		getSearchButton().click();
 	}
 
 }

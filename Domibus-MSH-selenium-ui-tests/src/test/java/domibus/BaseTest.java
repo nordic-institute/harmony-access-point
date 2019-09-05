@@ -73,7 +73,7 @@ public class BaseTest {
 	/**Before each test method we will log a separator to make logs more readable*/
 	@BeforeMethod(alwaysRun = true)
 	protected void logSeparator() throws Exception{
-		log.info("----------------------------------------------");
+		log.info("---------------------------");
 	}
 
 	protected DomibusPage login(HashMap<String, String> user){

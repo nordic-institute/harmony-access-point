@@ -134,12 +134,17 @@ public class GridControls extends DComponent {
 
 	public boolean areCheckboxesVisible(){
 		try {
-			return getAllLnk().isPresent();
+			return getAllLnk().isVisible();
 		}catch (Exception e){
 			return false;
 		}
 	}
 
+	public void showAllColumns() throws Exception {
+		showCtrls();
+		weToDLink(allLnk).click();
+		hideCtrls();
+	}
 
 
 

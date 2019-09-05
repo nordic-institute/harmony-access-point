@@ -7,6 +7,7 @@ import ddsl.enums.PAGES;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
@@ -68,16 +69,8 @@ public class TestUtils {
 		return ListUtils.isEqualList(dates, sortedDates);
 	}
 
-//	public static boolean areListsEqual(List<Object> flist, List<Object> slist) {
-//		if (flist.size() != slist.size()) {
-//			return false;
-//		}
-//		flist.removeAll(slist);
-//		return flist.size() == 0;
-//	}
-
 	public static <T extends DGrid> void testSortingForColumn(SoftAssert soft, T grid, JSONObject colDesc) throws Exception {
-		System.out.println("testing " + colDesc.getString("name"));
+		System.out.println("test sorting for " + colDesc.getString("name"));
 
 		String columnName = colDesc.getString("name");
 		List<String> columns = grid.getColumnNames();
@@ -127,6 +120,17 @@ public class TestUtils {
 		return toReturn;
 	}
 
+	public static boolean areMapsEqual(HashMap<String, String> map1, HashMap<String, String> map2){
+		if(!ListUtils.isEqualList(map1.keySet(), map2.keySet())){ return false;}
+		if(!ListUtils.isEqualList(map1.values(), map2.values())){ return false;}
+
+		for (String key : map1.keySet()) {
+			if(!StringUtils.equalsIgnoreCase(map1.get(key), map2.get(key))){ return false;}
+		}
+
+		return true;
+	}
+
 	public static JSONObject getPageDescriptorObject(PAGES page) {
 		String suffix = "PageDescriptor.json";
 		String prefix =  "pageDescriptors/";
@@ -144,5 +148,14 @@ public class TestUtils {
 		return jsonObject;
 	}
 
+	public static String getNonDefaultColumn(JSONArray columns) throws JSONException {
+		for (int i = 0; i < columns.length(); i++) {
+			JSONObject col = columns.getJSONObject(i);
+			if(!col.getBoolean("visibleByDefault")){
+				return col.getString("name");
+			}
+		}
+		return StringUtils.EMPTY;
+	}
 
 }
