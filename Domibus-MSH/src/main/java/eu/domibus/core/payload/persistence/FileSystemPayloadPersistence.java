@@ -136,7 +136,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
         OutputStream outputStream = null;
         try {
-            outputStream = new FileOutputStream(file);
+            outputStream = new FileOutputStream(file); //NOSONAR the stream is closed in the finally block
 
             if (encryptionActive) {
                 LOG.debug("Using encryption for file [{}]", file);
