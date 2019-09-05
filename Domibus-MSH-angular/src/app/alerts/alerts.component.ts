@@ -35,6 +35,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
+  public rowLimiter: RowLimiterBase;
 
   advancedSearch: boolean;
   loading: boolean = false;
@@ -100,6 +101,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155}
     ];
+    this.rowLimiter = new RowLimiterBase();
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
@@ -309,8 +311,14 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   // datatable methods
 
   onPage(event) {
-    console.log('Page Event', event);
     this.page(event.offset, event.pageSize);
+  }
+
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public reload () {
+    this.page(0, this.rowLimiter.pageSize);
   }
 
   changePageSize(newPageLimit: number) {

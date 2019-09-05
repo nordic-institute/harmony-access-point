@@ -11,34 +11,37 @@ import {Constructable} from '../base-list.component';
 let SortableListMixin = (superclass: Constructable) => class extends superclass {
   public orderBy: string;
   public asc: boolean;
-  public rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  constructor(...args) {
+  constructor (...args) {
     super(...args);
   }
 
   /**
    * The method is abstract so the derived, actual components implement it
    */
-  public page(offset, pageSize) {
+  public reload () {
+  }
+
+  /**
+   * The method is abstract so the derived, actual components implement it
+   */
+  public onBeforeSort () {
   }
 
   /**
    * The method is called from grid sorting and it is referred in the grid params as it is visible in the derived components
    */
-  public onSort(event) {
+  public onSort (event) {
     this.doSort(event);
   }
 
-  doSort(event) {
-    if(this.resetFilters) {
-      this.resetFilters();
-    }
+  doSort (event) {
+    this.onBeforeSort();
 
     this.orderBy = event.column.prop;
     this.asc = (event.newValue === 'desc') ? false : true;
 
-    this.page(0, this.rowLimiter.pageSize);
+    this.reload();
   }
 };
 

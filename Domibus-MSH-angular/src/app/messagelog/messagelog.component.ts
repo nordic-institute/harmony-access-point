@@ -37,6 +37,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   @ViewChild('list') list: DatatableComponent;
 
   columnPicker: ColumnPickerBase;
+  public rowLimiter: RowLimiterBase;
 
   selected: any[];
 
@@ -62,12 +63,12 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   canSearchByConversationId: boolean;
   conversationIdValue: String;
 
-  constructor(private http: Http, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MdDialog, private elementRef: ElementRef) {
+  constructor (private http: Http, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
+               public dialog: MdDialog, private elementRef: ElementRef) {
     super();
   }
 
-  async ngOnInit() {
+  async ngOnInit () {
     super.ngOnInit();
 
     this.columnPicker = new ColumnPickerBase();
@@ -96,7 +97,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.search();
   }
 
-  private configureColumnPicker() {
+  private configureColumnPicker () {
     this.columnPicker.allColumns.push(
       {
         name: 'Message Id',
@@ -193,14 +194,14 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  public beforeDomainChange() {
+  public beforeDomainChange () {
     if (this.list.isHorScroll) {
       this.scrollLeft();
     }
   }
 
 
-  createSearchParams(): URLSearchParams {
+  createSearchParams (): URLSearchParams {
     const searchParams = new URLSearchParams();
 
     if (this.orderBy) {
@@ -269,7 +270,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     return searchParams;
   }
 
-  getMessageLogEntries(offset: number, pageSize: number): Observable<MessageLogResult> {
+  getMessageLogEntries (offset: number, pageSize: number): Observable<MessageLogResult> {
     const searchParams = this.createSearchParams();
 
     searchParams.set('page', offset.toString());
@@ -284,7 +285,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   /**
    * The method is the actual implementation of the abstract method declared in the base abstract class
    */
-  page(offset, pageSize) {
+  page (offset, pageSize) {
     this.loading = true;
     super.resetFilters();
     this.getMessageLogEntries(offset, pageSize).subscribe((result: MessageLogResult) => {
@@ -326,27 +327,34 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  onPage(event) {
+  onPage (event) {
     this.page(event.offset, event.pageSize);
   }
 
-  onActivate(event) {
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public reload () {
+    this.page(0, this.rowLimiter.pageSize);
+  }
+
+  onActivate (event) {
     if ('dblclick' === event.type) {
       this.details(event.row);
     }
   }
 
-  changePageSize(newPageLimit: number) {
+  changePageSize (newPageLimit: number) {
     this.page(0, newPageLimit);
   }
 
-  search() {
+  search () {
     super.setActiveFilter();
     console.log('search by:', this.activeFilter);
     this.page(0, this.rowLimiter.pageSize);
   }
 
-  resendDialog() {
+  resendDialog () {
     this.dialog.open(MessagelogDialogComponent).afterClosed()
       .subscribe(result => {
         if (result == 'Resend') {
@@ -359,7 +367,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
       });
   }
 
-  resend(messageId: string) {
+  resend (messageId: string) {
     console.log('Resending message with id ', messageId);
 
     let url = MessageLogComponent.RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
@@ -374,56 +382,56 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  isResendButtonEnabledAction(row): boolean {
+  isResendButtonEnabledAction (row): boolean {
     return this.isRowResendButtonEnabled(row);
   }
 
-  isResendButtonEnabled() {
+  isResendButtonEnabled () {
     return this.isOneRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
-  private isRowResendButtonEnabled(row): boolean {
+  private isRowResendButtonEnabled (row): boolean {
     return !row.deleted
       && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isSplitAndJoinMessage(row) {
+  private isSplitAndJoinMessage (row) {
     return row.messageFragment || row.sourceMessage;
   }
 
-  isDownloadButtonEnabledAction(row): boolean {
+  isDownloadButtonEnabledAction (row): boolean {
     return this.isRowDownloadButtonEnabled(row);
   }
 
-  isDownloadButtonEnabled(): boolean {
+  isDownloadButtonEnabled (): boolean {
     return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
   }
 
-  private isRowDownloadButtonEnabled(row): boolean {
+  private isRowDownloadButtonEnabled (row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isOneRowSelected() {
+  private isOneRowSelected () {
     return this.selected && this.selected.length == 1;
   }
 
-  private downloadMessage(messageId) {
+  private downloadMessage (messageId) {
     const url = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
     DownloadService.downloadNative(url);
   }
 
-  downloadAction(row) {
+  downloadAction (row) {
     this.downloadMessage(row.messageId);
   }
 
-  download() {
+  download () {
     this.downloadMessage(this.selected[0].messageId);
   }
 
-  saveAsCSV() {
+  saveAsCSV () {
     if (this.count > AlertComponent.MAX_COUNT_CSV) {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;
@@ -433,23 +441,23 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     DownloadService.downloadNative(MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString());
   }
 
-  details(selectedRow: any) {
+  details (selectedRow: any) {
     this.dialog.open(MessagelogDetailsComponent, {
       data: {message: selectedRow, fourCornerEnabled: this.fourCornerEnabled}
     });
   }
 
-  toggleAdvancedSearch() {
+  toggleAdvancedSearch () {
     this.advancedSearch = true;
   }
 
-  toggleBasicSearch() {
+  toggleBasicSearch () {
     this.advancedSearch = false;
 
     this.resetAdvancedSearchParams();
   }
 
-  resetAdvancedSearchParams() {
+  resetAdvancedSearchParams () {
     this.filter.mshRole = null;
     this.filter.conversationId = null;
     this.filter.messageType = this.msgTypes[1];
@@ -464,26 +472,26 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.conversationIdValue = null;
   }
 
-  onTimestampFromChange(event) {
+  onTimestampFromChange (event) {
     this.timestampToMinDate = event.value;
   }
 
-  onTimestampToChange(event) {
+  onTimestampToChange (event) {
     this.timestampFromMaxDate = event.value;
   }
 
-  private showNextAttemptInfo(row: any): boolean {
+  private showNextAttemptInfo (row: any): boolean {
     if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING'))
       return false;
     return true;
   }
 
-  public scrollLeft() {
+  public scrollLeft () {
     const dataTableBodyDom = this.elementRef.nativeElement.querySelector('.datatable-body');
     dataTableBodyDom.scrollLeft = 0;
   }
 
-  onMessageTypeChanged($event: MdSelectChange) {
+  onMessageTypeChanged ($event: MdSelectChange) {
     this.canSearchByConversationId = (this.filter.messageType == 'USER_MESSAGE');
     if (this.canSearchByConversationId) {
       this.filter.conversationId = this.conversationIdValue;

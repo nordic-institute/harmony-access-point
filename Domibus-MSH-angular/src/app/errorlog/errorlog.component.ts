@@ -25,6 +25,7 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
 export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
+  public rowLimiter: RowLimiterBase;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -92,6 +93,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       }
 
     ];
+    this.rowLimiter = new RowLimiterBase();
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Message Id', 'Error Code', 'Timestamp'].indexOf(col.name) != -1
@@ -204,6 +206,20 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   onPage(event) {
     super.resetFilters();
     this.page(event.offset, event.pageSize);
+  }
+
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public reload () {
+    this.page(0, this.rowLimiter.pageSize);
+  }
+
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public onBeforeSort () {
+    super.resetFilters();
   }
 
   changePageSize(newPageLimit: number) {
