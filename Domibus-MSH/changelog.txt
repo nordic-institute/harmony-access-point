@@ -1,3 +1,8 @@
+Domibus 4.1.1
+- Alerts for password imminent expiration and expiration are not sent
+- Domibus does not work with Proxy
+- Issue with MySql 8 when submitting a 'Notify' message
+- Update of party's endpoint sometimes fails
 Domibus 4.1
 - Implement the Split And Join feature
 - Implement EU Login Support
