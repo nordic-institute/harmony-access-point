@@ -36,26 +36,28 @@ public class LegValidator implements ConfigurationValidator {
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
 
         for (LegConfiguration legConfiguration : businessProcesses.getLegConfigurations()) {
-            String message;
+            validateLegConfiguration(issues, legConfiguration);
+        }
+        return Collections.unmodifiableList(issues);
+    }
 
-            for (String attribute: attributesToCheck) {
-                message = validateAttributeAgainstNull(legConfiguration, attribute);
-                if (StringUtils.isNotEmpty(message)) {
-                    message += "for leg configuration [" + legConfiguration.getName() + "]";
-                    issues.add(message);
-                    LOG.debug(message);
-                }
+    private void validateLegConfiguration(List<String> issues, LegConfiguration legConfiguration) {
+        String message;
+
+        for (String attribute: attributesToCheck) {
+            message = validateAttributeAgainstNull(legConfiguration, attribute);
+            if (StringUtils.isNotEmpty(message)) {
+                message += "for leg configuration [" + legConfiguration.getName() + "]";
+                issues.add(message);
+                LOG.debug(message);
             }
         }
-
-        return Collections.unmodifiableList(issues);
     }
 
     private String validateAttributeAgainstNull(Object object, String fieldName) {
         if (object == null) {
             return StringUtils.EMPTY;
         }
-
         Class clazz = object.getClass();
         try {
             Field field = clazz.getDeclaredField(fieldName);
@@ -65,7 +67,7 @@ public class LegValidator implements ConfigurationValidator {
                 return "Invalid " + fieldName + " specified ";
             }
         } catch (NoSuchFieldException | IllegalAccessException | SecurityException e) {
-            LOG.debug("Unable to access attribute: " + fieldName);
+            LOG.debug("Unable to access attribute: " + fieldName, e);
         }
         return StringUtils.EMPTY;
     }
