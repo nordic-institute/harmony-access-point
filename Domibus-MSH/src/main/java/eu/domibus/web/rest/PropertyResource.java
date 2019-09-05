@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 @Validated
 public class PropertyResource {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(PropertyResource.class);
-
     @Autowired
     private DomibusPropertyService domibusPropertyService;
 
