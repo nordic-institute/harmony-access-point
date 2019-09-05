@@ -50,7 +50,7 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
         domibusSchedulerExt.rescheduleJob(domainCode, jobName, cronExpression);
     }
 
-    private void rescheduleWithRepeatInterval(String domainCode, String jobName, String repeatInterval) {
+    protected void rescheduleWithRepeatInterval(String domainCode, String jobName, String repeatInterval) {
         Integer interval = 0;
         try {
             interval = Integer.valueOf(repeatInterval);

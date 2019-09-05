@@ -74,6 +74,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     public void resetDomains() {
+        LOG.debug("Resetting domains");
         domains = null;
     }
 
@@ -356,21 +357,23 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     private String getDomainPropertyName(String domain, String propertyName) {
-        propertyName = getBasePropertyName(propertyName);
-        return DOMAIN_PREFIX + domain + DOT + propertyName;
+        String basePropertyName = getBasePropertyName(propertyName);
+        return DOMAIN_PREFIX + domain + DOT + basePropertyName;
     }
 
     private String extractDomainName(String propName) {
-        String unprefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
-        return StringUtils.substringBefore(unprefixedProp, DOT);
+        String unPrefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
+        return StringUtils.substringBefore(unPrefixedProp, DOT);
     }
 
     private String getBasePropertyName(String propName) {
         String baseName = propName;
         if (baseName.startsWith(DOMAIN_PREFIX)) { // fsplugin.domains.x.baseName
+            LOG.debug("Processing a domain property name [{}]", baseName);
             baseName = StringUtils.removeStart(baseName, DOMAIN_PREFIX);
             baseName = StringUtils.substringAfter(baseName, DOT); // remove the domain name
         } else if (baseName.startsWith(PROPERTY_PREFIX)) { // fsplugin.baseName
+            LOG.debug("Processing a non-domain property name [{}]", baseName);
             baseName = StringUtils.removeStart(baseName, PROPERTY_PREFIX);
         }
         return baseName;
@@ -391,12 +394,14 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
         for (DomibusPropertyMetadataDTO prop : baseProperties.values()) {
             if (multiplyDomainProperties && prop.isDomainSpecific()) {
+                LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
                 for (String domain : getDomains()) {
                     String name = getDomainPropertyName(domain, prop.getName());
                     DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, true, prop.isWithFallback());
                     knownProperties.put(p.getName(), p);
                 }
             } else {
+                LOG.debug("Adding the simple property [{}] to the known property list.", prop.getName());
                 prop.setName(PROPERTY_PREFIX + prop.getName());
                 knownProperties.put(prop.getName(), prop);
             }
