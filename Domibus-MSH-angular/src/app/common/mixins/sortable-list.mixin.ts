@@ -11,7 +11,7 @@ import {Constructable} from '../base-list.component';
 let SortableListMixin = (superclass: Constructable) => class extends superclass {
   public orderBy: string;
   public asc: boolean;
-  public rowLimiter: RowLimiterBase;
+  public rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   constructor(...args) {
     super(...args);
@@ -31,6 +31,10 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass 
   }
 
   doSort(event) {
+    if(this.resetFilters) {
+      this.resetFilters();
+    }
+
     this.orderBy = event.column.prop;
     this.asc = (event.newValue === 'desc') ? false : true;
 

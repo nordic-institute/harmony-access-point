@@ -13,6 +13,7 @@ import {Md2Datepicker} from 'md2';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -21,10 +22,9 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   styleUrls: ['./errorlog.component.css']
 })
 
-export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
+export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
 
-  columnPicker: ColumnPickerBase = new ColumnPickerBase()
-  rowLimiter: RowLimiterBase = new RowLimiterBase()
+  columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -43,10 +43,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   rows = [];
   count: number = 0;
   offset: number = 0;
-  //default value
-  orderBy: string = 'timestamp';
-  //default value
-  asc: boolean = false;
 
   mshRoles: Array<String>;
   errorCodes: Array<String>;
@@ -100,6 +96,9 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Message Id', 'Error Code', 'Timestamp'].indexOf(col.name) != -1
     });
+
+    this.orderBy = 'timestamp';
+    this.asc = false;
 
     this.search();
   }
@@ -205,14 +204,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   onPage(event) {
     super.resetFilters();
     this.page(event.offset, event.pageSize);
-  }
-
-  onSort(event) {
-    this.orderBy = event.column.prop;
-    this.asc = (event.newValue === 'desc') ? false : true;
-
-    super.resetFilters();
-    this.page(this.offset, this.rowLimiter.pageSize);
   }
 
   changePageSize(newPageLimit: number) {

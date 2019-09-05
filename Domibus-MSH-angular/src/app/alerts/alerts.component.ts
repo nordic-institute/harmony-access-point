@@ -35,7 +35,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   advancedSearch: boolean;
   loading: boolean = false;
@@ -44,8 +43,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   rows = [];
   count = 0;
   offset = 0;
-  orderBy = 'creationTime';
-  asc = false;
 
   isDirty = false;
 
@@ -107,6 +104,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
+
+    this.orderBy = 'creationTime';
+    this.asc = false;
 
     this.search();
   }
