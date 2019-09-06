@@ -6,20 +6,21 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.io.FileUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
@@ -53,6 +54,9 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
     @Injectable
     private Domain domain;
+
+    @Injectable
+    private BackupService backupService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -158,4 +162,35 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         // Then
         Assert.assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
     }
+
+    @Test
+    public void testBackupTruststore() throws IOException {
+        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+        String TEST_KEYSTORE = "testkeystore.jks";
+        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+
+        domainCryptoService.backupTrustStore(testFile);
+
+        new Verifications() {{
+            backupService.backupFile(testFile);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testBackupTruststore_shouldNotBackupMissingFile() throws IOException {
+        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+        String TEST_KEYSTORE = "inexistent_testkeystore.jks";
+        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+
+        domainCryptoService.backupTrustStore(testFile);
+
+        new Verifications() {{
+            backupService.backupFile((File) any);
+            times = 0;
+        }};
+    }
+
+
+
 }

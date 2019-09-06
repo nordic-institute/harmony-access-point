@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
+
 /**
  * @author Tiago Miguel
  * @since 3.3
@@ -177,5 +179,18 @@ public class TruststoreResourceTest {
         Assert.assertEquals("Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
                         "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator(),
                 csv.getBody());
+    }
+
+    @Test
+    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable  MultipartFile multipartFile) throws Exception {
+        // GIVEN
+        final String emptyPassword = "";
+
+        // WHEN
+        ResponseEntity<String> response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
+
+        // THEN
+        Assert.assertEquals("Should have rejected the request as bad", response.getStatusCode(), HttpStatus.BAD_REQUEST);
+        Assert.assertTrue("Should have returned the correct error message", response.getBody().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
     }
 }

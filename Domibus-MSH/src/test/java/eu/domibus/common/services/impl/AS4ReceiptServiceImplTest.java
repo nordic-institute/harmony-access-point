@@ -280,7 +280,7 @@ public class AS4ReceiptServiceImplTest {
     @Test
     public void testGenerateReceipt_NoReliability(@Injectable final LegConfiguration legConfiguration,
                                                   @Injectable Messaging messaging,
-                                                  @Injectable MessageLog messageLog) {
+                                                  @Injectable SignalMessageLog messageLog) {
         new Expectations(as4ReceiptService) {{
         }};
 

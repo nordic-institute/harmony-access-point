@@ -21,11 +21,18 @@ public class PartyResponseRo {
 
     protected String userName;
 
-    @CustomWhiteListed(permitted = ":/")
+    /**
+     * Custom annotation to add some additional characters to be permited by black-list/white-list validation
+     * The endpoint property can contain the specified characters so we must permit this
+     */
+    @CustomWhiteListed(permitted = ":/=?&")
     protected String endpoint;
 
     private String joinedIdentifiers;
 
+    /**
+     * Custom annotation to skip the black-list validation altogether because this field is calculated on the fly and does not get persisted
+     */
     @SkipWhiteListed
     private String joinedProcesses;
 
@@ -33,6 +40,11 @@ public class PartyResponseRo {
 
     private List<ProcessRo> processesWithPartyAsResponder = new ArrayList<>();
 
+    /**
+     * Custom annotation to add some additional characters to be permitted by black-list/white-list validation
+     * The certificate content property can contain the specified characters so we must permit this
+     */
+    @CustomWhiteListed(permitted = "/+-=\n ") // base64 characters
     protected String certificateContent;
 
     public Set<IdentifierRo> getIdentifiers() {

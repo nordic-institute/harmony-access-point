@@ -35,24 +35,15 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_DYNAMIC_INITIATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_MULTIPLE_LEGS;
+
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageServiceImpl.class);
 
     public static final String MPC = "mpc";
-
-    private static final String INITIATOR = "initiator";
-
-    public static final String MESSAGE_TYPE = "messageType";
-
-    private static final String CURRENT_TIME = "current_time";
-
-    protected static final String PULL_EXTRA_NUMBER_OF_ATTEMPT_TIME_FOR_EXPIRATION_DATE = "pull.extra.number.of.attempt.time.for.expiration.date";
-
-    protected static final String DOMIBUS_PULL_DYNAMIC_INITIATOR = "domibus.pull.dynamic.initiator";
-
-    protected static final String DOMIBUS_PULL_MULTIPLE_LEGS = "domibus.pull.multiple_legs";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

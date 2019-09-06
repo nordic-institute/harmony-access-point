@@ -15,7 +15,7 @@ public interface UIMessageDao {
 
     UIMessageEntity findUIMessageByMessageId(String messageId);
 
-    int countMessages(Map<String, Object> filters);
+    long countEntries(Map<String, Object> filters);
 
     List<UIMessageEntity> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 

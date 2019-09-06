@@ -56,13 +56,13 @@ public class AlertDao extends BasicDao<Alert> {
 
         //create main query by retrieving alerts where ids are in the sub query selection.
         criteria.where(root.get(Alert_.entityId).in(subQuery)).distinct(true);
-        final Boolean ask = alertCriteria.getAsk();
-        final String column = alertCriteria.getColumn();
-        if (column != null && ask != null) {
-            if (ask) {
-                criteria.orderBy(builder.asc(root.get(column)));
+        final Boolean ascending = alertCriteria.getAsc();
+        final String orderBy = alertCriteria.getOrderBy();
+        if (orderBy != null && ascending != null) {
+            if (ascending) {
+                criteria.orderBy(builder.asc(root.get(orderBy)));
             } else {
-                criteria.orderBy(builder.desc(root.get(column)));
+                criteria.orderBy(builder.desc(root.get(orderBy)));
             }
         }
         final TypedQuery<Alert> query = em.createQuery(criteria);

@@ -7,6 +7,7 @@ import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
@@ -87,7 +88,15 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.passwordEncryptionResultToPasswordEncryptionResultDTO((PasswordEncryptionResult) source);
         }
-        String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        if (typeOfT == DomibusPropertyMetadata.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.domibusPropertyMetadataDTOToDomibusPropertyMetadata((DomibusPropertyMetadataDTO) source);
+        }
+        if (typeOfT == DomibusPropertyMetadataDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.domibusPropertyMetadataToDomibusPropertyMetadataDTO((DomibusPropertyMetadata) source);
+        }
+        String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
         throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
 

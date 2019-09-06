@@ -4,9 +4,9 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.quartz.DomibusQuartzStarter;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Handles the change of cron expression properties
  */
 @Service
-public class CronExpressionChangeListener implements PluginPropertyChangeListener {
+public class CronExpressionChangeListener implements DomibusPropertyChangeListener {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CronExpressionChangeListener.class);
 

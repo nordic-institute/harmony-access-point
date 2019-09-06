@@ -3,17 +3,24 @@ package eu.domibus.core.property;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
+ */
 
 @Service
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
@@ -30,7 +37,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    private PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
+    private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
@@ -88,7 +95,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
 
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     @Override

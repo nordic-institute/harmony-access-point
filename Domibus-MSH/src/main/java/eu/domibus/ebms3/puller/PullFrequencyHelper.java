@@ -46,6 +46,11 @@ public class PullFrequencyHelper {
         getDomainPullFrequencyHelper().increaseError(mpc);
     }
 
+    public synchronized void reset() {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        domainPullFrequencyHelperMap.remove(currentDomain);
+    }
+
     private synchronized DomainPullFrequencyHelper configureNewDomain(Domain currentDomain) {
         DomainPullFrequencyHelper domainPullFrequencyHelper = domainPullFrequencyHelperFunction.apply(currentDomain);
         domainPullFrequencyHelperMap.put(currentDomain, domainPullFrequencyHelper);

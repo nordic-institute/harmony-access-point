@@ -220,6 +220,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
         alertDao.deleteAll(alerts);
+        LOG.trace("[{}] old alerts deleted", alerts.size());
     }
 
     /**

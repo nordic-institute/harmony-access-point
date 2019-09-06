@@ -626,10 +626,10 @@ def findNumberOfDomain(String inputSite) {
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema="BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
-        def MAX_WAIT_TIME=50_000;
-        def STEP_WAIT_TIME=2000;
-        def sqlSender = null;
-        int total = 0;
+        def MAX_WAIT_TIME=50_000
+        def STEP_WAIT_TIME=2000
+        def sqlSender = null
+        int total = 0
         openAllDbConnections()
 
         sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
@@ -948,12 +948,12 @@ def findNumberOfDomain(String inputSite) {
     static def uploadPmode(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String message = null, String authUser = null, authPwd = null){
         debugLog("  ====  Calling \"uploadPmode\".", log)
         log.info "  uploadPmode  [][]  Start upload PMode for Domibus \"" + side + "\".";
-        def commandString = null;
-        def commandResult = null;
-        def pmDescription = "SoapUI sample test description for PMode upload. Used Pmode: " + extFilePath ;
-        def multitenancyOn = false;
-        def authenticationUser = authUser;
-        def authenticationPwd = authPwd;
+        def commandString = null
+        def commandResult = null
+        def pmDescription = "SoapUI sample test description for PMode upload."
+        def multitenancyOn = false
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
         def String pmodeFile = computePathRessources(baseFilePath, extFilePath, context, log)
 
         log.info "  uploadPmode  [][]  PMODE FILE PATH: " + pmodeFile;
@@ -1360,7 +1360,7 @@ def findNumberOfDomain(String inputSite) {
                 commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
 								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
 								"-H", "Content-Type: application/json",
-								"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
@@ -2097,6 +2097,37 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 		tStep.run(testRunner, context)
 	}	
 }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+		def outcome = "HTTP/1.1 200"
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
+
+        debugLog("  ====  Calling \"changePropertyAtRuntime\".", log)
+        log.info "  changePropertyAtRuntime  [][]  Start procedure to change property at runtime for Domibus \"" + side + "\"."
+        log.info "  changePropertyAtRuntime  [][]  Property to change: " + propName + " new value: " + propNewValue
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/" + propName, 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+							"-H",  "Content-Type: text/xml", 							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"--data-binary", "\"" + propNewValue + "\"", 
+							"-X", "PUT",
+							"-v"]
+            def commandResult = runCurlCommand(commandString, log)
+			
+            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome \"" + outcome + "\".\nCommand output error: " + commandResult[1] 														
+			log.info "  changePropertyAtRuntime  [][]  Property value was changed" 
+
+        } finally {
+            resetAuthTokens(log)
+        }
+        debugLog("  ====  Finished \"changePropertyAtRuntime\".", log)		
+    }
 
 //---------------------------------------------------------------------------------------------------------------------------------
 } // Domibus class end
