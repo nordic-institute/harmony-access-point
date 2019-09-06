@@ -62,12 +62,16 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
         if (delay > 0) {
-            userMessageService.scheduleSending(messageId, delay);
+            scheduleSending(messageId, delay);
             return;
         }
 
-        messageSenderService.sendUserMessage(messageId, retryCount);
+        sendUserMessage(messageId, retryCount);
 
         LOG.debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
     }
+
+    public abstract void scheduleSending(String messageId, Long delay);
+
+    public abstract void sendUserMessage(final String messageId, int retryCount);
 }
