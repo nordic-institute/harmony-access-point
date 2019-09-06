@@ -14,7 +14,7 @@ public class AlertFilterRequestRO implements Serializable {
     private String processed;
     private String alertType;
     private String alertStatus;
-    private Integer alertId;
+    private Long alertId;
     private String alertLevel;
     private String creationFrom;
     private String creationTo;
@@ -81,11 +81,11 @@ public class AlertFilterRequestRO implements Serializable {
         this.alertStatus = alertStatus;
     }
 
-    public Integer getAlertId() {
+    public Long getAlertId() {
         return alertId;
     }
 
-    public void setAlertId(Integer alertId) {
+    public void setAlertId(Long alertId) {
         this.alertId = alertId;
     }
 
