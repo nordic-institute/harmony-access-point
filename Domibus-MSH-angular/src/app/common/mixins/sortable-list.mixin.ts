@@ -24,6 +24,7 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass 
 
   /**
    * The method is abstract so the derived, actual components implement it
+   * It is called by the infrastructure/mixin just before calling the reload data method, after setting the oredBy and asc parameters
    */
   public onBeforeSort () {
   }
