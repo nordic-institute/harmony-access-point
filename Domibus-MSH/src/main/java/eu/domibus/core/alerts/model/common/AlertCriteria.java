@@ -28,7 +28,7 @@ public class AlertCriteria {
 
     private AlertLevel alertLevel;
 
-    private Integer alertID;
+    private Long alertID;
 
     private Date creationFrom;
 
@@ -130,11 +130,11 @@ public class AlertCriteria {
         }
     }
 
-    public Integer getAlertID() {
+    public Long getAlertID() {
         return alertID;
     }
 
-    public void setAlertID(Integer alertID) {
+    public void setAlertID(Long alertID) {
         this.alertID = alertID;
     }
 

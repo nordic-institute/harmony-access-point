@@ -38,6 +38,12 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
+    public void setDomainProperty(DomainDTO domainCode, String propertyName, String propertyValue) {
+        final Domain domain = domainConverter.convert(domainCode, Domain.class);
+        domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
+    }
+
+    @Override
     public boolean containsDomainPropertyKey(DomainDTO domainDTO, String propertyName) {
         final Domain domain = domainConverter.convert(domainDTO, Domain.class);
         return domibusPropertyProvider.containsDomainPropertyKey(domain, propertyName);

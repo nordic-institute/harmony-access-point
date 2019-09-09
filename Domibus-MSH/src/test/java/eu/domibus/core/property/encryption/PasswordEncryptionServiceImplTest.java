@@ -7,8 +7,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
-import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.EncryptionUtil;
+import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.BACKUP_FILE_FORMATTER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -52,7 +51,7 @@ public class PasswordEncryptionServiceImplTest {
     protected EncryptionUtil encryptionUtil;
 
     @Injectable
-    protected DateUtil dateUtil;
+    protected BackupService backupService;
 
     @Injectable
     protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
@@ -333,9 +332,6 @@ public class PasswordEncryptionServiceImplTest {
             passwordEncryptionContext.getConfigurationFile();
             result = configurationFile;
 
-            passwordEncryptionService.getConfigurationFileBackup(configurationFile);
-            result = configurationFileBackup;
-
             passwordEncryptionService.getReplacedLines(encryptedProperties, configurationFile);
             result = fileLines;
         }};
@@ -343,7 +339,7 @@ public class PasswordEncryptionServiceImplTest {
         passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
 
         new Verifications() {{
-            FileUtils.copyFile(configurationFile, configurationFileBackup);
+            backupService.backupFile(configurationFile);
             Files.write(configurationFile.toPath(), fileLines);
         }};
     }
@@ -371,24 +367,6 @@ public class PasswordEncryptionServiceImplTest {
         passwordEncryptionResult.setPropertyName("myProperty");
 
         assertTrue(passwordEncryptionService.arePropertiesMatching(propertyName, passwordEncryptionResult));
-    }
-
-    @Test
-    public void getConfigurationFileBackup() {
-        String timePart = "2019-07-15_23_01_01.111";
-        final String configurationFileName = "domibus.properties";
-        final String parentDirectory = "home";
-
-        new Expectations() {{
-            dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
-            result = timePart;
-        }};
-
-
-        File configurationFile = new File(parentDirectory, configurationFileName);
-        final File configurationFileBackup = passwordEncryptionService.getConfigurationFileBackup(configurationFile);
-        assertEquals(configurationFileName + PasswordEncryptionServiceImpl.BACKUP_EXT + timePart, configurationFileBackup.getName());
-        assertEquals(parentDirectory, configurationFileBackup.getParent());
     }
 
 }
