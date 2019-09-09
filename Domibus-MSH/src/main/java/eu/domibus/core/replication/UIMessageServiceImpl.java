@@ -49,7 +49,7 @@ public class UIMessageServiceImpl implements UIMessageService {
         List<UIMessageEntity> uiMessageEntityList = new ArrayList<>();
 
         //make the count
-        int numberOfMessages = uiMessageDao.countMessages(filters);
+        long numberOfMessages = uiMessageDao.countEntries(filters);
 
         if (numberOfMessages != 0) {
             //query for the page results

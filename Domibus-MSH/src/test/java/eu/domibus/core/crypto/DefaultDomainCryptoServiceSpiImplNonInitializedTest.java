@@ -11,6 +11,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.CryptoSpiException;
+import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
@@ -71,6 +72,9 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
     @Injectable
     private DomainCoreConverter coreConverter;
+
+    @Injectable
+    private BackupService backupService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

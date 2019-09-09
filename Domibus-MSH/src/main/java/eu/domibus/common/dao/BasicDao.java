@@ -7,7 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A basic DAO implementation providing the standard CRUD operations,
@@ -15,10 +22,9 @@ import java.util.Collection;
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
-
 public abstract class BasicDao<T extends AbstractBaseEntity> {
 
-    private final Class<T> typeOfT;
+    protected final Class<T> typeOfT;
 
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager em;
@@ -71,4 +77,5 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
     public void flush() {
         em.flush();
     }
+
 }

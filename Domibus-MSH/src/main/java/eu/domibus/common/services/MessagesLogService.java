@@ -15,10 +15,6 @@ import java.util.Map;
  */
 public interface MessagesLogService {
 
-    List<? extends MessageLog> findMessageLogs(int page, int size, String column, boolean asc, HashMap<String, Object> filters);
-
-    Long countMessages(int size, HashMap<String, Object> filters);
-
     MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String orderByColumn, boolean asc, Map<String, Object> filters);
 
     List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters);

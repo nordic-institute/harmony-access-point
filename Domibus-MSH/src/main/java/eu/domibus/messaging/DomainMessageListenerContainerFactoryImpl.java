@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 4.0
+ *
+ * Class for creating Message Listener containers for a specified domain
  */
 @Service
 public class DomainMessageListenerContainerFactoryImpl implements DomainMessageListenerContainerFactory {
