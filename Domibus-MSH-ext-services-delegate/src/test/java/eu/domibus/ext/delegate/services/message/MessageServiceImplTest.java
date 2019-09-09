@@ -30,12 +30,4 @@ public class MessageServiceImplTest {
                 "-Dom138--", trimmedMessageId);
     }
 
-    @Test
-    public void testMessageId_isValid() {
-        String messageId = " -Dom137-- ";
-
-        boolean isValid = messageService.validateMessageIdentifierRfc2822(messageId);
-        Assert.assertTrue(isValid);
-
-    }
 }

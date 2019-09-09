@@ -163,6 +163,9 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
             result = unacceptedMessageType;
 
+            backendJMS.submit(withAny(new ActiveMQMapMessage()));
+            result = messageId;
+
             backendJMS.sendReplyMessage(messageId, anyString, jmsCorrelationId);
         }};
 
@@ -172,7 +175,7 @@ public class BackendJMSImplTest {
             String capturedMessageId = null;
             String capturedJmsCorrelationId = null;
             String capturedErrorMessage = null;
-            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedJmsCorrelationId = withCapture(), capturedJmsCorrelationId = withCapture());
+            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
 
             assertEquals(capturedMessageId, messageId);
             assertEquals(capturedJmsCorrelationId, jmsCorrelationId);
