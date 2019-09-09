@@ -17,8 +17,8 @@ import utils.TestRunData;
  */
 
 
-public class TrustStorePage extends DomibusPage {
-	public TrustStorePage(WebDriver driver) {
+public class TruststorePage extends DomibusPage {
+	public TruststorePage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}

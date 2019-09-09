@@ -192,7 +192,7 @@ public class DGrid extends DComponent {
 				return;
 			}
 		}
-		throw new Exception("Column name not present in the grid");
+		throw new Exception("Column name not present in the grid " + columnName);
 	}
 
 	public void scrollToAndDoubleClick(String columnName, String value) throws Exception {
@@ -318,6 +318,7 @@ public class DGrid extends DComponent {
 	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
 		//-----------Show - Modify - Hide
 		for (String colName : chkOptions) {
+			log.info("checking checkbox for " + colName);
 			getGridCtrl().showCtrls();
 			getGridCtrl().checkBoxWithLabel(colName);
 			soft.assertTrue(columnsVsCheckboxes());
@@ -329,6 +330,7 @@ public class DGrid extends DComponent {
 	public void checkAllLink(SoftAssert soft) throws Exception{
 		//-----------All link
 		getGridCtrl().showCtrls();
+		log.info("clicking All link");
 		getGridCtrl().getAllLnk().click();
 		getGridCtrl().hideCtrls();
 
@@ -338,19 +340,21 @@ public class DGrid extends DComponent {
 	public void checkNoneLink(SoftAssert soft) throws Exception{
 		//-----------None link
 		getGridCtrl().showCtrls();
+		log.info("clicking None link");
 		getGridCtrl().getNoneLnk().click();
 		getGridCtrl().hideCtrls();
 
 		List<String> noneColumns = getColumnNames();
 		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
-
 	}
 	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
+		log.info("checking changing number of rows displayed");
 		//----------Rows
 		getGridCtrl().showCtrls();
 		getGridCtrl().getAllLnk().click();
 
 		int rows = getPagination().getTotalItems();
+		log.info("changin number of rows to 25");
 		getPagination().getPageSizeSelect().selectOptionByText("25");
 		waitForRowsToLoad();
 
@@ -373,9 +377,10 @@ public class DGrid extends DComponent {
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
 				.withTrim());
 		List<CSVRecord> records = csvParser.getRecords();
-
-
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
+
+		log.info("comapring number of items");
+		soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
 
 		log.info("checking listed data");
 		for (int i = 0; i < gridInfo.size(); i++) {

@@ -33,9 +33,12 @@ public class MessagesPgUXTest extends BaseUXTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
 
+		log.info("Checking page title");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
 
+		log.info("checking basic filter presence");
 		basicFilterPresence(soft, page.getFilters(), descriptorObj.getJSONArray("filters"));
+
 		testDefaultColumnPresence(soft, page.grid(), descriptorObj.getJSONObject("grid").getJSONArray("columns"));
 
 		if (page.grid().getRowsNo() > 0) {
@@ -60,10 +63,11 @@ public class MessagesPgUXTest extends BaseUXTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
 
-
+		log.info("selecting message with id " + messID);
 		page.refreshPage();
 		page.grid().scrollToAndSelect("Message Id", messID);
 
+		log.info("checking download button is enabled");
 		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
 
 		soft.assertAll();
@@ -74,28 +78,26 @@ public class MessagesPgUXTest extends BaseUXTest {
 	public void selectAnotherRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
-		String messID1 = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
-		String messID2 = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+		List<String> messIds = getMessageIDs(null, 2, false);
+		String messID1 = messIds.get(0);
+		String messID2 = messIds.get(1);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.refreshPage();
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
 		DGrid grid = page.grid();
 
-		int index1 = grid.scrollTo("Message Id", messID1);
-		int index2 = grid.scrollTo("Message Id", messID2);
+		log.info("selecting mess with id " +messID1);
+		grid.scrollToAndSelect("Message Id", messID1);
 
-		grid.selectRow(index1);
+		log.info("selecting mess with id " +messID2);
+		int index2 = grid.scrollTo("Message Id", messID2);
 		grid.selectRow(index2);
 
+		log.info("checking selected message");
 		int selectedRow = grid.getSelectedRowIndex();
 		soft.assertEquals(index2, selectedRow, "Selected row index is correct");
 
-
-		rest.deletePluginUser(user, null);
 		soft.assertAll();
 	}
 
@@ -164,6 +166,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		page.getSidebar().gGoToPage(PAGES.MESSAGES);
 
 		DGrid grid = page.grid();
+		log.info("expanding controls");
 		grid.getGridCtrl().showCtrls();
 
 		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
@@ -183,9 +186,11 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
+		log.info("getting available columns berfor modification " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
 
+		log.info("expand column controls");
 		grid.getGridCtrl().showCtrls();
 		soft.assertTrue(grid.getGridCtrl().areCheckboxesVisible(), "After Show link is clicked the checkboxes are visible");
 
@@ -193,6 +198,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "After Hide link is clicked the checkboxes are not visible");
 
 		List<String> columnsPost = grid.getColumnNames();
+		log.info("getting available columns after expanding " +columnsPost);
 		soft.assertTrue(ListUtils.isEqualList(columnsPre, columnsPost), "List of columns before and after hiding the controls is the same");
 
 		soft.assertAll();
@@ -201,6 +207,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	/*Click Hide link after selecting some new fields*/
 	@Test(description = "MSG-20", groups = {"multiTenancy", "singleTenancy"})
 	public void checkHideLinkWithNewSelection() throws Exception {
+		String colName = TestUtils.getNonDefaultColumn(descriptorObj.getJSONObject("grid").getJSONArray("columns"));
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
@@ -209,21 +216,24 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
+		log.info("getting column list before new column is added: " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
 
 		grid.getGridCtrl().showCtrls();
 		soft.assertTrue(grid.getGridCtrl().areCheckboxesVisible(), "After Show link is clicked the checkboxes are visible");
 
-		grid.getGridCtrl().checkBoxWithLabel("Send Attempts");
+		log.info("enabling column with name " + colName);
+		grid.getGridCtrl().checkBoxWithLabel(colName);
 
 		grid.getGridCtrl().hideCtrls();
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "After Hide link is clicked the checkboxes are not visible");
 
 		List<String> columnsPost = grid.getColumnNames();
+		log.info("getting column list after new column is added: " + columnsPost);
 		soft.assertTrue(!ListUtils.isEqualList(columnsPre, columnsPost), "List of columns before and after hiding the controls is the same");
 		soft.assertTrue(columnsPre.size() + 1 == columnsPost.size(), "One more column is shown");
-		soft.assertTrue(columnsPost.contains("Send Attempts"), "Correct column is now in the list of columns");
+		soft.assertTrue(columnsPost.contains(colName), "Correct column is now in the list of columns");
 
 		soft.assertAll();
 	}
