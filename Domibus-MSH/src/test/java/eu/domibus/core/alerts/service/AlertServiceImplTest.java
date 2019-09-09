@@ -122,7 +122,7 @@ public class AlertServiceImplTest {
         final String mailSubjectServerName = "localhost";
         final String alertSuperInstanceNameSubjectProperty = MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
         final String messageId = "messageId";
-        final int entityId = 1;
+        final long entityId = 1;
         final AlertType alertType = AlertType.MSG_STATUS_CHANGED;
         final AlertLevel alertLevel = AlertLevel.HIGH;
 
@@ -173,7 +173,7 @@ public class AlertServiceImplTest {
     @Test
     public void handleAlertStatusSuccess(final @Mocked eu.domibus.core.alerts.model.persist.Alert persistedAlert) {
         final Alert alert = new Alert();
-        final int entityId = 1;
+        final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.SUCCESS);
         new Expectations() {{
@@ -194,7 +194,7 @@ public class AlertServiceImplTest {
     public void handleAlertStatusFailedWithRemainingAttempts(final @Mocked eu.domibus.core.alerts.model.persist.Alert persistedAlert, @Mocked final org.joda.time.LocalDateTime dateTime) throws ParseException {
         final int nextAttemptInMinutes = 10;
         final Alert alert = new Alert();
-        final int entityId = 1;
+        final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
 
@@ -235,7 +235,7 @@ public class AlertServiceImplTest {
     @Test
     public void handleAlertStatusFailedWithNoMoreAttempts(final @Mocked eu.domibus.core.alerts.model.persist.Alert persistedAlert, @Mocked final org.joda.time.LocalDateTime dateTime) throws ParseException {
         final Alert alert = new Alert();
-        final int entityId = 1;
+        final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
 
@@ -345,20 +345,20 @@ public class AlertServiceImplTest {
     @Test
     public void updateAlertProcessed() {
         final Alert firstAlert = new Alert();
-        final int firstEntityId = 1;
+        final long firstEntityId = 1;
         firstAlert.setEntityId(firstEntityId);
         firstAlert.setProcessed(false);
         List<Alert> alerts = Lists.newArrayList(firstAlert);
         final Alert secondAlert = new Alert();
         secondAlert.setProcessed(true);
-        final int secondEntityId = 2;
+        final long secondEntityId = 2;
         secondAlert.setEntityId(secondEntityId);
         alerts.add(secondAlert);
 
         alertService.updateAlertProcessed(alerts);
 
         new Verifications() {{
-            List<Integer> entityIds = new ArrayList<>();
+            List<Long> entityIds = new ArrayList<>();
             List<Boolean> processeds = new ArrayList<>();
             alertDao.updateAlertProcessed(withCapture(entityIds), withCapture(processeds));
             assertEquals(firstEntityId, entityIds.get(0), 0);

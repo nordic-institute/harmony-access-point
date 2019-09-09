@@ -1,5 +1,7 @@
 package eu.domibus.core.alerts.model.web;
 
+import eu.domibus.web.rest.validators.SkipWhiteListed;
+
 import java.util.Date;
 import java.util.List;
 /**
@@ -8,7 +10,7 @@ import java.util.List;
  */
 public class AlertRo {
 
-    private int entityId;
+    private long entityId;
 
     private boolean processed;
 
@@ -32,15 +34,16 @@ public class AlertRo {
 
     private Date reportingTimeFailure;
 
+    @SkipWhiteListed
     private List<String> parameters;
 
     private boolean superAdmin;
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int alertId) {
+    public void setEntityId(long alertId) {
         this.entityId = alertId;
     }
 
