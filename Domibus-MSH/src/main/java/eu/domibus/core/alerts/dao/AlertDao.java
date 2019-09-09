@@ -198,7 +198,7 @@ public class AlertDao extends BasicDao<Alert> {
         return namedQuery.getResultList();
     }
 
-    public void updateAlertProcessed(final Integer id, Boolean processed) {
+    public void updateAlertProcessed(final Long id, Boolean processed) {
         final Query namedQuery = em.createNamedQuery("Alert.updateProcess");
         namedQuery.setParameter("ALERT_ID", id);
         namedQuery.setParameter("PROCESSED", processed);
