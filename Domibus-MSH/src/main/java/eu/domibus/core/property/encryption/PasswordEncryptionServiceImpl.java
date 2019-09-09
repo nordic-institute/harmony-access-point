@@ -8,14 +8,13 @@ import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
+import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +43,9 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     public static final String ENC_START = "ENC(";
     public static final String ENC_END = ")";
-    protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
+
     public static final String LINE_COMMENT_PREFIX = "#";
     public static final String PROPERTY_VALUE_DELIMITER = "=";
-    protected static final String BACKUP_EXT = ".backup-";
 
     @Autowired
     protected DomainService domainService;
@@ -66,7 +63,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected EncryptionUtil encryptionUtil;
 
     @Autowired
-    protected DateUtil dateUtil;
+    protected BackupService backupService;
 
     @Autowired
     protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
@@ -244,15 +241,13 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Replacing configured properties in file [{}] with encrypted values", configurationFile);
         final List<String> fileLines = getReplacedLines(encryptedProperties, configurationFile);
 
-        LOG.debug("Writing encrypted values");
-        final File configurationFileBackup = getConfigurationFileBackup(configurationFile);
-
-        LOG.debug("Backing up file [{}] to file [{}]", configurationFile, configurationFileBackup);
         try {
-            FileUtils.copyFile(configurationFile, configurationFileBackup);
+            backupService.backupFile(configurationFile);
         } catch (IOException e) {
-            throw new DomibusEncryptionException(String.format("Could not back up file [%s] to [%s]", configurationFile, configurationFileBackup), e);
+            throw new DomibusEncryptionException(String.format("Could not back up [%s]", configurationFile), e);
         }
+
+        LOG.debug("Writing encrypted values");
 
         try {
             Files.write(configurationFile.toPath(), fileLines);
@@ -262,7 +257,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected List<String> getReplacedLines(List<PasswordEncryptionResult> encryptedProperties, File configurationFile) {
-        try(final Stream<String> lines = Files.lines(configurationFile.toPath())) {
+        try (final Stream<String> lines = Files.lines(configurationFile.toPath())) {
             return lines
                     .map(line -> replaceLine(encryptedProperties, line))
                     .collect(Collectors.toList());
@@ -299,10 +294,5 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected boolean arePropertiesMatching(String filePropertyName, PasswordEncryptionResult encryptionResult) {
         return StringUtils.contains(filePropertyName, encryptionResult.getPropertyName());
     }
-
-    protected File getConfigurationFileBackup(File configurationFile) {
-        return new File(configurationFile.getParent(), configurationFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER));
-    }
-
 
 }

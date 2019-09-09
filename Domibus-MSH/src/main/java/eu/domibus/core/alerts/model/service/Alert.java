@@ -19,7 +19,7 @@ import java.util.Set;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id", scope = Alert.class)
 public class Alert {
 
-    private int entityId;
+    private long entityId;
 
     private boolean processed;
 
@@ -45,11 +45,11 @@ public class Alert {
 
     private Set<Event> events = new HashSet<>();
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(long entityId) {
         this.entityId = entityId;
     }
 

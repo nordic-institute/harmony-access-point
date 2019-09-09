@@ -137,7 +137,7 @@ public class AlertResource extends BaseResource {
     }
 
     private Alert toAlert(AlertRo alertRo) {
-        final int entityId = alertRo.getEntityId();
+        final long entityId = alertRo.getEntityId();
         final boolean processed = alertRo.isProcessed();
         Alert alert = new Alert();
         alert.setEntityId(entityId);
