@@ -1,8 +1,6 @@
 package eu.domibus.core.util.backup;
 
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl;
-import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
@@ -46,7 +44,7 @@ public class BackupServiceImpl implements BackupService {
     }
 
     protected File getBackupFile(File originalFile) {
-        String backupFileName =  originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+        String backupFileName = originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
         return new File(originalFile.getParent(), backupFileName);
     }
 

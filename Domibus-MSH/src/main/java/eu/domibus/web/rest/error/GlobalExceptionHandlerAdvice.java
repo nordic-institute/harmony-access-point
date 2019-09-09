@@ -34,8 +34,6 @@ import java.util.stream.Collectors;
 @RequestMapping(produces = "application/vnd.error+json")
 public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalExceptionHandlerAdvice.class);
-
     @Autowired
     private ErrorHandlerService errorHandlerService;
 
@@ -54,14 +52,14 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({ValidationException.class})
+    public ResponseEntity<ErrorRO> handleValidationException(ValidationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorRO> handleException(Exception ex) {
         return errorHandlerService.createResponse(ex);
-    }
-
-    @ExceptionHandler({ValidationException.class})
-    public ResponseEntity<ErrorRO> handleException(ValidationException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

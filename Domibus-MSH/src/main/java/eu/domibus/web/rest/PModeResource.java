@@ -145,7 +145,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ResponseEntity<String> uploadPmode(@PathVariable(value = "id") Integer id) {
+    public ResponseEntity<String> restorePmode(@PathVariable(value = "id") Integer id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);

@@ -23,15 +23,13 @@ import java.util.stream.Collectors;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
- * Resource responsible with getting the domibus properties that can be changed at runtime, getting and setting their values through REST Api
+ * <p>
+ * Resource responsible for getting the domibus properties that can be changed at runtime, getting and setting their values through REST Api
  */
 @RestController
 @RequestMapping(value = "/rest/configuration")
 @Validated
 public class PropertyResource {
-
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(PropertyResource.class);
 
     @Autowired
     private DomibusPropertyService domibusPropertyService;
@@ -49,7 +47,7 @@ public class PropertyResource {
         List<DomibusProperty> items = domibusPropertyService.getProperties(request.getName());
         response.setCount(items.size());
         items = items.stream()
-                .skip(request.getPage() * request.getPageSize())
+                .skip((long) request.getPage() * request.getPageSize())
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
         response.setItems(domainConverter.convert(items, DomibusPropertyRO.class));

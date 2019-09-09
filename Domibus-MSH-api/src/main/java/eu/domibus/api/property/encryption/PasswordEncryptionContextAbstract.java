@@ -19,8 +19,8 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionContextAbstract.class);
 
-    public static final String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties";
-    public static final String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";
+    public static final String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
+    public static final String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location"; //NOSONAR
     public static final String ENCRYPTED_KEY = "encrypted.key";
 
     protected PasswordEncryptionService passwordEncryptionService;

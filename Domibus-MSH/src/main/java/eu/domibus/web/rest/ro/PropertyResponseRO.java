@@ -7,7 +7,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.1.1
  */
-public class PropertyResponseRO implements Serializable {
+public class PropertyResponseRO {
 
     private int count;
 

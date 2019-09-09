@@ -23,7 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAS
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
-    public static final String CHECK_DEFAULT_PASSWORD = DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
+    public static final String CHECK_DEFAULT_PASSWORD = DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD; //NOSONAR
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Autowired
@@ -54,7 +54,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return userDetail;
     }
 
-    private boolean isDefaultPasswordUsed(final User user ) {
+    private boolean isDefaultPasswordUsed(final User user) {
         boolean checkDefaultPassword = Boolean.parseBoolean(domibusPropertyProvider.getProperty(CHECK_DEFAULT_PASSWORD));
         if (!checkDefaultPassword) {
             return false;

@@ -1,6 +1,5 @@
 package eu.domibus.core.alerts.model.service;
 
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
@@ -41,8 +40,8 @@ public class RepetitiveAlertConfigurationHolder {
     }
 
     public void clearConfiguration(AlertType alertType) {
-        ConfigurationLoader<RepetitiveAlertModuleConfiguration> conf = configurations.get(AlertType.PASSWORD_IMMINENT_EXPIRATION);
-        if(conf != null) {
+        ConfigurationLoader<RepetitiveAlertModuleConfiguration> conf = configurations.get(alertType);
+        if (conf != null) {
             conf.resetConfiguration();
         }
     }
