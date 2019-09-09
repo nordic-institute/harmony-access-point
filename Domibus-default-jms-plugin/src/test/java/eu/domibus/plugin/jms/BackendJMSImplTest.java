@@ -81,6 +81,9 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
+            messageExtService.cleanMessageIdentifier(messageId);
+            result = messageId;
+
             map.getJMSCorrelationID();
             result = jmsCorrelationId;
 
@@ -119,6 +122,9 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
+            messageExtService.cleanMessageIdentifier(messageId);
+            result = messageIdTrimmed;
+
             map.getJMSCorrelationID();
             result = jmsCorrelationId;
 
@@ -136,9 +142,9 @@ public class BackendJMSImplTest {
         new Verifications() {{
             backendJMS.submit(map);
 
-            String capturedMessageId = null;
-            String capturedJmsCorrelationId = null;
-            String capturedErrorMessage = null;
+            String capturedMessageId;
+            String capturedJmsCorrelationId;
+            String capturedErrorMessage;
             backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
 
             assertEquals(capturedMessageId, messageIdTrimmed);
@@ -157,14 +163,14 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
+            messageExtService.cleanMessageIdentifier(messageId);
+            result = messageId;
+
             map.getJMSCorrelationID();
             result = jmsCorrelationId;
 
             map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
             result = unacceptedMessageType;
-
-            backendJMS.submit(withAny(new ActiveMQMapMessage()));
-            result = messageId;
 
             backendJMS.sendReplyMessage(messageId, anyString, jmsCorrelationId);
         }};
