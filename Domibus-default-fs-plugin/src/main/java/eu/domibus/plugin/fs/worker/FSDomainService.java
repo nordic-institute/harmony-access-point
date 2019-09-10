@@ -170,8 +170,10 @@ public class FSDomainService {
         return domainExpressionPattern;
     }
 
-    public synchronized void resetPatterns() {
+    public void resetPatterns() {
         LOG.debug("Clearing domain pattern cache.");
-        domainPatternCache.clear();
+        synchronized (domainPatternCache) {
+            domainPatternCache.clear();
+        }
     }
 }
