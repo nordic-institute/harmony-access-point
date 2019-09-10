@@ -18,12 +18,12 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.super.user.login_failure.";
     String DOMIBUS_ALERT_SENDER_SMTP_PREFIX = "domibus.alert.sender.smtp.";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX = "domibus.alert.msg.communication_failure.";
-    String DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX = "domibus.alert.password.expired";
-    String DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.password.imminent_expiration";
+    String DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX = "domibus.alert.password.expired"; //NOSONAR
+    String DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.password.imminent_expiration"; //NOSONAR
     String DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.plugin.user.account_disabled.";
     String DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.plugin.user.login_failure.";
-    String DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX = "domibus.alert.plugin_password.expired";
-    String DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.plugin_password.imminent_expiration";
+    String DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX = "domibus.alert.plugin_password.expired"; //NOSONAR
+    String DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.plugin_password.imminent_expiration"; //NOSONAR
     String DOMIBUS_SECURITY_KEYSTORE_PREFIX = "domibus.security.keystore.";
     String DOMIBUS_SECURITY_TRUSTSTORE_PREFIX = "domibus.security.truststore.";
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";

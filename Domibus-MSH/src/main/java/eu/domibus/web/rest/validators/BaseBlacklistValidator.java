@@ -165,10 +165,10 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
         boolean res;
         if (customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
-            res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el)
+            res = value.chars().mapToObj(c -> (char) c).noneMatch(el -> blacklist.contains(el)
                     && !customAnnotation.permitted().contains(el.toString()));
         } else {
-            res = !value.chars().mapToObj(c -> (char) c).anyMatch(el -> blacklist.contains(el));
+            res = value.chars().mapToObj(c -> (char) c).noneMatch(el -> blacklist.contains(el));
         }
         LOG.trace("Validated value [{}] for blacklist and the outcome is [{}]", value, res);
         return res;

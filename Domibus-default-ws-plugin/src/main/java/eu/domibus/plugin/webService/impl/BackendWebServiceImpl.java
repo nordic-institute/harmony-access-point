@@ -75,12 +75,22 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
+
         addPartInfos(submitRequest, ebMSHeaderInfo);
         if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
             MessageInfo messageInfo = new MessageInfo();
             messageInfo.setTimestamp(LocalDateTime.now());
             ebMSHeaderInfo.getUserMessage().setMessageInfo(messageInfo);
+        } else {
+            final String submittedMessageId = ebMSHeaderInfo.getUserMessage().getMessageInfo().getMessageId();
+            if (StringUtils.isNotEmpty(submittedMessageId)) {
+                //if there is a submitted messageId we trim it
+                LOG.debug("Submitted messageId=[{}]", submittedMessageId);
+                String trimmedMessageId = messageExtService.cleanMessageIdentifier(submittedMessageId);
+                ebMSHeaderInfo.getUserMessage().getMessageInfo().setMessageId(trimmedMessageId);
+            }
         }
+
         final String messageId;
         try {
             messageId = this.submit(ebMSHeaderInfo);
