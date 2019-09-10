@@ -28,6 +28,9 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     @Autowired
     protected ApplicationContext applicationContext;
 
+    @Autowired
+    Endpoint backendInterfaceEndpoint;
+
     @Override
     public boolean hasKnownProperty(String name) {
         return StringUtils.equalsAnyIgnoreCase(name, SCHEMA_VALIDATION_ENABLED_PROPERTY, MTOM_ENABLED_PROPERTY);
@@ -74,28 +77,20 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
         }
     }
 
-    private Endpoint getEndpoint() {
-        return applicationContext.getBean("backendInterfaceEndpoint", Endpoint.class);
-    }
-
     private Boolean isMtomEnabled() {
-        Endpoint ep = getEndpoint();
-        return ((SOAPBinding) ep.getBinding()).isMTOMEnabled();
+        return ((SOAPBinding) backendInterfaceEndpoint.getBinding()).isMTOMEnabled();
     }
 
     private void setMtomEnabled(Boolean flag) {
-        Endpoint ep = getEndpoint();
-        ((SOAPBinding) ep.getBinding()).setMTOMEnabled(flag);
+        ((SOAPBinding) backendInterfaceEndpoint.getBinding()).setMTOMEnabled(flag);
     }
 
     private Boolean isSchemaValidationEnabled() {
-        Endpoint ep = getEndpoint();
-        return "true".equals(ep.getProperties().get("schema-validation-enabled"));
+        return "true".equals(backendInterfaceEndpoint.getProperties().get("schema-validation-enabled"));
     }
 
     private void setSchemaValidationEnabled(Boolean flag) {
-        Endpoint ep = getEndpoint();
-        ep.getProperties().put("schema-validation-enabled", flag.toString());
+        backendInterfaceEndpoint.getProperties().put("schema-validation-enabled", flag.toString());
     }
 
 }
