@@ -85,6 +85,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Login into application with Admin credentials and navigate to Audit page");
         login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.AUDIT);
         AuditPage Apage = new AuditPage(driver);
+        Apage.waitForTitle();
         log.info("Click on Advance search filters");
         Apage.getFilters().getAdvancedSearchExpandLnk().click();
         log.info("Validate all advance filters");
@@ -110,6 +111,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Navigate to Audit page");
         loginPage.getSidebar().gGoToPage(PAGES.AUDIT);
         AuditPage Apage = new AuditPage(driver);
+        Apage.getFilters().setFilterData("table", "User");
         log.info("Select logged in user username in User input filter");
         Apage.getFilters().setFilterData("user", user);
         log.info("Click on Search button");
@@ -355,8 +357,6 @@ This method will verify log for User on delete event
         soft.assertTrue(result, "Top row has Table value as PluginUser, User value as Admin & Action as Deleted ");
         soft.assertAll();
     }
-
-
 }
 
 
