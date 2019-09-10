@@ -23,11 +23,9 @@ import org.springframework.stereotype.Service;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -88,20 +86,14 @@ public class HttpUtilImpl implements HttpUtil {
             HttpGet httpGet = new HttpGet(url);
             httpGet.setConfig(config);
 
-            LOG.debug("Executing request " + httpGet.getRequestLine() + " via " + proxy);
+            LOG.debug("Executing request {} via {}", httpGet.getRequestLine(), proxy);
             return getByteArrayInputStream(httpClient, httpGet);
         }
     }
 
     private ByteArrayInputStream getByteArrayInputStream(CloseableHttpClient httpclient, HttpGet httpGet) throws IOException {
-        CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(httpGet);
+        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             return new ByteArrayInputStream(IOUtils.toByteArray(response.getEntity().getContent()));
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
@@ -121,7 +113,7 @@ public class HttpUtilImpl implements HttpUtil {
             sslContext = SSLContext.getInstance(DEFAULT_SSL_PROTOCOL);
             sslContext.init(null, new TrustManager[]{domibusX509TrustManager}, null);
         } catch (NoSuchAlgorithmException | KeyManagementException exc) {
-            LOG.warn("Could not instanciate sslContext", exc);
+            LOG.warn("Could not instantiate sslContext", exc);
             throw exc;
         }
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(

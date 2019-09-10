@@ -201,7 +201,7 @@ public class PasswordEncryptionServiceImplTest {
         }};
 
         final List<PasswordEncryptionResult> passwordEncryptionResults = passwordEncryptionService.encryptProperties(passwordEncryptionContext, propertiesToEncrypt, secretKey, secretKeySpec);
-        assertEquals(passwordEncryptionResults.size(), 2);
+        assertEquals(2, passwordEncryptionResults.size());
     }
 
     @Test
@@ -299,10 +299,9 @@ public class PasswordEncryptionServiceImplTest {
         }};
 
         final PasswordEncryptionResult passwordEncryptionResult = passwordEncryptionService.encryptProperty(passwordEncryptionContext, secretKey, secretKeySpec, propertyName);
-        assertEquals(passwordEncryptionResult.getPropertyName(), propertyName);
-        assertEquals(passwordEncryptionResult.getPropertyValue(), propertyValue);
-        assertEquals(passwordEncryptionResult.getFormattedBase64EncryptedValue(), "ENC(myBase64Value)");
-
+        assertEquals(propertyName, passwordEncryptionResult.getPropertyName());
+        assertEquals(propertyValue, passwordEncryptionResult.getPropertyValue());
+        assertEquals("ENC(myBase64Value)", passwordEncryptionResult.getFormattedBase64EncryptedValue());
     }
 
     @Test

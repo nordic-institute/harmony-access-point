@@ -23,7 +23,7 @@ public class DomibusDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusDatasourceConfiguration.class);
 
-    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password";
+    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password"; //NOSONAR
     public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
     @Autowired

@@ -2,7 +2,6 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.services.MessagesLogService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -79,7 +77,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
 
     /**
-     *
      * @param messageLogInfo
      * @return
      */
