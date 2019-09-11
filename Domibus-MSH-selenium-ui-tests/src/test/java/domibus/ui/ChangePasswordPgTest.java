@@ -5,7 +5,6 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
-import org.apache.poi.ss.formula.functions.T;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
@@ -96,8 +95,6 @@ public class ChangePasswordPgTest extends BaseTest {
         page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
         ErrorLogPage errorLogPage = new ErrorLogPage(driver);
         page.waitForTitle();
-//        log.info("Validate Error log page is loaded successfully");
-//        soft.assertTrue(, "Expected elements of ErrorLog appear in the page");
         log.info("logout from application");
         logout();
         log.info("Again login into application with Admin credential");
@@ -133,8 +130,6 @@ public class ChangePasswordPgTest extends BaseTest {
         page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
         ErrorLogPage errorLogPage = new ErrorLogPage(driver);
         page.waitForTitle();
-//        log.info("Validate Error log page is loaded successfully with all its elements");
-//        soft.assertTrue(errorLogPage.isLoaded(), "Expected elements of ErrorLog appear in the page");
         log.info("logout from application");
         logout();
         log.info("login into application with previous admin credentials");
