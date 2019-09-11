@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.MSHDispatcher;
@@ -37,9 +38,6 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
     public static final String SOURCE_MESSAGE_FILE = "sourceMessageFile";
 
     @Autowired
-    protected MessageFactory messageFactory;
-
-    @Autowired
     protected MessageUtil messageUtil;
 
     @Autowired
@@ -50,6 +48,9 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
 
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
+
+    @Autowired
+    protected SoapUtil soapUtil;
 
     @WebMethod
     @WebResult(name = "soapMessageResult")
@@ -87,7 +88,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
                 currentDomain);
 
         try {
-            SOAPMessage responseMessage = messageFactory.createMessage();
+            SOAPMessage responseMessage = soapUtil.createMessageFactory().createMessage();
             responseMessage.saveChanges();
 
             LOG.debug("Finished processing SourceMessage request");

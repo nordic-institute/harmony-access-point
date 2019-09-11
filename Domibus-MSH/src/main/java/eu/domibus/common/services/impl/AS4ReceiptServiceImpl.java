@@ -60,14 +60,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
     private static final String XSLT_GENERATE_AS4_RECEIPT_XSL = "xslt/GenerateAS4Receipt.xsl";
 
+    protected Templates templates;
     protected byte[] as4ReceiptXslBytes;
-
-    @Autowired
-    private TransformerFactory transformerFactory;
-
-    @Qualifier("messageFactory")
-    @Autowired
-    private MessageFactory messageFactory;
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;
@@ -125,6 +119,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         return generateReceipt(request, messaging, ReplyPattern.RESPONSE, nonRepudiation, false, false);
     }
 
+
+
     @Override
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
@@ -138,9 +134,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
-                responseMessage = messageFactory.createMessage();
-                InputStream generateAS4ReceiptStream = getAs4ReceiptXslInputStream();
-                Source messageToReceiptTransform = new StreamSource(generateAS4ReceiptStream);
+                responseMessage = soapUtil.createMessageFactory().createMessage();
 
 
                 String messageId;
@@ -159,7 +153,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     requestMessage = request.getSOAPPart().getContent();
                 }
 
-                final Transformer transformer = this.transformerFactory.newTransformer(messageToReceiptTransform);
+
+                final Transformer transformer = getTemplates().newTransformer();
                 transformer.setParameter("messageid", messageId);
                 transformer.setParameter("timestamp", timestamp);
                 transformer.setParameter("nonRepudiation", Boolean.toString(nonRepudiation));
@@ -237,7 +232,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         } catch (JAXBException | SOAPException ex) {
             LOG.error("Unable to save the SignalMessage due to error: ", ex);
         }
-
     }
 
 
@@ -250,6 +244,16 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
         final SOAPElement messagingElement = (SOAPElement) childElements.next();
         messagingElement.addAttribute(NonRepudiationConstants.ID_QNAME, "_1" + DigestUtils.sha256Hex(userMessage.getMessageInfo().getMessageId()));
+    }
+
+    protected Templates getTemplates() throws IOException, TransformerConfigurationException {
+        if (templates == null) {
+            LOG.debug("Initializing the templates instance");
+            InputStream generateAS4ReceiptStream = getAs4ReceiptXslInputStream();
+            Source messageToReceiptTransform = new StreamSource(generateAS4ReceiptStream);
+            templates = soapUtil.createTransformerFactory().newTemplates(messageToReceiptTransform);
+        }
+        return templates;
     }
 
     protected InputStream getAs4ReceiptXslInputStream() throws IOException {

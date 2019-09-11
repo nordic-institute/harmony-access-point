@@ -10,6 +10,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
@@ -70,10 +71,10 @@ public class ReliabilityChecker {
     protected ReliabilityMatcher pushMatcher;
 
     @Autowired
-    protected TransformerFactory transformerFactory;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected SoapUtil soapUtil;
 
     @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final Reliability reliability) throws EbMS3Exception {
@@ -215,7 +216,7 @@ public class ReliabilityChecker {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
-            transformerFactory.newTransformer().transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
+            soapUtil.createTransformerFactory().newTransformer().transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
             return stringWriter.toString();
         } catch (IOException | TransformerException e) {
             LOG.warn("Couldn't get soap part", e);

@@ -76,9 +76,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private PModeProvider pModeProvider;
 
     @Autowired
-    private TransformerFactory transformerFactory;
-
-    @Autowired
     private CompressionService compressionService;
 
     @Autowired
@@ -136,8 +133,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected PayloadFileStorageProvider storageProvider;
 
     @Override
-    @Timer(value = INCOMING_USER_MESSAGE)
-    @Counter(INCOMING_USER_MESSAGE)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
@@ -523,7 +518,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final Source source = new DOMSource(bodyContent);
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 final Result result = new StreamResult(out);
-                final Transformer transformer = this.transformerFactory.newTransformer();
+                final Transformer transformer = soapUtil.createTransformerFactory().newTransformer();
                 transformer.transform(source, result);
                 partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml")));
             }

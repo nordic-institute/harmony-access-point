@@ -3,6 +3,7 @@ package eu.domibus.common.dao;
 import com.google.common.collect.Maps;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.*;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -24,7 +25,7 @@ import java.util.*;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
+
 
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
@@ -84,6 +85,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         } catch (NoResultException nrEx) {
             LOG.debug("Could not find any result for message with id [" + messageId + "]");
             return null;
+        }
+    }
+
+    @Override
+    public MessageStatus getMessageStatus(String messageId) {
+        try {
+            TypedQuery<MessageStatus> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
+            query.setParameter(STR_MESSAGE_ID, messageId);
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with id [" + messageId + "]");
+            return MessageStatus.NOT_FOUND;
         }
     }
 

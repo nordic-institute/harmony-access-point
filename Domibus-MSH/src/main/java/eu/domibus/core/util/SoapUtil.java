@@ -1,7 +1,6 @@
 package eu.domibus.core.util;
 
 import com.google.common.io.CharStreams;
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
@@ -44,14 +43,12 @@ public class SoapUtil {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);
 
     @Autowired
-    protected TransformerFactory transformerFactory;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
         if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {
             try (StringWriter sw = new StringWriter()) {
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 transformerFactory.newTransformer().transform(new DOMSource(request.getSOAPPart()), new StreamResult(sw));
 
                 LOG.debug(sw.toString());
@@ -62,6 +59,19 @@ public class SoapUtil {
                 }
             }
         }
+    }
+
+    public MessageFactory createMessageFactory() throws SOAPException {
+        return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+    }
+
+    public DocumentBuilderFactory createDocumentBuilderFactory() {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        return dbFactory;
+    }
+
+    public TransformerFactory createTransformerFactory() {
+        return TransformerFactory.newInstance();
     }
 
     /**
@@ -77,7 +87,7 @@ public class SoapUtil {
      */
     public SOAPMessage createUserMessage(MessageImpl messageImpl) throws SOAPException, IOException, ParserConfigurationException, SAXException, TransformerException {
         LOG.debug("Creating SOAPMessage");
-        SOAPMessage message = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage();
+        SOAPMessage message = createMessageFactory().createMessage();
 
         final Collection<Attachment> attachments = messageImpl.getAttachments();
         for (Attachment attachment : attachments) {
@@ -123,11 +133,10 @@ public class SoapUtil {
     public SOAPMessage createSOAPMessage(final String rawXml) throws SOAPException, IOException, ParserConfigurationException, SAXException {
         LOG.debug("Creating SOAPMessage from rawXML [{}]", rawXml);
 
-        MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+        MessageFactory factory = createMessageFactory();
         SOAPMessage message = factory.createMessage();
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        dbFactory.setNamespaceAware(true);
+        DocumentBuilderFactory dbFactory = createDocumentBuilderFactory();
         DocumentBuilder builder = dbFactory.newDocumentBuilder();
 
         try (StringReader stringReader = new StringReader(rawXml); InputStream targetStream =

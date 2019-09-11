@@ -3,6 +3,8 @@ package eu.domibus.ebms3.receiver;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
@@ -16,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
+
+import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
 /**
  * This method is responsible for the receiving of ebMS3 messages and the sending of signal messages like receipts or ebMS3 errors in return
@@ -37,6 +41,8 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     protected IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
+    @Timer(value = INCOMING_USER_MESSAGE)
+    @Counter(INCOMING_USER_MESSAGE)
     @Override
     @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SOAPMessage invoke(final SOAPMessage request) {
