@@ -34,9 +34,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertConfiguration;
-
-    @Autowired
     private EventService eventService;
 
     @Autowired
@@ -116,7 +113,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     protected void triggerImminentExpirationEvents(boolean usersWithDefaultPassword) {
-        final RepetitiveAlertModuleConfiguration eventConfiguration = alertConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordImminentExpiration());
+        final RepetitiveAlertModuleConfiguration eventConfiguration = alertsConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordImminentExpiration());
         if (!eventConfiguration.isActive()) {
             return;
         }
@@ -139,7 +136,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     protected void triggerExpiredEvents(boolean usersWithDefaultPassword) {
-        final RepetitiveAlertModuleConfiguration eventConfiguration = alertConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordExpired());
+        final RepetitiveAlertModuleConfiguration eventConfiguration = alertsConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordExpired());
         if (!eventConfiguration.isActive()) {
             return;
         }

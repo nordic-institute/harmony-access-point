@@ -2,8 +2,6 @@ package eu.domibus.web.rest.error;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.ext.rest.ErrorRO;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
