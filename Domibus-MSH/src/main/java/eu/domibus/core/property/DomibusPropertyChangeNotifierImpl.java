@@ -25,7 +25,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
 
     @Autowired
-    private List<DomibusPropertyChangeListener> propertyChangeListeners;
+    protected List<DomibusPropertyChangeListener> propertyChangeListeners;
 
     @Autowired
     private SignalService signalService;
