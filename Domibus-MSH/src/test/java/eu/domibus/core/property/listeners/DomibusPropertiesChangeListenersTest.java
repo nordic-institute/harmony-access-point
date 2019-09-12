@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.common.validators.GatewayConfigurationValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
@@ -36,26 +37,37 @@ public class DomibusPropertiesChangeListenersTest {
 
     @Tested
     BlacklistChangeListener blacklistChangeListener;
+
     @Tested
     ConcurrencyChangeListener concurrencyChangeListener;
+
     @Tested
     CronExpressionChangeListener cronExpressionChangeListener;
+
     @Tested
     CryptoChangeListener cryptoChangeListener;
+
     @Tested
     DispatchClientChangeListener dispatchClientChangeListener;
+
     @Tested
     DomainTitleChangeListener domainTitleChangeListener;
+
     @Tested
     DynamicDiscoveryEndpointChangeListener dynamicDiscoveryEndpointChangeListener;
+
     @Tested
     DynamicDiscoveryClientChangeListener dynamicDiscoveryClientChangeListener;
+
     @Tested
     PayloadEncryptionChangeListener payloadEncryptionChangeListener;
+
     @Tested
     ProxyChangeListener proxyChangeListener;
+
     @Tested
     PullConfigurationChangeListener pullConfigurationChangeListener;
+
     @Tested
     StorageChangeListener storageChangeListener;
 
@@ -65,31 +77,45 @@ public class DomibusPropertiesChangeListenersTest {
 
     @Injectable
     List<BaseBlacklistValidator> blacklistValidators;
+
     @Injectable
     DomainService domainService;
+
     @Injectable
     ApplicationContext applicationContext;
+
     @Injectable
     MessageListenerContainerInitializer messageListenerContainerInitializer;
+
     @Injectable
     DomibusQuartzStarter domibusQuartzStarter;
+
     @Injectable
     protected MultiDomainCryptoService cryptoService;
+
     @Injectable
     protected GatewayConfigurationValidator gatewayConfigurationValidator;
+
     @Injectable
     private DomibusCacheService domibusCacheService;
+
     @Injectable
     protected PModeProvider pModeProvider;
+
     @Injectable
     protected PayloadEncryptionService payloadEncryptionService;
+
     @Injectable
     protected DomibusProxyService domibusProxyService;
+
     @Injectable
     private PullFrequencyHelper pullFrequencyHelper;
+
     @Injectable
     PayloadFileStorageProvider payloadFileStorageProvider;
 
+    @Injectable
+    DomibusScheduler domibusScheduler;
 
     @Mocked
     PayloadFileStorage mockStorage = new PayloadFileStorage();
@@ -137,7 +163,7 @@ public class DomibusPropertiesChangeListenersTest {
             gatewayConfigurationValidator.validateConfiguration();
             domibusProxyService.resetProxy();
             messageListenerContainerInitializer.createSendMessageListenerContainer((Domain) any);
-            domibusQuartzStarter.rescheduleJob((Domain) any, anyString, anyString);
+            domibusScheduler.rescheduleJob((Domain) any, anyString, anyString);
             domibusCacheService.clearCache(anyString);
             pModeProvider.refresh();
             blacklistValidators.forEach((Consumer) any);
