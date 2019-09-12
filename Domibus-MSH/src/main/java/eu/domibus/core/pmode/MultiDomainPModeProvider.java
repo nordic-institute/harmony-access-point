@@ -18,6 +18,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -140,11 +142,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getGatewayParty();
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(String pModeKey) {
         return getCurrentPModeProvider().getSenderParty(pModeKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(String pModeKey) {
         return getCurrentPModeProvider().getReceiverParty(pModeKey);
@@ -170,6 +174,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getAgreement(pModeKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(String pModeKey) {
         return getCurrentPModeProvider().getLegConfiguration(pModeKey);

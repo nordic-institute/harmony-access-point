@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -68,6 +70,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Qualifier("domibusProxyService")
     protected DomibusProxyService domibusProxyService;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {

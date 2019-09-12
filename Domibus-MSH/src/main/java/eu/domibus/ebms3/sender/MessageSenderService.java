@@ -11,6 +11,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -44,6 +46,7 @@ public class MessageSenderService  {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void sendUserMessage(final String messageId, int retryCount) {
         final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
 

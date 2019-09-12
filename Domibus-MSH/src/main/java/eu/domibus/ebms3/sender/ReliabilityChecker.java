@@ -81,7 +81,7 @@ public class ReliabilityChecker {
         return checkReliability(request, response, reliability, pushMatcher);
     }
 
-    @Transactional(rollbackFor = EbMS3Exception.class)
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final String pmodeKey) throws EbMS3Exception {
         return check(request, response, pmodeKey, pushMatcher);
     }

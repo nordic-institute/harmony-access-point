@@ -12,6 +12,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -88,6 +90,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public MessageStatus getMessageStatus(String messageId) {
         try {

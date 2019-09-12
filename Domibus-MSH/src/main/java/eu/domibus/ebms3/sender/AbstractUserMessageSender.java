@@ -25,6 +25,8 @@ import org.apache.commons.lang3.Validate;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
@@ -70,6 +72,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)

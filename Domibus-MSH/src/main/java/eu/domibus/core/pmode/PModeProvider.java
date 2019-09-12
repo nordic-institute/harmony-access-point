@@ -304,7 +304,7 @@ public abstract class PModeProvider {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, noRollbackFor = IllegalStateException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);

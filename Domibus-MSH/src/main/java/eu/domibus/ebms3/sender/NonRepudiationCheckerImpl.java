@@ -8,6 +8,8 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -28,6 +30,7 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
     private static final String XPATH_EXPRESSION_STRING = ".//*[local-name() = 'Reference']/@URI  | .//*[local-name() = 'Reference']/*[local-name() = 'DigestValue']";
     private final XPath xPath = XPathFactory.newInstance().newXPath();
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public NodeList getNonRepudiationNodeList(final Node securityInfo) throws EbMS3Exception {
         NodeList nodes = null;
@@ -49,6 +52,7 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
         return nodes;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public boolean compareUnorderedReferenceNodeLists(final NodeList referencesFromSecurityHeader, final NodeList referencesFromNonRepudiationInformation) {
         if (referencesFromSecurityHeader.getLength() != referencesFromNonRepudiationInformation.getLength()) {
