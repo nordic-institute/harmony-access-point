@@ -3,6 +3,8 @@ package eu.domibus.quartz;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +13,7 @@ import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -33,7 +36,7 @@ import java.util.Map;
  * @since 3.3.2
  */
 @Service
-public class DomibusQuartzStarter {
+public class DomibusQuartzStarter implements DomibusScheduler {
 
     /**
      * logger
@@ -209,37 +212,107 @@ public class DomibusQuartzStarter {
         }
     }
 
-    public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws SchedulerException {
-        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
+        try {
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            JobKey jobKey = findJob(scheduler, jobNameToReschedule);
+            rescheduleJob(scheduler, jobKey, newCronExpression);
+        } catch (SchedulerException ex) {
+            LOG.error("Error rescheduling job [{}] ", jobNameToReschedule, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException {
+        if (newRepeatInterval <= 0) {
+            LOG.warn("Invalid repeat interval: [{}]", newRepeatInterval);
+            throw new DomibusSchedulerException("Invalid repeat interval: " + newRepeatInterval);
+        }
+        try {
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            JobKey jobKey = findJob(scheduler, jobNameToReschedule);
+            rescheduleJob(scheduler, jobKey, newRepeatInterval);
+        } catch (SchedulerException ex) {
+            LOG.error("Error rescheduling job [{}] ", jobNameToReschedule, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    protected JobKey findJob(Scheduler scheduler, String jobNameToFind) throws SchedulerException {
         for (String groupName : scheduler.getJobGroupNames()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 final String jobName = jobKey.getName();
                 final String jobGroup = jobKey.getGroup();
-
-                if (StringUtils.equalsIgnoreCase(jobName, jobNameToReschedule)) {
+                if (StringUtils.equalsIgnoreCase(jobName, jobNameToFind)) {
                     LOG.debug("Job [{}] found in group [{}]", jobName, jobGroup);
-                    rescheduleJob(scheduler, jobKey, newCronExpression);
+                    return jobKey;
                 }
             }
         }
+        LOG.debug("Job [{}] not found in [{}] scheduler", jobNameToFind, scheduler.getSchedulerName());
+        return null;
     }
 
     protected void rescheduleJob(Scheduler scheduler, JobKey jobKey, String cronExpression) throws SchedulerException {
-        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-        JobDataMap jobDataMap = jobDetail.getJobDataMap();
+        Trigger oldTrigger = getTrigger(scheduler, jobKey);
+        String triggerName = oldTrigger == null ? null : oldTrigger.getKey().getName();
+        Trigger newTrigger = initCronTrigger(scheduler.getJobDetail(jobKey), triggerName, cronExpression);
+        rescheduleTrigger(scheduler, oldTrigger, newTrigger);
+    }
 
-        for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
-            TriggerKey triggerKey = trigger.getKey();
-            LOG.debug("Trigger found [{}]", triggerKey.getName());
-            CronTrigger newTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity(triggerKey.getName())
-                    .forJob(jobDetail)
-                    .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
-                    .usingJobData(jobDataMap)
-                    .build();
-            scheduler.rescheduleJob(triggerKey, newTrigger);
+    protected void rescheduleJob(Scheduler scheduler, JobKey jobKey, Integer repeatInterval) throws SchedulerException {
+        Trigger oldTrigger = getTrigger(scheduler, jobKey);
+        String triggerName = oldTrigger == null ? null : oldTrigger.getKey().getName();
+        Trigger newTrigger = initSimpleTrigger(scheduler.getJobDetail(jobKey), triggerName, repeatInterval);
+        rescheduleTrigger(scheduler, oldTrigger, newTrigger);
+    }
+
+    private Trigger getTrigger(Scheduler scheduler, JobKey jobKey) throws SchedulerException {
+        return scheduler.getTriggersOfJob(jobKey).stream().findFirst().orElse(null);
+    }
+
+    private void rescheduleTrigger(Scheduler scheduler, Trigger oldTrigger, Trigger newTrigger) throws SchedulerException {
+        if (oldTrigger == null) {
+            scheduler.scheduleJob(newTrigger);
+        } else {
+            scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
         }
     }
 
+    /**
+     * Initialize a new cron trigger for a given job detail
+     */
+    private CronTrigger initCronTrigger(JobDetail jobDetail, String triggerName, String cronExpression) {
+        triggerName = triggerName == null ? jobDetail.getKey().getName() + "CronTrigger" : triggerName;
+        return TriggerBuilder.newTrigger()
+                .withIdentity(triggerName)
+                .forJob(jobDetail)
+                .usingJobData(jobDetail.getJobDataMap())
+                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
+                .build();
+    }
+
+    /**
+     * Initialize a new simple trigger for a given job detail
+     */
+    private SimpleTrigger initSimpleTrigger(JobDetail jobDetail, String triggerName, Integer repeatInterval) {
+        triggerName = triggerName == null ? jobDetail.getKey().getName() + "SimpleTrigger" : triggerName;
+        return TriggerBuilder.newTrigger()
+                .withIdentity(triggerName)
+                .forJob(jobDetail)
+                .usingJobData(jobDetail.getJobDataMap())
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(repeatInterval).repeatForever())
+                .build();
+    }
 
 }

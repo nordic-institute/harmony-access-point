@@ -1,6 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
@@ -12,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Service called from the PropertyResource REST class
  * responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
@@ -78,7 +80,7 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
         return list;
     }
 
-
+    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, String value) {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
