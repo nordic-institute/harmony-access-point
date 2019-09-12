@@ -79,7 +79,6 @@ public class AbstractUserMessageSenderTest {
     private final String legConfigurationName = "pushTestcase1tc1Action";
     private final String pModeKey = "toto";
     private final String configPolicy = "tototiti";
-    private final ResponseHandler.CheckResult isOk = ResponseHandler.CheckResult.OK;
     static final String POLICIES = "policies/";
 
 
@@ -93,6 +92,8 @@ public class AbstractUserMessageSenderTest {
         MessageAttempt attempt = createMessageAttempt();
         MessageAttemptStatus attemptStatus = MessageAttemptStatus.SUCCESS;
         String attemptError = null;
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
 
         new Expectations(abstractUserMessageSender) {{
             abstractUserMessageSender.getLog();
@@ -134,8 +135,8 @@ public class AbstractUserMessageSenderTest {
             mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             result = response;
 
-            responseHandler.handle(response);
-            result = isOk;
+            responseHandler.verifyResponse(response);
+            result = responseResult;
 
             reliabilityChecker.check(soapMessage, response, pModeKey);
             result = reliabilityCheckSuccessful;
@@ -160,7 +161,10 @@ public class AbstractUserMessageSenderTest {
 
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), isOk, legConfiguration);
+
+            ResponseResult responseResult = new ResponseResult();
+            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), response, responseResult, legConfiguration);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
@@ -228,7 +232,7 @@ public class AbstractUserMessageSenderTest {
 
     @Test
     public void testSendMessage_ChainCertificateInvalid_Exception(@Mocked final UserMessage userMessage, @Mocked final LegConfiguration legConfiguration,
-                                                                  final @Mocked Party senderParty, final @Mocked Party receiverParty) throws Exception {
+                                                                  final @Mocked Party senderParty, final @Mocked Party receiverParty, @Mocked SOAPMessage response) throws Exception {
         final MessageAttempt attempt = createMessageAttempt();
         final MessageAttemptStatus attemptStatus = MessageAttemptStatus.ERROR;
         final String chainExceptionMessage = "certificate invalid";
@@ -275,7 +279,9 @@ public class AbstractUserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), isOk, legConfiguration);
+            ResponseResult responseResult = new ResponseResult();
+            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), response,  responseResult, legConfiguration);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
@@ -298,7 +304,7 @@ public class AbstractUserMessageSenderTest {
         final MessageAttempt attempt = createMessageAttempt();
         final MessageAttemptStatus attemptStatus = MessageAttemptStatus.ERROR;
         final String attemptError = "Problem occurred during marshalling";
-        final ResponseHandler.CheckResult isOk = ResponseHandler.CheckResult.UNMARSHALL_ERROR;
+        final ResponseHandler.ResponseStatus isOk = ResponseHandler.ResponseStatus.UNMARSHALL_ERROR;
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
         new Expectations(abstractUserMessageSender) {{
@@ -341,7 +347,7 @@ public class AbstractUserMessageSenderTest {
             mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             result = response;
 
-            responseHandler.handle(response);
+            responseHandler.verifyResponse(response);
             result = isOk;
         }};
 
@@ -369,7 +375,9 @@ public class AbstractUserMessageSenderTest {
 
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), isOk, legConfiguration);
+            ResponseResult responseResult = new ResponseResult();
+            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), response, responseResult, legConfiguration);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
@@ -387,7 +395,7 @@ public class AbstractUserMessageSenderTest {
     @Test
     public void testSendMessage_DispatchError_Exception(@Mocked final UserMessage userMessage, @Mocked final LegConfiguration legConfiguration, @Mocked final Policy policy,
                                                         final @Mocked Party senderParty, final @Mocked Party receiverParty,
-                                                        final @Mocked SOAPMessage soapMessage) throws Exception {
+                                                        final @Mocked SOAPMessage soapMessage, @Mocked SOAPMessage response) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
@@ -447,7 +455,9 @@ public class AbstractUserMessageSenderTest {
 
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), isOk, legConfiguration);
+            ResponseResult responseResult = new ResponseResult();
+            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), userMessage, checkResultActual = withCapture(), response, responseResult, legConfiguration);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 

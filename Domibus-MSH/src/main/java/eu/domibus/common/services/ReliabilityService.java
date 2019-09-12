@@ -3,7 +3,9 @@ package eu.domibus.common.services;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
-import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.sender.ResponseResult;
+
+import javax.xml.soap.SOAPMessage;
 
 /**
  * Service in charge or handling the states of messages exchanges being pull or push.
@@ -21,19 +23,19 @@ public interface ReliabilityService {
      *
      * @param messageId                  the processed message id.
      * @param reliabilityCheckSuccessful the state of the reliability check.
-     * @param isOk                       sub status when reliability is ok.
+     * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliability(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, ResponseHandler.CheckResult isOk, LegConfiguration legConfiguration);
+    void handleReliability(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration);
 
     /**
      * This method is used when handleReliability failed
      *
      * @param messageId                  the processed message id.
      * @param reliabilityCheckSuccessful the state of the reliability check.
-     * @param isOk                       sub status when reliability is ok.
+     * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliabilityInNewTransaction(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, ResponseHandler.CheckResult isOk, LegConfiguration legConfiguration);
+    void handleReliabilityInNewTransaction(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration);
 
 }

@@ -189,13 +189,13 @@ public class IncomingPullReceiptHandlerTest {
             messageConfiguration.getPmodeKey();
             result = pModeKey;
 
-            responseHandler.handle(request);
-            result = ResponseHandler.CheckResult.WARNING;
+            responseHandler.verifyResponse(request);
+            result = ResponseHandler.ResponseStatus.WARNING;
 
             reliabilityChecker.check(withAny(soapMessage), request, pModeKey, pullReceiptMatcher);
             result = ReliabilityChecker.CheckResult.OK;
 
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.CheckResult.WARNING, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
             result = pullRequestResult;
         }};
 
@@ -208,9 +208,9 @@ public class IncomingPullReceiptHandlerTest {
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;
-            responseHandler.handle(request);
+            responseHandler.verifyResponse(request);
             times = 1;
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.CheckResult.WARNING, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }};
 

@@ -13,6 +13,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.xml.soap.SOAPMessage;
 
 /**
  * @author Thomas Dussart
@@ -57,27 +60,30 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void handleReliability(final String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, final ResponseHandler.CheckResult isOk, final LegConfiguration legConfiguration) {
-        LOG.debug("Handling reliability");
-        changeMessageStatusAndNotify(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
-    }
+    @Autowired
+    protected ResponseHandler responseHandler;
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleReliabilityInNewTransaction(final String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, final ResponseHandler.CheckResult isOk, final LegConfiguration legConfiguration) {
+    public void handleReliabilityInNewTransaction(String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
         LOG.debug("Handling reliability in a new transaction");
-        handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
+        handleReliability(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
     }
 
-    private void changeMessageStatusAndNotify(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, ResponseHandler.CheckResult isOk, LegConfiguration legConfiguration) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void handleReliability(String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
+        LOG.debug("Handling reliability");
+        changeMessageStatusAndNotify(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
+    }
+
+    private void changeMessageStatusAndNotify(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, LegConfiguration legConfiguration) {
         LOG.debug("Start changeMessageStatusAndNotify");
 
         final Boolean isTestMessage = userMessageHandlerService.checkTestMessage(legConfiguration);
@@ -85,7 +91,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
         switch (reliabilityCheckSuccessful) {
             case OK:
-                switch (isOk) {
+                responseHandler.saveResponse(responseSoapMessage, responseResult.getResponseMessaging());
+
+                ResponseHandler.ResponseStatus responseStatus = responseResult.getResponseStatus();
+                switch (responseStatus) {
                     case OK:
                         userMessageLogService.setMessageAsAcknowledged(messageId);
 

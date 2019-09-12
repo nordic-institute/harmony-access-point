@@ -85,8 +85,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         attempt.setStatus(MessageAttemptStatus.SUCCESS);
 
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
-        // Assuming that everything goes fine
-        ResponseHandler.CheckResult isOk = ResponseHandler.CheckResult.OK;
+        ResponseResult responseResult = null;
+        SOAPMessage responseSoapMessage = null;
 
         LegConfiguration legConfiguration = null;
         final String pModeKey;
@@ -138,15 +138,16 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
 
             getLog().debug("PMode found : " + pModeKey);
-            final SOAPMessage soapMessage = createSOAPMessage(userMessage, legConfiguration);
-            final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
-            isOk = responseHandler.handle(response);
-            if (ResponseHandler.CheckResult.UNMARSHALL_ERROR.equals(isOk)) {
+            final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
+            responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            responseResult = responseHandler.verifyResponse(responseSoapMessage);
+
+            if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
                 EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
-            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, response, pModeKey);
+            reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, pModeKey);
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
@@ -168,11 +169,11 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
+                reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult,  legConfiguration);
                 updateAndCreateAttempt(attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
+                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
                 updateAndCreateAttempt(attempt);
             }
         }

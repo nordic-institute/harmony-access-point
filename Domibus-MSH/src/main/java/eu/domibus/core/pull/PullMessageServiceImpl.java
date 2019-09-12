@@ -129,7 +129,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PullRequestResult updatePullMessageAfterReceipt(
             ReliabilityChecker.CheckResult reliabilityCheckSuccessful,
-            ResponseHandler.CheckResult isOk,
+            ResponseHandler.ResponseStatus isOk,
             UserMessageLog userMessageLog,
             LegConfiguration legConfiguration,
             UserMessage userMessage) {

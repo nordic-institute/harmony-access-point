@@ -27,6 +27,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -99,7 +100,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     protected SOAPMessage handlePullRequestReceipt(SOAPMessage request, Messaging messaging) {
         String messageId = messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
-        ResponseHandler.CheckResult isOk = null;
+        ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
         UserMessage userMessage = null;
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
@@ -125,8 +126,9 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
             SOAPMessage soapMessage = getSoapMessage(messageId, legConfiguration, userMessage);
-            isOk = responseHandler.handle(request);
-            if (ResponseHandler.CheckResult.UNMARSHALL_ERROR.equals(isOk)) {
+            final ResponseResult responseResult = responseHandler.verifyResponse(request);
+
+            if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
                 EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);
                 e.setMshRole(MSHRole.SENDING);
                 throw e;

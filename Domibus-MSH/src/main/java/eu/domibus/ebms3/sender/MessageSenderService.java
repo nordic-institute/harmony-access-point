@@ -4,6 +4,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -25,7 +26,7 @@ import java.util.Set;
  * @since 4.1
  */
 @Service
-public class MessageSenderService  {
+public class MessageSenderService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderService.class);
 
     private static final Set<MessageStatus> ALLOWED_STATUSES_FOR_SENDING = EnumSet.of(MessageStatus.SEND_ENQUEUED, MessageStatus.WAITING_FOR_RETRY);
@@ -42,6 +43,9 @@ public class MessageSenderService  {
 
     @Autowired
     MessageSenderFactory messageSenderFactory;
+
+    @Autowired
+    protected ReliabilityService reliabilityService;
 
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
@@ -75,4 +79,5 @@ public class MessageSenderService  {
 
         messageSender.sendMessage(userMessage);
     }
+
 }
