@@ -12,6 +12,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     }
 
     @Override
+    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
         if (jobName == null) {
