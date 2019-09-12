@@ -13,6 +13,7 @@ import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -215,6 +216,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
     public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
         try {
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
@@ -230,6 +232,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
     public void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException {
         if (newRepeatInterval <= 0) {
             LOG.warn("Invalid repeat interval: [{}]", newRepeatInterval);
