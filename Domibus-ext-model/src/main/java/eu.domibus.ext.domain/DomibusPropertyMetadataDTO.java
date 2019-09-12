@@ -46,6 +46,10 @@ public class DomibusPropertyMetadataDTO {
         this.module = module;
     }
 
+    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific) {
+        this(name, module, domainSpecific, false, true);
+    }
+
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {
         this(name, module, domainSpecific, withFallback, true);
     }

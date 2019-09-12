@@ -23,7 +23,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginPasswordEncryptionContext.class);
 
-    public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "fsplugin.password.encryption.properties";
+    public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "fsplugin.password.encryption.properties"; //NOSONAR
 
     protected FSPluginProperties fsPluginProperties;
 
@@ -56,7 +56,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
     @Override
     public File getConfigurationFile() {
         final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "plugins/config/fs-plugin.properties");
-        LOG.debug("Using FS Plugin configuration file [{}]" + configurationFile);
+        LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
         return configurationFile;
     }
 

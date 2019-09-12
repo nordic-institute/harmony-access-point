@@ -1,22 +1,14 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.user.UserBase;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
-import eu.domibus.common.model.security.UserLoginErrorReason;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
 import eu.domibus.core.security.AuthenticationDAO;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION;
@@ -35,14 +27,7 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     protected AuthenticationDAO userDao;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertConfiguration;
-
-    @Autowired
-    private EventService eventService;
-
-    @Autowired
     private MultiDomainAlertConfigurationService alertsConfiguration;
-
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
