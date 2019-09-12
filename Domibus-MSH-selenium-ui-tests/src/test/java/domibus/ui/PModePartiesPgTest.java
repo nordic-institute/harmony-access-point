@@ -2,6 +2,7 @@ package domibus.ui;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import domibus.BaseTest;
 import domibus.BaseUXTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
@@ -19,7 +20,7 @@ import java.util.List;
 
  * @since 4.1
  */
-public class PModePartiesPgTest extends BaseUXTest {
+public class PModePartiesPgTest extends BaseTest {
 
 	private static String partyName = "Party Name";
 	private static String endpoint = "End Point";

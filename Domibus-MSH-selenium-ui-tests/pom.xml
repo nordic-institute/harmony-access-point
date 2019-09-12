@@ -171,7 +171,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
-							<groups>singleTenancy</groups>
+							<groups>multiTenancy</groups>
 							<suiteXmlFiles>
 								<suiteXmlFile>testngFRep.xml</suiteXmlFile>
 							</suiteXmlFiles>
