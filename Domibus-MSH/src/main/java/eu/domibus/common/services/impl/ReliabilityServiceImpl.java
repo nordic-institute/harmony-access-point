@@ -80,10 +80,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void handleReliability(String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
         LOG.debug("Handling reliability");
-        changeMessageStatusAndNotify(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
-    }
 
-    private void changeMessageStatusAndNotify(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, LegConfiguration legConfiguration) {
         LOG.debug("Start changeMessageStatusAndNotify");
 
         final Boolean isTestMessage = userMessageHandlerService.checkTestMessage(legConfiguration);
