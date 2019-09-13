@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 
