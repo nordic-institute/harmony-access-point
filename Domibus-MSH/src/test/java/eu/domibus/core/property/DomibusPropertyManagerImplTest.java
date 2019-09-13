@@ -190,6 +190,4 @@ public class DomibusPropertyManagerImplTest {
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
         }};
     }
-
-
 }
