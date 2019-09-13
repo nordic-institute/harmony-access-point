@@ -2,13 +2,16 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_TITLE_NAME;
 
+@RunWith(JMockit.class)
 public class DomibusPropertyMetadataManagerImplTest {
 
     @Tested
