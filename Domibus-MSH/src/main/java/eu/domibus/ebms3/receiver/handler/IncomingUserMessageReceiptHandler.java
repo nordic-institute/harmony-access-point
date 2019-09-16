@@ -124,7 +124,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         } catch (final EbMS3Exception e) {
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
-            reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, request, responseResult, legConfiguration);
+            reliabilityService.handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration);
         }
         return null;
     }

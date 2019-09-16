@@ -82,14 +82,13 @@ public class ReliabilityChecker {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final String pmodeKey) throws EbMS3Exception {
-        return check(request, response, pmodeKey, pushMatcher);
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final LegConfiguration legConfiguration) throws EbMS3Exception {
+        return check(request, response, legConfiguration, pushMatcher);
     }
 
 
     @Transactional(rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final String pmodeKey, final ReliabilityMatcher matcher) throws EbMS3Exception {
-        final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
         return checkReliability(request, response, legConfiguration.getReliability(), matcher);
     }
 
@@ -258,7 +257,7 @@ public class ReliabilityChecker {
         exceptionToHandle.setRefToMessageId(messageId);
         Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
         if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
-            userMessageLogService.setMessageAsAcknowledged(messageId);
+//            userMessageLogService.setMessageAsAcknowledged(messageId);
             // TODO Shouldn't clear the payload data here ?
         }
 

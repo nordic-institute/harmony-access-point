@@ -15,10 +15,6 @@ public interface UserMessageLogService {
 
     void setMessageAsDownloaded(String messageId);
 
-    void setMessageAsAcknowledged(String messageId);
-
-    void setMessageAsAckWithWarnings(String messageId);
-
     void setMessageAsWaitingForReceipt(String messageId);
 
     void setMessageAsSendFailure(String messageId);

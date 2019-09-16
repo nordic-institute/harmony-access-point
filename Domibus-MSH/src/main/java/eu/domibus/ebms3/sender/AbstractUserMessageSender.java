@@ -7,13 +7,13 @@ import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -69,14 +69,11 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected ReliabilityService reliabilityService;
 
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
-
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)
-    public void sendMessage(final UserMessage userMessage) {
+    public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         String messageId = userMessage.getMessageInfo().getMessageId();
 
         MessageAttempt attempt = new MessageAttempt();
@@ -147,7 +144,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
-            reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, pModeKey);
+            reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, legConfiguration);
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
@@ -169,11 +166,11 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult,  legConfiguration);
+                reliabilityService.handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult,  legConfiguration);
                 updateAndCreateAttempt(attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
+                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
                 updateAndCreateAttempt(attempt);
             }
         }

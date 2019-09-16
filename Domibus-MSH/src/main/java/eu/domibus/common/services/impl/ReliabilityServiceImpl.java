@@ -1,13 +1,12 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -37,7 +36,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityServiceImpl.class);
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -68,9 +67,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleReliabilityInNewTransaction(String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
+    public void handleReliabilityInNewTransaction(String messageId, UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
         LOG.debug("Handling reliability in a new transaction");
-        handleReliability(messageId, userMessage, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
+        handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
     }
 
     /**
@@ -78,13 +77,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void handleReliability(String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
+    public void handleReliability(String messageId, UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
         LOG.debug("Handling reliability");
 
-        LOG.debug("Start changeMessageStatusAndNotify");
-
         final Boolean isTestMessage = userMessageHandlerService.checkTestMessage(legConfiguration);
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
 
         switch (reliabilityCheckSuccessful) {
             case OK:
@@ -93,14 +89,14 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 ResponseHandler.ResponseStatus responseStatus = responseResult.getResponseStatus();
                 switch (responseStatus) {
                     case OK:
-                        userMessageLogService.setMessageAsAcknowledged(messageId);
+                        userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
 
                         if (userMessage.isUserMessageFragment()) {
                             splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
                         }
                         break;
                     case WARNING:
-                        userMessageLogService.setMessageAsAckWithWarnings(messageId);
+                        userMessageLogService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
                         break;
                     default:
                         assert false;
@@ -128,6 +124,6 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 break;
         }
 
-        LOG.debug("Finished changeMessageStatusAndNotify");
+        LOG.debug("Finished handling reliability");
     }
 }

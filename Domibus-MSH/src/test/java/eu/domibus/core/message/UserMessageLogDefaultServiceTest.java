@@ -7,6 +7,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -111,9 +112,10 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsAcknowledged() throws Exception {
+    public void testSetMessageAsAcknowledged(@Injectable UserMessage userMessage,
+                                             @Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsAcknowledged(messageId);
+        userMessageLogDefaultService.setMessageAsAcknowledged(userMessage, userMessageLog);
 
         new Verifications() {{
             userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
@@ -121,9 +123,10 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsAckWithWarnings() throws Exception {
+    public void testSetMessageAsAckWithWarnings(@Injectable UserMessage userMessage,
+                                                @Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsAckWithWarnings(messageId);
+        userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
 
         new Verifications() {{
             userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);

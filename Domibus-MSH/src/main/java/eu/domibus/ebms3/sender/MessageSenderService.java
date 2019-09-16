@@ -4,6 +4,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -52,7 +53,8 @@ public class MessageSenderService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void sendUserMessage(final String messageId, int retryCount) {
-        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        MessageStatus messageStatus = getMessageStatus(userMessageLog);
 
         if (MessageStatus.NOT_FOUND == messageStatus) {
             if (retryCount < MAX_RETRY_COUNT) {
@@ -77,7 +79,14 @@ public class MessageSenderService {
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 
-        messageSender.sendMessage(userMessage);
+        messageSender.sendMessage(userMessage, userMessageLog);
+    }
+
+    protected MessageStatus getMessageStatus(final UserMessageLog userMessageLog) {
+        if(userMessageLog == null) {
+            return MessageStatus.NOT_FOUND;
+        }
+        return userMessageLog.getMessageStatus();
     }
 
 }

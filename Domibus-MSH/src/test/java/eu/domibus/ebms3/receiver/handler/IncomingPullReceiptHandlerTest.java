@@ -192,7 +192,7 @@ public class IncomingPullReceiptHandlerTest {
             responseHandler.verifyResponse(request);
             result = ResponseHandler.ResponseStatus.WARNING;
 
-            reliabilityChecker.check(withAny(soapMessage), request, pModeKey, pullReceiptMatcher);
+            reliabilityChecker.check(withAny(soapMessage), request, legConfiguration, pullReceiptMatcher);
             result = ReliabilityChecker.CheckResult.OK;
 
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);

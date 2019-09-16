@@ -11,6 +11,7 @@ import eu.domibus.common.model.logging.UserMessageLogEntityBuilder;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,14 +71,18 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         userMessageLogDao.create(userMessageLog);
     }
 
-    protected void updateMessageStatus(final String messageId, final MessageStatus newStatus) {
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+    protected void updateMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
         if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
-            backendNotificationService.notifyOfMessageStatusChange(messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
 
-        uiReplicationSignalService.messageStatusChange(messageId, newStatus);
+        uiReplicationSignalService.messageStatusChange(messageLog.getMessageId(), newStatus);
+    }
+
+    protected void updateMessageStatus(final String messageId, final MessageStatus newStatus) {
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+        updateMessageStatus(null, messageLog,newStatus);
     }
 
     @Override
@@ -90,14 +95,12 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
     }
 
-    @Override
-    public void setMessageAsAcknowledged(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
+    public void setMessageAsAcknowledged(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
     }
 
-    @Override
-    public void setMessageAsAckWithWarnings(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+    public void setMessageAsAckWithWarnings(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
     }
 
     @Override

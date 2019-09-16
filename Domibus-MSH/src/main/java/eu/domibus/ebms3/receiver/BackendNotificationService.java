@@ -383,6 +383,11 @@ public class BackendNotificationService {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
+        notifyOfMessageStatusChange(null, messageLog, newStatus, changeTimestamp);
+    }
+
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
             eventService.enqueueMessageEvent(messageLog.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole());
@@ -400,7 +405,13 @@ public class BackendNotificationService {
             return;
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
-        final Map<String, Object> messageProperties = getMessageProperties(messageLog, newStatus, changeTimestamp);
+
+        if (userMessage == null) {
+            LOG.debug("Getting UserMessage with id [{}]", messageId);
+            userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        }
+
+        final Map<String, Object> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
         NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
         if (messageLog.getMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
@@ -409,7 +420,7 @@ public class BackendNotificationService {
         notify(messageLog.getMessageId(), messageLog.getBackend(), notificationType, messageProperties);
     }
 
-    protected Map<String, Object> getMessageProperties(MessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
+    protected Map<String, Object> getMessageProperties(MessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
         Map<String, Object> properties = new HashMap<>();
         if (messageLog.getMessageStatus() != null) {
             properties.put("fromStatus", messageLog.getMessageStatus().toString());
@@ -417,7 +428,7 @@ public class BackendNotificationService {
         properties.put("toStatus", newStatus.toString());
         properties.put("changeTimestamp", changeTimestamp.getTime());
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageLog.getMessageId());
+
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", messageLog.getMessageId());
 

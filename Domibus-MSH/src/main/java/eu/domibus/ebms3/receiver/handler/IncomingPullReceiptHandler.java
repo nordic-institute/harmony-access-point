@@ -133,7 +133,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
-            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, pModeKey, pullReceiptMatcher);
+            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, legConfiguration, pullReceiptMatcher);
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
