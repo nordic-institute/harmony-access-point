@@ -71,8 +71,9 @@ public class RetryDefaultService implements RetryService {
         for (final String messageId : messagesNotAlreadyQueued) {
             try {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-                if (!failIfExpired(messageId)) {
-                    userMessageService.scheduleSending(messageId);
+                final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+                if (!failIfExpired(userMessage)) {
+                    userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
                 }
             } finally {
                 LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
@@ -80,15 +81,16 @@ public class RetryDefaultService implements RetryService {
         }
     }
 
-    protected boolean failIfExpired(String messageId) {
+    protected boolean failIfExpired(UserMessage userMessage) {
+
+        final String messageId = userMessage.getMessageInfo().getMessageId();
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-        eu.domibus.common.model.configuration.LegConfiguration legConfiguration = null;
+        eu.domibus.common.model.configuration.LegConfiguration legConfiguration;
         final String pModeKey;
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         try {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-            LOG.debug("PMode key found : " + pModeKey);
+            LOG.debug("PMode key found : {}", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
         } catch (EbMS3Exception exc) {
