@@ -190,7 +190,7 @@ Domibus 4.0 (from 3.3.4):
                - Authentication uses BCryptPasswordEncoder, similar to the UI users.
                  TB_AUTHENTICATION_ENTRY table was restored to defaults, having two users 'admin' and 'user' with default password '123456' encrypted using the new algorithm.
                  Custom users should be recreated using the new functionality in the Domibus Admin Console.
-               - [WS-Plugin] Remove from PartInfo the Description and Schema headers from the SOAP messages. These headers were deprecated in ebMS3 and as a result were removed from the WS-plugin XSD. When received on the MSH side, they are simply ignored.
+               - [WS-Plugin] Remove from PartInfo the Description and Schema headers from the SOAP messages. These headers were deprecated in ebMS3 and as a result were removed from the WS-Plugin XSD. When received on the MSH side, they are simply ignored.
                - [JMS-Plugin] Description is no longer available as a property of a payload, remove it from the input message.
                - Modify file "\conf\domibus\domibus.properties":
                     o add property domibus.dynamicdiscovery.useDynamicDiscovery=true or false
@@ -250,7 +250,7 @@ Domibus 3.3.2 (from 3.3.1):
                         <marker>SECURITY</marker>
                         <marker>BUSINESS</marker>
                 - [Wildfly only] In standalone/configuration/standalone-full.xml update "max-delivery-attempts" to 0 for
-                DomibusPullMessageQueue and DomibusPullMessageQueue:
+                DomibusPullMessageQueue and DomibusSendMessageQueue:
                         <address-setting match="jms.queue.DomibusSendMessageQueue">
                             <max-delivery-attempts>0</max-delivery-attempts>
                         </address-setting>
