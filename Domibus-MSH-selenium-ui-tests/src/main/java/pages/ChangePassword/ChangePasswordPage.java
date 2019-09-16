@@ -125,29 +125,18 @@ public class ChangePasswordPage extends DomibusPage {
         return randomPassword;
     }
 
-    /*
-     * This Method is used to press Tab key
-     */
-    public void pressTABKey() throws Exception {
 
-        WebElement element = driver.findElement(By.id("confirmation_id"));
-        element.sendKeys(Keys.TAB);
-        element.sendKeys(Keys.ENTER);
-    }
     /*
-    This method returns xpath of validation message shown under field with provided FieldLabel
+    This method returns CSS of validation message shown under field with provided FieldLabel
     *   @param FieldName :- Name of Input Field
-    *   @return :- xpath of validation message under input field
+    *   @return :- CSS of validation message under input field
      */
-//    public String getXpathOfValidationMsg(String FieldName)  {
-//        return ".//*[@class='mat-input-infix']/input[@placeholder='" + FieldName + "']/..//div/div";
-//    }
-//
+
     public String getCssOfValidationMsg(String fieldName) {
         if (fieldName.equals(NewPassword_Field_label)) {
-            String str1 = fieldName;
-            String[] str = str1.split(" ");
-            String FieldName1 = str[0].toLowerCase().concat(str[1]);
+            String fieldLabel = fieldName;
+            String[] labels = fieldLabel.split(" ");
+            String FieldName1 = labels[0].toLowerCase().concat(labels[1]);
             return "input[id='" + FieldName1 + "_id']~div>div";
         }
         else if (fieldName.equals(Confirmation_Field_label)) {

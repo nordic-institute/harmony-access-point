@@ -13,9 +13,6 @@ import pages.login.LoginPage;
 import pages.messages.MessagesPage;
 import utils.Generator;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.reflections.Reflections.log;
 
 
 /**
@@ -135,7 +132,6 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("login into application with previous admin credentials");
         loginPage.login(data.getAdminUser());
         loginPage.waitForTitle();
-
         log.info("Validate User is logged in into application");
         soft.assertTrue(Mpage.isLoaded(), "User logged in");
         soft.assertAll();
@@ -189,9 +185,9 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Fill correct data in current password , valid and different data in new password and confirmation field");
         Cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getNewTestPass());
         log.info("press tab key");
-        Cpage.pressTABKey();
-        log.info("Validation message appears");
-        soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is dispalyed");
+        Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
+        log.info("Validation message appears:" +Cpage.getValidationMsg(Cpage.Confirmation_Field_label));
+        soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is displayed");
         soft.assertAll();
     }
 
@@ -217,7 +213,7 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Fill correct data for current password and invalid but same for new password and confirmation field");
         Cpage.setPassFields(data.getDefaultTestPass(), pass, pass);
         log.info("press tab ");
-        Cpage.pressTABKey();
+        Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
         log.info("Validation message for password policy under New password ");
         soft.assertTrue(Cpage.getValidationMsg(Cpage.NewPassword_Field_label),"Message is displayed");
         soft.assertAll();
@@ -244,10 +240,10 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Fill current data for current password, invalid  and differet data for new password and confirmation field");
         Cpage.setPassFields(data.getDefaultTestPass(), Cpage.generateInvalidPass(), Cpage.generateInvalidPass());
         log.info("press tab key");
-        Cpage.pressTABKey();
-        log.info("Validation message for password policy under new password field");
+        Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
+        log.info("Validation message for password policy under new password field:" + Cpage.getValidationMsg(Cpage.NewPassword_Field_label));
         soft.assertTrue(Cpage.getValidationMsg(Cpage.NewPassword_Field_label),"Message is dispalyed");
-        log.info("Validation message for mismatch under confirmation field ");
+        log.info("Validation message for mismatch under confirmation field :" + Cpage.getValidationMsg(Cpage.Confirmation_Field_label));
         soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is displayed");
         soft.assertAll();
     }
@@ -286,14 +282,13 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("login with generated username and updated password ");
         loginPage.login(username, data.getNewTestPass());
         loginPage.waitForTitle();
-
         log.info("Validate user logged in into application");
         soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
         soft.assertAll();
     }
 
     /**
-     * This method will throw error in new password is among previous 5 passwords.
+     * This method will throw error if new password is among previous 5 passwords.
      */
     @Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"})
     public void NewPasswordAmongLast5() throws Exception {
