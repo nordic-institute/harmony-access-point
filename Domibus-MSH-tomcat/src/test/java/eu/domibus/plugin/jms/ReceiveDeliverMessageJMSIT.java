@@ -8,6 +8,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.Property;
@@ -53,7 +54,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
     MessagingService messagingService;
 
     @Autowired
-    UserMessageLogService userMessageLogService;
+    UserMessageLogDefaultService userMessageLogService;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());

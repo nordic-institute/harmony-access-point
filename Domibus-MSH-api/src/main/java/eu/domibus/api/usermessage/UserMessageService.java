@@ -120,9 +120,6 @@ public interface UserMessageService {
 
     void scheduleSending(String messageId, Long delay);
 
-    void scheduleSending(String messageId, int retryCount);
-
-
     /**
      * Schedule the sending of the asynchronous Pull Receipt
      *

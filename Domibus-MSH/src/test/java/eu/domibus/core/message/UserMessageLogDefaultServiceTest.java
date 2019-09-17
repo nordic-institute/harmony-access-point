@@ -102,12 +102,13 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsDownloaded() throws Exception {
+    public void testSetMessageAsDownloaded(@Injectable UserMessage userMessage,
+                                           @Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsDownloaded(messageId);
+        userMessageLogDefaultService.setMessageAsDownloaded(userMessage, userMessageLog);
 
         new FullVerifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
+            userMessageLogDefaultService.updateMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
         }};
     }
 
@@ -134,19 +135,10 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsWaitingForReceipt() throws Exception {
+    public void tesSetMessageAsSendFailure(@Injectable UserMessage userMessage,
+                                           @Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsWaitingForReceipt(messageId);
-
-        new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.WAITING_FOR_RECEIPT);
-        }};
-    }
-
-    @Test
-    public void tesSetMessageAsSendFailure() throws Exception {
-        final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsSendFailure(messageId);
+        userMessageLogDefaultService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         new Verifications() {{
             userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);

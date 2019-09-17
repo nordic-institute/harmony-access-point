@@ -47,6 +47,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DIS
  * @author Christian Koch, Stefan Mueller
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class ReliabilityChecker {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
     private final String UNRECOVERABLE_ERROR_RETRY = DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
@@ -77,23 +78,23 @@ public class ReliabilityChecker {
     protected SoapUtil soapUtil;
 
     @Transactional(rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final Reliability reliability) throws EbMS3Exception {
-        return checkReliability(request, response, reliability, pushMatcher);
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
+        return checkReliability(request, response, responseResult, reliability, pushMatcher);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final LegConfiguration legConfiguration) throws EbMS3Exception {
-        return check(request, response, legConfiguration, pushMatcher);
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration) throws EbMS3Exception {
+        return check(request, response, responseResult, legConfiguration, pushMatcher);
     }
 
 
     @Transactional(rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
-        return checkReliability(request, response, legConfiguration.getReliability(), matcher);
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
+        return checkReliability(request, response, responseResult, legConfiguration.getReliability(), matcher);
     }
 
 
-    protected CheckResult checkReliability(final SOAPMessage request, final SOAPMessage response, Reliability reliability, final ReliabilityMatcher matcher) throws EbMS3Exception {
+    protected CheckResult checkReliability(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, Reliability reliability, final ReliabilityMatcher matcher) throws EbMS3Exception {
         String messageId = null;
 
         if (matcher.matchReliableCallBack(reliability)) {
@@ -103,15 +104,7 @@ public class ReliabilityChecker {
 
         if (matcher.matchReliableReceipt(reliability)) {
             LOG.debug("Checking reliability for outgoing message");
-            final Messaging messaging;
-
-            try {
-                messaging = this.jaxbContext.createUnmarshaller().unmarshal((Node) response.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Messaging.class).getValue();
-            } catch (JAXBException | SOAPException e) {
-                LOG.error(e.getMessage(), e);
-                return matcher.fails();
-            }
-
+            final Messaging messaging = responseResult.getResponseMessaging();
             final SignalMessage signalMessage = messaging.getSignalMessage();
 
             //ReceiptionAwareness or NRR found but not expected? report if configuration=true //TODO: make configurable in domibus.properties

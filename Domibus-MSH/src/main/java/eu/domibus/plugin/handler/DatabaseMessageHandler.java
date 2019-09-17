@@ -25,6 +25,8 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.pmode.PModeDefaultService;
@@ -90,13 +92,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private PayloadFileStorageProvider storageProvider;
-
-    @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -126,7 +125,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected AuthUtils authUtils;
 
     @Autowired
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
@@ -145,8 +144,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         checkMessageAuthorization(messageId);
 
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
 
-        userMessageLogService.setMessageAsDownloaded(messageId);
+        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
         if (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc()) && !userMessage.isPayloadOnFileSystem()) {
             messagingDao.clearPayloadData(messageId);
@@ -157,7 +157,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 }
             }
             // Sets the message log status to DELETED
-            userMessageLogService.setMessageAsDeleted(messageId);
+            userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
             // Sets the log status to deleted also for the signal messages (if present).
             List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
             if (!signalMessageIds.isEmpty()) {
@@ -323,10 +323,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
             MessageStatus messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
+            prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -345,12 +345,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private void prepareForPushOrPull(UserMessage userMessage, String messageId, String pModeKey, Party to, MessageStatus messageStatus) {
+    private void prepareForPushOrPull(UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(messageId);
+            userMessageService.scheduleSending(userMessageLog);
         } else {
-            final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
             pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
         }
@@ -457,12 +456,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             }
             final boolean sourceMessage = userMessage.isSourceMessage();
-            userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
+                prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());

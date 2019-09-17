@@ -80,7 +80,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     public void handleReliability(String messageId, UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration) {
         LOG.debug("Handling reliability");
 
-        final Boolean isTestMessage = userMessageHandlerService.checkTestMessage(legConfiguration);
+        final Boolean isTestMessage = userMessageLog.isTestMessage();
 
         switch (reliabilityCheckSuccessful) {
             case OK:
@@ -102,9 +102,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                         assert false;
                 }
                 if (!isTestMessage) {
-                    backendNotificationService.notifyOfSendSuccess(messageId);
+                    backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
+                //TODO check if we can extract the partinfo details directly from the UserMessage
                 messagingDao.clearPayloadData(messageId);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());

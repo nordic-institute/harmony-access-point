@@ -13,6 +13,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.RetryStrategy;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -49,7 +50,7 @@ public class UpdateRetryLoggingService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private MessagingDao messagingDao;
@@ -106,29 +107,28 @@ public class UpdateRetryLoggingService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void messageFailedInANewTransaction(UserMessage userMessage, MessageLog userMessageLog) {
+    public void messageFailedInANewTransaction(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageInfo().getMessageId());
 
         messageFailed(userMessage, userMessageLog);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessageLog.getMessageId());
     }
 
-    public void messageFailed(UserMessage userMessage, MessageLog userMessageLog) {
+    public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageInfo().getMessageId());
 
         final String messageId = userMessageLog.getMessageId();
-        messageFailed(userMessage, messageId, userMessageLog.getNotificationStatus(), userMessageLog.isTestMessage(), userMessageLog.getBackend());
-    }
+        NotificationStatus notificationStatus = userMessageLog.getNotificationStatus();
+        boolean isTestMessage = userMessageLog.isTestMessage();
 
-    protected void messageFailed(UserMessage userMessage, final String messageId, NotificationStatus notificationStatus, boolean isTestMessage, String backendName) {
         LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE,
                 userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
         if (NotificationStatus.REQUIRED.equals(notificationStatus) && !isTestMessage) {
             LOG.info("Notifying backend for message failure");
-            backendNotificationService.notifyOfSendFailure(userMessage);
+            backendNotificationService.notifyOfSendFailure(userMessageLog);
         }
 
-        userMessageLogService.setMessageAsSendFailure(messageId);
+        userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
             messagingDao.clearPayloadData(messageId);

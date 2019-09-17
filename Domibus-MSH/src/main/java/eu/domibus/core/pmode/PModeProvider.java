@@ -237,7 +237,7 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, noRollbackFor = IllegalStateException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
 

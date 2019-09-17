@@ -1,12 +1,12 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -34,7 +34,7 @@ public class MessageSenderService {
     private static final int MAX_RETRY_COUNT = 3;
 
     @Autowired
-    private UserMessageService userMessageService;
+    private UserMessageDefaultService userMessageService;
 
     @Autowired
     private MessagingDao messagingDao;
@@ -58,7 +58,7 @@ public class MessageSenderService {
 
         if (MessageStatus.NOT_FOUND == messageStatus) {
             if (retryCount < MAX_RETRY_COUNT) {
-                userMessageService.scheduleSending(messageId, retryCount + 1);
+                userMessageService.scheduleSending(userMessageLog, retryCount + 1);
                 LOG.warn("MessageStatus NOT_FOUND, retry count is [{}] -> reschedule sending", retryCount);
                 return;
             }

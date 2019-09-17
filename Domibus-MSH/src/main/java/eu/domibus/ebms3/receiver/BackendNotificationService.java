@@ -348,35 +348,35 @@ public class BackendNotificationService {
         jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), notificationListener.getBackendNotificationQueue());
     }
 
-    public void notifyOfSendFailure(UserMessage userMessage) {
+    public void notifyOfSendFailure(UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        final String messageId = userMessage.getMessageInfo().getMessageId();
-        final String backendName = userMessageLogDao.findBackendForMessageId(messageId);
+        final String messageId = userMessageLog.getMessageId();
+        final String backendName = userMessageLog.getBackend();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
-        if (userMessage.isUserMessageFragment()) {
+        if (userMessageLog.getMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
         }
 
         notify(messageId, backendName, notificationType);
-        userMessageLogDao.setAsNotified(messageId);
+        userMessageLogDao.setAsNotified(userMessageLog);
 
         uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
     }
 
-    public void notifyOfSendSuccess(final String messageId) {
+    public void notifyOfSendSuccess(final UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        String messageId = userMessageLog.getMessageId();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
         if (userMessageLog.getMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
         }
 
         notify(messageId, userMessageLog.getBackend(), notificationType);
-        userMessageLogDao.setAsNotified(messageId);
+        userMessageLogDao.setAsNotified(userMessageLog);
 
         uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
     }

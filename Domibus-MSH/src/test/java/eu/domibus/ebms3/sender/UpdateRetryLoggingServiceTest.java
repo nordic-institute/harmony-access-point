@@ -1,7 +1,6 @@
 
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -15,7 +14,9 @@ import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.common.model.configuration.RetryStrategy;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -53,7 +54,7 @@ public class UpdateRetryLoggingServiceTest {
     private UserMessageLogDao messageLogDao;
 
     @Injectable
-    private UserMessageLogService messageLogService;
+    private UserMessageLogDefaultService messageLogService;
 
     @Injectable
     private MessagingDao messagingDao;
@@ -94,28 +95,38 @@ public class UpdateRetryLoggingServiceTest {
      * Timeout limit not reached
      * Notification is enabled
      * Expected result: MessageLogDao#setAsNotified() is called
-     *                  MessageLogDao#setMessageAsSendFailure is called
-     *                  MessagingDao#clearPayloadData() is called
+     * MessageLogDao#setMessageAsSendFailure is called
+     * MessagingDao#clearPayloadData() is called
      *
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus() throws Exception {
+    public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
+                                                                                                  @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016(); //current timestamp
 
         final String messageId = UUID.randomUUID().toString();
         final long receivedTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Received 5 min ago
 
-        final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setSendAttempts(2);
-        userMessageLog.setSendAttemptsMax(3);
-        userMessageLog.setReceived(new Date(receivedTime));
-        userMessageLog.setNotificationStatus(NotificationStatus.REQUIRED);
-        userMessageLog.setMessageId(messageId);
-
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
+
+            userMessageLog.getSendAttempts();
+            result = 2;
+
+            userMessageLog.getSendAttemptsMax();
+            result = 3;
+
+            userMessageLog.getReceived();
+            result = new Date(receivedTime);
+
+            userMessageLog.getNotificationStatus();
+            result = NotificationStatus.REQUIRED;
+
+            userMessageLog.getMessageId();
+            result = messageId;
+
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
@@ -128,7 +139,7 @@ public class UpdateRetryLoggingServiceTest {
         assertEquals(new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016), userMessageLog.getNextAttempt());
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -138,31 +149,41 @@ public class UpdateRetryLoggingServiceTest {
      * Message was restored
      * Max retries limit reached
      * Expected result: MessageLogDao#setAsNotified() is called
-     *                  MessageLogDao#setMessageAsSendFailure is called
-     *                  MessagingDao#clearPayloadData() is called
-     *
+     * MessageLogDao#setMessageAsSendFailure is called
+     * MessagingDao#clearPayloadData() is called
      *
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_Restored_maxRetriesReached() throws Exception {
+    public void testUpdateRetryLogging_Restored_maxRetriesReached(@Injectable UserMessage userMessage,
+                                                                  @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016(); //current timestamp
 
         final String messageId = UUID.randomUUID().toString();
         final long receivedTime = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; //Received one hour ago
         final long restoredTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Restored 5 min ago
 
-        final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setSendAttempts(4);
-        userMessageLog.setSendAttemptsMax(5);
-        userMessageLog.setReceived(new Date(receivedTime));
-        userMessageLog.setNotificationStatus(NotificationStatus.REQUIRED);
-        userMessageLog.setMessageId(messageId);
-        userMessageLog.setRestored(new Date(restoredTime));
-
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
+
+            userMessageLog.getSendAttempts();
+            result = 4;
+
+            userMessageLog.getSendAttemptsMax();
+            result = 5;
+
+            userMessageLog.getReceived();
+            result = new Date(receivedTime);
+
+            userMessageLog.getNotificationStatus();
+            result = NotificationStatus.REQUIRED;
+
+            userMessageLog.getRestored();
+            result = new Date(restoredTime);
+
+            userMessageLog.getMessageId();
+            result = messageId;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
@@ -174,7 +195,7 @@ public class UpdateRetryLoggingServiceTest {
         assertEquals(new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016), userMessageLog.getNextAttempt());
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -220,28 +241,37 @@ public class UpdateRetryLoggingServiceTest {
      * Timeout limit not reached
      * Notification is disabled
      * Expected result: MessageLogDao#setAsNotified() is not called
-     *                  MessageLogDao#setMessageAsSendFailure is called
-     *                  MessagingDao#clearPayloadData() is called
+     * MessageLogDao#setMessageAsSendFailure is called
+     * MessagingDao#clearPayloadData() is called
      *
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus() throws Exception {
+    public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
+                                                                                                   @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
         final long receivedTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Received 5 min ago
 
-        final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setSendAttempts(2);
-        userMessageLog.setSendAttemptsMax(3);
-        userMessageLog.setReceived(new Date(receivedTime));
-        userMessageLog.setNotificationStatus(NotificationStatus.NOT_REQUIRED);
-        userMessageLog.setMessageId(messageId);
-
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
+
+            userMessageLog.getSendAttempts();
+            result = 2;
+
+            userMessageLog.getSendAttemptsMax();
+            result = 3;
+
+            userMessageLog.getReceived();
+            result = new Date(receivedTime);
+
+            userMessageLog.getNotificationStatus();
+            result = NotificationStatus.NOT_REQUIRED;
+
+            userMessageLog.getMessageId();
+            result = messageId;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
@@ -251,8 +281,9 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             messagingDao.clearPayloadData(messageId);
-            messageLogService.setMessageAsSendFailure(messageId);
-            messageLogDao.setAsNotified(messageId); times = 0;
+            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
+            messageLogDao.setAsNotified(userMessageLog);
+            times = 0;
         }};
 
     }
@@ -262,26 +293,35 @@ public class UpdateRetryLoggingServiceTest {
      * Notification is disabled
      * Clear payload is default (false)
      * Expected result: MessagingDao#clearPayloadData is not called
-     *                  MessageLogDao#setMessageAsSendFailure is called
-     *                  MessageLogDao#setAsNotified() is not called
+     * MessageLogDao#setMessageAsSendFailure is called
+     * MessageLogDao#setAsNotified() is not called
      *
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled() throws Exception {
+    public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage,
+                                                                                                                        @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
         final long receivedTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Received 5 min ago
 
-        final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setSendAttempts(2);
-        userMessageLog.setSendAttemptsMax(3);
-        userMessageLog.setReceived(new Date(receivedTime));
-        userMessageLog.setNotificationStatus(NotificationStatus.NOT_REQUIRED);
-        userMessageLog.setMessageId(messageId);
-
         new Expectations() {{
+            userMessageLog.getSendAttempts();
+            result = 2;
+
+            userMessageLog.getSendAttemptsMax();
+            result = 3;
+
+            userMessageLog.getReceived();
+            result = new Date(receivedTime);
+
+            userMessageLog.getNotificationStatus();
+            result = NotificationStatus.NOT_REQUIRED;
+
+            userMessageLog.getMessageId();
+            result = messageId;
+
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
         }};
@@ -289,9 +329,11 @@ public class UpdateRetryLoggingServiceTest {
         updateRetryLoggingService.updatePushedMessageRetryLogging(messageId, legConfiguration);
 
         new Verifications() {{
-            messagingDao.clearPayloadData(messageId); times = 0;
-            messageLogService.setMessageAsSendFailure(messageId);
-            messageLogDao.setAsNotified(messageId); times = 0;
+            messagingDao.clearPayloadData(messageId);
+            times = 0;
+            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
+            messageLogDao.setAsNotified(userMessageLog);
+            times = 0;
         }};
 
     }
@@ -301,28 +343,37 @@ public class UpdateRetryLoggingServiceTest {
      * Timeout limit reached
      * Notification is enabled
      * Expected result: MessagingDao#clearPayloadData is called
-     *                  MessageLogDao#setMessageAsSendFailure is called
-     *                  MessageLogDao#setAsNotified() is called
+     * MessageLogDao#setMessageAsSendFailure is called
+     * MessageLogDao#setAsNotified() is called
      *
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_timeoutNotificationEnabled_ExpectedMessageStatus() throws Exception {
+    public void testUpdateRetryLogging_timeoutNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
+                                                                                        @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
         final long received = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; // received one hour ago
 
-        final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setSendAttempts(0);
-        userMessageLog.setSendAttemptsMax(3);
-        userMessageLog.setReceived(new Date(received));
-        userMessageLog.setNotificationStatus(NotificationStatus.REQUIRED);
-        userMessageLog.setMessageId(messageId);
-
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
+
+            userMessageLog.getSendAttempts();
+            result = 0;
+
+            userMessageLog.getSendAttemptsMax();
+            result = 3;
+
+            userMessageLog.getReceived();
+            result = new Date(received);
+
+            userMessageLog.getNotificationStatus();
+            result = NotificationStatus.REQUIRED;
+
+            userMessageLog.getMessageId();
+            result = messageId;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
@@ -333,7 +384,7 @@ public class UpdateRetryLoggingServiceTest {
 
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -345,28 +396,37 @@ public class UpdateRetryLoggingServiceTest {
      * Timeout limit reached
      * Notification is disableds
      * Expected result: MessagingDao#clearPayloadData is called
-     *                  MessageLogDao#setMessageAsSendFailure is called
-     *                  MessageLogDao#setAsNotified() is called
+     * MessageLogDao#setMessageAsSendFailure is called
+     * MessageLogDao#setAsNotified() is called
      *
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus() throws Exception {
+    public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
+                                                                                         @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
         final long received = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; // received one hour ago
 
-        final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setSendAttempts(0);
-        userMessageLog.setSendAttemptsMax(3);
-        userMessageLog.setReceived(new Date(received));
-        userMessageLog.setNotificationStatus(NotificationStatus.REQUIRED);
-        userMessageLog.setMessageId(messageId);
-
         new Expectations() {{
             domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
+
+            userMessageLog.getSendAttempts();
+            result = 0;
+
+            userMessageLog.getSendAttemptsMax();
+            result = 3;
+
+            userMessageLog.getReceived();
+            result = new Date(received);
+
+            userMessageLog.getNotificationStatus();
+            result = NotificationStatus.REQUIRED;
+
+            userMessageLog.getMessageId();
+            result = messageId;
 
             messageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
@@ -377,7 +437,7 @@ public class UpdateRetryLoggingServiceTest {
 
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -420,10 +480,10 @@ public class UpdateRetryLoggingServiceTest {
     @Test
     public void testMessageExpirationDate(@Mocked final MessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration) throws InterruptedException {
         final int timeOut = 10;
-        final long timeOutInMillis = 60000 * timeOut ;
+        final long timeOutInMillis = 60000 * timeOut;
         int delay = domibusPropertyProvider.getIntegerProperty(updateRetryLoggingService.MESSAGE_EXPIRATION_DELAY);
-        final long currentTime = System.currentTimeMillis() - (timeOutInMillis + delay) ;
-        final Date expectedDate = new Date(currentTime+timeOutInMillis);
+        final long currentTime = System.currentTimeMillis() - (timeOutInMillis + delay);
+        final Date expectedDate = new Date(currentTime + timeOutInMillis);
         new NonStrictExpectations() {{
             userMessageLog.getRestored();
             result = currentTime;

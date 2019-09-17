@@ -53,6 +53,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYN
  * The sender may not register, it can send a message to a registered receiver even if he (the sender) is not registered.
  * Therefore, on the receiver there is no lookup for the sender. The message is accepted based on the root CA as long as the process matches.
  */
+
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;

@@ -31,6 +31,7 @@ import java.util.Map;
  * @since 4.0
  */
 @org.springframework.stereotype.Service
+@Transactional(propagation = Propagation.SUPPORTS)
 @Primary
 public class MultiDomainPModeProvider extends PModeProvider {
 

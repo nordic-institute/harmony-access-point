@@ -150,7 +150,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                     default:
                         assert false;
                 }
-                backendNotificationService.notifyOfSendSuccess(messageId);
+                backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 messagingDao.clearPayloadData(messageId);

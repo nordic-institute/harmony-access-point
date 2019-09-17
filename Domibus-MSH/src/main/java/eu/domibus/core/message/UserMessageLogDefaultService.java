@@ -49,8 +49,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         return umlBuilder.build();
     }
 
-    @Override
-    public void save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
+    public UserMessageLog save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
         final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
@@ -69,6 +68,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         //we set the status after we send the status change event; otherwise the old status and the new status would be the same
         userMessageLog.setMessageStatus(status);
         userMessageLogDao.create(userMessageLog);
+
+        return userMessageLog;
     }
 
     protected void updateMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
@@ -85,14 +86,17 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         updateMessageStatus(null, messageLog,newStatus);
     }
 
+    public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
+        updateMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
+    }
+
     @Override
     public void setMessageAsDeleted(String messageId) {
         updateMessageStatus(messageId, MessageStatus.DELETED);
     }
 
-    @Override
-    public void setMessageAsDownloaded(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
+    public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
     }
 
     public void setMessageAsAcknowledged(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -103,14 +107,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         updateMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
     }
 
-    @Override
-    public void setMessageAsWaitingForReceipt(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.WAITING_FOR_RECEIPT);
-    }
-
-    @Override
-    public void setMessageAsSendFailure(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
+    public void setMessageAsSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
     /**

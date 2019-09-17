@@ -153,8 +153,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getSingleResult();
     }
 
-    public void setAsNotified(String messageId) {
-        final UserMessageLog messageLog = findByMessageId(messageId);
+    public void setAsNotified(final UserMessageLog messageLog) {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
         super.update(messageLog);
     }

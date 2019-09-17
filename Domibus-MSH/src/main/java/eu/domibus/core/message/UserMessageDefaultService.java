@@ -215,7 +215,7 @@ public class UserMessageDefaultService implements UserMessageService {
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(messageId);
+            scheduleSending(userMessageLog);
         } else {
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             try {
@@ -244,7 +244,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
-        scheduleSending(messageId);
+        scheduleSending(userMessageLog);
     }
 
     @Override
@@ -277,19 +277,24 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
-    @Override
-    public void scheduleSending(String messageId, int retryCount) {
-        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage(retryCount));
+    public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
+        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage(retryCount));
+    }
+
+    public void scheduleSending(UserMessageLog userMessageLog) {
+        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
     @Override
     public void scheduleSending(String messageId) {
-        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        scheduleSending(userMessageLog);
     }
 
     @Override
     public void scheduleSending(String messageId, Long delay) {
-        scheduleSending(messageId, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        scheduleSending(userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
     }
 
     @Override
@@ -299,9 +304,7 @@ public class UserMessageDefaultService implements UserMessageService {
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 
-    protected void scheduleSending(String messageId, JmsMessage jmsMessage) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-
+    protected void scheduleSending(final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);

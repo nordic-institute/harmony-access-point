@@ -139,7 +139,7 @@ public class AbstractUserMessageSenderTest {
             responseHandler.verifyResponse(response);
             result = responseResult;
 
-            reliabilityChecker.check(soapMessage, response, legConfiguration);
+            reliabilityChecker.check(soapMessage, response, responseResult, legConfiguration);
             result = reliabilityCheckSuccessful;
 
         }};
