@@ -75,6 +75,7 @@
             <bean parent="mshWebservice"/>
         </jaxws:implementor>
         <jaxws:properties>
+            <entry key="org.apache.cxf.ws.security.tokenstore.TokenStore" value-ref="ehCacheTokenStore"/>
             <entry key="ws-security.cache.config.file" value="/cxf-ehcache.xml"/>
             <entry key="ws-security.callback-handler" value-ref="keystorePasswordCallback"/>
             <entry key="ws-security.encryption.crypto" value-ref="Wss4JMultiDomainCryptoProvider"/>
@@ -126,6 +127,7 @@
         </jaxws:handlers>
 
         <jaxws:properties>
+            <entry key="org.apache.cxf.ws.security.tokenstore.TokenStore" value-ref="ehCacheTokenStore"/>
             <entry key="ws-security.callback-handler" value-ref="keystorePasswordCallback"/>
             <entry key="ws-security.encryption.crypto" value-ref="Wss4JMultiDomainCryptoProvider"/>
             <entry key="ws-security.signature.crypto" value-ref="Wss4JMultiDomainCryptoProvider"/>
