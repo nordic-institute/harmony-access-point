@@ -2100,8 +2100,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 
 //---------------------------------------------------------------------------------------------------------------------------------
     static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
-		def outcome = "HTTP/1.1 200"
-        def authenticationUser = authUser
+		def authenticationUser = authUser
         def authenticationPwd = authPwd
 
         debugLog("  ====  Calling \"changePropertyAtRuntime\".", log)
@@ -2120,7 +2119,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 							"-v"]
             def commandResult = runCurlCommand(commandString, log)
 			
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome \"" + outcome + "\".\nCommand output error: " + commandResult[1] 														
+            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1] 														
 			log.info "  changePropertyAtRuntime  [][]  Property value was changed" 
 
         } finally {
@@ -2128,6 +2127,121 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
         }
         debugLog("  ====  Finished \"changePropertyAtRuntime\".", log)		
     }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+ //---------------------------------------------------------------------------------------------------------------------------------
+// Return path to domibus folder
+static def String pathToLogFiles(side, log, context) {
+    debugLog("  ====  Calling \"pathToDomibus\".", log)
+    // Return path to domibus folder base on the "color"
+    def propName = ""
+    switch (side.toLowerCase()) {
+   case "c2":
+   case "blue":
+   case "sender":
+   case "c2default":
+        propName =  "logsPathBlue"
+        break;
+   case "c3":
+   case "red":
+   case "receiver":
+   case "c3default":
+        propName = "logsPathRed"
+        break;
+   case "receivergreen":
+   case "green":
+   case "thirddefault":
+        propName  = "logsPathGreen"
+        break;
+    default:
+        assert(false), "Unknown side color. Supported values: BLUE, RED, GREEN"
+    }
+    def path = context.expand("\${#Project#${propName}}")
+    return (path[-1]=='/' || path[-1]=='\\') ? path : (path + '/')
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def void checkNumberOfLinesToSkipInLogFile(side, logFileToCheck, log, context, testRunner){
+        debugLog("  ====  Calling \"checkNumberOfLinesToSkipInL\".", log)
+        // Before checking that some action generate specific log entry method store information how many lines already in log to not search tested log entry in old logs
+
+ 		def pathToLogFile = pathToLogFiles(side, log, context) + logFileToCheck
+
+		def skipNumberOfLines = context.expand('${#TestCase#skipNumberOfLines}')
+		log.info "  checkNumberOfLinesToSkipInLogFile  [][]  skipNumberOfLines property set"
+
+		  // Check file exists
+		def testFile = new File(pathToLogFile)
+		if (!testFile.exists()) {
+					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
+					return null
+		} else debugLog("  checkLogFile  [][]  File [${pathToLogFile}] exists.", log)
+	
+		def lineCount = 0
+		testFile.eachLine { lineCount++}
+		debugLog("Line count = " + lineCount, log) 
+		
+		testRunner.testCase.setPropertyValue( "skipNumberOfLines", lineCount.toString() )
+		log.info "Test case level property skipNumberOfLine set to = " + lineCount
+    }
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Change Domibus configuration file
+    static def void checkLogFile(side, logFileToCheck, logValueList, log, context, testRunner){
+        debugLog("  ====  Calling \"checkLogFile\".", log)
+        // Check that logs file contains specific entries specified in list logValueList
+        // to set number of lines to skip configuration use method restoreDomibusPropertiesFromBackup(domibusPath,  log, context, testRunner)
+ 
+ 		def pathToLogFile = pathToLogFiles(side, log, context) + logFileToCheck
+
+		def skipNumberOfLines = context.expand('${#TestCase#skipNumberOfLines}')
+		if (skipNumberOfLines == "") {
+			log.info "  checkLogFile  [][]  skipNumberOfLines property not defined on the test case level would start to search on first line"
+			skipNumberOfLines = 0
+		} else 
+		   skipNumberOfLines = skipNumberOfLines.toInteger()
+
+			   // Check file exists
+				def testFile = new File(pathToLogFile)
+				if (!testFile.exists()) {
+					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
+					return null
+				} else log.debug "  checkLogFile  [][]  File [${pathToLogFile}] exists."
+
+			  //def skipNumberOfLines = 0 
+				def foundTotalNumber = 0
+				def fileContent = testFile.text
+			   log.info " checkLogFile  [][]  would skip ${skipNumberOfLines} lines"
+			   def logSizeInLines = fileContent.readLines().size()
+			   if (logSizeInLines < skipNumberOfLines) {
+				log.info "Incorrect number of line to skip - it is higher than numbert of lines in log file (" + logSizeInLines + "). Maybe it is new log file would reset skipNumberOfLines value."
+				skipNumberOfLines = 0
+			   }
+			   
+				for(logEntryToFind  in logValueList){
+					  def found = false
+					testFile.eachLine{
+						line, lineNumber ->
+						lineNumber++
+						if (lineNumber > skipNumberOfLines) {
+							if(line =~ logEntryToFind) {
+								log.info "  checkLogFile  [][]  In log line $lineNumber searched entry was found. Line value is: $line"
+								found = true
+							}
+						}
+					}
+					if (! found )
+					   log.warn " checkLogFile  [][]  The search string [$logEntryToFind] was NOT in file [${pathToLogFile}]"
+					else 
+						 foundTotalNumber++
+					
+				} //loop end
+			   if (foundTotalNumber != logValueList.size()) 
+				testRunner.fail(" checkLogFile  [][]  Searching log file failed: Only ${foundTotalNumber} from ${logValueList.size()} entries found.") 
+					else 
+				   log.info " checkLogFile  [][]  All ${logValueList.size()} entries was found in log file."
+    }
+
 
 //---------------------------------------------------------------------------------------------------------------------------------
 } // Domibus class end
