@@ -20,6 +20,7 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -462,11 +463,12 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-    private void updatePartyCertificate(Map<String, String> partyToCertificateMap, ReplacementResult replacementResult) {
+    protected void updatePartyCertificate(Map<String, String> partyToCertificateMap, ReplacementResult replacementResult) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        List<String> aliases = replacementResult.getRemovedParties().stream().map(party -> party.getName()).collect(toList());
-        multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
-
+        List<String> aliases = getRemovedParties(replacementResult);
+        if(CollectionUtils.isNotEmpty(aliases)) {
+            multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
+        }
         List<CertificateEntry> certificates = new ArrayList<>();
         for (Map.Entry<String, String> pair : partyToCertificateMap.entrySet()) {
             if (pair.getValue() == null) {
@@ -483,7 +485,13 @@ public class PartyServiceImpl implements PartyService {
                 throw new IllegalStateException(e);
             }
         }
-        multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
+       if(CollectionUtils.isNotEmpty(certificates)) {
+           multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
+       }
+    }
+
+    protected List<String> getRemovedParties(ReplacementResult replacementResult) {
+        return replacementResult.getRemovedParties().stream().map(party -> party.getName()).collect(toList());
     }
 
     @Override
