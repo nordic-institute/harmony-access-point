@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * Template method pattern algorithm class responsible for security validations for both console and plugin users
  */
 
 @Service
@@ -59,7 +60,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    // abstract methods
     protected abstract String getPasswordComplexityPatternProperty();
 
     public abstract String getPasswordHistoryPolicyProperty();
@@ -80,15 +80,15 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract int getSuspensionInterval();
 
-    // public interface
-    public void validateComplexity(final String userName, final String password) throws DomibusCoreException {
+    protected abstract UserEntityBase.Type getUserType();
 
+    public void validateComplexity(final String userName, final String password) throws DomibusCoreException {
         String errorMessage = "The password of " + userName + " user does not meet the minimum complexity requirements";
         if (StringUtils.isBlank(password)) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMessage);
         }
 
-        String passwordPattern = domibusPropertyProvider.getOptionalDomainProperty(getPasswordComplexityPatternProperty());
+        String passwordPattern = domibusPropertyProvider.getDomainProperty(getPasswordComplexityPatternProperty());
         if (StringUtils.isBlank(passwordPattern)) {
             return;
         }
@@ -101,8 +101,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
-
-        int oldPasswordsToCheck = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(getPasswordHistoryPolicyProperty()));
+        int oldPasswordsToCheck = Integer.valueOf(domibusPropertyProvider.getDomainProperty(getPasswordHistoryPolicyProperty()));
         if (oldPasswordsToCheck == 0) {
             return;
         }
@@ -120,7 +119,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         LOG.debug("Validating if password expired for user [{}]", userName);
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getDomainProperty(expirationProperty));
         LOG.debug("Password expiration policy for user [{}] : [{}] days", userName, maxPasswordAgeInDays);
 
         if (maxPasswordAgeInDays <= 0) {
@@ -137,13 +136,13 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public Integer getDaysTillExpiration(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
-        int warningDaysBeforeExpiration = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(getWarningDaysBeforeExpiration()));
+        int warningDaysBeforeExpiration = Integer.valueOf(domibusPropertyProvider.getDomainProperty(getWarningDaysBeforeExpiration()));
         if (warningDaysBeforeExpiration <= 0) {
             return null;
         }
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getDomainProperty(expirationProperty));
 
         if (maxPasswordAgeInDays <= 0) {
             return null;
@@ -186,7 +185,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     private void savePasswordHistory(U user) {
-        int passwordsToKeep = domibusPropertyProvider.getIntegerOptionalDomainProperty(getPasswordHistoryPolicyProperty());
+        int passwordsToKeep = domibusPropertyProvider.getIntegerDomainProperty(getPasswordHistoryPolicyProperty());
         if (passwordsToKeep <= 0) {
             return;
         }
@@ -276,6 +275,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
         //user will not be reactivated.
         if (suspensionInterval <= 0) {
+            LOG.trace("Suspended [{}] are not reactivated", getUserType().getName());
             return;
         }
 

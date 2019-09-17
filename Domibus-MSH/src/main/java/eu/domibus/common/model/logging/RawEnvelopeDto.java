@@ -6,9 +6,9 @@ package eu.domibus.common.model.logging;
  */
 public class RawEnvelopeDto {
     final String rawMessage;
-    final int id;
+    final long id;
 
-    public RawEnvelopeDto(int id,String rawMessage) {
+    public RawEnvelopeDto(long id, String rawMessage) {
         this.id = id;
         this.rawMessage = rawMessage;
     }
@@ -17,7 +17,7 @@ public class RawEnvelopeDto {
         return rawMessage;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 }

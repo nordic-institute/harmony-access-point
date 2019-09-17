@@ -10,10 +10,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.spi.*;
+import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Cosmin Baciu
@@ -60,6 +64,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Autowired
     private DomainCoreConverter domainCoreConverter;
 
+    @Autowired
+    private BackupService backupService;
+
     public void init() {
         LOG.debug("Initializing the certificate provider");
 
@@ -85,7 +92,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public String getPrivateKeyPassword(String alias) {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password");
+        return domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true);
     }
 
     @Override
@@ -147,6 +154,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
                 throw new CryptoException("Could not create parent directory for truststore", e);
             }
         }
+        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
+        backupTrustStore(trustStoreFile);
 
         LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
         try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
@@ -162,6 +171,24 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         signalTrustStoreUpdate();
     }
+
+    protected void backupTrustStore(File trustStoreFile) throws CryptoException {
+        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
+            LOG.warn("Truststore file was null, nothing to backup!");
+            return;
+        }
+        if (!trustStoreFile.exists()) {
+            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
+            return;
+        }
+
+        try {
+            backupService.backupFile(trustStoreFile);
+        } catch (IOException e) {
+            throw new CryptoException("Could not create backup file for truststore", e);
+        }
+    }
+
 
     @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class)
@@ -235,10 +262,10 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected Properties getKeystoreProperties() {
-        final String keystoreType = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type");
-        final String keystorePassword = domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password");
-        final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias");
-        final String keystoreLocation = domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.keystore.location");
+        final String keystoreType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
+        final String keystorePassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true);
+        final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
+        final String keystoreLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_TYPE, keystoreType);
@@ -276,15 +303,15 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected String getTrustStoreLocation() {
-        return domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.truststore.location");
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
     }
 
     protected String getTrustStorePassword() {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password");
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true);
     }
 
     public String getTrustStoreType() {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type");
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
 
     protected void signalTrustStoreUpdate() {

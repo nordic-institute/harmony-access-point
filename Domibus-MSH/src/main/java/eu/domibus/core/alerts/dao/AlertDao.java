@@ -6,7 +6,6 @@ import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.persist.*;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
@@ -43,7 +42,7 @@ public class AlertDao extends BasicDao<Alert> {
         //create root entity specifying that we want to eager fetch. (Avoid the N+1 hibernate problem)
         final Root<Alert> root = criteria.from(Alert.class);
 
-        final Subquery<Integer> subQuery = criteria.subquery(Integer.class);
+        final Subquery<Long> subQuery = criteria.subquery(Long.class);
         Root<Alert> subRoot = subQuery.from(Alert.class);
 
         //Do first a subQuery to retrieve the filtered alerts id based on criteria.
@@ -57,13 +56,13 @@ public class AlertDao extends BasicDao<Alert> {
 
         //create main query by retrieving alerts where ids are in the sub query selection.
         criteria.where(root.get(Alert_.entityId).in(subQuery)).distinct(true);
-        final Boolean ask = alertCriteria.getAsk();
-        final String column = alertCriteria.getColumn();
-        if (column != null && ask != null) {
-            if (ask) {
-                criteria.orderBy(builder.asc(root.get(column)));
+        final Boolean ascending = alertCriteria.getAsc();
+        final String orderBy = alertCriteria.getOrderBy();
+        if (orderBy != null && ascending != null) {
+            if (ascending) {
+                criteria.orderBy(builder.asc(root.get(orderBy)));
             } else {
-                criteria.orderBy(builder.desc(root.get(column)));
+                criteria.orderBy(builder.desc(root.get(orderBy)));
             }
         }
         final TypedQuery<Alert> query = em.createQuery(criteria);
@@ -134,7 +133,7 @@ public class AlertDao extends BasicDao<Alert> {
         //create root entity specifying that we want to eager fetch. (Avoid the N+1 hibernate problem)
         final Root<Alert> root = criteria.from(Alert.class);
 
-        final Subquery<Integer> subQuery = criteria.subquery(Integer.class);
+        final Subquery<Long> subQuery = criteria.subquery(Long.class);
         Root<Alert> subRoot = subQuery.from(Alert.class);
 
         //Do first a subQuery to retrieve the filtered alerts id based on criteria.
@@ -199,7 +198,7 @@ public class AlertDao extends BasicDao<Alert> {
         return namedQuery.getResultList();
     }
 
-    public void updateAlertProcessed(final Integer id, Boolean processed) {
+    public void updateAlertProcessed(final Long id, Boolean processed) {
         final Query namedQuery = em.createNamedQuery("Alert.updateProcess");
         namedQuery.setParameter("ALERT_ID", id);
         namedQuery.setParameter("PROCESSED", processed);

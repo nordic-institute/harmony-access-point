@@ -1,6 +1,7 @@
 package eu.domibus.messaging;
 
 import eu.domibus.ext.domain.DomainDTO;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
 
 /**
@@ -13,5 +14,7 @@ import org.springframework.jms.listener.MessageListenerContainer;
  */
 public interface PluginMessageListenerContainer {
 
-    MessageListenerContainer createMessageListenerContainer(DomainDTO domain);
+    DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain);
+
+    void updateMessageListenerContainerConcurrency(DomainDTO domain, String concurrency);
 }

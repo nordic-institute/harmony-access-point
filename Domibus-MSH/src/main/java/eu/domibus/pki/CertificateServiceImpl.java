@@ -43,6 +43,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -55,7 +56,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateServiceImpl.class);
 
-    public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = "domibus.certificate.revocation.offset";
+    public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 
     @Autowired
     CRLService crlService;
@@ -235,7 +236,7 @@ public class CertificateServiceImpl implements CertificateService {
         final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
         final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
 
-        LOG.debug("Searching for certificate about to expire with notification date smaller then:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
                 notificationDate, imminentExpirationDelay, maxDate);
         certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
             certificate.setAlertImminentNotificationDate(today);
@@ -261,7 +262,7 @@ public class CertificateServiceImpl implements CertificateService {
         Date endNotification = LocalDateTime.now().minusDays(revokedDuration).toDate();
         Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
 
-        LOG.debug("Searching for expired certificate with notification date smaller then:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
+        LOG.debug("Searching for expired certificate with notification date smaller than:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
         certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
             certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
             certificateDao.saveOrUpdate(certificate);

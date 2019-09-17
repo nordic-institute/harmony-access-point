@@ -55,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
@@ -431,6 +433,6 @@ public class BackendNotificationService {
     }
 
     protected boolean isPluginNotificationDisabled() {
-        return !domibusPropertyProvider.getBooleanProperty("domibus.plugin.notification.active");
+        return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
     }
 }

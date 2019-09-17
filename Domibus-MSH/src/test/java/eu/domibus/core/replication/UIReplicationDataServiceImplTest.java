@@ -326,9 +326,6 @@ public class UIReplicationDataServiceImplTest {
             userMessageDefaultServiceHelper.getOriginalSender(userMessage);
             result = originalSender;
 
-            uiMessageEntity.getLastModified();
-            result = jmsTime;
-
         }};
 
         //tested method
@@ -336,7 +333,7 @@ public class UIReplicationDataServiceImplTest {
 
         new FullVerifications(uiMessageEntity) {{
 
-            uiMessageEntity.setEntityId(anyInt);
+            uiMessageEntity.setEntityId(anyLong);
 
             String actualValue;
             uiMessageEntity.setMessageId(actualValue = withCapture());
@@ -403,9 +400,6 @@ public class UIReplicationDataServiceImplTest {
             userMessageDefaultServiceHelper.getOriginalSender(userMessage);
             result = originalSender;
 
-            uiMessageEntity.getLastModified();
-            result = jmsTime;
-
         }};
 
         //tested method
@@ -413,7 +407,7 @@ public class UIReplicationDataServiceImplTest {
 
         new FullVerifications(uiMessageEntity) {{
 
-            uiMessageEntity.setEntityId(anyInt);
+            uiMessageEntity.setEntityId(anyLong);
 
             String actualValue;
             uiMessageEntity.setMessageId(actualValue = withCapture());

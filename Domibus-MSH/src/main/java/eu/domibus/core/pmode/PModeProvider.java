@@ -79,13 +79,6 @@ public abstract class PModeProvider {
     @Autowired
     private MpcService mpcService;
 
-//    @Autowired
-//    protected JMSManager jmsManager;
-//
-//    @Qualifier("clusterCommandTopic")
-//    @Autowired
-//    protected Topic clusterCommandTopic;
-
     @Autowired
     protected SignalService signalService;
 
@@ -119,7 +112,7 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
-    public ConfigurationRaw getRawConfiguration(int id) {
+    public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 

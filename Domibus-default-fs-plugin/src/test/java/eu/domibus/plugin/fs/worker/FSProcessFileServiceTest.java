@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

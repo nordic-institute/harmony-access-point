@@ -1,10 +1,10 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -115,11 +115,11 @@ public class UIMessageEntity extends AbstractBaseEntity {
     private String refToMessageId;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "LAST_MODIFIED")
+    @Column(name = "LAST_MODIFIED", nullable = false)
     private Date lastModified;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "LAST_MODIFIED2")
+    @Column(name = "LAST_MODIFIED2", nullable = false)
     private Date lastModified2;
 
 

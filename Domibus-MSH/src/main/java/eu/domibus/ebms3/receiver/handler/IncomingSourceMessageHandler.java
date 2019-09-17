@@ -4,7 +4,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,13 +29,13 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSourceMessageHandler.class);
 
     @Autowired
-    protected StorageProvider storageProvider;
+    protected PayloadFileStorageProvider storageProvider;
 
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing SourceMessage");
 
-        if (storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
+        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             LOG.error("SplitAndJoin feature needs payload storage on the file system");
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);

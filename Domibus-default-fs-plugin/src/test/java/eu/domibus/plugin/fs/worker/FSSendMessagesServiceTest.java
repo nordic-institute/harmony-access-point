@@ -7,7 +7,7 @@ import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.BackendFSImpl;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.FSTestHelper;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
@@ -329,16 +329,16 @@ public class FSSendMessagesServiceTest {
         final String domain = "default";
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
-            result = 2000;
+            result = 200;
         }};
 
         //tested method
         boolean actualRes = instance.checkSizeChangedRecently(contentFile, domain);
         Assert.assertEquals(true, actualRes);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         boolean actualRes2 = instance.checkSizeChangedRecently(contentFile, domain);
         Assert.assertEquals(true, actualRes2);
-        Thread.sleep(4000);
+        Thread.sleep(400);
         boolean actualRes3 = instance.checkSizeChangedRecently(contentFile, domain);
         Assert.assertEquals(false, actualRes3);
     }
@@ -348,16 +348,16 @@ public class FSSendMessagesServiceTest {
         final String domain = "default";
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
-            result = 2000;
+            result = 200;
         }};
 
         //tested method
         boolean actualRes = instance.checkTimestampChangedRecently(contentFile, domain);
         Assert.assertEquals(true, actualRes);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         boolean actualRes2 = instance.checkTimestampChangedRecently(contentFile, domain);
         Assert.assertEquals(true, actualRes2);
-        Thread.sleep(4000);
+        Thread.sleep(400);
         boolean actualRes3 = instance.checkTimestampChangedRecently(contentFile, domain);
         Assert.assertEquals(false, actualRes3);
     }
@@ -376,9 +376,9 @@ public class FSSendMessagesServiceTest {
 
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
-            result = 1000;
+            result = 100;
             fsPluginProperties.getSendWorkerInterval(domain);
-            result = 3000;
+            result = 300;
         }};
         instance.checkSizeChangedRecently(contentFile, domain);
 
@@ -386,7 +386,7 @@ public class FSSendMessagesServiceTest {
         Assert.assertEquals(1, instance.observedFilesInfo.size());
         instance.clearObservedFiles(domain);
         Assert.assertEquals(1, instance.observedFilesInfo.size());
-        Thread.sleep(8000);
+        Thread.sleep(800);
         instance.clearObservedFiles(domain);
         Assert.assertEquals(0, instance.observedFilesInfo.size());
     }

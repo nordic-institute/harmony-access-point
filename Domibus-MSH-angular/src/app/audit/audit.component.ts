@@ -93,14 +93,14 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
         this.loading = false;
       },
       error => {
-        this.alertService.error('Could not load audits ' + error);
+        this.alertService.exception('Could not load audits: ', error);
         this.loading = false;
       },
       // on complete of auditLogsObservable Observable, we load the count
       // TODO: load this in parallel and merge the stream at the end.
       () => auditCountObservable.subscribe(auditCount => this.count = auditCount,
         error => {
-          this.alertService.error('Could not count audits ' + error);
+          this.alertService.exception('Could not count audits: ', error);
           this.loading = false;
         })
     );
@@ -116,9 +116,13 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-      this.rows = response;
-      this.loading = false;
-    })
+        this.rows = response;
+        this.loading = false;
+      },
+      error => {
+        this.alertService.exception('Could not load audits: ', error);
+        this.loading = false;
+      });
   }
 
   onPage(event) {

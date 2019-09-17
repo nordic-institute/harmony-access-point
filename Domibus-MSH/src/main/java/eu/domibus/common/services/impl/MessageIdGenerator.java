@@ -8,11 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MSH_MESSAGEID_SUFFIX;
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
 public class MessageIdGenerator {
-    private static final String MESSAGE_ID_SUFFIX_PROPERTY = "domibus.msh.messageid.suffix";
+    private static final String MESSAGE_ID_SUFFIX_PROPERTY = DOMIBUS_MSH_MESSAGEID_SUFFIX;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

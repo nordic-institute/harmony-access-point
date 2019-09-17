@@ -2,8 +2,10 @@ package eu.domibus.ext.delegate.converter;
 
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
+import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +68,13 @@ public class DomainExtDefaultConverterTest {
     public void testConvertMessageAttempt() throws Exception {
         MessageAttempt toConvert = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
         final MessageAttemptDTO converted = domibusDomainConverter.convert(toConvert, MessageAttemptDTO.class);
+        objectService.assertObjects(converted, toConvert);
+    }
+
+    @Test
+    public void testPasswordEncryptionResult() throws Exception {
+        PasswordEncryptionResult toConvert = (PasswordEncryptionResult) objectService.createInstance(PasswordEncryptionResult.class);
+        final PasswordEncryptionResultDTO converted = domibusDomainConverter.convert(toConvert, PasswordEncryptionResultDTO.class);
         objectService.assertObjects(converted, toConvert);
     }
 

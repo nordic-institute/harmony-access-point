@@ -82,6 +82,8 @@ public class UIMessageDaoImplIT {
         uiMessageEntity.setMshRole(mshRole);
         uiMessageEntity.setSendAttempts(0);
         uiMessageEntity.setSendAttemptsMax(5);
+        uiMessageEntity.setLastModified(new Date(System.currentTimeMillis()));
+        uiMessageEntity.setLastModified2(new Date(System.currentTimeMillis()));
 
         uiMessageDao.create(uiMessageEntity);
 
@@ -109,15 +111,15 @@ public class UIMessageDaoImplIT {
     @Test
     public void testCountMessages() {
         Map<String, Object> filters = new HashMap<>();
-        int count;
+        long count;
 
         filters.put("messageSubtype", MessageSubtype.TEST);
-        count = uiMessageDao.countMessages(filters);
+        count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(0, count);
 
         filters.put("messageSubtype", null);
         filters.put("fromPartyId", "domibus-blue");
-        count = uiMessageDao.countMessages(filters);
+        count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(2, count);
     }
 

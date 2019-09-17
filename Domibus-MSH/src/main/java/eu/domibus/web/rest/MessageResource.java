@@ -46,7 +46,6 @@ public class MessageResource {
     @Autowired
     private AuditService auditService;
 
-
     @RequestMapping(path = "/restore", method = RequestMethod.PUT)
     public void resend(@RequestParam(value = "messageId", required = true) String messageId) {
 

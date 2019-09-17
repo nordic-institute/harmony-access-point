@@ -7,7 +7,8 @@ import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.validation.ConstraintValidatorContext;
+import javax.validation.ValidationException;
+import java.lang.annotation.Annotation;
 
 public class BlacklistValidatorTest {
 
@@ -68,13 +69,50 @@ public class BlacklistValidatorTest {
 
         try {
             blacklistValidator.validate(validValue);
-        } catch(IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.fail("Should not throw for valid values");
         }
         try {
             blacklistValidator.validate(invalidValue);
             Assert.fail("Should throw for invalid values");
-        } catch(IllegalArgumentException ex) {
+        } catch (ValidationException ex) {
         }
+    }
+
+    @Test
+    public void isWhiteListValid() {
+        new Expectations(blacklistValidator) {{
+            domibusPropertyProvider.getProperty(BlacklistValidator.WHITELIST_PROPERTY);
+            returns("^[\\w\\-\\.: @]*$");
+        }};
+
+        CustomWhiteListed customChars = new CustomWhiteListed()
+        {
+            @Override
+            public String permitted()
+            {
+                return "%";
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType()
+            {
+                return CustomWhiteListed.class;
+            }
+        };
+
+        blacklistValidator.initialize(null);
+
+        String validValue = "abc.";
+        String invalidValue = "abc%";
+        String emptyValue = "";
+
+        boolean actualValid = blacklistValidator.isWhiteListValid(validValue, null);
+        boolean actualInvalid = blacklistValidator.isWhiteListValid(invalidValue, customChars);
+        boolean emptyIsValid = blacklistValidator.isWhiteListValid(emptyValue, null);
+
+        Assert.assertEquals(true, actualValid);
+        Assert.assertEquals(true, actualInvalid);
+        Assert.assertEquals(true, emptyIsValid);
     }
 }

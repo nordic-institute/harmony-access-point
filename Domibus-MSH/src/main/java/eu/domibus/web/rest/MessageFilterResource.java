@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvService;
@@ -12,15 +11,10 @@ import eu.domibus.web.rest.ro.MessageFilterResultRO;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/rest/messagefilters")
-public class MessageFilterResource {
+public class MessageFilterResource extends BaseResource {
 
     private static final Logger LOGGER = DomibusLoggerFactory.getLogger(MessageFilterResource.class);
 
@@ -42,19 +36,19 @@ public class MessageFilterResource {
     @Autowired
     private MessageFilterCsvServiceImpl messageFilterCsvServiceImpl;
 
-    protected Pair<List<MessageFilterRO>,Boolean> getBackendFiltersInformation() {
+    protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
         boolean areFiltersPersisted = true;
         List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
         List<MessageFilterRO> messageFilterResultROS = coreConverter.convert(backendFilters, MessageFilterRO.class);
         for (MessageFilterRO messageFilter : messageFilterResultROS) {
-            if(messageFilter.getEntityId() == 0) {
+            if (messageFilter.getEntityId() == 0) {
                 messageFilter.setPersisted(false);
                 areFiltersPersisted = false;
             } else {
                 messageFilter.setPersisted(true);
             }
         }
-        return new ImmutablePair<>(messageFilterResultROS,areFiltersPersisted);
+        return new ImmutablePair<>(messageFilterResultROS, areFiltersPersisted);
     }
 
     @GetMapping
@@ -80,18 +74,16 @@ public class MessageFilterResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
-        try {
-            resultText = messageFilterCsvServiceImpl.exportToCSV(getBackendFiltersInformation().getKey(),
-                    MessageFilterRO.class, null, null);
-        } catch (CsvException e) {
-            LOGGER.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + messageFilterCsvServiceImpl.getCsvFilename("message-filter"))
-                .body(resultText);
+        return exportToCSV(getBackendFiltersInformation().getKey(),
+                MessageFilterRO.class,
+                null,
+                null,
+                "message-filter");
+    }
+
+    @Override
+    public CsvService getCsvService() {
+        return messageFilterCsvServiceImpl;
     }
 }

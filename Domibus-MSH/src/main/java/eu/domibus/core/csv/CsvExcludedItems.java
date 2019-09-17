@@ -5,6 +5,7 @@ import java.util.List;
 
 public enum CsvExcludedItems {
     USER_RESOURCE(new String[]{"authorities", "status", "password", "suspended", "domain"}),
+    USER_RESOURCE_MULTI(new String[]{"authorities", "status", "password", "suspended"}),
     PLUGIN_USER_RESOURCE(new String[]{"entityId", "status", "password", "domain"}),
     PMODE_RESOURCE(new String[]{"id"}),
     PARTY_RESOURCE(new String[]{"entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"}),

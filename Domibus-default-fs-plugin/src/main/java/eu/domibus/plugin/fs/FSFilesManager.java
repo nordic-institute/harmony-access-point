@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.*;

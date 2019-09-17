@@ -7,14 +7,7 @@ import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import eu.domibus.plugin.webService.generated.LargePayloadType;
-import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
-import eu.domibus.plugin.webService.generated.RetrieveMessageRequest;
-import eu.domibus.plugin.webService.generated.RetrieveMessageResponse;
-import eu.domibus.plugin.webService.generated.StatusFault;
-import eu.domibus.plugin.webService.generated.SubmitMessageFault;
-import eu.domibus.plugin.webService.generated.SubmitRequest;
-import eu.domibus.plugin.webService.generated.StatusRequest;
+import eu.domibus.plugin.webService.generated.*;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -46,10 +39,10 @@ public class BackendWebServiceImplTest {
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
     @Injectable
-    private  MessageRetriever messageRetriever;
+    private MessageRetriever messageRetriever;
 
     @Injectable
-    private  MessageSubmitter messageSubmitter;
+    private MessageSubmitter messageSubmitter;
 
     @Injectable
     private MessagePuller messagePuller;
@@ -125,6 +118,27 @@ public class BackendWebServiceImplTest {
         }};
 
         backendWebService.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
+    }
+
+    @Test
+    public void test_SubmitMessage_MessageIdHavingEmptySpaces(@Injectable SubmitRequest submitRequest,
+                                                              @Injectable RetrieveMessageResponse retrieveMessageResponse,
+                                                              @Injectable Messaging ebMSHeaderInfo) throws SubmitMessageFault {
+        new Expectations() {{
+            ebMSHeaderInfo.getUserMessage().getMessageInfo().getMessageId();
+            result = "-Dom137-- ";
+
+        }};
+
+        // backendWebService.retrieveMessage(retrieveMessageRequest, new Holder<RetrieveMessageResponse>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
+
+        backendWebService.submitMessage(submitRequest, ebMSHeaderInfo);
+
+        new Verifications() {{
+            String messageId;
+            messageExtService.cleanMessageIdentifier(messageId = withCapture());
+            assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom137-- ", messageId);
+        }};
     }
 
     @Test

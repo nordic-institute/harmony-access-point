@@ -23,6 +23,7 @@ import {LogoutAuthExtProviderComponent} from "./security/logout/logout.component
 import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
 import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.components";
 import {SecurityService} from "./security/security.service";
+import {PropertiesComponent} from './properties/properties.component';
 
 
 const appRoutes: Routes = [
@@ -180,6 +181,15 @@ const appRoutes: Routes = [
       isDomainIndependent: true,
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Logging'
+    }
+  },
+  {
+    path: 'properties',
+    component: PropertiesComponent,
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      checkRoles: SecurityService.ADMIN_ROLES,
+      helpPage: 'Properties'
     }
   },
   {

@@ -8,6 +8,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.PluginUserResultRO;
 import mockit.Expectations;
@@ -66,7 +67,15 @@ public class PluginUserResourceTest {
             result = userROs;
         }};
 
-        PluginUserResultRO result = userResource.findUsers(authType, authRole, originalUser, userName, pageStart, pageSize);
+        PluginUserFilterRequestRO req = new PluginUserFilterRequestRO() {{
+            setAuthType(authType);
+            setAuthRole(authRole);
+            setOriginalUser(originalUser);
+            setUserName(userName);
+            setPageStart(pageStart);
+            setPageSize(pageSize);
+        }};
+        PluginUserResultRO result = userResource.findUsers(req);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(userRO, result.getEntries().get(0));

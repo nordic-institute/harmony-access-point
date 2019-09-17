@@ -6,16 +6,22 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.*;
+import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author migueti, Cosmin Baciu, idragusa
@@ -31,49 +37,66 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
+        final String debugMessage = "Ext type converted: T=[{}] U=[{}]";
         if (typeOfT == DomainDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.domainToDomainDTO((Domain) source);
         }
         if (typeOfT == Domain.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.domainDTOToDomain((DomainDTO) source);
         }
         if (typeOfT == MessageAttemptDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAttemptToMessageAttemptDTO((MessageAttempt) source);
         }
         if (typeOfT == MessageAttempt.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAttemptDTOToMessageAttempt((MessageAttemptDTO) source);
         }
         if (typeOfT == MessageAcknowledgement.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAcknowledgementDTOToMessageAcknowledgement((MessageAcknowledgementDTO) source);
         }
         if (typeOfT == MessageAcknowledgementDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.messageAcknowledgementToMessageAcknowledgementDTO((MessageAcknowledgement) source);
         }
 
         if (typeOfT == JmsMessage.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.jmsMessageDTOToJmsMessage((JmsMessageDTO) source);
         }
         if (typeOfT == JmsMessageDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.jmsMessageToJmsMessageDTO((JmsMessage) source);
         }
 
         if (typeOfT == UserMessage.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageDTOToUserMessage((UserMessageDTO) source);
         }
         if (typeOfT == UserMessageDTO.class) {
-            LOG.debug("Ext type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.userMessageToUserMessageDTO((UserMessage) source);
         }
-        String errorMsg = String.format("Ext type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        if (typeOfT == PModeArchiveInfoDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.pModeArchiveInfoToPModeArchiveInfoDto((PModeArchiveInfo) source);
+        }
+        if (typeOfT == PasswordEncryptionResultDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.passwordEncryptionResultToPasswordEncryptionResultDTO((PasswordEncryptionResult) source);
+        }
+        if (typeOfT == DomibusPropertyMetadata.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.domibusPropertyMetadataDTOToDomibusPropertyMetadata((DomibusPropertyMetadataDTO) source);
+        }
+        if (typeOfT == DomibusPropertyMetadataDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.domibusPropertyMetadataToDomibusPropertyMetadataDTO((DomibusPropertyMetadata) source);
+        }
+        String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
         throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
 
@@ -90,6 +113,20 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         for (U sourceObject : sourceList) {
             result.add(convert(sourceObject, typeOfT));
 
+        }
+        return result;
+    }
+
+    @Override
+    public <T, U> Map<String, T> convert(Map<String, U> source, Class<T> typeOfT) {
+        LOG.debug("Ext convert map to T=[{} ", typeOfT);
+        if (source == null) {
+            LOG.debug("Ext source map is null for T=[{}", typeOfT);
+            return null;
+        }
+        Map<String, T> result = new HashMap<>();
+        for (Map.Entry<String, U> src : source.entrySet()) {
+            result.put(src.getKey(), convert(src.getValue(), typeOfT));
         }
         return result;
     }

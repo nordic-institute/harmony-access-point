@@ -17,6 +17,8 @@ import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.TimestampDateFormatter;
@@ -24,8 +26,6 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.util.MessageUtil;
-import eu.domibus.util.SoapUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -280,7 +280,7 @@ public class AS4ReceiptServiceImplTest {
     @Test
     public void testGenerateReceipt_NoReliability(@Injectable final LegConfiguration legConfiguration,
                                                   @Injectable Messaging messaging,
-                                                  @Injectable MessageLog messageLog) {
+                                                  @Injectable SignalMessageLog messageLog) {
         new Expectations(as4ReceiptService) {{
         }};
 

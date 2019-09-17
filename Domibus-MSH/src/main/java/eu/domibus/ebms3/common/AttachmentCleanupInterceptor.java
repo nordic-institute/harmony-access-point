@@ -2,19 +2,12 @@ package eu.domibus.ebms3.common;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.cxf.attachment.AttachmentDataSource;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.activation.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
 
 /**
  * CXF is storing in tmp files the payloads higher then 200Mb.

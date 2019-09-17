@@ -9,9 +9,9 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import eu.domibus.plugin.handler.MessagePuller;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.activemq.command.ActiveMQMapMessage;
@@ -22,6 +22,7 @@ import org.springframework.jms.core.JmsOperations;
 import javax.jms.MapMessage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -80,6 +81,9 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
+            messageExtService.cleanMessageIdentifier(messageId);
+            result = messageId;
+
             map.getJMSCorrelationID();
             result = jmsCorrelationId;
 
@@ -108,6 +112,48 @@ public class BackendJMSImplTest {
     }
 
     @Test
+    public void testReceiveMessage_MessageId_WithEmptySpaces(@Injectable final MapMessage map) throws Exception {
+        final String messageId = " test123 ";
+        final String messageIdTrimmed = "test123";
+        final String jmsCorrelationId = "2";
+        final String messageTypeSubmit = JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
+
+        new Expectations(backendJMS) {{
+            map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
+            result = messageId;
+
+            messageExtService.cleanMessageIdentifier(messageId);
+            result = messageIdTrimmed;
+
+            map.getJMSCorrelationID();
+            result = jmsCorrelationId;
+
+            map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
+            result = messageTypeSubmit;
+
+            backendJMS.submit(withAny(new ActiveMQMapMessage()));
+            result = messageIdTrimmed;
+
+            backendJMS.sendReplyMessage(anyString, anyString, jmsCorrelationId);
+        }};
+
+        backendJMS.receiveMessage(map);
+
+        new Verifications() {{
+            backendJMS.submit(map);
+
+            String capturedMessageId;
+            String capturedJmsCorrelationId;
+            String capturedErrorMessage;
+            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
+
+            assertEquals(capturedMessageId, messageIdTrimmed);
+            assertEquals(capturedJmsCorrelationId, jmsCorrelationId);
+            assertNull(capturedErrorMessage);
+        }};
+    }
+
+    @Test
     public void testReceiveMessageWithUnacceptedMessage(@Injectable final MapMessage map) throws Exception {
         final String messageId = "1";
         final String jmsCorrelationId = "2";
@@ -115,6 +161,9 @@ public class BackendJMSImplTest {
 
         new Expectations(backendJMS) {{
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
+            result = messageId;
+
+            messageExtService.cleanMessageIdentifier(messageId);
             result = messageId;
 
             map.getJMSCorrelationID();
@@ -132,7 +181,7 @@ public class BackendJMSImplTest {
             String capturedMessageId = null;
             String capturedJmsCorrelationId = null;
             String capturedErrorMessage = null;
-            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedJmsCorrelationId = withCapture(), capturedJmsCorrelationId = withCapture());
+            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
 
             assertEquals(capturedMessageId, messageId);
             assertEquals(capturedJmsCorrelationId, jmsCorrelationId);

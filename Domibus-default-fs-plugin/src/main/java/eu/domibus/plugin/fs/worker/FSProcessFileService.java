@@ -7,6 +7,7 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;

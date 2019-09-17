@@ -16,7 +16,7 @@ import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.services.impl.DynamicDiscoveryServiceOASIS;
 import eu.domibus.common.services.impl.DynamicDiscoveryServicePEPPOL;
 import eu.domibus.common.util.EndpointInfo;
-import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.ObjectFactory;
@@ -151,7 +151,7 @@ public class DynamicDiscoveryPModeProviderTest {
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServiceOASIS);
 
         /* test selection of dynamic discovery client Peppol compliant*/
-        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getDomainProperty(anyString(), anyString());
+        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getDomainProperty(anyString());
         dynamicDiscoveryPModeProvider.init();
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServicePEPPOL);
     }
@@ -258,7 +258,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY), eq("false"));
+        doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();

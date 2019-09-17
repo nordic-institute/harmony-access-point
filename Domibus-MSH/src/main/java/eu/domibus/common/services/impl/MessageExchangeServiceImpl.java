@@ -46,9 +46,14 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
 import static eu.domibus.common.services.impl.PullContext.MPC;
@@ -68,8 +73,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private static final String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
 
     private static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
-
-    protected static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
 
     private static final String PULL = "pull";
 
@@ -177,28 +180,36 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.trace("No pull process configured !");
             return;
         }
-        pullProcesses.
-                stream().
-                map(Process::getResponderParties).
-                forEach(pullFrequencyHelper::setResponders);
+
+        final List<Process> validPullProcesses = getValidProcesses(pullProcesses);
+        final Set<String> mpcNames = validPullProcesses.stream()
+                .flatMap(pullProcess -> pullProcess.getLegs().stream().map(leg -> leg.getDefaultMpc().getName()))
+                .collect(Collectors.toSet());
+        pullFrequencyHelper.setMpcNames(mpcNames);
 
         final Integer maxPullRequestNumber = pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle();
-        if (pause(pullProcesses, maxPullRequestNumber)) {
+        if (pause(maxPullRequestNumber)) {
             return;
         }
+        validPullProcesses.forEach(pullProcess ->
+                pullProcess.getLegs().stream().forEach(legConfiguration ->
+                        preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
+    }
+
+    private List<Process> getValidProcesses(List<Process> pullProcesses) {
+        final List<Process> validPullProcesses = new ArrayList<>();
         for (Process pullProcess : pullProcesses) {
             try {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
-                for (LegConfiguration legConfiguration : pullProcess.getLegs()) {
-                    preparePullRequestForResponder(mpc, initiator, pullProcess, legConfiguration);
-                }
+                validPullProcesses.add(pullProcess);
             } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try " + e.getMessage());
+                LOG.warn("Invalid pull process configuration found during pull try", e);
             }
         }
+        return validPullProcesses;
     }
 
-    private void preparePullRequestForResponder(String mpc, Party initiator, Process pullProcess, LegConfiguration legConfiguration) {
+    private void preparePullRequestForMpc(String mpc, Party initiator, Process pullProcess, LegConfiguration legConfiguration) {
         for (Party responder : pullProcess.getResponderParties()) {
             String mpcQualifiedName = legConfiguration.getDefaultMpc().getQualifiedName();
             if (mpc != null && !mpc.equals(mpcQualifiedName)) {
@@ -215,8 +226,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     legConfiguration.getAction().getName(),
                     legConfiguration.getName());
             LOG.debug("messageExchangeConfiguration:[{}]", messageExchangeConfiguration);
-            Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForResponder(responder.getName());
-            LOG.debug("Sending:[{}] pull request for mpc:[{}] to party:[{}]", pullRequestNumberForResponder, mpcQualifiedName, responder.getName());
+            String mpcName = legConfiguration.getDefaultMpc().getName();
+            Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForMpc(mpcName);
+            LOG.debug("Sending:[{}] pull request for mpcFQN:[{}] to mpc:[{}]", pullRequestNumberForResponder, mpcQualifiedName, mpcName);
             for (int i = 0; i < pullRequestNumberForResponder; i++) {
                 jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
                         .property(MPC, mpcQualifiedName)
@@ -228,24 +240,16 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         }
     }
 
-    private boolean pause(List<Process> pullProcesses, int numberOfPullRequestPerMpc) {
+    private boolean pause(Integer maxPullRequestNumber) {
         LOG.trace("Checking if the system should pause the pulling mechanism.");
-        int numberOfPullMpc = 0;
         final long queueMessageNumber = jmsManager.getDestinationSize(PULL);
-        for (Process pullProcess : pullProcesses) {
-            try {
-                processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
-                numberOfPullMpc++;
-            } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try ", e);
-            }
-        }
-        final int pullRequestsToSendCount = numberOfPullMpc * numberOfPullRequestPerMpc;
-        final boolean shouldPause = queueMessageNumber > pullRequestsToSendCount;
+
+        final boolean shouldPause = queueMessageNumber > maxPullRequestNumber;
+
         if (shouldPause) {
-            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, pullRequestsToSendCount);
+            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, maxPullRequestNumber);
         } else {
-            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, pullRequestsToSendCount);
+            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, maxPullRequestNumber);
         }
         return shouldPause;
     }
@@ -334,10 +338,11 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
-        if (policyService.isNoSecurityPolicy(policy)) {
+        if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
+            LOG.debug("Validation of the receiver certificate is skipped.");
             return;
         }
-        // TODO - skip for policy with no encryption
+
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
             try {
@@ -372,6 +377,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy)) {
+            LOG.debug("Validation of the sender certificate is skipped.");
             return;
         }
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {

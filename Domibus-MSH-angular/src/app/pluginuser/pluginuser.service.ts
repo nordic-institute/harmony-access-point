@@ -35,7 +35,6 @@ export class PluginUserService {
 
     return this.http.get(PluginUserService.PLUGIN_USERS_URL, {search: searchParams})
       .map(this.extractData)
-      .catch(err => this.alertService.handleError(err));
   }
 
   createFilterParams (filter: PluginUserSearchCriteria) {

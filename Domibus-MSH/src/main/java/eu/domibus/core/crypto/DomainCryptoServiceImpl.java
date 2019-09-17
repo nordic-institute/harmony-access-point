@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -208,7 +209,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
 
     public String getTrustStoreType() {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type");
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
 
     @Override
@@ -223,5 +224,10 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     protected void setDomainCryptoServiceSpiList(List<DomainCryptoServiceSpi> domainCryptoServiceSpiList) {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
+    }
+
+    @Override
+    public void refresh(){
+        this.init();
     }
 }

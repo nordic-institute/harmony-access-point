@@ -25,7 +25,7 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -70,6 +70,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
+    static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
@@ -93,7 +94,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private UserMessageLogService userMessageLogService;
 
     @Autowired
-    private StorageProvider storageProvider;
+    private PayloadFileStorageProvider storageProvider;
 
     @Autowired
     private SignalMessageLogDao signalMessageLogDao;
@@ -281,8 +282,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submitMessageFragment(UserMessage userMessage, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
-            LOG.warn("UserMessage is null");
-            throw new MessageNotFoundException("UserMessage is null");
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
 
         // MessageInfo is always initialized in the get method
@@ -335,11 +336,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             return userMessage.getMessageInfo().getMessageId();
 
         } catch (EbMS3Exception ebms3Ex) {
-            LOG.error("Error submitting the message [" + userMessage.getMessageInfo().getMessageId() + "] to [" + backendName + "]", ebms3Ex);
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", ebms3Ex);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
-            LOG.error("Error submitting the message [" + userMessage.getMessageInfo().getMessageId() + "] to [" + backendName + "]" + p.getMessage());
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage());
             errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
@@ -348,7 +349,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private void prepareForPushOrPull(UserMessage userMessage, String messageId, String pModeKey, Party to, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(messageId);
+            userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
         } else {
             final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
@@ -377,8 +378,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
 
         if (userMessage == null) {
-            LOG.warn("UserMessage is null");
-            throw new MessageNotFoundException("UserMessage is null");
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
 
         validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
@@ -438,7 +439,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSplitAndJoin(splitAndJoin);
 
-            if (splitAndJoin && storageProvider.idPayloadsPersistenceInDatabaseConfigured()) {
+            if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
                 LOG.error("SplitAndJoin feature needs payload storage on the file system");
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
                 ex.setMshRole(MSHRole.SENDING);

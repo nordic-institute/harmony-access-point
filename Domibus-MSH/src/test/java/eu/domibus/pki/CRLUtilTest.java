@@ -1,7 +1,6 @@
 package eu.domibus.pki;
 
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.util.HttpUtilImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -16,7 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.Security;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;

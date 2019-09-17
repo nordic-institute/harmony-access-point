@@ -14,7 +14,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import org.apache.commons.lang3.StringUtils;
@@ -352,7 +352,7 @@ public class FSSendMessagesService {
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
             if (fileInfo.getDomain().equals(domain) && ((currentTime - fileInfo.getModified()) > delta)) {
-                LOG.debug("File [{}] is old and will be removed from the map", key);
+                LOG.debug("File [{}] is old and will not be observed anymore", key);
                 observedFilesInfo.remove(key);
             }
         }
