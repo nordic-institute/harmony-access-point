@@ -13,7 +13,6 @@ import utils.Generator;
 
 import java.util.HashMap;
 
-import static org.reflections.Reflections.log;
 
 
 public class AuditPgTest extends BaseTest {
@@ -46,7 +45,7 @@ public class AuditPgTest extends BaseTest {
         soft.assertTrue(Apage.isLoaded(), "Page is loaded successfully");
         soft.assertTrue(!Apage.isGridEmpty(), "Grid has some data");
         Apage.grid().doubleClickRow(1);
-        soft.assertTrue(Apage.getSelectRowInfo(1), "Row is not selected on double click");
+        soft.assertTrue(Apage.isRowSelected(1), "Row is not selected on double click");
         soft.assertAll();
     }
 
@@ -68,11 +67,14 @@ public class AuditPgTest extends BaseTest {
         log.info("Select data PluginUser in Table input field  as basic filter");
         Apage.getFilters().setFilterData("table", "PluginUser");
         log.info("Select Admin in User input field as basic filter");
-        Apage.getFilters().setFilterData("user", "admin");
+        Apage.getFilters().setFilterData("Action", "Created");
         log.info("Click on Search button");
         Apage.getFilters().getSearchButton().click();
         log.info("Search result count:" + Apage.getFilters().getPagination().getTotalItems());
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has some data");
+        Boolean result = Apage.grid().getRowInfo(0).containsValue("PluginUser")
+                && Apage.grid().getRowInfo(0).containsValue("Created");
+        soft.assertTrue(result, "Top row has Table value as PluginUser, User value as Admin & Action as Created ");
         soft.assertAll();
     }
 
@@ -164,7 +166,18 @@ public class AuditPgTest extends BaseTest {
         log.info("Validate Audit page");
         soft.assertTrue(Apage.isLoaded(), "page is loaded successfully");
         log.info("Download all grid record csv");
-        rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+        String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+        log.info("downloaded audit logs to file :" + fileName);
+        System.out.println(Apage.grid().getRowsNo());
+        if(Apage.grid().getRowsNo()>=10){
+            log.info("comparing any random row data from downloaded csv and grid");
+            Apage.grid().checkCSVvsGridDataForSpecificRow(fileName,soft,Generator.randomNumber(10));
+            Apage.grid().checkCSVvsGridDataForSpecificRow(fileName,soft,Generator.randomNumber(10));
+        }
+       else{
+           log.info("comparing all data from grid row and downloaded csv");
+           Apage.grid().checkCSVvsGridInfo(fileName,soft);
+        }
         soft.assertAll();
     }
 
@@ -195,8 +208,8 @@ public class AuditPgTest extends BaseTest {
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
         log.info("Validate top record Action as Deleted");
         Boolean result = Apage.grid().getRowInfo(0).containsValue("Message")
-                && Apage.grid().getRowInfo(0).containsValue("admin")
-                && Apage.grid().getRowInfo(0).containsValue("Downloaded");
+                && Apage.grid().getRowInfo(0).containsValue("Downloaded")
+                && Apage.grid().getRowInfo(0).containsValue(messID);
         soft.assertTrue(result, "Top row has Table value as Message, User value as Admin & Action as Downloaded ");
         soft.assertAll();
     }
@@ -225,9 +238,8 @@ public class AuditPgTest extends BaseTest {
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
         log.info("Validate top record Action as Created");
         Boolean result = Apage.grid().getRowInfo(0).containsValue("User")
-                && Apage.grid().getRowInfo(0).containsValue("admin")
                 && Apage.grid().getRowInfo(0).containsValue("Created");
-        soft.assertTrue(result, "Top row has Table value as User, User value as Admin & Action as created ");
+        soft.assertTrue(result, "Top row has Table value as User & Action as created ");
         soft.assertAll();
     }
 
@@ -258,7 +270,6 @@ public class AuditPgTest extends BaseTest {
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
         log.info("Validate top record Action as Modified");
         Boolean result = Apage.grid().getRowInfo(0).containsValue("User")
-                && Apage.grid().getRowInfo(0).containsValue("admin")
                 && Apage.grid().getRowInfo(0).containsValue("Modified");
         soft.assertTrue(result, "Top row has Table value as User, User value as Admin & Action as Modified ");
         soft.assertAll();
@@ -290,7 +301,6 @@ This method will verify log for User on delete event
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
         log.info("Validate top record Action as Modified");
         Boolean result = Apage.grid().getRowInfo(0).containsValue("User")
-                && Apage.grid().getRowInfo(0).containsValue("admin")
                 && Apage.grid().getRowInfo(0).containsValue("Modified");
         soft.assertTrue(result, "Top row has Table value as User, User value as Admin & Action as Modified ");
         soft.assertAll();
@@ -321,7 +331,6 @@ This method will verify log for User on delete event
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
         log.info("Validate top record Action as Created");
         Boolean result = Apage.grid().getRowInfo(0).containsValue("PluginUser")
-                && Apage.grid().getRowInfo(0).containsValue("admin")
                 && Apage.grid().getRowInfo(0).containsValue("Created");
         soft.assertTrue(result, "Top row has Table value as PluginUser, User value as Admin & Action as created ");
         soft.assertAll();
@@ -352,7 +361,6 @@ This method will verify log for User on delete event
         soft.assertTrue(Apage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
         log.info("Validate top record Action as Deleted");
         Boolean result = Apage.grid().getRowInfo(0).containsValue("PluginUser")
-                && Apage.grid().getRowInfo(0).containsValue("admin")
                 && Apage.grid().getRowInfo(0).containsValue("Deleted");
         soft.assertTrue(result, "Top row has Table value as PluginUser, User value as Admin & Action as Deleted ");
         soft.assertAll();

@@ -484,7 +484,22 @@ public class DGrid extends DComponent {
 		}
 		throw new Exception("Sort order cannot be determined");
 	}
+	public void checkCSVvsGridDataForSpecificRow(String filename, SoftAssert soft,int i) throws Exception {
+		log.info("Checking csv file vs grid content for specific row");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<CSVRecord> records = csvParser.getRecords();
+		HashMap<String, String> gridInfo = getRowInfo(i);
+
+
+		log.info("checking listed data for  data row" + i );
+			HashMap<String, String> gridRecord = gridInfo;
+			CSVRecord record = records.get(i);
+			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+		}
+	}
 
 
 
-}

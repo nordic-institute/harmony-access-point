@@ -81,7 +81,7 @@ public class AuditPage extends DomibusPage {
         return true;
     }
 
-    public Boolean getSelectRowInfo(int rowNumber) {
+    public Boolean isRowSelected(int rowNumber) {
         if (gridRows.get(rowNumber).getAttribute("class").contains("active")) {
             log.debug("Row is selected on double click");
             return false;
