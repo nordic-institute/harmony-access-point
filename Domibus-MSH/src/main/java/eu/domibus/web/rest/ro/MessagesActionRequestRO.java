@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.web.rest.validators.CustomWhiteListed;
+
 import java.util.List;
 
 /**
@@ -8,10 +10,13 @@ import java.util.List;
 
 public class MessagesActionRequestRO {
 
+    @CustomWhiteListed(permitted = ".@!/")
     private String source;
     private String type;
     private String content;
+    @CustomWhiteListed(permitted = ".@!/")
     private String destination;
+    @CustomWhiteListed(permitted = "<>.:-")
     private List<String> selectedMessages;
     private Action action;
 
