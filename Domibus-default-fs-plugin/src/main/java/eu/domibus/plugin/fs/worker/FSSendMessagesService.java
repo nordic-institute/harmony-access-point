@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -66,6 +67,9 @@ public class FSSendMessagesService {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
+    private DomainContextExtService domainContextExtService;
+
+    @Autowired
     private FSDomainService fsDomainService;
 
     @Autowired
@@ -110,7 +114,7 @@ public class FSSendMessagesService {
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-             FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
+            FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
             LOG.trace("Found descendant files [{}] for output folder [{}]", contentFiles, outgoingFolder.getName().getPath());
@@ -130,8 +134,15 @@ public class FSSendMessagesService {
             if (contentFiles != null) {
                 fsFilesManager.closeAll(contentFiles);
             }
+
+            clearDomainContext();
             LOG.debug("Finished sending messages for domain [{}]", domain);
         }
+    }
+
+    protected void clearDomainContext() {
+        LOG.removeMDC(DomibusLogger.MDC_USER);
+        domainContextExtService.clearCurrentDomain();
     }
 
     /**
