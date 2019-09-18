@@ -70,6 +70,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 4.1
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     private static final Long MB_IN_BYTES = 1048576L;
