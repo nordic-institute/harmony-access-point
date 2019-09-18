@@ -24,7 +24,7 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
     @Autowired(required = false)
-    private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
+    protected List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
 
     @Autowired
     private SignalService signalService;

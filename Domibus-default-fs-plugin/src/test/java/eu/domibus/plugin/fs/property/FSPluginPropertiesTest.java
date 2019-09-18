@@ -6,6 +6,7 @@ import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -15,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.*;
 
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.SEND_WORKER_INTERVAL;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -107,6 +109,7 @@ public class FSPluginPropertiesTest {
         } catch (IllegalArgumentException e) {
             assertEquals(true, e.getMessage().contains(propertyName));
         }
+
     }
 
 }
