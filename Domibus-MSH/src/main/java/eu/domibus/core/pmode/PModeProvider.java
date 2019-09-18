@@ -341,8 +341,8 @@ public abstract class PModeProvider {
 
     protected abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
-        Map<UserMessageMapping, String> mappings = new HashMap<>();
         final String actionValue = userMessage.getCollaborationInfo().getAction();
         final String actionName = findActionName(actionValue);
         final eu.domibus.ebms3.common.model.Service service = userMessage.getCollaborationInfo().getService();

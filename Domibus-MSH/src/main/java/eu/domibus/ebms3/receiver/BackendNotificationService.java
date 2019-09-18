@@ -206,6 +206,7 @@ public class BackendNotificationService {
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
         List<BackendFilter> backendFilters = getBackendFilters();
         return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);

@@ -20,6 +20,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -93,14 +95,13 @@ public class AuthorizationService {
                 domainCoreConverter.convert(pullRequest, PullRequestDTO.class), pullRequestPmodeData);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
-        final UserMessagePmodeData userMessagePmodeData;
-
-        userMessagePmodeData = pModeProvider.getUserMessagePmodeData(userMessage);
+        final UserMessagePmodeData userMessagePmodeData= pModeProvider.getUserMessagePmodeData(userMessage);
 
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
                 domainCoreConverter.convert(userMessage, UserMessageDTO.class), userMessagePmodeData);

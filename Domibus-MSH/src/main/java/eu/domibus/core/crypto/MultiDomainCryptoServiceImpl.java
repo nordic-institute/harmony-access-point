@@ -16,6 +16,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -165,6 +166,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.addCertificate(certificates, overwrite);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public X509Certificate getCertificateFromTruststore(Domain domain, String alias) throws KeyStoreException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
