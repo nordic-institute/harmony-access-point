@@ -170,7 +170,7 @@ public class UpdateRetryLoggingService {
      * @return true if the message can be sent again
      */
     public boolean hasAttemptsLeft(final MessageLog userMessageLog, final LegConfiguration legConfiguration) {
-        if (legConfiguration.getReceptionAwareness() == null) {
+        if (legConfiguration == null || legConfiguration.getReceptionAwareness() == null) {
             return false;
         }
         LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]",
