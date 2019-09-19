@@ -13,15 +13,12 @@ import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Dussart
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInClientInterceptor.class);

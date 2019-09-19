@@ -16,8 +16,6 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
@@ -30,7 +28,6 @@ import java.io.IOException;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);

@@ -14,8 +14,6 @@ import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 
@@ -25,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author Cosmin Baciu
  * @since 4.0
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SetDomainInInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetDomainInInterceptor.class);

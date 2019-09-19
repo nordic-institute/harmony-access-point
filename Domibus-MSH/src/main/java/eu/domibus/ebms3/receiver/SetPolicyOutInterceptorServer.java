@@ -5,8 +5,6 @@ import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.ebms3.sender.SetPolicyOutInterceptor;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Dussart
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
  * In case of a pulled message, the outgoing is a user message with attachements which should
  * received the same processing as the outPut of a push message.
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SetPolicyOutInterceptorServer extends SetPolicyOutInterceptor {
     public SetPolicyOutInterceptorServer() {
         super();
