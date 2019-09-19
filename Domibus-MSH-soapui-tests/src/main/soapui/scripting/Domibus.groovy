@@ -390,7 +390,9 @@ def findNumberOfDomain(String inputSite) {
         def sqlQueriesList = [
             "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_RAWENVELOPE_LOG where SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + "))",
+			"delete from TB_RAWENVELOPE_LOG where MESSAGE_ID ${messageIDCheck}",
             "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
+			"delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
             "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_PROPERTY where PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
             "delete from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
@@ -1151,6 +1153,7 @@ def findNumberOfDomain(String inputSite) {
         def jsonSlurper = new JsonSlurper()
         def domainMap = jsonSlurper.parseText(domainInfo)
         assert(domainMap.name != null),"Error:getDomain: Domain informations are corrupted: $domainInfo.";
+		debugLog("  ====  End \"getDomainName\": returning domain name value "+domainMap.name+".", log)
         return domainMap.name;
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1761,6 +1764,7 @@ static def ifWindowsEscapeJsonString(json) {
 
 // Return admin credentials for super user in multidomain configuration and admin user in single domaind situation with domain provided
         static def retriveAdminCredentialsForDomain(context, log, String side, String domainValue, String authUser, authPwd) {
+		debugLog("  ====  Calling \"retriveAdminCredentialsForDomain\".", log)
         def authenticationUser = authUser
         def authenticationPwd = authPwd
         def multitenancyOn =  null
@@ -1782,6 +1786,7 @@ static def ifWindowsEscapeJsonString(json) {
                 authenticationPwd = DEFAULT_ADMIN_USER_PWD;
             }
         }
+		debugLog("  ====  END \"retriveAdminCredentialsForDomain\": returning credentials: ["+authenticationUser+", "+authenticationPwd+"].", log)
         return [authenticationUser, authenticationPwd]
 }
 
@@ -2187,7 +2192,7 @@ static def String pathToLogFiles(side, log, context) {
 	
 //---------------------------------------------------------------------------------------------------------------------------------
     // Change Domibus configuration file
-    static def void checkLogFile(side, logFileToCheck, logValueList, log, context, testRunner){
+    static def void checkLogFile(side, logFileToCheck, logValueList, log, context, testRunner,checkPresent=true){
         debugLog("  ====  Calling \"checkLogFile\".", log)
         // Check that logs file contains specific entries specified in list logValueList
         // to set number of lines to skip configuration use method restoreDomibusPropertiesFromBackup(domibusPath,  log, context, testRunner)
@@ -2230,16 +2235,27 @@ static def String pathToLogFiles(side, log, context) {
 							}
 						}
 					}
-					if (! found )
-					   log.warn " checkLogFile  [][]  The search string [$logEntryToFind] was NOT in file [${pathToLogFile}]"
-					else 
-						 foundTotalNumber++
-					
+					if (! found ){
+						if(checkPresent){
+							log.warn " checkLogFile  [][]  The search string [$logEntryToFind] was NOT in file [${pathToLogFile}]"
+						}
+					}
+					else{ 
+						foundTotalNumber++
+					}					
 				} //loop end
-			   if (foundTotalNumber != logValueList.size()) 
-				testRunner.fail(" checkLogFile  [][]  Searching log file failed: Only ${foundTotalNumber} from ${logValueList.size()} entries found.") 
+				if(checkPresent){
+					if (foundTotalNumber != logValueList.size()) 
+						testRunner.fail(" checkLogFile  [][]  Searching log file failed: Only ${foundTotalNumber} from ${logValueList.size()} entries found.") 
 					else 
-				   log.info " checkLogFile  [][]  All ${logValueList.size()} entries was found in log file."
+						log.info " checkLogFile  [][]  All ${logValueList.size()} entries were found in log file."
+				}
+				else{
+					if (foundTotalNumber != 0) 
+						testRunner.fail(" checkLogFile  [][]  Searching log file failed: ${foundTotalNumber} from ${logValueList.size()} entries were found.") 
+					else 
+						log.info " checkLogFile  [][]  All ${logValueList.size()} entries were not found in log file."
+				}
     }
 
 
