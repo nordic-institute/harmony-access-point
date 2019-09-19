@@ -7,8 +7,6 @@ import org.apache.cxf.jaxws.handler.soap.DomibusSOAPHandlerFaultOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Iterator;
 
@@ -21,7 +19,6 @@ import java.util.Iterator;
  * own DomibusSOAPHandlerFaultOutInterceptor that sets the code value to Receiver instead of HandleFault
  * which is non-standard and causes an exception.
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SetCodeValueFaultOutInterceptor extends AbstractSoapInterceptor {
     public SetCodeValueFaultOutInterceptor() {
         super(Phase.PRE_PROTOCOL_FRONTEND);

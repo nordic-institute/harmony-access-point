@@ -8,15 +8,12 @@ import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.PolicyInInterceptor;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusPrepareAttachmentInterceptor extends AbstractSoapInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPrepareAttachmentInterceptor.class);
 

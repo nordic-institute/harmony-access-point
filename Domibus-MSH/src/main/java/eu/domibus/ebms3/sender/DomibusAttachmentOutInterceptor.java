@@ -1,8 +1,6 @@
 package eu.domibus.ebms3.sender;
 
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +13,6 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusAttachmentOutInterceptor extends AttachmentOutInterceptor {
 
     protected static final Map<String, List<String>> headers = new HashMap<>();
