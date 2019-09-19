@@ -35,7 +35,7 @@ public class SoapServiceImpl implements SoapService {
 
     @Qualifier("jaxbContextEBMS")
     @Autowired
-    private JAXBContext jaxbContext;
+    protected JAXBContext jaxbContext;
 
 
     public Messaging getMessage(final SoapMessage message) throws IOException, JAXBException, EbMS3Exception {

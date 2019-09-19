@@ -5,6 +5,8 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Dussart
@@ -13,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * First in interceptor, verifies that the system is ready for incoming request.
  * @see DomibusInitializationHelper for more details.
  */
-
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusReadyInterceptor extends AbstractPhaseInterceptor {
 
     @Autowired

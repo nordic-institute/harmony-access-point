@@ -7,6 +7,8 @@ import org.apache.wss4j.common.crypto.CryptoBase;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.callback.CallbackHandler;
 import java.security.PrivateKey;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.0
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class Wss4JMultiDomainCryptoProvider extends CryptoBase {
 
     @Autowired

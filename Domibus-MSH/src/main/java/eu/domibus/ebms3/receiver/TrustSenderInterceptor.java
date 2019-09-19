@@ -38,6 +38,8 @@ import org.apache.wss4j.dom.str.STRParserResult;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -68,6 +70,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEN
  * @author Martini Federico
  * @since 3.3
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);

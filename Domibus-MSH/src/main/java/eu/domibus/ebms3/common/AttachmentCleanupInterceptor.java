@@ -8,6 +8,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * CXF is storing in tmp files the payloads higher then 200Mb.
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Federico Martini
  * @since 3.2.2
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class AttachmentCleanupInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupInterceptor.class);

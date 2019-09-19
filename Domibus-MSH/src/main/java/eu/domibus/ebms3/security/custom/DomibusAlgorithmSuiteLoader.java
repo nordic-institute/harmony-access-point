@@ -15,6 +15,8 @@ import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.policy.SPConstants;
 import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -33,6 +35,7 @@ import java.util.Map;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     public static final String E_DELIVERY_ALGORITHM_NAMESPACE = "http://e-delivery.eu/custom/security-policy";

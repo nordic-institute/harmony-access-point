@@ -9,10 +9,13 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.PolicyInInterceptor;
 import org.apache.cxf.ws.security.SecurityConstants;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Christian Koch, Stefan Mueller
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class SetSignatureAlgorithmInInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptor.class);

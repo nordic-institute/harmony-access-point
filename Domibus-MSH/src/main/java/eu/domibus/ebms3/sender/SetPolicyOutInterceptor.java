@@ -21,6 +21,8 @@ import org.apache.cxf.ws.policy.PolicyVerificationOutInterceptor;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -30,6 +32,7 @@ import javax.xml.soap.SOAPMessage;
  * @author Christian Koch, Stefan Mueller
  * @since 3.0
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyOutInterceptor.class);
 

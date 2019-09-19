@@ -5,6 +5,8 @@ import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.AssertionBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Dussart
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusInitializationHelper {
 
     private boolean cxfInitiated;

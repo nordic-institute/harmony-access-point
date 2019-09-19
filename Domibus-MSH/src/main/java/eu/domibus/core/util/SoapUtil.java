@@ -121,7 +121,7 @@ public class SoapUtil {
     public String getRawXMLMessage(SOAPMessage soapMessage) throws TransformerException {
         final StringWriter rawXmlMessageWriter = new StringWriter();
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        TransformerFactory transformerFactory = createTransformerFactory();
         transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         transformerFactory.newTransformer().transform(
                 new DOMSource(soapMessage.getSOAPPart()),
