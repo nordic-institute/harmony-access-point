@@ -1255,7 +1255,13 @@ def findNumberOfDomain(String inputSite) {
                 curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
                 debugLog("  addAdminConsoleUser  [][]  Inserting user \"$userAC\" in list.", log)
                 debugLog("  addAdminConsoleUser  [][]  User \"$userAC\" parameters: $curlParams.", log)
-                commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+				commandString = ["curl ",urlToDomibus(side, log, context) + "/rest/user/users",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT", 
+								"--data-binary", formatJsonForCurl(curlParams, log), 
+								"-v"]
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addAdminConsoleUser: Error while trying to add a user.";
                 log.info "  addAdminConsoleUser  [][]  Admin Console user \"$userAC\" added.";
