@@ -8,7 +8,7 @@ import java.util.UUID;
 public class SendJMSMessageOnTomcat {
 
     public static void main(String[] args) {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61617");
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         Connection connection;
         MessageProducer producer;
         try {
@@ -18,32 +18,6 @@ public class SendJMSMessageOnTomcat {
             Destination destination = session.createQueue("domibus.backend.jms.inQueue");
             producer = session.createProducer(destination);
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-
-           /* ---- public static void sendMessageJMS20(ConnectionFactory connectionFactory, Queue queue,
-    String text) {
-       try (JMSContext context = connectionFactory.createContext();){
-
-            MapMessage map = context.createMapMessage();
-           map.setBytes("payload_1", text.getBytes());
-
-            context.createProducer()
-           .setProperty("fromPartyId", "ADALUPLDAT")
-           .setProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:PLDA_TEST")
-           .setProperty("toPartyId", "RSSBUSAS4")
-           .setProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:rssbusas4ADA")
-           .setProperty("service", "zfService")
-           .setProperty("action", "zfAction")
-           .setProperty("fromRole", "Initiator")
-           .setProperty("toRole", "Responder")
-           .setProperty("messageType", "submitMessage")
-           .setProperty("totalNumberOfPayloads", 1)
-           .setProperty("payload_1_mimeType", "application/xml")
-                 .send(queue, map);
-       } catch (JMSRuntimeException ex) {
-          // handle exception (details omitted)
-       } catch (JMSException e) {
-        }
-    }*/
 
             MapMessage messageMap = session.createMapMessage();
 
@@ -58,28 +32,26 @@ public class SendJMSMessageOnTomcat {
 
             // Set up the Communication properties for the message
             messageMap.setStringProperty("service", "bdx:noprocess");
-            //essageMap.setStringProperty("service", "zfService");@@
             //messageMap.setStringProperty("serviceType", "noSecurity");
-
-           // messageMap.setStringProperty("ECIDContext", "1.6a497516-a92b-417e-84c0-94e4176796a6-00000606;kZhgv0ZGZKSULGSPXKTPJHSRo4USpLO");
+            //messageMap.setStringProperty("serviceType", "signOnly");
             messageMap.setStringProperty("serviceType", "tc1");
-           // messageMap.setStringProperty("action", "zfAction");
-           messageMap.setStringProperty("action", "TC1Leg1");
+
+            messageMap.setStringProperty("action", "TC1Leg1");
             messageMap.setStringProperty("conversationId", "123");
+            //messageMap.setStringProperty("fromPartyId", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:domibus-blue");
+            //messageMap.setStringProperty("fromPartyType", ""); // Mandatory but empty here because it is in the value of the party ID
             messageMap.setStringProperty("fromPartyId", "domibus-blue");
-            //messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:PLDA_TEST"); // Mandatory but empty here because it is in the value of the party ID
-            //messageMap.setStringProperty("fromPartyId", "domibus-blue");  @@
-            messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered"); // Mandatory  @@
+            messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered"); // Mandatory
 
-           messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
-           //messageMap.setStringProperty("fromRole", "Initiator");
+            messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+
+            //messageMap.setStringProperty("toPartyId", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:domibus-red");
+            //messageMap.setStringProperty("toPartyType", ""); // Mandatory but empty here because it is in the value of the party ID
             messageMap.setStringProperty("toPartyId", "domibus-red");
-          //  messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:rssbusas4ADA"); // Mandatory but empty here because it is in the value of the party ID
-           /* messageMap.setStringProperty("toPartyId", "domibus-red");  @@// Mandatory  @@ */
-            messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+            messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered"); // Mandatory
 
-           messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
-            //messageMap.setStringProperty("toRole", "Responder");
+            messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+
             messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
             messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
             messageMap.setStringProperty("protocol", "AS4");
@@ -88,8 +60,8 @@ public class SendJMSMessageOnTomcat {
             //Set up the payload properties
             messageMap.setStringProperty("totalNumberOfPayloads", "1");
             messageMap.setStringProperty("payload_1_description", "message");
-            //messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
-            messageMap.setStringProperty("payload_1_mimeType", "application/xml");
+            messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
+            messageMap.setStringProperty("payload_1_mimeType", "text/xml");
 
             //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
 
