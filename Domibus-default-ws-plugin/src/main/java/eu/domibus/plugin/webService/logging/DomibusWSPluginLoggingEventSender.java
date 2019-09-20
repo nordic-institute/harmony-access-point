@@ -32,8 +32,10 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
             //C4 - C3
             int indexStart = payload.indexOf(VALUE_START);
             int indexEnd = payload.indexOf(VALUE_END);
-            event.setPayload(payload.replace(payload.substring(indexStart + VALUE_START.length(), indexEnd),
-                    AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            if (0 <= indexStart && indexStart < indexEnd) {
+                event.setPayload(payload.replace(payload.substring(indexStart + VALUE_START.length(), indexEnd),
+                        AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            }
         }
     }
 

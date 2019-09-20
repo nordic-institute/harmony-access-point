@@ -61,4 +61,21 @@ public class DomibusWSPluginLoggingEventSenderTest {
             Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
     }
+
+    @Test
+    public void test_stripPayload_SubmitMessage_NoContent(final @Mocked LogEvent logEvent) throws Exception {
+
+        final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SubmitMessage_no_content.xml"), "UTF-8");
+
+        new Expectations() {{
+            logEvent.getPayload();
+            result = payload;
+        }};
+
+        domibusWSPluginLoggingEventSender.stripPayload(logEvent);
+
+        new Verifications() {{
+            logEvent.setPayload(anyString); times=0;
+        }};
+    }
 }
