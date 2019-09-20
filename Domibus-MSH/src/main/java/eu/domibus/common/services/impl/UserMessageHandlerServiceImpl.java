@@ -519,7 +519,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 bodyloadFound = true;
                 payloadFound = true;
                 partInfo.setInBody(true);
-                final Node bodyContent = ((Node) request.getSOAPBody().getChildElements().next());
+                Node bodyContent =null;
+                if(request.getSOAPBody().hasChildNodes()) {
+                    bodyContent = ((Node) request.getSOAPBody().getChildElements().next());
+                }
+                LOG.info("Soap BodyContent:"+bodyContent);
                 final Source source = new DOMSource(bodyContent);
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 final Result result = new StreamResult(out);

@@ -378,9 +378,9 @@ public class UserMessageHandlerServiceImplTest {
         property1.setName("MimeType");
         property1.setValue("text/xml");
 
+
         partProperties.getProperties().add(property1);
         partInfo.setPartProperties(partProperties);
-
         List<Node> bodyContentNodeList = new ArrayList<>();
         bodyContentNodeList.add(bodyContent);
         final Iterator<Node> bodyContentNodeIterator = bodyContentNodeList.iterator();
@@ -388,7 +388,7 @@ public class UserMessageHandlerServiceImplTest {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = partInfo;
-
+            soapRequestMessage.getSOAPBody().hasChildNodes(); result=true;
             soapRequestMessage.getSOAPBody().getChildElements();
             result = bodyContentNodeIterator;
         }};
@@ -398,6 +398,32 @@ public class UserMessageHandlerServiceImplTest {
             Assert.assertNotNull(partInfo.getPayloadDatahandler());
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             fail("No Errors expected in happy flow!");
+        }
+    }
+
+    @Test
+    public void test_HandlePayLoads_EmptyCIDAndBodyContent(@Injectable final UserMessage userMessage, @Injectable final Node bodyContent) throws SOAPException, TransformerConfigurationException {
+        final PartInfo partInfo = new PartInfo();
+        partInfo.setHref("");
+
+        PartProperties partProperties = new PartProperties();
+        Property property1 = new Property();
+        property1.setName("MimeType");
+        property1.setValue("text/xml");
+
+        partProperties.getProperties().add(property1);
+        partInfo.setPartProperties(partProperties);
+
+        new Expectations() {{
+            userMessage.getPayloadInfo().getPartInfo();
+            result = partInfo;
+            soapRequestMessage.getSOAPBody().getChildElements(); times=0;
+        }};
+        try {
+            userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage);
+            Assert.assertNotNull(partInfo.getPayloadDatahandler().getContentType());
+        } catch (EbMS3Exception | SOAPException | TransformerException e) {
+            fail("No Errors expected in the flow EmptyCID And BodyContent!");
         }
     }
 
@@ -489,7 +515,7 @@ public class UserMessageHandlerServiceImplTest {
         new Expectations() {{
             userMessage.getPayloadInfo();
             result = payloadInfo;
-
+            soapRequestMessage.getSOAPBody().hasChildNodes(); result=true;
             soapRequestMessage.getSOAPBody().getChildElements();
             result = bodyContentNodeIterator;
         }};
