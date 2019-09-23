@@ -191,7 +191,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         try {
             LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-            Messaging messaging = messageUtil.getMessaging(responseMessage);
+            Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
             final SignalMessage signalMessage = messaging.getSignalMessage();
 
             if (selfSendingFlag) {
@@ -227,7 +227,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             signalMessageLogDao.create(signalMessageLog);
 
             uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
-        } catch (JAXBException | SOAPException ex) {
+        } catch (SOAPException ex) {
             LOG.error("Unable to save the SignalMessage due to error: ", ex);
         }
     }

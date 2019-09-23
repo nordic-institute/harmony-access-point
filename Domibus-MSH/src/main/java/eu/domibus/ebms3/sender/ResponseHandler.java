@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
@@ -67,9 +66,9 @@ public class ResponseHandler {
 
         final Messaging messaging;
         try {
-            messaging = messageUtil.getMessaging(response);
+            messaging = messageUtil.getMessagingWithDom(response);
             result.setResponseMessaging(messaging);
-        } catch (JAXBException | SOAPException ex) {
+        } catch (SOAPException ex) {
             LOGGER.error("Error while un-marshalling message", ex);
             result.setResponseStatus(ResponseStatus.UNMARSHALL_ERROR);
             return result;
