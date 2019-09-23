@@ -8,6 +8,7 @@ import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.WSConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,6 +65,16 @@ public class MessageUtil {
     public static final String CATEGORY = "category";
     public static final String ERROR = "Error";
     public static final String SIGNAL_MESSAGE = "SignalMessage";
+    public static final String USER_MESSAGE = "UserMessage";
+    public static final String PARTY_INFO = "PartyInfo";
+    public static final String ROLE = "Role";
+    public static final String FROM = "From";
+    public static final String TYPE = "type";
+    public static final String PARTY_ID = "PartyId";
+    public static final String TO = "To";
+    public static final String COLLABORATION_INFO = "CollaborationInfo";
+    public static final String CONVERSATION_ID = "ConversationId";
+    public static final String ACTION = "Action";
 
     @Qualifier("jaxbContextEBMS")
     @Autowired
@@ -102,6 +113,9 @@ public class MessageUtil {
         final SignalMessage signalMessage = createSignalMessage(messagingNode);
         messaging.setSignalMessage(signalMessage);
 
+        final UserMessage userMessage = createUserMessage(messagingNode);
+        messaging.setUserMessage(userMessage);
+
         final Map<QName, String> otherAttributes = getOtherAttributes(messagingNode);
         if (otherAttributes != null) {
             messaging.getOtherAttributes().putAll(otherAttributes);
@@ -109,6 +123,155 @@ public class MessageUtil {
 
         LOG.debug("Finished creating the Messaging instance from the SOAPMessage using DOM processing");
         return messaging;
+    }
+
+    protected UserMessage createUserMessage(Node messagingNode) {
+        final Node userMessageNode = getFirstChild(messagingNode, USER_MESSAGE);
+        if (userMessageNode == null) {
+            LOG.debug("UserMessage is null");
+            return null;
+        }
+        UserMessage result = new UserMessage();
+
+        final MessageInfo messageInfo = createMessageInfo(userMessageNode);
+        result.setMessageInfo(messageInfo);
+
+        PartyInfo partyInfo = createPartyInfo(userMessageNode);
+        result.setPartyInfo(partyInfo);
+
+        CollaborationInfo collaborationInfo = createCollaborationInfo(userMessageNode);
+        result.setCollaborationInfo(collaborationInfo);
+
+        return result;
+    }
+
+    protected CollaborationInfo createCollaborationInfo(Node userMessageNode) {
+        LOG.debug("Creating CollaborationInfo");
+
+        final Node collaborationInfoNode = getFirstChild(userMessageNode, COLLABORATION_INFO);
+        if (collaborationInfoNode == null) {
+            LOG.debug("CollaborationInfo is null");
+            return null;
+        }
+        CollaborationInfo result = new CollaborationInfo();
+        eu.domibus.ebms3.common.model.Service service = createService(collaborationInfoNode);
+        result.setService(service);
+
+        final String conversationId = getFirstChildValue(collaborationInfoNode, CONVERSATION_ID);
+        result.setConversationId(conversationId);
+
+        final String action = getFirstChildValue(collaborationInfoNode, ACTION);
+        result.setAction(action);
+
+        AgreementRef agreement = createAgreementRef(collaborationInfoNode);
+        result.setAgreementRef(agreement);
+
+        return result;
+    }
+
+    private AgreementRef createAgreementRef(Node collaborationInfoNode) {
+        final Node agreementRefNode = getFirstChild(collaborationInfoNode, "AgreementRef");
+        if (agreementRefNode == null) {
+            LOG.debug("AgreementRef is null");
+            return null;
+        }
+
+        final String serviceType = getAttribute(agreementRefNode, "type");
+        final String serviceValue = getTextContent(agreementRefNode);
+
+        AgreementRef result = new AgreementRef();
+        result.setValue(serviceValue);
+        result.setType(serviceType);
+        return result;
+    }
+
+    protected eu.domibus.ebms3.common.model.Service createService(Node collaborationInfoNode) {
+        final Node serviceNode = getFirstChild(collaborationInfoNode, "Service");
+        if (serviceNode == null) {
+            LOG.debug("Service is null");
+            return null;
+        }
+
+        final String serviceType = getAttribute(serviceNode, "type");
+        final String serviceValue = getTextContent(serviceNode);
+
+        eu.domibus.ebms3.common.model.Service result = new eu.domibus.ebms3.common.model.Service();
+        result.setValue(serviceValue);
+        result.setType(serviceType);
+        return result;
+    }
+
+    protected PartyInfo createPartyInfo(Node userMessageNode) {
+        LOG.debug("Creating PartyInfo");
+
+        final Node partyInfoNode = getFirstChild(userMessageNode, PARTY_INFO);
+        if (partyInfoNode == null) {
+            LOG.debug("PartyInfo is null");
+            return null;
+        }
+        PartyInfo result = new PartyInfo();
+
+        final From from = createFrom(partyInfoNode);
+        result.setFrom(from);
+
+        final To to = createTo(partyInfoNode);
+        result.setTo(to);
+
+        return result;
+    }
+
+    protected To createTo(Node partyInfoNode) {
+        final Node toNode = getFirstChild(partyInfoNode, TO);
+        if (toNode == null) {
+            LOG.debug("To is null");
+            return null;
+        }
+        To result = new To();
+        final String role = getFirstChildValue(toNode, ROLE);
+        result.setRole(role);
+        final Set<PartyId> partyIds = createPartyIds(toNode);
+        result.getPartyId().addAll(partyIds);
+
+        return result;
+    }
+
+    protected From createFrom(final Node partyInfoNode) {
+        final Node fromNode = getFirstChild(partyInfoNode, FROM);
+        if (fromNode == null) {
+            LOG.debug("From is null");
+            return null;
+        }
+        From result = new From();
+        final String role = getFirstChildValue(fromNode, ROLE);
+        result.setRole(role);
+        final Set<PartyId> partyIds = createPartyIds(fromNode);
+        result.getPartyId().addAll(partyIds);
+
+
+        return result;
+    }
+
+    protected Set<PartyId> createPartyIds(Node parent) {
+        final List<Node> partyIdNodes = getNodes(parent, PARTY_ID);
+
+        Set<PartyId> result = new HashSet<>();
+        for (Node partyIdNode : partyIdNodes) {
+            final PartyId partyId = createPartyId(partyIdNode);
+            result.add(partyId);
+        }
+
+        return result;
+    }
+
+    protected PartyId createPartyId(Node partyIdNode) {
+        final String partyType = getAttribute(partyIdNode, TYPE);
+        final String partyValue = getTextContent(partyIdNode);
+
+        PartyId result = new PartyId();
+        result.setType(partyType);
+        result.setValue(partyValue);
+
+        return result;
     }
 
     protected SignalMessage createSignalMessage(final Node messagingNode) throws SOAPException {
@@ -184,9 +347,13 @@ public class MessageUtil {
         return result;
     }
 
+    protected String getTextContent(Node node) {
+        return StringUtils.trim(node.getTextContent());
+    }
+
     protected String getErrorDetail(Node errorNode) {
         final Node errorDetailNode = getFirstChild(errorNode, ERROR_DETAIL);
-        return errorDetailNode.getTextContent();
+        return getTextContent(errorDetailNode);
     }
 
     protected Description createDescription(Node errorNode) {
@@ -196,7 +363,7 @@ public class MessageUtil {
             return null;
         }
         final String lang = getAttribute(errorNode, LANG);
-        final String textContent = description.getTextContent();
+        final String textContent = getTextContent(description);
         Description result = new Description();
         result.setLang(lang);
         result.setValue(textContent);
@@ -213,7 +380,7 @@ public class MessageUtil {
         if (uri == null) {
             return null;
         }
-        return uri.getTextContent();
+        return getTextContent(uri);
     }
 
     protected Receipt createReceipt(final Node signalNode) throws SOAPException {
@@ -254,16 +421,16 @@ public class MessageUtil {
         }
 
         MessageInfo messageInfo = new MessageInfo();
-        final String timestampString = getNodeValue(messageInfoNode, TIMESTAMP);
+        final String timestampString = getFirstChildValue(messageInfoNode, TIMESTAMP);
         if (timestampString != null) {
             final Date date = domibusDateFormatter.fromString(timestampString);
             messageInfo.setTimestamp(date);
         }
 
-        final String messageId = getNodeValue(messageInfoNode, MESSAGE_ID);
+        final String messageId = getFirstChildValue(messageInfoNode, MESSAGE_ID);
         messageInfo.setMessageId(messageId);
 
-        final String refToMessageId = getNodeValue(messageInfoNode, REF_TO_MESSAGE_ID);
+        final String refToMessageId = getFirstChildValue(messageInfoNode, REF_TO_MESSAGE_ID);
         messageInfo.setRefToMessageId(refToMessageId);
 
         return messageInfo;
@@ -299,13 +466,13 @@ public class MessageUtil {
         return null;
     }
 
-    protected String getNodeValue(Node parent, String childName) {
+    protected String getFirstChildValue(Node parent, String childName) {
         final Node firstChild = getFirstChild(parent, childName);
         if (firstChild == null) {
             LOG.debug("Child [{}] could not be found in parent [{}]", childName, parent.getNodeName());
             return null;
         }
-        return firstChild.getTextContent();
+        return getTextContent(firstChild);
 
     }
 
