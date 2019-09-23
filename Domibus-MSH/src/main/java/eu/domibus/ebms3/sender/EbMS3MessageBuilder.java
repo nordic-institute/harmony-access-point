@@ -73,7 +73,6 @@ public class EbMS3MessageBuilder {
 
     @Autowired
     protected UserMessageFactory userMessageFactory;
-    private String href;
 
     public SOAPMessage buildSOAPMessage(final SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPMessage(signalMessage);
@@ -219,7 +218,7 @@ public class EbMS3MessageBuilder {
         }
         final AttachmentPart attachmentPart = message.createAttachmentPart(dataHandler);
         String href = partInfo.getHref();
-        LOG.debug("Attaching Payload with PartInfo href: [{}] ",href);
+        LOG.debug("Attaching Payload with PartInfo href: [{}] ", href);
         if (href != null) {
             if (href.contains("cid:")) {
                 href = href.substring(href.lastIndexOf("cid:") + "cid:".length());
