@@ -73,6 +73,7 @@ public class EbMS3MessageBuilder {
 
     @Autowired
     protected UserMessageFactory userMessageFactory;
+    private String href;
 
     public SOAPMessage buildSOAPMessage(final SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPMessage(signalMessage);
@@ -135,7 +136,7 @@ public class EbMS3MessageBuilder {
             if (userMessage.getMessageInfo() != null && userMessage.getMessageInfo().getTimestamp() == null) {
                 userMessage.getMessageInfo().setTimestamp(new Date());
             }
-            LOG.info("In buildSOAPUserMessage(): PartInfo and message"+userMessage.getPayloadInfo().getPartInfo()+"----&"+message);
+            LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
             for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
                 this.attachPayload(partInfo, message);
             }
@@ -208,7 +209,6 @@ public class EbMS3MessageBuilder {
                 }
             }
         }
-        LOG.info("PartInfo and message"+partInfo+"----&"+message);
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
             this.documentBuilderFactory.setNamespaceAware(true);
@@ -219,10 +219,9 @@ public class EbMS3MessageBuilder {
         }
         final AttachmentPart attachmentPart = message.createAttachmentPart(dataHandler);
         String href = partInfo.getHref();
-        LOG.info("PartInfo href:"+href);
-        if(href!=null)
-        {
-            if(href.contains("cid:")) {
+        LOG.debug("Attaching Payload with PartInfo href: [{}] ",href);
+        if (href != null) {
+            if (href.contains("cid:")) {
                 href = href.substring(href.lastIndexOf("cid:") + "cid:".length());
             }
 
