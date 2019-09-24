@@ -66,6 +66,7 @@
         <mysql.connector.java.version>5.1.34</mysql.connector.java.version>
         <wiremock.version>2.0.8-beta</wiremock.version>
         <dropwizard.metrics.version>4.0.3</dropwizard.metrics.version>
+        <dependency.check.version>5.2.2</dependency.check.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -1128,7 +1129,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>4.0.2</version>
+                        <version>${dependency.check.version}</version>
                         <inherited>false</inherited>
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
