@@ -49,9 +49,9 @@
         <quartz.version>2.3.0</quartz.version>
         <c3p0.version>0.9.5.3</c3p0.version>
         <org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.10</xstream.version>
+        <xstream.version>1.4.11</xstream.version>
         <freemarker.version>2.3.23</freemarker.version>
         <mail.version>1.6.1</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
