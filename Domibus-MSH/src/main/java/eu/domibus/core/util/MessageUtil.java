@@ -69,12 +69,19 @@ public class MessageUtil {
     public static final String PARTY_INFO = "PartyInfo";
     public static final String ROLE = "Role";
     public static final String FROM = "From";
-    public static final String TYPE = "type";
     public static final String PARTY_ID = "PartyId";
     public static final String TO = "To";
     public static final String COLLABORATION_INFO = "CollaborationInfo";
     public static final String CONVERSATION_ID = "ConversationId";
     public static final String ACTION = "Action";
+    public static final String MESSAGE_PROPERTIES = "MessageProperties";
+    public static final String PAYLOAD_INFO = "PayloadInfo";
+    public static final String PART_INFO = "PartInfo";
+    public static final String PROPERTY = "Property";
+    public static final String NAME = "name";
+    public static final String TYPE = "type";
+    public static final String HREF = "href";
+    public static final String PART_PROPERTIES = "PartProperties";
 
     @Qualifier("jaxbContextEBMS")
     @Autowired
@@ -102,14 +109,18 @@ public class MessageUtil {
     }
 
     public Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException {
+        final Node messagingNode = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
+        return getMessagingWithDom(messagingNode);
+    }
+
+    public Messaging getMessagingWithDom(final Node messagingNode) throws SOAPException {
         LOG.debug("Creating the Messaging instance from the SOAPMessage using DOM processing");
 
-        Messaging messaging = new Messaging();
-
-        final Node messagingNode = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         if (messagingNode == null) {
             throw new SOAPException("Could not found Messaging node");
         }
+        Messaging messaging = new Messaging();
+
         final SignalMessage signalMessage = createSignalMessage(messagingNode);
         messaging.setSignalMessage(signalMessage);
 
@@ -133,6 +144,9 @@ public class MessageUtil {
         }
         UserMessage result = new UserMessage();
 
+        final String mpc = getAttribute(userMessageNode, "mpc");
+        result.setMpc(mpc);
+
         final MessageInfo messageInfo = createMessageInfo(userMessageNode);
         result.setMessageInfo(messageInfo);
 
@@ -141,6 +155,96 @@ public class MessageUtil {
 
         CollaborationInfo collaborationInfo = createCollaborationInfo(userMessageNode);
         result.setCollaborationInfo(collaborationInfo);
+
+        MessageProperties messageProperties = createMessageProperties(userMessageNode);
+        result.setMessageProperties(messageProperties);
+
+        PayloadInfo payloadInfo = createPayloadInfo(userMessageNode);
+        result.setPayloadInfo(payloadInfo);
+
+        return result;
+    }
+
+    protected PayloadInfo createPayloadInfo(Node userMessageNode) {
+        LOG.debug("Creating PayloadInfo");
+
+        final Node payloadInfoNode = getFirstChild(userMessageNode, PAYLOAD_INFO);
+        if (payloadInfoNode == null) {
+            LOG.debug("PayloadInfo is null");
+            return null;
+        }
+        PayloadInfo result = new PayloadInfo();
+
+        final List<Node> partInfoNodes = getChildren(payloadInfoNode, PART_INFO);
+        for (Node partInfoNode : partInfoNodes) {
+            PartInfo partInfo = createPartInfo(partInfoNode);
+            result.getPartInfo().add(partInfo);
+        }
+
+        return result;
+    }
+
+    private PartInfo createPartInfo(Node partInfoNode) {
+        PartInfo result = new PartInfo();
+
+        final String href = getAttribute(partInfoNode, HREF);
+        result.setHref(href);
+        PartProperties partProperties = createPartProperties(partInfoNode);
+        result.setPartProperties(partProperties);
+
+        return result;
+    }
+
+    protected PartProperties createPartProperties(Node partInfoNode) {
+        LOG.debug("Creating createPartProperties");
+
+        final Node partPropertiesNode = getFirstChild(partInfoNode, PART_PROPERTIES);
+        if (partPropertiesNode == null) {
+            LOG.debug("PartProperties is null");
+            return null;
+        }
+        PartProperties result = new PartProperties();
+        Set<Property> properties = new HashSet<>();
+
+
+        final List<Node> propertyNodes = getChildren(partPropertiesNode, PROPERTY);
+        for (Node propertyNode : propertyNodes) {
+            final Property property = createProperty(propertyNode);
+            properties.add(property);
+        }
+        result.setProperty(properties);
+
+        return result;
+    }
+
+    protected MessageProperties createMessageProperties(Node userMessageNode) {
+        LOG.debug("Creating MessageProperties");
+
+        final Node messagePropertiesNode = getFirstChild(userMessageNode, MESSAGE_PROPERTIES);
+        if (messagePropertiesNode == null) {
+            LOG.debug("MessageProperties is null");
+            return null;
+        }
+        MessageProperties result = new MessageProperties();
+
+        final List<Node> propertyNodes = getChildren(messagePropertiesNode, PROPERTY);
+        for (Node propertyNode : propertyNodes) {
+            final Property property = createProperty(propertyNode);
+            result.getProperty().add(property);
+        }
+
+        return result;
+    }
+
+    protected Property createProperty(Node propertyNode) {
+        Property result = new Property();
+        final String name = getAttribute(propertyNode, NAME);
+        final String type = getAttribute(propertyNode, TYPE);
+        final String value = getTextContent(propertyNode);
+
+        result.setName(name);
+        result.setType(type);
+        result.setValue(value);
 
         return result;
     }
@@ -252,7 +356,7 @@ public class MessageUtil {
     }
 
     protected Set<PartyId> createPartyIds(Node parent) {
-        final List<Node> partyIdNodes = getNodes(parent, PARTY_ID);
+        final List<Node> partyIdNodes = getChildren(parent, PARTY_ID);
 
         Set<PartyId> result = new HashSet<>();
         for (Node partyIdNode : partyIdNodes) {
@@ -313,7 +417,7 @@ public class MessageUtil {
 
         Set<Error> result = new HashSet<>();
 
-        final List<Node> errorNodeList = getNodes(signalNode, ERROR);
+        final List<Node> errorNodeList = getChildren(signalNode, ERROR);
         for (Node errorNode : errorNodeList) {
             Error error = createError(errorNode);
             result.add(error);
@@ -443,7 +547,7 @@ public class MessageUtil {
         return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
     }
 
-    protected List<Node> getNodes(Node parent, String childName) {
+    protected List<Node> getChildren(Node parent, String childName) {
         List<Node> result = new ArrayList<>();
 
         final NodeList childNodes = parent.getChildNodes();
@@ -458,7 +562,7 @@ public class MessageUtil {
     }
 
     protected Node getFirstChild(Node parent, String childName) {
-        final List<Node> nodes = getNodes(parent, childName);
+        final List<Node> nodes = getChildren(parent, childName);
         if (CollectionUtils.isNotEmpty(nodes)) {
             return nodes.get(0);
         }
