@@ -3,6 +3,7 @@ package pages.messages;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -53,6 +54,22 @@ public class MessagesPage extends DomibusPage {
 		&& getResendButton().isPresent()
 		&& null != grid()
 		&& null != getFilters());
+	}
+
+	public String  getCssofRowSpecificActionIcon(int rowNumber,String iconName) {
+		if (iconName.equals("Download")) {
+			return "#downloadButtonRow"+rowNumber+"_id";
+		}
+		 if(iconName.equals("Resend")) {
+			return "#resendButtonRow"+rowNumber+"_id";
+		}
+		 return "";
+	}
+
+	public Boolean getActionIconStatus(int rowNumber,String iconName){
+		WebElement iconElement= driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNumber,iconName)));
+		wait.forElementToBeVisible(iconElement);
+		return iconElement.isEnabled();
 	}
 
 

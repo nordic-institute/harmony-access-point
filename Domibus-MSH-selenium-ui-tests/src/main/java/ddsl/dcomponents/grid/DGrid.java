@@ -277,6 +277,7 @@ public class DGrid extends DComponent {
 		return values;
 	}
 
+
 	public boolean isColumnSortable(String columnName) throws Exception {
 		List<String> columns = getColumnNames();
 		int index = columns.indexOf(columnName);
@@ -498,6 +499,16 @@ public class DGrid extends DComponent {
 			HashMap<String, String> gridRecord = gridInfo;
 			CSVRecord record = records.get(i);
 			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+		}
+
+		public String getRowSpecificColumnVal(int rowNumber,String columnName) throws Exception{
+			HashMap<String, String> gridInfo = getRowInfo(rowNumber);
+			String colName=columnName;
+			if(gridInfo.containsKey(columnName)) {
+				String val = gridInfo.get(columnName);
+				return val;
+			}
+			return "";
 		}
 	}
 
