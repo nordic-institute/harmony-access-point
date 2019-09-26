@@ -10,16 +10,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: geronimo-javamail_1.4_mail-1.8.4.jar
-   ]]></notes>
-        <gav regex="true">^org\.apache\.geronimo\.javamail:geronimo-javamail_1\.4_mail:.*$</gav>
-        <!-- Local users obtain access to unspecified files or directories -->
-        <cve>CVE-2008-0732</cve>
-        <!-- Hash values for form parameters, we don't have user input on javamail -->
-        <cve>CVE-2011-5034</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: xbean-spring-4.2.jar
    ]]></notes>
         <gav regex="true">^org\.apache\.xbean:xbean-spring:.*$</gav>
