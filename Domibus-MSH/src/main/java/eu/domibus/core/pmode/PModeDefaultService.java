@@ -10,6 +10,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,12 +34,20 @@ public class PModeDefaultService implements PModeService {
     @Autowired
     private PModeProvider pModeProvider;
 
+
+    @Autowired
+    private MessageExchangeService messageExchangeService;
+
     @Override
     public LegConfiguration getLegConfiguration(String messageId) {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        boolean isPull = false;
+        if(userMessage != null && userMessage.getMpc() != null && messageExchangeService.forcePullOnMpc(userMessage.getMpc())) {
+            isPull = true;
+        }
         String pModeKey = null;
         try {
-            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, isPull).getPmodeKey();
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
         }

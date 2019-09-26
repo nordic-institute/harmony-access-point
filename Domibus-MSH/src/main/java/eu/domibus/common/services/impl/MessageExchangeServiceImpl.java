@@ -146,6 +146,10 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     public MessageStatus retrieveMessageRestoreStatus(final String messageId) {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         try {
+            if (userMessage != null && userMessage.getMpc() != null &&
+                    forcePullOnMpc(userMessage.getMpc())) {
+                return READY_TO_PULL;
+            }
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             return getMessageStatus(userMessageExchangeConfiguration);
         } catch (EbMS3Exception e) {
