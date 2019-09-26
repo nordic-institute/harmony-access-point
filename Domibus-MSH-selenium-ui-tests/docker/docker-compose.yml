@@ -21,8 +21,6 @@ services:
       - CHECK_DEFAULT_PASSWD=false
     ports:
       - "9088:8080"
-    volumes:
-      - ./c2/conf/domibus/policies:/data/tomcat/conf/domibus/policies
     command: dockerize -wait tcp://mysqlc2:3306 -timeout 20s
     depends_on:
       - mysqlc2
