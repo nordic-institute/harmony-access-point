@@ -1,6 +1,7 @@
 package domibus.ui;
 
 import ddsl.enums.PAGES;
+import domibus.BaseTest;
 import domibus.BaseUXTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 
 
-public class TestServicePgTest extends BaseUXTest {
+public class TestServicePgTest extends BaseTest {
 
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {

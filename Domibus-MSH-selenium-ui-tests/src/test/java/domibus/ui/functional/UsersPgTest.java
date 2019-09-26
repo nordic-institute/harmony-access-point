@@ -1,9 +1,10 @@
-package domibus.ui;
+package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
+import domibus.BaseTest;
 import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 
 
-public class UsersPgTest extends BaseUXTest {
+public class UsersPgTest extends BaseTest {
 
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
 //		login with Admin and go to users page
@@ -665,14 +666,6 @@ public class UsersPgTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-20", groups = {"multiTenancy", "singleTenancy"})
-	public void gridSelfAssert() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		page.grid().assertControls(soft);
-
-		soft.assertAll();
-	}
 
 }

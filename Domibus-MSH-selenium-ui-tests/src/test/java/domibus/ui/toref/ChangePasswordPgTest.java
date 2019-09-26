@@ -1,4 +1,4 @@
-package domibus.ui;
+package domibus.ui.toref;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
@@ -83,7 +83,6 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"Login Page is loaded successfully");
         log.info("Login into application with Admin credentials");
         loginPage.login(data.getAdminUser());
-        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Open ChangePassword Page by clicking link");
@@ -91,6 +90,7 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Navigate to error log page without changing password ");
         page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
         ErrorLogPage errorLogPage = new ErrorLogPage(driver);
+        page.waitForTitle();
         page.waitForTitle();
         log.info("logout from application");
         logout();
@@ -186,7 +186,7 @@ public class ChangePasswordPgTest extends BaseTest {
         Cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getNewTestPass());
         log.info("press tab key");
         Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
-        log.info("Validation message appears:" +Cpage.getValidationMsg(Cpage.Confirmation_Field_label));
+        log.info("Validation message appears");
         soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is displayed");
         soft.assertAll();
     }
@@ -241,9 +241,9 @@ public class ChangePasswordPgTest extends BaseTest {
         Cpage.setPassFields(data.getDefaultTestPass(), Cpage.generateInvalidPass(), Cpage.generateInvalidPass());
         log.info("press tab key");
         Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
-        log.info("Validation message for password policy under new password field:" + Cpage.getValidationMsg(Cpage.NewPassword_Field_label));
-        soft.assertTrue(Cpage.getValidationMsg(Cpage.NewPassword_Field_label),"Message is dispalyed");
-        log.info("Validation message for mismatch under confirmation field :" + Cpage.getValidationMsg(Cpage.Confirmation_Field_label));
+        log.info("Validation message for password policy under new password field");
+       soft.assertTrue(Cpage.getValidationMsg(Cpage.NewPassword_Field_label),"Message is displayed");
+       log.info("Validation message for mismatch under confirmation field ");
         soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is displayed");
         soft.assertAll();
     }
@@ -288,7 +288,7 @@ public class ChangePasswordPgTest extends BaseTest {
     }
 
     /**
-     * This method will throw error if new password is among previous 5 passwords.
+     * This method will throw error in new password is among previous 5 passwords.
      */
     @Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"})
     public void NewPasswordAmongLast5() throws Exception {
