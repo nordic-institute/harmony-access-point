@@ -27,7 +27,7 @@
         <cve>CVE-2015-5183</cve>
         <cve>CVE-2015-5184</cve>
         <!-- Apache ActiveMQ Client before 5.15.6 - client vulnerable to a MITM attack between a Java application using the ActiveMQ client and the ActiveMQ server.
-             In Domibus, activemq.version is 5.15.8. -->
+             In Domibus, activemq.version is 5.15.9. -->
         <cve>CVE-2018-11775</cve>
         <!-- Unmarshalling corrupt MQTT frame can lead to broker Out of Memory.
              In Domibus, MQTT transport protocol is not enabled. No transport connector defined (activemq.xml, standalone-full.xml).       -->
