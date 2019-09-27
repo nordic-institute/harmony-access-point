@@ -383,7 +383,7 @@ public class MessageExchangeServiceImplTest {
         UserMessage userMessage = new UserMessage();
         userMessage.setMpc("mpc123");
         when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
-        when(mpcService.forcePullOnMpc(userMessage.getMpc())).thenReturn(true);
+        when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
         final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123");
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }
