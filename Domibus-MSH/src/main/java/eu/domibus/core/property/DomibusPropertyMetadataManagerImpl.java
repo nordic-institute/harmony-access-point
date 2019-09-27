@@ -141,6 +141,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_ACTIVE, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT, false, true),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_URL),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_USER),

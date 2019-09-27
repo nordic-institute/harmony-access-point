@@ -132,6 +132,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
     String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
+    String DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT = "domibus.alert.mail.smtp.timeout";
     String DOMIBUS_ALERT_SENDER_SMTP_URL = DOMIBUS_ALERT_SENDER_SMTP_PREFIX + "url";
     String DOMIBUS_ALERT_SENDER_SMTP_PORT = DOMIBUS_ALERT_SENDER_SMTP_PREFIX + "port";
     String DOMIBUS_ALERT_SENDER_SMTP_USER = DOMIBUS_ALERT_SENDER_SMTP_PREFIX + "user";
