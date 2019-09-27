@@ -146,6 +146,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     public MessageStatus retrieveMessageRestoreStatus(final String messageId) {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         try {
+            if (forcePullOnMpc(userMessage)) {
+                return READY_TO_PULL;
+            }
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             return getMessageStatus(userMessageExchangeConfiguration);
         } catch (EbMS3Exception e) {
@@ -360,6 +363,11 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Override
     public boolean forcePullOnMpc(String mpc) {
         return mpcService.forcePullOnMpc(mpc);
+    }
+
+    @Override
+    public boolean forcePullOnMpc(UserMessage userMessage) {
+        return mpcService.forcePullOnMpc(userMessage);
     }
 
     @Override
