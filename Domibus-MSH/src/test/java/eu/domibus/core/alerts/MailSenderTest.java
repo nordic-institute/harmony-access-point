@@ -18,6 +18,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -56,11 +57,16 @@ public class MailSenderTest {
     final String password = "password";
     final String dynamicPropertyName = "domibus.alert.mail.smtp.port";
     final String dynamicSmtpPort = "450";
-    final Set<String> dynamicPropertySet = Sets.newHashSet(dynamicPropertyName);
+    final String timeoutPropertyName = "domibus.alert.mail.smtp.timeout";
+    final int timeout=5000;
+    Set dynamicPropertySet = new HashSet();
+
 
     private void setupMailProperties(@Mocked Properties javaMailProperties, @Mocked Predicate predicate) {
 
         new Expectations() {{
+            dynamicPropertySet.add(dynamicPropertyName);
+            dynamicPropertySet.add(timeoutPropertyName);
             multiDomainAlertConfigurationService.isAlertModuleEnabled();
             result = true;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
@@ -81,6 +87,8 @@ public class MailSenderTest {
             result = dynamicPropertySet;
             domibusPropertyProvider.getProperty(dynamicPropertyName);
             result = dynamicSmtpPort;
+            domibusPropertyProvider.getProperty(timeoutPropertyName);
+            result = timeout;
         }};
     }
 
@@ -99,7 +107,8 @@ public class MailSenderTest {
             times = 1;
             javaMailSender.setPassword(password);
             times = 1;
-            javaMailProperties.put("mail.smtp.port", dynamicSmtpPort);
+            javaMailProperties.put("mail.smtp.timeout", Integer.toString(timeout)); times = 1;
+            javaMailProperties.put("mail.smtp.port", dynamicSmtpPort); times = 1;
         }};
     }
 

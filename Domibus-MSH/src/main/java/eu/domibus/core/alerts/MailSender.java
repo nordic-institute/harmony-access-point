@@ -64,6 +64,7 @@ public class MailSender {
         final boolean mailActive = domibusPropertyProvider.getBooleanDomainProperty(sendEmailActivePropertyName);
         if (alertModuleEnabled && mailActive) {
             //static properties.
+            final Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);
             final String url = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
             final Integer port = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT));
             final String user = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_USER);
@@ -72,6 +73,7 @@ public class MailSender {
             LOG.debug("Configuring mail server.");
             LOG.debug("Smtp url:[{}]", url);
             LOG.debug("Smtp port:[{}]", port);
+            LOG.debug("Smtp timeout:[{}]", timeout);
             LOG.debug("Smtp user:[{}]", user);
 
             javaMailSender.setHost(url);

@@ -413,7 +413,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             Party to = null;
             MessageStatus messageStatus = null;
-            if (messageExchangeService.forcePullOnMpc(userMessage.getMpc())) {
+            if (messageExchangeService.forcePullOnMpc(userMessage)) {
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
