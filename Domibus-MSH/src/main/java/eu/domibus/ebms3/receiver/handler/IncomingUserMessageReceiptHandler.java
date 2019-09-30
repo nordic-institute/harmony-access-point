@@ -98,8 +98,10 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
         UserMessage userMessage = null;
+        Messaging sentMessage = null;
         try {
-            userMessage = messagingDao.findUserMessageByMessageId(messageId);
+            sentMessage = messagingDao.findMessageByMessageId(messageId);
+            userMessage = sentMessage.getUserMessage();
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : " + pModeKey);
 
@@ -124,7 +126,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         } catch (final EbMS3Exception e) {
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
-            reliabilityService.handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration);
+            reliabilityService.handleReliability(messageId, sentMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration);
         }
         return null;
     }

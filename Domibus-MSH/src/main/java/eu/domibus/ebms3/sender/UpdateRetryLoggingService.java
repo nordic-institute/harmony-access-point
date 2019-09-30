@@ -131,7 +131,7 @@ public class UpdateRetryLoggingService {
         userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
-            messagingDao.clearPayloadData(messageId);
+            messagingDao.clearPayloadData(userMessage);
         }
     }
 

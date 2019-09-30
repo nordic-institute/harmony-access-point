@@ -16,6 +16,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -74,9 +75,9 @@ public class SourceMessageSender implements MessageSender {
     protected SplitAndJoinService splitAndJoinService;
 
     @Override
-    public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
+    public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(userMessage, userMessageLog), currentDomain);
+        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(messaging.getUserMessage(), userMessageLog), currentDomain);
     }
 
     protected void doSendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {

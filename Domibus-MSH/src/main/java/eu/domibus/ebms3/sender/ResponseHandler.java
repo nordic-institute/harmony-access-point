@@ -82,23 +82,21 @@ public class ResponseHandler {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    public void saveResponse(final SOAPMessage response, final Messaging messagingResponse) {
+    public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         nonRepudiationService.saveResponse(response, signalMessage);
 
         // Stores the signal message
         signalMessageDao.create(signalMessage);
-        // Updating the reference to the signal message
-        Messaging sentMessage = messagingDao.findMessageByMessageId(signalMessage.getMessageInfo().getRefToMessageId());
-        String userMessageService = null;
-        String userMessageAction = null;
-        if (sentMessage != null) {
-            userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
-            userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
-            sentMessage.setSignalMessage(signalMessage);
-            messagingDao.update(sentMessage);
-        }
+
+        sentMessage.setSignalMessage(signalMessage);
+        messagingDao.update(sentMessage);
+
         // Builds the signal message log
+        // Updating the reference to the signal message
+        String userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
+        String userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
+
         signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
 
         createWarningEntries(signalMessage);

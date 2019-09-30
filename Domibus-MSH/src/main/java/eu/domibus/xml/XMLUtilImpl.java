@@ -13,9 +13,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -32,10 +37,45 @@ import java.io.InputStream;
 @Component
 public class XMLUtilImpl implements XMLUtil {
 
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = new ThreadLocal<DocumentBuilderFactory>() {
+        @Override
+        protected DocumentBuilderFactory initialValue() {
+            return DocumentBuilderFactory.newInstance();
+        }
+    };
+
+    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = new ThreadLocal<TransformerFactory>() {
+        protected TransformerFactory initialValue() {
+            return TransformerFactory.newInstance();
+        }
+    };
+
+    private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = new ThreadLocal<MessageFactory>() {
+        protected MessageFactory initialValue() {
+            try {
+                return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+            } catch (SOAPException e) {
+                throw new DomibusXMLException(e);
+            }
+        }
+    };
+
+    public static DocumentBuilderFactory getDocumentBuilderFactory() {
+        return documentBuilderFactoryThreadLocal.get();
+    }
+
+    public static MessageFactory getMessageFactory() {
+        return messageFactoryThreadLocal.get();
+    }
+
+    public static TransformerFactory getTransformerFactory() {
+        return transformerFactoryThreadLocal.get();
+    }
+
     @Override
     public UnmarshallerResult unmarshal(boolean ignoreWhitespaces, JAXBContext jaxbContext, InputStream xmlStream, InputStream xsdStream) throws SAXException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        if(xsdStream != null) {
+        if (xsdStream != null) {
             Schema schema = getSchema(xsdStream);
             unmarshaller.setSchema(schema);
         }

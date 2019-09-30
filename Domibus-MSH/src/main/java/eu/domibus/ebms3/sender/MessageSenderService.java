@@ -7,6 +7,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -71,7 +72,8 @@ public class MessageSenderService {
             return;
         }
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+        final UserMessage userMessage = messaging.getUserMessage();
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
 
@@ -79,11 +81,11 @@ public class MessageSenderService {
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 
-        messageSender.sendMessage(userMessage, userMessageLog);
+        messageSender.sendMessage(messaging, userMessageLog);
     }
 
     protected MessageStatus getMessageStatus(final UserMessageLog userMessageLog) {
-        if(userMessageLog == null) {
+        if (userMessageLog == null) {
             return MessageStatus.NOT_FOUND;
         }
         return userMessageLog.getMessageStatus();

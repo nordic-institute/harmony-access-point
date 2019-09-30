@@ -149,7 +149,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
         if (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc()) && !userMessage.isPayloadOnFileSystem()) {
-            messagingDao.clearPayloadData(messageId);
+            messagingDao.clearPayloadData(userMessage);
             List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
             if (!signalMessages.isEmpty()) {
                 for (SignalMessage signalMessage : signalMessages) {

@@ -2,7 +2,7 @@ package eu.domibus.common.services;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseResult;
 
@@ -27,7 +27,7 @@ public interface ReliabilityService {
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliability(String messageId, UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration);
+    void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration);
 
     /**
      * This method is used when handleReliability failed
@@ -37,6 +37,6 @@ public interface ReliabilityService {
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliabilityInNewTransaction(String messageId, UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration);
+    void handleReliabilityInNewTransaction(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration);
 
 }
