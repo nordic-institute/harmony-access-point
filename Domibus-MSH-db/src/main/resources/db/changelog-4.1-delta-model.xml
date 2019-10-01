@@ -275,5 +275,27 @@
 
             SET SQL_NOTES = @OLD_SQL_NOTES;
         </sql>
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+            ncount   NUMBER;
+            v_sql    LONG;
+            BEGIN
+            SELECT
+            COUNT(*)
+            INTO ncount
+            FROM
+            user_tables
+            WHERE
+            table_name = 'TB_COMMAND';
+
+            IF ( ncount &lt;= 0 ) THEN
+            v_sql :=
+                'CREATE TABLE TB_COMMAND (ID_PK INTEGER NOT NULL, SERVER_NAME VARCHAR2(255) NOT NULL,
+                COMMAND_NAME VARCHAR2(255) NOT NULL, DOMAIN VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP,
+                CONSTRAINT PK_TB_COMMAND PRIMARY KEY (ID_PK)) ';
+            EXECUTE IMMEDIATE v_sql;
+            END IF;
+            END;
+        </sql>
     </changeSet>
 </databaseChangeLog>
