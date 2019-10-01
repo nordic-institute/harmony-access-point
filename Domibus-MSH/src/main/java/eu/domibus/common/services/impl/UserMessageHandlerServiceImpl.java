@@ -32,6 +32,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.validation.SubmissionValidationException;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.attachment.AttachmentUtil;
@@ -519,7 +520,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final Source source = new DOMSource(bodyContent);
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 final Result result = new StreamResult(out);
-                final Transformer transformer = soapUtil.createTransformerFactory().newTransformer();
+                final Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
                 transformer.transform(source, result);
                 partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml")));
             }

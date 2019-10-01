@@ -26,13 +26,13 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
@@ -132,7 +132,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
-                responseMessage = soapUtil.createMessageFactory().createMessage();
+                responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
 
 
                 String messageId;
@@ -249,7 +249,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             LOG.debug("Initializing the templates instance");
             InputStream generateAS4ReceiptStream = getAs4ReceiptXslInputStream();
             Source messageToReceiptTransform = new StreamSource(generateAS4ReceiptStream);
-            templates = soapUtil.createTransformerFactory().newTemplates(messageToReceiptTransform);
+            templates = TransformerFactory.newInstance().newTemplates(messageToReceiptTransform);
         }
         return templates;
     }

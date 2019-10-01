@@ -16,6 +16,7 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.wss4j.dom.WSConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -208,7 +209,7 @@ public class ReliabilityChecker {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
-            soapUtil.createTransformerFactory().newTransformer().transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
+            XMLUtilImpl.getTransformerFactory().newTransformer().transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
             return stringWriter.toString();
         } catch (IOException | TransformerException e) {
             LOG.warn("Couldn't get soap part", e);

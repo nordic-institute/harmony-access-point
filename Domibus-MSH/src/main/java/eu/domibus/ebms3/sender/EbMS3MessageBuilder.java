@@ -17,6 +17,7 @@ import eu.domibus.ebms3.sender.exception.SendMessageException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.transformer.impl.UserMessageFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -123,7 +124,7 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPUserMessage(final UserMessage userMessage, MessageGroupEntity messageGroupEntity) throws EbMS3Exception {
         final SOAPMessage message;
         try {
-            message = soapUtil.createMessageFactory().createMessage();
+            message = XMLUtilImpl.getMessageFactory().createMessage();
             final Messaging messaging = this.ebMS3Of.createMessaging();
 
             message.getSOAPBody().setAttributeNS(NonRepudiationConstants.ID_NAMESPACE_URI, NonRepudiationConstants.ID_QUALIFIED_NAME, NonRepudiationConstants.URI_WSU_NS);
@@ -169,7 +170,7 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
-            message = soapUtil.createMessageFactory().createMessage();
+            message = XMLUtilImpl.getMessageFactory().createMessage();
             final Messaging messaging = this.ebMS3Of.createMessaging();
 
             if (signalMessage != null) {
@@ -209,8 +210,7 @@ public class EbMS3MessageBuilder {
 
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
-            final DocumentBuilderFactory documentBuilderFactory = soapUtil.createDocumentBuilderFactory();
-            documentBuilderFactory.setNamespaceAware(true);
+            final DocumentBuilderFactory documentBuilderFactory = XMLUtilImpl.getDocumentBuilderFactoryNamespaceAware();
             final DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
             message.getSOAPBody().addDocument(builder.parse(dataHandler.getInputStream()));
             partInfo.setHref(null);

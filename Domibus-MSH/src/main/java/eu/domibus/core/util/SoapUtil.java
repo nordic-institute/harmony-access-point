@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.MessageImpl;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,7 +48,7 @@ public class SoapUtil {
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
         if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {
             try (StringWriter sw = new StringWriter()) {
-                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                TransformerFactory transformerFactory = XMLUtilImpl.getTransformerFactory();
                 transformerFactory.newTransformer().transform(new DOMSource(request.getSOAPPart()), new StreamResult(sw));
 
                 LOG.debug(sw.toString());
@@ -59,19 +59,6 @@ public class SoapUtil {
                 }
             }
         }
-    }
-
-    public MessageFactory createMessageFactory() throws SOAPException {
-        return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
-    }
-
-    public DocumentBuilderFactory createDocumentBuilderFactory() {
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        return dbFactory;
-    }
-
-    public TransformerFactory createTransformerFactory() {
-        return TransformerFactory.newInstance();
     }
 
     /**
@@ -87,7 +74,7 @@ public class SoapUtil {
      */
     public SOAPMessage createUserMessage(MessageImpl messageImpl) throws SOAPException, IOException, ParserConfigurationException, SAXException, TransformerException {
         LOG.debug("Creating SOAPMessage");
-        SOAPMessage message = createMessageFactory().createMessage();
+        SOAPMessage message = XMLUtilImpl.getMessageFactory().createMessage();
 
         final Collection<Attachment> attachments = messageImpl.getAttachments();
         for (Attachment attachment : attachments) {
@@ -121,8 +108,8 @@ public class SoapUtil {
     public String getRawXMLMessage(SOAPMessage soapMessage) throws TransformerException {
         final StringWriter rawXmlMessageWriter = new StringWriter();
 
-        TransformerFactory transformerFactory = createTransformerFactory();
-        transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        TransformerFactory transformerFactory = XMLUtilImpl.getTransformerFactory();
+
         transformerFactory.newTransformer().transform(
                 new DOMSource(soapMessage.getSOAPPart()),
                 new StreamResult(rawXmlMessageWriter));
@@ -133,10 +120,10 @@ public class SoapUtil {
     public SOAPMessage createSOAPMessage(final String rawXml) throws SOAPException, IOException, ParserConfigurationException, SAXException {
         LOG.debug("Creating SOAPMessage from rawXML [{}]", rawXml);
 
-        MessageFactory factory = createMessageFactory();
+        MessageFactory factory = XMLUtilImpl.getMessageFactory();
         SOAPMessage message = factory.createMessage();
 
-        DocumentBuilderFactory dbFactory = createDocumentBuilderFactory();
+        DocumentBuilderFactory dbFactory = XMLUtilImpl.getDocumentBuilderFactory();
         DocumentBuilder builder = dbFactory.newDocumentBuilder();
 
         try (StringReader stringReader = new StringReader(rawXml); InputStream targetStream =

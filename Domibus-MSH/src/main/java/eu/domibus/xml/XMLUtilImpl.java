@@ -20,6 +20,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -37,31 +38,41 @@ import java.io.InputStream;
 @Component
 public class XMLUtilImpl implements XMLUtil {
 
-    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = new ThreadLocal<DocumentBuilderFactory>() {
-        @Override
-        protected DocumentBuilderFactory initialValue() {
-            return DocumentBuilderFactory.newInstance();
-        }
-    };
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = ThreadLocal.withInitial(() -> {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        return documentBuilderFactory;
+    });
 
-    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = new ThreadLocal<TransformerFactory>() {
-        protected TransformerFactory initialValue() {
-            return TransformerFactory.newInstance();
-        }
-    };
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryNamespaceAwareThreadLocal = ThreadLocal.withInitial(() -> {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        return documentBuilderFactory;
+    });
 
-    private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = new ThreadLocal<MessageFactory>() {
-        protected MessageFactory initialValue() {
-            try {
-                return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
-            } catch (SOAPException e) {
-                throw new DomibusXMLException(e);
-            }
+    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = ThreadLocal.withInitial(() -> {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        try {
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            throw new DomibusXMLException("Error initializing TransformerFactory", e);
         }
-    };
+        return transformerFactory;
+    });
+
+    private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = ThreadLocal.withInitial(() -> {
+        try {
+            return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+        } catch (SOAPException e) {
+            throw new DomibusXMLException("Error initializing MessageFactory", e);
+        }
+    });
 
     public static DocumentBuilderFactory getDocumentBuilderFactory() {
         return documentBuilderFactoryThreadLocal.get();
+    }
+
+    public static DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware() {
+        return documentBuilderFactoryNamespaceAwareThreadLocal.get();
     }
 
     public static MessageFactory getMessageFactory() {

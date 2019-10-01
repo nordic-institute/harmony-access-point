@@ -11,6 +11,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.cxf.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
@@ -88,7 +88,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
                 currentDomain);
 
         try {
-            SOAPMessage responseMessage = soapUtil.createMessageFactory().createMessage();
+            SOAPMessage responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
             responseMessage.saveChanges();
 
             LOG.debug("Finished processing SourceMessage request");

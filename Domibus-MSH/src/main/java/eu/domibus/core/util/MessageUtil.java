@@ -7,6 +7,7 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.WSConstants;
@@ -509,7 +510,7 @@ public class MessageUtil {
 
     protected String nodeToString(final Node node) throws TransformerException {
         final StringWriter sw = new StringWriter();
-        final Transformer t = soapUtil.createTransformerFactory().newTransformer();
+        final Transformer t = XMLUtilImpl.getTransformerFactory().newTransformer();
         t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         t.transform(new DOMSource(node), new StreamResult(sw));
         return sw.toString();
