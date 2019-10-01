@@ -171,17 +171,10 @@ public class AbstractUserMessageSenderTest {
 
             ResponseResult responseResult = new ResponseResult();
             responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
-            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
-            MessageAttempt attemptActual;
-            String attemptErrorActual;
-            MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
-            Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptActual.getError());
-            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
         }};
     }
 
@@ -231,14 +224,6 @@ public class AbstractUserMessageSenderTest {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ebMS3ExceptionActual.getErrorCode());
             Assert.assertEquals("Policy configuration invalid", ebMS3ExceptionActual.getErrorDetail());
             Assert.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
-
-            MessageAttempt attemptActual;
-            String attemptErrorActual;
-            MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
-            Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptActual.getError());
-            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
         }};
     }
 
@@ -297,17 +282,9 @@ public class AbstractUserMessageSenderTest {
             ReliabilityChecker.CheckResult checkResultActual;
             ResponseResult responseResult = new ResponseResult();
             responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
-            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
-
-            MessageAttempt attemptActual;
-            String attemptErrorActual;
-            MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
-            Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptActual.getError());
-            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
 
         }};
     }
@@ -397,17 +374,9 @@ public class AbstractUserMessageSenderTest {
             ReliabilityChecker.CheckResult checkResultActual;
             ResponseResult responseResult = new ResponseResult();
             responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
-            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
-
-            MessageAttempt attemptActual;
-            String attemptErrorActual;
-            MessageAttemptStatus attemptStatusActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
-            Assert.assertEquals(attempt.getId(), attemptActual.getId());
-            Assert.assertEquals(attemptError, attemptActual.getError());
-            Assert.assertEquals(attemptStatus, attemptActual.getStatus());
 
         }};
     }
@@ -481,15 +450,9 @@ public class AbstractUserMessageSenderTest {
             ReliabilityChecker.CheckResult checkResultActual;
             ResponseResult responseResult = new ResponseResult();
             responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
-            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
-
-            MessageAttempt attemptActual;
-            abstractUserMessageSender.updateAndCreateAttempt(attemptActual = withCapture());
-            Assert.assertEquals(messageId, attemptActual.getMessageId());
-            Assert.assertEquals(attemptError, attemptActual.getError());
-            Assert.assertEquals(MessageAttemptStatus.ERROR, attemptActual.getStatus());
         }};
     }
 

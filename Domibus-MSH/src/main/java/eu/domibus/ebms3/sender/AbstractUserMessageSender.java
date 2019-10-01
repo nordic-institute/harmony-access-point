@@ -59,9 +59,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected ResponseHandler responseHandler;
 
     @Autowired
-    protected MessageAttemptService messageAttemptService;
-
-    @Autowired
     protected MessageExchangeService messageExchangeService;
 
     @Autowired
@@ -168,12 +165,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult,  legConfiguration);
-                updateAndCreateAttempt(attempt);
+                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration);
-                updateAndCreateAttempt(attempt);
+                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             }
         }
     }
@@ -185,11 +180,4 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;
 
     protected abstract DomibusLogger getLog();
-
-    protected void updateAndCreateAttempt(MessageAttempt attempt) {
-        attempt.setEndDate(new Timestamp(System.currentTimeMillis()));
-        messageAttemptService.create(attempt);
-    }
-
-
 }

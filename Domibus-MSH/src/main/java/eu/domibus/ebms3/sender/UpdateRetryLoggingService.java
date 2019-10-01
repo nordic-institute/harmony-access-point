@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -67,6 +68,9 @@ public class UpdateRetryLoggingService {
     @Autowired
     protected UserMessageService userMessageService;
 
+    @Autowired
+    protected MessageAttemptService messageAttemptService;
+
 
     /**
      * This method is responsible for the handling of retries for a given sent message.
@@ -77,12 +81,12 @@ public class UpdateRetryLoggingService {
      * @param legConfiguration processing information for the message
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updatePushedMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration) {
-        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RETRY);
+    public void updatePushedMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration, final MessageAttempt messageAttempt) {
+        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
     }
 
 
-    private void updateRetryLogging(final String messageId, final LegConfiguration legConfiguration, MessageStatus messageStatus) {
+    private void updateRetryLogging(final String messageId, final LegConfiguration legConfiguration, MessageStatus messageStatus, final MessageAttempt messageAttempt) {
         LOG.debug("Updating retry for message");
         UserMessageLog userMessageLog = this.userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
@@ -104,10 +108,14 @@ public class UpdateRetryLoggingService {
             }
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
+
+        if (messageAttempt != null) {
+            messageAttemptService.updateEndDateAndCreate(messageAttempt);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void messageFailedInANewTransaction(UserMessage userMessage, UserMessageLog userMessageLog) {
+    public void messageFailedInANewTransaction(UserMessage userMessage, UserMessageLog userMessageLog, final MessageAttempt messageAttempt) {
         LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageInfo().getMessageId());
 
         messageFailed(userMessage, userMessageLog);
@@ -146,7 +154,7 @@ public class UpdateRetryLoggingService {
     @Transactional
     public void updateWaitingReceiptMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration) {
         LOG.debug("Updating waiting receipt retry for message");
-        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT);
+        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT, null);
     }
 
     public void updateNextAttemptAndNotify(LegConfiguration legConfiguration, MessageStatus messageStatus, UserMessageLog userMessageLog) {
