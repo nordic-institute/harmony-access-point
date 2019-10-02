@@ -16,6 +16,43 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-file</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql5innoDb-VERSION-delete-db.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/mysql5innoDb-${version}-delete-db.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql5innoDb-VERSION-uireplication-insert.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/mysql5innoDb-${version}-uireplication-insert.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle10g-VERSION-delete-db.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle10g-${version}-delete-db.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle10g-VERSION-multi-tenancy-rights.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle10g-${version}-multi-tenancy-rights.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle10g-VERSION-uireplication-insert.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle10g-${version}-uireplication-insert.sql</destinationFile>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Create the folder to store the generated sql scripts-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
