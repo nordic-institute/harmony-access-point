@@ -281,7 +281,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   search() {
-    console.log('Searching using filter:' + this.filter);
+    this.isChanged = false;
     this.setActiveFilter();
     this.page(0, this.rowLimiter.pageSize);
   }
