@@ -15,8 +15,9 @@ import org.apache.cxf.ext.logging.event.LogEvent;
 public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender {
 
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
-    static final String VALUE_START = "<value>";
-    static final String VALUE_END = "</value>";
+    static final String VALUE_START = "<value";
+    static final String VALUE_START_PATTERN = "^<value\\s>";
+    static final String VALUE_END = "</value";
     static final String SUBMIT_MESSAGE = "submitRequest";
 
 
@@ -51,20 +52,38 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
 
         //start to replace/suppress the content between <value>...</value> pairs
         int indexStart = newPayload.indexOf(VALUE_START);
+        int startTagLength = newPayload.indexOf(">", indexStart) - indexStart + 1;
+
         int indexEnd = newPayload.indexOf(VALUE_END);
+        int endTagLength = newPayload.indexOf(">", indexEnd) - indexEnd + 1;
 
         while (indexStart >= 0 && indexStart > xmlNodeStartIndex && indexStart < indexEnd) {
-            String toBeReplaced = newPayload.substring(indexStart + VALUE_START.length(), indexEnd);
+            String toBeReplaced = newPayload.substring(indexStart + startTagLength, indexEnd);
             newPayload = newPayload.replace(toBeReplaced,
                     AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
 
-            int fromIndex = indexEnd + VALUE_END.length() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() - toBeReplaced.length() + 1;
+            int fromIndex = indexEnd + endTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() - toBeReplaced.length() + 1;
             indexStart = newPayload.indexOf(VALUE_START, fromIndex);
             indexEnd = newPayload.indexOf(VALUE_END, fromIndex);
+            startTagLength = newPayload.indexOf(">", indexStart) - indexStart + 1;
+            endTagLength = newPayload.indexOf(">", indexEnd) - indexEnd + 1;
         }
 
         return newPayload;
     }
 
+
+//    private int getIndex(String text, String patternStr) {
+//        int index = -1;
+//        Pattern pattern = Pattern.compile(patternStr);
+//        Matcher matcher = pattern.matcher(text);
+//        if (matcher.find()) {
+//            index = matcher.start();
+//            matcher.group(1);
+//        }
+//
+//        return index;
+//
+//    }
 
 }
