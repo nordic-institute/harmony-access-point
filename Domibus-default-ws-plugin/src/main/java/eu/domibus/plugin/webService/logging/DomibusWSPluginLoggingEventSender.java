@@ -16,7 +16,6 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
 
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String VALUE_START = "<value";
-    static final String VALUE_START_PATTERN = "^<value\\s>";
     static final String VALUE_END = "</value";
     static final String SUBMIT_MESSAGE = "submitRequest";
 
