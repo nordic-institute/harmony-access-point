@@ -282,6 +282,7 @@ public class DomibusTSLValidationJob {
         List<Future<TSLLoaderResult>> pivotLoaderResults = new LinkedList<Future<TSLLoaderResult>>();
         List<String> pivotUris = getPivotUris(parseResult);
         for (String pivotUrl : pivotUris) {
+            LOG.info("Pivot url:[{}]",pivotUrl);
             pivotLoaderResults.add(executorService.submit(new TSLLoader(dataLoader, lotlCode, pivotUrl)));
         }
 
@@ -301,7 +302,7 @@ public class DomibusTSLValidationJob {
                         continue;
                     }
                     DSSDocument trustedList = new FileDocument(pivotModel.getFilepath());
-
+                    LOG.info("pivotModel.getFilepath():[{}]",pivotModel.getFilepath());
                     TSLParserResult pivotParseResult = pivotModel.getParseResult();
                     if (pivotParseResult == null) {
                         Future<TSLParserResult> parseResultFuture = executorService.submit(new TSLParser(trustedList));
@@ -375,6 +376,7 @@ public class DomibusTSLValidationJob {
         List<Future<TSLLoaderResult>> futureLoaderResults = new ArrayList<Future<TSLLoaderResult>>();
         for (TSLPointer tslPointer : pointers) {
             if (Utils.isCollectionEmpty(filterTerritories) || filterTerritories.contains(tslPointer.getTerritory())) {
+
                 TSLLoader tslLoader = new TSLLoader(dataLoader, tslPointer.getTerritory(), tslPointer.getUrl());
                 futureLoaderResults.add(executorService.submit(tslLoader));
             }
