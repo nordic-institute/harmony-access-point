@@ -71,19 +71,4 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
 
         return newPayload;
     }
-
-
-//    private int getIndex(String text, String patternStr) {
-//        int index = -1;
-//        Pattern pattern = Pattern.compile(patternStr);
-//        Matcher matcher = pattern.matcher(text);
-//        if (matcher.find()) {
-//            index = matcher.start();
-//            matcher.group(1);
-//        }
-//
-//        return index;
-//
-//    }
-
 }
