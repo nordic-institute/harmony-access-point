@@ -23,7 +23,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     /**
      * It removes some parts of the payload info
      *
-     * @param event
+     * @param event LogEvent
      */
     @Override
     protected void stripPayload(LogEvent event) {
@@ -35,7 +35,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
         //strip values if it's a retrieveMessage
         payload = replaceInPayload(payload, RETRIEVE_MESSAGE_RESPONSE);
 
-        //finally set the paylaod back
+        //finally set the payload back
         event.setPayload(payload);
     }
 
