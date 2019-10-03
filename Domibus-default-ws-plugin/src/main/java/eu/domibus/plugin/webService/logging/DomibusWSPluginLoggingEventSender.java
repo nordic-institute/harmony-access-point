@@ -19,6 +19,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     static final String VALUE_END = "</value>";
     static final String SUBMIT_MESSAGE = "submitRequest";
 
+
     /**
      * It removes some parts of the payload info
      *
@@ -26,17 +27,44 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
      */
     @Override
     protected void stripPayload(LogEvent event) {
-        final String payload = event.getPayload();
+        String payload = event.getPayload();
 
-        if (payload.contains(RETRIEVE_MESSAGE_RESPONSE) || payload.contains(SUBMIT_MESSAGE)) {
-            //C4 - C3
-            int indexStart = payload.indexOf(VALUE_START);
-            int indexEnd = payload.indexOf(VALUE_END);
-            if (0 <= indexStart && indexStart < indexEnd) {
-                event.setPayload(payload.replace(payload.substring(indexStart + VALUE_START.length(), indexEnd),
-                        AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
-            }
-        }
+        //strip values if it's submitMessage
+        payload = replaceInPayload(payload, SUBMIT_MESSAGE);
+
+        //strip values if it's a retrieveMessage
+        payload = replaceInPayload(payload, RETRIEVE_MESSAGE_RESPONSE);
+
+        //finally set the paylaod back
+        event.setPayload(payload);
+
     }
+
+    private String replaceInPayload(String payload, String xmlNodeStartTag) {
+        String newPayload = payload;
+
+        //first we find the xml node starting index - e.g submitRequest
+        int xmlNodeStartIndex = newPayload.indexOf(xmlNodeStartTag);
+        if (xmlNodeStartIndex == -1) {
+            return newPayload;
+        }
+
+        //start to replace/suppress the content between <value>...</value> pairs
+        int indexStart = newPayload.indexOf(VALUE_START);
+        int indexEnd = newPayload.indexOf(VALUE_END);
+
+        while (indexStart >= 0 && indexStart > xmlNodeStartIndex && indexStart < indexEnd) {
+            String toBeReplaced = newPayload.substring(indexStart + VALUE_START.length(), indexEnd);
+            newPayload = newPayload.replace(toBeReplaced,
+                    AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
+
+            int fromIndex = indexEnd + VALUE_END.length() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() - toBeReplaced.length() + 1;
+            indexStart = newPayload.indexOf(VALUE_START, fromIndex);
+            indexEnd = newPayload.indexOf(VALUE_END, fromIndex);
+        }
+
+        return newPayload;
+    }
+
 
 }
