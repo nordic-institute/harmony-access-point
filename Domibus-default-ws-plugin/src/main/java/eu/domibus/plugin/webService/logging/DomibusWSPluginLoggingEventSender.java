@@ -37,7 +37,6 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
 
         //finally set the paylaod back
         event.setPayload(payload);
-
     }
 
     private String replaceInPayload(String payload, String xmlNodeStartTag) {
