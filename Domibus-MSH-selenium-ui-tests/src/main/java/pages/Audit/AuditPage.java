@@ -90,6 +90,24 @@ public class AuditPage extends DomibusPage {
             return true;
         }
     }
+    public String getActionData(String tableName, int rowIndex)throws Exception{
+        if(tableName.equals("Pmode")){
+            if(grid().getRowInfo(rowIndex).containsValue("Created")){
+                log.info("Action field data for row : " + rowIndex +" is Created");
+                return "Created";
+            }
+            else if(grid().getRowInfo(rowIndex).containsValue("Deleted")){
+                log.info("Action field data for row : " + rowIndex +" is Deleted");
+                return "Deleted";
+            }
+            else{
+                log.info("Some wrong action is logged for the event");
+                return "";
+            }
+        }
+        return "";
+
+    }
 }
 
 

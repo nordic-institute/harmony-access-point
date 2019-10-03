@@ -83,6 +83,9 @@ public class MessageFilterPage extends DomibusPage {
 		return new DButton(driver, deleteBtn);
 	}
 
+	public Dialog getConfirmation() { return new Dialog(driver);}
+
+
 
 	public boolean isLoaded() throws Exception {
 		return (grid().getRowsNo() > 0

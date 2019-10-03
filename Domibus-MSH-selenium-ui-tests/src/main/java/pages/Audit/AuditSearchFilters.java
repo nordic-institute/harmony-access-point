@@ -110,7 +110,7 @@ public class AuditSearchFilters extends DComponent {
             return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')][1]";
 
         }
-        else if(fieldName.equals("Pmode Archive")|| fieldName.equals("User")|| fieldName.equals("Message filter")) {
+        else if(fieldName.equals("User")) {
             return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')][2]";
         }
         else{
