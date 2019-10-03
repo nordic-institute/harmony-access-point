@@ -1,5 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
@@ -8,6 +10,8 @@ import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 
 public class IgnorePivotFilenameFilter implements FilenameFilter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IgnorePivotFilenameFilter.class);
 
     @Value("${domibus.exclude.pivot.file.regex}")
     private String ignorePivotRegex;
@@ -21,6 +25,8 @@ public class IgnorePivotFilenameFilter implements FilenameFilter {
 
     @Override
     public boolean accept(File dir, String name) {
-        return fileNamePattern.matcher(name).matches();
+        boolean matches = fileNamePattern.matcher(name).matches();
+        LOG.trace("Pivot accept file name:[{}]->[{}]",name,matches);
+        return matches;
     }
 }
