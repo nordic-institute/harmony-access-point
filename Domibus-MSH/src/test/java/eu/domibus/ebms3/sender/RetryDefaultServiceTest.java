@@ -3,7 +3,6 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -25,7 +24,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,9 +57,6 @@ public class RetryDefaultServiceTest {
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
-
-    @Injectable
-    private UserMessageLogService userMessageLogService;
 
     @Injectable
     private MessagingDao messagingDao;

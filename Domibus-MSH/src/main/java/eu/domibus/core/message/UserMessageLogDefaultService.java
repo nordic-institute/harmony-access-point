@@ -1,11 +1,12 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
+import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.logging.UserMessageLogEntityBuilder;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -13,6 +14,8 @@ import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +26,18 @@ import java.sql.Timestamp;
  * @since 3.3
  */
 @Service
-public class UserMessageLogDefaultService implements UserMessageLogService {
+public class UserMessageLogDefaultService {
+
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
 
     @Autowired
-    UserMessageLogDao userMessageLogDao;
+    protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    BackendNotificationService backendNotificationService;
+    protected SignalMessageLogDao signalMessageLogDao;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
@@ -72,43 +80,40 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         return userMessageLog;
     }
 
-    protected void updateMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
+    protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
+        LOG.debug("Updating message status to [{}]", newStatus);
+
         if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
-
         uiReplicationSignalService.messageStatusChange(messageLog.getMessageId(), newStatus);
     }
 
-    protected void updateMessageStatus(final String messageId, final MessageStatus newStatus) {
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
-        updateMessageStatus(null, messageLog,newStatus);
-    }
-
     public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
-        updateMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
+        updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
     }
 
-    @Override
-    public void setMessageAsDeleted(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.DELETED);
+    public void setSignalMessageAsDeleted(final String signalMessageid) {
+        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageid);
+        signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
+        uiReplicationSignalService.messageStatusChange(signalMessageLog.getMessageId(), MessageStatus.DELETED);
     }
 
     public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
-        updateMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
     }
 
     public void setMessageAsAcknowledged(UserMessage userMessage, UserMessageLog userMessageLog) {
-        updateMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
     }
 
     public void setMessageAsAckWithWarnings(UserMessage userMessage, UserMessageLog userMessageLog) {
-        updateMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
     }
 
     public void setMessageAsSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
-        updateMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
     /**

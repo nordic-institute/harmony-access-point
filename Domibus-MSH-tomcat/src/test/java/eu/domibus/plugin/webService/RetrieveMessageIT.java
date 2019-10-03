@@ -3,7 +3,6 @@ package eu.domibus.plugin.webService;
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.NotificationType;

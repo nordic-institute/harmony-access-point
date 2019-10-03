@@ -81,7 +81,8 @@ public class UserMessageLogDefaultServiceTest {
             result = false;
         }};
 
-        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
+        assert(false);
+//        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
 
         new FullVerifications() {{
             backendNotificationService.notifyOfMessageStatusChange(messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));
@@ -91,13 +92,14 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsDeleted(@Injectable final UserMessageLog messageLog) throws Exception {
+    public void testSetMessageAsDeleted(@Injectable final UserMessage userMessage,
+                                        @Injectable final UserMessageLog messageLog) throws Exception {
         final String messageId = "1";
 
-        userMessageLogDefaultService.setMessageAsDeleted(messageId);
+        userMessageLogDefaultService.setMessageAsDeleted(userMessage, messageLog);
 
         new FullVerifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.DELETED);
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
         }};
     }
 
@@ -108,7 +110,7 @@ public class UserMessageLogDefaultServiceTest {
         userMessageLogDefaultService.setMessageAsDownloaded(userMessage, userMessageLog);
 
         new FullVerifications() {{
-            userMessageLogDefaultService.updateMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
         }};
     }
 
@@ -119,7 +121,8 @@ public class UserMessageLogDefaultServiceTest {
         userMessageLogDefaultService.setMessageAsAcknowledged(userMessage, userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
+            assert(false);
+//            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
         }};
     }
 
@@ -130,7 +133,8 @@ public class UserMessageLogDefaultServiceTest {
         userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+            assert(false);
+//            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
         }};
     }
 
@@ -141,7 +145,8 @@ public class UserMessageLogDefaultServiceTest {
         userMessageLogDefaultService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
+            assert(false);
+//            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
         }};
     }
 

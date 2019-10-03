@@ -407,6 +407,7 @@ public class BackendNotificationService {
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
 
+        //TODO check if it is needed
         if (userMessage == null) {
             LOG.debug("Getting UserMessage with id [{}]", messageId);
             userMessage = messagingDao.findUserMessageByMessageId(messageId);

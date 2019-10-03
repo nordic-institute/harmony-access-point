@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
@@ -39,6 +41,7 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.*;
  * @since 4.0
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);

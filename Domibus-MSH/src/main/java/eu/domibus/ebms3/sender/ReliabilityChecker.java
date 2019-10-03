@@ -1,6 +1,5 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -62,9 +61,6 @@ public class ReliabilityChecker {
 
     @Autowired
     protected PModeProvider pModeProvider;
-
-    @Autowired
-    protected UserMessageLogService userMessageLogService;
 
     @Autowired
     protected ErrorLogDao errorLogDao;

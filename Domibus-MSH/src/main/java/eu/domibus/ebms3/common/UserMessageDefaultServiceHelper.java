@@ -82,7 +82,8 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         return false;
     }
 
-    private String getOriginalUser(UserMessage userMessage, String type) {
+    @Override
+    public String getOriginalUser(UserMessage userMessage, String type) {
         if (userMessage == null || userMessage.getMessageProperties() == null || userMessage.getMessageProperties().getProperty() == null) {
             return null;
         }

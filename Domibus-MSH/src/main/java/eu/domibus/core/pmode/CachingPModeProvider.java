@@ -17,6 +17,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -521,9 +522,63 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<Process> findPullProcessesByMessageContext(
-            final MessageExchangeConfiguration messageExchangeConfiguration) {
-        return processDao.findPullProcessesByMessageContext(messageExchangeConfiguration);
+    public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
+        List<Process> allProcesses = findAllProcesses();
+        List<Process> result = new ArrayList<>();
+        for (Process process : allProcesses) {
+            boolean pullProcess = isPullProcess(process);
+            if (!pullProcess) {
+                continue;
+            }
+
+            boolean hasLeg = hasLeg(process, messageExchangeConfiguration.getLeg());
+            if (!hasLeg) {
+                continue;
+            }
+            boolean hasInitiatorParty = hasInitiatorParty(process, messageExchangeConfiguration.getReceiverParty());
+            if (!hasInitiatorParty) {
+                continue;
+            }
+            boolean hasResponderParty = hasResponderParty(process, messageExchangeConfiguration.getSenderParty());
+            if (!hasResponderParty) {
+                continue;
+            }
+            result.add(process);
+        }
+        return result;
+    }
+
+    protected boolean isPullProcess(Process process) {
+        return StringUtils.equals(BackendConnector.Mode.PULL.getFileMapping(), process.getMepBinding().getValue());
+    }
+
+    protected boolean hasLeg(Process process, String legName) {
+        Set<LegConfiguration> legs = process.getLegs();
+        for (LegConfiguration leg : legs) {
+            if (StringUtils.equals(leg.getName(), legName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean hasInitiatorParty(Process process, String partyName) {
+        Set<Party> initiatorParties = process.getInitiatorParties();
+        return matchesParty(initiatorParties, partyName);
+    }
+
+    protected boolean hasResponderParty(Process process, String partyName) {
+        Set<Party> responderParties = process.getResponderParties();
+        return matchesParty(responderParties, partyName);
+    }
+
+    protected boolean matchesParty(Set<Party> parties, String partyName) {
+        for (Party initiatorParty : parties) {
+            if (StringUtils.equals(initiatorParty.getName(), partyName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

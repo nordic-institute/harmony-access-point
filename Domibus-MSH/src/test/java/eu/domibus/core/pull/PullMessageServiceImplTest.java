@@ -1,7 +1,6 @@
 package eu.domibus.core.pull;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
@@ -35,9 +34,6 @@ import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
 public class PullMessageServiceImplTest {
-
-    @Injectable
-    private UserMessageLogService userMessageLogService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;

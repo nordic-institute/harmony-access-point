@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -79,7 +78,7 @@ public class UserMessageDefaultServiceTest {
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Injectable
     private MessagingDao messagingDao;
@@ -574,14 +573,14 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.handleSignalMessageDelete(messageId);
+//            userMessageDefaultService.handleSignalMessageDelete(messageId);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
             messagingDao.clearPayloadData(messageId);
-            userMessageLogService.setMessageAsDeleted(messageId);
+            userMessageLogService.setSignalMessageAsDeleted(messageId);
         }};
     }
 
@@ -593,7 +592,7 @@ public class UserMessageDefaultServiceTest {
             signalMessageDao.findSignalMessagesByRefMessageId(messageId); result = Lists.newArrayList(signalMessage);
         }};
 
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
+//        userMessageDefaultService.handleSignalMessageDelete(messageId);
 
         new Verifications() {{
             signalMessageDao.clear(signalMessage);
@@ -608,7 +607,8 @@ public class UserMessageDefaultServiceTest {
             signalMessageDao.findSignalMessagesByRefMessageId(messageId); result = Lists.<SignalMessage>newArrayList();
         }};
 
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
+        assert(false);
+//        userMessageDefaultService.handleSignalMessageDelete(messageId);
 
         new Verifications() {{
             signalMessageDao.clear((SignalMessage) any); times = 0;
@@ -624,10 +624,10 @@ public class UserMessageDefaultServiceTest {
             signalMessageDao.findSignalMessageIdsByRefMessageId(messageId); result = Lists.newArrayList(signalMessageId);
         }};
 
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
+//        userMessageDefaultService.handleSignalMessageDelete(messageId);
 
         new Verifications() {{
-            userMessageLogService.setMessageAsDeleted(signalMessageId);
+            userMessageLogService.setSignalMessageAsDeleted(signalMessageId);
         }};
     }
 
@@ -639,10 +639,10 @@ public class UserMessageDefaultServiceTest {
             signalMessageDao.findSignalMessageIdsByRefMessageId(messageId); result = Lists.<String>newArrayList();
         }};
 
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
+//        userMessageDefaultService.handleSignalMessageDelete(messageId);
 
         new Verifications() {{
-            userMessageLogService.setMessageAsDeleted(anyString); times = 0;
+            userMessageLogService.setSignalMessageAsDeleted(anyString); times = 0;
         }};
     }
 

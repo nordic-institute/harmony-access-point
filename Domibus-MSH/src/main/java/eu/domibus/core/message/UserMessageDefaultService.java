@@ -6,7 +6,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -31,6 +30,7 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -93,7 +93,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessagingDao messagingDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
@@ -520,16 +520,15 @@ public class UserMessageDefaultService implements UserMessageService {
                 }
             }
         }
-        messagingDao.clearPayloadData(messageId);
-        userMessageLogService.setMessageAsDeleted(messageId);
-        handleSignalMessageDelete(messageId);
-    }
 
-    protected void handleSignalMessageDelete(String messageId) {
-        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-        signalMessages.stream().forEach(signalMessage -> signalMessageDao.clear(signalMessage));
+        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+        UserMessage userMessage = messaging.getUserMessage();
+        messagingDao.clearPayloadData(userMessage);
 
-        List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-        signalMessageIds.stream().forEach(signalMessageId -> userMessageLogService.setMessageAsDeleted(signalMessageId));
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+
+        SignalMessage signalMessage = messaging.getSignalMessage();
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
     }
 }

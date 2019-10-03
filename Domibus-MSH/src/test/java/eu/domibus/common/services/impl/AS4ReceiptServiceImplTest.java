@@ -1,6 +1,5 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
@@ -8,7 +7,6 @@ import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
@@ -88,9 +86,6 @@ public class AS4ReceiptServiceImplTest {
 
     @Injectable
     UserMessageLogDao userMessageLogDao;
-
-    @Injectable
-    UserMessageLogService userMessageLogService;
 
     @Injectable
     JAXBContext jaxbContextEBMS;

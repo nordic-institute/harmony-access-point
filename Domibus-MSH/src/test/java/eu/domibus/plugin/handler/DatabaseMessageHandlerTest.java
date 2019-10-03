@@ -2,7 +2,6 @@ package eu.domibus.plugin.handler;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -980,9 +979,8 @@ public class DatabaseMessageHandlerTest {
             userMessageLogService.setMessageAsDownloaded((UserMessage) any, (UserMessageLog) any);
             pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
             messagingDao.clearPayloadData(anyString);
-            signalMessageDao.findSignalMessagesByRefMessageId(MESS_ID);
-            userMessageLogService.setMessageAsDeleted(anyString);
-            userMessageLogService.setMessageAsDeleted(anyString);
+            userMessageLogService.setSignalMessageAsDeleted(anyString);
+
         }};
 
     }
@@ -1030,10 +1028,8 @@ public class DatabaseMessageHandlerTest {
             times = 0;
             signalMessageDao.findSignalMessagesByRefMessageId(MESS_ID);
             times = 0;
-            userMessageLogService.setMessageAsDeleted(anyString);
-            times = 0;
-            userMessageLogService.setMessageAsDeleted(anyString);
-            times = 0;
+
+            assert(false);
         }};
 
     }

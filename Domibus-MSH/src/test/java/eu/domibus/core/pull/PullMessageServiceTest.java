@@ -1,6 +1,5 @@
 package eu.domibus.core.pull;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
@@ -36,9 +35,6 @@ public class PullMessageServiceTest {
 
     @Injectable
     MpcService mpcService;
-
-    @Injectable
-    private UserMessageLogService userMessageLogService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
