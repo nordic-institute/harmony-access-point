@@ -1,17 +1,14 @@
 version: '3.2'
 services:
-  ##
-  ## Corner 2 - Domibus Tomcat MySQL Red Configuration
-  ##
   mysqlc2:
-    image: domibustest/domibus-mysql:4.1.1-SNAPSHOT
+    image: domibustest/domibus-mysql:${DOMIBUS_VERSION}
     environment:
       - MYSQL_ROOT_PASSWORD=123456
       - MYSQL_DATABASE=domibus
       - MYSQL_USER=edelivery
       - MYSQL_PASSWORD=edelivery
   tomcatc2:
-    image: domibustest/domibus-tomcat:4.1.1-SNAPSHOT
+    image: domibustest/domibus-tomcat:${DOMIBUS_VERSION}
     environment:
       - DB_TYPE=MySQL
       - DB_HOST=mysqlc2
