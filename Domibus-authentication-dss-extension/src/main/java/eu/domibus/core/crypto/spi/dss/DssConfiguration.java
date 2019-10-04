@@ -16,6 +16,7 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
 import net.sf.ehcache.Cache;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,8 @@ public class DssConfiguration {
     private static final String NONE = "NONE";
 
     private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
+
+    private final static String CACERT_PATH = "/lib/security/cacerts";
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
@@ -142,9 +145,6 @@ public class DssConfiguration {
 
     @Value("${domibus.dss.ssl.trust.store.password}")
     private String dssTlsTrustStorePassword;
-
-    @Value("${domibus.dss.ssl.cacert.path.override}")
-    private Boolean cacertPathOverride;
 
     @Value("${domibus.dss.ssl.cacert.path}")
     private String cacertPath;
@@ -236,45 +236,48 @@ public class DssConfiguration {
             }
         }
         dataLoader.setProxyConfig(proxyConfig);
-        dataLoader.setSslTrustStore(mergeKeystore());
+        dataLoader.setSslTrustStore(mergeCustomTlsTrustStoreWithCacert());
         return dataLoader;
     }
 
-    private KeyStore mergeKeystore() {
-        if (!NONE.equals(dssTlsTrustStorePath)) {
+    private KeyStore mergeCustomTlsTrustStoreWithCacert() {
             try {
-                KeyStore customTlsTrustore = KeyStore.getInstance(dssTlsTrustStoreType);
-                customTlsTrustore.load(new FileInputStream(dssTlsTrustStorePath), dssTlsTrustStorePassword.toCharArray());
+                KeyStore customTlsTrustStore = KeyStore.getInstance(dssTlsTrustStoreType);
+                customTlsTrustStore.load(new FileInputStream(dssTlsTrustStorePath), dssTlsTrustStorePassword.toCharArray());
                 KeyStore cacertTrustStore = loadCacertFromDefaultOrCustomLocation();
+                if(cacertTrustStore==null){
+                    LOG.warn("Cacert truststore skipped for DSS TLS");
+                    return customTlsTrustStore;
+                }
                 Enumeration enumeration = cacertTrustStore.aliases();
                 while (enumeration.hasMoreElements()) {
                     // Determine the current alias
                     String alias = (String) enumeration.nextElement();
                     LOG.debug("Retrieving certificate with alias:[{}] and add it to custom tls trustore.",alias);
                     Certificate cert = cacertTrustStore.getCertificate(alias);
-                    customTlsTrustore.setCertificateEntry(alias, cert);
+                    customTlsTrustStore.setCertificateEntry(alias, cert);
                 }
-                return customTlsTrustore;
+                return customTlsTrustStore;
             } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
                 LOG.warn("Could not instanciate custom tls trust store with path:[{}], type:[{}]", dssTlsTrustStorePath, dssTlsTrustStoreType, e);
                 return null;
             }
-        }
-        return null;
-
     }
 
     private KeyStore loadCacertFromDefaultOrCustomLocation() {
-        String filename = System.getProperty("java.home") + "/lib/security/cacerts".replace('/', File.separatorChar);
-        String password = dssTlsTrustStorePassword;
         KeyStore cacertTrustStore;
-        LOG.debug("Loading cacert from default location:[{}]", filename);
-        cacertTrustStore = loadCacert(filename, KeyStore.getDefaultType(), cacertPassword);
-        if (cacertTrustStore == null) {
-            LOG.debug("Loading cacert from custom location:[{}], with type:[{}]", dssTlsTrustStorePath, dssTlsTrustStoreType);
-            cacertTrustStore = loadCacert(dssTlsTrustStorePath, dssTlsTrustStoreType, password);
+        if(!StringUtils.isEmpty(cacertPath)){
+            LOG.debug("Loading cacert from custom location:[{}]",cacertPath);
+            return loadCacert(cacertPath, cacertType, cacertPassword);
         }
-        return cacertTrustStore;
+        String javaHome = System.getProperty("java.home");
+        if(StringUtils.isEmpty(javaHome)){
+            LOG.warn("Java home environmnent variable not defined, skipping cacert for DSS TLS");
+            return null;
+        }
+
+        String filename = javaHome + CACERT_PATH.replace('/', File.separatorChar);
+        return loadCacert(filename, cacertType, cacertPassword);
     }
 
     private KeyStore loadCacert(String filename, String type, String password) {
