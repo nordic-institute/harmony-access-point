@@ -2263,7 +2263,90 @@ static def String pathToLogFiles(side, log, context) {
 						log.info " checkLogFile  [][]  All ${logValueList.size()} entries were not found in log file."
 				}
     }
+	
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+// REST PUT request to test blacklisted characters
+    static def curlBlackList_PUT(String side, context, log, String userAC, String domainValue="Default", String userRole="ROLE_ADMIN", String passwordAC="Domibus-123", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"curlBlackList_PUT\".", log)
+        def usersMap=null;
+        def mapElement=null;
+        def multitenancyOn=false;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
 
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+            usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
+            if (userExists(usersMap, userAC, log, false)) {
+                log.error "Error:curlBlackList_PUT: Admin Console user \"$userAC\" already exist: usernames must be unique.";
+            } else {
+                curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
+                debugLog("  curlBlackList_PUT  [][]  User \"$userAC\" parameters: $curlParams.", log)
+				commandString = ["curl ",urlToDomibus(side, log, context) + "/rest/user/users",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT", 
+								"--data-binary", formatJsonForCurl(curlParams, log), 
+								"-v"]
+                commandResult = runCurlCommand(commandString, log)
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
+                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in property value \"$userAC\".";
+            }
+        } finally {
+            resetAuthTokens(log)
+        }
+    }
+
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+// REST GET request to test blacklisted characters
+	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"curlBlackList_GET\".", log)
+        debugLog("  curlBlackList_GET  [][]  Get Admin Console users for Domibus \"$side\".", log)
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn=false;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+
+		try{
+			(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)	
+			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
+			commandResult = runCurlCommand(commandString, log)
+			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
+			log.info "  curlBlackList_GET  [][]  Forbidden character detected in property value \"$data\".";
+		} finally {
+            resetAuthTokens(log)
+        }
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// REST POST request to test blacklisted characters
+	static def curlBlackList_POST(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD) {
+        debugLog("  ====  Calling \"curlBlackList_POST\".", log)
+        def commandString = null;
+        def commandResult = null;
+		def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}')
+		
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/authentication",
+						"-i",
+						"-H",  "Content-Type: application/json", 
+						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+						"--trace-ascii", "-"]
+		try{
+        commandResult = runCurlCommand(commandString, log)
+		} finally {
+            resetAuthTokens(log)
+        }
+        assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
+        log.info "  curlBlackList_POST  [][]  Forbidden character detected in property value \"$userLogin\".";
+    }
 
 //---------------------------------------------------------------------------------------------------------------------------------
 } // Domibus class end
