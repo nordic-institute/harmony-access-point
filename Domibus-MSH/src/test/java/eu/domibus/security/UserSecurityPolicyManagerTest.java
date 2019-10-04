@@ -22,7 +22,6 @@ import mockit.*;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -236,7 +235,7 @@ public class UserSecurityPolicyManagerTest {
             result = today;
         }};
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getWarningDaysBeforeExpiration());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getWarningDaysBeforeExpirationProperty());
             result = "20";
             securityPolicyManager.getMaximumDefaultPasswordAgeProperty();
             result = maximumDefaultPasswordAgeProperty;
@@ -257,7 +256,7 @@ public class UserSecurityPolicyManagerTest {
     public void testValidateDaysTillExpirationDisabled() {
         final String username = "user1";
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getWarningDaysBeforeExpiration());
+            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getWarningDaysBeforeExpirationProperty());
             result = "0";
         }};
 

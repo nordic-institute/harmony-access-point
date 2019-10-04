@@ -67,8 +67,8 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
     }
 
     @Override
-    protected String getWarningDaysBeforeExpiration() {
-        return "-1";
+    protected String getWarningDaysBeforeExpirationProperty() {
+        return null;
     }
 
     @Override
