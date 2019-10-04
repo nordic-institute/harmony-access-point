@@ -137,7 +137,7 @@ public class DssConfiguration {
     @Value("${domibus.authentication.dss.cache.name}")
     private String cacheName;
 
-    @Value("${domibus.dss.ssl.trust.store.path:NONE}")
+    @Value("${domibus.dss.ssl.trust.store.path}")
     private String dssTlsTrustStorePath;
 
     @Value("${domibus.dss.ssl.trust.store.type}")
@@ -241,53 +241,75 @@ public class DssConfiguration {
     }
 
     private KeyStore mergeCustomTlsTrustStoreWithCacert() {
-            try {
-                KeyStore customTlsTrustStore = KeyStore.getInstance(dssTlsTrustStoreType);
-                customTlsTrustStore.load(new FileInputStream(dssTlsTrustStorePath), dssTlsTrustStorePassword.toCharArray());
-                KeyStore cacertTrustStore = loadCacertFromDefaultOrCustomLocation();
-                if(cacertTrustStore==null){
-                    LOG.warn("Cacert truststore skipped for DSS TLS");
-                    return customTlsTrustStore;
-                }
-                Enumeration enumeration = cacertTrustStore.aliases();
-                while (enumeration.hasMoreElements()) {
-                    // Determine the current alias
-                    String alias = (String) enumeration.nextElement();
-                    LOG.debug("Retrieving certificate with alias:[{}] and add it to custom tls trustore.",alias);
-                    Certificate cert = cacertTrustStore.getCertificate(alias);
-                    customTlsTrustStore.setCertificateEntry(alias, cert);
-                }
-                return customTlsTrustStore;
-            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-                LOG.warn("Could not instanciate custom tls trust store with path:[{}], type:[{}]", dssTlsTrustStorePath, dssTlsTrustStoreType, e);
-                return null;
-            }
-    }
 
-    private KeyStore loadCacertFromDefaultOrCustomLocation() {
-        KeyStore cacertTrustStore;
-        if(!StringUtils.isEmpty(cacertPath)){
-            LOG.debug("Loading cacert from custom location:[{}]",cacertPath);
-            return loadCacert(cacertPath, cacertType, cacertPassword);
-        }
-        String javaHome = System.getProperty("java.home");
-        if(StringUtils.isEmpty(javaHome)){
-            LOG.warn("Java home environmnent variable not defined, skipping cacert for DSS TLS");
+        KeyStore customTlsTrustStore;
+        try {
+            customTlsTrustStore = KeyStore.getInstance(dssTlsTrustStoreType);
+        } catch (KeyStoreException e) {
+            LOG.error("Could not instantiate empty keystore DSS keystore of type:[{}]",dssTlsTrustStoreType);
             return null;
         }
 
-        String filename = javaHome + CACERT_PATH.replace('/', File.separatorChar);
-        return loadCacert(filename, cacertType, cacertPassword);
+        try {
+            customTlsTrustStore.load(new FileInputStream(dssTlsTrustStorePath), dssTlsTrustStorePassword.toCharArray());
+        } catch (IOException|NoSuchAlgorithmException|CertificateException e) {
+            LOG.info("DSS TLS truststore file:[{}] could not be loaded",dssTlsTrustStorePath);
+            LOG.debug("Error while loading DSS TLS truststore file:[{}]",dssTlsTrustStorePath,e);
+            customTlsTrustStore=null;
+        }
+        try {
+
+            KeyStore cacertTrustStore = loadCacertTrustStore();
+            if (cacertTrustStore == null) {
+                LOG.warn("Cacert truststore skipped for DSS TLS");
+                return customTlsTrustStore;
+            }
+            if(customTlsTrustStore==null){
+                LOG.debug("Custom DSS TLS is based on cacert only.");
+                return cacertTrustStore;
+            }
+            Enumeration enumeration = cacertTrustStore.aliases();
+            while (enumeration.hasMoreElements()) {
+                // Determine the current alias
+                String alias = (String) enumeration.nextElement();
+                LOG.debug("Retrieving certificate with alias:[{}] and add it to custom tls trustore.", alias);
+                Certificate cert = cacertTrustStore.getCertificate(alias);
+                customTlsTrustStore.setCertificateEntry(alias, cert);
+            }
+            return customTlsTrustStore;
+        } catch (KeyStoreException e) {
+            LOG.error("Exception occured while merging cacert and dss truststore", e);
+            return customTlsTrustStore;
+        }
     }
 
-    private KeyStore loadCacert(String filename, String type, String password) {
+    private KeyStore loadCacertTrustStore() {
+        //from custom defined location.
+        if (!StringUtils.isEmpty(cacertPath)) {
+            LOG.debug("Loading cacert of type:[{}] from custom location:[{}]",cacertType, cacertPath);
+            return loadKeystore(cacertPath, cacertType, cacertPassword);
+        }
+
+        String javaHome = System.getProperty("java.home");
+        if (StringUtils.isEmpty(javaHome)) {
+            LOG.warn("Java home environmnent variable not defined, skipping cacert for DSS TLS");
+            return null;
+        }
+        //from default location.
+        String filename = javaHome + CACERT_PATH.replace('/', File.separatorChar);
+        LOG.debug("Loading cacert of type:[{}] from default location:[{}]",cacertType, cacertPath);
+        return loadKeystore(filename, cacertType, cacertPassword);
+    }
+
+    private KeyStore loadKeystore(String filename, String type, String password) {
         KeyStore cacertTrustStore;
         try (FileInputStream is = new FileInputStream(filename)) {
             cacertTrustStore = KeyStore.getInstance(type);
             cacertTrustStore.load(is, password.toCharArray());
             return cacertTrustStore;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            LOG.debug("Cacert cannot be loaded from  path:[{}]", filename,e);
+            LOG.info("Cacert cannot be loaded from  path:[{}]", filename);
+            LOG.debug("Error loading cacert file:[{}]", filename,e);
             return null;
         }
     }
