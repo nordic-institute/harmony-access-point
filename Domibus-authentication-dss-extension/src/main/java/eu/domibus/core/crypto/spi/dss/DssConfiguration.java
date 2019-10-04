@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.*;
+import eu.europa.esig.dss.service.crl.OnlineCRLSource;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
