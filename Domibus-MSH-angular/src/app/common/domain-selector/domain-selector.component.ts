@@ -62,7 +62,7 @@ export class DomainSelectorComponent implements OnInit {
 
   async changeDomain() {
     let canChangeDomain = Promise.resolve(true);
-    if (this.currentComponent && this.currentComponent.isDirty && this.currentComponent.isDirty()) {
+    if (this.supportsDirtyOperations() && this.currentComponent.isDirty()) {
       canChangeDomain = this.dialog.open(CancelDialogComponent).afterClosed().toPromise<boolean>();
     }
 
@@ -101,5 +101,9 @@ export class DomainSelectorComponent implements OnInit {
     }
   }
 
+  private supportsDirtyOperations() {
+    return this.currentComponent && this.currentComponent.isDirty
+      && this.currentComponent.isDirty instanceof Function;
+  }
 }
 

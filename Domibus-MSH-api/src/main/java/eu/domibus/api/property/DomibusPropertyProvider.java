@@ -2,7 +2,6 @@ package eu.domibus.api.property;
 
 import eu.domibus.api.multitenancy.Domain;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 

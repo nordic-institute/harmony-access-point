@@ -2,12 +2,10 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
-import eu.domibus.spring.SpringContextProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
@@ -15,11 +13,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAY
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Handles the change of payload encryption property
  */
 @Service
-public class PayloadEncryptionChangeListener implements PluginPropertyChangeListener {
+public class PayloadEncryptionChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     protected DomainService domainService;

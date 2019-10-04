@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.junit.Assert;
@@ -16,6 +17,8 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import static org.mockito.Mockito.when;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno, Cosmin Baciu
@@ -37,6 +40,9 @@ public class FSPluginPropertiesTestIT {
 
     @Autowired
     private FSPluginProperties fSPluginProperties;
+
+    @Autowired
+    DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Configuration
     static class ContextConfiguration {
@@ -63,11 +69,26 @@ public class FSPluginPropertiesTestIT {
         public DomainExtService domainExtService() {
             return Mockito.mock(DomainExtService.class);
         }
+
+        @Bean
+        public DomibusConfigurationExtService domibusConfigurationExtService() {
+            return Mockito.mock(DomibusConfigurationExtService.class);
+        }
+
+        @Bean
+        public PluginPropertyChangeNotifier propertyChangeNotifier() {
+            return Mockito.mock(PluginPropertyChangeNotifier.class);
+        }
+
+        @Bean
+        public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
+            return new FSPluginPropertiesMetadataManagerImpl();
+        }
     }
 
     @Test
     public void testGetLocation() throws Exception {
-        Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation());
+        Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation(null));
     }
 
     @Test
@@ -82,7 +103,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetSentAction() throws Exception {
-        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fSPluginProperties.getSentAction());
+        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fSPluginProperties.getSentAction(null));
     }
 
     @Test
@@ -92,12 +113,12 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetSentPurgeExpired() throws Exception {
-        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired());
+        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired(null));
     }
 
     @Test
     public void testGetFailedAction() throws Exception {
-        Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fSPluginProperties.getFailedAction());
+        Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fSPluginProperties.getFailedAction(null));
     }
 
     @Test
@@ -107,12 +128,12 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetFailedPurgeExpired() throws Exception {
-        Assert.assertEquals(null, fSPluginProperties.getFailedPurgeExpired());
+        Assert.assertEquals(null, fSPluginProperties.getFailedPurgeExpired(null));
     }
 
     @Test
     public void testGetReceivedPurgeExpired() throws Exception {
-        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired());
+        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired(null));
     }
 
     @Test
@@ -177,4 +198,71 @@ public class FSPluginPropertiesTestIT {
         Assert.assertTrue(unorderedB == 4 || unorderedB == 5);
     }
 
+    @Test
+    public void testKnownPropertyValue_singleTenancy() {
+        final String domain = "default";
+        final String propertyName1 = "fsplugin.domains.DOMAIN1.messages.location";
+        final String propertyName2 = "fsplugin.domains.UNORDEREDA.messages.location";
+        final String oldPropertyValue1 = "/tmp/fs_plugin_data/DOMAIN1";
+        final String oldPropertyValue2 = "/tmp/fs_plugin_data";
+        final String newPropertyValue1 = "new-property-value1";
+        final String newPropertyValue2 = "new-property-value2";
+        Mockito.reset(domibusConfigurationExtService);
+        when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(false);
+
+        // test get value
+        String value1 = fSPluginProperties.getKnownPropertyValue(domain, propertyName1);
+        String value2 = fSPluginProperties.getKnownPropertyValue(domain, propertyName2);
+
+        Assert.assertEquals(oldPropertyValue1, value1);
+        Assert.assertEquals(oldPropertyValue2, value2);
+
+        // test set value
+        fSPluginProperties.setKnownPropertyValue(domain, propertyName1, newPropertyValue1);
+        fSPluginProperties.setKnownPropertyValue(domain, propertyName2, newPropertyValue2, true);
+
+        value1 = fSPluginProperties.getKnownPropertyValue(domain, propertyName1);
+        value2 = fSPluginProperties.getKnownPropertyValue(domain, propertyName2);
+
+        Assert.assertEquals(newPropertyValue1, value1);
+        Assert.assertEquals(newPropertyValue2, value2);
+
+        // reset context
+        fSPluginProperties.setKnownPropertyValue(domain, propertyName1, oldPropertyValue1);
+        fSPluginProperties.setKnownPropertyValue(domain, propertyName2, oldPropertyValue2, true);
+    }
+
+    @Test
+    public void testKnownPropertyValue_multiTenancy() {
+        final String propertyName = "fsplugin.messages.location";
+        final String domain1 = "DOMAIN1";
+        final String domain2 = "UNORDEREDA";
+        final String oldPropertyValue1 = "/tmp/fs_plugin_data/DOMAIN1";
+        final String oldPropertyValue2 = "/tmp/fs_plugin_data";
+        final String newPropertyValue1 = "new-property-value1";
+        final String newPropertyValue2 = "new-property-value2";
+        Mockito.reset(domibusConfigurationExtService);
+        when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(true);
+
+        // test get value
+        String value1 = fSPluginProperties.getKnownPropertyValue(domain1, propertyName);
+        String value2 = fSPluginProperties.getKnownPropertyValue(domain2, propertyName);
+
+        Assert.assertEquals(oldPropertyValue1, value1);
+        Assert.assertEquals(oldPropertyValue2, value2);
+
+        // test set value
+        fSPluginProperties.setKnownPropertyValue(domain1, propertyName, newPropertyValue1);
+        fSPluginProperties.setKnownPropertyValue(domain2, propertyName, newPropertyValue2, true);
+
+        value1 = fSPluginProperties.getKnownPropertyValue(domain1, propertyName);
+        value2 = fSPluginProperties.getKnownPropertyValue(domain2, propertyName);
+
+        Assert.assertEquals(newPropertyValue1, value1);
+        Assert.assertEquals(newPropertyValue2, value2);
+
+        // reset context
+        fSPluginProperties.setKnownPropertyValue(domain1, propertyName, oldPropertyValue1);
+        fSPluginProperties.setKnownPropertyValue(domain2, propertyName, oldPropertyValue2, true);
+    }
 }

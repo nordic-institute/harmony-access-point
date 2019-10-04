@@ -7,8 +7,10 @@ import eu.domibus.messaging.PluginMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * FSPlugin Out {@code MessageListenerContainer} which implements {@code PluginMessageListenerContainer}
@@ -24,9 +26,23 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
     @Autowired
     protected ApplicationContext applicationContext;
 
+    protected Map<DomainDTO, DefaultMessageListenerContainer> instances = new HashMap<>();
+
     @Override
-    public MessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
+    public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
         LOG.debug("Creating the FSSendMessageListenerContainer  for domain [{}]", domain);
-        return (DefaultMessageListenerContainer) applicationContext.getBean("fsPluginOutContainer", domain);
+        DefaultMessageListenerContainer instance = (DefaultMessageListenerContainer) applicationContext.getBean("fsPluginOutContainer", domain);
+        instances.put(domain, instance);
+        return instance;
+    }
+
+    @Override
+    public void updateMessageListenerContainerConcurrency(DomainDTO domain, String concurrency) {
+        DefaultMessageListenerContainer instance = instances.get(domain);
+        if (instance == null) {
+            LOG.warn("fsPluginOutContainer instance not found for domain [{}]", domain);
+            return;
+        }
+        instance.setConcurrency(concurrency);
     }
 }

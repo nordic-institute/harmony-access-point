@@ -22,6 +22,9 @@ import java.util.Map;
  * @author Ion Perpegel
  * @author Cosmin Baciu
  * @since 4.0
+ *
+ * Class that manages the creation, reset and destruction of message listener containers
+ * The instances are kept so that they can be recreated on property changes at runtime and also stoped at shutdown
  */
 @Service
 public class MessageListenerContainerInitializer {
@@ -50,6 +53,7 @@ public class MessageListenerContainerInitializer {
             createSendLargeMessageListenerContainer(domain);
             createSplitAndJoinListenerContainer(domain);
             createPullReceiptListenerContainer(domain);
+            createPullMessageListenerContainer(domain);
             createRetentionListenerContainer(domain);
 
             createMessageListenersForPlugins(domain);
@@ -128,6 +132,14 @@ public class MessageListenerContainerInitializer {
         instance.start();
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);
+    }
+
+    public void createPullMessageListenerContainer(Domain domain) {
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createPullMessageListenerContainer(domain);
+        removeInstance(domain, instance.getName());
+        instance.start();
+        instances.add(instance);
+        LOG.info("PullListenerContainer initialized for domain [{}]", domain);
     }
 
     private void removeInstance(Domain domain, String beanName) {

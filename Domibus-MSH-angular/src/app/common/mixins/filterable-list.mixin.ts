@@ -26,7 +26,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * active params are the ones that are used for actual filtering of data and can be different from the ones set by the user in the UI
    */
   protected setActiveFilter() {
-    //just in case ngOnInit wasn't called from coresponding component class
+    //just in case ngOnInit wasn't called from corresponding component class
     if (!this.activeFilter) {
       this.activeFilter = {};
     }

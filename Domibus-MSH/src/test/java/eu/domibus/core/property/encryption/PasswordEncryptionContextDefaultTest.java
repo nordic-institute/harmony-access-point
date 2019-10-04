@@ -105,7 +105,7 @@ public class PasswordEncryptionContextDefaultTest {
         }};
 
         final List<String> propertiesToEncrypt = passwordEncryptionContextDefault.getPropertiesToEncrypt();
-        assertEquals(propertiesToEncrypt.size(), 2);
+        assertEquals(2, propertiesToEncrypt.size());
         Assert.assertTrue(propertiesToEncrypt.contains(propertyName1));
         Assert.assertTrue(propertiesToEncrypt.contains(propertyName2));
     }

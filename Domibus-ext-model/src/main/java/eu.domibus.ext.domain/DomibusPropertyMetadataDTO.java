@@ -1,5 +1,12 @@
 package eu.domibus.ext.domain;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ *
+ * It is the plugin api equivalent of the DomibusPropertyMetadata
+ * Class that encapsulates the properties of a domibus configuration property;
+ */
 public class DomibusPropertyMetadataDTO {
 
     private String name;
@@ -28,12 +35,19 @@ public class DomibusPropertyMetadataDTO {
 
     private String module;
 
+    public DomibusPropertyMetadataDTO() {
+    }
+
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
         this.module = module;
+    }
+
+    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific) {
+        this(name, module, domainSpecific, false, true);
     }
 
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {

@@ -5,17 +5,20 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * <p>
+ * Delegate/adapter class that wraps the DomibusPropertyManager and exposes the DomibusPropertyManagerExt
+ * Injected in DomibusPropertyService to handle in a polymorphic way plugin and domibus property management
+ */
 @Service
 public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt {
-
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyManagerDelegate.class);
 
     @Autowired
     private DomibusPropertyManager domibusPropertyManager;

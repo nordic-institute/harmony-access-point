@@ -4,14 +4,15 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.property.PluginPropertyChangeListener;
-import eu.domibus.quartz.DomibusQuartzStarter;
-import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Handles the change of cron expression properties
  */
 @Service
-public class CronExpressionChangeListener implements PluginPropertyChangeListener {
+public class CronExpressionChangeListener implements DomibusPropertyChangeListener {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CronExpressionChangeListener.class);
 
@@ -37,7 +38,7 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
     protected ApplicationContext applicationContext;
 
     @Autowired
-    DomibusQuartzStarter domibusQuartzStarter;
+    DomibusScheduler domibusScheduler;
 
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
             {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
@@ -65,6 +66,7 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
     }
 
     @Override
+    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
         if (jobName == null) {
@@ -75,8 +77,8 @@ public class CronExpressionChangeListener implements PluginPropertyChangeListene
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
 
         try {
-            domibusQuartzStarter.rescheduleJob(domain, jobName, propertyValue);
-        } catch (SchedulerException ex) {
+            domibusScheduler.rescheduleJob(domain, jobName, propertyValue);
+        } catch (DomibusSchedulerException ex) {
             LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
         }

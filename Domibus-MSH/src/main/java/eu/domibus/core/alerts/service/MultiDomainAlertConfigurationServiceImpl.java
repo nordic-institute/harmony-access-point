@@ -116,6 +116,51 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return commonConfigurationConfigurationLoader.getConfiguration(this::readCommonConfiguration);
     }
 
+    @Override
+    public void clearCommonConfiguration() {
+        commonConfigurationConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearLoginFailureConfiguration() {
+        loginFailureConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearPasswordExpirationAlertConfiguration(AlertType alertType) {
+        this.passwordExpirationAlertsConfigurationHolder.clearConfiguration(alertType);
+    }
+
+    @Override
+    public void clearPluginLoginFailureConfiguration() {
+        this.pluginLoginFailureConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearImminentExpirationCertificateConfiguration() {
+        this.imminentExpirationCertificateConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearExpiredCertificateConfiguration() {
+        this.expiredCertificateConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearPluginAccountDisabledConfiguration() {
+        this.pluginAccountDisabledConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearAccountDisabledConfiguration() {
+        accountDisabledConfigurationLoader.resetConfiguration();
+    }
+
+    @Override
+    public void clearMessageCommunicationConfiguration() {
+        messagingConfigurationLoader.resetConfiguration();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -130,6 +175,19 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public String getMailSubject(AlertType alertType) {
         return getModuleConfiguration(alertType).getMailSubject();
+    }
+
+    @Override
+    public void clearAllConfigurations() {
+        this.clearCommonConfiguration();
+        this.clearLoginFailureConfiguration();
+        this.clearAccountDisabledConfiguration();
+        this.clearPluginLoginFailureConfiguration();
+        this.clearPluginAccountDisabledConfiguration();
+        this.clearMessageCommunicationConfiguration();
+        this.clearExpiredCertificateConfiguration();
+        this.clearImminentExpirationCertificateConfiguration();
+        passwordExpirationAlertsConfigurationHolder.clearConfiguration();
     }
 
     // TODO: refactor to avoid these repetitions cause we can easily miss to add here the newly added alert types

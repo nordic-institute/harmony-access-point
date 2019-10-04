@@ -108,8 +108,8 @@ public class PModeResource extends BaseResource {
 
             List<String> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
             String message = "PMode file has been successfully uploaded";
-            if (pmodeUpdateMessage != null && !pmodeUpdateMessage.isEmpty()) {
-                message += " but some issues were detected: \n" + StringUtils.join(pmodeUpdateMessage, "\n");
+            if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
+                message += " but some issues were detected: <br>" + StringUtils.join(pmodeUpdateMessage, " <br>");
             }
             return ResponseEntity.ok(message);
         } catch (XmlProcessingException e) {
@@ -145,7 +145,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ResponseEntity<String> uploadPmode(@PathVariable(value = "id") Integer id) {
+    public ResponseEntity<String> restorePmode(@PathVariable(value = "id") Integer id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);

@@ -15,26 +15,58 @@ import org.apache.cxf.ext.logging.event.LogEvent;
 public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender {
 
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
-    static final String VALUE_START = "<value>";
-    static final String VALUE_END = "</value>";
+    static final String VALUE_START = "<value";
+    static final String VALUE_END = "</value";
     static final String SUBMIT_MESSAGE = "submitRequest";
+
 
     /**
      * It removes some parts of the payload info
      *
-     * @param event
+     * @param event LogEvent
      */
     @Override
     protected void stripPayload(LogEvent event) {
-        final String payload = event.getPayload();
+        String payload = event.getPayload();
 
-        if (payload.contains(RETRIEVE_MESSAGE_RESPONSE) || payload.contains(SUBMIT_MESSAGE)) {
-            //C4 - C3
-            int indexStart = payload.indexOf(VALUE_START);
-            int indexEnd = payload.indexOf(VALUE_END);
-            event.setPayload(payload.replace(payload.substring(indexStart + VALUE_START.length(), indexEnd),
-                    AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
-        }
+        //strip values if it's submitMessage
+        payload = replaceInPayload(payload, SUBMIT_MESSAGE);
+
+        //strip values if it's a retrieveMessage
+        payload = replaceInPayload(payload, RETRIEVE_MESSAGE_RESPONSE);
+
+        //finally set the payload back
+        event.setPayload(payload);
     }
 
+    private String replaceInPayload(String payload, String xmlNodeStartTag) {
+        String newPayload = payload;
+
+        //first we find the xml node starting index - e.g submitRequest
+        int xmlNodeStartIndex = newPayload.indexOf(xmlNodeStartTag);
+        if (xmlNodeStartIndex == -1) {
+            return newPayload;
+        }
+
+        //start to replace/suppress the content between <value>...</value> pairs
+        int indexStart = newPayload.indexOf(VALUE_START);
+        int startTagLength = newPayload.indexOf(">", indexStart) - indexStart + 1;
+
+        int indexEnd = newPayload.indexOf(VALUE_END);
+        int endTagLength = newPayload.indexOf(">", indexEnd) - indexEnd + 1;
+
+        while (indexStart >= 0 && indexStart > xmlNodeStartIndex && indexStart < indexEnd) {
+            String toBeReplaced = newPayload.substring(indexStart + startTagLength, indexEnd);
+            newPayload = newPayload.replace(toBeReplaced,
+                    AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
+
+            int fromIndex = indexEnd + endTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() - toBeReplaced.length() + 1;
+            indexStart = newPayload.indexOf(VALUE_START, fromIndex);
+            indexEnd = newPayload.indexOf(VALUE_END, fromIndex);
+            startTagLength = newPayload.indexOf(">", indexStart) - indexStart + 1;
+            endTagLength = newPayload.indexOf(">", indexEnd) - indexEnd + 1;
+        }
+
+        return newPayload;
+    }
 }

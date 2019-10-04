@@ -6,7 +6,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,18 +15,16 @@ import java.util.stream.Collectors;
  * @author Ion Perpegel
  * @since 4.1.1
  *
- * Handles the change of a domibus property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
+ * The plugin api equivalent of DomibusPropertyChangeNotifierImpl
+ * Handles the change of a domibus plugin property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
  */
 @Service
 public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
-    @Autowired
-    private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
-
-    @Autowired
-    private ApplicationContext applicationContext;
+    @Autowired(required = false)
+    protected List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
 
     @Autowired
     private SignalService signalService;
@@ -41,14 +38,13 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
         listeners.forEach(listener -> {
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 LOGGER.error("An error occurred on setting property [{}]", propertyName, ex);
             }
         });
 
         //signal for other nodes in the cluster
         if (broadcast) {
-//            SignalService signalService = applicationContext.getBean(SignalService.class);
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
         }
     }

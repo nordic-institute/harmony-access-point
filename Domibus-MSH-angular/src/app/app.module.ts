@@ -90,6 +90,7 @@ import {AuthExternalProviderGuard} from "./common/guards/auth-external-provider.
 import {LogoutAuthExtProviderComponent} from "./security/logout/logout.components";
 import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
 import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.components";
+import {PropertiesComponent} from './properties/properties.component';
 
 export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions, httpEventService: HttpEventService) {
   return new ExtendedHttpClient(xhrBackend, requestOptions, httpEventService);
@@ -147,7 +148,8 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     LoggingComponent,
     ChangePasswordComponent,
     LogoutAuthExtProviderComponent,
-    NotAuthorizedComponent
+    NotAuthorizedComponent,
+    PropertiesComponent,
   ],
   entryComponents: [
     AppComponent,
@@ -172,6 +174,7 @@ export function extendedHttpClientFactory(xhrBackend: XHRBackend, requestOptions
     EditcertificatepluginuserFormComponent,
     PartyIdentifierDetailsComponent,
     ChangePasswordComponent,
+    PropertiesComponent,
   ],
   imports: [
     BrowserModule,

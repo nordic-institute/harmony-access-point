@@ -3,10 +3,7 @@ package eu.domibus.messaging;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.pull.PullReceiptListener;
-import eu.domibus.ebms3.sender.LargeMessageSenderListener;
-import eu.domibus.ebms3.sender.MessageSenderListener;
-import eu.domibus.ebms3.sender.RetentionListener;
-import eu.domibus.ebms3.sender.SplitAndJoinListener;
+import eu.domibus.ebms3.sender.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +13,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
 import javax.jms.Queue;
+import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
@@ -35,7 +34,6 @@ public class MessageListenerContainerConfiguration {
     public static final String PROPERTY_LARGE_FILES_CONCURRENCY = DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY;
     public static final String PROPERTY_SPLIT_AND_JOIN_CONCURRENCY = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY;
     private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = DOMIBUS_RETENTION_JMS_CONCURRENCY;
-    private static final String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
 
 
     @Autowired
@@ -45,6 +43,10 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     @Qualifier("sendPullReceiptQueue")
     private Queue sendPullReceiptQueue;
+
+    @Autowired
+    @Qualifier("pullMessageQueue")
+    private Queue pullMessageQueue;
 
     @Autowired
     @Qualifier("sendLargeMessageQueue")
@@ -79,6 +81,9 @@ public class MessageListenerContainerConfiguration {
     private RetentionListener retentionListener;
 
     @Autowired
+    PullMessageSender pullMessageListener;
+
+    @Autowired
     @Qualifier("domibusJMS-XAConnectionFactory")
     private ConnectionFactory connectionFactory;
 
@@ -87,6 +92,10 @@ public class MessageListenerContainerConfiguration {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    Optional<JndiDestinationResolver> internalDestinationResolver;
+
 
     @Bean(name = "dispatchContainer")
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -151,24 +160,38 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the createRetentionListener for domain [{}]", domain);
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, retentionMessageQueue,
-                retentionListener, transactionManager, PROPERTY_RETENTION_JMS_CONCURRENCY
-        );
+                retentionListener, transactionManager, PROPERTY_RETENTION_JMS_CONCURRENCY);
+    }
+
+    @Bean(name = "pullMessageContainer")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultMessageListenerContainer createPullMessageListener(Domain domain) {
+        LOG.debug("Instantiating the pullMessageListener for domain [{}]", domain);
+
+        return createDefaultMessageListenerContainer(domain, connectionFactory, pullMessageQueue,
+                pullMessageListener::processPullRequest, transactionManager, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, true);
     }
 
     /**
      * It will create a {@code DefaultMessageListenerContainer}
      *
-     * @param domain domain
-     * @param connectionFactory JMS connection factory
-     * @param destination JMS queue
-     * @param messageListener JMS message listener
-     * @param transactionManager Transaction manager
+     * @param domain                    domain
+     * @param connectionFactory         JMS connection factory
+     * @param destination               JMS queue
+     * @param messageListener           JMS message listener
+     * @param transactionManager        Transaction manager
      * @param domainPropertyConcurrency domain property key for retrieving queue concurrency value
      * @return
      */
     private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
                                                                                   MessageListener messageListener, PlatformTransactionManager transactionManager,
                                                                                   String domainPropertyConcurrency) {
+        return createDefaultMessageListenerContainer(domain, connectionFactory, destination, messageListener, transactionManager, domainPropertyConcurrency, false);
+    }
+
+    private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
+                                                                                  MessageListener messageListener, PlatformTransactionManager transactionManager,
+                                                                                  String domainPropertyConcurrency, boolean useInternalDestinationResolver) {
         DefaultMessageListenerContainer messageListenerContainer = new DomainMessageListenerContainer(domain);
 
         final String messageSelector = MessageConstants.DOMAIN + "='" + domain.getCode() + "'";
@@ -185,6 +208,10 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setSessionAcknowledgeMode(0);
 
         messageListenerContainer.afterPropertiesSet();
+
+        if (useInternalDestinationResolver && internalDestinationResolver.isPresent()) {
+            messageListenerContainer.setDestinationResolver(internalDestinationResolver.get());
+        }
 
         LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
         return messageListenerContainer;

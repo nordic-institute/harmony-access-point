@@ -2,15 +2,16 @@ package eu.domibus.plugin.fs.worker;
 
 
 import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.BackendFSImpl;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.FSTestHelper;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
@@ -57,6 +58,9 @@ public class FSSendMessagesServiceTest {
 
     @Injectable
     private JMSExtService jmsExtService;
+
+    @Injectable
+    private DomainContextExtService domainContextExtService;
 
     @Injectable
     @Qualifier("fsPluginSendQueue")

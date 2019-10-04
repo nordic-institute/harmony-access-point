@@ -57,10 +57,10 @@ public class UIMessageServiceImplTest {
 
     @Test
     public void testCountAndFindPaged() {
-        final int count = 20;
+        final long count = 20;
 
         new Expectations() {{
-            uiMessageDao.countMessages(filters);
+            uiMessageDao.countEntries(filters);
             result = count;
 
             uiMessageDao.findPaged(from, max, column, asc, filters);

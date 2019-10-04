@@ -5,6 +5,8 @@ import eu.domibus.api.multitenancy.Domain;
 /**
  * @author Ion Perpegel
  * @since 4.0
+ *
+ * Interface for creating Message Listener containers for a specified domain
  */
 public interface DomainMessageListenerContainerFactory {
 
@@ -17,4 +19,6 @@ public interface DomainMessageListenerContainerFactory {
     DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain);
 
     DomainMessageListenerContainer createRetentionListenerContainer(Domain domain);
+
+    DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain);
 }

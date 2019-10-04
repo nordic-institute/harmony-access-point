@@ -79,13 +79,13 @@
                               <td valign="top" align="left" style=" font-size: 13px; font-family: Arial, Helvetica, sans-serif; color: #000;"><br/>
                                 <br/>
                                 <p><strong>Message id:</strong> ${MESSAGE_ID}</p>
-                                <p><strong>From party:</strong> ${FROM_PARTY}</p>
-                                <p><strong>To party:</strong> ${TO_PARTY}</p>
+                                <p><strong>From party:</strong> ${FROM_PARTY!""}</p>
+                                <p><strong>To party:</strong> ${TO_PARTY!""}</p>
                                 <p><strong>Old status:</strong> ${OLD_STATUS}</p>
                                 <p><strong>New status:</strong> ${NEW_STATUS}</p>
                                 <p><strong>Alert level:</strong> ${ALERT_LEVEL}</p>
                                 <p><strong>Reporting time:</strong> ${REPORTING_TIME}</p>
-                                <p><strong>Description:</strong> ${($DESCRIPTION)!""}</p>
+                                <p><strong>Description:</strong> ${DESCRIPTION!""}</p>
 								<p><strong>Server name:</strong> ${SERVER_NAME}</p>
 								</td>
                             </tr>

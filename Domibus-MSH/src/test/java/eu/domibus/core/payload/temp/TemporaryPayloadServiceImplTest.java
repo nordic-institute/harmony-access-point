@@ -136,7 +136,7 @@ public class TemporaryPayloadServiceImplTest {
         }};
 
         final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations();
-        Assert.assertEquals(temporaryLocations.size(), 2);
+        Assert.assertEquals(2, temporaryLocations.size());
         Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
         Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
     }

@@ -79,11 +79,15 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
             LOG.debug("Validating all object non-primitive properties [{}]:[{}]", path, obj);
             ReflectionUtils.doWithFields(obj.getClass(),
                     field -> {
-                        if (!field.isAccessible()) {
-                            field.setAccessible(true);
+                        boolean inaccessibleField = !field.isAccessible();
+                        if (inaccessibleField) {
+                            field.setAccessible(true); //NOSONAR the accessibility level is restored after the validation
                         }
                         Object value = ReflectionUtils.getField(field, obj);
                         doValidate(value, path + "->" + field.getName(), field.getAnnotation(CustomWhiteListed.class));
+                        if (inaccessibleField) {
+                            field.setAccessible(false); //NOSONAR restore original accessibility level
+                        }
                     },
                     field -> (field.getAnnotation(SkipWhiteListed.class) == null)
             );

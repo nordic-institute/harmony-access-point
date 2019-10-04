@@ -2,6 +2,7 @@ package eu.domibus.core.pmode;
 
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.Expectations;
@@ -11,6 +12,7 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Cosmin Baciu
@@ -28,6 +30,8 @@ public class PModeDefaultServiceTest {
     @Injectable
     private PModeProvider pModeProvider;
 
+    @Injectable
+    private MessageExchangeService messageExchangeService;
 
     @Test
     public void testGetLegConfiguration(@Injectable final UserMessage userMessage,
@@ -39,7 +43,7 @@ public class PModeDefaultServiceTest {
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean);
             result = messageExchangeConfiguration;
 
             pModeProvider.getLegConfiguration(messageExchangeConfiguration.getPmodeKey());

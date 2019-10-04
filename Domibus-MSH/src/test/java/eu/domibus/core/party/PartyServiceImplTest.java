@@ -919,11 +919,47 @@ public class PartyServiceImplTest {
 
         // Then
         new Verifications() {{
-            List<CertificateEntry> certificates;
-            multiDomainCertificateProvider.addCertificate(currentDomain, certificates = withCapture(), true);
-            Assert.assertTrue("Should have ignore party certificates that are null when updating parties",
-                    certificates.isEmpty());
+            List<CertificateEntry> certificates = null;
+            certificateService.loadCertificateFromString(null);times=0;
+            multiDomainCertificateProvider.addCertificate(currentDomain, null,anyBoolean);times=0;
         }};
+    }
+    @Test
+    public void TrustStoreUpdateInTheCurrentDomainWhenUpdatingPartiesOnlyIfAnyChangeInCertificate( @Injectable X509Certificate x509Certificate,
+                                                                                                   @Injectable PartyServiceImpl.ReplacementResult replacementResult,
+                                                                                  @Injectable eu.domibus.common.model.configuration.Party removedParty) throws Exception {
+
+        // Given
+        List<eu.domibus.common.model.configuration.Party> removedParties = Lists.newArrayList(removedParty);
+        Map<String, String> partyToCertificateMap = Maps.newHashMap();
+        partyToCertificateMap.put("party_red",  "certificate_1");
+        List<String> aliases =new ArrayList<>() ;
+        aliases.add("party_blue");
+
+        new Expectations(partyService) {{
+            domainProvider.getCurrentDomain(); result=currentDomain;
+            partyService.getRemovedParties(replacementResult); result=aliases;
+            certificateService.loadCertificateFromString("certificate_1"); result = x509Certificate;
+         }};
+
+        // When
+        partyService.updatePartyCertificate(partyToCertificateMap,replacementResult);
+
+        // Then
+        new Verifications() {{
+            List<CertificateEntry> certificates;
+            List<String> aliases;
+            multiDomainCertificateProvider.removeCertificate(currentDomain, aliases = withCapture());
+            multiDomainCertificateProvider.addCertificate(currentDomain, certificates = withCapture(), true);
+            Assert.assertTrue("Should update party truststore when removing certificates of the parties",
+                    aliases.size() == 1
+                            && "party_blue".equals(aliases.get(0).toString()));
+            Assert.assertTrue("Should update party truststore when updating certificates of the parties",
+                    certificates.size() == 1
+                            && "party_red".equals(certificates.get(0).getAlias())
+                            && x509Certificate == certificates.get(0).getCertificate());
+        }};
+
     }
 
     @Test
@@ -969,6 +1005,8 @@ public class PartyServiceImplTest {
                             && x509Certificate == certificates.get(0).getCertificate());
         }};
     }
+
+
 
 
     @Test

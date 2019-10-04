@@ -159,7 +159,7 @@ public class PModeResourceTest {
         // Then
         Assert.assertNotNull(stringResponseEntity);
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected: \ntrue",
+        Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected: <br>true",
                 stringResponseEntity.getBody());
     }
 
@@ -278,10 +278,10 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodeSuccess() {
+    public void testRestorePmodeSuccess() {
         // Given
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmode(1);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -290,7 +290,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodeException() throws XmlProcessingException {
+    public void testRestorePmodeException() throws XmlProcessingException {
         // Given
         final Exception exception = new Exception("Mocked exception");
         new Expectations(pModeResource) {{
@@ -299,7 +299,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmode(1);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -308,7 +308,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodeNestedException() throws XmlProcessingException {
+    public void testRestorePmodeNestedException() throws XmlProcessingException {
         // Given
         final Exception exception = new Exception(new Exception("Nested mocked exception"));
 
@@ -318,7 +318,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmode(1);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);
@@ -327,7 +327,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodeIssues() throws XmlProcessingException {
+    public void testRestorePmodeIssues() throws XmlProcessingException {
         // Given
         List<String> issues = new ArrayList<>();
         issues.add("issue1");
@@ -337,7 +337,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.uploadPmode(1);
+        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(stringResponseEntity);

@@ -137,7 +137,7 @@ public class AlertResource extends BaseResource {
     }
 
     private Alert toAlert(AlertRo alertRo) {
-        final int entityId = alertRo.getEntityId();
+        final long entityId = alertRo.getEntityId();
         final boolean processed = alertRo.isProcessed();
         Alert alert = new Alert();
         alert.setEntityId(entityId);
@@ -156,8 +156,8 @@ public class AlertResource extends BaseResource {
         AlertCriteria alertCriteria = new AlertCriteria();
         alertCriteria.setPage(request.getPage());
         alertCriteria.setPageSize(request.getPageSize());
-        alertCriteria.setAsk(request.getAsk());
-        alertCriteria.setColumn(request.getColumn());
+        alertCriteria.setAsc(request.getAsc());
+        alertCriteria.setOrderBy(request.getOrderBy());
         alertCriteria.setProcessed(request.getProcessed());
         alertCriteria.setAlertType(request.getAlertType());
         alertCriteria.setAlertID(request.getAlertId());
