@@ -45,7 +45,7 @@
                 <goal>npm</goal>
               </goals>
               <configuration>
-                <arguments>install --unsafe-perm</arguments>
+                <arguments>install --unsafe-perm --no-optional --no-shrinkwrap --no-package-lock</arguments>
               </configuration>
             </execution>
           </executions>

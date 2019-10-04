@@ -104,7 +104,7 @@
         <!--IAM extension properties -->
         <!-- Please keep in sync with CXF version -->
         <wss4j.ws.security.common>2.2.4</wss4j.ws.security.common>
-        <dss.version>5.4</dss.version>
+        <dss.version>5.5.RC1</dss.version>
         <!--Uumds properties-->
         <nimbus-jose-jwt.version>5.4</nimbus-jose-jwt.version>
         <!--Please keep those two dependencies version aligned with transitive dependency-->
