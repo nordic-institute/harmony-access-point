@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -65,6 +66,9 @@ public class PullMessageServiceTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Test
     @Ignore

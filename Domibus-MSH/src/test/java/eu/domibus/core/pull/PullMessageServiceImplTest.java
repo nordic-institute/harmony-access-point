@@ -13,6 +13,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -74,6 +75,8 @@ public class PullMessageServiceImplTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    private UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Test
     public void updatePullMessageAfterRequest() {

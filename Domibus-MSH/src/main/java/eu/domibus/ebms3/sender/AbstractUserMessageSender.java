@@ -88,7 +88,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         final String pModeKey;
 
         try {
-
             try {
                 validateBeforeSending(userMessage);
             } catch (DomibusCoreException e) {

@@ -22,13 +22,15 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
@@ -87,7 +89,7 @@ public class DatabaseMessageHandlerTest {
             LEG;
 
     @Tested
-    private DatabaseMessageHandler dmh;
+    private DatabaseMessageHandler databaseMessageHandler;
 
     @Injectable
     JMSManager jmsManager;
@@ -163,6 +165,12 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     protected PModeDefaultService pModeDefaultService;
+
+    @Injectable
+    protected UserMessageDefaultService userMessageDefaultService;
+
+    @Injectable
+    protected UserMessageServiceHelper userMessageServiceHelper;
 
 
     protected Property createProperty(String name, String value, String type) {
@@ -278,7 +286,7 @@ public class DatabaseMessageHandlerTest {
             result = legConfiguration;
         }};
 
-        final String messageId = dmh.submit(messageData, BACKEND);
+        final String messageId = databaseMessageHandler.submit(messageData, BACKEND);
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
@@ -349,7 +357,7 @@ public class DatabaseMessageHandlerTest {
             result = legConfiguration;
         }};
 
-        final String messageId = dmh.submit(messageData, BACKEND);
+        final String messageId = databaseMessageHandler.submit(messageData, BACKEND);
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
@@ -406,7 +414,7 @@ public class DatabaseMessageHandlerTest {
             LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
         }};
 
-        final String messageId = dmh.submit(messageData, BACKEND);
+        final String messageId = databaseMessageHandler.submit(messageData, BACKEND);
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
@@ -436,7 +444,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -480,7 +488,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -536,7 +544,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -584,7 +592,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -633,7 +641,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -679,7 +687,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (PModeMismatchException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -718,7 +726,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + DuplicateMessageException.class.getCanonicalName());
         } catch (DuplicateMessageException ex) {
             LOG.debug("DuplicateMessageException catched: " + ex.getMessage());
@@ -733,20 +741,23 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testVerifyOriginalUserNOk(@Injectable final Submission messageData) throws Exception {
-        new Expectations() {{
+    public void testVerifyOriginalUserNOk(@Injectable final Submission messageData,
+                                          @Injectable UserMessage userMessage) throws Exception {
 
+        String originalUser = "mycorner";
+        new Expectations(databaseMessageHandler) {{
             authUtils.getOriginalUserFromSecurityContext();
-            result = "mycorner";
+            result = originalUser;
 
-            UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
+            databaseMessageHandler.validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            result = new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
         } catch (AccessDeniedException ex) {
             LOG.debug("AccessDeniedException catched: " + ex.getMessage());
@@ -805,7 +816,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -896,10 +907,10 @@ public class DatabaseMessageHandlerTest {
         recipients.add(MessageConstants.ORIGINAL_SENDER);
         recipients.add(MessageConstants.FINAL_RECIPIENT);
 
-        dmh.validateOriginalUser(userMessage, originalUser, recipients);
+        databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
     }
 
-    @Test(expected =  AccessDeniedException.class)
+    @Test(expected = AccessDeniedException.class)
     public void testValidateOriginalUserNoFR() throws Exception {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
 
@@ -908,10 +919,10 @@ public class DatabaseMessageHandlerTest {
         List<String> recipients = new ArrayList<>();
         recipients.add(MessageConstants.ORIGINAL_SENDER);
 
-        dmh.validateOriginalUser(userMessage, originalUser, recipients);
+        databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
     }
 
-    @Test(expected =  AccessDeniedException.class)
+    @Test(expected = AccessDeniedException.class)
     public void testValidateOriginalUserNoMatch() throws Exception {
         String originalUser = "nobodywho";
 
@@ -921,65 +932,35 @@ public class DatabaseMessageHandlerTest {
         recipients.add(MessageConstants.ORIGINAL_SENDER);
         recipients.add(MessageConstants.FINAL_RECIPIENT);
 
-        dmh.validateOriginalUser(userMessage, originalUser, recipients);
+        databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
     }
 
     @Test
-    public void testDownloadMessageOK() throws Exception {
+    public void testDownloadMessageOK(@Injectable UserMessage userMessage,
+                                      @Injectable UserMessageLog userMessageLog,
+                                      @Injectable Submission submission,
+                                      @Injectable Messaging messaging) throws Exception {
 
-        final UserMessage userMessage = createUserMessage();
+        new Expectations(databaseMessageHandler) {{
+            messagingDao.findMessageByMessageId(MESS_ID);
+            result = messaging;
 
-        final Submission submission = new Submission();
-        submission.setMessageId(MESS_ID);
+            userMessageLogDao.findByMessageId(MESS_ID);
+            result = userMessageLog;
 
-        new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
+            databaseMessageHandler.shouldDeleteDownloadedMessage(userMessage);
             result = false;
-
-            authUtils.getOriginalUserFromSecurityContext();
-            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-            messagingDao.findUserMessageByMessageId(MESS_ID);
-            result = userMessage;
-
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            result = new UserMessageLog();
-
-            pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
-            result = 0;
-
-            List<SignalMessage> signalMessages = new ArrayList<>();
-            SignalMessage signMsg = new SignalMessage();
-            signalMessages.add(signMsg);
-
-            signalMessageDao.findSignalMessagesByRefMessageId(MESS_ID);
-            result = signalMessages;
-
-            List<String> signalMessageIds = new ArrayList<>();
-            signalMessageIds.add("SignalA1");
-            signalMessageIds.add("SignalA2");
-            signalMessageIds.add("SignalA3");
-
-            signalMessageDao.findSignalMessageIdsByRefMessageId(MESS_ID);
-            result = signalMessageIds;
 
             transformer.transformFromMessaging(userMessage);
             result = submission;
 
         }};
 
-        final Submission sub = dmh.downloadMessage(MESS_ID);
-        Assert.assertNotNull(sub);
-        Assert.assertEquals(MESS_ID, sub.getMessageId());
-        Assert.assertEquals(submission, sub);
+        final Submission sub = databaseMessageHandler.downloadMessage(MESS_ID);
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            userMessageLogService.setMessageAsDownloaded((UserMessage) any, (UserMessageLog) any);
-            pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
-            messagingDao.clearPayloadData(anyString);
-            userMessageLogService.setSignalMessageAsDeleted(anyString);
+            userMessageLogService.setMessageAsDownloaded(userMessage, userMessageLog);
 
         }};
 
@@ -1014,7 +995,7 @@ public class DatabaseMessageHandlerTest {
 
         }};
 
-        final Submission sub = dmh.downloadMessage(MESS_ID);
+        final Submission sub = databaseMessageHandler.downloadMessage(MESS_ID);
         Assert.assertNotNull(sub);
         Assert.assertEquals(MESS_ID, sub.getMessageId());
         Assert.assertEquals(submission, sub);
@@ -1029,7 +1010,7 @@ public class DatabaseMessageHandlerTest {
             signalMessageDao.findSignalMessagesByRefMessageId(MESS_ID);
             times = 0;
 
-            assert(false);
+            assert (false);
         }};
 
     }
@@ -1051,7 +1032,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.downloadMessage(MESS_ID);
+            databaseMessageHandler.downloadMessage(MESS_ID);
             Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
         } catch (AccessDeniedException adEx) {
             LOG.debug("Expected :", adEx);
@@ -1081,7 +1062,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.downloadMessage(MESS_ID);
+            databaseMessageHandler.downloadMessage(MESS_ID);
             Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
         } catch (MessageNotFoundException mnfEx) {
             LOG.debug("Expected :", mnfEx);
@@ -1116,7 +1097,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         try {
-            dmh.downloadMessage(MESS_ID);
+            databaseMessageHandler.downloadMessage(MESS_ID);
             Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
         } catch (MessageNotFoundException mnfEx) {
             LOG.debug("Expected :", mnfEx);
@@ -1148,7 +1129,7 @@ public class DatabaseMessageHandlerTest {
 
         }};
 
-        final List<? extends ErrorResult> results = dmh.getErrorsForMessage(MESS_ID);
+        final List<? extends ErrorResult> results = databaseMessageHandler.getErrorsForMessage(MESS_ID);
 
 
         new Verifications() {{
@@ -1173,7 +1154,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         // When
-        final MessageStatus status = dmh.getStatus(MESS_ID);
+        final MessageStatus status = databaseMessageHandler.getStatus(MESS_ID);
 
         // Then
         new Verifications() {{
@@ -1185,18 +1166,18 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testGetStatusAccessDenied() {
         // Given
-        new Expectations(dmh) {{
+        new Expectations(databaseMessageHandler) {{
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            dmh.validateOriginalUser((UserMessage) any, anyString, (List<String>) any);
+            databaseMessageHandler.validateOriginalUser((UserMessage) any, anyString, (List<String>) any);
             result = new AccessDeniedException("");
         }};
 
         // When
         MessageStatus status = null;
         try {
-            status = dmh.getStatus(MESS_ID);
+            status = databaseMessageHandler.getStatus(MESS_ID);
             Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
         } catch (AccessDeniedException ex) {
             // Then
@@ -1217,14 +1198,14 @@ public class DatabaseMessageHandlerTest {
             messageExchangeService.extractInitiator(mpc);
             result = initiator;
         }};
-        Party party = dmh.createNewParty(mpc);
+        Party party = databaseMessageHandler.createNewParty(mpc);
         Assert.assertNotNull(party);
         Assert.assertEquals(initiator, party.getName());
     }
 
     @Test
     public void testcreateNewPartyNull() {
-        Party party = dmh.createNewParty(null);
+        Party party = databaseMessageHandler.createNewParty(null);
         Assert.assertNull(party);
     }
 }

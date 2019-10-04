@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
+import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -29,6 +30,9 @@ public class UserMessageLogDefaultServiceTest {
 
     @Injectable
     UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    SignalMessageLogDao signalMessageLogDao;
 
     @Injectable
     BackendNotificationService backendNotificationService;
@@ -66,26 +70,26 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testUpdateMessageStatus(@Injectable final UserMessageLog messageLog) throws Exception {
+    public void testUpdateMessageStatus(@Injectable final UserMessageLog messageLog,
+                                        @Injectable final UserMessage userMessage) throws Exception {
         final String messageId = "1";
         final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = messageLog;
-
             messageLog.getMessageType();
             result = MessageType.USER_MESSAGE;
+
+            messageLog.getMessageId();
+            result = messageId;
 
             messageLog.isTestMessage();
             result = false;
         }};
 
-        assert(false);
-//        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
+        userMessageLogDefaultService.updateUserMessageStatus(userMessage, messageLog, messageStatus);
 
-        new FullVerifications() {{
-            backendNotificationService.notifyOfMessageStatusChange(messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));
+        new Verifications() {{
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));
             userMessageLogDao.setMessageStatus(messageLog, messageStatus);
             uiReplicationSignalService.messageStatusChange(messageId, messageStatus);
         }};
@@ -121,8 +125,7 @@ public class UserMessageLogDefaultServiceTest {
         userMessageLogDefaultService.setMessageAsAcknowledged(userMessage, userMessageLog);
 
         new Verifications() {{
-            assert(false);
-//            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
         }};
     }
 
@@ -133,8 +136,7 @@ public class UserMessageLogDefaultServiceTest {
         userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
 
         new Verifications() {{
-            assert(false);
-//            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
         }};
     }
 
@@ -142,11 +144,11 @@ public class UserMessageLogDefaultServiceTest {
     public void tesSetMessageAsSendFailure(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
+
         userMessageLogDefaultService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         new Verifications() {{
-            assert(false);
-//            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
         }};
     }
 

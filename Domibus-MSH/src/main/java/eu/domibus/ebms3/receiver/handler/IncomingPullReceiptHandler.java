@@ -127,6 +127,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
             SOAPMessage soapMessage = getSoapMessage(messageId, legConfiguration, userMessage);
             final ResponseResult responseResult = responseHandler.verifyResponse(request);
+            isOk = responseResult.getResponseStatus();
 
             if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
                 EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);

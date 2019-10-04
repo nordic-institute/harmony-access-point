@@ -1,6 +1,7 @@
 
 package eu.domibus.ebms3.sender;
 
+import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -72,6 +73,9 @@ public class UpdateRetryLoggingServiceTest {
 
     @Injectable
     UserMessageService userMessageService;
+
+    @Injectable
+    MessageAttemptService messageAttemptService;
 
     @Before
     public void setupExpectations() {
@@ -191,12 +195,11 @@ public class UpdateRetryLoggingServiceTest {
 
         updateRetryLoggingService.updatePushedMessageRetryLogging(messageId, legConfiguration, null);
 
-        assertEquals(5, userMessageLog.getSendAttempts());
-        assertEquals(new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016), userMessageLog.getNextAttempt());
-
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
-            messagingDao.clearPayloadData(messageId);
+            userMessageLog.setSendAttempts(5);
+            userMessageLog.setNextAttempt(new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016));;
+//            messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
+//            messagingDao.clearPayloadData(messageId);
         }};
 
     }
@@ -313,8 +316,8 @@ public class UpdateRetryLoggingServiceTest {
             userMessageLog.getSendAttemptsMax();
             result = 3;
 
-            userMessageLog.getReceived();
-            result = new Date(receivedTime);
+//            userMessageLog.getReceived();
+//            result = new Date(receivedTime);
 
             userMessageLog.getNotificationStatus();
             result = NotificationStatus.NOT_REQUIRED;
@@ -366,9 +369,6 @@ public class UpdateRetryLoggingServiceTest {
             userMessageLog.getSendAttemptsMax();
             result = 3;
 
-            userMessageLog.getReceived();
-            result = new Date(received);
-
             userMessageLog.getNotificationStatus();
             result = NotificationStatus.REQUIRED;
 
@@ -385,7 +385,7 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
-            messagingDao.clearPayloadData(messageId);
+            messagingDao.clearPayloadData(userMessage);
         }};
 
     }

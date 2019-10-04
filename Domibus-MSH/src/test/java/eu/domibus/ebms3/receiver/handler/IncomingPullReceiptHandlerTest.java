@@ -181,7 +181,6 @@ public class IncomingPullReceiptHandlerTest {
             messagingLock.getMessageState();
             result = MessageState.WAITING;
 
-
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
@@ -192,6 +191,9 @@ public class IncomingPullReceiptHandlerTest {
             result = pModeKey;
 
             responseHandler.verifyResponse(request);
+            result = responseResult;
+
+            responseResult.getResponseStatus();
             result = ResponseHandler.ResponseStatus.WARNING;
 
             reliabilityChecker.check(withAny(soapMessage), request, responseResult, legConfiguration, pullReceiptMatcher);

@@ -85,23 +85,28 @@ public class AbstractUserMessageSenderTest {
 
 
     @Test
-    public void testSendMessage(@Mocked final Messaging messaging,
-                                @Mocked final UserMessage userMessage,
-                                @Mocked final UserMessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration, @Mocked final Policy policy,
-                                final @Mocked Party senderParty, final @Mocked Party receiverParty,
-                                final @Mocked SOAPMessage soapMessage, final @Mocked SOAPMessage response) throws Exception {
+    public void testSendMessage(@Injectable Messaging messaging,
+                                @Injectable UserMessage userMessage,
+                                @Injectable UserMessageLog userMessageLog,
+                                @Injectable LegConfiguration legConfiguration,
+                                @Injectable Policy policy,
+                                @Injectable Party senderParty,
+                                @Injectable Party receiverParty,
+                                @Injectable SOAPMessage soapMessage,
+                                @Injectable SOAPMessage response,
+                                @Injectable ResponseResult responseResult) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
-
-        MessageAttempt attempt = createMessageAttempt();
         MessageAttemptStatus attemptStatus = MessageAttemptStatus.SUCCESS;
         String attemptError = null;
-        ResponseResult responseResult = new ResponseResult();
-        responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
+        String messageId = "123";
 
         new Expectations(abstractUserMessageSender) {{
             messaging.getUserMessage();
             result = userMessage;
+
+            userMessage.getMessageInfo().getMessageId();
+            result = messageId;
 
             abstractUserMessageSender.getLog();
             result = DomibusLoggerFactory.getLogger(AbstractUserMessageSenderTest.class);
@@ -145,6 +150,9 @@ public class AbstractUserMessageSenderTest {
             responseHandler.verifyResponse(response);
             result = responseResult;
 
+            responseResult.getResponseStatus();
+            result = ResponseHandler.ResponseStatus.OK;
+
             reliabilityChecker.check(soapMessage, response, responseResult, legConfiguration);
             result = reliabilityCheckSuccessful;
 
@@ -169,8 +177,6 @@ public class AbstractUserMessageSenderTest {
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
 
-            ResponseResult responseResult = new ResponseResult();
-            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
             reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
@@ -280,9 +286,7 @@ public class AbstractUserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            ResponseResult responseResult = new ResponseResult();
-            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
-            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
@@ -294,8 +298,9 @@ public class AbstractUserMessageSenderTest {
     public void testSendMessage_UnmarshallingError_Exception(final @Mocked Messaging messaging,
                                                              @Mocked final UserMessage userMessage, @Mocked final UserMessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration,
                                                              @Mocked final Policy policy, final @Mocked Party senderParty, final @Mocked Party receiverParty,
-                                                             final @Mocked SOAPMessage soapMessage, final @Mocked SOAPMessage response) throws Exception {
-        final MessageAttempt attempt = createMessageAttempt();
+                                                             final @Mocked SOAPMessage soapMessage, final @Mocked SOAPMessage response,
+                                                             @Injectable ResponseResult responseResult) throws Exception {
+
         final MessageAttemptStatus attemptStatus = MessageAttemptStatus.ERROR;
         final String attemptError = "Problem occurred during marshalling";
         final ResponseHandler.ResponseStatus isOk = ResponseHandler.ResponseStatus.UNMARSHALL_ERROR;
@@ -304,6 +309,9 @@ public class AbstractUserMessageSenderTest {
         new Expectations(abstractUserMessageSender) {{
             messaging.getUserMessage();
             result = userMessage;
+
+            responseResult.getResponseStatus();
+            result  = ResponseHandler.ResponseStatus.UNMARSHALL_ERROR;
 
             abstractUserMessageSender.getLog();
             result = DomibusLoggerFactory.getLogger(AbstractUserMessageSenderTest.class);
@@ -345,7 +353,7 @@ public class AbstractUserMessageSenderTest {
             result = response;
 
             responseHandler.verifyResponse(response);
-            result = isOk;
+            result = responseResult;
         }};
 
         //tested method
@@ -372,8 +380,6 @@ public class AbstractUserMessageSenderTest {
 
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            ResponseResult responseResult = new ResponseResult();
-            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
             reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
@@ -382,10 +388,16 @@ public class AbstractUserMessageSenderTest {
     }
 
     @Test
-    public void testSendMessage_DispatchError_Exception(final @Mocked Messaging messaging,
-                                                        @Mocked final UserMessage userMessage, @Mocked final UserMessageLog userMessageLog, @Mocked final LegConfiguration legConfiguration, @Mocked final Policy policy,
-                                                        final @Mocked Party senderParty, final @Mocked Party receiverParty,
-                                                        final @Mocked SOAPMessage soapMessage, @Mocked SOAPMessage response) throws Exception {
+    public void testSendMessage_DispatchError_Exception(final @Injectable Messaging messaging,
+                                                        @Injectable final UserMessage userMessage,
+                                                        @Injectable final UserMessageLog userMessageLog,
+                                                        @Injectable final LegConfiguration legConfiguration,
+                                                        @Injectable final Policy policy,
+                                                        final @Injectable Party senderParty,
+                                                        final @Injectable Party receiverParty,
+                                                        final @Injectable SOAPMessage soapMessage,
+                                                        @Injectable SOAPMessage response,
+                                                        @Injectable ResponseResult responseResult) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
@@ -395,11 +407,11 @@ public class AbstractUserMessageSenderTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            abstractUserMessageSender.getLog();
-            result = DomibusLoggerFactory.getLogger(AbstractUserMessageSenderTest.class);
-
             userMessage.getMessageInfo().getMessageId();
             result = messageId;
+
+            abstractUserMessageSender.getLog();
+            result = DomibusLoggerFactory.getLogger(AbstractUserMessageSenderTest.class);
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
             result = pModeKey;
@@ -444,13 +456,10 @@ public class AbstractUserMessageSenderTest {
             Assert.assertTrue(t instanceof OutOfMemoryError);
         }
 
-        new FullVerifications(abstractUserMessageSender, reliabilityService) {{
-
+        new Verifications() {{
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
-            ResponseResult responseResult = new ResponseResult();
-            responseResult.setResponseStatus(ResponseHandler.ResponseStatus.OK);
-            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
         }};
