@@ -81,7 +81,7 @@ public class PluginUserSecurityPolicyManagerTest {
     @Test
     public void testGetWarningDaysBeforeExpiration() {
         String result = userSecurityPolicyManager.getWarningDaysBeforeExpiration();
-        Assert.assertEquals(PluginUserSecurityPolicyManager.WARNING_DAYS_BEFORE_EXPIRATION, result);
+        Assert.assertEquals("-1", result);
     }
 
     @Test
