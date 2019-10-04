@@ -93,7 +93,10 @@ public class DomibusWSPluginLoggingEventSenderTest {
         domibusWSPluginLoggingEventSender.stripPayload(logEvent);
 
         new Verifications() {{
-            logEvent.setPayload(anyString); times=0;
+            String actualPayload;
+            logEvent.setPayload(actualPayload = withCapture());
+            Assert.assertEquals(payload, actualPayload);
+            times=1;
         }};
     }
 }
