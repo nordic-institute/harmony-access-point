@@ -19,11 +19,9 @@ import java.io.IOException;
 public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomMappingJackson2HttpMessageConverter.class);
-    private String newJsonPrefix;
 
     public void setJsonPrefix(String jsonPrefix) {
-        newJsonPrefix = fixNewLineCharacter(jsonPrefix);
-        super.setJsonPrefix(newJsonPrefix);
+        super.setJsonPrefix(fixNewLineCharacter(jsonPrefix));
     }
 
     protected String fixNewLineCharacter(String text) {
@@ -32,21 +30,12 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
 
     @Override
     protected void writePrefix(JsonGenerator generator, Object object) throws IOException {
-
         // Get the current Request object from threadLocal
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String Url = request.getRequestURL().toString();
-        LOG.debug("Current Request URL:- [{}]", Url);
-        if (Url.contains("/ext")) {
-            generator.writeRaw("");
-        } else {
-            generator.writeRaw(this.newJsonPrefix);
-        }
-        String jsonpFunction =
-                (object instanceof MappingJacksonValue ? ((MappingJacksonValue) object).getJsonpFunction() : null);
-        if (jsonpFunction != null) {
-            generator.writeRaw("/**/");
-            generator.writeRaw(jsonpFunction + "(");
+        String requestUrl = request.getRequestURL().toString();
+        LOG.debug("Current Request URL:- [{}]", requestUrl);
+        if (!requestUrl.contains("/ext")) {
+            super.writePrefix(generator, object);
         }
     }
 }
