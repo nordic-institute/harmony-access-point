@@ -1542,7 +1542,7 @@ static def ifWindowsEscapeJsonString(json) {
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagefilters -b "+context.expand( '${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to connect to domibus."
+        assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to retrieve filters."
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2349,5 +2349,140 @@ static def String pathToLogFiles(side, log, context) {
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------
+	static def retrieveQueueNameFromDomibus(String queuesList,queueName, context,log){
+		debugLog("  ====  Calling \"retrieveQueueNameFromDomibus\".", log);
+		debugLog("  retrieveQueueNameFromDomibus  [][]  Queue names list \"" + queuesList+"\".", log);
+		def jsonSlurper=new JsonSlurper();
+		def queuesMap=null;
+		def i=0;
+		def detailedName=null;
+		def found=false;
+		
+		queuesMap=jsonSlurper.parseText(queuesList);
+		assert(queuesMap.jmsDestinations != null),"Error:retrieveQueueNameFromDomibus: Not able to get the jms queue details.";
+		debugLog("  retrieveQueueNameFromDomibus  [][]  queuesMap.jmsDestinations map: \"" + queuesMap.jmsDestinations+"\".", log);
+		
+		queuesMap.jmsDestinations.find{ queues ->
+			queues.value.collect{ properties ->
+				if(properties.key.equals("name")){
+					if(properties.value.equals(queueName)){
+						detailedName=properties.value;
+					}
+				}
+				//debugLog("=="+properties.key+"=="+properties.value+"==",log);
+			}
+			if(detailedName!=null){
+				return true;
+			}
+			return false;
+		}
+		if(detailedName!=null){
+			log.info("  retrieveQueueNameFromDomibus  [][]  Retrieved queue name from domibus: \"$detailedName\"");
+			return(detailedName);
+		}
+		else{
+			log.error "  retrieveQueueNameFromDomibus  [][]  Verified queue name not found: will use input queue name."
+			return(queueName);
+		}
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+// Browse jms queue defined by queueName
+	static def browseJmsQueue(String side, context, log,queueName="domibus.backend.jms.errorNotifyConsumer", domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"browseJmsQueue\".", log);
+        debugLog("  browseJmsQueue  [][]  Browse jms queue \"$queueName\" for Domibus \"$side\" (Domain=\"$domainValue\").", log);
+		def detailedQueueName=null;
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn=false;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def json = null;
+		
+		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+		
+		try{
+			// Try to retrieve the queue name from domibus to avoid problems like in case of cluster
+			commandString="curl "+urlToDomibus(side, log, context)+"/rest/jms/destinations -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
+			commandResult = runCurlCommand(commandString, log);
+			detailedQueueName=retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log);
+			debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName+"\".", log);
+			
+			json = ifWindowsEscapeJsonString('{\"source\":\"' + "${detailedQueueName}" + '\"}');
+			commandString = null;
+			commandResult = null;
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages",
+						"-H",  "Content-Type: application/json", 
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"--data-binary", json, 
+						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
+
+			commandResult = runCurlCommand(commandString, log);
+			assert(commandResult[0].contains("{\"messages\"")),"Error:browseJmsQueue: Wrong response.";
+		} finally {
+            resetAuthTokens(log);
+        }
+		return commandResult[0].substring(5);
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+
+// Search for message in a jms queue identified by its ID
+	static def SearchMessageJmsQueue(String side, context, log,searchKey=null,pattern=null,queueName="domibus.backend.jms.errorNotifyConsumer", outcome=true,domainValue="Default",String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"SearchMessageJmsQueue\".", log)
+        debugLog("  SearchMessageJmsQueue  [][]  In Domibus \"$side\", search for message with key \"$searchKey\" and pattern \"$pattern\" in queue \"$queueName\" (Domain=\"$domainValue\").", log)
+		
+		def i=0;
+		def found=false;
+		def jmsMessagesMap=null;
+		def jsonSlurper=new JsonSlurper();
+				
+		jmsMessagesMap=jsonSlurper.parseText(browseJmsQueue(side,context,log,queueName,domainValue,authUser,authPwd));
+		debugLog("  SearchMessageJmsQueue  [][]  jmsMessagesMap:" + jmsMessagesMap, log);
+		assert(jmsMessagesMap != null),"Error:SearchMessageJmsQueue: Not able to get the jms queue details.";
+		log.info ("jmsMessagesMap size = "+jmsMessagesMap.size());
+		
+		switch(queueName.toLowerCase()){
+			case "domibus.backend.jms.errornotifyconsumer":
+				while ((i < jmsMessagesMap.messages.size())&&(!found)) {
+					assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details.";
+					if(jmsMessagesMap.messages[i].customProperties.messageId!=null){
+						if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
+							debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId+"\".", log);
+							if(jmsMessagesMap.messages[i].customProperties.errorDetail!=null){
+								if(jmsMessagesMap.messages[i].customProperties.errorDetail.contains(pattern)){
+									found=true;
+								}
+							}
+							else{
+								log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null errorDetail: not possible to use this entry ...";
+							}
+						}
+					}
+					else{
+						log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null message ID: not possible to use this entry ...";
+					}
+					i++;
+				}
+				break;
+			
+			// Put here other cases (queues ...)
+			// ...
+			
+			default:
+                log.error "Unknown queue \"queueName\"";
+        }
+		
+		if(outcome){
+			assert(found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" not found in queue \"$queueName\".";
+			log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was found in queue \"$queueName\".");
+		}else{
+			assert(!found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" found in queue \"$queueName\".";
+			log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was not found in queue \"$queueName\".");
+		}
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+
+
 } // Domibus class end
 
