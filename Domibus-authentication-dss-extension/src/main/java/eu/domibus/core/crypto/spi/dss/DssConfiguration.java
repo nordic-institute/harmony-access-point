@@ -240,7 +240,7 @@ public class DssConfiguration {
         return dataLoader;
     }
 
-    private KeyStore mergeCustomTlsTrustStoreWithCacert() {
+    protected KeyStore mergeCustomTlsTrustStoreWithCacert() {
 
         KeyStore customTlsTrustStore;
         try {
@@ -250,8 +250,8 @@ public class DssConfiguration {
             return null;
         }
 
-        try {
-            customTlsTrustStore.load(new FileInputStream(dssTlsTrustStorePath), dssTlsTrustStorePassword.toCharArray());
+        try(FileInputStream fileInputStream = new FileInputStream(dssTlsTrustStorePath)) {
+            customTlsTrustStore.load(fileInputStream, dssTlsTrustStorePassword.toCharArray());
         } catch (IOException|NoSuchAlgorithmException|CertificateException e) {
             LOG.info("DSS TLS truststore file:[{}] could not be loaded",dssTlsTrustStorePath);
             LOG.debug("Error while loading DSS TLS truststore file:[{}]",dssTlsTrustStorePath,e);
