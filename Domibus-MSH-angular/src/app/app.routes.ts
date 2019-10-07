@@ -154,6 +154,7 @@ const appRoutes: Routes = [
     path: 'alerts',
     component: AlertsComponent,
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    canDeactivate: [DirtyGuard],
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Alerts'
