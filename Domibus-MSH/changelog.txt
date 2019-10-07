@@ -4,6 +4,7 @@ Domibus 4.1.2
 - JMS Plugin queues are available to remote clients for Wildfly 12
 - Added Domibus property domibus.logging.cxf.limit to establish the size limit at which messages are truncated in the logs when org.apache.cxf is set to
 at least INFO in logback.xml
+- Removed the XSSI characters from the beginning of the JSON response of the External REST API calls.
 Domibus 4.1.1
 - Alerts for password imminent expiration and expiration are not sent
 - Domibus does not work with Proxy
