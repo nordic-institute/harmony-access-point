@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
@@ -45,7 +46,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceImpl.class);
 
-    protected static final String IAM_AUTHENTICATION_IDENTIFIER = "domibus.extension.iam.authentication.identifier";
+    protected static final String IAM_AUTHENTICATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
     private DomainCryptoServiceSpi iamProvider;
 
@@ -72,7 +73,8 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     public void init() {
         String spiIdentifier = domibusPropertyProvider.getDomainProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
-            LOG.warn("A custom authentication implementation has been provided but property:[domibus.extension.iam.authentication.identifier] is configured with default value:[{}]", spiIdentifier);
+            LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
+                    DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
         }
         final List<DomainCryptoServiceSpi> providerList = domainCryptoServiceSpiList.stream().
                 filter(domainCryptoServiceSpi -> spiIdentifier.equals(domainCryptoServiceSpi.getIdentifier())).
@@ -227,7 +229,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void reset(){
+    public void reset() {
         this.init();
     }
 }
