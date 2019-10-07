@@ -33,7 +33,7 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
         // Get the current Request object from threadLocal
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String requestUrl = request.getRequestURL().toString();
-        LOG.debug("Current Request URL:- [{}]", requestUrl);
+        LOG.debug("Current Request URL [{}]", requestUrl);
         if (!requestUrl.contains("/ext")) {
             super.writePrefix(generator, object);
         }
