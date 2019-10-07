@@ -13,6 +13,7 @@ import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -59,6 +60,7 @@ public class CRLUtil {
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
     @Cacheable(value = "crlByCert", key = "#crlURL")
+    @Transactional(noRollbackFor = DomibusCRLException.class)
     public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);
@@ -68,8 +70,9 @@ public class CRLUtil {
     }
 
     /**
-     * Downloads CRL from the given URL. Supports loading the crl using http, https, ftp based,  classpath
+     * Downloads CRL from the given URL. Supports loading the crl using http, https, ftp based, classpath
      */
+    @Transactional(noRollbackFor = DomibusCRLException.class)
     protected X509CRL downloadCRLFromWebOrClasspath(String crlURL) throws DomibusCRLException {
         LOG.debug("Downloading CRL from url [{}]", crlURL);
 
@@ -101,6 +104,7 @@ public class CRLUtil {
      * @return {@link X509CRL} the certificate
      * @throws DomibusCRLException runtime exception in case of error
      */
+    @Transactional(noRollbackFor = DomibusCRLException.class)
     X509CRL downloadCRLfromLDAP(String ldapURL) throws DomibusCRLException {
         LOG.debug("Downloading CRL from LDAP url [{}]", ldapURL);
 
@@ -174,7 +178,7 @@ public class CRLUtil {
         byte[] crldpExtOctets = dosCrlDP.getOctets();
 
         ASN1Primitive derObj2 = null;
-        try(ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
+        try (ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
             derObj2 = oAsnInStream2.readObject();
         } catch (IOException e) {
             throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
