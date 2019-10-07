@@ -224,7 +224,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_PULL_QUEUE_CONCURENCY, true, true),
 
-
+                new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, true, true),
+                //
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

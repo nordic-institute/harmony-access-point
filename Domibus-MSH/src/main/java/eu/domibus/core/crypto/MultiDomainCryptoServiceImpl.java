@@ -200,6 +200,11 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void reset() {
         domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
+    }
 
+    @Override
+    public void reset(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.reset();
     }
 }
