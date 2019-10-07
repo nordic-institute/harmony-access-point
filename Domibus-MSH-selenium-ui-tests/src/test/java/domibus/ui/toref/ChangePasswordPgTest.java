@@ -13,7 +13,6 @@ import pages.login.LoginPage;
 import pages.messages.MessagesPage;
 import utils.Generator;
 
-import static org.reflections.Reflections.log;
 
 
 /**
@@ -37,6 +36,7 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Login into application with Admin credentials");
         loginPage.login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
+        loginPage.waitForTitle();
         page.clickVoidSpace();
         log.info("Validate if Change password link is available in Sandwich menu");
         soft.assertTrue(page.getSandwichMenu().isPresent(), "Change Password link is available");
@@ -59,6 +59,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"Login Page is loaded successfully");
         log.info("Login into application with Admin credentials");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Check Change password link availability");
@@ -89,13 +90,14 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Navigate to error log page without changing password ");
         page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
         ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-        log.info("Validate Error log page is loaded successfully");
-//        soft.assertTrue(errorLogPage.isLoaded(), "Expected elements of ErrorLog appear in the page");
+        page.waitForTitle();
+        page.waitForTitle();
         log.info("logout from application");
         logout();
         log.info("Again login into application with Admin credential");
         loginPage.login(data.getAdminUser());
         log.info("Validate user is logged in successfully");
+        loginPage.waitForTitle();
         soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
         soft.assertAll();
     }
@@ -113,6 +115,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is opened successfully");
         log.info("Login into application with admin credentials");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Open ChangePassword Page by clicking link");
@@ -123,12 +126,12 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Navigate to Error log page");
         page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
         ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-        log.info("Validate Error log page is loaded successfully with all its elements");
-//        soft.assertTrue(errorLogPage.isLoaded(), "Expected elements of ErrorLog appear in the page");
+        page.waitForTitle();
         log.info("logout from application");
         logout();
         log.info("login into application with previous admin credentials");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         log.info("Validate User is logged in into application");
         soft.assertTrue(Mpage.isLoaded(), "User logged in");
         soft.assertAll();
@@ -145,6 +148,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is loaded successfully");
         log.info("Login into application with Admin credentials");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Open ChangePassword Page by clicking link");
@@ -170,6 +174,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is loaded successfully");
         log.info("Login with Admin credential");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Validate change password link availability in Sandwich menu");
@@ -180,9 +185,9 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Fill correct data in current password , valid and different data in new password and confirmation field");
         Cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getNewTestPass());
         log.info("press tab key");
-        Cpage.pressTABKey();
+        Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
         log.info("Validation message appears");
-        soft.assertEquals(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Passwords do not match");
+        soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is displayed");
         soft.assertAll();
     }
 
@@ -197,6 +202,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is loaded successfully");
         log.info("login into application with Admin user");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Open change password page");
@@ -207,9 +213,9 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Fill correct data for current password and invalid but same for new password and confirmation field");
         Cpage.setPassFields(data.getDefaultTestPass(), pass, pass);
         log.info("press tab ");
-        Cpage.pressTABKey();
+        Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
         log.info("Validation message for password policy under New password ");
-        soft.assertTrue(!Cpage.getValidationMsg(Cpage.NewPassword_Field_label).isEmpty(),"Message is displayed");
+        soft.assertTrue(Cpage.getValidationMsg(Cpage.NewPassword_Field_label),"Message is displayed");
         soft.assertAll();
     }
 
@@ -225,6 +231,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is loaded successsfully");
         log.info("login into application with Admin user credentials");
         loginPage.login(data.getAdminUser());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Open Change Password page");
@@ -233,11 +240,11 @@ public class ChangePasswordPgTest extends BaseTest {
         log.info("Fill current data for current password, invalid  and differet data for new password and confirmation field");
         Cpage.setPassFields(data.getDefaultTestPass(), Cpage.generateInvalidPass(), Cpage.generateInvalidPass());
         log.info("press tab key");
-        Cpage.pressTABKey();
+        Cpage.getConfirmationField().pressTABKey(Cpage.getConfirmationField().element);
         log.info("Validation message for password policy under new password field");
-       soft.assertTrue(!Cpage.getValidationMsg(Cpage.NewPassword_Field_label).isEmpty(),"Message is displayed");
+       soft.assertTrue(Cpage.getValidationMsg(Cpage.NewPassword_Field_label),"Message is displayed");
        log.info("Validation message for mismatch under confirmation field ");
-        soft.assertTrue(!Cpage.getValidationMsg(Cpage.Confirmation_Field_label).isEmpty(),"Message is displayed");
+        soft.assertTrue(Cpage.getValidationMsg(Cpage.Confirmation_Field_label),"Message is displayed");
         soft.assertAll();
     }
 
@@ -256,6 +263,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is loaded successfully");
         log.info("login into application with created user credentials");
         loginPage.login(username, data.getDefaultTestPass());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Validate chnage password link presence");
@@ -273,6 +281,7 @@ public class ChangePasswordPgTest extends BaseTest {
         logout();
         log.info("login with generated username and updated password ");
         loginPage.login(username, data.getNewTestPass());
+        loginPage.waitForTitle();
         log.info("Validate user logged in into application");
         soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
         soft.assertAll();
@@ -293,6 +302,7 @@ public class ChangePasswordPgTest extends BaseTest {
         soft.assertTrue(loginPage.isLoaded(),"page is loaded successfully");
         log.info("login into application with cretaed user credentials");
         loginPage.login(username, data.getDefaultTestPass());
+        loginPage.waitForTitle();
         DomibusPage page = new DomibusPage(driver);
         page.clickVoidSpace();
         log.info("Open change password page");
@@ -308,6 +318,7 @@ public class ChangePasswordPgTest extends BaseTest {
         logout();
         log.info("Login with username and updated password");
         loginPage.login(username, data.getNewTestPass());
+        loginPage.waitForTitle();
         page.clickVoidSpace();
         log.info("Open Change password page");
         page.getSandwichMenu().OpenchangePassword();

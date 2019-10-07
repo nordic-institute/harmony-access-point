@@ -81,7 +81,7 @@ public class AuditPage extends DomibusPage {
         return true;
     }
 
-    public Boolean getSelectRowInfo(int rowNumber) {
+    public Boolean isRowSelected(int rowNumber) {
         if (gridRows.get(rowNumber).getAttribute("class").contains("active")) {
             log.debug("Row is selected on double click");
             return false;
@@ -89,6 +89,24 @@ public class AuditPage extends DomibusPage {
             log.debug("Row is not selected on double click");
             return true;
         }
+    }
+    public String getActionData(String tableName, int rowIndex)throws Exception{
+        if(tableName.equals("Pmode")){
+            if(grid().getRowInfo(rowIndex).containsValue("Created")){
+                log.info("Action field data for row : " + rowIndex +" is Created");
+                return "Created";
+            }
+            else if(grid().getRowInfo(rowIndex).containsValue("Deleted")){
+                log.info("Action field data for row : " + rowIndex +" is Deleted");
+                return "Deleted";
+            }
+            else{
+                log.info("Some wrong action is logged for the event");
+                return "";
+            }
+        }
+        return "";
+
     }
 }
 

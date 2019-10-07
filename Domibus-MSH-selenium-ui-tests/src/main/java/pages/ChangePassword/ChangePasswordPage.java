@@ -104,11 +104,11 @@ public class ChangePasswordPage extends DomibusPage {
         return true;
     }
 
-     /*Method allows user to enter data in current password, new password and Confirmation field
+    /*Method allows user to enter data in current password, new password and Confirmation field
      *@param Cpass:- Data for Current Password field
      *@param Npass :- Data for New Password Field
      * @param ConfirmPass:- Data for Confirmation Field
-      */
+     */
     public void setPassFields(String CPass, String NPass, String ConfirmPass) throws Exception {
         log.debug("User enters data in current password field");
         getCPassField().fill(CPass);
@@ -125,34 +125,46 @@ public class ChangePasswordPage extends DomibusPage {
         return randomPassword;
     }
 
-    /*
-    * This Method is used to press Tab key
-     */
-    public void pressTABKey() throws Exception {
 
-        WebElement element = driver.findElement(By.id("confirmation_id"));
-        element.sendKeys(Keys.TAB);
-        element.sendKeys(Keys.ENTER);
+    /*
+    This method returns CSS of validation message shown under field with provided FieldLabel
+    *   @param FieldName :- Name of Input Field
+    *   @return :- CSS of validation message under input field
+     */
+
+    public String getCssOfValidationMsg(String fieldName) {
+        if (fieldName.equals(NewPassword_Field_label)) {
+            String fieldLabel = fieldName;
+            String[] labels = fieldLabel.split(" ");
+            String FieldName1 = labels[0].toLowerCase().concat(labels[1]);
+            return "input[id='" + FieldName1 + "_id']~div>div";
+        }
+        else if (fieldName.equals(Confirmation_Field_label)) {
+            String str = fieldName.toLowerCase();
+            return "input[id='" + str + "_id']~div>div";
+        }
+        else{
+            return "";
+        }
     }
-/*
-This method returns xpath of validation message shown under field with provided FieldLabel
-*   @param FieldName :- Name of Input Field
-*   @return :- xpath of validation message under input field
- */
-    public String getXpathOfValidationMsg(String FieldName)  {
-        return ".//*[@class='mat-input-infix']/input[@placeholder='" + FieldName + "']/..//div/div";
-    }
-/*
-This method print message under provided FieldLabel
-*@param FieldName :- Name of Input Field
-* @return :-Validation message under input field
- */
-    public String getValidationMsg(String fieldName) throws Exception {
-        WebElement elm = driver.findElement(By.xpath(getXpathOfValidationMsg(fieldName)));
+
+    /*
+    This method print message under provided FieldLabel
+    *@param FieldName :- Name of Input Field
+    * @return :-Boolean result for Presence of Validation message under input field
+     */
+    public Boolean getValidationMsg(String fieldName) throws Exception {
+        WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
         wait.forElementToBeVisible(elm);
-        log.debug("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
-        return elm.getText().trim();
+        if (!elm.isDisplayed()) {
+            log.info("message is not displayed");
+            return false;
+        } else {
+            log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
+            return true;
+        }
     }
+
 
 
 }

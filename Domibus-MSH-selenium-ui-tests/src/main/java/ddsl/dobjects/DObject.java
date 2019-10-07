@@ -1,9 +1,6 @@
 package ddsl.dobjects;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 
 
 /**
@@ -73,5 +70,12 @@ public class DObject {
 			return element.getAttribute(attributeName).trim();
 		}
 		throw new DObjectNotPresentException();
+	}
+	/*
+	 * This Method is used to press Tab key
+	 */
+	public void pressTABKey(WebElement element) throws Exception {
+		element.sendKeys(Keys.TAB);
+		element.sendKeys(Keys.ENTER);
 	}
 }

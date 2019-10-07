@@ -277,6 +277,7 @@ public class DGrid extends DComponent {
 		return values;
 	}
 
+
 	public boolean isColumnSortable(String columnName) throws Exception {
 		List<String> columns = getColumnNames();
 		int index = columns.indexOf(columnName);
@@ -484,7 +485,32 @@ public class DGrid extends DComponent {
 		}
 		throw new Exception("Sort order cannot be determined");
 	}
+	public void checkCSVvsGridDataForSpecificRow(String filename, SoftAssert soft,int i) throws Exception {
+		log.info("Checking csv file vs grid content for specific row");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<CSVRecord> records = csvParser.getRecords();
+		HashMap<String, String> gridInfo = getRowInfo(i);
+
+
+		log.info("checking listed data for  data row" + i );
+			HashMap<String, String> gridRecord = gridInfo;
+			CSVRecord record = records.get(i);
+			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+		}
+
+		public String getRowSpecificColumnVal(int rowNumber,String columnName) throws Exception{
+			HashMap<String, String> gridInfo = getRowInfo(rowNumber);
+			String colName=columnName;
+			if(gridInfo.containsKey(columnName)) {
+				String val = gridInfo.get(columnName);
+				return val;
+			}
+			return "";
+		}
+	}
 
 
 
-}
