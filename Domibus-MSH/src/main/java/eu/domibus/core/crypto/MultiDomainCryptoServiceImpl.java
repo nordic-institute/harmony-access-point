@@ -204,15 +204,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void reset(Domain domain) {
-        if(domain == null) {
-            LOG.warn("Domain is null.");
-            return;
+        if (domain == null) {
+            throw new InvalidParameterException("Domain is null.");
         }
+
         final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
-        if(domainCertificateProvider == null) {
-            LOG.debug("Domain certificate provider for domain [{}] not found.", domain);
-            return;
+        if (domainCertificateProvider == null) {
+            throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
         }
+
         domainCertificateProvider.reset();
     }
 }
