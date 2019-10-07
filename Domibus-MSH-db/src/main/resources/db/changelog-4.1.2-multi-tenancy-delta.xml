@@ -27,6 +27,8 @@
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_REV_CHANGES"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_REV_CHANGES"/>
 
+        <modifyDataType columnName="ID" newDataType="BIGINT" tableName="TB_REV_INFO"/>
+
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_AUD"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_USER_AUD"/>
 
@@ -49,7 +51,17 @@
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_PASSWORD_HISTORY"/>
     </changeSet>
-
+    <changeSet id="EDELIVERY-5414" author="Catalin Enache" dbms="mysql">
+        <comment>add back AUTO_INCREMENT for MySQL</comment>
+        <sql>
+            ALTER TABLE TB_ALERT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_EVENT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_EVENT_PROPERTY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_REV_CHANGES MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_REV_INFO MODIFY ID BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_USER_PASSWORD_HISTORY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+        </sql>
+    </changeSet>
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-3">
         <comment>Add FK constraints back</comment>
 
