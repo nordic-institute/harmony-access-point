@@ -6,7 +6,7 @@
 
     <groupId>eu.domibus</groupId>
     <artifactId>domibus</artifactId>
-    <version>4.1.2-SNAPSHOT</version>
+    <version>4.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
@@ -988,6 +988,11 @@
                         <failOnError>false</failOnError>
                         <additionalJOption>-Xdoclint:none</additionalJOption>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
