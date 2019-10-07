@@ -19,7 +19,7 @@ import java.io.IOException;
 public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomMappingJackson2HttpMessageConverter.class);
-
+    protected static final String EXTERNAL_API_URL ="/ext";
     public void setJsonPrefix(String jsonPrefix) {
         super.setJsonPrefix(fixNewLineCharacter(jsonPrefix));
     }
@@ -34,7 +34,7 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String requestUrl = request.getRequestURL().toString();
         LOG.debug("Current Request URL [{}]", requestUrl);
-        if (!requestUrl.contains("/ext")) {
+        if (!requestUrl.contains(EXTERNAL_API_URL)) {
             super.writePrefix(generator, object);
         }
     }
