@@ -227,7 +227,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void refresh(){
+    public void reset(){
         this.init();
     }
 }

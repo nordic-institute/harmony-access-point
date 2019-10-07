@@ -198,7 +198,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void refresh() {
-        domainCertificateProviderMap.values().stream().forEach(service -> service.refresh());
+    public void reset() {
+        domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
+
     }
 }
