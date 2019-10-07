@@ -90,12 +90,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     this.deletedParties.length = 0;
   }
 
-  searchIfOK() {
-    this.checkIsDirtyAndThen(() => {
-      this.search();
-    });
-  }
-
   private search() {
     super.setActiveFilter();
     this.listPartiesAndProcesses();
@@ -329,18 +323,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
         resolve(party);
       }
     });
-  }
-
-  checkIsDirtyAndThen(func: Function) {
-    if (this.isDirty()) {
-      this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
-        if (yes) {
-          func.call(this);
-        }
-      });
-    } else {
-      func.call(this);
-    }
   }
 
   OnSort() {
