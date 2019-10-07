@@ -4,7 +4,7 @@
   <md-card>
     <md-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="search()">
+        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="trySearch()">
           <!-- Processed -->
           <md-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
             <md-option [value]="''"></md-option>
