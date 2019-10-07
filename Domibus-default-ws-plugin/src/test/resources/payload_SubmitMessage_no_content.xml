@@ -32,9 +32,6 @@
     </soap:Header>
     <soap:Body>
         <_1:submitRequest>
-            <payload payloadId="cid:message" contentType="text/xml">
-
-            </payload>
         </_1:submitRequest>
     </soap:Body>
 </soap:Envelope>
