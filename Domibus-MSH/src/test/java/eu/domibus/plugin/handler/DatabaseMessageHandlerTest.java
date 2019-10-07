@@ -149,7 +149,7 @@ public class DatabaseMessageHandlerTest {
     AuthUtils authUtils;
 
     @Injectable
-    private UserMessageService userMessageService;
+    private UserMessageDefaultService userMessageService;
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
@@ -234,13 +234,18 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testSubmitMessageGreen2RedOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
+    public void testSubmitMessageGreen2RedOk(@Injectable final Submission messageData,
+                                             @Injectable PartInfo partInfo,
+                                             @Injectable UserMessage userMessage,
+                                             @Injectable MessageExchangeConfiguration messageExchangeConfiguration,
+                                             @Injectable Party sender,
+                                             @Injectable Party receiver,
+                                             @Injectable Party confParty) throws Exception {
         new Expectations() {{
 
             authUtils.getOriginalUserFromSecurityContext();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
-            UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
@@ -251,43 +256,27 @@ public class DatabaseMessageHandlerTest {
             result = MessageStatus.NOT_FOUND;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
+
+            messageExchangeConfiguration.getPmodeKey();
+            result = pModeKey;
 
             messageExchangeService.getMessageStatus(messageExchangeConfiguration);
             result = MessageStatus.SEND_ENQUEUED;
 
-            Party sender = new Party();
-            sender.setName(GREEN);
             pModeProvider.getSenderParty(pModeKey);
             result = sender;
 
-            Party receiver = new Party();
-            receiver.setName(RED);
             pModeProvider.getReceiverParty(pModeKey);
             result = receiver;
 
-            Party confParty = new Party();
-            confParty.setName(GREEN);
-
             pModeProvider.getGatewayParty();
             result = confParty;
-
-            Mpc mpc = new Mpc();
-            mpc.setName(Ebms3Constants.DEFAULT_MPC);
-
-            LegConfiguration legConfiguration = new LegConfiguration();
-            final Map<Party, Mpc> mpcMap = new HashMap<>();
-            mpcMap.put(receiver, mpc);
-            legConfiguration.setDefaultMpc(mpc);
-            legConfiguration.setErrorHandling(new ErrorHandling());
-
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
         }};
 
         final String messageId = databaseMessageHandler.submit(messageData, BACKEND);
-        assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
@@ -297,7 +286,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-            userMessageService.scheduleSending(MESS_ID);
+            userMessageService.scheduleSending((UserMessageLog) any);
         }};
 
     }
@@ -898,14 +887,16 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testValidateOriginalUserOK() throws Exception {
+    public void testValidateOriginalUserOK(@Injectable final UserMessage userMessage) throws Exception {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-        final UserMessage userMessage = createUserMessage();
-
         List<String> recipients = new ArrayList<>();
         recipients.add(MessageConstants.ORIGINAL_SENDER);
         recipients.add(MessageConstants.FINAL_RECIPIENT);
+
+        new Expectations() {{
+            userMessageServiceHelper.getOriginalUser(userMessage, MessageConstants.ORIGINAL_SENDER);
+            result = originalUser;
+        }};
 
         databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
     }
@@ -967,82 +958,60 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testDownloadMessageOK_RetentionNonZero() throws Exception {
+    public void testDownloadMessageOK_RetentionNonZero(@Injectable Messaging messaging,
+                                                       @Injectable UserMessage userMessage,
+                                                       @Injectable final UserMessageLog messageLog) throws Exception {
+        new Expectations(databaseMessageHandler) {{
+            messagingDao.findMessageByMessageId(MESS_ID);
+            result = messaging;
 
-        final UserMessage userMessage = createUserMessage();
-
-        final Submission submission = new Submission();
-        submission.setMessageId(MESS_ID);
-
-        new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
-
-            authUtils.getOriginalUserFromSecurityContext();
-            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-            messagingDao.findUserMessageByMessageId(MESS_ID);
+            messaging.getUserMessage();
             result = userMessage;
 
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            result = new UserMessageLog();
+            userMessageLogDao.findByMessageId(MESS_ID);
+            result = messageLog;
 
-            pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
-            result = 5;
-
-            transformer.transformFromMessaging(userMessage);
-            result = submission;
-
+            databaseMessageHandler.shouldDeleteDownloadedMessage(userMessage);
+            result = false;
         }};
 
-        final Submission sub = databaseMessageHandler.downloadMessage(MESS_ID);
-        Assert.assertNotNull(sub);
-        Assert.assertEquals(MESS_ID, sub.getMessageId());
-        Assert.assertEquals(submission, sub);
+        databaseMessageHandler.downloadMessage(MESS_ID);
 
         new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            userMessageLogService.setMessageAsDownloaded((UserMessage) any, (UserMessageLog) any);
-            pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
+            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
             messagingDao.clearPayloadData(anyString);
             times = 0;
-            signalMessageDao.findSignalMessagesByRefMessageId(MESS_ID);
-            times = 0;
-
-            assert (false);
         }};
 
     }
 
     @Test
-    public void testDownloadMessageAuthUserNok() throws Exception {
+    public void testDownloadMessageAuthUserNok(@Injectable UserMessage userMessage,
+                                               @Injectable final UserMessageLog messageLog) throws Exception {
 
-        final UserMessage userMessage = createUserMessage();
-
-        new Expectations() {{
+        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+        new Expectations(databaseMessageHandler) {{
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
             authUtils.getOriginalUserFromSecurityContext();
-            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+            result = originalUser;
 
-            messagingDao.findUserMessageByMessageId(MESS_ID);
-            result = userMessage;
+            databaseMessageHandler.validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+            result = new AccessDeniedException("You are not allowed to handle this message");
         }};
 
         try {
-            databaseMessageHandler.downloadMessage(MESS_ID);
+            databaseMessageHandler.checkMessageAuthorization(userMessage, messageLog);
             Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
         } catch (AccessDeniedException adEx) {
             LOG.debug("Expected :", adEx);
-            assert (adEx.getMessage().contains("You are not allowed to handle this message. You are authorized as"));
+            assert (adEx.getMessage().contains("You are not allowed to handle this message"));
         }
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
             authUtils.getOriginalUserFromSecurityContext();
-            messagingDao.findUserMessageByMessageId(MESS_ID);
         }};
 
     }
@@ -1051,48 +1020,7 @@ public class DatabaseMessageHandlerTest {
     public void testDownloadMessageNoMsgFound() throws Exception {
 
         new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
-
-            authUtils.getOriginalUserFromSecurityContext();
-            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
-
-            messagingDao.findUserMessageByMessageId(MESS_ID);
-            result = new NoResultException("No entry found");
-        }};
-
-        try {
-            databaseMessageHandler.downloadMessage(MESS_ID);
-            Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
-        } catch (MessageNotFoundException mnfEx) {
-            LOG.debug("Expected :", mnfEx);
-            assert (mnfEx.getMessage().contains("was not found"));
-        }
-
-        new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            authUtils.getOriginalUserFromSecurityContext();
-            messagingDao.findUserMessageByMessageId(MESS_ID);
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            times = 0;
-        }};
-
-    }
-
-    @Test
-    public void testDownloadMessageNoLogMsgFound() throws Exception {
-
-        new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
-
-            authUtils.getOriginalUserFromSecurityContext();
-            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
-
-            messagingDao.findUserMessageByMessageId(MESS_ID);
-            result = new UserMessage();
-
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
+            messagingDao.findMessageByMessageId(MESS_ID);
             result = null;
         }};
 
@@ -1105,10 +1033,8 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            authUtils.getOriginalUserFromSecurityContext();
-            messagingDao.findUserMessageByMessageId(MESS_ID);
-            userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
+            userMessageLogDao.findByMessageId(MESS_ID);
+            times = 0;
         }};
 
     }
@@ -1207,5 +1133,27 @@ public class DatabaseMessageHandlerTest {
     public void testcreateNewPartyNull() {
         Party party = databaseMessageHandler.createNewParty(null);
         Assert.assertNull(party);
+    }
+
+    @Test
+    public void browseMessage(@Injectable UserMessage userMessage,
+                              @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException {
+        String messageId = "123";
+
+        new Expectations(databaseMessageHandler) {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            databaseMessageHandler.checkMessageAuthorization(userMessage, userMessageLog);
+        }};
+
+        databaseMessageHandler.browseMessage(messageId);
+
+        new Verifications() {{
+            transformer.transformFromMessaging(userMessage);
+        }};
     }
 }

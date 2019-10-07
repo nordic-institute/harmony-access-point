@@ -147,6 +147,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.info("Downloading message with id [{}]", messageId);
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+        if (messaging == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
+
         final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
 
@@ -182,6 +186,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.info("Browsing message with id [{}]", messageId);
 
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
+
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
 
         checkMessageAuthorization(userMessage, userMessageLog);
@@ -198,18 +206,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
-        String messageId = userMessage.getMessageInfo().getMessageId();
-        try {
-            // Authorization check
-            validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-
-            if (userMessageLog == null) {
-                throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-            }
-        } catch (final NoResultException nrEx) {
-            LOG.debug(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR, nrEx);
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
+        // Authorization check
+        validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected void validateOriginalUser(UserMessage userMessage, String authOriginalUser, List<String> recipients) {
@@ -353,7 +351,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
-
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
         }
