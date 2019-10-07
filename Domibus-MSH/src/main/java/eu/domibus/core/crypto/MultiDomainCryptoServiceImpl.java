@@ -204,7 +204,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void reset(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        if(domain == null) {
+            LOG.warn("Domain is null.");
+            return;
+        }
+        final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
+        if(domainCertificateProvider == null) {
+            LOG.debug("Domain certificate provider for domain [{}] not found.", domain);
+            return;
+        }
         domainCertificateProvider.reset();
     }
 }

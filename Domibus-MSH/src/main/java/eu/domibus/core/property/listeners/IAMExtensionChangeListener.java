@@ -16,9 +16,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXT
 
 /**
  * @author Ion Perpegel
- * @since 4.1.1
+ * @since 4.1.2
  * <p>
- * Handles the change of attachment storage location property
+ * Handles the change of iam authentication identifier property
  */
 @Service
 public class IAMExtensionChangeListener implements DomibusPropertyChangeListener {
