@@ -68,7 +68,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract String getMaximumPasswordAgeProperty();
 
-    protected abstract String getWarningDaysBeforeExpiration();
+    protected abstract String getWarningDaysBeforeExpirationProperty();
 
     protected abstract UserPasswordHistoryDao getUserHistoryDao();
 
@@ -101,7 +101,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
-        int oldPasswordsToCheck = Integer.valueOf(domibusPropertyProvider.getDomainProperty(getPasswordHistoryPolicyProperty()));
+        int oldPasswordsToCheck = domibusPropertyProvider.getIntegerDomainProperty(getPasswordHistoryPolicyProperty());
         if (oldPasswordsToCheck == 0) {
             return;
         }
@@ -119,7 +119,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         LOG.debug("Validating if password expired for user [{}]", userName);
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
         LOG.debug("Password expiration policy for user [{}] : [{}] days", userName, maxPasswordAgeInDays);
 
         if (maxPasswordAgeInDays <= 0) {
@@ -136,13 +136,18 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public Integer getDaysTillExpiration(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
-        int warningDaysBeforeExpiration = Integer.valueOf(domibusPropertyProvider.getDomainProperty(getWarningDaysBeforeExpiration()));
+        String warningDaysBeforeExpirationProperty = getWarningDaysBeforeExpirationProperty();
+        if(StringUtils.isBlank(warningDaysBeforeExpirationProperty)) {
+            return null;
+        }
+
+        int warningDaysBeforeExpiration = domibusPropertyProvider.getIntegerDomainProperty(warningDaysBeforeExpirationProperty);
         if (warningDaysBeforeExpiration <= 0) {
             return null;
         }
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
 
         if (maxPasswordAgeInDays <= 0) {
             return null;

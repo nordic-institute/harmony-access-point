@@ -84,7 +84,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
 
     @Test
     public void testGetWarningDaysBeforeExpiration() {
-        String result = userSecurityPolicyManager.getWarningDaysBeforeExpiration();
+        String result = userSecurityPolicyManager.getWarningDaysBeforeExpirationProperty();
         Assert.assertEquals(ConsoleUserSecurityPolicyManager.WARNING_DAYS_BEFORE_EXPIRATION, result);
     }
 

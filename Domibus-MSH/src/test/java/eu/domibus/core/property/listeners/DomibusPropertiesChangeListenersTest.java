@@ -27,7 +27,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
@@ -231,7 +230,7 @@ public class DomibusPropertiesChangeListenersTest {
             mockStorage.initFileSystemStorage();
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
-            cryptoService.refresh();
+            cryptoService.reset();
             gatewayConfigurationValidator.validateConfiguration();
             domibusProxyService.resetProxy();
             messageListenerContainerInitializer.createSendMessageListenerContainer((Domain) any);

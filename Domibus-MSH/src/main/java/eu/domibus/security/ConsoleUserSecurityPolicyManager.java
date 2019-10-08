@@ -73,7 +73,7 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
     }
 
     @Override
-    public String getWarningDaysBeforeExpiration() {
+    public String getWarningDaysBeforeExpirationProperty() {
         return WARNING_DAYS_BEFORE_EXPIRATION;
     }
 
