@@ -49,7 +49,8 @@ public class CRLServiceImpl implements CRLService {
 
         List<String> supportedCrlDistributionPoints = getSupportedCrlDistributionPoints(crlDistributionPoints);
         if (supportedCrlDistributionPoints.isEmpty()) {
-            throw new DomibusCRLException("No supported CRL distribution point found for certificate " + getSubjectDN(cert));
+            LOG.debug("No supported CRL distribution point found for certificate " + getSubjectDN(cert));
+            return false;
         }
 
         for (String crlDistributionPointUrl : supportedCrlDistributionPoints) {
