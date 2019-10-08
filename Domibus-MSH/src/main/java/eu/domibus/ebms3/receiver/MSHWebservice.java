@@ -50,7 +50,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
 
-        Messaging messaging = (Messaging) PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
+        Messaging messaging = getMessaging();
         if (messaging == null) {
             LOG.error("Error getting Messaging");
             throw new WebServiceException("Error getting Messaging");
@@ -71,5 +71,9 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         }
         return soapMessage;
 
+    }
+
+    protected Messaging getMessaging() {
+        return (Messaging) PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
     }
 }
