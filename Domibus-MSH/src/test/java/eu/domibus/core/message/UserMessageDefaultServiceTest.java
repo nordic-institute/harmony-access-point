@@ -317,7 +317,7 @@ public class UserMessageDefaultServiceTest {
 
             userMessageLogDao.update(userMessageLog);
             uiReplicationSignalService.messageChange(anyString);
-            userMessageDefaultService.scheduleSending(userMessageLog, anyBoolean);
+            userMessageDefaultService.scheduleSending(userMessageLog);
 
         }};
     }

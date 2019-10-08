@@ -217,7 +217,7 @@ public class UserMessageDefaultService implements UserMessageService {
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(userMessageLog, userMessageLog.isSplitAndJoin());
+            scheduleSending(userMessageLog);
         } else {
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             try {
@@ -246,7 +246,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
-        scheduleSending(userMessageLog, userMessageLog.isSplitAndJoin());
+        scheduleSending(userMessageLog);
     }
 
     @Override
@@ -279,11 +279,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
-    public void scheduleSending(UserMessageLog userMessageLog, int retryCount, , boolean isSplitAndJoin) {
-        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage(retryCount));
-    }
-
-    public void scheduleSending(UserMessageLog userMessageLog, boolean isSplitAndJoin) {
+    public void scheduleSending(UserMessageLog userMessageLog) {
         scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
@@ -294,9 +290,44 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSending(String messageId, Long delay) {
+    public void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         scheduleSending(userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
+    }
+
+    @Override
+    public void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin) {
+        scheduleSending(messageId, null, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
+    }
+
+    /**
+     * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
+     *
+     * @param userMessageLog
+     * @param jmsMessage
+     */
+    protected void scheduleSending(final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+        scheduleSending(userMessageLog.getMessageId(), userMessageLog, jmsMessage, userMessageLog.isSplitAndJoin());
+    }
+
+    protected void scheduleSending(final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage, boolean isSplitAndJoin) {
+        if (isSplitAndJoin) {
+            LOG.debug("Sending message to sendLargeMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+        } else {
+            LOG.debug("Sending message to sendMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
+        }
+        if (userMessageLog == null) {
+            LOG.debug("Getting UserMessageLog for message id [{}]", messageId);
+            userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        }
+
+        if (userMessageLog != null) {
+            LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
+            userMessageLog.setScheduled(true);
+            userMessageLogDao.update(userMessageLog);
+        }
     }
 
     @Override
@@ -304,24 +335,6 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Sending message to sendLargeMessageQueue");
         final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
-    }
-
-    /**
-     * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
-     * @param messageId
-     * @param jmsMessage
-     * @param isSplitAndJoin
-     */
-    protected void scheduleSending(final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
-        if (userMessageLog.isSplitAndJoin()) {
-            LOG.debug("Sending message to sendLargeMessageQueue");
-            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
-        } else {
-            LOG.debug("Sending message to sendMessageQueue");
-            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
-        }
-        userMessageLog.setScheduled(true);
-        userMessageLogDao.update(userMessageLog);
     }
 
     @Override
@@ -539,4 +552,6 @@ public class UserMessageDefaultService implements UserMessageService {
         SignalMessage signalMessage = messaging.getSignalMessage();
         userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
     }
+
+
 }

@@ -286,7 +286,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-            userMessageService.scheduleSending((UserMessageLog) any, anyBoolean);
+            userMessageService.scheduleSending((UserMessageLog) any);
         }};
 
     }
