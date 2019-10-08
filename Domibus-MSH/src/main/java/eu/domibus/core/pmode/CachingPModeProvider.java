@@ -560,14 +560,35 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(String service, String action) {
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
         List result = new ArrayList<String>();
-        for (Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
+        List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
+        processes = processes.stream().filter(process -> isMEPMatch(process, meps)).collect(Collectors.toList());
+        for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
             }
         }
         return result;
+    }
+
+    protected boolean isMEPMatch(Process process, final List<MessageExchangePattern> meps) {
+        if (CollectionUtils.isEmpty(meps)) { // process can have any mep
+            return true;
+        }
+
+        if (process == null || process.getMepBinding() == null  // invalid process
+                || process.getMepBinding().getValue() == null) {
+            return false;
+        }
+
+        for (MessageExchangePattern mep : meps) {
+            if (mep.getUri().equals(process.getMepBinding().getValue())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String

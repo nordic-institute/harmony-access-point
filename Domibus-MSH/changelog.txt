@@ -5,6 +5,7 @@ Domibus 4.1.2
 - Added Domibus property domibus.logging.cxf.limit to establish the size limit at which messages are truncated in the logs when org.apache.cxf is set to
 - Changed the local endpoint transport configuration to allow requests to remote endpoints on http transport (requested by plugin developers)
 at least INFO in logback.xml
+- Remove parties in Pull processes from TestService UI (Test Service for Pull is not supported in the UI)
 Domibus 4.1.1
 - Alerts for password imminent expiration and expiration are not sent
 - Domibus does not work with Proxy
