@@ -74,6 +74,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
+    static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
@@ -272,8 +273,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submitMessageFragment(UserMessage userMessage, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
-            LOG.warn("UserMessage is null");
-            throw new MessageNotFoundException("UserMessage is null");
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
 
         // MessageInfo is always initialized in the get method
@@ -326,20 +327,20 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             return userMessage.getMessageInfo().getMessageId();
 
         } catch (EbMS3Exception ebms3Ex) {
-            LOG.error("Error submitting the message [" + userMessage.getMessageInfo().getMessageId() + "] to [" + backendName + "]", ebms3Ex);
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", ebms3Ex);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
-            LOG.error("Error submitting the message [" + userMessage.getMessageInfo().getMessageId() + "] to [" + backendName + "]" + p.getMessage());
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage());
             errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }
 
-    private void prepareForPushOrPull(UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String messageId, String pModeKey, Party to, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessageLog);
+            userMessageService.scheduleSending(userMessageLog, userMessage.isSplitAndJoin());
         } else {
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
             pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
@@ -366,8 +367,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
 
         if (userMessage == null) {
-            LOG.warn("UserMessage is null");
-            throw new MessageNotFoundException("UserMessage is null");
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
 
         validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
@@ -401,7 +402,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             Party to = null;
             MessageStatus messageStatus = null;
-            if (messageExchangeService.forcePullOnMpc(userMessage.getMpc())) {
+            if (messageExchangeService.forcePullOnMpc(userMessage)) {
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
@@ -452,7 +453,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
+                prepareForPushOrPull(userMessage, userMessageLog, messageId, pModeKey, to, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());

@@ -69,6 +69,8 @@ import java.util.List;
 public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
+    static final String MESSAGE = "Message [";
+    static final String DOES_NOT_EXIST = "] does not exist";
 
     @Autowired
     @Qualifier("sendMessageQueue")
@@ -215,7 +217,7 @@ public class UserMessageDefaultService implements UserMessageService {
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(userMessageLog);
+            scheduleSending(userMessageLog, userMessageLog.isSplitAndJoin());
         } else {
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             try {
@@ -236,22 +238,22 @@ public class UserMessageDefaultService implements UserMessageService {
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Message [" + messageId + "] does not exist");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
         }
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Message [" + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
 
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
-        scheduleSending(userMessageLog);
+        scheduleSending(userMessageLog, userMessageLog.isSplitAndJoin());
     }
 
     @Override
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Message [" + messageId + "] does not exist");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
         }
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
             sendEnqueuedMessage(messageId);
@@ -277,16 +279,16 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
-    public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
+    public void scheduleSending(UserMessageLog userMessageLog, int retryCount, , boolean isSplitAndJoin) {
         scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage(retryCount));
     }
 
-    public void scheduleSending(UserMessageLog userMessageLog) {
+    public void scheduleSending(UserMessageLog userMessageLog, boolean isSplitAndJoin) {
         scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
     @Override
-    public void scheduleSending(String messageId) {
+    public void scheduleSending(String messageId, boolean isSplitAndJoin) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         scheduleSending(userMessageLog);
     }
@@ -304,6 +306,12 @@ public class UserMessageDefaultService implements UserMessageService {
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 
+    /**
+     * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
+     * @param messageId
+     * @param jmsMessage
+     * @param isSplitAndJoin
+     */
     protected void scheduleSending(final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
@@ -475,10 +483,10 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Message [" + messageId + "] does not exist");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Message [" + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
         }
         return userMessageLog;
     }

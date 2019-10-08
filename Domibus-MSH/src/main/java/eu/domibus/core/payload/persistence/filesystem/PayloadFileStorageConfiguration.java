@@ -1,8 +1,6 @@
 package eu.domibus.core.payload.persistence.filesystem;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +12,6 @@ import org.springframework.context.annotation.Scope;
  */
 @Configuration
 public class PayloadFileStorageConfiguration {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadFileStorageConfiguration.class);
 
     @Bean(name = "storage")
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)

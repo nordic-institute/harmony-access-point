@@ -317,7 +317,7 @@ public class UserMessageDefaultServiceTest {
 
             userMessageLogDao.update(userMessageLog);
             uiReplicationSignalService.messageChange(anyString);
-            userMessageDefaultService.scheduleSending(userMessageLog);
+            userMessageDefaultService.scheduleSending(userMessageLog, anyBoolean);
 
         }};
     }
@@ -359,7 +359,7 @@ public class UserMessageDefaultServiceTest {
 
             userMessageLogDao.update(userMessageLog);
             times = 1;
-            userMessageDefaultService.scheduleSending(messageId);
+            userMessageDefaultService.scheduleSending(messageId, anyBoolean);
             times = 0;
             messagingDao.findUserMessageByMessageId(messageId);
             times = 1;
@@ -441,7 +441,7 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.scheduleSending(messageId);
+        userMessageDefaultService.scheduleSending(messageId, false);
 
         new Verifications() {{
             jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
@@ -487,8 +487,8 @@ public class UserMessageDefaultServiceTest {
 
         final List<String> restoredMessages = userMessageDefaultService.restoreFailedMessagesDuringPeriod(startDate, endDate, finalRecipient);
         assertNotNull(restoredMessages);
-        assertEquals(restoredMessages.size(), 1);
-        assertEquals(restoredMessages.iterator().next(), failedMessage1);
+        assertEquals(1, restoredMessages.size());
+        assertEquals(failedMessage1, restoredMessages.iterator().next());
     }
 
     @Test

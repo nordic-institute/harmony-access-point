@@ -83,6 +83,7 @@ public class CertificateServiceImpl implements CertificateService {
     private PModeProvider pModeProvider;
 
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class)
     public boolean isCertificateChainValid(List<? extends Certificate> certificateChain) {
         for (Certificate certificate : certificateChain) {
             boolean certificateValid = isCertificateValid((X509Certificate) certificate);
@@ -130,6 +131,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class)
     public boolean isCertificateValid(X509Certificate cert) throws DomibusCertificateException {
         boolean isValid = checkValidity(cert);
         if (!isValid) {

@@ -37,6 +37,8 @@ import org.apache.wss4j.dom.str.STRParserParameters;
 import org.apache.wss4j.dom.str.STRParserResult;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -104,6 +106,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      * @param message the incoming CXF soap message to handle
      */
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = supports)
     public void handleMessage(final SoapMessage message) throws Fault {
         if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.warn("No trust verification of sending certificate");

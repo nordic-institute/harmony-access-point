@@ -268,7 +268,7 @@ public abstract class PModeProvider {
                 receiverParty = findPartyName(userMessage.getPartyInfo().getTo().getPartyId());
                 LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, receiverParty, userMessage.getPartyInfo().getTo().getPartyId());
             } catch (EbMS3Exception exc) {
-                if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
+                if (isPull && mpcService.forcePullOnMpc(userMessage)) {
                     LOG.info("Receiver party not found in pMode, extract from MPC");
                     receiverParty = mpcService.extractInitiator(userMessage.getMpc());
                 } else {

@@ -24,7 +24,7 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
     @Autowired(required = false)
-    private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
+    protected List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
 
     @Autowired
     private SignalService signalService;
@@ -38,7 +38,7 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
         listeners.forEach(listener -> {
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 LOGGER.error("An error occurred on setting property [{}]", propertyName, ex);
             }
         });

@@ -5,19 +5,22 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
@@ -30,61 +33,11 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 @Component
 public class FSPluginProperties implements DomibusPropertyManagerExt {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
     private static final String DOT = ".";
 
-    private static final String PROPERTY_PREFIX = "fsplugin.";
-
-    private static final String DOMAIN_PREFIX = "fsplugin.domains.";
-
-    private static final String LOCATION = "messages.location";
-
-    private static final String SENT_ACTION = "messages.sent.action";
-
-    private static final String SENT_PURGE_WORKER_CRONEXPRESSION = "messages.sent.purge.worker.cronExpression";
-
-    private static final String SENT_PURGE_EXPIRED = "messages.sent.purge.expired";
-
-    private static final String FAILED_ACTION = "messages.failed.action";
-
-    private static final String FAILED_PURGE_WORKER_CRONEXPRESSION = "messages.failed.purge.worker.cronExpression";
-
-    private static final String FAILED_PURGE_EXPIRED = "messages.failed.purge.expired";
-
-    private static final String RECEIVED_PURGE_EXPIRED = "messages.received.purge.expired";
-
-    private static final String OUT_QUEUE_CONCURRENCY = "send.queue.concurrency";
-
-    private static final String SEND_DELAY = "messages.send.delay";
-
-    private static final String SEND_WORKER_INTERVAL = "messages.send.worker.repeatInterval";
-
-    private static final String USER = "messages.user";
-
-    private static final String PAYLOAD_ID = "messages.payload.id";
-
     private static final String DEFAULT_CONTENT_ID = "cid:message";
-
-    // Sonar confuses this constant with an actual password
-    @SuppressWarnings("squid:S2068")
-    private static final String PASSWORD = "messages.password";
-
-    private static final String AUTHENTICATION_USER = "authentication.user";
-
-    // Sonar confuses this constant with an actual password
-    @SuppressWarnings("squid:S2068")
-    private static final String AUTHENTICATION_PASSWORD = "authentication.password";
-
-    private static final String EXPRESSION = "messages.expression";
-
-    private static final String ORDER = "order";
-
-    private static final String PAYLOAD_SCHEDULE_THRESHOLD = "messages.payload.schedule.threshold";
-
-    private static final String PASSWORD_ENCRYPTION_ACTIVE = "password.encryption.active";
 
     @Resource(name = "fsPluginProperties")
     private Properties properties;
@@ -94,6 +47,15 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Autowired
     protected DomainExtService domainExtService;
+
+    @Autowired
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
+
+    @Autowired
+    protected ApplicationContext applicationContext;
+
+    @Autowired
+    protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
 
     private List<String> domains;
 
@@ -111,32 +73,22 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return domains;
     }
 
-    /**
-     * @return The location of the directory that the plugin will use to manage the messages to be sent and received
-     * in case no domain expression matches
-     */
-    public String getLocation() {
-        return getLocation(null);
+    public void resetDomains() {
+        LOG.debug("Resetting domains");
+        domains = null;
     }
 
     /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getLocation()}
+     * @return The location of the directory that the plugin will use to manage the messages to be sent and received
      */
     public String getLocation(String domain) {
         return getDomainProperty(domain, LOCATION, System.getProperty("java.io.tmpdir"));
     }
 
     /**
-     * @return The plugin action when message is sent successfully from C2 to C3 ('delete' or 'archive')
-     */
-    public String getSentAction() {
-        return getSentAction(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getSentAction()}
+     * @return The plugin action when message is sent successfully from C2 to C3 ('delete' or 'archive')
      */
     public String getSentAction(String domain) {
         return getDomainProperty(domain, SENT_ACTION, ACTION_DELETE);
@@ -150,15 +102,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The time interval (seconds) to purge sent messages
-     */
-    public Integer getSentPurgeExpired() {
-        return getSentPurgeExpired(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getSentPurgeExpired()}
+     * @return The time interval (seconds) to purge sent messages
      */
     public Integer getSentPurgeExpired(String domain) {
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
@@ -177,15 +122,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The plugin action when message fails
-     */
-    public String getFailedAction() {
-        return getFailedAction(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getFailedAction()}
+     * @return The plugin action when message fails
      */
     public String getFailedAction(String domain) {
         return getDomainProperty(domain, FAILED_ACTION, ACTION_DELETE);
@@ -199,15 +137,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The time interval (seconds) to purge failed messages
-     */
-    public Integer getFailedPurgeExpired() {
-        return getFailedPurgeExpired(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getFailedPurgeExpired()}
+     * @return The time interval (seconds) to purge failed messages
      */
     public Integer getFailedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, FAILED_PURGE_EXPIRED, "600");
@@ -215,15 +146,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     /**
-     * @return The time interval (seconds) to purge received messages
-     */
-    public Integer getReceivedPurgeExpired() {
-        return getReceivedPurgeExpired(null);
-    }
-
-    /**
      * @param domain The domain property qualifier
-     * @return See {@link FSPluginProperties#getReceivedPurgeExpired()}
+     * @return The time interval (seconds) to purge received messages
      */
     public Integer getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
@@ -401,10 +325,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return null;
     }
 
-    public String getDomainPropertyName(String domain, String propertyName) {
-        return DOMAIN_PREFIX + domain + DOT + propertyName;
-    }
-
     private Integer getInteger(String value, Integer defaultValue) {
         Integer result = defaultValue;
         if (StringUtils.isNotEmpty(value)) {
@@ -428,7 +348,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
             tempDomains.add(DEFAULT_DOMAIN);
         }
 
-
         Collections.sort(tempDomains, (domain1, domain2) -> {
             Integer domain1Order = getOrder(domain1);
             Integer domain2Order = getOrder(domain2);
@@ -437,20 +356,58 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return tempDomains;
     }
 
+    private String getDomainPropertyName(String domain, String propertyName) {
+        String basePropertyName = getBasePropertyName(propertyName);
+        return DOMAIN_PREFIX + domain + DOT + basePropertyName;
+    }
+
     private String extractDomainName(String propName) {
-        String unprefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
-        return StringUtils.substringBefore(unprefixedProp, DOT);
+        String unPrefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
+        return StringUtils.substringBefore(unPrefixedProp, DOT);
+    }
+
+    private String getBasePropertyName(String propName) {
+        String baseName = propName;
+        if (baseName.startsWith(DOMAIN_PREFIX)) { // fsplugin.domains.x.baseName
+            LOG.debug("Processing a domain property name [{}]", baseName);
+            baseName = StringUtils.removeStart(baseName, DOMAIN_PREFIX);
+            baseName = StringUtils.substringAfter(baseName, DOT); // remove the domain name
+        } else if (baseName.startsWith(PROPERTY_PREFIX)) { // fsplugin.baseName
+            LOG.debug("Processing a non-domain property name [{}]", baseName);
+            baseName = StringUtils.removeStart(baseName, PROPERTY_PREFIX);
+        }
+        return baseName;
     }
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        return Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
-                // with fallback from the default domain:
-                new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
-        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+
+        Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
+
+        Map<String, DomibusPropertyMetadataDTO> knownProperties = new HashMap<>();
+
+        // in single-domain mode - we only expose the "base" properties
+        // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
+        // in multi-tenancy mode - we only expose the "base" properties from the current domain
+
+        boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
+
+        for (DomibusPropertyMetadataDTO prop : baseProperties.values()) {
+            if (multiplyDomainProperties && prop.isDomainSpecific()) {
+                LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
+                for (String domain : getDomains()) {
+                    String name = getDomainPropertyName(domain, prop.getName());
+                    DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, true, prop.isWithFallback());
+                    knownProperties.put(p.getName(), p);
+                }
+            } else {
+                LOG.debug("Adding the simple property [{}] to the known property list.", prop.getName());
+                prop.setName(PROPERTY_PREFIX + prop.getName());
+                knownProperties.put(prop.getName(), prop);
+            }
+        }
+
+        return knownProperties;
     }
 
     @Override
@@ -460,41 +417,51 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public String getKnownPropertyValue(String domain, String propertyName) {
-        String propertyKey = getKnownPropertyKey(domain, propertyName);
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException("Unknown property name: " + propertyName);
+        }
 
-        return this.properties.getProperty(propertyKey);
+        // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
+        if (propertyName.startsWith(DOMAIN_PREFIX)) {
+            if (this.properties.containsKey(propertyName)) {
+                return this.properties.getProperty(propertyName);
+            }
+        }
+        String baseName = getBasePropertyName(propertyName);
+        String key1 = DOMAIN_PREFIX + domain + DOT + baseName;
+        String key2 = PROPERTY_PREFIX + baseName;
+
+        if (this.properties.containsKey(key1)) {
+            return this.properties.getProperty(key1);
+        }
+        if (this.properties.containsKey(key2)) {
+            return this.properties.getProperty(key2);
+        }
+        return null;
     }
 
     @Override
-    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        String propertyKey = getKnownPropertyKey(domainCode, propertyName);
-        DomibusPropertyMetadataDTO propMeta = this.getKnownProperties().get(propertyKey);
-        if (propMeta == null) {
-            throw new IllegalArgumentException(propertyName);
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue,
+                                      boolean broadcast) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException("Unknown property name: " + propertyName);
+        }
+
+        String propertyKey = propertyName;
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            propertyKey = getDomainPropertyName(domainCode, propertyName);
         }
         this.properties.setProperty(propertyKey, propertyValue);
+
+        String baseName = getBasePropertyName(propertyName);
+
+        PluginPropertyChangeNotifier propertyChangeNotifier = applicationContext.getBean(PluginPropertyChangeNotifier.class);
+        propertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
     }
 
-    private String getKnownPropertyKey(String domain, String propertyName) {
-        final DomibusPropertyMetadataDTO meta = getKnownProperties().get(propertyName);
-        if (meta == null) {
-            throw new IllegalArgumentException(propertyName);
-        }
-        final String propertyKey;
-        if (domain == null) {
-            propertyKey = propertyName;
-        } else {
-            propertyKey = this.getDomainPropertyName(domain, propertyName);
-        }
-        return propertyKey;
-    }
-
-    @Override
-    //TODO: reuse same code as in DomibusPropertyManager (EDELIVERY-4812)
+    @Override 
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
-
 
 }

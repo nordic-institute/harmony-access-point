@@ -97,12 +97,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
+                //trim the empty space
+                messageID = messageExtService.cleanMessageIdentifier(messageID);
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
             }
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
 
-            LOG.info("Received message with messageId [" + messageID + "], jmsCorrelationID [" + jmsCorrelationID + "]");
+            LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
 
             if (!MESSAGE_TYPE_SUBMIT.equals(messageType)) {
                 String wrongMessageTypeMessage = getWrongMessageTypeErrorMessage(messageID, jmsCorrelationID, messageType);
@@ -116,13 +118,13 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                LOG.error("Exception occurred receiving message [" + messageID + "], jmsCorrelationID [" + jmsCorrelationID + "]", e);
+                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]",  messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
             sendReplyMessage(messageID, errorMessage, jmsCorrelationID);
 
-            LOG.info("Submitted message with messageId [" + messageID + "], jmsCorrelationID [" + jmsCorrelationID + "]");
+            LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);

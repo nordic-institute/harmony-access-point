@@ -107,12 +107,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
     }
 
-    @Override
-    public void refresh(){
-        super.refresh();
-        this.init();
-    }
-
     protected Collection<eu.domibus.common.model.configuration.Process> findDynamicResponderProcesses() {
         final Collection<eu.domibus.common.model.configuration.Process> result = new ArrayList<>();
         for (final eu.domibus.common.model.configuration.Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {

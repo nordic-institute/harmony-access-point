@@ -134,7 +134,7 @@ public class EbMS3MessageBuilder {
             if (userMessage.getMessageInfo() != null && userMessage.getMessageInfo().getTimestamp() == null) {
                 userMessage.getMessageInfo().setTimestamp(new Date());
             }
-
+            LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
             for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
                 this.attachPayload(partInfo, message);
             }
@@ -207,7 +207,6 @@ public class EbMS3MessageBuilder {
                 }
             }
         }
-
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
             final DocumentBuilderFactory documentBuilderFactory = XMLUtilImpl.getDocumentBuilderFactoryNamespaceAware();
@@ -218,11 +217,15 @@ public class EbMS3MessageBuilder {
         }
         final AttachmentPart attachmentPart = message.createAttachmentPart(dataHandler);
         String href = partInfo.getHref();
-        if (href.contains("cid:")) {
-            href = href.substring(href.lastIndexOf("cid:") + "cid:".length());
-        }
-        if (!href.startsWith("<")) {
-            href = "<" + href + ">";
+        LOG.debug("Attaching Payload with PartInfo href: [{}] ", href);
+        if (href != null) {
+            if (href.contains("cid:")) {
+                href = href.substring(href.lastIndexOf("cid:") + "cid:".length());
+            }
+
+            if (!href.startsWith("<")) {
+                href = "<" + href + ">";
+            }
         }
         attachmentPart.setContentId(href);
         attachmentPart.setContentType(partInfo.getMime());

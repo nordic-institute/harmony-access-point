@@ -23,13 +23,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 @Service
 public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<AuthenticationEntity> {
 
-    final static String WARNING_DAYS_BEFORE_EXPIRATION = "domibus.plugin.passwordPolicy.warning.beforeExpiration";
+    static final String PASSWORD_COMPLEXITY_PATTERN = DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN; //NOSONAR
+    static final String PASSWORD_HISTORY_POLICY = DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST; //NOSONAR
 
-    static final String PASSWORD_COMPLEXITY_PATTERN = DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN;
-    static final String PASSWORD_HISTORY_POLICY = DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST;
-
-    final static String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION;
-    final static String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION;
+    final static String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION; //NOSONAR
+    final static String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION; //NOSONAR
 
     protected static final String MAXIMUM_LOGIN_ATTEMPT = DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT;
 
@@ -69,8 +67,8 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
     }
 
     @Override
-    protected String getWarningDaysBeforeExpiration() {
-        return WARNING_DAYS_BEFORE_EXPIRATION;
+    protected String getWarningDaysBeforeExpirationProperty() {
+        return null;
     }
 
     @Override

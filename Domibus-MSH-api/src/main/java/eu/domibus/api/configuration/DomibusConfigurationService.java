@@ -17,7 +17,7 @@ public interface DomibusConfigurationService {
     String CLUSTER_DEPLOYMENT = "domibus.deployment.clustered";
     String EXTERNAL_AUTH_PROVIDER = "domibus.security.ext.auth.provider.enabled";
     String PAYLOAD_ENCRYPTION_PROPERTY = DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
-    String PASSWORD_ENCRYPTION_ACTIVE_PROPERTY = "domibus.password.encryption.active";
+    String PASSWORD_ENCRYPTION_ACTIVE_PROPERTY = "domibus.password.encryption.active"; //NOSONAR
 
     String getConfigLocation();
 

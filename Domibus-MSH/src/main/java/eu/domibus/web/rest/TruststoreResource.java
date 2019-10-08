@@ -39,7 +39,7 @@ public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
 
-    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty.";
+    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty."; //NOSONAR
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;

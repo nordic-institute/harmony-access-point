@@ -23,9 +23,20 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Override
     public void onMessage(final Message message) {
         LOG.debug("Processing message [{}]", message);
         super.onMessage(message);
+    }
+
+    @Override
+    public void scheduleSending(String messageId, Long delay) {
+        super.userMessageService.scheduleSending(messageId, delay, false);
+    }
+
+    @Override
+    public void sendUserMessage(String messageId, int retryCount) {
+        super.messageSenderService.sendUserMessage(messageId, retryCount, false);
     }
 
 }

@@ -1,6 +1,5 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;

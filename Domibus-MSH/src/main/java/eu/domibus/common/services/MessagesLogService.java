@@ -1,11 +1,9 @@
 package eu.domibus.common.services;
 
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

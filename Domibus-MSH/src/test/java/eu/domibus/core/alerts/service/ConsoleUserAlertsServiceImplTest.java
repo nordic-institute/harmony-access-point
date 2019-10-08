@@ -30,9 +30,6 @@ public class ConsoleUserAlertsServiceImplTest {
     private UserDao userDao;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertConfiguration;
-
-    @Injectable
     private MultiDomainAlertConfigurationService alertsConfiguration;
 
     @Injectable

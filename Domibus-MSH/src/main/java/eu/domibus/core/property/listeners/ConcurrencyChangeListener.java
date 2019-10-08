@@ -63,6 +63,8 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
             case DOMIBUS_PULL_QUEUE_CONCURENCY:
                 messageListenerContainerInitializer.createPullMessageListenerContainer(domain);
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown property: " + propertyName);
         }
     }
 }

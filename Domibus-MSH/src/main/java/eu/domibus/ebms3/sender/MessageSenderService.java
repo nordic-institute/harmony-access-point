@@ -52,6 +52,8 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
+    public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
+        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
     @Transactional(propagation = Propagation.SUPPORTS)
     public void sendUserMessage(final String messageId, int retryCount) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
@@ -59,7 +61,7 @@ public class MessageSenderService {
 
         if (MessageStatus.NOT_FOUND == messageStatus) {
             if (retryCount < MAX_RETRY_COUNT) {
-                userMessageService.scheduleSending(userMessageLog, retryCount + 1);
+                userMessageService.scheduleSending(userMessageLog, retryCount + 1, isSplitAndJoin);
                 LOG.warn("MessageStatus NOT_FOUND, retry count is [{}] -> reschedule sending", retryCount);
                 return;
             }

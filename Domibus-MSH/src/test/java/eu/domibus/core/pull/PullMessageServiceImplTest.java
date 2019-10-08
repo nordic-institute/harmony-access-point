@@ -216,7 +216,7 @@ public class PullMessageServiceImplTest {
             result = messageId;
             messageLog.getMpc();
             result = mpc;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "", "", null);
         }};
 
@@ -240,7 +240,7 @@ public class PullMessageServiceImplTest {
             result = mpc;
             messageLog.getNextAttempt();
             result=null;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;

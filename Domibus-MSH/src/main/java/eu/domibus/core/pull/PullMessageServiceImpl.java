@@ -221,7 +221,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                                    final MessageLog messageLog) {
         final String pmodeKey; // FIXME: This does not work for signalmessages
         try {
-            pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageLog.getMessageId() + "]", e);
         }

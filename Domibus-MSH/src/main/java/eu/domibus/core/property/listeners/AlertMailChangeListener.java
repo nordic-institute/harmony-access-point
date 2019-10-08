@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT;
 
 /**
  * @author Ion Perpegel
@@ -25,7 +26,7 @@ public class AlertMailChangeListener implements DomibusPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_SENDER_SMTP_PREFIX)
-                || StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE);
+                || StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE, DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);
     }
 
     @Override

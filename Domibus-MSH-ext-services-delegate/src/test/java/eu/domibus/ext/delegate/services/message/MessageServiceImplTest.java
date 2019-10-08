@@ -29,4 +29,5 @@ public class MessageServiceImplTest {
         Assert.assertEquals("Should have returned the message as is when cleaning it if the message does not contain control characters",
                 "-Dom138--", trimmedMessageId);
     }
+
 }

@@ -35,13 +35,7 @@ public class ApplicationResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ApplicationResource.class);
 
-    String PASSWORD_POLICY_PATTERN = DOMIBUS_PASSWORD_POLICY_PATTERN;
-    String PASSWORD_POLICY_VALIDATION_MESSAGE = DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE;
-    String PLUGIN_PASSWORD_POLICY_PATTERN = DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN;
-    String PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE = DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE;
-
     protected static final String DOMIBUS_CUSTOM_NAME = DOMIBUS_UI_TITLE_NAME;
-
     static final String SUPPORT_TEAM_NAME_KEY = DOMIBUS_UI_SUPPORT_TEAM_NAME;
     static final String SUPPORT_TEAM_EMAIL_KEY = DOMIBUS_UI_SUPPORT_TEAM_EMAIL;
 
@@ -184,18 +178,18 @@ public class ApplicationResource {
     }
 
     private String getPasswordPattern() {
-        return domibusPropertyProvider.getDomainProperty(PASSWORD_POLICY_PATTERN);
+        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PASSWORD_POLICY_PATTERN);
     }
 
     private String getPasswordValidationMessage() {
-        return domibusPropertyProvider.getDomainProperty(PASSWORD_POLICY_VALIDATION_MESSAGE);
+        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE);
     }
 
     private String getPluginPasswordPattern() {
-        return domibusPropertyProvider.getDomainProperty(PLUGIN_PASSWORD_POLICY_PATTERN);
+        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN);
     }
     private String getPluginPasswordValidationMessage() {
-        return domibusPropertyProvider.getDomainProperty(PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE);
+        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE);
     }
 
     private String getSupportTeamName() {

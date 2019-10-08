@@ -44,7 +44,7 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
             throw new MessageAcknowledgeException(DomibusCoreErrorCode.DOM_001, "Message with ID [" + messageId + "] does not exist");
         }
         String pModeKey;
-        if (messageExchangeService.forcePullOnMpc(userMessage.getMpc())) {
+        if (messageExchangeService.forcePullOnMpc(userMessage)) {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
             LOG.debug("Exchange context (pull exchange), pModeKey [{}]", pModeKey);
         } else {

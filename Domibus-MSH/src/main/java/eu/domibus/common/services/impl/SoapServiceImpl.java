@@ -48,6 +48,9 @@ public class SoapServiceImpl implements SoapService {
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
         new StaxInInterceptor().handleMessage(message);
         final XMLStreamReader xmlStreamReader = message.getContent(XMLStreamReader.class);
+        if (xmlStreamReader == null) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is missing!", null, null);
+        }
         final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
         message.removeContent(XMLStreamReader.class);
         message.setContent(InputStream.class, new ByteArrayInputStream(data));

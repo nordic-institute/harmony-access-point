@@ -118,7 +118,7 @@ public class CommandServiceImpl implements CommandService {
                     if (domibusPropertyManager.hasKnownProperty(propName)) {
                         try {
                             domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal, false);
-                        } catch (Throwable ex) {
+                        } catch (Exception ex) {
                             LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domainCode);
                         }
                     }

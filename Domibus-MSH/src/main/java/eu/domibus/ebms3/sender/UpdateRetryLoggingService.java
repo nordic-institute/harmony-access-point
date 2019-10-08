@@ -178,7 +178,12 @@ public class UpdateRetryLoggingService {
      * @return true if the message can be sent again
      */
     public boolean hasAttemptsLeft(final MessageLog userMessageLog, final LegConfiguration legConfiguration) {
+        if (legConfiguration == null) {
+            LOG.debug("No more send attempts as leg configuration is not found.");
+            return false;
+        }
         if (legConfiguration.getReceptionAwareness() == null) {
+            LOG.debug("No more send attempts as reception awareness of the leg configuration is not null.");
             return false;
         }
         LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]",

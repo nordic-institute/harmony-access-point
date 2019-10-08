@@ -22,9 +22,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATT
 public class StorageChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    protected ApplicationContext applicationContext;
-
-    @Autowired
     protected DomainService domainService;
 
     @Autowired

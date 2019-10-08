@@ -14,7 +14,10 @@ import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from "../common/mixins/sortable-list.mixin";
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {DirtyOperations} from '../common/dirty-operations';
+import {isNullOrUndefined} from 'util';
+import {AlertsEntry} from './alertsentry';
 
 @Component({
   moduleId: module.id,
@@ -22,7 +25,7 @@ import SortableListMixin from "../common/mixins/sortable-list.mixin";
   providers: []
 })
 
-export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
+export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit, DirtyOperations {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';
@@ -35,43 +38,41 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
+  public rowLimiter: RowLimiterBase;
 
   advancedSearch: boolean;
-  loading: boolean = false;
+  loading: boolean;
 
   // data table
-  rows = [];
-  count = 0;
-  offset = 0;
-  orderBy = 'creationTime';
-  asc = false;
+  rows: Array<AlertsEntry>;
+  count: number;
+  offset: number;
 
-  isDirty = false;
+  isChanged: boolean;
 
-  aTypes = [];
-  aStatuses = [];
-  aLevels = [];
+  aTypes: Array<any>;
+  aStatuses: Array<any>;
+  aLevels: Array<any>;
 
   aProcessedValues = ['PROCESSED', 'UNPROCESSED'];
 
-  dynamicFilters = [];
+  dynamicFilters: Array<any>;
+  dynamicDatesFilter: any;
+  nonDateParameters: Array<any>;
+  alertTypeWithDate: boolean;
 
-  dynamicDatesFilter: any = {};
+  timestampCreationFromMaxDate: Date;
+  timestampCreationToMinDate: Date;
+  timestampCreationToMaxDate: Date;
+  timestampReportingFromMaxDate: Date;
+  timestampReportingToMinDate: Date;
+  timestampReportingToMaxDate: Date;
 
-  nonDateParameters = [];
-  alertTypeWithDate: boolean = false;
+  dateFromName: string;
+  dateToName: string;
+  displayDomainCheckBox: boolean;
 
-  timestampCreationFromMaxDate: Date = new Date();
-  timestampCreationToMinDate: Date = null;
-  timestampCreationToMaxDate: Date = new Date();
-  timestampReportingFromMaxDate: Date = new Date();
-  timestampReportingToMinDate: Date = null;
-  timestampReportingToMaxDate: Date = new Date();
-
-  dateFromName: string = '';
-  dateToName: string = '';
-  displayDomainCheckBox: boolean = false;
+  filter: any;
 
   constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
     super();
@@ -86,6 +87,32 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   ngOnInit() {
     super.ngOnInit();
+
+    this.loading = false;
+    this.rows = [];
+    this.count = 0;
+    this.offset = 0;
+    this.isChanged = false;
+
+    this.aTypes = [];
+    this.aStatuses = [];
+    this.aLevels = [];
+
+    this.dynamicFilters = [];
+    this.dynamicDatesFilter = {};
+    this.nonDateParameters = [];
+    this.alertTypeWithDate = false;
+
+    this.timestampCreationFromMaxDate = new Date();
+    this.timestampCreationToMinDate = null;
+    this.timestampCreationToMaxDate = new Date();
+    this.timestampReportingFromMaxDate = new Date();
+    this.timestampReportingToMinDate = null;
+    this.timestampReportingToMaxDate = new Date();
+
+    this.dateFromName = '';
+    this.dateToName = '';
+    this.displayDomainCheckBox = false;
 
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
@@ -103,10 +130,14 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155}
     ];
+    this.rowLimiter = new RowLimiterBase();
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
+
+    this.orderBy = 'creationTime';
+    this.asc = false;
 
     this.search();
   }
@@ -250,7 +281,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   search() {
-    console.log('Searching using filter:' + this.filter);
+    this.isChanged = false;
     this.setActiveFilter();
     this.page(0, this.rowLimiter.pageSize);
   }
@@ -309,8 +340,14 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   // datatable methods
 
   onPage(event) {
-    console.log('Page Event', event);
     this.page(event.offset, event.pageSize);
+  }
+
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public reload() {
+    this.page(0, this.rowLimiter.pageSize);
   }
 
   changePageSize(newPageLimit: number) {
@@ -319,7 +356,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   saveAsCSV() {
-    if (this.isDirty) {
+    if (this.isChanged) {
       this.save(true);
     } else {
       if (this.count > AlertComponent.MAX_COUNT_CSV) {
@@ -338,7 +375,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.dialog.open(CancelDialogComponent)
       .afterClosed().subscribe(result => {
       if (result) {
-        this.isDirty = false;
+        this.isChanged = false;
         this.page(this.offset, this.rowLimiter.pageSize);
       }
     });
@@ -351,7 +388,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
         this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
           this.alertService.success('The operation \'update alerts\' completed successfully.', false);
           this.page(this.offset, this.rowLimiter.pageSize);
-          this.isDirty = false;
+          this.isChanged = false;
           if (withDownloadCSV) {
             DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
           }
@@ -368,9 +405,12 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   setProcessedValue(row) {
-    this.isDirty = true;
+    this.isChanged = true;
     row.processed = !row.processed;
     this.rows[row.$$index] = row;
   }
 
+  isDirty(): boolean {
+    return this.isChanged;
+  }
 }

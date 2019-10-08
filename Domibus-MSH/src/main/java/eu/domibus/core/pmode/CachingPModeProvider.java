@@ -38,7 +38,7 @@ public class CachingPModeProvider extends PModeProvider {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProvider.class);
 
     //Don't access directly, use getter instead
-    private Configuration configuration;
+    private volatile Configuration configuration;
 
     @Autowired
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
@@ -82,6 +82,8 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.debug("Initialising the configuration");
         this.configuration = this.configurationDAO.readEager();
+        LOG.trace("Configuration initialized: [{}]", this.configuration.getEntityId());
+
         initPullProcessesCache();
     }
 
@@ -501,8 +503,14 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public void refresh() {
-        this.configuration = null;
-        this.getConfiguration(); //reloads the config
+        synchronized (configurationLock) {
+            this.configuration = null;
+
+            this.pullProcessByMpcCache.clear();
+            this.pullProcessesByInitiatorCache.clear();
+
+            this.init(); //reloads the config
+        }
     }
 
     @Override
@@ -515,9 +523,6 @@ public class CachingPModeProvider extends PModeProvider {
     @Transactional(propagation = Propagation.REQUIRED)
     public List<String> updatePModes(final byte[] bytes, String description) throws XmlProcessingException {
         List<String> messages = super.updatePModes(bytes, description);
-        this.configuration = null;
-        this.pullProcessByMpcCache.clear();
-        this.pullProcessesByInitiatorCache.clear();
         return messages;
     }
 

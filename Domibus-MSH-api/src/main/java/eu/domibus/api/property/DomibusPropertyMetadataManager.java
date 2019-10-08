@@ -18,12 +18,12 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.super.user.login_failure.";
     String DOMIBUS_ALERT_SENDER_SMTP_PREFIX = "domibus.alert.sender.smtp.";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX = "domibus.alert.msg.communication_failure.";
-    String DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX = "domibus.alert.password.expired";
-    String DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.password.imminent_expiration";
+    String DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX = "domibus.alert.password.expired"; //NOSONAR
+    String DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.password.imminent_expiration"; //NOSONAR
     String DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.plugin.user.account_disabled.";
     String DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.plugin.user.login_failure.";
-    String DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX = "domibus.alert.plugin_password.expired";
-    String DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.plugin_password.imminent_expiration";
+    String DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX = "domibus.alert.plugin_password.expired"; //NOSONAR
+    String DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.plugin_password.imminent_expiration"; //NOSONAR
     String DOMIBUS_SECURITY_KEYSTORE_PREFIX = "domibus.security.keystore.";
     String DOMIBUS_SECURITY_TRUSTSTORE_PREFIX = "domibus.security.truststore.";
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";
@@ -132,6 +132,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
     String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
+    String DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT = "domibus.alert.mail.smtp.timeout";
     String DOMIBUS_ALERT_SENDER_SMTP_URL = DOMIBUS_ALERT_SENDER_SMTP_PREFIX + "url";
     String DOMIBUS_ALERT_SENDER_SMTP_PORT = DOMIBUS_ALERT_SENDER_SMTP_PREFIX + "port";
     String DOMIBUS_ALERT_SENDER_SMTP_USER = DOMIBUS_ALERT_SENDER_SMTP_PREFIX + "user";
@@ -214,6 +215,13 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
     String DOMIBUS_PULL_QUEUE_CONCURENCY = "domibus.pull.queue.concurency";
 
+    String DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER = "domibus.extension.iam.authentication.identifier";
+    String DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER = "domibus.extension.iam.authorization.identifier";
+    String DOMIBUS_EXCEPTIONS_REST_ENABLE = "domibus.exceptions.rest.enable";
+
+    String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
+    String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
+    String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
 
     /**
      * Get all the properties metadata that support changing at runtime
