@@ -39,7 +39,7 @@ public class CryptoChangeListener implements DomibusPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        cryptoService.refresh();
+        cryptoService.reset();
 
         gatewayConfigurationValidator.validateConfiguration();
     }

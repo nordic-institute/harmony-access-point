@@ -215,6 +215,13 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
     String DOMIBUS_PULL_QUEUE_CONCURENCY = "domibus.pull.queue.concurency";
 
+    String DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER = "domibus.extension.iam.authentication.identifier";
+    String DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER = "domibus.extension.iam.authorization.identifier";
+    String DOMIBUS_EXCEPTIONS_REST_ENABLE = "domibus.exceptions.rest.enable";
+
+    String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
+    String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
+    String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
 
     /**
      * Get all the properties metadata that support changing at runtime
