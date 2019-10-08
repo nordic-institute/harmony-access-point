@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,8 +89,8 @@ public class CRLServiceImplTest {
         assertTrue(certificateRevoked);
     }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testIsCertificateRevokedWithNotSupportedCRLURLs(@Injectable final X509Certificate certificate) throws Exception {
+    @Test
+    public void testIsCertificateRevokedWithNotSupportedCRLURLs(@Injectable final X509Certificate certificate) {
         final String crlUrl1 = "ldap2://domain1.crl";
         final String crlUrl2 = "ldap2://domain2.crl";
         final List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
@@ -102,8 +103,8 @@ public class CRLServiceImplTest {
         assertFalse(certificateRevoked);
     }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testIsCertificateRevokedWithAllProtocolsExcluded(@Injectable final X509Certificate certificate) throws Exception {
+    @Test
+    public void testIsCertificateRevokedWithAllProtocolsExcluded(@Injectable final X509Certificate certificate) {
         final String crlUrl1 = "ftp://domain1.crl"; // excluded
         final String crlUrl2 = "ldap2://domain2.crl"; // unknown
         final List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
@@ -111,11 +112,27 @@ public class CRLServiceImplTest {
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
             returns(crlUrlList);
-
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
             returns("ftp,http");
         }};
         crlService.isCertificateRevoked(certificate);
+    }
+
+    @Test
+    public void testIsCertificateRevokedWithEmptySupportedCrlDistributionPoints(@Injectable final X509Certificate certificate) {
+        new Expectations(crlService) {{
+            final String crlUrl1 = "http://domain1.crl"; // excluded
+            final String crlUrl2 = "ldap://domain2.crl"; // excluded
+            final List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
+            crlUtil.getCrlDistributionPoints(certificate);
+            result = crlUrlList;
+            crlService.getSupportedCrlDistributionPoints(crlUrlList);
+            result = new ArrayList<>();
+        }};
+        //when
+        boolean result = crlService.isCertificateRevoked(certificate);
+        //then
+        Assert.assertFalse("No supported CRL distribution point found for certificate ", result);
     }
 
     @Test(expected = DomibusCRLException.class)
