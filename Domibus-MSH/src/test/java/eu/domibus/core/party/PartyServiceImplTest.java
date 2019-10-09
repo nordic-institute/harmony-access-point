@@ -292,7 +292,7 @@ public class PartyServiceImplTest {
         List<String> parties = new ArrayList<>();
         parties.add("test");
         new Expectations() {{
-           pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+           pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
            result = parties;
         }};
 

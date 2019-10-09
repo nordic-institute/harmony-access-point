@@ -152,7 +152,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
     }
 
-    @Transactional(noRollbackFor = DomibusCertificateException.class)
     protected Boolean checkCertificateValidity(List<? extends Certificate> certificateChain, String sender, boolean isPullMessage) {
         if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING)) {
             LOG.debug("Validating sender certificate chain on receiving [{}]", certificateChain);
