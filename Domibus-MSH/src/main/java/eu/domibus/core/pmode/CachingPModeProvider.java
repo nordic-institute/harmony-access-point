@@ -565,6 +565,7 @@ public class CachingPModeProvider extends PModeProvider {
         List<Process> processes = filterProcessesByMep(meps);
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
+                LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
                 result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
             }
         }
@@ -590,6 +591,7 @@ public class CachingPModeProvider extends PModeProvider {
 
         for (MessageExchangePattern mep : meps) {
             if (mep.getUri().equals(process.getMepBinding().getValue())) {
+                LOG.trace("Found match for mep [{}]", mep.getUri());
                 return true;
             }
         }
@@ -609,6 +611,7 @@ public class CachingPModeProvider extends PModeProvider {
     private void handleProcessParties(Process process, List result) {
         for (Party party : process.getResponderParties()) {
             for (Identifier identifier : party.getIdentifiers()) {
+                LOG.trace("Add matching party [{}] from process [{}]", identifier.getPartyId(), process.getName());
                 result.add(identifier.getPartyId());
             }
         }
