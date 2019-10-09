@@ -258,7 +258,6 @@ public class DssConfiguration {
             customTlsTrustStore=null;
         }
         try {
-
             KeyStore cacertTrustStore = loadCacertTrustStore();
             if (cacertTrustStore == null) {
                 LOG.warn("Cacert truststore skipped for DSS TLS");
@@ -283,14 +282,14 @@ public class DssConfiguration {
         }
     }
 
-    private KeyStore loadCacertTrustStore() {
+    protected KeyStore loadCacertTrustStore() {
         //from custom defined location.
         if (!StringUtils.isEmpty(cacertPath)) {
             LOG.debug("Loading cacert of type:[{}] from custom location:[{}]",cacertType, cacertPath);
             return loadKeystore(cacertPath, cacertType, cacertPassword);
         }
 
-        String javaHome = System.getProperty("java.home");
+        String javaHome = getJavaHome();
         if (StringUtils.isEmpty(javaHome)) {
             LOG.warn("Java home environmnent variable not defined, skipping cacert for DSS TLS");
             return null;
@@ -301,7 +300,11 @@ public class DssConfiguration {
         return loadKeystore(filename, cacertType, cacertPassword);
     }
 
-    private KeyStore loadKeystore(String filename, String type, String password) {
+    protected String getJavaHome() {
+        return System.getProperty("java.home");
+    }
+
+    protected KeyStore loadKeystore(String filename, String type, String password) {
         KeyStore cacertTrustStore;
         try (FileInputStream is = new FileInputStream(filename)) {
             cacertTrustStore = KeyStore.getInstance(type);

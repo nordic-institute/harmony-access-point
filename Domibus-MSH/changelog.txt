@@ -1,9 +1,14 @@
 Domibus 4.1.2
+- Merge cacerts and custom truststore for DSS extension data loader.
 - Added the possibility to download PMode file using REST services
-- Removed the Domibus payload from being printed to logs if org.apache.cxf is set to INFO in logging.xml - domibus.logging.payload.print property (default to false)
+- Removed the Domibus payload from being printed to logs if org.apache.cxf is set to INFO in logback.xml - domibus.logging.payload.print property (default to false)
 - JMS Plugin queues are available to remote clients for Wildfly 12
-- Added Domibus property domibus.logging.cxf.limit to establish the size limit at which messages are truncated in the logs when org.apache.cxf is set to
+- Added Domibus property domibus.logging.cxf.limit to establish the size limit at which messages are truncated in the logs when org.apache.cxf is set to INFO in logback.xml
+- Changed the local endpoint transport configuration to allow requests to remote endpoints on http transport (requested by plugin developers)
+- Fix rollback issue in case of CRL download exception.
 at least INFO in logback.xml
+- Removed the XSSI characters from the beginning of the JSON response of the External REST API calls.
+- Remove parties in Pull processes from TestService UI (Test Service for Pull is not supported in the UI)
 Domibus 4.1.1
 - Alerts for password imminent expiration and expiration are not sent
 - Domibus does not work with Proxy
