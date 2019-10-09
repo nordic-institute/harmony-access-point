@@ -89,7 +89,6 @@ public class CRLServiceImpl implements CRLService {
         return result;
     }
 
-    @Transactional(noRollbackFor = DomibusCRLException.class)
     protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
         LOG.debug("Downloaded CRL is [[]]", crl.getIssuerDN().getName());
@@ -109,7 +108,6 @@ public class CRLServiceImpl implements CRLService {
      * @return true if the pki is revoked
      * @throws DomibusCRLException if an error occurs while downloading the certificate revocation list
      */
-    @Transactional(noRollbackFor = DomibusCRLException.class)
     boolean isCertificateRevoked(String serialString, String crlDistributionPointURL) throws DomibusCRLException {
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
 

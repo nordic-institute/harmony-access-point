@@ -72,7 +72,6 @@ public class CRLUtil {
     /**
      * Downloads CRL from the given URL. Supports loading the crl using http, https, ftp based, classpath
      */
-    @Transactional(noRollbackFor = DomibusCRLException.class)
     protected X509CRL downloadCRLFromWebOrClasspath(String crlURL) throws DomibusCRLException {
         LOG.debug("Downloading CRL from url [{}]", crlURL);
 
@@ -104,7 +103,6 @@ public class CRLUtil {
      * @return {@link X509CRL} the certificate
      * @throws DomibusCRLException runtime exception in case of error
      */
-    @Transactional(noRollbackFor = DomibusCRLException.class)
     X509CRL downloadCRLfromLDAP(String ldapURL) throws DomibusCRLException {
         LOG.debug("Downloading CRL from LDAP url [{}]", ldapURL);
 
