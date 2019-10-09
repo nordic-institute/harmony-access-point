@@ -1,0 +1,154 @@
+package domibus.ui.functional;
+
+import ddsl.dcomponents.DomibusPage;
+import ddsl.enums.DMessages;
+import ddsl.enums.DRoles;
+import ddsl.enums.PAGES;
+import domibus.BaseTest;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+import pages.ChangePassword.ChangePasswordPage;
+import pages.errorLog.ErrorLogPage;
+import pages.login.LoginPage;
+import pages.messages.MessagesPage;
+import utils.Generator;
+
+
+/**
+ * @author Rupam
+ * @version 4.1
+ */
+
+public class ChangePasswordPgTest extends BaseTest {
+
+	/**
+	 * This method shows the implemented error on update when user enters wrong current password but valid new password
+	 */
+	@Test(description = "CP-5", groups = {"multiTenancy", "singleTenancy"})
+	public void wrongCurrentPassword() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		LoginPage loginPage = new LoginPage(driver);
+		log.info("Validate login page is loaded successfully");
+		soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
+		log.info("Login into application with Admin credentials");
+		loginPage.login(data.getAdminUser());
+		loginPage.waitForTitle();
+		DomibusPage page = new DomibusPage(driver);
+		page.clickVoidSpace();
+		log.info("Open changePassword Page by clicking link");
+		page.getSandwichMenu().openchangePassword();
+		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+		log.info("Fill wrong data for current field and correct data for new password and confirmation");
+		cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getDefaultTestPass());
+		log.info("Click on update button");
+		cpage.getUpdateButton().click();
+		log.info("Error message shown:" + page.getAlertArea().getAlertMessage());
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.CHANGEPASSWORD_WRONG_CURRENT_PASSWORD, "Displayed message is correct");
+		soft.assertAll();
+	}
+
+	/**
+	 * This method will change password and allow to login successfully with new credentials
+	 */
+	@Test(description = "CP-9", groups = {"multiTenancy", "singleTenancy"})
+	public void changePassword() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("Generate random username");
+		String username = Generator.randomAlphaNumeric(10);
+
+		log.info("Create user with rest call");
+		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
+		LoginPage loginPage = new LoginPage(driver);
+
+		log.info("Validate login page");
+		soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
+
+		log.info("login into application with created user credentials");
+		loginPage.login(username, data.getDefaultTestPass());
+		DomibusPage page = new DomibusPage(driver);
+
+		log.info("Validate chnage password link presence");
+		soft.assertTrue(page.getSandwichMenu().isChangePassLnkPresent(), "Change Password link is available");
+
+		log.info("Open Change password page ");
+		page.getSandwichMenu().openchangePassword();
+		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+
+		log.info("Fill correct data in current password , Valid and same data in new password and confirmation field");
+		cpage.setPassFields(data.getDefaultTestPass(), data.getNewTestPass(), data.getNewTestPass());
+
+		log.info("Click on update button");
+		cpage.getUpdateButton().click();
+
+		log.info("wait for Message page title");
+		page.waitForTitle();
+
+		log.info("logout from application");
+		logout();
+
+		log.info("login with generated username and updated password ");
+		loginPage.login(username, data.getNewTestPass());
+		loginPage.waitForTitle();
+
+		log.info("Validate user logged in into application");
+		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
+		soft.assertAll();
+	}
+
+	/**
+	 * This method will throw error in new password is among previous 5 passwords.
+	 */
+	@Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"})
+	public void newPasswordAmongLast5() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("Generate random username");
+		String username = Generator.randomAlphaNumeric(10);
+
+		log.info("Create user with above created username and default password through rest call");
+		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
+		LoginPage loginPage = new LoginPage(driver);
+
+		log.info("Validate login page");
+		soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
+
+		log.info("login into application with cretaed user credentials");
+		loginPage.login(username, data.getDefaultTestPass());
+
+		DomibusPage page = new DomibusPage(driver);
+		log.info("Open change password page");
+		page.getSandwichMenu().openchangePassword();
+		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+
+		log.info("Fill correct and valid data in all fields");
+		cpage.setPassFields(data.getDefaultTestPass(), data.getNewTestPass(), data.getNewTestPass());
+
+		log.info("click on update button");
+		cpage.getUpdateButton().click();
+
+		log.info("Wait for Message page title");
+		page.waitForTitle();
+
+		log.info("logout from application");
+		logout();
+
+		log.info("Login with username and updated password");
+		loginPage.login(username, data.getNewTestPass());
+		loginPage.waitForTitle();
+		page.clickVoidSpace();
+
+		log.info("Open Change password page");
+		page.getSandwichMenu().openchangePassword();
+
+		log.info("Fill correct data in current password , same in new password and confirmation field");
+		cpage.setPassFields(data.getNewTestPass(), data.getNewTestPass(), data.getNewTestPass());
+
+		log.info("Click on update button");
+		cpage.getUpdateButton().click();
+
+		log.info("Error message shown:" + page.getAlertArea().getAlertMessage());
+		soft.assertTrue(!page.getAlertArea().getAlertMessage().isEmpty(), "Message is not displayed");
+		soft.assertAll();
+	}
+}

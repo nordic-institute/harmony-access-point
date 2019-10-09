@@ -1,4 +1,4 @@
-package domibus.ui;
+package domibus.ui.toref;
 
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;

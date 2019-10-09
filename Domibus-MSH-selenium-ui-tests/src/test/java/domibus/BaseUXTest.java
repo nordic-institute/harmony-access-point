@@ -39,7 +39,7 @@ public class BaseUXTest extends BaseTest {
 	}
 
 
-	/**After UX test pageis refreshed and logout is attempted*/
+	/**After UX test page is refreshed and logout is attempted*/
 	@AfterTest(alwaysRun = true)
 	protected void logout() throws Exception{
 		DomibusPage page = new DomibusPage(driver);
@@ -107,7 +107,7 @@ public class BaseUXTest extends BaseTest {
 					DObject object = new DObject(filtersArea.getDriver(), element);
 
 					soft.assertEquals(object.isPresent(), currentNode.getBoolean("isDefault"),
-							String.format("Filter %s isPresent = %s as expected", field.getName(), currentNode.getBoolean("isDefault")));
+							String.format("Filter %s isChangePassLnkPresent = %s as expected", field.getName(), currentNode.getBoolean("isDefault")));
 					if (currentNode.getBoolean("isDefault")) {
 						log.info(object.getAttribute("placeholder"));
 						soft.assertEquals(object.getAttribute("placeholder"), currentNode.getString("placeholder"), "Placeholder text is correct - " + currentNode.getString("placeholder"));
@@ -140,7 +140,7 @@ public class BaseUXTest extends BaseTest {
 					DObject object = new DObject(filtersArea.getDriver(), element);
 
 					soft.assertEquals(object.isPresent(), true,
-							String.format("Filter %s isPresent as expected", field.getName()));
+							String.format("Filter %s isChangePassLnkPresent as expected", field.getName()));
 
 					log.info(object.getAttribute("placeholder"));
 					soft.assertEquals(object.getAttribute("placeholder"), currentNode.getString("placeholder"), "Placeholder text is correct - " + currentNode.getString("placeholder"));

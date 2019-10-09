@@ -6,7 +6,6 @@ import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -16,14 +15,15 @@ import utils.Generator;
 
 
 public class ChangePasswordPage extends DomibusPage {
+
     public ChangePasswordPage(WebDriver driver) {
         super(driver);
         log.debug("Change Password  page init");
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
     }
-    public static final String NewPassword_Field_label ="New Password";
-    public static final String CurrentPassword_Field_label="Current Password";
-    public static final String Confirmation_Field_label="Confirmation";
+    public  final String newPasswordFieldLabel ="New Password";
+    public  final String currentPasswordFieldLabel ="Current Password";
+    public  final String confirmationFieldLabel ="Confirmation";
 
 
     @FindBy(xpath = "//p[contains(text(),'Change Password')]")
@@ -77,7 +77,6 @@ public class ChangePasswordPage extends DomibusPage {
     /**
      * This method is written to check whether Change Password page has proper element present.
      */
-
     public boolean isLoaded() {
 
         log.debug("check if is loaded");
@@ -121,7 +120,7 @@ public class ChangePasswordPage extends DomibusPage {
 
     //Method is used to generate random password data
     public String generateInvalidPass() {
-        String randomPassword = Generator.randomAlphaNumeric(10);
+        String randomPassword = Generator.randomAlphaNumeric(7);
         return randomPassword;
     }
 
@@ -133,13 +132,13 @@ public class ChangePasswordPage extends DomibusPage {
      */
 
     public String getCssOfValidationMsg(String fieldName) {
-        if (fieldName.equals(NewPassword_Field_label)) {
+        if (fieldName.equals(newPasswordFieldLabel)) {
             String fieldLabel = fieldName;
             String[] labels = fieldLabel.split(" ");
             String FieldName1 = labels[0].toLowerCase().concat(labels[1]);
             return "input[id='" + FieldName1 + "_id']~div>div";
         }
-        else if (fieldName.equals(Confirmation_Field_label)) {
+        else if (fieldName.equals(confirmationFieldLabel)) {
             String str = fieldName.toLowerCase();
             return "input[id='" + str + "_id']~div>div";
         }
@@ -153,7 +152,7 @@ public class ChangePasswordPage extends DomibusPage {
     *@param FieldName :- Name of Input Field
     * @return :-Boolean result for Presence of Validation message under input field
      */
-    public Boolean getValidationMsg(String fieldName) throws Exception {
+    public Boolean isValidationMsgPresent(String fieldName) throws Exception {
         WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
         wait.forElementToBeVisible(elm);
         if (!elm.isDisplayed()) {
@@ -162,6 +161,23 @@ public class ChangePasswordPage extends DomibusPage {
         } else {
             log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
             return true;
+        }
+    }
+
+    /*
+    This method returns message under provided FieldLabel
+    *@param FieldName :- Name of Input Field
+    * @return : the string under the input
+     */
+    public String getValidationMsg(String fieldName) throws Exception {
+        WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
+        wait.forElementToBeVisible(elm);
+        if (!elm.isDisplayed()) {
+            log.info("message is not displayed");
+            return "";
+        } else {
+            log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
+            return weToDobject(elm).getText();
         }
     }
 

@@ -2,6 +2,9 @@ package ddsl.dobjects;
 
 import org.openqa.selenium.*;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
 
 /**
  * @author Catalin Comanici
@@ -71,11 +74,22 @@ public class DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
+
 	/*
 	 * This Method is used to press Tab key
 	 */
-	public void pressTABKey(WebElement element) throws Exception {
-		element.sendKeys(Keys.TAB);
-		element.sendKeys(Keys.ENTER);
+	public void pressTABKey() throws Exception {
+		try {
+			Robot robot = new Robot();
+//			Simulate a key press
+			robot.keyPress(KeyEvent.VK_SHIFT);
+			robot.keyPress(KeyEvent.VK_TAB);
+			robot.keyRelease(KeyEvent.VK_TAB);
+			robot.keyRelease(KeyEvent.VK_SHIFT);
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
+
+
 	}
 }

@@ -99,8 +99,6 @@ public class LoginPage extends DomibusPage {
 
 	public void login(HashMap<String, String> user) throws Exception {
 
-//		wait.longWaitforElementToBe(loginBtn);
-
 		log.debug("Login started");
 		new DInput(driver, username).fill(user.get("username"));
 		new DInput(driver, password).fill(user.get("pass"));
