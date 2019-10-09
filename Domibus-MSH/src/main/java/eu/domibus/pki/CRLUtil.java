@@ -11,7 +11,6 @@ import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +58,6 @@ public class CRLUtil {
      * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    @Cacheable(value = "crlByCert", key = "#crlURL")
     @Transactional(noRollbackFor = DomibusCRLException.class)
     public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {

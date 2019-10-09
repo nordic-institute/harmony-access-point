@@ -125,6 +125,12 @@ public class CRLUtilTest {
         System.out.println(x509CRL);
     }
 
+//    public void test_isCertificateRevokedFromLDAP() throws Exception {
+//        final String ldapURL = "ldap://ldap.sbca.telesec.de/CN=Shared%20Business%20CA%204,OU=T-Systems%20Trust%20Center,O=T-Systems%20International%20GmbH,C=DE?CertificateRevocationList";
+//
+//        crlUtil.ce
+//    }
+
     @Test(expected = DomibusCRLException.class)
     public void testDownloadCRLFromLDAP_WrongUrl() throws Exception {
         //ldap url contains spaces and it will fail

@@ -18,4 +18,6 @@ public interface CRLService {
      */
     boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException;
 
+
+    boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL);
 }
