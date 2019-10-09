@@ -15,6 +15,7 @@ import java.util.List;
 
 public class AlertPgFunctionalTest extends BaseTest {
 
+    //This method will do Search using Basic filters
 
     @Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})
     public void SearchBasicFilters() throws Exception {
@@ -45,6 +46,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     }
 
+    //This method will do search operation using advance filters
     @Test(description = "ALRT-6", groups = {"multiTenancy", "singleTenancy"})
     public void SearchAdvanceFilters() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -74,6 +76,7 @@ public class AlertPgFunctionalTest extends BaseTest {
         soft.assertAll();
     }
 
+    //This method will validate empty search result
     @Test(description = "ALRT-7", groups = {"multiTenancy", "singleTenancy"})
     public void EmptySearchResult() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -88,7 +91,7 @@ public class AlertPgFunctionalTest extends BaseTest {
         soft.assertTrue(Apage.grid().getPagination().getTotalItems() == 0, "No search result exist");
         soft.assertAll();
     }
-
+//This method will validate presence of all records after deletion of all search criterias
     @Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
     public void DeleteSearchCriteria() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -98,8 +101,7 @@ public class AlertPgFunctionalTest extends BaseTest {
         AlertPage Apage = new AlertPage(driver);
         log.info("Search using basic filter");
         int prevCount=Apage.grid().getPagination().getTotalItems();
-        System.out.println(prevCount);
-
+        log.info("Previous count of grid rows:" + prevCount);
         Apage.getFilters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
         log.info("Validate Grid row count as zero ");
         soft.assertTrue(Apage.grid().getPagination().getTotalItems() == 0, "No search result exist");
@@ -108,11 +110,11 @@ public class AlertPgFunctionalTest extends BaseTest {
         log.info("Wait for grid row to load ");
         Apage.grid().waitForRowsToLoad();
         log.info("Validate actual grid row count ");
-        System.out.println(Apage.grid().getPagination().getTotalItems());
+        log.info("Current grid row count:" + Apage.grid().getPagination().getTotalItems());
         soft.assertTrue(Apage.grid().getPagination().getTotalItems() ==prevCount, "All search result exist");
         soft.assertAll();
     }
-
+//This method will validate presence of show domain alert check box in case of super admin only
     @Test(description = "ALRT-11", groups = {"multiTenancy"})
     public void ShowDomainAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
