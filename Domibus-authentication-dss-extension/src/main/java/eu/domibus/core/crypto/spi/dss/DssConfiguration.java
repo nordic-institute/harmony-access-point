@@ -258,7 +258,6 @@ public class DssConfiguration {
             customTlsTrustStore=null;
         }
         try {
-
             KeyStore cacertTrustStore = loadCacertTrustStore();
             if (cacertTrustStore == null) {
                 LOG.warn("Cacert truststore skipped for DSS TLS");
