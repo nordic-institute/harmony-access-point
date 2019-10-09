@@ -251,7 +251,6 @@ public class DssConfiguration {
         }
 
         try(FileInputStream fileInputStream = new FileInputStream(dssTlsTrustStorePath)) {
-            System.out.println("cu"+customTlsTrustStore);
             customTlsTrustStore.load(fileInputStream, dssTlsTrustStorePassword.toCharArray());
         } catch (IOException|NoSuchAlgorithmException|CertificateException e) {
             LOG.info("DSS TLS truststore file:[{}] could not be loaded",dssTlsTrustStorePath);
