@@ -67,5 +67,5 @@ public interface DomainCryptoService {
 
     String getTrustStoreType();
 
-    void refresh();
+    void reset();
 }

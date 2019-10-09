@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.security.cert.X509CRL;
@@ -36,6 +37,7 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
+    @Transactional(noRollbackFor = DomibusCRLException.class)
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
@@ -47,7 +49,8 @@ public class CRLServiceImpl implements CRLService {
 
         List<String> supportedCrlDistributionPoints = getSupportedCrlDistributionPoints(crlDistributionPoints);
         if (supportedCrlDistributionPoints.isEmpty()) {
-            throw new DomibusCRLException("No supported CRL distribution point found for certificate " + getSubjectDN(cert));
+            LOG.debug("No supported CRL distribution point found for certificate " + getSubjectDN(cert));
+            return false;
         }
 
         for (String crlDistributionPointUrl : supportedCrlDistributionPoints) {
@@ -100,7 +103,8 @@ public class CRLServiceImpl implements CRLService {
     /**
      * Checks the pki revocation status against the provided distribution point.
      * Supports HTTP, HTTPS, FTP, File based URLs.
-     * @param serialString the pki serial number
+     *
+     * @param serialString            the pki serial number
      * @param crlDistributionPointURL the certificate revocation list url
      * @return true if the pki is revoked
      * @throws DomibusCRLException if an error occurs while downloading the certificate revocation list

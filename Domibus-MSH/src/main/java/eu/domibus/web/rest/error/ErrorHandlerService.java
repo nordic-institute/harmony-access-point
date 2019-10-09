@@ -17,6 +17,8 @@ import org.springframework.validation.ObjectError;
 import javax.validation.ValidationException;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXCEPTIONS_REST_ENABLE;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -53,7 +55,7 @@ public class ErrorHandlerService {
 
         boolean enabled = true;
         try {
-            enabled = domibusPropertyProvider.getBooleanProperty("domibus.exceptions.rest.enable");
+            enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE);
         } catch (Exception e) {
             LOG.warn("Error reading domibus.exceptions.rest.enable as boolean: [{}]", e.getMessage());
         }

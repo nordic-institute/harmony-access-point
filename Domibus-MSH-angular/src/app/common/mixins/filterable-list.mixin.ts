@@ -6,8 +6,9 @@
  */
 import {Constructable} from '../base-list.component';
 import {OnInit} from '@angular/core';
+import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
 
-let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit{
+let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit {
   public filter: any;
   public activeFilter: any;
 
@@ -41,6 +42,36 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     Object.assign(this.filter, this.activeFilter);
   }
 
+  /**
+   * The method is supposed to be overridden in derived classes to implement actual search
+   */
+  protected search() {
+  }
+
+  /**
+   * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
+   */
+  async trySearch(): Promise<boolean> {
+    const ok = await this.checkIfNotDirty();
+    if (ok) {
+      this.setActiveFilter();
+      this.search();
+    }
+    return ok;
+  }
+
+  async checkIfNotDirty(): Promise<boolean> {
+    if (!this.supportsDirtyOperations() || !this.isDirty()) {
+      return Promise.resolve(true);
+    }
+
+    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
+    return Promise.resolve(ok);
+  }
+
+  private supportsDirtyOperations() {
+    return this.isDirty && this.isDirty instanceof Function;
+  }
 };
 
 export default FilterableListMixin;

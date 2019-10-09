@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
@@ -80,7 +82,7 @@ public class TemporaryPayloadServiceImplTest {
         String excludeRegex = "regexExpression";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(TemporaryPayloadServiceImpl.DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
+            domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
             result = excludeRegex;
 
             Pattern.compile(excludeRegex);
@@ -105,7 +107,7 @@ public class TemporaryPayloadServiceImplTest {
         long currentTimeMillis = 6 * 60 * 1000;
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(TemporaryPayloadServiceImpl.DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
             result = expirationThresholdInMinutes;
 
             System.currentTimeMillis();
@@ -125,7 +127,7 @@ public class TemporaryPayloadServiceImplTest {
         String directories = "dir1,dir2";
 
         new Expectations(temporaryPayloadService) {{
-            domibusPropertyProvider.getProperty(TemporaryPayloadServiceImpl.DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
+            domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
             result = directories;
 
             temporaryPayloadService.getDirectory("dir1");

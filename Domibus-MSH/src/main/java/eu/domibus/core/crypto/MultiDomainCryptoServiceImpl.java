@@ -198,7 +198,21 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void refresh() {
-        domainCertificateProviderMap.values().stream().forEach(service -> service.refresh());
+    public void reset() {
+        domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
+    }
+
+    @Override
+    public void reset(Domain domain) {
+        if (domain == null) {
+            throw new InvalidParameterException("Domain is null.");
+        }
+
+        final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
+        if (domainCertificateProvider == null) {
+            throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
+        }
+
+        domainCertificateProvider.reset();
     }
 }

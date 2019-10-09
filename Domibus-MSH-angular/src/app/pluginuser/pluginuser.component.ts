@@ -98,22 +98,13 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   changeAuthType(x) {
     this.clearSearchParams();
 
-    this.searchIfOK();
+    super.trySearch();
   }
 
   clearSearchParams() {
     this.filter.authRole = null;
     this.filter.originalUser = null;
     this.filter.userName = null;
-  }
-
-  async searchIfOK(): Promise<boolean> {
-    const ok = await this.checkIsDirty();
-    if (ok) {
-      super.setActiveFilter();
-      this.search();
-    }
-    return ok;
   }
 
   async search() {
@@ -259,15 +250,6 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     this.selected.length = 0;
   }
 
-  async checkIsDirty(): Promise<boolean> {
-    if (!this.isDirty()) {
-      return Promise.resolve(true);
-    }
-
-    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
-    return Promise.resolve(ok);
-  }
-
   refresh() {
     // ugly but the grid does not feel the paging changes otherwise
     this.loading = true;
@@ -288,7 +270,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
    * Saves the content of the datatable into a CSV file
    */
   async saveAsCSV() {
-    const ok = await this.checkIsDirty();
+    const ok = await super.checkIfNotDirty();
     if (ok) {
       if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
         this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);

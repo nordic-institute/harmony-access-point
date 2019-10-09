@@ -17,6 +17,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -91,7 +92,20 @@ public class PartyServiceImpl implements PartyService {
      */
     @Override
     public List<String> findPartyNamesByServiceAndAction(String service, String action) {
-        return pModeProvider.findPartyIdByServiceAndAction(service, action);
+        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
+        List<MessageExchangePattern> meps = new ArrayList<>();
+        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
+        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+        return pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
     }
 
     /**
@@ -466,7 +480,7 @@ public class PartyServiceImpl implements PartyService {
     protected void updatePartyCertificate(Map<String, String> partyToCertificateMap, ReplacementResult replacementResult) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         List<String> aliases = getRemovedParties(replacementResult);
-        if(CollectionUtils.isNotEmpty(aliases)) {
+        if (CollectionUtils.isNotEmpty(aliases)) {
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
         }
         List<CertificateEntry> certificates = new ArrayList<>();
@@ -485,9 +499,9 @@ public class PartyServiceImpl implements PartyService {
                 throw new IllegalStateException(e);
             }
         }
-       if(CollectionUtils.isNotEmpty(certificates)) {
-           multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
-       }
+        if (CollectionUtils.isNotEmpty(certificates)) {
+            multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
+        }
     }
 
     protected List<String> getRemovedParties(ReplacementResult replacementResult) {

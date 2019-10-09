@@ -9,7 +9,6 @@ import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
 import eu.domibus.core.security.PluginUserPasswordHistoryDao;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -80,8 +79,8 @@ public class PluginUserSecurityPolicyManagerTest {
 
     @Test
     public void testGetWarningDaysBeforeExpiration() {
-        String result = userSecurityPolicyManager.getWarningDaysBeforeExpiration();
-        Assert.assertEquals(PluginUserSecurityPolicyManager.WARNING_DAYS_BEFORE_EXPIRATION, result);
+        String result = userSecurityPolicyManager.getWarningDaysBeforeExpirationProperty();
+        Assert.assertEquals(null, result);
     }
 
     @Test

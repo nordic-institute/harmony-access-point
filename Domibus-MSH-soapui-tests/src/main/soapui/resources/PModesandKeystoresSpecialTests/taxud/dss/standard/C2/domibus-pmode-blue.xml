@@ -47,7 +47,7 @@
             </payloadProfile>
         </payloadProfiles>
         <securities>
-            <security name="eDeliveryAS4Policy_BST_PKIP" policy="eDeliveryAS4Policy_BST_PKIP.xml"
+            <security name="eDeliveryAS4Policy_BST_PKIP" policy="eDeliveryAS4Policy_BST_PKIP_signOnly.xml"
                       signatureMethod="RSA_SHA256"/>
         </securities>
         <errorHandlings>
@@ -115,7 +115,6 @@
             </responderParties>
             <legs>
                 <leg name="pull_c2t_IE3R01"/>
-                <leg name="pull_c2t_IE3R07"/>
             </legs>
         </process>
         <process name="pushC2TProcess" agreement="agreementV1.0" mep="oneway" binding="push" initiatorRole="customsRole"
