@@ -94,7 +94,6 @@ public class CRLServiceImplIT {
         //first call
         boolean result = crlService.isCertificateRevoked(certificate, crlURLStr);
 
-
         //second call
         result = crlService.isCertificateRevoked(certificate, crlURLStr);
 

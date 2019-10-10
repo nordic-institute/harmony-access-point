@@ -92,7 +92,7 @@ public class CRLServiceImpl implements CRLService {
 
     @Override
     @Transactional(noRollbackFor = DomibusCRLException.class, propagation = Propagation.SUPPORTS)
-    @Cacheable(value = "crlByCert", key = "#cert.serialNumber")
+    @Cacheable(value = "crlByCert", key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
     public boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
         LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
