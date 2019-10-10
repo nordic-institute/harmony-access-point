@@ -38,6 +38,12 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
+    public void reset() {
+        blacklist = null;
+        whitelist = null;
+        init();
+    }
+
     public void init() {
         if (whitelist == null) {
             String propValue = domibusPropertyProvider.getProperty(WHITELIST_PROPERTY);
