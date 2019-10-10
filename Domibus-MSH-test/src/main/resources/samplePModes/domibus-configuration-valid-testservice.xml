@@ -87,7 +87,7 @@
             <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
             <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
             <binding name="pushAndPush"
-                     value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+                     value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
         </meps>
         <properties>
             <property name="originalSenderProperty"
@@ -329,6 +329,22 @@
             </responderParties>
             <legs>
                 <leg name="pushNoSecnoSecAction"/>
+            </legs>
+        </process>
+        <process name="testServicePull"
+                 agreement="agreement1111"
+                 mep="oneway"
+                 binding="pull"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="holodeck"/>
+            </responderParties>
+            <legs>
+                <leg name="legTestService"/>
             </legs>
         </process>
     </businessProcesses>

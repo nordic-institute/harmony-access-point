@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -40,18 +41,18 @@ public class TestServiceResource {
 
     @RequestMapping(value = "parties", method = RequestMethod.GET)
     public List<String> getTestParties() {
-        return partyService.findPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        return partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public String submitTest(@RequestBody @Valid TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
-        return testService.submitTest(testServiceRequestRO.getSender(),  testServiceRequestRO.getReceiver());
+        return testService.submitTest(testServiceRequestRO.getSender(), testServiceRequestRO.getReceiver());
     }
 
     @RequestMapping(value = "dynamicdiscovery", method = RequestMethod.POST)
     @ResponseBody
     public String submitTestDynamicDiscovery(@RequestBody @Valid TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
-        return testService.submitTestDynamicDiscovery(testServiceRequestRO.getSender(),  testServiceRequestRO.getReceiver(), testServiceRequestRO.getReceiverType());
+        return testService.submitTestDynamicDiscovery(testServiceRequestRO.getSender(), testServiceRequestRO.getReceiver(), testServiceRequestRO.getReceiverType());
     }
 }
