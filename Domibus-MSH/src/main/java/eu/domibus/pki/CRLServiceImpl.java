@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.cert.X509CRL;
@@ -90,11 +91,11 @@ public class CRLServiceImpl implements CRLService {
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCRLException.class)
+    @Transactional(noRollbackFor = DomibusCRLException.class, propagation = Propagation.SUPPORTS)
     @Cacheable(value = "crlByCert", key = "#cert.serialNumber")
     public boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
-        LOG.debug("Downloaded CRL is [[]]", crl.getIssuerDN().getName());
+        LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
         if (crl.isRevoked(cert)) {
             LOG.warn("The certificate is revoked by CRL: " + crlDistributionPointURL);
             return true;
