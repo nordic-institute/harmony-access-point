@@ -3,7 +3,6 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.DynamicDiscoveryService;
@@ -28,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyStore;
 import java.util.regex.Matcher;
@@ -72,6 +73,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     DomibusProxyService domibusProxyService;
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
+    @Transactional(noRollbackFor = IllegalStateException.class, propagation = Propagation.SUPPORTS)
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
                                           final String participantIdScheme,
@@ -146,7 +148,9 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             String value = extract(documentId, "value");
             return new DocumentIdentifier(value, scheme);
         } catch (IllegalStateException ise) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Could not extract @scheme and @value from " + documentId, null, ise);
+            LOG.debug("Could not extract @scheme and @value from [{}], DocumentIdentifier will be created with empty scheme", documentId);
+            ise.printStackTrace();
+            return new DocumentIdentifier(documentId);
         }
     }
 

@@ -205,7 +205,7 @@ public class PModeDaoTest {
         try {
             // When
             pModeDao.removePMode(1);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Assert.fail();
         }
 
@@ -219,8 +219,8 @@ public class PModeDaoTest {
         final List<PModeArchiveInfo> detailedConfigurationRawList = new ArrayList<>();
         detailedConfigurationRawList.add(new PModeArchiveInfo(1, new Date(), "username", "description"));
         new Expectations(configurationRawDAO) {{
-             configurationRawDAO.getDetailedConfigurationRaw();
-             result = detailedConfigurationRawList;
+            configurationRawDAO.getDetailedConfigurationRaw();
+            result = detailedConfigurationRawList;
         }};
 
         // When
@@ -261,7 +261,7 @@ public class PModeDaoTest {
         }};
 
         // When
-        List<String> partyIdByServiceAndAction = pModeDao.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> partyIdByServiceAndAction = pModeDao.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         // Then
         Assert.assertEquals(expectedResult, partyIdByServiceAndAction);
@@ -284,7 +284,7 @@ public class PModeDaoTest {
 
     @Test
     public void testGetAgreementRef() {
-        Assert.assertNull(pModeDao.getAgreementRef( ""));
+        Assert.assertNull(pModeDao.getAgreementRef(""));
     }
 
 }

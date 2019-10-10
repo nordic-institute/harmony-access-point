@@ -7,6 +7,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.AgreementRef;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -463,7 +464,7 @@ public class PModeDao extends PModeProvider {
 
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(final String service, final String action) {
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
         LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
 
         List<String> result = new ArrayList<>();
