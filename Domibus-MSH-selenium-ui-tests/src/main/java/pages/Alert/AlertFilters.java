@@ -4,6 +4,7 @@ import ddsl.dcomponents.FilterArea;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
 import ddsl.dobjects.Checkbox;
+import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -41,6 +42,26 @@ public class AlertFilters extends FilterArea {
     public WebElement alertIdInput;
     @FindBy(id="showDomainAlerts_id")
     public WebElement showDomainAlert;
+    //---------Extended Basic Filters------------------
+    @FindBy(id="MESSAGE_ID_id")
+    public WebElement msgIdInput;
+    @FindBy(id="OLD_STATUS_id")
+    public WebElement oldStatusInput;
+    @FindBy(id="NEW_STATUS_id")
+    public WebElement newStatusInput;
+    @FindBy(id="FROM_PARTY_id")
+    public WebElement fromPartyInput;
+    @FindBy(id="TO_PARTY_id")
+    public WebElement toPartyInput;
+    @FindBy(id="ROLE_id")
+    public WebElement roleInput;
+    @FindBy(id="DESCRIPTION_id")
+    public WebElement descriptionInput;
+
+    @FindBy(id="searchbutton_id")
+    public WebElement searchButton;
+    public DButton getSearchButton() { return new DButton(driver,searchButton);  }
+
     public Checkbox getShowDomainCheckbox() { return new Checkbox(driver,showDomainAlert); }
 
     public void basicFilterBy(String processedStatus, String alertType, String alertStatus, String alertLevel,String creationFromDate, String creationToDate) throws Exception {
@@ -76,9 +97,9 @@ public class AlertFilters extends FilterArea {
         log.debug("alertId = " + alertId);
         log.debug("alertLevel = " + alertLevel);
         log.debug("CreationFromDate = " + creationFromDate);
-        log.debug("CreationToDate = "+ creationToDate);
-        log.debug("ReportingFrom = "+ reportingFromDate);
-        log.debug("ReportingTo = "+ reportingToDate);
+        log.debug("CreationToDate = " + creationToDate);
+        log.debug("ReportingFrom = " + reportingFromDate);
+        log.debug("ReportingTo = " + reportingToDate);
 
 
         expandArea();
@@ -93,11 +114,6 @@ public class AlertFilters extends FilterArea {
 
         clickSearch();
     }
-
-
-
-
-
 
 
 }

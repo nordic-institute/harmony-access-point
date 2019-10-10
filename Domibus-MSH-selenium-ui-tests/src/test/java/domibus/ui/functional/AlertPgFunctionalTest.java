@@ -9,7 +9,10 @@ import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
 import pages.login.LoginPage;
+import pages.messages.MessageResendModal;
+import pages.messages.MessagesPage;
 import utils.Generator;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -91,7 +94,8 @@ public class AlertPgFunctionalTest extends BaseTest {
         soft.assertTrue(Apage.grid().getPagination().getTotalItems() == 0, "No search result exist");
         soft.assertAll();
     }
-//This method will validate presence of all records after deletion of all search criterias
+
+    //This method will validate presence of all records after deletion of all search criterias
     @Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
     public void DeleteSearchCriteria() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -99,8 +103,9 @@ public class AlertPgFunctionalTest extends BaseTest {
         log.info("Login into application and navigate to Alerts page");
         login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ALERTS);
         AlertPage Apage = new AlertPage(driver);
+        Apage.grid().waitForRowsToLoad();
         log.info("Search using basic filter");
-        int prevCount=Apage.grid().getPagination().getTotalItems();
+        int prevCount = Apage.grid().getPagination().getTotalItems();
         log.info("Previous count of grid rows:" + prevCount);
         Apage.getFilters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
         log.info("Validate Grid row count as zero ");
@@ -111,10 +116,11 @@ public class AlertPgFunctionalTest extends BaseTest {
         Apage.grid().waitForRowsToLoad();
         log.info("Validate actual grid row count ");
         log.info("Current grid row count:" + Apage.grid().getPagination().getTotalItems());
-        soft.assertTrue(Apage.grid().getPagination().getTotalItems() ==prevCount, "All search result exist");
+        soft.assertTrue(Apage.grid().getPagination().getTotalItems() == prevCount, "All search result exist");
         soft.assertAll();
     }
-//This method will validate presence of show domain alert check box in case of super admin only
+
+    //This method will validate presence of show domain alert check box in case of super admin only
     @Test(description = "ALRT-11", groups = {"multiTenancy"})
     public void ShowDomainAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -134,6 +140,86 @@ public class AlertPgFunctionalTest extends BaseTest {
         soft.assertAll();
     }
 
+
+    @Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"})
+    public void MsgStatusChangeAlert() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        DomibusPage page = new DomibusPage(driver);
+        log.info("Upload pmode");
+        rest.uploadPMode("pmodes/Edelivery-blue-NoRetry.xml", null);
+        String user = Generator.randomAlphaNumeric(10);
+        log.info("Create plugin users");
+        rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
+        log.info("Send message using plugin user credentials");
+        String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+        log.info("Login into application");
+        login(data.getAdminUser());
+        MessagesPage Mpage = new MessagesPage(driver);
+        log.info("Search data using message id");
+        Mpage.getFilters().basicFilterBy(messID, null, null, null);
+        Mpage.grid().waitForRowsToLoad();
+        log.info("Select row 0");
+        Mpage.grid().selectRow(0);
+        log.info("Click on Resend button");
+        Mpage.getResendButton().click();
+        MessageResendModal modal = new MessageResendModal(driver);
+        log.info("Click on Resend button on confirmation pop up");
+        modal.getResendButton().click();
+        log.info("Navigate to Alerts page");
+        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        AlertPage Apage = new AlertPage(driver);
+        log.info("Search data using Msg_status_changed alert type");
+        Apage.getFilters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
+        log.info("Check if Multidomain exists");
+        if (data.isIsMultiDomain()) {
+            log.info("Click on Show domain checkbox");
+            Apage.getFilters().getShowDomainCheckbox().click();
+            log.info("Click on search button");
+            Apage.getFilters().getSearchButton().click();
+        }
+        log.info("Validate data for given message id,status ,alert type ,alert status and level");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Type").contains("MSG_STATUS_CHANGED"), "Top row contains alert type as Msg_Status_Changed");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Top row contains alert level as High");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Top row contains alert Status as Success");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Parameters").contains(messID), "Top row contains alert for message status changed for :" + messID);
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Parameters").contains("SEND_FAILURE"), "Top row contains alert for message status as Send_failure");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Parameters").contains("SEND_ENQUEUED"), "Top row contains alert for message status as Send_Enqueued");
+        soft.assertAll();
+
+    }
+
+    @Test(description = "ALRT-17", groups = {"multiTenancy", "singleTenancy"})
+    public void UserLoginFailureAlert() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        DomibusPage page = new DomibusPage(driver);
+        LoginPage Lpage = new LoginPage(driver);
+        String userName = Generator.randomAlphaNumeric(3);
+        log.info("Create user");
+        rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
+        log.info("Try to login with user with wrong password");
+        Lpage.login(userName, data.getNewTestPass());
+        log.info("Alert message shown :" + page.getAlertArea().getAlertMessage());
+        log.info("Login into application");
+        Lpage.login(data.getAdminUser());
+        log.info("Navigate to Alerts page");
+        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        AlertPage Apage = new AlertPage(driver);
+        log.info("Search data using basic filter for user_login_failure alert type");
+        Apage.getFilters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
+        log.info("Check if multidomain exists");
+        if (data.isIsMultiDomain()) {
+            log.info("Select show domain check box");
+            Apage.getFilters().getShowDomainCheckbox().click();
+            log.info("Click on search button");
+            Apage.getFilters().getSearchButton().click();
+        }
+        log.info("Validate pressence of alert data for user_login_failure alert type for given user");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Top row contains alert level as low");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Top row contains alert status as success");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Parameters").contains(userName), "Top row contains alert type as USER_LOGIN_FAILURE");
+        soft.assertAll();
+    }
 
 }
 
