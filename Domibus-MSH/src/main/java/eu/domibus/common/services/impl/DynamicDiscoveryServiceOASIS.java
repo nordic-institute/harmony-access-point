@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyStore;
@@ -72,7 +73,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     DomibusProxyService domibusProxyService;
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
-    @Transactional(noRollbackFor = IllegalStateException.class)
+    @Transactional(noRollbackFor = IllegalStateException.class, propagation = Propagation.SUPPORTS)
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
                                           final String participantIdScheme,
