@@ -11,6 +11,7 @@ import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.OtherTrustedList;
 import eu.europa.esig.dss.tsl.service.DomibusTSLRepository;
+import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CertificateVerifier;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.cglib.core.internal.Function;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -193,12 +195,18 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CertificateVerifier certificateVerifier(DomibusDataLoader dataLoader, TrustedListsCertificateSource trustedListSource) {
-        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
-        certificateVerifier.setDataLoader(dataLoader);
-        certificateVerifier.setTrustedCertSource(trustedListSource);
-        certificateVerifier.setCrlSource(new OnlineCRLSource(dataLoader));
+    public Function<Void
+            , CertificateVerifier> certificateVerifierFactory() {
+        return this::apply;
+    }
 
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public CertificateVerifier certificateVerifier() {
+        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
+        certificateVerifier.setDataLoader(dataLoader());
+        certificateVerifier.setTrustedCertSource(trustedListSource());
+        certificateVerifier.setCrlSource(new OnlineCRLSource(dataLoader()));
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
 
@@ -360,9 +368,13 @@ public class DssConfiguration {
     }
 
     @Bean
-    public TSLValidationJob tslValidationJob(DataLoader dataLoader, TSLRepository tslRepository, KeyStoreCertificateSource ojContentKeyStore, List<OtherTrustedList> otherTrustedLists) {
+    public DomibusTSLValidationJob tslValidationJob(
+            DataLoader dataLoader,
+            DomibusTSLRepository tslRepository,
+            KeyStoreCertificateSource ojContentKeyStore,
+            List<OtherTrustedList> otherTrustedLists) {
         LOG.info("Configuring DSS lotl with url:[{}],schema uri:[{}],country code:[{}],oj url:[{}]", currentLotlUrl, lotlSchemeUri, lotlCountryCode, currentOjUrl);
-        TSLValidationJob validationJob = new TSLValidationJob();
+        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierFactory());
         validationJob.setDataLoader(dataLoader);
         validationJob.setRepository(tslRepository);
         validationJob.setLotlUrl(currentLotlUrl);
@@ -426,7 +438,6 @@ public class DssConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public DomibusDssCryptoSpi domibusDssCryptoProvider(final DomainCryptoServiceSpi defaultDomainCryptoService,
-                                                        final CertificateVerifier certificateVerifier,
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper,
@@ -436,7 +447,7 @@ public class DssConfiguration {
         WSSConfig.init();
         return new DomibusDssCryptoSpi(
                 defaultDomainCryptoService,
-                certificateVerifier,
+                certificateVerifierFactory(),
                 tslRepository,
                 validationReport,
                 constraintMapper,
@@ -453,4 +464,7 @@ public class DssConfiguration {
         return new DssCache((Cache) cache.getNativeCache());
     }
 
+    private CertificateVerifier apply(Void name) {
+        return certificateVerifier();
+    }
 }

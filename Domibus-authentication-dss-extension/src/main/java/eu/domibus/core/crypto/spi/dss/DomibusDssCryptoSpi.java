@@ -16,6 +16,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.cglib.core.internal.Function;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -36,7 +38,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final String CERTPATH = "certpath";
 
-    private CertificateVerifier certificateVerifier;
+    private Function<Void
+            , CertificateVerifier> certificateVerifierFactory;
 
     private TSLRepository tslRepository;
 
@@ -50,20 +53,22 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
-            final CertificateVerifier certificateVerifier,
+            final Function<Void
+                    , CertificateVerifier> certificateVerifierFactory,
             final TSLRepository tslRepository,
             final ValidationReport validationReport,
             final ValidationConstraintPropertyMapper constraintMapper,
             final PkiExtService pkiExtService,
             final DssCache dssCache) {
         super(defaultDomainCryptoService);
-        this.certificateVerifier = certificateVerifier;
+        this.certificateVerifierFactory=certificateVerifierFactory;
         this.tslRepository = tslRepository;
         this.validationReport = validationReport;
         this.constraintMapper = constraintMapper;
         this.pkiExtService = pkiExtService;
         this.dssCache = dssCache;
     }
+
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
@@ -86,11 +91,12 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
         //add signing certificate to DSS.
+        final CertificateVerifier certificateVerifier = certificateVerifierFactory.apply(null);
         CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
         certificateVerifier.setAdjunctCertSource(adjunctCertSource);
         LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
         //add leaf certificate to DSS
-        CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate);
+        CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
         //Validate.
         validate(certificateValidator);
         dssCache.addToCache(cacheKey, true);
@@ -108,7 +114,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         LOG.trace("Incoming message certificate chain has been validated by DSS.");
     }
 
-    protected CertificateValidator prepareCertificateValidator(X509Certificate leafCertificate) {
+    protected CertificateValidator prepareCertificateValidator(X509Certificate leafCertificate, CertificateVerifier certificateVerifier) {
         CertificateValidator certificateValidator = CertificateValidator.fromCertificate(new CertificateToken(leafCertificate));
         certificateValidator.setCertificateVerifier(certificateVerifier);
         certificateValidator.setValidationTime(new Date(System.currentTimeMillis()));
