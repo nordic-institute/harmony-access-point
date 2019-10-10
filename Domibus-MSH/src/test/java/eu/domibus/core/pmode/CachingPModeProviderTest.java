@@ -19,6 +19,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
@@ -360,6 +361,7 @@ public class CachingPModeProviderTest {
         List<String> expectedList = new ArrayList<>();
         expectedList.add("domibus-blue");
         expectedList.add("domibus-red");
+        expectedList.add("urn:oasis:names:tc:ebcore:partyid-type:unregistered:holodeck-b2b");
         configuration = loadSamplePModeConfiguration(VALID_PMODE_TEST_CONFIG_URI);
         new Expectations() {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
@@ -367,7 +369,31 @@ public class CachingPModeProviderTest {
         }};
 
         // When
-        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
+
+        // Then
+        Assert.assertEquals(expectedList, partyIdByServiceAndAction);
+    }
+
+    @Test
+    public void testFindPushToPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        // Given
+        List<String> expectedList = new ArrayList<>();
+        expectedList.add("domibus-blue");
+        expectedList.add("domibus-red");
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_TEST_CONFIG_URI);
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
+            result = configuration.getBusinessProcesses().getProcesses();
+        }};
+
+        List<MessageExchangePattern> meps = new ArrayList<>();
+        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
+        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+        // When
+        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
         // Then
         Assert.assertEquals(expectedList, partyIdByServiceAndAction);
@@ -455,7 +481,7 @@ public class CachingPModeProviderTest {
         List<Process> processFromService = cachingPModeProvider.getProcessFromService(Ebms3Constants.TEST_SERVICE);
 
         // Then
-        Assert.assertEquals(1, processFromService.size());
+        Assert.assertEquals(2, processFromService.size());
         Assert.assertEquals("testService", processFromService.get(0).getName());
     }
 
@@ -588,13 +614,13 @@ public class CachingPModeProviderTest {
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
             result = configuration.getBusinessProcesses().getProcesses();
-            cachingPModeProvider.matchAgreement((Process)any, anyString);
+            cachingPModeProvider.matchAgreement((Process) any, anyString);
             result = true;
-            cachingPModeProvider.matchInitiator((Process)any, (ProcessTypePartyExtractor)any);
+            cachingPModeProvider.matchInitiator((Process) any, (ProcessTypePartyExtractor) any);
             result = true;
-            cachingPModeProvider.matchResponder((Process)any, (ProcessTypePartyExtractor)any);
+            cachingPModeProvider.matchResponder((Process) any, (ProcessTypePartyExtractor) any);
             result = true;
-            cachingPModeProvider.candidateMatches((LegConfiguration)any, anyString, anyString, anyString);
+            cachingPModeProvider.candidateMatches((LegConfiguration) any, anyString, anyString, anyString);
             result = true;
         }};
 
@@ -609,13 +635,13 @@ public class CachingPModeProviderTest {
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
             result = configuration.getBusinessProcesses().getProcesses();
-            cachingPModeProvider.matchAgreement((Process)any, anyString);
+            cachingPModeProvider.matchAgreement((Process) any, anyString);
             result = false;
         }};
 
         try {
             cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
-        }catch (EbMS3Exception exc) {
+        } catch (EbMS3Exception exc) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
         }
@@ -631,19 +657,19 @@ public class CachingPModeProviderTest {
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
             result = configuration.getBusinessProcesses().getProcesses();
-            cachingPModeProvider.matchAgreement((Process)any, anyString);
+            cachingPModeProvider.matchAgreement((Process) any, anyString);
             result = true;
-            cachingPModeProvider.matchInitiator((Process)any, (ProcessTypePartyExtractor)any);
+            cachingPModeProvider.matchInitiator((Process) any, (ProcessTypePartyExtractor) any);
             result = true;
-            cachingPModeProvider.matchResponder((Process)any, (ProcessTypePartyExtractor)any);
+            cachingPModeProvider.matchResponder((Process) any, (ProcessTypePartyExtractor) any);
             result = true;
-            cachingPModeProvider.candidateMatches((LegConfiguration)any, anyString, anyString, anyString);
+            cachingPModeProvider.candidateMatches((LegConfiguration) any, anyString, anyString, anyString);
             result = false;
         }};
 
         try {
             cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
-        }catch (EbMS3Exception exc) {
+        } catch (EbMS3Exception exc) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
         }
