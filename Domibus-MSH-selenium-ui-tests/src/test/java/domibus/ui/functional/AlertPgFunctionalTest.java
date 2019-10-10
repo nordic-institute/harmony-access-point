@@ -140,7 +140,7 @@ public class AlertPgFunctionalTest extends BaseTest {
         soft.assertAll();
     }
 
-
+    //This method will verify alert for message status change
     @Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"})
     public void MsgStatusChangeAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -188,6 +188,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     }
 
+    //This method will verify alert for user login failure case
     @Test(description = "ALRT-17", groups = {"multiTenancy", "singleTenancy"})
     public void UserLoginFailureAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -220,6 +221,44 @@ public class AlertPgFunctionalTest extends BaseTest {
         soft.assertTrue(Apage.grid().getRowInfo(0).get("Parameters").contains(userName), "Top row contains alert type as USER_LOGIN_FAILURE");
         soft.assertAll();
     }
+
+    //This method will verify alert for user account disable after 5 attempts of login with wrong credentials
+    @Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"})
+    public void UserDisableAlert() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        DomibusPage page = new DomibusPage(driver);
+        String userName = Generator.randomAlphaNumeric(3);
+        log.info("Create user");
+        rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
+        LoginPage Lpage = new LoginPage(driver);
+        log.info("Try to login with wrong password for 5 times so that user account gets disabled");
+        for (int i = 0; i <= 5; i++) {
+            Lpage.login(userName, "abc");
+            log.info("Alert Message shown : " + Lpage.getAlertArea().getAlertMessage());
+        }
+        log.info("Login with Super/admin user");
+        Lpage.login(data.getAdminUser());
+        log.info("Navigate to Alerts page");
+        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        AlertPage Apage = new AlertPage(driver);
+        log.info("Search by basic filter for alert type : user account disabled");
+        Apage.getFilters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
+        log.info("Check if multi domain exists");
+        if (data.isIsMultiDomain()) {
+            log.info("Check show domain alert checkbox");
+            Apage.getFilters().getShowDomainCheckbox().click();
+            log.info("Click on search button");
+            Apage.getFilters().getSearchButton().click();
+        }
+        log.info("Validate top row for user account disabled alert type for given user");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Type").contains("USER_ACCOUNT_DISABLED"), "Alert for disabled account is shown ");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Disable account alert is of High level");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Account disabled alert has Success status");
+        soft.assertTrue(Apage.grid().getRowInfo(0).get("Parameters").contains(userName), "Alert for user :" + userName + "disabled account is shown here");
+        soft.assertAll();
+
+    }
+
 
 }
 
