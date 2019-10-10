@@ -2442,6 +2442,28 @@ static def String pathToLogFiles(side, log, context) {
 		log.info ("jmsMessagesMap size = "+jmsMessagesMap.size());
 		
 		switch(queueName.toLowerCase()){
+			case "domibus.backend.jms.replyqueue":
+				while ((i < jmsMessagesMap.messages.size())&&(!found)) {
+					assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details.";
+					if(jmsMessagesMap.messages[i].customProperties.messageId!=null){
+						if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
+							debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId+"\".", log);
+							if(jmsMessagesMap.messages[i].customProperties.ErrorMessage!=null){
+								if(jmsMessagesMap.messages[i].customProperties.ErrorMessage.contains(pattern)){
+									found=true;
+								}
+							}
+							else{
+								log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null ErrorMessage: not possible to use this entry ...";
+							}
+						}
+					}
+					else{
+						log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null message ID: not possible to use this entry ...";
+					}
+					i++;
+				}
+				break;
 			case "domibus.backend.jms.errornotifyconsumer":
 				while ((i < jmsMessagesMap.messages.size())&&(!found)) {
 					assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details.";
@@ -2469,7 +2491,7 @@ static def String pathToLogFiles(side, log, context) {
 			// ...
 			
 			default:
-                log.error "Unknown queue \"queueName\"";
+                log.error "Unknown queue \"$queueName\"";
         }
 		
 		if(outcome){
