@@ -17,7 +17,7 @@
                 <ns:MessageProperties>
                     <ns:Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1
                     </ns:Property>
-                    <ns:Property name="finalRecipient" type="red-red-red">redparticipant</ns:Property>
+                    <ns:Property name="finalRecipient" type="redtype">redparticipantC4</ns:Property>
                 </ns:MessageProperties>
                 <ns:PayloadInfo>
                     <ns:PartInfo href="cid:message">
