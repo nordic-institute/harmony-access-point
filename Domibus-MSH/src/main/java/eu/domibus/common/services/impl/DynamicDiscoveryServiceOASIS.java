@@ -148,8 +148,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             String value = extract(documentId, "value");
             return new DocumentIdentifier(value, scheme);
         } catch (IllegalStateException ise) {
-            LOG.debug("Could not extract @scheme and @value from [{}], DocumentIdentifier will be created with empty scheme", documentId);
-            ise.printStackTrace();
+            LOG.debug("Could not extract @scheme and @value from [{}], DocumentIdentifier will be created with empty scheme", documentId, ise);
             return new DocumentIdentifier(documentId);
         }
     }
