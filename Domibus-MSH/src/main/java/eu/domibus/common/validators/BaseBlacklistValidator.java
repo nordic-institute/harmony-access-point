@@ -1,8 +1,9 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.common.validators;
 
 import com.google.common.base.Strings;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.validators.CustomWhiteListed;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -120,8 +121,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     }
 
     /**
-     *
-     * @param value the string value to be validated
+     * @param value            the string value to be validated
      * @param customAnnotation optional custom annotation for permitting some more characters beside the general/common set defined in domibus properties
      *                         it is used for some properties, like endpoint, that need to allow some characters that otherwise are not permitted
      * @return if the value contain only characters that are defined in the whitelist domibus property and custom annotation, if specified

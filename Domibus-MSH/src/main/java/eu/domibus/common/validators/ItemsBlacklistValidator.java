@@ -1,5 +1,6 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.common.validators;
 
+import eu.domibus.web.rest.validators.ItemsWhiteListed;
 import org.springframework.stereotype.Component;
 
 /**
