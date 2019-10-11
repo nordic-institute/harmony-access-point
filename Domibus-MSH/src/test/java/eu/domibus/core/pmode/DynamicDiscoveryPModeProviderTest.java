@@ -22,6 +22,8 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.pki.CertificateServiceImpl;
 import eu.domibus.xml.XMLUtilImpl;
@@ -57,6 +59,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDiscoveryPModeProviderTest {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
     private static final String DYNRESPONDER_AND_PARTYSELF = "dynResponderAndPartySelf.xml";
@@ -462,7 +466,8 @@ public class DynamicDiscoveryPModeProviderTest {
             preparePersist.setAccessible(true);
             preparePersist.invoke(configuration);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOG.info("Could not initialize configuration", e);
+            return false;
         } catch (InvocationTargetException | NoSuchMethodException e) {
             return false;
         }

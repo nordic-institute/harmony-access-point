@@ -164,7 +164,7 @@ public class LoggingServiceImplTest {
             result = logbackLoggingConfigurator;
 
             logbackLoggingConfigurator.getLoggingConfigurationFile();
-            result = this.getClass().getResource("/logback.xml").getPath();
+            result = this.getClass().getResource("/logback-test.xml").getPath();
         }};
 
         //tested method

@@ -157,6 +157,9 @@ public class DssConfiguration {
     @Value("${domibus.dss.ssl.cacert.password}")
     private String cacertPassword;
 
+    @Value("${domibus.dss.perform.crl.check}")
+    private boolean checkCrlInDss;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -203,6 +206,10 @@ public class DssConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
+        OnlineCRLSource crlSource;
+        if (checkCrlInDss) {
+            crlSource = new OnlineCRLSource(dataLoader);
+        }
         CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier(trustedListSource(),new OnlineCRLSource(dataLoader()),null,dataLoader());
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
@@ -251,16 +258,16 @@ public class DssConfiguration {
         try {
             customTlsTrustStore = KeyStore.getInstance(dssTlsTrustStoreType);
         } catch (KeyStoreException e) {
-            LOG.error("Could not instantiate empty keystore DSS keystore of type:[{}]",dssTlsTrustStoreType);
+            LOG.error("Could not instantiate empty keystore DSS keystore of type:[{}]", dssTlsTrustStoreType);
             return null;
         }
 
-        try(FileInputStream fileInputStream = new FileInputStream(dssTlsTrustStorePath)) {
+        try (FileInputStream fileInputStream = new FileInputStream(dssTlsTrustStorePath)) {
             customTlsTrustStore.load(fileInputStream, dssTlsTrustStorePassword.toCharArray());
-        } catch (IOException|NoSuchAlgorithmException|CertificateException e) {
-            LOG.info("DSS TLS truststore file:[{}] could not be loaded",dssTlsTrustStorePath);
-            LOG.debug("Error while loading DSS TLS truststore file:[{}]",dssTlsTrustStorePath,e);
-            customTlsTrustStore=null;
+        } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
+            LOG.info("DSS TLS truststore file:[{}] could not be loaded", dssTlsTrustStorePath);
+            LOG.debug("Error while loading DSS TLS truststore file:[{}]", dssTlsTrustStorePath, e);
+            customTlsTrustStore = null;
         }
         try {
             KeyStore cacertTrustStore = loadCacertTrustStore();
@@ -268,7 +275,7 @@ public class DssConfiguration {
                 LOG.warn("Cacert truststore skipped for DSS TLS");
                 return customTlsTrustStore;
             }
-            if(customTlsTrustStore==null){
+            if (customTlsTrustStore == null) {
                 LOG.debug("Custom DSS TLS is based on cacert only.");
                 return cacertTrustStore;
             }
@@ -290,7 +297,7 @@ public class DssConfiguration {
     protected KeyStore loadCacertTrustStore() {
         //from custom defined location.
         if (!StringUtils.isEmpty(cacertPath)) {
-            LOG.debug("Loading cacert of type:[{}] from custom location:[{}]",cacertType, cacertPath);
+            LOG.debug("Loading cacert of type:[{}] from custom location:[{}]", cacertType, cacertPath);
             return loadKeystore(cacertPath, cacertType, cacertPassword);
         }
 
@@ -301,7 +308,7 @@ public class DssConfiguration {
         }
         //from default location.
         String filename = javaHome + CACERT_PATH.replace('/', File.separatorChar);
-        LOG.debug("Loading cacert of type:[{}] from default location:[{}]",cacertType, cacertPath);
+        LOG.debug("Loading cacert of type:[{}] from default location:[{}]", cacertType, cacertPath);
         return loadKeystore(filename, cacertType, cacertPassword);
     }
 
@@ -317,7 +324,7 @@ public class DssConfiguration {
             return cacertTrustStore;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             LOG.info("Cacert cannot be loaded from  path:[{}]", filename);
-            LOG.debug("Error loading cacert file:[{}]", filename,e);
+            LOG.debug("Error loading cacert file:[{}]", filename, e);
             return null;
         }
     }
