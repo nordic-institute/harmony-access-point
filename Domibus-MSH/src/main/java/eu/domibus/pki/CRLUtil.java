@@ -12,6 +12,7 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.Context;
@@ -58,7 +59,7 @@ public class CRLUtil {
      * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    @Transactional(noRollbackFor = DomibusCRLException.class)
+    @Transactional(noRollbackFor = DomibusCRLException.class, propagation = Propagation.SUPPORTS)
     public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);
