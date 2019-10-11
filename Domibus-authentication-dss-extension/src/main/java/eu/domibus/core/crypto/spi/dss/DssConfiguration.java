@@ -155,6 +155,9 @@ public class DssConfiguration {
     @Value("${domibus.dss.ssl.cacert.password}")
     private String cacertPassword;
 
+    @Value("${domibus.dss.perform.crl.check}")
+    private boolean checkCrlInDss;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -197,8 +200,12 @@ public class DssConfiguration {
         CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
         certificateVerifier.setDataLoader(dataLoader);
         certificateVerifier.setTrustedCertSource(trustedListSource);
-        certificateVerifier.setCrlSource(new OnlineCRLSource(dataLoader));
 
+        OnlineCRLSource crlSource = null;
+        if(checkCrlInDss) {
+            crlSource=new OnlineCRLSource(dataLoader);
+        }
+        certificateVerifier.setCrlSource(crlSource);
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
 
