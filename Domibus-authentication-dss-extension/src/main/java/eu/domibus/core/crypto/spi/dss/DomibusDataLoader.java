@@ -136,6 +136,8 @@ public class DomibusDataLoader implements DataLoader {
 
     private TrustStrategy trustStrategy;
 
+    private KeyStore sslTrustStore;
+
     private String[] supportedSSLProtocols;
 
     private String[] supportedSSLCipherSuites;
@@ -220,7 +222,7 @@ public class DomibusDataLoader implements DataLoader {
     }
 
     protected KeyStore getSSLTrustStore() throws IOException, GeneralSecurityException {
-        return loadKeyStore(sslTruststorePath, sslTruststoreType, sslTruststorePassword);
+        return sslTrustStore;
     }
 
     private KeyStore loadKeyStore(String path, String type, String passwordStr) throws IOException, GeneralSecurityException {
@@ -860,5 +862,8 @@ public class DomibusDataLoader implements DataLoader {
         this.trustStrategy = trustStrategy;
     }
 
+    public void setSslTrustStore(KeyStore sslTrustStore) {
+        this.sslTrustStore = sslTrustStore;
+    }
 }
 
