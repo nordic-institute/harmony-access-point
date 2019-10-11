@@ -1,5 +1,6 @@
 package eu.domibus.core.payload.temp;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -32,19 +33,20 @@ public class TemporaryPayloadServiceImplTest {
 
     @Test
     public void cleanTemporaryPayloads(@Injectable File directory,
-                                       @Injectable File file1) {
+                                       @Injectable File file1,
+                                       @Injectable Domain domain) {
         final Collection<File> filesToClean = new ArrayList<>();
         filesToClean.add(file1);
 
         new Expectations(temporaryPayloadService) {{
-            temporaryPayloadService.getFilesToClean(directory);
+            temporaryPayloadService.getFilesToClean(domain, directory);
             result = filesToClean;
 
             temporaryPayloadService.deleteFileSafely((File) any);
 
         }};
 
-        temporaryPayloadService.cleanTemporaryPayloads(directory);
+        temporaryPayloadService.cleanTemporaryPayloads(domain, directory);
 
         new Verifications() {{
             temporaryPayloadService.deleteFileSafely(file1);
@@ -78,11 +80,12 @@ public class TemporaryPayloadServiceImplTest {
     @Test
     public void getRegexFileFilter(@Mocked Pattern regexPattern,
                                    @Mocked FileFilterUtils fileFilterUtils,
-                                   @Mocked RegexIOFileFilter regexIOFileFilter) {
+                                   @Mocked RegexIOFileFilter regexIOFileFilter,
+                                   @Injectable Domain domain) {
         String excludeRegex = "regexExpression";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
             result = excludeRegex;
 
             Pattern.compile(excludeRegex);
@@ -92,7 +95,7 @@ public class TemporaryPayloadServiceImplTest {
             result = regexIOFileFilter;
         }};
 
-        temporaryPayloadService.getRegexFileFilter();
+        temporaryPayloadService.getRegexFileFilter(domain);
 
         new Verifications() {{
             FileFilterUtils.notFileFilter(regexIOFileFilter);
@@ -102,19 +105,20 @@ public class TemporaryPayloadServiceImplTest {
     @Test
     public void getAgeFileFilter(@Mocked System system,
                                  @Mocked FileFilterUtils fileFilterUtils,
-                                 @Mocked LoggerFactory loggerFactory) {
+                                 @Mocked LoggerFactory loggerFactory,
+                                 @Injectable Domain domain) {
         int expirationThresholdInMinutes = 5;
         long currentTimeMillis = 6 * 60 * 1000;
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
+            domibusPropertyProvider.getIntegerDomainProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
             result = expirationThresholdInMinutes;
 
             System.currentTimeMillis();
             result = currentTimeMillis;
         }};
 
-        temporaryPayloadService.getAgeFileFilter();
+        temporaryPayloadService.getAgeFileFilter(domain);
 
         new Verifications() {{
             FileFilterUtils.ageFileFilter(60000);
@@ -123,11 +127,12 @@ public class TemporaryPayloadServiceImplTest {
 
     @Test
     public void getTemporaryLocations(@Injectable File dir1,
-                                      @Injectable File dir2) {
+                                      @Injectable File dir2,
+                                      @Injectable Domain domain) {
         String directories = "dir1,dir2";
 
         new Expectations(temporaryPayloadService) {{
-            domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
             result = directories;
 
             temporaryPayloadService.getDirectory("dir1");
@@ -137,7 +142,7 @@ public class TemporaryPayloadServiceImplTest {
             result = dir2;
         }};
 
-        final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations();
+        final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations(domain);
         Assert.assertEquals(2, temporaryLocations.size());
         Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
         Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
