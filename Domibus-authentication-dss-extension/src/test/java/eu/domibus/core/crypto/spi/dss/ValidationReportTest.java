@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.europa.esig.dss.detailedreport.DetailedReport;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import mockit.Expectations;
 import mockit.Mocked;
@@ -47,7 +48,7 @@ public class ValidationReportTest {
         constraints.add(new ConstraintInternal("BBB_XCV_ICTIVRSC", "OK"));
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
-            result = new DetailedReport(null);
+            result = new XmlDetailedReport();
         }};
         Assert.assertFalse(validationReport.extractInvalidConstraints(certificateReports, constraints).isEmpty());
     }
@@ -57,7 +58,7 @@ public class ValidationReportTest {
         InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
         JAXBContext jaxbContext = JAXBContext.newInstance(DetailedReport.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        final DetailedReport detailedReport = (DetailedReport) unmarshaller.unmarshal(xmlStream);
+        final XmlDetailedReport detailedReport = (XmlDetailedReport) unmarshaller.unmarshal(xmlStream);
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
             result = detailedReport;
