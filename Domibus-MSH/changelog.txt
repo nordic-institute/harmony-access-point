@@ -6,6 +6,7 @@ Domibus 4.1.2
 - Added Domibus property domibus.logging.cxf.limit to establish the size limit at which messages are truncated in the logs when org.apache.cxf is set to INFO in logback.xml
 - Changed the local endpoint transport configuration to allow requests to remote endpoints on http transport (requested by plugin developers)
 - Fix rollback issue in case of CRL download exception.
+- Upgraded dynamic-discovery-client to version 1.11 (added support for no @scheme DocumentIdentifier/ProcessIdentifier). Dynamic discovery works now for TestService.
 at least INFO in logback.xml
 - Removed the XSSI characters from the beginning of the JSON response of the External REST API calls.
 - Remove parties in Pull processes from TestService UI (Test Service for Pull is not supported in the UI)
