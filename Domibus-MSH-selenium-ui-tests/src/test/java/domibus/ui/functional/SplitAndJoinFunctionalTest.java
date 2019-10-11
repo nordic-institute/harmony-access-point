@@ -18,7 +18,7 @@ import java.util.List;
 public class SplitAndJoinFunctionalTest extends BaseTest {
     //This method will verify presence of splitting configuration and along with its activation
 
-    @Test(description = "SJ-1", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void splittingConfPresence() throws Exception {
         rest.uploadPMode("pmodes/splitPmode.xml", null);
         SoftAssert soft = new SoftAssert();
@@ -44,7 +44,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     }
 //This method will specifically send message from localhost by putting file in out folder.Verify fragment count and its presence on admin console
 
-    @Test(description = "SJ-2", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkFragmentCount() throws Exception {
         SoftAssert soft = new SoftAssert();
         rest.uploadPMode("pmodes/splitPmode.xml", null);
@@ -101,7 +101,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     }
 
     //This method with verify presence of al fragments at sender side along with its status
-    @Test(description = "SJ-3", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkFragmentPresenceAndStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Upload pmode");
@@ -171,7 +171,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     }
 
     //This method will validate Download button status of Fragment or Source message row selection
-    @Test(description = "SJ-6", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkDownloadButtonStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
         rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
@@ -234,7 +234,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(description = "SJ-9", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkResendButtonStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Upload pmode");
@@ -298,7 +298,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(description = "SJ-8", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkActionIconStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
         rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
@@ -357,7 +357,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     }
 
     //This method will verify fragment count when file size is smaller than fragment size in splitting configuration
-    @Test(description = "SJ-12", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkfragForSmallSize() throws Exception {
         SoftAssert soft = new SoftAssert();
         rest.uploadPMode("pmodes/splitPmode.xml", null);
@@ -409,7 +409,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     }
 
     //This method will validate equality of conversation ids for fragments and source message at sender side
-    @Test(description = "SJ-16", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "SJ-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkConservationId() throws Exception {
         SoftAssert soft = new SoftAssert();
         rest.uploadPMode("pmodes/splitPmode.xml", null);
