@@ -63,7 +63,6 @@
     <import resource="classpath*:config/domibus-transactions.xml"/>
     <import resource="classpath*:config/domibus-datasources.xml"/>
     <import resource="jpa-config.xml"/>
-    <import resource="msh-config.xml"/>
     <import resource="cxf-endpoint.xml"/>
 
 
@@ -95,5 +94,7 @@
         <constructor-arg value="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"/>
     </bean>
     <bean id="dateFormatter" class="eu.domibus.ebms3.common.model.TimestampDateFormatter"/>
-
+    <bean id="messageIdGenerator"
+          class="eu.domibus.common.services.impl.MessageIdGenerator">
+    </bean>
 </beans>
