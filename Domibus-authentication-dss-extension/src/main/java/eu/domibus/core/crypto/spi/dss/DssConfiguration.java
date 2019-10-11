@@ -203,13 +203,10 @@ public class DssConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
-        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
-        certificateVerifier.setDataLoader(dataLoader());
-        certificateVerifier.setTrustedCertSource(trustedListSource());
-        certificateVerifier.setCrlSource(new OnlineCRLSource(dataLoader()));
+        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier(trustedListSource(),new OnlineCRLSource(dataLoader()),null,dataLoader());
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
-
+        LOG.debug("Instanciating new certificate verifier:[{}], enableExceptionOnMissingRevocationData:[{}], checkRevocationForUntrustedChain:[{}]",certificateVerifier,enableExceptionOnMissingRevocationData,checkRevocationForUntrustedChain);
         return certificateVerifier;
     }
 

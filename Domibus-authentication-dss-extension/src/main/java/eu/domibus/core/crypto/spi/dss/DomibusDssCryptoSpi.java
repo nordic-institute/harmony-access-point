@@ -96,6 +96,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         certificateVerifier.setAdjunctCertSource(adjunctCertSource);
         LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
         //add leaf certificate to DSS
+        LOG.debug("Prepare certificate validator");
         CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
         //Validate.
         validate(certificateValidator);
@@ -104,8 +105,11 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
+        LOG.trace("Validate certificate");
         CertificateReports reports = certificateValidator.validate();
+        LOG.trace("Validate extract constraint mapper");
         final List<ConstraintInternal> constraints = constraintMapper.map();
+        LOG.trace("Analysing certificate reports.");
         List<String> invalidConstraints = validationReport.extractInvalidConstraints(reports, constraints);
         if (!invalidConstraints.isEmpty()) {
             LOG.error("Dss triggered and error while validating the certificate chain:[{}]", reports.getXmlSimpleReport());
