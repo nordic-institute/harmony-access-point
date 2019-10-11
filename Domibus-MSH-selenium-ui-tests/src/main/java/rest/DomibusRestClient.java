@@ -175,6 +175,15 @@ public class DomibusRestClient {
 				.type(MediaType.APPLICATION_JSON)
 				.put(ClientResponse.class, params);
 	}
+	//Method is applicable when Media type is TEXT_PLAIN
+	private ClientResponse requesttPUT(WebResource resource, String params) {
+
+		WebResource.Builder builder = decorateBuilder(resource);
+
+		return builder
+				.type(MediaType.TEXT_PLAIN)
+				.put(ClientResponse.class, params);
+	}
 
 	// -------------------------------------------- Users --------------------------------------------------------------
 	public JSONArray getUsers() {
@@ -507,6 +516,29 @@ public class DomibusRestClient {
 		}
 	}
 
+	public JSONArray getDomibusPropertyDetail(HashMap<String, String> params) throws Exception {
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
+		if (clientResponse.getStatus() != 200) {
+			throw new RuntimeException("Could not get properties ");
+		}
+		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("items");
+
+	}
+
+
+	public void updateDomibusProperty(String propertyName, HashMap<String, String> params,String payload) throws Exception {
+
+		String RestServicePathForPropertyUpdate=RestServicePaths.DOMIBUS_PROPERTIES+"/"+propertyName;
+		ClientResponse clientResponse =requesttPUT(resource.path(RestServicePathForPropertyUpdate),payload);
+		if(clientResponse.getStatus()!=200){
+			throw new RuntimeException("Could not update "+ propertyName +" property");
+		}
+	}
 }
+
+
+
+
+
 
 
