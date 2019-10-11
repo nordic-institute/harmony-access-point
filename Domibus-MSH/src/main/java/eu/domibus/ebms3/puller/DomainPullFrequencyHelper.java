@@ -82,12 +82,15 @@ public class DomainPullFrequencyHelper {
     public void increaseError(final String mpc) {
         if (mpc == null) {
             LOG.warn("Trying to increase error for pull request but mpc is null");
+            return;
         }
         LOG.debug("Increasing error counter in frequency helper for mpc:[{}]", mpc);
         if (LOG.isTraceEnabled()) {
             traceConfiguration();
         }
-        mpcPullFrequencyMap.get(mpc).increaseErrorCounter();
+        if (mpcPullFrequencyMap.get(mpc) != null) {
+            mpcPullFrequencyMap.get(mpc).increaseErrorCounter();
+        }
     }
 
     private void traceConfiguration() {
@@ -98,10 +101,16 @@ public class DomainPullFrequencyHelper {
     }
 
     public void success(final String mpc) {
+        if (mpc == null) {
+            LOG.warn("Trying to increase success count for pull request but mpc is null");
+            return;
+        }
         LOG.debug("Success pulling in frequency helper for mpc:[{}]", mpc);
         if (LOG.isTraceEnabled()) {
             traceConfiguration();
         }
-        mpcPullFrequencyMap.get(mpc).success();
+        if (mpcPullFrequencyMap.get(mpc) != null) {
+            mpcPullFrequencyMap.get(mpc).success();
+        }
     }
 }
