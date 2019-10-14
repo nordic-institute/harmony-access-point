@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.*;
+import eu.europa.esig.dss.client.crl.OnlineCRLSource;
 import eu.europa.esig.dss.client.http.DataLoader;
 import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
@@ -15,6 +16,7 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.x509.KeyStoreCertificateSource;
 import net.sf.ehcache.Cache;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +33,18 @@ import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,6 +65,8 @@ public class DssConfiguration {
     private static final String NONE = "NONE";
 
     private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
+
+    private final static String CACERT_PATH = "/lib/security/cacerts";
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
@@ -126,6 +137,27 @@ public class DssConfiguration {
     @Value("${domibus.authentication.dss.cache.name}")
     private String cacheName;
 
+    @Value("${domibus.dss.ssl.trust.store.path}")
+    private String dssTlsTrustStorePath;
+
+    @Value("${domibus.dss.ssl.trust.store.type}")
+    private String dssTlsTrustStoreType;
+
+    @Value("${domibus.dss.ssl.trust.store.password}")
+    private String dssTlsTrustStorePassword;
+
+    @Value("${domibus.dss.ssl.cacert.path}")
+    private String cacertPath;
+
+    @Value("${domibus.dss.ssl.cacert.type}")
+    private String cacertType;
+
+    @Value("${domibus.dss.ssl.cacert.password}")
+    private String cacertPassword;
+
+    @Value("${domibus.dss.perform.crl.check}")
+    private boolean checkCrlInDss;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -166,9 +198,14 @@ public class DssConfiguration {
     @Bean
     public CertificateVerifier certificateVerifier(DomibusDataLoader dataLoader, TrustedListsCertificateSource trustedListSource) {
         CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
-        certificateVerifier.setTrustedCertSource(trustedListSource);
         certificateVerifier.setDataLoader(dataLoader);
+        certificateVerifier.setTrustedCertSource(trustedListSource);
 
+        OnlineCRLSource crlSource = null;
+        if (checkCrlInDss) {
+            crlSource = new OnlineCRLSource(dataLoader);
+        }
+        certificateVerifier.setCrlSource(crlSource);
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
 
@@ -206,8 +243,87 @@ public class DssConfiguration {
             }
         }
         dataLoader.setProxyConfig(proxyConfig);
+        dataLoader.setSslTrustStore(mergeCustomTlsTrustStoreWithCacert());
         return dataLoader;
     }
+
+    protected KeyStore mergeCustomTlsTrustStoreWithCacert() {
+
+        KeyStore customTlsTrustStore;
+        try {
+            customTlsTrustStore = KeyStore.getInstance(dssTlsTrustStoreType);
+        } catch (KeyStoreException e) {
+            LOG.error("Could not instantiate empty keystore DSS keystore of type:[{}]", dssTlsTrustStoreType);
+            return null;
+        }
+
+        try (FileInputStream fileInputStream = new FileInputStream(dssTlsTrustStorePath)) {
+            customTlsTrustStore.load(fileInputStream, dssTlsTrustStorePassword.toCharArray());
+        } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
+            LOG.info("DSS TLS truststore file:[{}] could not be loaded", dssTlsTrustStorePath);
+            LOG.debug("Error while loading DSS TLS truststore file:[{}]", dssTlsTrustStorePath, e);
+            customTlsTrustStore = null;
+        }
+        try {
+            KeyStore cacertTrustStore = loadCacertTrustStore();
+            if (cacertTrustStore == null) {
+                LOG.warn("Cacert truststore skipped for DSS TLS");
+                return customTlsTrustStore;
+            }
+            if (customTlsTrustStore == null) {
+                LOG.debug("Custom DSS TLS is based on cacert only.");
+                return cacertTrustStore;
+            }
+            Enumeration enumeration = cacertTrustStore.aliases();
+            while (enumeration.hasMoreElements()) {
+                // Determine the current alias
+                String alias = (String) enumeration.nextElement();
+                LOG.debug("Retrieving certificate with alias:[{}] and add it to custom tls trustore.", alias);
+                Certificate cert = cacertTrustStore.getCertificate(alias);
+                customTlsTrustStore.setCertificateEntry(alias, cert);
+            }
+            return customTlsTrustStore;
+        } catch (KeyStoreException e) {
+            LOG.error("Exception occured while merging cacert and dss truststore", e);
+            return customTlsTrustStore;
+        }
+    }
+
+    protected KeyStore loadCacertTrustStore() {
+        //from custom defined location.
+        if (!StringUtils.isEmpty(cacertPath)) {
+            LOG.debug("Loading cacert of type:[{}] from custom location:[{}]", cacertType, cacertPath);
+            return loadKeystore(cacertPath, cacertType, cacertPassword);
+        }
+
+        String javaHome = getJavaHome();
+        if (StringUtils.isEmpty(javaHome)) {
+            LOG.warn("Java home environmnent variable not defined, skipping cacert for DSS TLS");
+            return null;
+        }
+        //from default location.
+        String filename = javaHome + CACERT_PATH.replace('/', File.separatorChar);
+        LOG.debug("Loading cacert of type:[{}] from default location:[{}]", cacertType, cacertPath);
+        return loadKeystore(filename, cacertType, cacertPassword);
+    }
+
+    protected String getJavaHome() {
+        return System.getProperty("java.home");
+    }
+
+    protected KeyStore loadKeystore(String filename, String type, String password) {
+        KeyStore cacertTrustStore;
+        try (FileInputStream is = new FileInputStream(filename)) {
+            cacertTrustStore = KeyStore.getInstance(type);
+            cacertTrustStore.load(is, password.toCharArray());
+            return cacertTrustStore;
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+            LOG.info("Cacert cannot be loaded from  path:[{}]", filename);
+            LOG.debug("Error loading cacert file:[{}]", filename, e);
+            return null;
+        }
+    }
+
 
     //TODO remove proxy properties and use the one from domibus.
     private ProxyProperties getProxyProperties(final String host,

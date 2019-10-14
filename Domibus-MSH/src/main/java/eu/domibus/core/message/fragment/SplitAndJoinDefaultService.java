@@ -2,6 +2,7 @@ package eu.domibus.core.message.fragment;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -348,9 +349,10 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public SOAPMessage getUserMessage(File sourceMessageFileName, String contentTypeString) {
         LOG.debug("Parsing the SOAPMessage from file [{}]", sourceMessageFileName);
 
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
         try (InputStream rawInputStream = new FileInputStream(sourceMessageFileName)) {
             MessageImpl messageImpl = new MessageImpl();
-            final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(currentDomain, PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
             LOG.debug("Using temporaryDirectoryLocation for attachments [{}]", temporaryDirectoryLocation);
             messageImpl.put(AttachmentDeserializer.ATTACHMENT_DIRECTORY, temporaryDirectoryLocation);
             messageImpl.setContent(InputStream.class, rawInputStream);
@@ -750,7 +752,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected File mergeSourceFile(List<File> fragmentFilesInOrder, MessageGroupEntity messageGroupEntity) {
-        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(currentDomain, PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {
             throw new SplitAndJoinException("Could not rejoin fragments: the property [" + PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION + "] is not defined");
         }
