@@ -7,6 +7,8 @@
     <!-- properties - to be used in column definitions -->
     <property name="now" value="sysdate" dbms="oracle"/>
     <property name="now" value="now()" dbms="mysql"/>
+    <property name="current_db_user" value="user" dbms="oracle"/>
+    <property name="current_db_user" value="user()" dbms="mysql"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
@@ -17,7 +19,7 @@
 
     <!-- Quartz tables -->
     <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
-    
+
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
@@ -28,6 +30,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ACTION_AUDIT">
@@ -53,6 +59,10 @@
             <column name="TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ALERT">
@@ -68,7 +78,6 @@
             </column>
             <column name="PROCESSED" type="BOOLEAN"/>
             <column name="PROCESSED_TIME" type="TIMESTAMP"/>
-            <column name="CREATION_TIME" type="TIMESTAMP"/>
             <column name="REPORTING_TIME" type="TIMESTAMP"/>
             <column name="REPORTING_TIME_FAILURE" type="TIMESTAMP"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
@@ -78,6 +87,10 @@
             <column name="ALERT_LEVEL" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_AUTHENTICATION_ENTRY">
@@ -101,6 +114,10 @@
             <column defaultValueBoolean="true" name="USER_ENABLED" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_AUTHENTICATION_ENTRY_AUD">
@@ -137,6 +154,10 @@
             </column>
             <column name="BACKEND_NAME" type="VARCHAR(255)"/>
             <column name="PRIORITY" type="INT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_BACKEND_FILTER_AUD">
@@ -170,6 +191,10 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_BUSINESS_PROCESS"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_CERTIFICATE">
@@ -190,6 +215,10 @@
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_COMMAND">
@@ -205,7 +234,10 @@
             <column name="DOMAIN" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="CREATION_TIME" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_COMMAND_PROPERTY">
@@ -216,6 +248,10 @@
             <column name="FK_COMMAND" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_CONFIGURATION">
@@ -224,6 +260,10 @@
             </column>
             <column name="FK_BUSINESSPROCESSES" type="BIGINT"/>
             <column name="FK_PARTY" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_CONFIGURATION_AUD">
@@ -247,6 +287,10 @@
             <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
             <column name="XML" type="BLOB"/>
             <column defaultValue="" name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_CONFIGURATION_RAW_AUD">
@@ -276,6 +320,10 @@
             <column name="INIT_VECTOR" type="BLOB">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ERROR">
@@ -292,6 +340,10 @@
             <column name="SEVERITY" type="VARCHAR(255)"/>
             <column name="SHORT_DESCRIPTION" type="VARCHAR(255)"/>
             <column name="SIGNALMESSAGE_ID" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ERROR_HANDLING">
@@ -304,6 +356,10 @@
             <column name="ERROR_AS_RESPONSE" type="BOOLEAN"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ERROR_LOG">
@@ -317,6 +373,10 @@
             <column name="MSH_ROLE" type="VARCHAR(255)"/>
             <column name="NOTIFIED" type="TIMESTAMP"/>
             <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_EVENT">
@@ -337,6 +397,10 @@
             <column name="FK_ALERT" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_EVENT_PROPERTY">
@@ -352,6 +416,10 @@
             <column name="DTYPE" type="VARCHAR(31)"/>
             <column name="STRING_VALUE" type="VARCHAR(255)"/>
             <column name="DATE_VALUE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_JOIN_PAYLOAD_PROFILE">
@@ -361,6 +429,10 @@
             <column name="FK_PROFILE" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_JOIN_PROCESS_INIT_PARTY">
@@ -370,6 +442,10 @@
             <column name="PARTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_JOIN_PROCESS_LEG">
@@ -379,6 +455,10 @@
             <column name="LEG_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_JOIN_PROCESS_RESP_PARTY">
@@ -388,6 +468,10 @@
             <column name="PARTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_JOIN_PROPERTY_SET">
@@ -397,6 +481,10 @@
             <column name="SET_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_LEG">
@@ -416,6 +504,10 @@
             <column name="FK_SERVICE" type="BIGINT"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column name="FK_SPLITTING" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_LEG_TB_MPC">
@@ -428,6 +520,10 @@
             <column name="PARTYMPCMAP_KEY" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MEP">
@@ -438,6 +534,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MEP_BINDING">
@@ -447,6 +547,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
@@ -459,6 +563,10 @@
             <column name="CREATE_DATE" type="TIMESTAMP"/>
             <column name="CREATE_USER" type="VARCHAR(255)"/>
             <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_ACKNW_PROP">
@@ -468,6 +576,10 @@
             <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
             <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
             <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_FRAGMENT">
@@ -476,6 +588,10 @@
             </column>
             <column name="GROUP_ID" type="VARCHAR(255)"/>
             <column name="FRAGMENT_NUMBER" type="INT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable remarks="Stores information about the message group for SplitAndJoin" tableName="TB_MESSAGE_GROUP">
@@ -497,6 +613,10 @@
             <column name="FK_MESSAGE_HEADER_ID" remarks="Foreign key to the TB_MESSAGE_HEADER" type="BIGINT"/>
             <column name="REJECTED" remarks="True if the message group has been rejected" type="BOOLEAN"/>
             <column name="EXPIRED" remarks="True if the message group has expired" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable remarks="Stores the message header details for SplitAndJoin" tableName="TB_MESSAGE_HEADER">
@@ -505,6 +625,10 @@
             </column>
             <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
             <column name="START" remarks="The multipart start value" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_INFO">
@@ -516,6 +640,10 @@
             </column>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_LOG">
@@ -543,6 +671,10 @@
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
             <column name="SCHEDULED" remarks="true if the message is already scheduled to be sent" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_PROPERTY">
@@ -554,6 +686,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="REQUIRED_" type="BOOLEAN"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_PROPERTY_SET">
@@ -562,6 +698,10 @@
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_UI">
@@ -603,6 +743,10 @@
             <column defaultValueComputed="${now}" name="LAST_MODIFIED2" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGING">
@@ -612,6 +756,10 @@
             <column name="ID" type="VARCHAR(255)"/>
             <column name="SIGNAL_MESSAGE_ID" type="BIGINT"/>
             <column name="USER_MESSAGE_ID" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGING_LOCK">
@@ -628,6 +776,10 @@
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
             <column name="MESSAGE_STALED" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_MPC">
@@ -641,6 +793,10 @@
             <column name="RETENTION_DOWNLOADED" type="INT"/>
             <column name="RETENTION_UNDOWNLOADED" type="INT"/>
             <column name="FK_CONFIGURATION" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PARTY">
@@ -652,6 +808,10 @@
             <column name="PASSWORD" type="VARCHAR(255)"/>
             <column name="USERNAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PARTY_AUD">
@@ -680,6 +840,10 @@
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="TO_ID" type="BIGINT"/>
             <column name="FROM_ID" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PARTY_IDENTIFIER">
@@ -689,6 +853,10 @@
             <column name="PARTY_ID" type="VARCHAR(255)"/>
             <column name="FK_PARTY_ID_TYPE" type="BIGINT"/>
             <column name="FK_PARTY" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PARTY_IDENTIFIER_AUD">
@@ -709,6 +877,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PARTY_ID_TYPE_AUD">
@@ -746,6 +918,10 @@
                 <constraints nullable="false"/>
             </column>
             <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PAYLOAD">
@@ -760,6 +936,10 @@
             <column name="REQUIRED_" type="BOOLEAN"/>
             <column name="SCHEMA_FILE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PAYLOAD_PROFILE">
@@ -769,6 +949,10 @@
             <column name="MAX_SIZE" type="INT"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
@@ -782,6 +966,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PROCESS">
@@ -801,6 +989,10 @@
             <column name="USE_DYNAMIC_RESPONDER" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_PROPERTY">
@@ -814,6 +1006,10 @@
             <column name="MESSAGEPROPERTIES_ID" type="BIGINT"/>
             <column name="PARTPROPERTIES_ID" type="BIGINT"/>
             <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_RAWENVELOPE_LOG">
@@ -824,12 +1020,20 @@
             <column name="SIGNALMESSAGE_ID_FK" type="BIGINT"/>
             <column name="RAW_XML" type="CLOB"/>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_RECEIPT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RECEIPT"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_RECEIPT_DATA">
@@ -837,6 +1041,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="RAW_XML" type="CLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_RECEPTION_AWARENESS">
@@ -849,6 +1057,10 @@
             <column name="RETRY_TIMEOUT" type="INT"/>
             <column name="STRATEGY" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_RELIABILITY">
@@ -859,6 +1071,10 @@
             <column name="NON_REPUDIATION" type="BOOLEAN"/>
             <column name="REPLY_PATTERN" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_REV_CHANGES">
@@ -889,6 +1105,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ROUTING_CRITERIA">
@@ -899,6 +1119,10 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BACKEND_FILTER" type="BIGINT"/>
             <column name="PRIORITY" type="INT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_ROUTING_CRITERIA_AUD">
@@ -923,6 +1147,10 @@
             <column name="POLICY" type="VARCHAR(255)"/>
             <column name="SIGNATURE_METHOD" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_SEND_ATTEMPT">
@@ -942,6 +1170,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="ERROR" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_SERVICE">
@@ -952,6 +1184,10 @@
             <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_SIGNAL_MESSAGE">
@@ -961,6 +1197,10 @@
             <column name="PULL_REQUEST_MPC" type="VARCHAR(255)"/>
             <column name="MESSAGEINFO_ID_PK" type="BIGINT"/>
             <column name="RECEIPT_ID_PK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode" tableName="TB_SPLITTING">
@@ -973,6 +1213,10 @@
             <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
             <column name="JOIN_INTERVAL" remarks="The join interval" type="INT"/>
             <column name="FK_BUSINESSPROCESS" remarks="Foreign key to the business process" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER">
@@ -999,6 +1243,10 @@
                 <constraints nullable="false"/>
             </column>
             <column defaultValueNumeric="0" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_AUD">
@@ -1047,6 +1295,10 @@
             <column name="MESSAGEINFO_ID_PK" type="BIGINT"/>
             <column name="FK_MESSAGE_FRAGMENT_ID" type="INT"/>
             <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
@@ -1060,6 +1312,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_ROLE">
@@ -1078,6 +1334,10 @@
             <column name="ROLE_ID" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_ROLES_AUD">

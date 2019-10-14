@@ -7,6 +7,8 @@
     <!-- properties - to be used in column definitions -->
     <property name="now" value="sysdate" dbms="oracle"/>
     <property name="now" value="now()" dbms="mysql"/>
+    <property name="current_db_user" value="user" dbms="oracle"/>
+    <property name="current_db_user" value="user()" dbms="mysql"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="Cosmin Baciu" id="hibernate_sequence_multi_tenancy">
@@ -33,7 +35,6 @@
             </column>
             <column name="PROCESSED" type="BOOLEAN"/>
             <column name="PROCESSED_TIME" type="TIMESTAMP"/>
-            <column name="CREATION_TIME" type="TIMESTAMP"/>
             <column name="REPORTING_TIME" type="TIMESTAMP"/>
             <column name="REPORTING_TIME_FAILURE" type="TIMESTAMP"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
@@ -43,6 +44,10 @@
             <column name="ALERT_LEVEL" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_EVENT">
@@ -63,6 +68,10 @@
             <column name="FK_ALERT" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_EVENT_PROPERTY">
@@ -78,6 +87,10 @@
             <column name="DTYPE" type="VARCHAR(31)"/>
             <column name="STRING_VALUE" type="VARCHAR(255)"/>
             <column name="DATE_VALUE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_REV_CHANGES">
@@ -125,6 +138,10 @@
                 <constraints nullable="false"/>
             </column>
             <column defaultValueBoolean="false" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_AUD">
@@ -161,6 +178,10 @@
             <column name="USER_NAME" type="VARCHAR(255)"/>
             <column name="DOMAIN" type="VARCHAR(255)"/>
             <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
@@ -174,6 +195,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_ROLE">
@@ -183,6 +208,10 @@
             <column name="ROLE_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_ROLES">
@@ -192,6 +221,10 @@
             <column name="ROLE_ID" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_ROLES_AUD">

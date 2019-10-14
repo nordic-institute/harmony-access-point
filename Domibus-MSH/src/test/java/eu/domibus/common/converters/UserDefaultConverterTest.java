@@ -1,6 +1,7 @@
 package eu.domibus.common.converters;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import eu.domibus.api.user.UserState;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserRole;
@@ -123,7 +124,7 @@ public class UserDefaultConverterTest {
         eu.domibus.api.user.User converted = userDefaultConverter.convert(userEntity);
 
         // Then
-        Assert.assertEquals("The authorities should have been correctly populated when converting between user types", Lists.newArrayList("admin", "user"), converted.getAuthorities());
+        Assert.assertEquals("The authorities should have been correctly populated when converting between user types", Sets.newHashSet("admin", "user"), Sets.newHashSet(converted.getAuthorities()));
     }
 
     @Test

@@ -224,7 +224,6 @@ public class AS4ReceiptServiceImplTest {
     @Test
     public void testSaveResponse(@Injectable final Messaging receiptMessage) throws SOAPException, ParserConfigurationException, JAXBException, SAXException, IOException {
         new Expectations() {{
-
             messageUtil.getMessaging(withAny(soapRequestMessage));
             result = receiptMessage;
 
@@ -236,10 +235,10 @@ public class AS4ReceiptServiceImplTest {
 
         new Verifications() {{
             signalMessageDao.create(receiptMessage.getSignalMessage());
-            times = 1;
+
+            signalMessageLogDao.create(withInstanceOf(SignalMessageLog.class));
 
             messagingDao.update(receiptMessage);
-            times = 1;
         }};
     }
 
@@ -248,8 +247,6 @@ public class AS4ReceiptServiceImplTest {
     public void testSaveResponse_DBWriteExceptionFlow(@Injectable final Messaging receiptMessage,
                                                       @Injectable final Messaging sentMessage,
                                                       @Injectable final SignalMessageLog signalMessageLog) throws Exception {
-
-
         new Expectations() {{
             messageUtil.getMessaging(withAny(soapRequestMessage));
             result = receiptMessage;
@@ -270,10 +267,8 @@ public class AS4ReceiptServiceImplTest {
 
         new Verifications() {{
             signalMessageDao.create(receiptMessage.getSignalMessage());
-            times = 1;
-
+            signalMessageLogDao.create(withInstanceOf(SignalMessageLog.class));
             messagingDao.update(sentMessage);
-            times = 1;
         }};
     }
 
@@ -315,10 +310,8 @@ public class AS4ReceiptServiceImplTest {
 
         new Verifications() {{
             signalMessageDao.create(receiptMessage.getSignalMessage());
-            times = 1;
-
+            signalMessageLogDao.create(withInstanceOf(SignalMessageLog.class));
             messagingDao.update(sentMessage);
-            times = 1;
         }};
     }
 

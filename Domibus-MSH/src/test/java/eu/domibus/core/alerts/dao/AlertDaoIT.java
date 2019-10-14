@@ -5,11 +5,11 @@ import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class AlertDaoIT {
 
-    private final static Logger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
 
     @Autowired
     private AlertDao alertDao;
@@ -41,6 +41,7 @@ public class AlertDaoIT {
     public void setUp(){
         createAlert("blue_gw","red_gw",false,null);
         createAlert("blue_gw","red_gw",true,null);
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
 
