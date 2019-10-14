@@ -14,6 +14,7 @@
                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
                            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
+<!--    Filter out the scanning of web and ext sub-packages, as their beans are scanner in the context of their mvc-dispatch applications-->
     <context:component-scan base-package="eu.domibus">
         <context:exclude-filter type="regex" expression="eu.domibus.web..*"/>
         <context:exclude-filter type="regex" expression="eu.domibus.ext.rest..*"/>
