@@ -1,4 +1,6 @@
 Domibus 4.1.2
+- Filtered out bean scanning of web and ext sub-packages to avoid multimple bean creation in the corresponding web app contexts.
+- Deleted msh-config.xml and moved one bean to spring-context.xml
 - Added the possibility to download PMode file using REST services
 - Removed the Domibus payload from being printed to logs if org.apache.cxf is set to INFO in logback.xml - domibus.logging.payload.print property (default to false)
 - JMS Plugin queues are available to remote clients for Wildfly 12
