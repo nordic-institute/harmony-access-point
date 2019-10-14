@@ -127,7 +127,7 @@
    ]]></notes>
         <gav regex="true">^io\.netty:netty-all:.*$</gav>
         <!-- Cve in All For One, an Ethereum gambling game: attackers can get rewards by predicting the random number - not relevant to Domibus -->
-        <cve>CVE-2019-16869</cve>
+        <cve>CVE-2018-12056</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
