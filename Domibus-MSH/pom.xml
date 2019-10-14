@@ -221,15 +221,22 @@
             <artifactId>cxf-rt-ws-policy</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl -->
+         <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
+            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb.version}</version>
         </dependency>
+
         <!-- End CXF -->
 
         <!-- Hibernate -->
@@ -254,6 +261,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mchange</groupId>
@@ -317,6 +325,7 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+            <version>${javax.validation.version}</version>
         </dependency>
 
         <dependency>
@@ -452,6 +461,12 @@
             <artifactId>metrics-servlets</artifactId>
         </dependency>
         <!-- End Dropwizard -->
+
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <version>1.4.0</version>
+        </dependency>
 
     </dependencies>
 

@@ -43,6 +43,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LIS
 /**
  * @author Christian Koch, Stefan Mueller
  */
+
 public class NotificationListenerService implements MessageListener, JmsListenerConfigurer, MessageLister, eu.domibus.plugin.NotificationListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NotificationListenerService.class);

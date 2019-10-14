@@ -29,8 +29,8 @@
         <cxf.version>3.2.6</cxf.version>
         <spring.version>4.3.17.RELEASE</spring.version>
         <spring.security.version>4.2.6.RELEASE</spring.security.version>
-        <hibernate.version>5.2.12.Final</hibernate.version>
-        <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
+        <hibernate.version>5.4.5.Final</hibernate.version>
+        <hibernate.validator.version>6.0.17.Final</hibernate.validator.version>
         <activemq.version>5.15.9</activemq.version>
         <aspectj.version>1.8.13</aspectj.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -59,7 +59,7 @@
         <tika.version>1.22</tika.version>
         <peppol.version>1.0.4</peppol.version>
         <dynamic.discovery.client.version>1.10</dynamic.discovery.client.version>
-        <javax.validation.version>1.1.0.Final</javax.validation.version>
+        <javax.validation.version>2.0.1.Final</javax.validation.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.178</h2.version>
         <liquibase.version>3.5.3</liquibase.version>
@@ -110,7 +110,11 @@
         <!--Please keep those two dependencies version aligned with transitive dependency-->
         <json-smart.version>2.3</json-smart.version>
         <ehcache.version>2.10.5</ehcache.version>
+
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <java.version>8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -167,6 +171,11 @@
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jvnet-nexus-staging</id>
+            <url>http://maven.java.net/content/repositories/staging/</url>
+            <layout>default</layout>
         </repository>
     </repositories>
 
@@ -421,7 +430,18 @@
                 <version>7.0</version>
             </dependency>
 
-            <!-- JAXB -->
+            <!-- https://mvnrepository.com/artifact/com.sun.xml.messaging.saaj/saaj-impl -->
+            <dependency>
+                <groupId>com.sun.xml.messaging.saaj</groupId>
+                <artifactId>saaj-impl</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
@@ -432,6 +452,7 @@
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
+
             <!-- End JAXB -->
 
             <!-- ActiveMQ -->
@@ -576,11 +597,11 @@
                 <artifactId>jsr305</artifactId>
                 <version>3.0.0</version>
             </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>javax.validation</groupId>-->
+<!--                <artifactId>validation-api</artifactId>-->
+<!--                <version>${javax.validation.version}</version>-->
+<!--            </dependency>-->
 
             <!-- XStream -->
             <dependency>
@@ -853,9 +874,17 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <source>1.8</source>
-                        <target>1.8</target>
+                        <target>${java.version}</target>
+                        <release>${java.version}</release>
                         <encoding>UTF-8</encoding>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm</artifactId>
+                            <version>6.2</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
