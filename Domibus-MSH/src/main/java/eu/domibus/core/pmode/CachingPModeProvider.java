@@ -624,14 +624,43 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(String service, String action) {
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
         List result = new ArrayList<String>();
-        for (Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
+        List<Process> processes = filterProcessesByMep(meps);
+        for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
+                LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
                 result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
             }
         }
         return result;
+    }
+
+    protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {
+        List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
+        processes = processes.stream().filter(process -> isMEPMatch(process, meps)).collect(Collectors.toList());
+
+        return processes;
+    }
+
+    protected boolean isMEPMatch(Process process, final List<MessageExchangePattern> meps) {
+        if (CollectionUtils.isEmpty(meps)) { // process can have any mep
+            return true;
+        }
+
+        if (process == null || process.getMepBinding() == null  // invalid process
+                || process.getMepBinding().getValue() == null) {
+            return false;
+        }
+
+        for (MessageExchangePattern mep : meps) {
+            if (mep.getUri().equals(process.getMepBinding().getValue())) {
+                LOG.trace("Found match for mep [{}]", mep.getUri());
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String
@@ -646,6 +675,7 @@ public class CachingPModeProvider extends PModeProvider {
     private void handleProcessParties(Process process, List result) {
         for (Party party : process.getResponderParties()) {
             for (Identifier identifier : party.getIdentifiers()) {
+                LOG.trace("Add matching party [{}] from process [{}]", identifier.getPartyId(), process.getName());
                 result.add(identifier.getPartyId());
             }
         }

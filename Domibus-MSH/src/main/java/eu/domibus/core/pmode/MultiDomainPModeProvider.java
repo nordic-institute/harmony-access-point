@@ -9,10 +9,8 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Service;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -237,8 +235,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(String service, String action) {
-        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action);
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action, meps);
     }
 
     @Override
