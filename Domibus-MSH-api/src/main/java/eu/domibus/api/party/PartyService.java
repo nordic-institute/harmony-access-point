@@ -49,6 +49,13 @@ public interface PartyService {
     void updateParties(List<Party> partyList, Map<String, String> certificates);
 
     /**
+     * Updates the endpoint of a single party.
+     * @param partyName the name of the party to update
+     * @param newEndpoint the new endpoint
+     */
+    void updatePartyEndpoint(final String partyName, final String newEndpoint);
+
+    /**
      * Retrieve all the processes configured in the pmode.
      *
      * @return a lit of processes.

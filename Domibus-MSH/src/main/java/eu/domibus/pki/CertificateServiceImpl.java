@@ -491,6 +491,14 @@ public class CertificateServiceImpl implements CertificateService {
         return null;
     }
 
+    @Override
+    public X509Certificate loadCertificateFromEncodedString(String content) throws CertificateException {
+        final byte[] decode = Base64.getDecoder().decode(content);
+        InputStream targetStream = new ByteArrayInputStream(decode);
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        return (X509Certificate) factory.generateCertificate(targetStream);
+    }
+
 
     public TrustStoreEntry convertCertificateContent(String certificateContent) throws CertificateException {
         X509Certificate cert = loadCertificateFromString(certificateContent);

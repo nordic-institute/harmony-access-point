@@ -22,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
@@ -74,6 +76,14 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
+
+        try {
+            validateC3Certificate(ebMSHeaderInfo);
+        } catch (Exception e) {
+            LOG.error("Could not parse C3 certificate", e);
+            throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateDefaultFaultDetail("Could not parse C3 certificate"));
+        }
+
         addPartInfos(submitRequest, ebMSHeaderInfo);
         if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
             MessageInfo messageInfo = new MessageInfo();
@@ -91,6 +101,25 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         final SubmitResponse response = WEBSERVICE_OF.createSubmitResponse();
         response.getMessageID().add(messageId);
         return response;
+    }
+
+    protected void validateC3Certificate(Messaging ebMSHeaderInfo) throws CertificateException {
+        final MessageProperties messageProperties = ebMSHeaderInfo.getUserMessage().getMessageProperties();
+        final List<Property> propertyList = messageProperties.getProperty();
+        if (messageProperties == null || propertyList == null) {
+            return;
+        }
+        for (Property property : propertyList) {
+            if ("C3Certificate".equalsIgnoreCase(property.getName())) {
+                final String value = property.getValue();
+                final byte[] decode = Base64.getDecoder().decode(value);
+
+                InputStream targetStream = new ByteArrayInputStream(decode);
+                CertificateFactory factory = CertificateFactory.getInstance("X.509");
+                X509Certificate cert = (X509Certificate) factory.generateCertificate(targetStream);
+                LOG.info("Successfully parsed certificate for C3" + cert);
+            }
+        }
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {

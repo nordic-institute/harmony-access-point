@@ -3,6 +3,8 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.party.PartyService;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -19,6 +21,7 @@ import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.message.fragment.*;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
@@ -54,7 +57,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Iterator;
+import java.util.Set;
 
 import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
@@ -68,6 +74,9 @@ import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
 public class UserMessageHandlerServiceImpl implements UserMessageHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
+
+    private static final String C3URL_PROPERTY_NAME = "domibus.msh.property.c3url";
+    private static final String C3CERTIFICATE_PROPERTY_NAME = "domibus.msh.property.c3certificate";
 
     @Autowired
     protected SoapUtil soapUtil;
@@ -134,6 +143,19 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected StorageProvider storageProvider;
+
+    @Autowired
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Autowired
+    protected DomainContextProvider domainProvider;
+
+    @Autowired
+    private PartyService partyService;
+
+    @Autowired
+    private CertificateService certificateService;
+
 
     @Override
     @Timer(value = INCOMING_USER_MESSAGE)
@@ -330,10 +352,52 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         handlePayloads(request, userMessage);
 
+        try {
+            Party to = pModeProvider.getReceiverParty(pmodeKey);
+            updateC3(userMessage, to);
+        } catch (CertificateException exc) {
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could update C3 certificate" + exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
+            ex.setMshRole(MSHRole.RECEIVING);
+            throw ex;
+        }
+
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
         return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
     }
+
+    private void updateC3(UserMessage userMessage, Party to) throws CertificateException {
+
+        String c3urlPropertyName = domibusPropertyProvider.getDomainProperty(C3URL_PROPERTY_NAME);
+        String c3certPropertyName = domibusPropertyProvider.getDomainProperty(C3CERTIFICATE_PROPERTY_NAME);
+
+        final MessageProperties messageProperties = userMessage.getMessageProperties();
+        final Set<Property> propertySet = messageProperties.getProperty();
+        if (messageProperties == null || propertySet == null) {
+            return;
+        }
+        final Iterator<Property> iterator = propertySet.iterator();
+        while (iterator.hasNext()) {
+            Property property = iterator.next();
+            if (StringUtils.isNotBlank(c3certPropertyName) && c3certPropertyName.equalsIgnoreCase(property.getName())) {
+                updateC3Certificate(to.getName(), property.getValue());
+                iterator.remove();
+            }
+            if (StringUtils.isNotBlank(c3urlPropertyName) && c3urlPropertyName.equalsIgnoreCase(property.getName())) {
+                partyService.updatePartyEndpoint(to.getName(), property.getValue());
+                iterator.remove();
+            }
+        }
+    }
+
+    private void updateC3Certificate(final String partyName, final String encodedCertificate) throws CertificateException {
+        X509Certificate certificate = certificateService.loadCertificateFromEncodedString(encodedCertificate);
+        LOG.info("Add public certificate to the truststore for party [{}]", partyName);
+        //add certificate to Truststore
+        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, partyName, true);
+        LOG.info("Certificate added to the truststore for party [{}]", partyName);
+    }
+
 
     /**
      * Persists the incoming SourceMessage

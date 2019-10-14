@@ -487,6 +487,45 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
+    public void updatePartyEndpoint(final String partyName, final String newEndpoint) {
+        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
+        if (pModeArchiveInfo == null)
+            throw new IllegalStateException("Could not update PMode parties: PMode not found!");
+
+        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
+
+        Configuration configuration;
+        try {
+            configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
+        } catch (XmlProcessingException e) {
+            LOG.error("Error reading current PMode", e);
+            throw new IllegalStateException(e);
+        }
+
+        final Parties partiesXml = configuration.getBusinessProcesses().getPartiesXml();
+        for (eu.domibus.common.model.configuration.Party party : partiesXml.getParty()) {
+            if (party.getName().equalsIgnoreCase(partyName)) {
+                LOG.info("Updating URL for party [{}] with [{}]", party.getName(), newEndpoint);
+                party.setEndpoint(newEndpoint);
+                break;
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
+        ZonedDateTime confDate = ZonedDateTime.ofInstant(rawConfiguration.getConfigurationDate().toInstant(), ZoneId.systemDefault());
+        String updatedDescription = "Updated [" + partyName + "] to version of " + confDate.format(formatter);
+
+        byte[] updatedPmode;
+        try {
+            updatedPmode = pModeProvider.serializePModeConfiguration(configuration);
+            pModeProvider.updatePModes(updatedPmode, updatedDescription);
+        } catch (XmlProcessingException e) {
+            LOG.error("Error writing current PMode", e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
     public List<eu.domibus.api.process.Process> getAllProcesses() {
         //Retrieve all processes, needed in UI console to be able to check
         List<eu.domibus.common.model.configuration.Process> allProcesses;

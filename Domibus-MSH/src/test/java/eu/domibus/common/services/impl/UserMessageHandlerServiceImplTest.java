@@ -3,6 +3,7 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
@@ -17,6 +18,7 @@ import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.configuration.storage.StorageProvider;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
@@ -178,6 +180,15 @@ public class UserMessageHandlerServiceImplTest {
 
     @Injectable
     StorageProvider storageProvider;
+
+    @Injectable
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Injectable
+    protected DomainContextProvider domainProvider;
+
+    @Injectable
+    private PartyService partyService;
 
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
