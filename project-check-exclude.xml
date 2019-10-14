@@ -127,6 +127,16 @@
    ]]></notes>
         <gav regex="true">^io\.netty:netty-all:.*$</gav>
         <!-- Cve in All For One, an Ethereum gambling game: attackers can get rewards by predicting the random number - not relevant to Domibus -->
-        <cve>CVE-2018-12056</cve>
+        <cve>CVE-2019-16869</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.9.10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <!-- We don't have the commons-dbcp (1.4) jar in the classpath -->
+        <cve>CVE-2019-16942</cve>
+        <!-- We don't have the p6spy (3.8.6) jar in the classpath -->
+        <cve>CVE-2019-16943</cve>
     </suppress>
 </suppressions>
