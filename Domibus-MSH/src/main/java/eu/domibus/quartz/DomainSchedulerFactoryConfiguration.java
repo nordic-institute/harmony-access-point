@@ -282,9 +282,8 @@ public class DomainSchedulerFactoryConfiguration {
     public CronTriggerFactoryBean temporaryPayloadRetentionTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(temporaryPayloadRetentionJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
         obj.setStartDelay(20000);
-        obj.setGroup(GROUP_GENERAL);
         return obj;
     }
 
