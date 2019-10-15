@@ -40,7 +40,7 @@ public class SoapUtilTest {
 
     public static SOAPMessage createSOAPMessage(String dataset) throws SOAPException, IOException, ParserConfigurationException, SAXException {
 
-        MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+        MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
         SOAPMessage message = factory.createMessage();
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

@@ -1,7 +1,6 @@
 package eu.domibus.core.pull;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
@@ -14,6 +13,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -35,9 +35,6 @@ import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
 public class PullMessageServiceImplTest {
-
-    @Injectable
-    private UserMessageLogService userMessageLogService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -78,6 +75,8 @@ public class PullMessageServiceImplTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    private UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Test
     public void updatePullMessageAfterRequest() {

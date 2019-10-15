@@ -111,6 +111,7 @@
         <json-smart.version>2.3</json-smart.version>
         <ehcache.version>2.10.5</ehcache.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -292,6 +293,12 @@
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- End BouncyCastle -->
+
+            <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>${java-uuid-generator.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.google.code.gson</groupId>

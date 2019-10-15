@@ -2,6 +2,8 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.util.RegexUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,7 @@ import java.util.regex.Pattern;
  * @since 3.2
  */
 @Component
+@Transactional(propagation = Propagation.SUPPORTS)
 public class RegexUtilImpl implements RegexUtil {
 
     protected Map<String, Pattern> patternHashMap = new HashMap<>();

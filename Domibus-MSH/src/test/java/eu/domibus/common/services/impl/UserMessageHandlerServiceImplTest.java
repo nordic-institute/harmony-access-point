@@ -1,6 +1,5 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
@@ -16,6 +15,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
@@ -111,7 +111,7 @@ public class UserMessageHandlerServiceImplTest {
     UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    UserMessageLogService userMessageLogService;
+    UserMessageLogDefaultService userMessageLogService;
 
     @Injectable
     JAXBContext jaxbContextEBMS;

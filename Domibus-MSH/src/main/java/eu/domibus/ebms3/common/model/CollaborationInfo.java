@@ -29,7 +29,7 @@ public class CollaborationInfo {
     @XmlSchemaType(name = "token")
     @Column(name = "COLL_INFO_CONVERS_ID", nullable = false)
     @NotNull
-    protected String conversationId = UUID.randomUUID().toString();
+    protected String conversationId;
     @XmlElement(name = "Action", required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlSchemaType(name = "token")

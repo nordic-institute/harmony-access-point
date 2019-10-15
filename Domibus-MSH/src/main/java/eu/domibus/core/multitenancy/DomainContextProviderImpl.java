@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomainContextProviderImpl implements DomainContextProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
