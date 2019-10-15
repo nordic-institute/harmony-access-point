@@ -110,7 +110,7 @@ public class UpdateRetryLoggingService {
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
         if (messageAttempt != null) {
-            messageAttemptService.updateEndDateAndCreate(messageAttempt);
+            messageAttemptService.createAndUpdateEndDate(messageAttempt);
         }
     }
 

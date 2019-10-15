@@ -12,5 +12,5 @@ public interface MessageAttemptService {
 
     void create(MessageAttempt attempt);
 
-    void updateEndDateAndCreate(MessageAttempt attempt);
+    void createAndUpdateEndDate(MessageAttempt attempt);
 }

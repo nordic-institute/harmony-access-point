@@ -3,6 +3,10 @@ package eu.domibus.xml;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 public class DomibusXMLException extends DomibusCoreException {
 
     public DomibusXMLException(DomibusCoreErrorCode dce, String message) {

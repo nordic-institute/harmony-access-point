@@ -95,6 +95,11 @@ public class MessagingDao extends BasicDao<Messaging> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
     }
 
+    /**
+     * Deletes the payloads saved on the file system
+     *
+     * @param userMessage
+     */
     protected void clearFileSystemPayloads(final UserMessage userMessage) {
         List<PartInfo> fileSystemPayloads = getFileSystemPayloads(userMessage);
         if (CollectionUtils.isEmpty(fileSystemPayloads)) {
@@ -112,6 +117,10 @@ public class MessagingDao extends BasicDao<Messaging> {
         }
     }
 
+    /**
+     * Deletes the payloads saved in the database
+     * @param userMessage
+     */
     protected void clearDatabasePayloads(final UserMessage userMessage) {
         List<PartInfo> databasePayloads = getDatabasePayloads(userMessage);
         if (CollectionUtils.isEmpty(databasePayloads)) {
@@ -146,18 +155,6 @@ public class MessagingDao extends BasicDao<Messaging> {
             }
         }
         return result;
-    }
-
-    /**
-     * Clears the payloads data for the message with the given messageId.
-     *
-     * @param messageId the message id.
-     */
-    @Transactional(propagation = Propagation.MANDATORY)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void clearPayloadData(String messageId) {
-        final UserMessage userMessage = findUserMessageByMessageId(messageId);
-        clearPayloadData(userMessage);
     }
 
     /**

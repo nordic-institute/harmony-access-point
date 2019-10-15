@@ -109,6 +109,13 @@ public class MessageUtil {
         return root.getValue();
     }
 
+    /**
+     * Extract the Messaging object using DOM API instead of JAXB
+     *
+     * @param soapMessage
+     * @return
+     * @throws SOAPException
+     */
     public Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException {
         final Node messagingNode = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         return getMessagingWithDom(messagingNode);

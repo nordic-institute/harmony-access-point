@@ -52,7 +52,7 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
     }
 
     @Override
-    public void updateEndDateAndCreate(MessageAttempt attempt) {
+    public void createAndUpdateEndDate(MessageAttempt attempt) {
         LOG.debug("Updating and creating message attempt");
 
         attempt.setEndDate(new Timestamp(System.currentTimeMillis()));

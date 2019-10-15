@@ -222,8 +222,6 @@ public class UpdateRetryLoggingServiceTest {
         updateRetryLoggingService.updatePushedMessageRetryLogging(messageId, legConfiguration, null);
 
         new Verifications() {{
-            messagingDao.clearPayloadData(messageId);
-            times = 0;
             messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
             messageLogDao.setAsNotified(userMessageLog);
             times = 0;
@@ -340,7 +338,7 @@ public class UpdateRetryLoggingServiceTest {
         new Verifications() {{
             messageLogDao.update(userMessageLog);
             updateRetryLoggingService.updateNextAttemptAndNotify(legConfiguration, MessageStatus.WAITING_FOR_RETRY, userMessageLog);
-            messageAttemptService.updateEndDateAndCreate(messageAttempt);
+            messageAttemptService.createAndUpdateEndDate(messageAttempt);
         }};
     }
 

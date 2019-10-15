@@ -3,6 +3,8 @@ package eu.domibus.ebms3.sender;
 import eu.domibus.ebms3.common.model.Messaging;
 
 /**
+ * This class holds the result of the {@link eu.domibus.ebms3.sender.ResponseHandler} check
+ *
  * @author Cosmin Baciu
  * @since 4.1.2
  */

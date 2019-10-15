@@ -40,7 +40,6 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
             EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in SignedInfo node", null, null);
             e.setMshRole(MSHRole.SENDING);
             throw e;
-
         }
 
         for (int i = 0; i < childNodes.getLength(); ++i) {
@@ -68,7 +67,6 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
             EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in NonRepudiationInformation node", null, null);
             e.setMshRole(MSHRole.SENDING);
             throw e;
-
         }
 
         for (int i = 0; i < childNodes.getLength(); ++i) {

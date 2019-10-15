@@ -979,8 +979,6 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-            messagingDao.clearPayloadData(anyString);
-            times = 0;
         }};
 
     }

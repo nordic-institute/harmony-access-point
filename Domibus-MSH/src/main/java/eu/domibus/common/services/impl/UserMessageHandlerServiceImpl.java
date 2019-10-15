@@ -133,7 +133,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected PayloadFileStorageProvider storageProvider;
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);

@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -205,7 +206,8 @@ public class ReliabilityChecker {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
-            XMLUtilImpl.getTransformerFactory().newTransformer().transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
+            Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
+            transformer.transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
             return stringWriter.toString();
         } catch (IOException | TransformerException e) {
             LOG.warn("Couldn't get soap part", e);
@@ -247,7 +249,6 @@ public class ReliabilityChecker {
         exceptionToHandle.setRefToMessageId(messageId);
         Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
         if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
-//            userMessageLogService.setMessageAsAcknowledged(messageId);
             // TODO Shouldn't clear the payload data here ?
         }
 

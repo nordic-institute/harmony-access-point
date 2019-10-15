@@ -6,8 +6,6 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -22,8 +20,6 @@ public class UserMessageSender extends AbstractUserMessageSender {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSender.class);
 
-
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     protected SOAPMessage createSOAPMessage(UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
         return messageBuilder.buildSOAPMessage(userMessage, legConfiguration);

@@ -277,7 +277,6 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
-    //@Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
         String partyIdType = "";
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
