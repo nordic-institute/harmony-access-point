@@ -23,6 +23,32 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 //read-only properties
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.deployment.clustered"),
                 new DomibusPropertyMetadata("domibus.security.key.private.password", false, true, false),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.database.general.schema"),
+                new DomibusPropertyMetadata("domibus.database.schema", false, true, false),
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.xaDataSourceClassName"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maxLifetime"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.minPoolSize"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maxPoolSize"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.borrowConnectionTimeout"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.reapTimeout"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maxIdleTime"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maintenanceInterval"),
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.user"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.password"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.url"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.URL"),
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.driverClassName"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.url"),
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.user"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.password"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.maxLifetime"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.minPoolSize"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.maxPoolSize"),
+
 
 
                 //writable properties
