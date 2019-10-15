@@ -57,6 +57,9 @@ public class DMessages {
 	public static final String MESSAGE_FILTER_DUPLICATE_FILTER = "Impossible to insert a duplicate entry";
 	public  static final String CHANGEPASSWORD_WRONG_CURRENT_PASSWORD= "Password could not be changed. [DOM_001]:The current password does not match the provided one.";
 
+	public class Users {
+		public static final String DUPLICATE_USERNAME_ERROR = "Duplicate user name for user: %s.";
+	}
 
 }
 

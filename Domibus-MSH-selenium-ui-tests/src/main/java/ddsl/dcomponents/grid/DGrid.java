@@ -351,21 +351,22 @@ public class DGrid extends DComponent {
 	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
 		log.info("checking changing number of rows displayed");
 		//----------Rows
-		getGridCtrl().showCtrls();
-		getGridCtrl().getAllLnk().click();
 
 		int rows = getPagination().getTotalItems();
-		log.info("changin number of rows to 25");
+		log.info("changing number of rows to 25");
 		getPagination().getPageSizeSelect().selectOptionByText("25");
 		waitForRowsToLoad();
 
+		log.info("checking pagination reset to 1");
 		soft.assertTrue(getPagination().getActivePage() == 1, "pagination is reset to 1 after changing number of items per page");
 
+		log.info("check listed number of rows");
 		if(rows > 10){
 			soft.assertTrue(getRowsNo() > 10, "Number of rows is bigger than 10");
 			soft.assertTrue(getRowsNo() <= 25, "Number of rows is less or equal to 25");
 		}
 
+		log.info("check pagination");
 		if(rows > 25){
 			soft.assertTrue(getPagination().hasNextPage(), "If there are more than 25 items there are more than one pages");
 		}

@@ -327,6 +327,24 @@ public class DomibusRestClient {
 		}
 	}
 
+	public JSONArray getPluginUsers(String domain) {
+
+		switchDomain(domain);
+
+		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), null);
+		if (response.getStatus() != 200) {
+			throw new RuntimeException("Could not get users ");
+		}
+
+		try {
+			String rawResp = response.getEntity(String.class);
+			return new JSONObject(sanitizeResponse(rawResp)).getJSONArray("entries");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	// -------------------------------------------- Domains ------------------------------------------------------------
 	private JSONArray getDomains() {
 		JSONArray domainArray = null;
