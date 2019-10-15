@@ -3,6 +3,7 @@ package eu.domibus.common.dao;
 import com.google.common.collect.Maps;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.*;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -11,6 +12,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -24,7 +27,7 @@ import java.util.*;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
+
 
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
@@ -87,6 +90,19 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public MessageStatus getMessageStatus(String messageId) {
+        try {
+            TypedQuery<MessageStatus> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
+            query.setParameter(STR_MESSAGE_ID, messageId);
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with id [" + messageId + "]");
+            return MessageStatus.NOT_FOUND;
+        }
+    }
+
 
     public UserMessageLog findByMessageId(String messageId) {
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
@@ -137,8 +153,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getSingleResult();
     }
 
-    public void setAsNotified(String messageId) {
-        final UserMessageLog messageLog = findByMessageId(messageId);
+    public void setAsNotified(final UserMessageLog messageLog) {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
         super.update(messageLog);
     }

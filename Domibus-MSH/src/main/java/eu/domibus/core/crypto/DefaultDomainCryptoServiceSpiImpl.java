@@ -24,6 +24,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
@@ -85,6 +86,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         return (X509Certificate) getKeyStore().getCertificate(alias);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public X509Certificate getCertificateFromTrustStore(String alias) throws KeyStoreException {
         return (X509Certificate) getTrustStore().getCertificate(alias);

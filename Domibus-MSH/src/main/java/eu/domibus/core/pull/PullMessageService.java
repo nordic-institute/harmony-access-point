@@ -72,7 +72,7 @@ public interface PullMessageService {
      */
     PullRequestResult updatePullMessageAfterReceipt(
             ReliabilityChecker.CheckResult reliabilityCheckSuccessful,
-            ResponseHandler.CheckResult isOk,
+            ResponseHandler.ResponseStatus isOk,
             UserMessageLog userMessageLog,
             LegConfiguration legConfiguration,
             UserMessage userMessage);

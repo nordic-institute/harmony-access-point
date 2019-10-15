@@ -1,6 +1,5 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
@@ -8,7 +7,6 @@ import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
@@ -26,29 +24,21 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import eu.domibus.xml.XMLUtilImpl;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import java.io.IOException;
 import java.util.Iterator;
@@ -88,9 +78,6 @@ public class AS4ReceiptServiceImplTest {
 
     @Injectable
     UserMessageLogDao userMessageLogDao;
-
-    @Injectable
-    UserMessageLogService userMessageLogService;
 
     @Injectable
     JAXBContext jaxbContextEBMS;
@@ -148,10 +135,36 @@ public class AS4ReceiptServiceImplTest {
 
 
     @Test
-    public void testGenerateReceipt_WithReliabilityAndResponseRequired(@Injectable Messaging messaging) throws Exception {
+    public void testGenerateReceipt_WithReliabilityAndResponseRequired(@Injectable final LegConfiguration legConfiguration,
+                                                                       @Injectable final Source messageToReceiptTransform,
+                                                                       @Injectable final Transformer transformer,
+                                                                       @Injectable final DOMResult domResult,
+                                                                       @Injectable Messaging messaging,
+                                                                       @Mocked XMLUtilImpl xmlUtil,
+                                                                       @Injectable MessageFactory messageFactory,
+                                                                       @Injectable Templates templates) throws Exception {
         new Expectations(as4ReceiptService) {{
             messageFactory.createMessage();
             result = soapResponseMessage;
+
+            XMLUtilImpl.getMessageFactory();
+            result = messageFactory;
+
+            messageFactory.createMessage();
+            result = soapResponseMessage;
+
+            as4ReceiptService.getTemplates();
+            result = templates;
+
+            templates.newTransformer();
+            result = transformer;
+
+            messageIdGenerator.generateMessageId();
+            result = "1234";
+
+            timestampDateFormatter.generateTimestamp();
+            result = "mydate";
+
 
             //Expecting that the saveResponse call will be invoked without any exception.
             as4ReceiptService.saveResponse(withAny(soapResponseMessage), false);
@@ -194,14 +207,29 @@ public class AS4ReceiptServiceImplTest {
                                                        @Injectable final Source messageToReceiptTransform,
                                                        @Injectable final Transformer transformer,
                                                        @Injectable final DOMResult domResult,
-                                                       @Injectable Messaging messaging)
-            throws SOAPException, TransformerException {
+                                                       @Injectable Messaging messaging,
+                                                       @Mocked XMLUtilImpl xmlUtil,
+                                                       @Injectable MessageFactory messageFactory,
+                                                       @Injectable Templates templates)
+            throws SOAPException, TransformerException, IOException {
         new Expectations(as4ReceiptService) {{
+            XMLUtilImpl.getMessageFactory();
+            result = messageFactory;
+
             messageFactory.createMessage();
             result = soapResponseMessage;
 
-            transformerFactory.newTransformer(withAny(messageToReceiptTransform));
+            as4ReceiptService.getTemplates();
+            result = templates;
+
+            templates.newTransformer();
             result = transformer;
+
+            messageIdGenerator.generateMessageId();
+            result = "1234";
+
+            timestampDateFormatter.generateTimestamp();
+            result = "mydate";
 
             transformer.transform(withAny(messageToReceiptTransform), withAny(domResult));
             result = new TransformerException("TEST Transformer Exception");
@@ -222,10 +250,10 @@ public class AS4ReceiptServiceImplTest {
 
 
     @Test
-    public void testSaveResponse(@Injectable final Messaging receiptMessage) throws SOAPException, ParserConfigurationException, JAXBException, SAXException, IOException {
+    public void testSaveResponse(@Injectable final Messaging receiptMessage) throws SOAPException {
         new Expectations() {{
 
-            messageUtil.getMessaging(withAny(soapRequestMessage));
+            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
             result = receiptMessage;
 
             messagingDao.findMessageByMessageId(anyString);
@@ -251,7 +279,7 @@ public class AS4ReceiptServiceImplTest {
 
 
         new Expectations() {{
-            messageUtil.getMessaging(withAny(soapRequestMessage));
+            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
             result = receiptMessage;
 
             messagingDao.findMessageByMessageId(anyString);
@@ -304,7 +332,7 @@ public class AS4ReceiptServiceImplTest {
     public void testSaveResponse_SendToSameAP(@Injectable final Messaging receiptMessage,
                                               @Injectable final Messaging sentMessage) throws Exception {
         new Expectations() {{
-            messageUtil.getMessaging(withAny(soapRequestMessage));
+            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
             result = receiptMessage;
 
             messagingDao.findMessageByMessageId(anyString);

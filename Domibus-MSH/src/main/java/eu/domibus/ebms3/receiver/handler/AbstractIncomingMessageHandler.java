@@ -7,13 +7,13 @@ import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartyInfo;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.JAXBException;
@@ -45,7 +45,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     @Autowired
     protected PModeProvider pModeProvider;
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         SOAPMessage responseMessage = null;

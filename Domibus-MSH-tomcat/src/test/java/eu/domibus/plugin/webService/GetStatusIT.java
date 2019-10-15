@@ -30,7 +30,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
     MessagingService messagingService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebservice;
+    Provider<SOAPMessage> mshWebserviceTest;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -43,7 +43,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = createSOAPMessage(filename);
-        mshWebservice.invoke(soapMessage);
+        mshWebserviceTest.invoke(soapMessage);
 
         waitUntilMessageIsReceived(messageId);
 

@@ -13,6 +13,8 @@ import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 
@@ -25,6 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_
  * @since 4.0
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class UIReplicationSignalService {
 
     static final String JMS_PROP_STATUS = "status";

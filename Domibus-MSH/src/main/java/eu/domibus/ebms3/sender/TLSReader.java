@@ -10,6 +10,8 @@ import org.apache.cxf.configuration.jsse.TLSClientParametersConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +22,7 @@ import java.util.Optional;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class TLSReader {
     public static final String CLIENT_AUTHENTICATION_XML = "clientauthentication.xml";
 

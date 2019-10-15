@@ -15,6 +15,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -29,6 +31,7 @@ import java.io.OutputStream;
  * @since 3.0
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class CompressionService {
     public static final String COMPRESSION_PROPERTY_KEY = "CompressionType";
     public static final String COMPRESSION_PROPERTY_VALUE = "application/gzip";
