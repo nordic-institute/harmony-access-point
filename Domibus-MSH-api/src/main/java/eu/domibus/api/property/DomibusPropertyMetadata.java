@@ -59,8 +59,8 @@ public class DomibusPropertyMetadata {
         this(name, Module.MSH, true, domainSpecific, withFallback, true);
     }
 
-    public DomibusPropertyMetadata(String name, boolean domainSpecific) {
-        this(name, Module.MSH, true, domainSpecific, false, true);
+    public DomibusPropertyMetadata(String name, boolean writable, boolean domainSpecific, boolean withFallback) {
+        this(name, Module.MSH, writable, domainSpecific, withFallback, true);
     }
 
     public String getName() {

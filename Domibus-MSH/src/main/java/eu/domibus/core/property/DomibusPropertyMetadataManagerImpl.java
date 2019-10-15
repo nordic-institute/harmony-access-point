@@ -20,6 +20,12 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
 
         return Arrays.stream(new DomibusPropertyMetadata[]{
+                //read-only properties
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.deployment.clustered"),
+                new DomibusPropertyMetadata("domibus.security.key.private.password", false, true, false),
+
+
+                //writable properties
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_ENABLED, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_NAME, true, true),
@@ -49,7 +55,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_WARNING_BEFORE_EXPIRATION, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_DONT_REUSE_LAST, true, true),
-                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD),
 
                 new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, true, true),
@@ -61,7 +67,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE, true, true),
 
                 new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, true, true),
-                new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY),
 
                 new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_SMLZONE, true, true),
@@ -72,9 +78,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, true, true),
 
-                new DomibusPropertyMetadata(DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT, false),
-                new DomibusPropertyMetadata(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE, false), //there is one place at init time that it is not refreshed
-                new DomibusPropertyMetadata(DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE), //there is one place at init time that it is not refreshed
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION),
 
                 new DomibusPropertyMetadata(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, true, true),
@@ -98,29 +104,29 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_RETENTION_JMS_CONCURRENCY, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY, true, true),
 
-                new DomibusPropertyMetadata(DOMIBUS_PROXY_ENABLED, false),
-                new DomibusPropertyMetadata(DOMIBUS_PROXY_HTTP_HOST, false),
-                new DomibusPropertyMetadata(DOMIBUS_PROXY_HTTP_PORT, false),
-                new DomibusPropertyMetadata(DOMIBUS_PROXY_USER, false),
-                new DomibusPropertyMetadata(DOMIBUS_PROXY_PASSWORD, false),
-                new DomibusPropertyMetadata(DOMIBUS_PROXY_NON_PROXY_HOSTS, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_ENABLED),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_HOST),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_PORT),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_PASSWORD),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 
                 new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS, true, true),
-                new DomibusPropertyMetadata(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE, false),
-                new DomibusPropertyMetadata(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE),
                 new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD, true, true),
-                new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, false),
-                new DomibusPropertyMetadata(DOMIBUS_FOURCORNERMODEL_ENABLED, false),
-                new DomibusPropertyMetadata(DOMIBUS_LOGGING_PAYLOAD_PRINT, false),
-                new DomibusPropertyMetadata(DOMIBUS_LOGGING_CXF_LIMIT, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FOURCORNERMODEL_ENABLED),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT),
 
-                new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION),
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD, true, true),
 
                 new DomibusPropertyMetadata(DOMAIN_TITLE, true, false),
-                new DomibusPropertyMetadata(DOMIBUS_USER_INPUT_BLACK_LIST, false),
-                new DomibusPropertyMetadata(DOMIBUS_USER_INPUT_WHITE_LIST, false),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_BLACK_LIST),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST),
 
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CHECK_CRON),
@@ -141,7 +147,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_ACTIVE, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, true, true),
-                new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT, false, true),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_URL),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_USER),

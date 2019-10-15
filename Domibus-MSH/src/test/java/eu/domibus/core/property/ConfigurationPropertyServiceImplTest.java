@@ -70,7 +70,7 @@ public class ConfigurationPropertyServiceImplTest {
     }
 
     DomibusPropertyMetadata convert(DomibusPropertyMetadataDTO meta) {
-        return new DomibusPropertyMetadata(meta.getName(), meta.getModule(), meta.isDomainSpecific(), meta.isWithFallback(), meta.isClusterAware());
+        return new DomibusPropertyMetadata(meta.getName(), meta.getModule(), meta.isWritable(), meta.isDomainSpecific(), meta.isWithFallback(), meta.isClusterAware());
     }
 
     @Test
