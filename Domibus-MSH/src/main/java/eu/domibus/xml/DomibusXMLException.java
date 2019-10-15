@@ -4,6 +4,8 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 
 /**
+ * Exception raised when dealing with XML related operations, like the creation of a MessageFactory
+ *
  * @author Cosmin Baciu
  * @since 4.2
  */
