@@ -33,6 +33,8 @@ public class DomibusPropertyMetadata {
 
     private String module;
 
+    private boolean canSetAtRuntime;
+
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return new DomibusPropertyMetadata(name, false, false);
     }
@@ -40,7 +42,7 @@ public class DomibusPropertyMetadata {
     public DomibusPropertyMetadata() {
     }
 
-    public DomibusPropertyMetadata(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadata(String name, String module, boolean canSetAtRuntime, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
@@ -49,11 +51,11 @@ public class DomibusPropertyMetadata {
     }
 
     public DomibusPropertyMetadata(String name, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, domainSpecific, withFallback, true);
+        this(name, Module.MSH, true, domainSpecific, withFallback, true);
     }
 
     public DomibusPropertyMetadata(String name, boolean domainSpecific) {
-        this(name, Module.MSH, domainSpecific, false, true);
+        this(name, Module.MSH, true, domainSpecific, false, true);
     }
 
     public String getName() {
@@ -118,5 +120,13 @@ public class DomibusPropertyMetadata {
 
     public void setModule(String module) {
         this.module = module;
+    }
+
+    public boolean isCanSetAtRuntime() {
+        return canSetAtRuntime;
+    }
+
+    public void setCanSetAtRuntime(boolean canSetAtRuntime) {
+        this.canSetAtRuntime = canSetAtRuntime;
     }
 }

@@ -3,7 +3,7 @@ package eu.domibus.ext.domain;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * It is the plugin api equivalent of the DomibusPropertyMetadata
  * Class that encapsulates the properties of a domibus configuration property;
  */
@@ -34,6 +34,8 @@ public class DomibusPropertyMetadataDTO {
     private String description;
 
     private String module;
+
+    private boolean canSetAtRuntime;
 
     public DomibusPropertyMetadataDTO() {
     }
@@ -128,5 +130,13 @@ public class DomibusPropertyMetadataDTO {
 
     public void setModule(String module) {
         this.module = module;
+    }
+
+    public boolean isCanSetAtRuntime() {
+        return canSetAtRuntime;
+    }
+
+    public void setCanSetAtRuntime(boolean canSetAtRuntime) {
+        this.canSetAtRuntime = canSetAtRuntime;
     }
 }

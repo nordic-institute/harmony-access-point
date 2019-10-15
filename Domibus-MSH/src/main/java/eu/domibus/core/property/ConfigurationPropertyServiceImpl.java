@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Service called from the PropertyResource REST class
+ * Service called from the ConfigurationPropertyResource REST class
  * responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 @Service
-public class DomibusPropertyServiceImpl implements DomibusPropertyService {
+public class ConfigurationPropertyServiceImpl implements ConfigurationPropertyService {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceImpl.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyServiceImpl.class);
 
     @Autowired
     protected DomainExtConverter domainConverter;
@@ -54,6 +54,7 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
 
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
             List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
+                    .filter(p -> p.isCanSetAtRuntime())
                     .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                     .collect(Collectors.toList());
 

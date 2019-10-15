@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.property.DomibusPropertyService;
+import eu.domibus.core.property.ConfigurationPropertyService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/rest/configuration")
 @Validated
-public class PropertyResource {
+public class ConfigurationPropertyResource {
 
     @Autowired
-    private DomibusPropertyService domibusPropertyService;
+    private ConfigurationPropertyService configurationPropertyService;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
@@ -42,7 +42,7 @@ public class PropertyResource {
     @GetMapping(path = "/properties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
-        List<DomibusProperty> items = domibusPropertyService.getProperties(request.getName());
+        List<DomibusProperty> items = configurationPropertyService.getProperties(request.getName());
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -67,7 +67,7 @@ public class PropertyResource {
     @PutMapping(path = "/properties/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue) {
-        domibusPropertyService.setPropertyValue(propertyName, propertyValue);
+        configurationPropertyService.setPropertyValue(propertyName, propertyValue);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")

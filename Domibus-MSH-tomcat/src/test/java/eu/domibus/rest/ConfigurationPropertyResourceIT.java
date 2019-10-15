@@ -2,7 +2,7 @@ package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.property.DomibusProperty;
-import eu.domibus.core.property.DomibusPropertyService;
+import eu.domibus.core.property.ConfigurationPropertyService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +13,18 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_RET
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_TITLE_NAME;
 
 
-public class PropertyResourceIT extends AbstractIT {
+public class ConfigurationPropertyResourceIT extends AbstractIT {
 
     @Autowired
-    DomibusPropertyService domibusPropertyService;
+    ConfigurationPropertyService configurationPropertyService;
 
     @Test
     public void testFind() throws Exception {
 
-        List<DomibusProperty> list = domibusPropertyService.getProperties("title");
+        List<DomibusProperty> list = configurationPropertyService.getProperties("title");
         Assert.assertTrue(list.size() > 0);
 
-        List<DomibusProperty> list2 = domibusPropertyService.getProperties("domibus.ui.title.name");
+        List<DomibusProperty> list2 = configurationPropertyService.getProperties("domibus.ui.title.name");
         Assert.assertEquals(1, list2.size());
     }
 
@@ -33,15 +33,15 @@ public class PropertyResourceIT extends AbstractIT {
 
         String name = DOMIBUS_UI_TITLE_NAME;
 
-        List<DomibusProperty> list = domibusPropertyService.getProperties(name);
+        List<DomibusProperty> list = configurationPropertyService.getProperties(name);
         Assert.assertEquals(1, list.size());
 
         String originalValue = list.get(0).getValue();
         String newValue = originalValue + "MODIFIED";
 
-        domibusPropertyService.setPropertyValue(name, newValue);
+        configurationPropertyService.setPropertyValue(name, newValue);
 
-        list = domibusPropertyService.getProperties(name);
+        list = configurationPropertyService.getProperties(name);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();
@@ -54,9 +54,9 @@ public class PropertyResourceIT extends AbstractIT {
         String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;
         String newValue = "0 0/5 * * * ?"; // every 5 minutes
 
-        domibusPropertyService.setPropertyValue(name, newValue);
+        configurationPropertyService.setPropertyValue(name, newValue);
 
-        List<DomibusProperty> list = domibusPropertyService.getProperties(name);
+        List<DomibusProperty> list = configurationPropertyService.getProperties(name);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();

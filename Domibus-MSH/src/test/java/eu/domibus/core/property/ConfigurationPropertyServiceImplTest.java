@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
-public class DomibusPropertyServiceImplTest {
+public class ConfigurationPropertyServiceImplTest {
 
     @Injectable
     protected DomainExtConverter domainConverter;
@@ -43,7 +43,7 @@ public class DomibusPropertyServiceImplTest {
     private DomibusPropertyManagerExt propertyManager2;
 
     @Tested
-    DomibusPropertyServiceImpl domibusPropertyService;
+    ConfigurationPropertyServiceImpl domibusPropertyService;
 
     Map<String, DomibusPropertyMetadataDTO> props1, props2;
     String domainCode = "domain1";
