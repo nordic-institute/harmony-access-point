@@ -33,17 +33,22 @@ public class DomibusPropertyMetadata {
 
     private String module;
 
-    private boolean canSetAtRuntime;
+    private boolean writable;
 
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return new DomibusPropertyMetadata(name, false, false);
     }
 
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
+        return new DomibusPropertyMetadata(name, Module.MSH, false, false, false, false);
+    }
+
     public DomibusPropertyMetadata() {
     }
 
-    public DomibusPropertyMetadata(String name, String module, boolean canSetAtRuntime, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadata(String name, String module, boolean writable, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
         this.name = name;
+        this.writable = writable;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
@@ -122,11 +127,11 @@ public class DomibusPropertyMetadata {
         this.module = module;
     }
 
-    public boolean isCanSetAtRuntime() {
-        return canSetAtRuntime;
+    public boolean isWritable() {
+        return writable;
     }
 
-    public void setCanSetAtRuntime(boolean canSetAtRuntime) {
-        this.canSetAtRuntime = canSetAtRuntime;
+    public void setWritable(boolean writable) {
+        this.writable = writable;
     }
 }

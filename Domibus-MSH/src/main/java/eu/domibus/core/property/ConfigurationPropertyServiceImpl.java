@@ -54,7 +54,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
             List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
-                    .filter(p -> p.isCanSetAtRuntime())
+                    .filter(p -> p.isWritable())
                     .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                     .collect(Collectors.toList());
 

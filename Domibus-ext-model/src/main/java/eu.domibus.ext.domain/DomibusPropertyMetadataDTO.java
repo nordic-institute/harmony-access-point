@@ -35,7 +35,7 @@ public class DomibusPropertyMetadataDTO {
 
     private String module;
 
-    private boolean canSetAtRuntime;
+    private boolean writable;
 
     public DomibusPropertyMetadataDTO() {
     }
@@ -132,11 +132,11 @@ public class DomibusPropertyMetadataDTO {
         this.module = module;
     }
 
-    public boolean isCanSetAtRuntime() {
-        return canSetAtRuntime;
+    public boolean isWritable() {
+        return writable;
     }
 
-    public void setCanSetAtRuntime(boolean canSetAtRuntime) {
-        this.canSetAtRuntime = canSetAtRuntime;
+    public void setWritable(boolean writable) {
+        this.writable = writable;
     }
 }

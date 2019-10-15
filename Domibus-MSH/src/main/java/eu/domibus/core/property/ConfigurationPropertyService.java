@@ -8,7 +8,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Service used by PropertyResource, responsible with getting and setting of domibus props that can be changed at runtime
+ * Service used by ConfigurationPropertyResource, responsible with getting and setting of domibus props that can be changed at runtime
  */
 public interface ConfigurationPropertyService {
 
