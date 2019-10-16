@@ -25,8 +25,4 @@
     <alias name="dataSource" alias="domibusJDBC-XADataSource"/>
     <alias name="dataSource" alias="domibusJDBC-nonXADataSource"/>
 
-    <!-- <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-         <property name="configLocation" value="config/ehcache/ehcache.xml"/>
-     </bean>-->
-
 </beans>

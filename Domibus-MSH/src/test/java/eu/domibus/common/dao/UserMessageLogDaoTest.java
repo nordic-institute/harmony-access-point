@@ -568,13 +568,8 @@ public class UserMessageLogDaoTest {
 
     @Test
     public void testSetAsNotified(@Injectable UserMessageLog userMessageLog) {
-        // GIVEN
-        new Expectations(userMessageLogDao) {{
-            userMessageLogDao.findByMessageId("messageId"); result = userMessageLog;
-        }};
-
         // WHEN
-        userMessageLogDao.setAsNotified("messageId");
+        userMessageLogDao.setAsNotified(userMessageLog);
 
         // THEN
         new Verifications() {{

@@ -58,7 +58,7 @@ public class LocalEndpointConfiguration {
         EndpointImpl endpoint = new EndpointImpl(bus, mshWebserviceSerializer);
         endpoint.setTransportId(LocalTransportFactory.TRANSPORT_ID);
         endpoint.getInInterceptors().add(createSaveRequestToFileInInterceptor());
-        endpoint.getInInterceptors().add(new SetPolicyInInterceptor.CheckEBMSHeaderInterceptor());
+        endpoint.getInInterceptors().add(new CheckEBMSHeaderInterceptor());
         endpoint.setAddress(MSHDispatcher.LOCAL_MSH_ENDPOINT);
         endpoint.publish();
 

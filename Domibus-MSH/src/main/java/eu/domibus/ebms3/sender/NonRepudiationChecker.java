@@ -2,7 +2,8 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.common.exception.EbMS3Exception;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -10,7 +11,9 @@ import org.w3c.dom.NodeList;
  */
 public interface NonRepudiationChecker {
 
-    NodeList getNonRepudiationNodeList(Node securityInfo) throws EbMS3Exception;
+    List<String> getNonRepudiationDetailsFromSecurityInfoNode(Node securityInfo) throws EbMS3Exception;
 
-    boolean compareUnorderedReferenceNodeLists(NodeList referencesFromSecurityHeader, NodeList referencesFromNonRepudiationInformation);
+    List<String> getNonRepudiationDetailsFromReceipt(Node nonRepudiationInformation) throws EbMS3Exception;
+
+    boolean compareUnorderedReferenceNodeLists(List<String> referencesFromSecurityHeader, List<String> referencesFromNonRepudiationInformation);
 }

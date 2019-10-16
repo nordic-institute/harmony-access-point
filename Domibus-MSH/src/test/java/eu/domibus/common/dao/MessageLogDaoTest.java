@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -121,25 +122,14 @@ public class MessageLogDaoTest {
     }
 
     @Test
-    public void testGetMessageStatus(@Injectable UserMessageLog userMessageLog) {
+    public void testGetMessageStatus_returnsNotFoundStatusForNonExistingMessage(@Injectable TypedQuery<MessageStatus> query) {
         // GIVEN
         new Expectations(messageLogDao) {{
-            messageLogDao.findByMessageId("messageId"); result = userMessageLog;
-            userMessageLog.getMessageStatus(); result = MessageStatus.READY_TO_PULL;
-        }};
+            entityManager.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
+            result = query;
 
-        // WHEN
-        MessageStatus result = messageLogDao.getMessageStatus("messageId");
-
-        // THEN
-        Assert.assertSame("Should have returned the correct message status for an existing user message log", MessageStatus.READY_TO_PULL, result);
-    }
-
-    @Test
-    public void testGetMessageStatus_returnsNotFoundStatusForNonExistingMessage(@Injectable UserMessageLog userMessageLog) {
-        // GIVEN
-        new Expectations(messageLogDao) {{
-            messageLogDao.findByMessageId("messageId"); result = new NoResultException();
+            query.getSingleResult();
+            result = new NoResultException();
         }};
 
         // WHEN
@@ -149,14 +139,16 @@ public class MessageLogDaoTest {
         Assert.assertSame("Should have returned the correct message status for an existing user message log", MessageStatus.NOT_FOUND, result);
     }
 
-        @Test
+    @Test
     public void testGetPredicates_ObjectValue(@Injectable Path<String> path, @Injectable Predicate predicate, @Injectable Object filter) {
         // GIVEN
         filters.put("attribute", filter);
 
         new Expectations() {{
-            root.get("attribute"); result = path;
-            criteriaBuilder.equal(path, filter); result = predicate;
+            root.get("attribute");
+            result = path;
+            criteriaBuilder.equal(path, filter);
+            result = predicate;
         }};
 
         // WHEN
@@ -172,8 +164,10 @@ public class MessageLogDaoTest {
         // GIVEN
         filters.put("attribute", "filter");
         new Expectations() {{
-            root.get("attribute"); result = path;
-            criteriaBuilder.like(path, "filter"); result = predicate;
+            root.get("attribute");
+            result = path;
+            criteriaBuilder.like(path, "filter");
+            result = predicate;
         }};
 
         // WHEN
@@ -201,8 +195,10 @@ public class MessageLogDaoTest {
         // GIVEN
         filters.put("receivedFrom", Timestamp.valueOf(LocalDateTime.now()));
         new Expectations() {{
-            root.<Date>get("received"); result = path;
-            criteriaBuilder.greaterThanOrEqualTo(path, (Timestamp) any); result = predicate;
+            root.<Date>get("received");
+            result = path;
+            criteriaBuilder.greaterThanOrEqualTo(path, (Timestamp) any);
+            result = predicate;
         }};
 
         // WHEN
@@ -218,8 +214,10 @@ public class MessageLogDaoTest {
         // GIVEN
         filters.put("receivedTo", Timestamp.valueOf(LocalDateTime.now()));
         new Expectations() {{
-            root.<Date>get("received"); result = path;
-            criteriaBuilder.lessThanOrEqualTo(path, (Timestamp) any); result = predicate;
+            root.<Date>get("received");
+            result = path;
+            criteriaBuilder.lessThanOrEqualTo(path, (Timestamp) any);
+            result = predicate;
         }};
 
         // WHEN

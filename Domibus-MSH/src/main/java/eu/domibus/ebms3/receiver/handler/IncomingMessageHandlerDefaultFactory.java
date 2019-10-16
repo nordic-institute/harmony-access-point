@@ -8,6 +8,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -16,6 +18,7 @@ import javax.xml.soap.SOAPMessage;
  * @since 4.1
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHandlerFactory {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingMessageHandlerDefaultFactory.class);

@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -13,6 +14,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.RetryStrategy;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -49,7 +51,7 @@ public class UpdateRetryLoggingService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private MessagingDao messagingDao;
@@ -66,6 +68,9 @@ public class UpdateRetryLoggingService {
     @Autowired
     protected UserMessageService userMessageService;
 
+    @Autowired
+    protected MessageAttemptService messageAttemptService;
+
 
     /**
      * This method is responsible for the handling of retries for a given sent message.
@@ -76,14 +81,14 @@ public class UpdateRetryLoggingService {
      * @param legConfiguration processing information for the message
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updatePushedMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration) {
-        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RETRY);
+    public void updatePushedMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration, final MessageAttempt messageAttempt) {
+        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
     }
 
 
-    private void updateRetryLogging(final String messageId, final LegConfiguration legConfiguration, MessageStatus messageStatus) {
+    protected void updateRetryLogging(final String messageId, final LegConfiguration legConfiguration, MessageStatus messageStatus, final MessageAttempt messageAttempt) {
         LOG.debug("Updating retry for message");
-        UserMessageLog userMessageLog = this.userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
         LOG.debug("Updating sendAttempts to [{}]", userMessageLog.getSendAttempts());
         userMessageLog.setNextAttempt(getScheduledStartDate(userMessageLog)); // this is needed for the first computation of "next attempt" if receiver is down
@@ -103,35 +108,38 @@ public class UpdateRetryLoggingService {
             }
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
+
+        if (messageAttempt != null) {
+            messageAttemptService.createAndUpdateEndDate(messageAttempt);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void messageFailedInANewTransaction(UserMessage userMessage, MessageLog userMessageLog) {
+    public void messageFailedInANewTransaction(UserMessage userMessage, UserMessageLog userMessageLog, final MessageAttempt messageAttempt) {
         LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageInfo().getMessageId());
 
         messageFailed(userMessage, userMessageLog);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessageLog.getMessageId());
     }
 
-    public void messageFailed(UserMessage userMessage, MessageLog userMessageLog) {
+    public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageInfo().getMessageId());
 
         final String messageId = userMessageLog.getMessageId();
-        messageFailed(userMessage, messageId, userMessageLog.getNotificationStatus(), userMessageLog.isTestMessage(), userMessageLog.getBackend());
-    }
+        NotificationStatus notificationStatus = userMessageLog.getNotificationStatus();
+        boolean isTestMessage = userMessageLog.isTestMessage();
 
-    protected void messageFailed(UserMessage userMessage, final String messageId, NotificationStatus notificationStatus, boolean isTestMessage, String backendName) {
         LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE,
                 userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
         if (NotificationStatus.REQUIRED.equals(notificationStatus) && !isTestMessage) {
             LOG.info("Notifying backend for message failure");
-            backendNotificationService.notifyOfSendFailure(userMessage);
+            backendNotificationService.notifyOfSendFailure(userMessageLog);
         }
 
-        userMessageLogService.setMessageAsSendFailure(messageId);
+        userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
-            messagingDao.clearPayloadData(messageId);
+            messagingDao.clearPayloadData(userMessage);
         }
     }
 
@@ -146,7 +154,7 @@ public class UpdateRetryLoggingService {
     @Transactional
     public void updateWaitingReceiptMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration) {
         LOG.debug("Updating waiting receipt retry for message");
-        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT);
+        updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT, null);
     }
 
     public void updateNextAttemptAndNotify(LegConfiguration legConfiguration, MessageStatus messageStatus, UserMessageLog userMessageLog) {

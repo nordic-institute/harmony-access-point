@@ -9,6 +9,8 @@ import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -23,6 +25,7 @@ import javax.xml.ws.WebServiceException;
  * It is only saving userMessage found in the ServerOutInterceptor=&gt; PullMessage.
  */
 //@thom test this class
+@Transactional(propagation = Propagation.SUPPORTS)
 public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 
     @Autowired

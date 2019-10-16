@@ -21,6 +21,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -94,12 +95,13 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         }
 
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
-        // Assuming that everything goes fine
-        ResponseHandler.CheckResult isOk = ResponseHandler.CheckResult.OK;
+        ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
         UserMessage userMessage = null;
+        Messaging sentMessage = null;
         try {
-            userMessage = messagingDao.findUserMessageByMessageId(messageId);
+            sentMessage = messagingDao.findMessageByMessageId(messageId);
+            userMessage = sentMessage.getUserMessage();
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : " + pModeKey);
 
@@ -107,13 +109,14 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
             SOAPMessage soapMessage = getSoapMessage(legConfiguration, userMessage);
-            isOk = responseHandler.handle(request);
-            if (ResponseHandler.CheckResult.UNMARSHALL_ERROR.equals(isOk)) {
+            responseResult = responseHandler.verifyResponse(request);
+
+            if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
                 EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
-            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, getSourceMessageReliability());
+            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
@@ -123,7 +126,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         } catch (final EbMS3Exception e) {
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
-            reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
+            reliabilityService.handleReliability(messageId, sentMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
         }
         return null;
     }

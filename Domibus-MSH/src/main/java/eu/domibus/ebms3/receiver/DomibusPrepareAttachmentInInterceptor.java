@@ -32,7 +32,7 @@ public class DomibusPrepareAttachmentInInterceptor extends AbstractSoapIntercept
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
         message.getExchange().put(ClientImpl.FINISHED, Boolean.TRUE);
-        message.getInterceptorChain().add(new SetPolicyInInterceptor.CheckEBMSHeaderInterceptor());
-        message.getInterceptorChain().add(new SetPolicyInInterceptor.SOAPMessageBuilderInterceptor());
+        message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
+        message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
     }
 }
