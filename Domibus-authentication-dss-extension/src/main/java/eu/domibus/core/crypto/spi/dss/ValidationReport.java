@@ -43,7 +43,6 @@ public class ValidationReport {
         LOG.debug("Simple report:[{}]", certificateReports.getXmlSimpleReport());
         LOG.debug("Diagnostic data:[{}]", certificateReports.getXmlDiagnosticData());
         XmlDetailedReport detailedReport = certificateReports.getDetailedReportJaxb();
-        //final DetailedReport detailedReport = detailedReportJaxb;
         if (constraints == null || constraints.isEmpty()) {
             throw new IllegalStateException("A minimum set of constraints should be set.");
         }
