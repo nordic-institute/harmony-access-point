@@ -1,5 +1,8 @@
 package eu.domibus.api.property;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -133,5 +136,25 @@ public class DomibusPropertyMetadata {
 
     public void setWritable(boolean writable) {
         this.writable = writable;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DomibusPropertyMetadata el = (DomibusPropertyMetadata) o;
+
+        return new EqualsBuilder()
+                .append(name, el.getName())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(name)
+                .toHashCode();
     }
 }

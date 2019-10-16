@@ -72,7 +72,6 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.log_base_dir"), //move the use=age from xml ?
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.default_jta_timeout"), //move the use=age from xml ?
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.max_timeout"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.output_dir"), //move the use=age from xml ?
 
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.broker.host"), //cannot find the usage
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.brokerName"), //move the use=age from xml ?
