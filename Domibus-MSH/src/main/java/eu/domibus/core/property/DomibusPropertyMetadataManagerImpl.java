@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetadataManager {
 
     /**
-     * Returns the properties that this PropertyProvider is able to handle.
+     * Returns all the properties that this PropertyProvider is able to handle, writable and read-only alike.
      *
      * @return a map
      * @implNote This list will be moved in the database eventually.
@@ -48,6 +48,47 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.maxLifetime"),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.minPoolSize"),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.maxPoolSize"),
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.packagesToScan"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.dialect"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.format_sql"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform"),
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.password.encryption.active"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.password.encryption.properties"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.password.encryption.key.location"),
+
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.queue.pull"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.queue.ui.replication"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.XAConnectionFactory.maxPoolSize"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.queue.alert"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.taskExecutor.threadCount"),  //move the use=age from xml ?
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.output_dir"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.log_base_dir"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.default_jta_timeout"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.max_timeout"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.output_dir"), //move the use=age from xml ?
+
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.broker.host"), //cannot find the usage
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.brokerName"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.embedded.configurationFile"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.JMXURL"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connectorPort"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.rmiServerPort"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.transportConnector.uri"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.username"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.password"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.persistent"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connection.closeTimeout"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connection.connectResponseTimeout"), //move the use=age from xml ?
+
+//                DomibusPropertyMetadata.getReadOnlyGlobalProperty("xx"), //move the use=age from xml ?
+
 
 
 
