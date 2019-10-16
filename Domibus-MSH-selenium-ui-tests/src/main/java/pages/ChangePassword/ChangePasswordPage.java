@@ -108,14 +108,17 @@ public class ChangePasswordPage extends DomibusPage {
      *@param npass :- Data for New Password Field
      * @param confirmPass:- Data for Confirmation Field
      */
-    public void setPassFields(String cPass, String nPass, String confirmPass) throws Exception {
+    public void setPassFields(String currentPass, String newPass, String confirmPass) throws Exception {
         log.debug("User enters data in current password field");
-        getCPassField().fill(cPass);
+        getCPassField().fill(currentPass);
         log.debug("User enters data in New password field");
-        getNPassField().fill(nPass);
+        getNPassField().fill(newPass);
         log.debug("User enters data in Confirmation field");
         getConfirmationField().fill(confirmPass);
-        wait.forElementToBeEnabled(updateButton);
+
+//      waiting for either update button to be enabled or error message to appear
+        wait.forXMillis(200);
+
     }
 
     //Method is used to generate random password data
@@ -166,7 +169,7 @@ public class ChangePasswordPage extends DomibusPage {
 
     /*
     This method returns message under provided FieldLabel
-    *@param FieldName :- Name of Input Field
+    * @param FieldName :- Name of Input Field
     * @return : the string under the input
      */
     public String getValidationMsg(String fieldName) throws Exception {

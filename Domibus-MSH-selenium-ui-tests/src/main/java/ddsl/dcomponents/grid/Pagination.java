@@ -188,7 +188,7 @@ public class Pagination extends DComponent {
 		try {
 			log.debug("getting total number of items to be displayed");
 
-			String raw = pageCount.getText().trim();
+			String raw = weToDobject(pageCount).getText();
 			if (raw.contains("total")) {
 				String[] splits = raw.split("/");
 				for (String split : splits) {
@@ -200,6 +200,8 @@ public class Pagination extends DComponent {
 				}
 			}
 		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return 0;

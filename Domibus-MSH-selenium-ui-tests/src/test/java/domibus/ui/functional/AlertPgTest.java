@@ -16,12 +16,12 @@ import utils.Generator;
 import java.util.HashMap;
 import java.util.List;
 
-public class AlertPgFunctionalTest extends BaseTest {
+public class AlertPgTest extends BaseTest {
 
     //This method will do Search using Basic filters
 
     @Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})
-    public void SearchBasicFilters() throws Exception {
+    public void searchBasicFilters() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         LoginPage lpage = new LoginPage(driver);
@@ -51,7 +51,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will do search operation using advance filters
     @Test(description = "ALRT-6", groups = {"multiTenancy", "singleTenancy"})
-    public void SearchAdvanceFilters() throws Exception {
+    public void searchAdvanceFilters() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         LoginPage lpage = new LoginPage(driver);
@@ -81,7 +81,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will validate empty search result
     @Test(description = "ALRT-7", groups = {"multiTenancy", "singleTenancy"})
-    public void EmptySearchResult() throws Exception {
+    public void emptySearchResult() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Login into application and navigate to Alerts page");
@@ -97,7 +97,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will validate presence of all records after deletion of all search criterias
     @Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
-    public void DeleteSearchCriteria() throws Exception {
+    public void deleteSearchCriteria() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Login into application and navigate to Alerts page");
@@ -122,7 +122,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will validate presence of show domain alert check box in case of super admin only
     @Test(description = "ALRT-11", groups = {"multiTenancy"})
-    public void ShowDomainAlert() throws Exception {
+    public void showDomainAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Login into application with super admin credentials and navigate to Alerts page");
@@ -142,7 +142,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will verify alert for message status change
     @Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"})
-    public void MsgStatusChangeAlert() throws Exception {
+    public void msgStatusChangeAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Upload pmode");
@@ -190,7 +190,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will verify alert for user login failure case
     @Test(description = "ALRT-17", groups = {"multiTenancy", "singleTenancy"})
-    public void UserLoginFailureAlert() throws Exception {
+    public void userLoginFailureAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         LoginPage lpage = new LoginPage(driver);
@@ -224,7 +224,7 @@ public class AlertPgFunctionalTest extends BaseTest {
 
     //This method will verify alert for user account disable after 5 attempts of login with wrong credentials
     @Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"})
-    public void UserDisableAlert() throws Exception {
+    public void userDisableAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         String userName = Generator.randomAlphaNumeric(3);
