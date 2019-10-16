@@ -34,6 +34,9 @@ import eu.europa.esig.dss.utils.Utils;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.cglib.core.internal.Function;
 
+/**
+ * Extracted class from DSS adapted for Domibus.
+ */
 public class DomibusTSLValidationJob {
     private static final Logger LOG = LoggerFactory.getLogger(DomibusTSLValidationJob.class);
 

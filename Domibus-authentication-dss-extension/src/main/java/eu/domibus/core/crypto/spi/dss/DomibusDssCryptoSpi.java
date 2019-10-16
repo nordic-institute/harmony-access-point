@@ -96,7 +96,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         certificateVerifier.setAdjunctCertSource(adjunctCertSource);
         LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
         //add leaf certificate to DSS
-        LOG.debug("Prepare certificate validator");
         CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
         //Validate.
         validate(certificateValidator);

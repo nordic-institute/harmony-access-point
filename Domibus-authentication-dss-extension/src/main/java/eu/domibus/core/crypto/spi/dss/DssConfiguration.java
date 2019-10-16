@@ -200,7 +200,7 @@ public class DssConfiguration {
     @Bean
     public Function<Void
             , CertificateVerifier> certificateVerifierFactory() {
-        return this::apply;
+        return aVoid -> certificateVerifier();
     }
 
     @Bean
@@ -469,7 +469,4 @@ public class DssConfiguration {
         return new DssCache((Cache) cache.getNativeCache());
     }
 
-    private CertificateVerifier apply(Void name) {
-        return certificateVerifier();
-    }
 }

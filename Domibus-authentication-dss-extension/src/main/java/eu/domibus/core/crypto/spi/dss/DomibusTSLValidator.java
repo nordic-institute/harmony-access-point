@@ -21,13 +21,19 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * Class copied from dss to inject a spring bean certificate verifier.
+ */
 public class DomibusTSLValidator  implements Callable<TSLValidationResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusTSLValidator.class);
 
     private final DSSDocument trustedList;
+
     private final String countryCode;
+
     private final List<CertificateToken> potentialSigners;
+
     private CertificateVerifier  certificateVerifier;
     /**
      * Constructor used to instantiate a validator for a TSL
@@ -35,6 +41,7 @@ public class DomibusTSLValidator  implements Callable<TSLValidationResult> {
      * @param trustedList      the DSSDocument with a trusted list (not LOTL)
      * @param countryCode      the country code
      * @param potentialSigners
+     * @param certificateVerifier certificate verifier prototype
      */
     public DomibusTSLValidator(
             DSSDocument trustedList,
