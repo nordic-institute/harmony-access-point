@@ -60,9 +60,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   set selectedSource(value: any) {
+    var oldVal = this._selectedSource;
     this._selectedSource = value;
     this.filter.source = value.name;
-    this.defaultQueueSet.emit();
+    this.defaultQueueSet.emit(oldVal);
   }
 
   constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
@@ -147,8 +148,13 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
     });
 
-    this.defaultQueueSet.subscribe(result => {
-      this.search();
+    this.defaultQueueSet.subscribe(oldVal => {
+      super.trySearch().then(ok => {
+        if (!ok) {
+          //revert the drop-down value to the old oen
+          this._selectedSource = oldVal;
+        }
+      });
     });
   }
 
