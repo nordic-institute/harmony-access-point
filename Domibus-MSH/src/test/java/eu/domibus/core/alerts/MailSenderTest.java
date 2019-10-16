@@ -57,7 +57,7 @@ public class MailSenderTest {
     final String password = "password";
     final String dynamicPropertyName = "domibus.alert.mail.smtp.port";
     final String dynamicSmtpPort = "450";
-    final String timeoutPropertyName = "domibus.alert.mail.smtp.timeout";
+    final String timeoutPropertyName = DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT;
     final int timeout=5000;
     Set dynamicPropertySet = new HashSet();
 

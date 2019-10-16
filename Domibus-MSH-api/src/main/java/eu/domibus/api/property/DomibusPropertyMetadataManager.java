@@ -222,6 +222,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
+    String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
 
     /**
      * Get all the properties metadata that support changing at runtime

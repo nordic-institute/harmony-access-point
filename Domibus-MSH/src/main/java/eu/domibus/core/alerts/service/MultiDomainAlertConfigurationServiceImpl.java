@@ -33,7 +33,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MultiDomainAlertConfigurationServiceImpl.class);
 
-    static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = "domibus.instance.name";
+    static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

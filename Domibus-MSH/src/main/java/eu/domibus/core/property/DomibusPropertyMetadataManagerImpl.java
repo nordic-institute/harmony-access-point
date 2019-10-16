@@ -87,10 +87,19 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connection.closeTimeout"), //move the use=age from xml ?
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connection.connectResponseTimeout"), //move the use=age from xml ?
 
-//                DomibusPropertyMetadata.getReadOnlyGlobalProperty("xx"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.alert.queue.concurrency"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("messageFactoryClass"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("compressionBlacklist"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.internal.queue.concurency"), //move the use=age from xml ?
 
-
-
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.jmx.reporter.enable"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.sl4j.reporter.enable"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.sl4j.reporter.period.time.unit"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.sl4j.reporter.period.number"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.memory"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.gc"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.cached.threads"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.jms.queues"),
 
                 //writable properties
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, true, true),
@@ -178,14 +187,14 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_PASSWORD),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 
-                new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS, true, true), //there is still one call from xml!!!
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE),
                 new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD, true, true),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FOURCORNERMODEL_ENABLED),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT),
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT),     //there are still usages in xml!!!! move them?
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT),         //there are still usages in xml!!!! move them?
 
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION),
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY, true, true),
@@ -303,7 +312,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES),
-                //
+
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
