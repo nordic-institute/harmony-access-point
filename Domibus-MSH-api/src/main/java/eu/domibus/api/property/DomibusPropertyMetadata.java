@@ -38,32 +38,45 @@ public class DomibusPropertyMetadata {
 
     private boolean writable;
 
+    private boolean encrypted;
+
+//    private boolean appliesToSuper;
+
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return new DomibusPropertyMetadata(name, false, false);
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, false, false, false);
+        return new DomibusPropertyMetadata(name, Module.MSH, false, false, false, false, false);
+    }
+
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, boolean encrypted) {
+        return new DomibusPropertyMetadata(name, Module.MSH, false, false, false, false, encrypted);
     }
 
     public DomibusPropertyMetadata() {
     }
 
-    public DomibusPropertyMetadata(String name, String module, boolean writable, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadata(String name, String module, boolean writable, boolean domainSpecific, boolean withFallback, boolean clusterAware, boolean encrypted) {
         this.name = name;
         this.writable = writable;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
         this.module = module;
+        this.encrypted = encrypted;
     }
 
     public DomibusPropertyMetadata(String name, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, true, domainSpecific, withFallback, true);
+        this(name, Module.MSH, true, domainSpecific, withFallback, true, false);
     }
 
     public DomibusPropertyMetadata(String name, boolean writable, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, writable, domainSpecific, withFallback, true);
+        this(name, Module.MSH, writable, domainSpecific, withFallback, true, false);
+    }
+
+    public DomibusPropertyMetadata(String name, boolean writable, boolean domainSpecific, boolean withFallback, boolean encrypted) {
+        this(name, Module.MSH, writable, domainSpecific, withFallback, true, encrypted);
     }
 
     public String getName() {
@@ -138,6 +151,14 @@ public class DomibusPropertyMetadata {
         this.writable = writable;
     }
 
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -157,4 +178,6 @@ public class DomibusPropertyMetadata {
                 .append(name)
                 .toHashCode();
     }
+
+
 }

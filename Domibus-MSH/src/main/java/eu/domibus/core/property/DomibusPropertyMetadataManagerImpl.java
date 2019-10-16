@@ -22,7 +22,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         return Arrays.stream(new DomibusPropertyMetadata[]{
                 //read-only properties
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED),
-                new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, false, true, false),
+                new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, false, true, false, true),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
                 new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, true, false),
 
@@ -36,7 +36,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL),
 
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_USER),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD, true),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_url),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_URL),
 
@@ -44,7 +44,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_URL),
 
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_USER),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_PASSWORD),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_PASSWORD, true),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE),
@@ -60,7 +60,6 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION),
-
 
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION), //move the use=age from xml ?
@@ -108,12 +107,12 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_LOCATION, true, false),
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_TYPE, true, false),
-                new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true, false),
+                new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true, true, false, true),
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, true, false),
 
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, true, false),
                 new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, true, false),
-                new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true, false),
+                new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true, true, false, true),
 
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED),
                 new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT, true, true),

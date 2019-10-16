@@ -37,32 +37,35 @@ public class DomibusPropertyMetadataDTO {
 
     private boolean writable;
 
+    private boolean encrypted;
+
     public DomibusPropertyMetadataDTO() {
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback, boolean clusterAware) {
+    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, boolean domainSpecific, boolean withFallback, boolean clusterAware, boolean encrypted) {
         this.name = name;
-        this.writable = true;
+        this.writable = writable;
         this.domainSpecific = domainSpecific;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
         this.module = module;
+        this.encrypted = encrypted;
     }
 
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific) {
-        this(name, module, domainSpecific, false, true);
+        this(name, module, true, domainSpecific, false, true, false);
     }
 
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {
-        this(name, module, domainSpecific, withFallback, true);
+        this(name, module, true, domainSpecific, withFallback, true, false);
     }
 
     public DomibusPropertyMetadataDTO(String name, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, domainSpecific, withFallback, true);
+        this(name, Module.MSH, true, domainSpecific, withFallback, true, false);
     }
 
     public DomibusPropertyMetadataDTO(String name) {
-        this(name, Module.MSH, true, true, true);
+        this(name, Module.MSH, true, true, true, true, false);
     }
 
     public String getName() {
@@ -135,5 +138,13 @@ public class DomibusPropertyMetadataDTO {
 
     public void setWritable(boolean writable) {
         this.writable = writable;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
     }
 }
