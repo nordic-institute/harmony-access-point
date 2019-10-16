@@ -6,7 +6,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -31,6 +30,7 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -95,7 +95,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessagingDao messagingDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
@@ -217,7 +217,7 @@ public class UserMessageDefaultService implements UserMessageService {
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(messageId, userMessageLog.isSplitAndJoin());
+            scheduleSending(userMessageLog);
         } else {
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             try {
@@ -246,7 +246,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
-        scheduleSending(messageId, userMessageLog.isSplitAndJoin());
+        scheduleSending(userMessageLog);
     }
 
     @Override
@@ -279,37 +279,38 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
-    @Override
-    public void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin) {
-        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
+    public void scheduleSending(UserMessageLog userMessageLog) {
+        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
     @Override
     public void scheduleSending(String messageId, boolean isSplitAndJoin) {
-        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage(), isSplitAndJoin);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        scheduleSending(userMessageLog);
     }
 
     @Override
     public void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin) {
-        scheduleSending(messageId, new DelayedDispatchMessageCreator(messageId, delay).createMessage(), isSplitAndJoin);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        scheduleSending(userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
     }
 
     @Override
-    public void scheduleSourceMessageSending(String messageId) {
-        LOG.debug("Sending message to sendLargeMessageQueue");
-        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
-        jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+    public void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin) {
+        scheduleSending(messageId, null, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
     }
 
     /**
      * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
-     * @param messageId
+     *
+     * @param userMessageLog
      * @param jmsMessage
-     * @param isSplitAndJoin
      */
-    protected void scheduleSending(String messageId, JmsMessage jmsMessage, boolean isSplitAndJoin) {
+    protected void scheduleSending(final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+        scheduleSending(userMessageLog.getMessageId(), userMessageLog, jmsMessage, userMessageLog.isSplitAndJoin());
+    }
 
-        //sending to the right queue
+    protected void scheduleSending(final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage, boolean isSplitAndJoin) {
         if (isSplitAndJoin) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
@@ -317,13 +318,23 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.debug("Sending message to sendMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
         }
+        if (userMessageLog == null) {
+            LOG.debug("Getting UserMessageLog for message id [{}]", messageId);
+            userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        }
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        if (null != userMessageLog) {
-            //update the message if we find it
+        if (userMessageLog != null) {
+            LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
             userMessageLog.setScheduled(true);
             userMessageLogDao.update(userMessageLog);
         }
+    }
+
+    @Override
+    public void scheduleSourceMessageSending(String messageId) {
+        LOG.debug("Sending message to sendLargeMessageQueue");
+        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+        jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 
     @Override
@@ -530,16 +541,17 @@ public class UserMessageDefaultService implements UserMessageService {
                 }
             }
         }
-        messagingDao.clearPayloadData(messageId);
-        userMessageLogService.setMessageAsDeleted(messageId);
-        handleSignalMessageDelete(messageId);
+
+        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+        UserMessage userMessage = messaging.getUserMessage();
+        messagingDao.clearPayloadData(userMessage);
+
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+
+        SignalMessage signalMessage = messaging.getSignalMessage();
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
     }
 
-    protected void handleSignalMessageDelete(String messageId) {
-        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-        signalMessages.stream().forEach(signalMessage -> signalMessageDao.clear(signalMessage));
 
-        List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-        signalMessageIds.stream().forEach(signalMessageId -> userMessageLogService.setMessageAsDeleted(signalMessageId));
-    }
 }

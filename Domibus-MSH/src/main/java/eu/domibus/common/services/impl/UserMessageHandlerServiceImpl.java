@@ -1,6 +1,5 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -11,13 +10,12 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
-import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.*;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -34,6 +32,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.validation.SubmissionValidationException;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.attachment.AttachmentUtil;
@@ -49,14 +48,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
-
-import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
 /**
  * @author Thomas Dussart
@@ -76,9 +76,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private PModeProvider pModeProvider;
 
     @Autowired
-    private TransformerFactory transformerFactory;
-
-    @Autowired
     private CompressionService compressionService;
 
     @Autowired
@@ -88,7 +85,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private PayloadProfileValidator payloadProfileValidator;
@@ -136,8 +133,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected PayloadFileStorageProvider storageProvider;
 
     @Override
-    @Timer(value = INCOMING_USER_MESSAGE)
-    @Counter(INCOMING_USER_MESSAGE)
+    @Transactional(propagation = Propagation.REQUIRED)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
@@ -280,6 +276,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
@@ -527,7 +524,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final Source source = new DOMSource(bodyContent);
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 final Result result = new StreamResult(out);
-                final Transformer transformer = this.transformerFactory.newTransformer();
+                final Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
                 transformer.transform(source, result);
                 partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml")));
             }

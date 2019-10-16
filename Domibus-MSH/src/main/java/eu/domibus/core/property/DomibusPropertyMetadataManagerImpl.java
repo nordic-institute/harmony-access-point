@@ -138,6 +138,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, true, true),
 
+                new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION, true, false),
                 new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_STORAGE_LOCATION, true, false),
                 new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE, true, true),
 
@@ -195,7 +196,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT),     //there are still usages in xml!!!! move them?
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT),         //there are still usages in xml!!!! move them?
 
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION),
+                new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX, true, false),
+                new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION, true, true),
+                new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES, true, false),
+
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD, true, true),
 
@@ -307,11 +311,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
                 new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, true, true),
                 new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER, true, true),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION),
-                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES),
 
+                DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }

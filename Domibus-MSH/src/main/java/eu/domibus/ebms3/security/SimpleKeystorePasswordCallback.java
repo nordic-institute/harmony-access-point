@@ -6,6 +6,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import org.apache.wss4j.common.ext.WSPasswordCallback;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -23,6 +25,7 @@ public class SimpleKeystorePasswordCallback implements CallbackHandler {
     protected MultiDomainCryptoService multiDomainCertificateProvider;
 
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handle(final Callback[] callbacks) {
         for (final Callback callback : callbacks) {

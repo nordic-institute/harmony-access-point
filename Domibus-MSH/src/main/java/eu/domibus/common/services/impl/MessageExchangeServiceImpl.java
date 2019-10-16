@@ -52,8 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
 import static eu.domibus.common.services.impl.PullContext.MPC;
@@ -334,7 +332,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     @Override
-    @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = ChainCertificateInvalidException.class)
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
@@ -377,7 +375,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     @Override
-    @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = ChainCertificateInvalidException.class)
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy)) {

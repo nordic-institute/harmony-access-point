@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.web.rest.validators.BaseBlacklistValidator;
+import eu.domibus.common.validators.BaseBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,6 @@ public class BlacklistChangeListener implements DomibusPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        blacklistValidators.forEach(v -> v.init());
+        blacklistValidators.forEach(v -> v.reset());
     }
 }

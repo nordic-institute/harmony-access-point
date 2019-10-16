@@ -5,13 +5,12 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandlerFactory;
+import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,9 +41,10 @@ public class MSHWebServiceTest {
     @Test
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
                                     @Injectable Messaging messaging,
-                                    @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
+                                    @Injectable IncomingMessageHandler messageHandler,
+                                    @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
         new Expectations() {{
-            messageUtil.getMessage(request);
+            PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
             result = messaging;
 
             incomingMessageHandlerFactory.getMessageHandler(request, messaging);
@@ -61,9 +61,10 @@ public class MSHWebServiceTest {
     @Test(expected = WebServiceException.class)
     public void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
                                          @Injectable Messaging messaging,
-                                         @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
+                                         @Injectable IncomingMessageHandler messageHandler,
+                                         @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
         new Expectations() {{
-            messageUtil.getMessage(request);
+            PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
             result = messaging;
 
             incomingMessageHandlerFactory.getMessageHandler(request, messaging);

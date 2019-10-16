@@ -5,11 +5,13 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.cxf.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
@@ -37,9 +38,6 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
     public static final String SOURCE_MESSAGE_FILE = "sourceMessageFile";
 
     @Autowired
-    protected MessageFactory messageFactory;
-
-    @Autowired
     protected MessageUtil messageUtil;
 
     @Autowired
@@ -50,6 +48,9 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
 
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
+
+    @Autowired
+    protected SoapUtil soapUtil;
 
     @WebMethod
     @WebResult(name = "soapMessageResult")
@@ -87,7 +88,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
                 currentDomain);
 
         try {
-            SOAPMessage responseMessage = messageFactory.createMessage();
+            SOAPMessage responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
             responseMessage.saveChanges();
 
             LOG.debug("Finished processing SourceMessage request");

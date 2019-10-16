@@ -110,8 +110,7 @@
         <plugins>
             <simpleAuthenticationPlugin anonymousAccessAllowed="false">
                 <users>
-                    <authenticationUser username="${activeMQ.username}" password="${activeMQ.password}"
-                                        groups="users"/>
+                    <authenticationUser username="${activeMQ.username}" password="${activeMQ.password}" groups="users"/>
                     <authenticationUser username="admin" password="123456" groups="admins,users" />
                 </users>
             </simpleAuthenticationPlugin>

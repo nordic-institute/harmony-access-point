@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.receiver;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
@@ -41,6 +42,9 @@ public class LocalEndpointConfiguration {
     @Autowired
     protected MessageUtil messageUtil;
 
+    @Autowired
+    protected DomainService domainService;
+
     @Bean(name = "localMSH")
     public Endpoint createMSHEndpoint() {
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
@@ -54,7 +58,7 @@ public class LocalEndpointConfiguration {
         EndpointImpl endpoint = new EndpointImpl(bus, mshWebserviceSerializer);
         endpoint.setTransportId(LocalTransportFactory.TRANSPORT_ID);
         endpoint.getInInterceptors().add(createSaveRequestToFileInInterceptor());
-        endpoint.getInInterceptors().add(new SetPolicyInInterceptor.CheckEBMSHeaderInterceptor());
+        endpoint.getInInterceptors().add(new CheckEBMSHeaderInterceptor());
         endpoint.setAddress(MSHDispatcher.LOCAL_MSH_ENDPOINT);
         endpoint.publish();
 
@@ -67,6 +71,7 @@ public class LocalEndpointConfiguration {
         result.setDomibusPropertyProvider(domibusPropertyProvider);
         result.setMessageUtil(messageUtil);
         result.setSplitAndJoinService(splitAndJoinService);
+        result.setDomainService(domainService);
         return result;
     }
 }

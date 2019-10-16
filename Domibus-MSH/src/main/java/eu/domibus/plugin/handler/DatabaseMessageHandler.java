@@ -1,15 +1,16 @@
 package eu.domibus.plugin.handler;
 
 import com.google.common.collect.Sets;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.*;
+import eu.domibus.common.dao.ErrorLogDao;
+import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.SignalMessageLogDao;
+import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.exception.MessagingExceptionFactory;
@@ -25,13 +26,16 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
@@ -85,19 +89,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private MessagingService messagingService;
 
     @Autowired
-    private SignalMessageDao signalMessageDao;
+    private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private PayloadFileStorageProvider storageProvider;
-
-    @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -127,7 +128,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected AuthUtils authUtils;
 
     @Autowired
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
@@ -138,50 +139,66 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected PModeDefaultService pModeDefaultService;
 
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
 
-        checkMessageAuthorization(messageId);
+        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+        if (messaging == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
 
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+        UserMessage userMessage = messaging.getUserMessage();
 
-        userMessageLogService.setMessageAsDownloaded(messageId);
-        // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
-        if (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc()) && !userMessage.isPayloadOnFileSystem()) {
-            messagingDao.clearPayloadData(messageId);
-            List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-            if (!signalMessages.isEmpty()) {
-                for (SignalMessage signalMessage : signalMessages) {
-                    signalMessageDao.clear(signalMessage);
-                }
-            }
+        checkMessageAuthorization(userMessage, messageLog);
+
+        boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage);
+        if (shouldDeleteDownloadedMessage) {
+            messagingDao.clearPayloadData(userMessage);
+
             // Sets the message log status to DELETED
-            userMessageLogService.setMessageAsDeleted(messageId);
+            userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
             // Sets the log status to deleted also for the signal messages (if present).
-            List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-            if (!signalMessageIds.isEmpty()) {
-                for (String signalMessageId : signalMessageIds) {
-                    userMessageLogService.setMessageAsDeleted(signalMessageId);
-                    LOG.info("SignalMessage [{}] was set as DELETED.", signalMessageId);
-                }
+
+            SignalMessage signalMessage = messaging.getSignalMessage();
+            if (signalMessage != null) {
+                String signalMessageId = signalMessage.getMessageInfo().getMessageId();
+                userMessageLogService.setSignalMessageAsDeleted(signalMessageId);
+                LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
             }
+        } else {
+            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
         return transformer.transformFromMessaging(userMessage);
+    }
+
+    protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage) {
+        // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
+        return (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc()) && !userMessage.isPayloadOnFileSystem());
     }
 
     @Override
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
         LOG.info("Browsing message with id [{}]", messageId);
 
-        checkMessageAuthorization(messageId);
-
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
+
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+
+        checkMessageAuthorization(userMessage, userMessageLog);
+
         return transformer.transformFromMessaging(userMessage);
     }
 
-    protected void checkMessageAuthorization(String messageId) throws MessageNotFoundException {
+    protected void checkMessageAuthorization(UserMessage userMessage, UserMessageLog userMessageLog) throws MessageNotFoundException {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
         }
@@ -190,20 +207,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
-        try {
-            LOG.debug("Searching message with id [{}]", messageId);
-            UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-            // Authorization check
-            validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-
-            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
-            if (userMessageLog == null) {
-                throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-            }
-        } catch (final NoResultException nrEx) {
-            LOG.debug(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR, nrEx);
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
+        // Authorization check
+        validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected void validateOriginalUser(UserMessage userMessage, String authOriginalUser, List<String> recipients) {
@@ -212,7 +217,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             /* check the message belongs to the authenticated user */
             boolean found = false;
             for (String recipient : recipients) {
-                String originalUser = getOriginalUser(userMessage, recipient);
+                String originalUser = userMessageServiceHelper.getOriginalUser(userMessage, recipient);
                 if (originalUser != null && originalUser.equalsIgnoreCase(authOriginalUser)) {
                     found = true;
                     break;
@@ -229,26 +234,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (authOriginalUser != null) {
             LOG.debug("OriginalUser is [{}]", authOriginalUser);
             /* check the message belongs to the authenticated user */
-            String originalUser = getOriginalUser(userMessage, recipient);
+            String originalUser = userMessageServiceHelper.getOriginalUser(userMessage, recipient);
             if (originalUser != null && !originalUser.equalsIgnoreCase(authOriginalUser)) {
                 LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
                 throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
             }
         }
-    }
-
-    protected String getOriginalUser(UserMessage userMessage, String type) {
-        if (userMessage == null || userMessage.getMessageProperties() == null || userMessage.getMessageProperties().getProperty() == null) {
-            return null;
-        }
-        String originalUser = null;
-        for (Property property : userMessage.getMessageProperties().getProperty()) {
-            if (property.getName() != null && property.getName().equalsIgnoreCase(type)) {
-                originalUser = property.getValue();
-                break;
-            }
-        }
-        return originalUser;
     }
 
     protected void validateAccessToStatusAndErrors(String messageId) {
@@ -324,10 +315,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
             MessageStatus messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
+            prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -346,12 +337,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private void prepareForPushOrPull(UserMessage userMessage, String messageId, String pModeKey, Party to, MessageStatus messageStatus) {
+    private void prepareForPushOrPull(UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
+            userMessageService.scheduleSending(userMessageLog);
         } else {
-            final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
             pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
         }
@@ -362,7 +352,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
-
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
         }
@@ -454,16 +443,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
+
             if (messageStatus == null) {
                 messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             }
             final boolean sourceMessage = userMessage.isSourceMessage();
-            userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
+                prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());

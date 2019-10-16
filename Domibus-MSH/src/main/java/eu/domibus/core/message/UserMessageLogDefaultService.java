@@ -1,17 +1,21 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
+import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.logging.UserMessageLogEntityBuilder;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +26,18 @@ import java.sql.Timestamp;
  * @since 3.3
  */
 @Service
-public class UserMessageLogDefaultService implements UserMessageLogService {
+public class UserMessageLogDefaultService {
+
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
 
     @Autowired
-    UserMessageLogDao userMessageLogDao;
+    protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    BackendNotificationService backendNotificationService;
+    protected SignalMessageLogDao signalMessageLogDao;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
@@ -48,8 +57,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         return umlBuilder.build();
     }
 
-    @Override
-    public void save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
+    public UserMessageLog save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
         final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
@@ -68,46 +76,44 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         //we set the status after we send the status change event; otherwise the old status and the new status would be the same
         userMessageLog.setMessageStatus(status);
         userMessageLogDao.create(userMessageLog);
+
+        return userMessageLog;
     }
 
-    protected void updateMessageStatus(final String messageId, final MessageStatus newStatus) {
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+    protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
+        LOG.debug("Updating message status to [{}]", newStatus);
+
         if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
-            backendNotificationService.notifyOfMessageStatusChange(messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
-
-        uiReplicationSignalService.messageStatusChange(messageId, newStatus);
+        uiReplicationSignalService.messageStatusChange(messageLog.getMessageId(), newStatus);
     }
 
-    @Override
-    public void setMessageAsDeleted(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.DELETED);
+    public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
+        updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
     }
 
-    @Override
-    public void setMessageAsDownloaded(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
+    public void setSignalMessageAsDeleted(final String signalMessageid) {
+        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageid);
+        signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
+        uiReplicationSignalService.messageStatusChange(signalMessageLog.getMessageId(), MessageStatus.DELETED);
     }
 
-    @Override
-    public void setMessageAsAcknowledged(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
+    public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
     }
 
-    @Override
-    public void setMessageAsAckWithWarnings(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+    public void setMessageAsAcknowledged(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
     }
 
-    @Override
-    public void setMessageAsWaitingForReceipt(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.WAITING_FOR_RECEIPT);
+    public void setMessageAsAckWithWarnings(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
     }
 
-    @Override
-    public void setMessageAsSendFailure(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
+    public void setMessageAsSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
+        updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
     /**
