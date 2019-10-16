@@ -557,13 +557,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean hasLeg(Process process, String legName) {
-        Set<LegConfiguration> legs = process.getLegs();
-        for (LegConfiguration leg : legs) {
-            if (StringUtils.equals(leg.getName(), legName)) {
-                return true;
-            }
-        }
-        return false;
+        return process.getLegs().stream().anyMatch(leg -> StringUtils.equals(leg.getName(), legName));
     }
 
     protected boolean hasInitiatorParty(Process process, String partyName) {
@@ -577,12 +571,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean matchesParty(Set<Party> parties, String partyName) {
-        for (Party initiatorParty : parties) {
-            if (StringUtils.equals(initiatorParty.getName(), partyName)) {
-                return true;
-            }
-        }
-        return false;
+        return parties.stream().anyMatch(initiatorParty -> StringUtils.equals(initiatorParty.getName(), partyName));
     }
 
     @Override

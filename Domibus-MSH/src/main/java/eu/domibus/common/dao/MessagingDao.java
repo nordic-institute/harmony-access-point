@@ -19,8 +19,9 @@ import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -119,6 +120,7 @@ public class MessagingDao extends BasicDao<Messaging> {
 
     /**
      * Deletes the payloads saved in the database
+     *
      * @param userMessage
      */
     protected void clearDatabasePayloads(final UserMessage userMessage) {
@@ -133,28 +135,22 @@ public class MessagingDao extends BasicDao<Messaging> {
         emptyQuery.executeUpdate();
     }
 
-    protected List<PartInfo> getDatabasePayloads(final UserMessage userMessage) {
-        List<PartInfo> result = new ArrayList<>();
+    protected List<PartInfo> getPayloads(final UserMessage userMessage, Predicate<PartInfo> partInfoPredicate) {
+        return userMessage.getPayloadInfo().getPartInfo().stream().filter(partInfoPredicate).collect(Collectors.toList());
+    }
 
-        List<PartInfo> results = userMessage.getPayloadInfo().getPartInfo();
-        for (PartInfo partInfo : results) {
-            if (StringUtils.isBlank(partInfo.getFileName())) {
-                result.add(partInfo);
-            }
-        }
-        return result;
+    protected Predicate<PartInfo> getFilenameEmptyPredicate() {
+        return partInfo -> StringUtils.isBlank(partInfo.getFileName());
+    }
+
+    protected List<PartInfo> getDatabasePayloads(final UserMessage userMessage) {
+        Predicate<PartInfo> filenameEmptyPredicate = getFilenameEmptyPredicate();
+        return getPayloads(userMessage, filenameEmptyPredicate);
     }
 
     protected List<PartInfo> getFileSystemPayloads(final UserMessage userMessage) {
-        List<PartInfo> result = new ArrayList<>();
-
-        List<PartInfo> results = userMessage.getPayloadInfo().getPartInfo();
-        for (PartInfo partInfo : results) {
-            if (StringUtils.isNotBlank(partInfo.getFileName())) {
-                result.add(partInfo);
-            }
-        }
-        return result;
+        Predicate<PartInfo> filenamePresentPredicate = getFilenameEmptyPredicate().negate();
+        return getPayloads(userMessage, filenamePresentPredicate);
     }
 
     /**
