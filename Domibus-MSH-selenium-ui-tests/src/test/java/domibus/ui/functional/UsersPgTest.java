@@ -1,11 +1,12 @@
 package domibus.ui.functional;
 
+import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.DButton;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -14,6 +15,7 @@ import pages.users.UsersPage;
 import rest.RestServicePaths;
 import utils.Generator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,568 +29,373 @@ import java.util.List;
 public class UsersPgTest extends BaseTest {
 
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
-//		login with Admin and go to users page
 		LoginPage loginPage = new LoginPage(driver);
+		log.info("Login with user" + user);
 		loginPage.login(user);
+
+		log.info("Open Users page");
 		loginPage.getSidebar().gGoToPage(PAGES.USERS);
 		return new UsersPage(driver);
 	}
 
-	@Test(description = "USR-1", groups = {"multiTenancy", "singleTenancy"})
-	public void openWindow() throws Exception {
+	private UsersPage loginAndGoToUsersPage(String user, String pass) throws Exception {
+		HashMap<String, String> userInfo = new HashMap<>();
+		userInfo.put("username", user);
+		userInfo.put("pass", pass);
+
+		return loginAndGoToUsersPage(userInfo);
+	}
+
+	/* Admin deletes user and presses Save */
+	@Test(description = "USR-10", groups = {"multiTenancy", "singleTenancy"})
+	public void deleteUserAndSave() throws Exception {
+		String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+
 		SoftAssert soft = new SoftAssert();
 		loginAndGoToUsersPage(data.getAdminUser());
 
 		UsersPage page = new UsersPage(driver);
-		soft.assertTrue(page.isLoaded(), "page loaded");
 
-//		at least one user is listed (the current user)
-		soft.assertTrue(page.grid().getRowsNo() > 0, "existing users are displayed");
+		log.info("Selecting user " + username);
+		int index = page.grid().scrollTo("Username", username);
+		page.grid().selectRow(index);
+
+		log.info("Press Delete button");
+		page.getDeleteBtn().click();
+
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "After pressing delete the Save button is active");
+		soft.assertTrue(page.getCancelBtn().isEnabled(), "After pressing delete the Cancel button is active");
+
+		log.info("Save changes");
+		page.saveAndConfirm();
+
+		soft.assertTrue(page.getUsersGrid().isDeleted(username), "User presented as deleted in the grid");
 
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-1.1", groups = {"multiTenancy", "singleTenancy"})
-	public void openDoubleClickModal() throws Exception {
+	/* Admin deletes user and presses Cancel */
+	@Test(description = "USR-9", groups = {"multiTenancy", "singleTenancy"})
+	public void deleteUserAndCancel() throws Exception {
+		String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+
 		SoftAssert soft = new SoftAssert();
 		loginAndGoToUsersPage(data.getAdminUser());
-		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
 
 		UsersPage page = new UsersPage(driver);
-		page.refreshPage();
 
-//		DoubleClick on the row doesn't work as expected due to the fact that not the whole area is clickable
-//		This is circumvented for the time being by clicking the Edit button
-		page.grid().scrollToAndDoubleClick("Username", username);
-		page.getEditBtn().click();
+		log.info("Selecting user " + username);
+		int index = page.grid().scrollTo("Username", username);
+		page.grid().selectRow(index);
 
-		UserModal um = new UserModal(driver);
-		soft.assertTrue(um.isLoaded(), "Doubleclick opens modal");
+		log.info("Press Delete button");
+		page.getDeleteBtn().click();
 
-		soft.assertEquals(username, um.getUserNameInput().getText(), "Usernames match");
-		soft.assertEquals(DRoles.USER, um.getRoleSelect().getSelectedValue(), "Roles match");
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "After pressing delete the Save button is active");
+		soft.assertTrue(page.getCancelBtn().isEnabled(), "After pressing delete the Cancel button is active");
 
+		log.info("Cancel changes");
+		page.cancelAndConfirm();
+
+		soft.assertTrue(!page.getUsersGrid().isDeleted(username), "User presented as NOT deleted in the grid");
+
+		soft.assertAll();
+	}
+
+	/* Available roles in Role drop down on new/edit pop up */
+	@Test(description = "USR-12", groups = {"multiTenancy", "singleTenancy"})
+	public void availableRoles() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		ArrayList<HashMap<String, String>> roles = new ArrayList<>();
+		roles.add(data.getUser(DRoles.ADMIN));
 		if (data.isIsMultiDomain()) {
-			soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
+			roles.add(data.getUser(DRoles.SUPER));
 		}
+		log.info("This test runs for roles: " + roles);
+
+		for (HashMap<String, String> role : roles) {
+			UsersPage page = loginAndGoToUsersPage(role);
+
+			log.info("checking available options for role: " + role);
+			ArrayList<DButton> buttons = new ArrayList<>();
+			buttons.add(page.getEditBtn());
+			buttons.add(page.getNewBtn());
+
+			for (DButton button : buttons) {
+				page.grid().selectRow(0);
+				log.info("checking dialog for " + button.getText() + " user");
+				button.click();
+
+				UserModal modal = new UserModal(driver);
+
+				log.info("retrieving available options");
+				List<String> visibleRoles = modal.getRoleSelect().getOptionsTexts();
+
+				soft.assertTrue(visibleRoles.contains(DRoles.USER), "USER role is available");
+				soft.assertTrue(visibleRoles.contains(DRoles.ADMIN), "ADMIN role is available");
+
+				if (role.equals(DRoles.SUPER)) {
+					soft.assertTrue(visibleRoles.size() == 3, "all three options available");
+					soft.assertTrue(visibleRoles.contains(DRoles.SUPER), "SUPER role is available");
+				} else {
+					soft.assertTrue(visibleRoles.size() == 2, "2 options available");
+				}
+				log.info("closing dialog");
+				page.clickVoidSpace();
+			}
+
+			log.info("logout");
+			page.getSandwichMenu().logout();
+		}
+
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-1.2", groups = {"multiTenancy", "singleTenancy"})
-	public void openModalDeletedUser() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
-		rest.deleteUser(username, null);
-
-		UsersPage page = new UsersPage(driver);
-		page.refreshPage();
-
-//		DoubleClick on the row doesn't work as expected due to the fact that not the whole area is clickable
-//		This is circumvented for the time being by clicking the Edit button
-		page.grid().scrollToAndSelect("Username", username);
-		soft.assertTrue(!page.getEditBtn().isEnabled(), "Edit button is not enabled for deleted users!");
-		soft.assertTrue(!page.getDeleteBtn().isEnabled(), "Delete button is not enabled for deleted users!");
-
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-2", groups = {"multiTenancy", "singleTenancy"})
+	/* USR-4 - Create new user and press cancel */
+	@Test(description = "USR-4", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserCancel() throws Exception {
 
 		String username = Generator.randomAlphaNumeric(9);
 
 		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		soft.assertTrue(page.isLoaded(), "Page is loaded");
-
-		soft.assertTrue(page.grid().getRowsNo() > 0, "Grid lists existing users");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
 
 //		create new user
+		log.info("creating new user " + username);
 		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
-
 		page.grid().waitForRowsToLoad();
 
+		log.info("Press cancel");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
-
 		page.cancelAndConfirm();
 
-
+		log.info("searching for user in grid");
 		int index = page.grid().scrollTo("Username", username);
 		soft.assertEquals(index, -1, "User not present in the list of users");
 
 		soft.assertAll();
 	}
 
-
-	@Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"})
-	public void newUserSave() throws Exception {
-		String username = Generator.randomAlphaNumeric(9);
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-
-		UsersPage page = new UsersPage(driver);
-
-		soft.assertTrue(page.isLoaded(), "Page is loaded");
-
-		soft.assertTrue(page.grid().getRowsNo() > 0, "Grid lists existing users");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
-
-		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-		page.grid().waitForRowsToLoad();
-
-		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
-
-		page.saveAndConfirm();
-
-
-		int index = page.grid().scrollTo("Username", username);
-		soft.assertTrue(index > -1, "Created user present in users grid");
-
-		rest.deleteUser(username, null);
-		soft.assertAll();
-	}
-
-
-	@Test(description = "USR-4", groups = {"multiTenancy", "singleTenancy"})
-	public void newUserDelete() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-		soft.assertTrue(page.isLoaded(), "Page is loaded");
-
-		soft.assertTrue(page.grid().getRowsNo() > 0, "Grid lists existing users");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
-
-
-		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-		page.grid().waitForRowsToLoad();
-
-		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
-
-		page.saveAndConfirm();
-
-		DGrid grid = page.grid();
-		grid.waitForRowsToLoad();
-
-		page.grid().scrollTo("Username", username);
-		int index = page.grid().scrollTo("Username", username);
-		soft.assertTrue(index > -1, "Created user present in users grid");
-		if (index > -1) {
-			page.grid().scrollToAndSelect("Username", username);
-			page.getDeleteBtn().click();
-			page.saveAndConfirm();
-			page.grid().waitForRowsToLoad();
-		}
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-5", groups = {"multiTenancy", "singleTenancy"})
-	public void editUserAndCancel() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-
-		UsersPage page = new UsersPage(driver);
-		page.grid().scrollToAndSelect("Username", username);
-		soft.assertTrue(page.getEditBtn().isEnabled(), "Edit button is enabled for selected user");
-
-		page.getEditBtn().click();
-		UserModal um = new UserModal(driver);
-
-		soft.assertTrue(!um.getUserNameInput().isEnabled(), "Username cannot be edited");
-
-		String newEmail = Generator.randomAlphaNumeric(5) + "@email.com";
-		um.getEmailInput().fill(newEmail);
-		um.clickOK();
-		page.cancelAndConfirm();
-
-		page.grid().scrollToAndSelect("Username", username);
-		page.getEditBtn().click();
-		um = new UserModal(driver);
-
-		soft.assertTrue(um.getEmailInput().getText().isEmpty(), "Email has not changed after edit + click cancel");
-
-		rest.deleteUser(username, null);
-		soft.assertAll();
-	}
-
-
+	/* USR-6 - Admin creates new user and presses Save */
 	@Test(description = "USR-6", groups = {"multiTenancy", "singleTenancy"})
-	public void editUserAndSave() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-		int index = page.grid().scrollTo("Username", username);
-
-		page.grid().scrollToAndSelect("Username", username);
-
-		page.getEditBtn().click();
-		UserModal um = new UserModal(driver);
-
-		soft.assertTrue(!um.getUserNameInput().isEnabled(), "Username cannot be edited");
-		soft.assertEquals(um.getUserNameInput().getText(), username, "Correct username is displayed in the um");
-
-
-		String email = um.getEmailInput().getText();
-
-		String newEmail = Generator.randomAlphaNumeric(5) + "@email.com";
-		um.getEmailInput().fill(newEmail);
-		um.getRoleSelect().selectOptionByText(DRoles.ADMIN);
-
-		um.clickOK();
-		page.saveAndConfirm();
-
-		index = page.grid().scrollTo("Username", username);
-
-		page.grid().scrollToAndSelect("Username", username);
-		page.getEditBtn().click();
-		um = new UserModal(driver);
-
-		soft.assertEquals(um.getEmailInput().getText(), newEmail, "Old email has changed after edit");
-		soft.assertEquals(um.getRoleSelect().getSelectedValue(), DRoles.ADMIN, "Old role was changed after edit");
-		soft.assertEquals(um.getUserNameInput().getText(), username, "Old username has not changed after edit + click cancel");
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-7", groups = {"multiTenancy", "singleTenancy"})
-	public void deleteUserAndCancel() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-
-		UsersPage page = new UsersPage(driver);
-
-		int index = page.grid().scrollTo("Username", username);
-		page.grid().scrollToAndSelect("Username", username);
-
-		page.getDeleteBtn().click();
-
-		soft.assertTrue(page.getSaveBtn().isEnabled(), "After pressing delete the Save button is active");
-		soft.assertTrue(page.getCancelBtn().isEnabled(), "After pressing delete the Cancel button is active");
-
-		page.cancelAndConfirm();
-
-		index = page.grid().scrollTo("Username", username);
-		soft.assertTrue(!page.getUsersGrid().isDeleted(username), "User not marked as deleted");
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-8", groups = {"multiTenancy", "singleTenancy"})
-	public void deleteUserAndSave() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-
-		UsersPage page = new UsersPage(driver);
-
-		int index = page.grid().scrollTo("Username", username);
-
-		page.grid().scrollToAndSelect("Username", username);
-
-		page.getDeleteBtn().click();
-
-		soft.assertTrue(page.getSaveBtn().isEnabled(), "After pressing delete the Save button is active");
-		soft.assertTrue(page.getCancelBtn().isEnabled(), "After pressing delete the Cancel button is active");
-
-		page.saveAndConfirm();
-
-		soft.assertTrue(page.getUsersGrid().isDeleted(username), "User presented as deleted in the grid");
-
-		rest.deleteUser(username, null);
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-9", groups = {"multiTenancy", "singleTenancy"})
-	public void newUserPopupValidations() throws Exception {
+	public void newUserSave() throws Exception {
 
 		String username = Generator.randomAlphaNumeric(9);
 
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-		soft.assertTrue(page.isLoaded(), "Page is loaded");
-
-		soft.assertTrue(page.grid().getRowsNo() > 0, "Grid lists existing users");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
-
-//		create new user
-		page.getNewBtn().click();
-		UserModal um = new UserModal(driver);
-		um.fillData("", "asdsa", "", "assd", "asdaa");
-
-		soft.assertEquals(um.getUsernameErrMess().getText(), DMessages.USER_USERNAME_NO_EMPTY, "Correct username err message appears");
-		soft.assertEquals(um.getEmailErrMess().getText(), DMessages.USER_EMAIL_INVALID, "Correct email err message appears");
-		soft.assertEquals(um.getPassErrMess().getText(), DMessages.PASS_POLICY_MESSAGE, "Correct pass err message appears");
-		soft.assertEquals(um.getConfirmationErrMess().getText(), DMessages.PASS_NO_MATCH_MESSAGE, "Correct pass err message appears");
-
-		soft.assertTrue(!um.isOKBtnEnabled(), "OK button is not enabled for invalid input");
-
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-10", groups = {"multiTenancy", "singleTenancy"})
-	public void inactiveUserLogin() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-//		create new user
-		page.getNewBtn().click();
-		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-		um.getActiveChk().uncheck();
-
-		um.clickOK();
-
-		page.saveAndConfirm();
-
-		page.getSandwichMenu().logout();
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
-
-		soft.assertTrue(!loginPage.getSandwichMenu().isLoggedIn(), "User is not logged in");
-		soft.assertTrue(loginPage.getAlertArea().isError(), "Error message shown");
-		soft.assertEquals(loginPage.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "Correct error message is shown");
-
-
-		loginPage.login(data.getAdminUser());
-		loginPage.getSidebar().gGoToPage(PAGES.USERS);
-
-		page.grid().scrollToAndSelect("Username", username);
-		page.getEditBtn().click();
-
-		um = new UserModal(driver);
-		um.getActiveChk().check();
-		um.clickOK();
-		page.saveAndConfirm();
-
-		page.getSandwichMenu().logout();
-		loginPage.login(username, data.getDefaultTestPass());
-
-		soft.assertTrue(loginPage.getSandwichMenu().isLoggedIn(), "Active user is logged in");
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-11", groups = {"multiTenancy", "singleTenancy"})
-	public void editUserRoleAndCheckPrivileges() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), "default");
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-		int index = page.grid().scrollTo("Username", username);
-		if (index > -1) {
-			page.grid().scrollToAndSelect("Username", username);
-			page.getEditBtn().click();
-			UserModal um = new UserModal(driver);
-			um.getRoleSelect().selectOptionByText(DRoles.USER);
-
-			um.clickOK();
-			page.saveAndConfirm();
-
-			page.getSandwichMenu().logout();
-			LoginPage loginPage = new LoginPage(driver);
-			loginPage.login(username, data.getDefaultTestPass());
-
-			soft.assertEquals(loginPage.getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
-
-		}
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-12", groups = {"multiTenancy", "singleTenancy"})
-	public void duplicateUsername() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), "default");
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-
-		int index = page.grid().scrollTo("Username", username);
-		if (index > -1) {
-
-			page.getNewBtn().click();
-			UserModal um = new UserModal(driver);
-			um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-			um.clickOK();
-			page.getSaveBtn().click();
-
-			soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-			soft.assertEquals(page.getAlertArea().getAlertMessage(), "Duplicate user name for user: " + username + ".", "Correct message displayed");
-
-		}
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-13", groups = {"multiTenancy"})
-	public void duplicateUsernameOnAnotherDomain() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		List<String> domains = rest.getDomainNames();
-		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), domains.get(1));
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-		page.getDomainSelector().selectOptionByText(domains.get(0));
-
-		page.getNewBtn().click();
-		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-		um.clickOK();
-
-		page.saveAndConfirm();
-
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedError = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domains.get(1));
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedError, "Correct message is displayed");
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-14", groups = {"multiTenancy"})
-	public void duplicateUserVSPluginUser() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		rest.createPluginUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
-
-		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-		page.getNewBtn().click();
-		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-
-		um.clickOK();
-		page.saveAndConfirm();
-
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, "default");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
-
-		rest.deletePluginUser(username, null);
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-15", groups = {"multiTenancy"})
-	public void duplicateUserVSPluginUserOtherDomain() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		List<String> domains = rest.getDomainNames();
-		rest.createPluginUser(username, DRoles.ADMIN, data.getDefaultTestPass(), domains.get(1));
-
-		SoftAssert soft = new SoftAssert();
-
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
-
-		page.getDomainSelector().selectOptionByText(domains.get(0));
-
-		page.getNewBtn().click();
-		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
-		um.clickOK();
-
-		page.saveAndConfirm();
-
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-
-		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domains.get(1));
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
-
-		soft.assertAll();
-	}
-
-	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
-	public void downloadUserList() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
 
-		page.grid().getGridCtrl().showCtrls();
-		page.grid().getGridCtrl().getAllLnk().click();
-		page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
+//		create new user
+		log.info("creating new user " + username);
+		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.grid().waitForRowsToLoad();
 
-		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+		log.info("Press Save");
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "Cancel button is enabled after new user creation");
+		page.saveAndConfirm();
 
-		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+		log.info("searching for user in grid");
+		int index = page.grid().scrollTo("Username", username);
+		soft.assertTrue(index > -1, "User present in the list of users");
 
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
-	public void userNameValidations() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-
+	/* USR-7 - Admin edits an existing user and presses Cancel */
+	@Test(description = "USR-7", groups = {"multiTenancy", "singleTenancy"})
+	public void editUserAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		soft.assertTrue(page.isLoaded(), "Page is loaded");
-
-		soft.assertTrue(page.grid().getRowsNo() > 0, "Grid lists existing users");
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
 
+		log.info("aquiring user for edit");
+		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
+		page.refreshPage();
+
+		log.info("editing user");
+		page.grid().scrollToAndDoubleClick("Username", username);
+		UserModal modal = new UserModal(driver);
+		log.info("make the user active");
+		modal.getActiveChk().check();
+
+		String email = Generator.randomAlphaNumeric(5) + "@test.com";
+		log.info("editign email to " + email);
+		modal.getEmailInput().fill(email);
+		modal.clickOK();
+
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is enabled after edit");
+		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after edit");
+
+		log.info("click Cancel");
+		page.cancelAndConfirm();
+
+		log.info("checking edited values");
+		page.grid().scrollToAndDoubleClick("Username", username);
+		modal = new UserModal(driver);
+
+		soft.assertTrue(!modal.getActiveChk().isChecked(), "User is still disabled");
+		soft.assertNotEquals(modal.getEmailInput().getText(), email, "User email is NOT the one set by editing");
+
+		soft.assertAll();
+	}
+
+	/* USR-7 - Admin edits an existing user and presses Save */
+	@Test(description = "USR-8", groups = {"multiTenancy", "singleTenancy"})
+	public void editUserAndSave() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+
+		log.info("aquiring user for edit");
+		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
+		page.refreshPage();
+
+		log.info("editing user");
+		page.grid().scrollToAndDoubleClick("Username", username);
+		UserModal modal = new UserModal(driver);
+		log.info("make the user active");
+		modal.getActiveChk().check();
+
+		String email = Generator.randomAlphaNumeric(5) + "@test.com";
+		log.info("editign email to " + email);
+		modal.getEmailInput().fill(email);
+		modal.clickOK();
+
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is enabled after edit");
+		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after edit");
+
+		log.info("click Save");
+		page.saveAndConfirm();
+
+		log.info("checking edited values");
+		page.grid().scrollToAndDoubleClick("Username", username);
+//		modal = new UserModal(driver);
+
+		soft.assertTrue(modal.getActiveChk().isChecked(), "User is enabled");
+		soft.assertEquals(modal.getEmailInput().getText(), email, "User email is the one set by editing");
+
+		soft.assertAll();
+	}
+
+	/* USR-15 - Admin unticks the Active checkbox for user (also applies to user creation) */
+	@Test(description = "USR-15", groups = {"multiTenancy", "singleTenancy"})
+	public void adminDeactivatesUser() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = Generator.randomAlphaNumeric(10);
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+//		admin creates new disabled user
+		log.info("Create new disabled user");
+		page.getNewBtn().click();
+
+		log.info("Creating user " + username);
+		UserModal modal = new UserModal(driver);
+		modal.fillData(username, null, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+
+		log.info("Uncheck the active checkbox");
+		modal.getActiveChk().uncheck();
+		modal.clickOK();
+
+		log.info("Saving");
+		page.saveAndConfirm();
+
+		log.info("logging out");
+		page.getSandwichMenu().logout();
+		DomibusPage pg = login(username, data.getDefaultTestPass());
+		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed for deactivated user trying to login");
+		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
+
+//		admin edits to disable active user
+		log.info("Disable active user");
+		username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+
+		page = loginAndGoToUsersPage(data.getAdminUser());
+
+		log.info("editing user " + username);
+		page.grid().scrollToAndDoubleClick("Username", username);
+		modal = new UserModal(driver);
+
+		log.info("Uncheck the active checkbox");
+		modal.getActiveChk().uncheck();
+		modal.clickOK();
+
+		log.info("Saving");
+		page.saveAndConfirm();
+
+		log.info("logging out");
+		page.getSandwichMenu().logout();
+
+		pg = login(username, data.getDefaultTestPass());
+		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed for deactivated user trying to login");
+		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
+
+		soft.assertAll();
+	}
+
+	/* USR-14 - Admin changes password (also applies to user creation) */
+	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"})
+	public void adminChangesUserPassword() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = getUser(null, DRoles.USER, true, false, true).getString("userName");
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+		log.info("changing password for " + username);
+		page.grid().scrollToAndDoubleClick("Username", username);
+		UserModal modal = new UserModal(driver);
+		modal.getPasswordInput().fill(data.getNewTestPass());
+		modal.getConfirmationInput().fill(data.getNewTestPass());
+		modal.clickOK();
+
+		log.info("Saving");
+		page.saveAndConfirm();
+
+		log.info("admin logging out");
+		page.getSandwichMenu().logout();
+
+		log.info("try to login with old password");
+		DomibusPage pg = login(username, data.getDefaultTestPass());
+		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed when trying to login with old password");
+		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "User notified he has wrong credentials");
+
+		log.info("try to login with new password");
+		pg = login(username, data.getNewTestPass());
+		soft.assertTrue(pg.getSandwichMenu().isLoggedIn(), "User can login with new pass");
+
+		soft.assertAll();
+	}
+
+	/*USR-16 - Admin tries to create new user with username less than 3 letters long*/
+	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
+	public void userNameValidations() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+		log.info("click New");
 		page.getNewBtn().click();
 		UserModal modal = new UserModal(driver);
 
+		log.info("checking with only one letter");
 		modal.getUserNameInput().fill("t");
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
 
+		log.info("checking with only two letters");
 		modal.getUserNameInput().fill("te");
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (2)");
 
+		log.info("checking with only two letters and special characters");
 		modal.getUserNameInput().fill("te$%^*");
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (3)");
 
+		log.info("checking with valid username");
 		modal.getUserNameInput().fill("testUser");
 
 		String errMess = null;
@@ -596,25 +403,193 @@ public class UsersPgTest extends BaseTest {
 			errMess = modal.getUsernameErrMess().getText();
 		} catch (Exception e) {
 		}
-
 		soft.assertNull(errMess, "When correct username is entered the error message dissapears");
 
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-18", groups = {"multiTenancy", "singleTenancy"})
-	public void adminDeleteSelf() throws Exception {
-
-		String username = Generator.randomAlphaNumeric(9);
-		String password = data.getDefaultTestPass();
-		rest.createUser(username, DRoles.ADMIN, password, null);
+	/*USR-17 - Admin changes a user role*/
+	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
+	public void editUserRoleAndCheckPrivileges() throws Exception {
+		String username = getUser(null, DRoles.ADMIN, true, false, false).getString("userName");
+		log.info("changing role to User for Admin " + username);
 
 		SoftAssert soft = new SoftAssert();
-		login(username, password).getSidebar().gGoToPage(PAGES.USERS);
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
+		log.info("editing user");
+		page.grid().scrollToAndDoubleClick("Username", username);
+
+		log.info("changing role");
+		UserModal um = new UserModal(driver);
+		um.getRoleSelect().selectOptionByText(DRoles.USER);
+		um.clickOK();
+
+		log.info("Saving");
+		page.saveAndConfirm();
+
+		log.info("logout");
+		page.getSandwichMenu().logout();
+
+		log.info("login with username " + username);
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login(username, data.getDefaultTestPass());
+
+		soft.assertEquals(loginPage.getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
+
+		// TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
+
+		soft.assertAll();
+	}
+
+	/*USR-19 - Admin tries to create a user with username that exists already (active deleted) both*/
+	@Test(description = "USR-19", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateUsername() throws Exception {
+		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
+		String deleted_username = getUser(null, DRoles.USER, false, true, false).getString("userName");
+
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+//		active user
+		log.info("creating new user with existing active username");
+		page.getNewBtn().click();
+		UserModal um = new UserModal(driver);
+		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.clickOK();
+
+		log.info("Saving");
+		page.getSaveBtn().click();
+
+		log.info("checking error message");
+		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username), "Correct message displayed");
+
+//		deleted user
+		log.info("creating new user with existing deleted username");
+		page.getNewBtn().click();
+		um = new UserModal(driver);
+		um.fillData(deleted_username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.clickOK();
+
+		log.info("Saving");
+		page.getSaveBtn().click();
+
+		log.info("checking error message");
+		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username), "Correct message displayed");
+
+
+		soft.assertAll();
+	}
+
+	/*USR-20 - Admin tries to create a user with username that exists on another domain*/
+	@Test(description = "USR-20", groups = {"multiTenancy"})
+	public void duplicateUsernameOnAnotherDomain() throws Exception {
+		List<String> domains = rest.getDomainNames();
+		String username = getUser(domains.get(1), DRoles.USER, false, false, false).getString("userName");
+		String deleted_username = getUser(domains.get(1), DRoles.USER, false, true, false).getString("userName");
+
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+
+//		active user
+		log.info("creating new user with existing active username");
+		page.getNewBtn().click();
+		UserModal um = new UserModal(driver);
+		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.clickOK();
+
+		log.info("Saving");
+		page.getSaveBtn().click();
+
+		log.info("checking error message");
+		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username), "Correct message displayed");
+
+//		deleted user
+		log.info("creating new user with existing deleted username");
+		page.getNewBtn().click();
+		um = new UserModal(driver);
+		um.fillData(deleted_username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.clickOK();
+
+		log.info("Saving");
+		page.getSaveBtn().click();
+
+		log.info("checking error message");
+		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username), "Correct message displayed");
+
+
+		soft.assertAll();
+	}
+
+	/*USR-21 - Admin tries to create a user with username that exists on a Plugin user*/
+	@Test(description = "USR-21", groups = {"multiTenancy"})
+	public void duplicateUserVSPluginUser() throws Exception {
+
+		String username = getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
+		log.info("got plugin user " + username);
+
+		SoftAssert soft = new SoftAssert();
+		loginAndGoToUsersPage(data.getAdminUser());
 		UsersPage page = new UsersPage(driver);
-		page.grid().scrollToAndSelect("Username", username);
 
+		log.info("creating new user");
+		page.getNewBtn().click();
+		UserModal um = new UserModal(driver);
+		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.clickOK();
+
+		page.saveAndConfirm();
+
+		log.info("checking");
+		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, "default");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
+
+		soft.assertAll();
+	}
+
+	/*USR-22 - Admin tries to create a user with username that exists on a Plugin user on another domain*/
+	@Test(description = "USR-22", groups = {"multiTenancy"})
+	public void duplicateUserVSPluginUserOtherDomain() throws Exception {
+		String domain = rest.getDomainNames().get(1);
+		String username = getPluginUser(domain, DRoles.ADMIN, true, false).getString("userName");
+		log.info("got plugin user " + username + "on domain " + domain);
+
+		SoftAssert soft = new SoftAssert();
+		loginAndGoToUsersPage(data.getAdminUser());
+		UsersPage page = new UsersPage(driver);
+
+		log.info("creating new user");
+		page.getNewBtn().click();
+		UserModal um = new UserModal(driver);
+		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.clickOK();
+
+		page.saveAndConfirm();
+
+		log.info("checking");
+		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domain);
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
+
+		soft.assertAll();
+	}
+
+	/*USR-32 - Delete logged in user*/
+	@Test(description = "USR-32", groups = {"multiTenancy", "singleTenancy"})
+	public void adminDeleteSelf() throws Exception {
+		String username = getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		log.info("created user " + username);
+
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = loginAndGoToUsersPage(username, data.getDefaultTestPass());
+
+		log.info("deleteing created user");
+		page.grid().scrollToAndSelect("Username", username);
 		page.getDeleteBtn().click();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
@@ -625,46 +600,7 @@ public class UsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "USR-19", groups = {"multiTenancy"})
-	public void availableRoles() throws Exception {
 
-		String adminUsername = Generator.randomAlphaNumeric(9);
-		String superUsername = Generator.randomAlphaNumeric(9);
-		String password = data.getDefaultTestPass();
-		rest.createUser(adminUsername, DRoles.ADMIN, password, null);
-		rest.createUser(superUsername, DRoles.SUPER, password, null);
-
-		SoftAssert soft = new SoftAssert();
-		login(adminUsername, password).getSidebar().gGoToPage(PAGES.USERS);
-
-		UsersPage page = new UsersPage(driver);
-
-		page.getNewBtn().click();
-		UserModal modal = new UserModal(driver);
-
-		List<String> roles = modal.getRoleSelect().getOptionsTexts();
-
-		soft.assertTrue(roles.size() == 2, "2 roles available to admin");
-		soft.assertTrue(roles.contains(DRoles.USER), "User role is avalable to admin");
-		soft.assertTrue(roles.contains(DRoles.ADMIN), "Admin role is avalable to admin");
-
-		page.getSandwichMenu().logout();
-		login(superUsername, password).getSidebar().gGoToPage(PAGES.USERS);
-
-		page = new UsersPage(driver);
-
-		page.getNewBtn().click();
-		modal = new UserModal(driver);
-
-		List<String> rolesSuper = modal.getRoleSelect().getOptionsTexts();
-
-		soft.assertTrue(rolesSuper.size() == 3, "3 roles available to admin");
-		soft.assertTrue(rolesSuper.contains(DRoles.USER), "User role is avalable to super");
-		soft.assertTrue(rolesSuper.contains(DRoles.ADMIN), "Admin role is avalable to super");
-		soft.assertTrue(rolesSuper.contains(DRoles.SUPER), "Super Admin role is avalable to super");
-
-		soft.assertAll();
-	}
 
 
 

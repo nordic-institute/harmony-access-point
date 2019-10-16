@@ -2,7 +2,9 @@ package domibus;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,7 @@ import java.util.List;
 /**
  * @author Catalin Comanici
  * @version 4.1
-*/
+ */
 
 public class BaseTest {
 
@@ -38,16 +40,18 @@ public class BaseTest {
 	 * suite and the browser window is reused for all tests in suite
 	 */
 	@BeforeSuite(alwaysRun = true)
-	public void beforeClass(){
+	public void beforeClass() {
 		log.info("-------- Starting -------");
 		driver = DriverManager.getDriver();
 		driver.get(data.getUiBaseUrl());
 	}
 
 
-	/**After the test suite is done we close the browser*/
+	/**
+	 * After the test suite is done we close the browser
+	 */
 	@AfterSuite(alwaysRun = true)
-	public void afterClassSuite(){
+	public void afterClassSuite() {
 		log.info("-------- Quitting -------");
 		try {
 			driver.quit();
@@ -57,9 +61,11 @@ public class BaseTest {
 		}
 	}
 
-	/**After each test method page is refreshed and logout is attempted*/
+	/**
+	 * After each test method page is refreshed and logout is attempted
+	 */
 	@AfterMethod(alwaysRun = true)
-	protected void logout() throws Exception{
+	protected void logout() throws Exception {
 		DomibusPage page = new DomibusPage(driver);
 
 		/*refresh will close any remaining opened modals*/
@@ -70,28 +76,30 @@ public class BaseTest {
 		}
 	}
 
-	/**Before each test method we will log a separator to make logs more readable*/
+	/**
+	 * Before each test method we will log a separator to make logs more readable
+	 */
 	@BeforeMethod(alwaysRun = true)
-	protected void logSeparator() throws Exception{
+	protected void logSeparator() throws Exception {
 		log.info("---------------------------");
 	}
 
-	protected DomibusPage login(HashMap<String, String> user){
+	protected DomibusPage login(HashMap<String, String> user) {
 		log.info("login started");
 		LoginPage loginPage = new LoginPage(driver);
 
 		try {
 			loginPage.login(user);
+			loginPage.waitForTitle();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.info("Login did not succeed!!!");
+			log.debug(e.getMessage());
 		}
-
-		loginPage.waitForTitle();
 
 		return new DomibusPage(driver);
 	}
 
-	protected DomibusPage login(String user, String pass){
+	protected DomibusPage login(String user, String pass) {
 
 		HashMap<String, String> userInfo = new HashMap<>();
 		userInfo.put("username", user);
@@ -107,12 +115,12 @@ public class BaseTest {
 		JSONArray mess = rest.getListOfMessages(domainCode);
 		List<String> messIDs = new ArrayList<>();
 
-		if(forceNew){
+		if (forceNew) {
 			return sendMessages(noOfNecessaryMessages, domainCode);
 		}
 
-		if(mess.length() < noOfNecessaryMessages){
-			List<String> sentMess = sendMessages(noOfNecessaryMessages-mess.length(), domainCode);
+		if (mess.length() < noOfNecessaryMessages) {
+			List<String> sentMess = sendMessages(noOfNecessaryMessages - mess.length(), domainCode);
 			messIDs.addAll(sentMess);
 		}
 
@@ -130,7 +138,7 @@ public class BaseTest {
 		String messageRefID = Generator.randomAlphaNumeric(10);
 		String conversationID = Generator.randomAlphaNumeric(10);
 
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),domainCode);
+		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), domainCode);
 		log.info("Created plugin user " + user + " on domain " + domainCode);
 
 		log.info("Uploading PMODE ");
@@ -146,5 +154,108 @@ public class BaseTest {
 		return messIDs;
 	}
 
+	public JSONObject getUser(String domain, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
+		String username = Generator.randomAlphaNumeric(10);
 
+		if (StringUtils.isEmpty(domain)) {
+			domain = "default";
+		}
+
+		if (!forceNew) {
+			log.info("trying to find existing user with desired config");
+			JSONArray users = rest.getUsers();
+			for (int i = 0; i < users.length(); i++) {
+				JSONObject user = users.getJSONObject(i);
+				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
+						|| StringUtils.equalsIgnoreCase(user.getString("userName"), "admin")
+						|| StringUtils.equalsIgnoreCase(user.getString("userName"), "user")
+				) {
+					log.info("skipping default users");
+					continue;
+				}
+
+				if (StringUtils.equalsIgnoreCase(user.getString("domain"), domain)
+						&& StringUtils.equalsIgnoreCase(user.getString("roles"), role)
+						&& user.getBoolean("active") == active
+						&& user.getBoolean("deleted") == deleted) {
+					log.info("found user " + user.getString("userName"));
+					return user;
+				}
+			}
+		}
+
+		rest.createUser(username, role, data.getDefaultTestPass(), domain);
+		log.info("created user " + username);
+
+		if (!active) {
+			rest.blockUser(username);
+			log.info("deactivated user " + username);
+		}
+		if (deleted) {
+			rest.deleteUser(username, domain);
+			log.info("deleted user " + username);
+		}
+
+		JSONArray users = rest.getUsers();
+		log.info("searching for user in the system");
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			if (StringUtils.equalsIgnoreCase(user.getString("userName"), username)) {
+				log.info("user found and returned");
+				return user;
+			}
+		}
+		log.info("user not found .. returning null");
+		return null;
+	}
+
+	public JSONObject getPluginUser(String domain, String role, boolean active, boolean forceNew) throws Exception {
+		String username = Generator.randomAlphaNumeric(10);
+
+		if (StringUtils.isEmpty(domain)) {
+			domain = "default";
+		}
+
+		if (!forceNew) {
+			log.info("trying to find existing user with desired config");
+			JSONArray users = rest.getPluginUsers(domain);
+			for (int i = 0; i < users.length(); i++) {
+				JSONObject user = users.getJSONObject(i);
+				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
+						|| StringUtils.equalsIgnoreCase(user.getString("userName"), "admin")
+						|| StringUtils.equalsIgnoreCase(user.getString("userName"), "user")
+				) {
+					log.info("skipping default users");
+					continue;
+				}
+
+				if (!StringUtils.equalsIgnoreCase(user.getString("userName"), "null")
+						&& StringUtils.equalsIgnoreCase(user.getString("authRoles"), role)
+						&& user.getBoolean("active") == active) {
+					log.info("found user " + user.getString("userName"));
+					return user;
+				}
+			}
+		}
+
+		rest.createPluginUser(username, role, data.getDefaultTestPass(), domain);
+		log.info("created user " + username);
+
+		if (!active) {
+			rest.blockUser(username);
+			log.info("deactivated user " + username);
+		}
+
+		JSONArray users = rest.getPluginUsers(domain);
+		log.info("searching for user in the system");
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			if (StringUtils.equalsIgnoreCase(user.getString("userName"), username)) {
+				log.info("user found and returned");
+				return user;
+			}
+		}
+		log.info("user not found .. returning null");
+		return null;
+	}
 }

@@ -30,28 +30,28 @@ public class ChangePasswordPage extends DomibusPage {
     protected WebElement fieldHeader;
 
     @FindBy(id = "currentPassword_id")
-    private WebElement CurrentPassField;
+    private WebElement currentPassField;
 
     @FindBy(id = "newPassword_id")
-    private WebElement NewPassField;
+    private WebElement newPassField;
 
     @FindBy(id = "confirmation_id")
-    private WebElement ConfirmationField;
+    private WebElement confirmationField;
 
     @FindBy(id = "editbuttonok_id")
-    private WebElement UpdateButton;
+    private WebElement updateButton;
 
 
     public DInput getCPassField() {
-        return new DInput(driver, CurrentPassField);
+        return new DInput(driver, currentPassField);
     }
 
     public DInput getNPassField() {
-        return new DInput(driver, NewPassField);
+        return new DInput(driver, newPassField);
     }
 
     public DInput getConfirmationField() {
-        return new DInput(driver, ConfirmationField);
+        return new DInput(driver, confirmationField);
     }
 
     public DObject getPageNameObj() {
@@ -59,7 +59,7 @@ public class ChangePasswordPage extends DomibusPage {
     }
 
     public DButton getUpdateButton() {
-        return new DButton(driver, UpdateButton);
+        return new DButton(driver, updateButton);
     }
 
     /**
@@ -80,22 +80,22 @@ public class ChangePasswordPage extends DomibusPage {
     public boolean isLoaded() {
 
         log.debug("check if is loaded");
-        wait.forElementToBeVisible(CurrentPassField);
-        wait.forElementToBeVisible(NewPassField);
-        wait.forElementToBeVisible(ConfirmationField);
-        if (!CurrentPassField.isEnabled()) {
+        wait.forElementToBeVisible(currentPassField);
+        wait.forElementToBeVisible(newPassField);
+        wait.forElementToBeVisible(confirmationField);
+        if (!currentPassField.isEnabled()) {
             log.debug("Could not find current password  input");
             return false;
         }
-        if (!NewPassField.isEnabled()) {
+        if (!newPassField.isEnabled()) {
             log.debug("Could not find new password  input");
             return false;
         }
-        if (!ConfirmationField.isEnabled()) {
+        if (!confirmationField.isEnabled()) {
             log.debug("Could not find Confirmation input");
             return false;
         }
-        if (UpdateButton.isEnabled()) {
+        if (updateButton.isEnabled()) {
             log.debug("Could not find disable Update Button");
             return false;
         }
@@ -104,18 +104,18 @@ public class ChangePasswordPage extends DomibusPage {
     }
 
     /*Method allows user to enter data in current password, new password and Confirmation field
-     *@param Cpass:- Data for Current Password field
-     *@param Npass :- Data for New Password Field
-     * @param ConfirmPass:- Data for Confirmation Field
+     *@param cpass:- Data for Current Password field
+     *@param npass :- Data for New Password Field
+     * @param confirmPass:- Data for Confirmation Field
      */
-    public void setPassFields(String CPass, String NPass, String ConfirmPass) throws Exception {
+    public void setPassFields(String cPass, String nPass, String confirmPass) throws Exception {
         log.debug("User enters data in current password field");
-        getCPassField().fill(CPass);
+        getCPassField().fill(cPass);
         log.debug("User enters data in New password field");
-        getNPassField().fill(NPass);
+        getNPassField().fill(nPass);
         log.debug("User enters data in Confirmation field");
-        getConfirmationField().fill(ConfirmPass);
-
+        getConfirmationField().fill(confirmPass);
+        wait.forElementToBeEnabled(updateButton);
     }
 
     //Method is used to generate random password data
