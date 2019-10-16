@@ -92,7 +92,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public String getPrivateKeyPassword(String alias) {
-        return domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true);
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, true);
     }
 
     @Override

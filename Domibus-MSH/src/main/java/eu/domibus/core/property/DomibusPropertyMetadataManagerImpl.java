@@ -21,84 +21,84 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
         return Arrays.stream(new DomibusPropertyMetadata[]{
                 //read-only properties
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.deployment.clustered"),
-                new DomibusPropertyMetadata("domibus.security.key.private.password", false, true, false),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.database.general.schema"),
-                new DomibusPropertyMetadata("domibus.database.schema", false, true, false),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED),
+                new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, false, true, false),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
+                new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, true, false),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.xaDataSourceClassName"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maxLifetime"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.minPoolSize"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maxPoolSize"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.borrowConnectionTimeout"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.reapTimeout"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maxIdleTime"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.maintenanceInterval"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_LIFETIME),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.user"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.password"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.url"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.xa.property.URL"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_USER),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_url),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_URL),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.driverClassName"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.url"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_URL),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.user"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.password"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.maxLifetime"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.minPoolSize"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.datasource.maxPoolSize"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_USER),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_PASSWORD),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.packagesToScan"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.dialect"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.format_sql"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_FACTORY_CLASS),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_JTA_PLATFORM),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.password.encryption.active"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.password.encryption.properties"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.password.encryption.key.location"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION),
 
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.queue.pull"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.queue.ui.replication"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.XAConnectionFactory.maxPoolSize"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.jms.queue.alert"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.taskExecutor.threadCount"),  //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_TASK_EXECUTOR_THREAD_COUNT),  //move the use=age from xml ?
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.output_dir"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.log_base_dir"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.default_jta_timeout"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("com.atomikos.icatch.max_timeout"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_OUTPUT_DIR), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_LOG_BASE_DIR), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_MAX_TIMEOUT), //move the use=age from xml ?
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.broker.host"), //cannot find the usage
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.brokerName"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.embedded.configurationFile"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.JMXURL"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connectorPort"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.rmiServerPort"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.transportConnector.uri"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.username"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.password"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.persistent"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connection.closeTimeout"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("activeMQ.connection.connectResponseTimeout"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_HOST), //cannot find the usage
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_NAME), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_JMXURL), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTOR_PORT), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_RMI_SERVER_PORT), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_USERNAME), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_PASSWORD), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_PERSISTENT), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT), //move the use=age from xml ?
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.alert.queue.concurrency"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("messageFactoryClass"), //move the use=age from xml ?
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("compressionBlacklist"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.internal.queue.concurency"), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ALERT_QUEUE_CONCURRENCY), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(MESSAGE_FACTORY_CLASS), //move the use=age from xml ?
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(COMPRESSION_BLACKLIST),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_INTERNAL_QUEUE_CONCURENCY), //move the use=age from xml ?
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.jmx.reporter.enable"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.sl4j.reporter.enable"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.sl4j.reporter.period.time.unit"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.sl4j.reporter.period.number"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.memory"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.gc"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.cached.threads"),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty("domibus.metrics.monitor.jms.queues"),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_JMX_REPORTER_ENABLE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_MEMORY),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_GC),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_CACHED_THREADS),
+                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES),
 
                 //writable properties
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, true, true),

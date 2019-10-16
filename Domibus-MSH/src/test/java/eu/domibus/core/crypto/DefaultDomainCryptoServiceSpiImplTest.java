@@ -70,7 +70,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = "keystorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
             result = "privateKeyAlias";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, true);
             result = PRIVATE_KEY_PASSWORD;
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
             result = "keystoreLocation";

@@ -90,7 +90,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE); result = "keystoreType";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true); result = "keystorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS); result = "privateKeyAlias";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true); result = PRIVATE_KEY_PASSWORD;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, true); result = PRIVATE_KEY_PASSWORD;
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION); result = "keystoreLocation";
 
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION); result = TRUST_STORE_LOCATION;

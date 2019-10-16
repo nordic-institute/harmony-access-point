@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
@@ -50,22 +52,22 @@ public class DomibusActiveMQConfiguration {
     public ActiveMQXAConnectionFactory activeMQXAConnectionFactory() {
         ActiveMQXAConnectionFactory result = new ActiveMQXAConnectionFactory();
 
-        final String brokerURL = domibusPropertyProvider.getProperty("activeMQ.transportConnector.uri");
+        final String brokerURL = domibusPropertyProvider.getProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI);
         result.setBrokerURL(brokerURL);
         LOGGER.debug("Using ActiveMQ brokerURL [{}]", brokerURL);
 
-        final String userName = domibusPropertyProvider.getProperty("activeMQ.username");
+        final String userName = domibusPropertyProvider.getProperty(ACTIVE_MQ_USERNAME);
         result.setUserName(userName);
         LOGGER.debug("Using ActiveMQ userName [{}]", userName);
 
-        final String password = domibusPropertyProvider.getProperty("activeMQ.password");
+        final String password = domibusPropertyProvider.getProperty(ACTIVE_MQ_PASSWORD);
         result.setPassword(password);
 
-        final Integer closeTimeout = domibusPropertyProvider.getIntegerProperty("activeMQ.connection.closeTimeout");
+        final Integer closeTimeout = domibusPropertyProvider.getIntegerProperty(ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT);
         result.setCloseTimeout(closeTimeout);
         LOGGER.debug("Using ActiveMQ closeTimeout [{}]", closeTimeout);
 
-        final Integer responseTimeout = domibusPropertyProvider.getIntegerProperty("activeMQ.connection.connectResponseTimeout");
+        final Integer responseTimeout = domibusPropertyProvider.getIntegerProperty(ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT);
         result.setConnectResponseTimeout(responseTimeout);
         LOGGER.debug("Using ActiveMQ responseTimeout [{}]", responseTimeout);
 

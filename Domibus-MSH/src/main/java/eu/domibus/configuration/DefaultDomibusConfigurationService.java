@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -22,7 +24,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomibusConfigurationService.class);
 
-    private static final String DATABASE_DIALECT = "domibus.entityManagerFactory.jpaProperty.hibernate.dialect";
+    private static final String DATABASE_DIALECT = DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
 
     private DataBaseEngine dataBaseEngine;
 

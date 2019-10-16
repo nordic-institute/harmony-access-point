@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DATABASE_SCHEMA;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -24,7 +26,6 @@ public class DomainServiceImpl implements DomainService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
-    private static final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

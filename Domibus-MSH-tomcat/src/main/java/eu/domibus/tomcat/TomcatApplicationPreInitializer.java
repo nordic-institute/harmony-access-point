@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_OUTPUT_DIR;
+
 /**
  * This class executes before the beans from the Application Context are initialized
  */
@@ -24,7 +26,7 @@ public class TomcatApplicationPreInitializer implements BeanFactoryPostProcessor
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatApplicationPreInitializer.class);
 
-    protected static final String OUTPUT_DIR = "com.atomikos.icatch.output_dir";
+    protected static final String OUTPUT_DIR = COM_ATOMIKOS_ICATCH_OUTPUT_DIR;
 
     @Override
     public int getOrder() {
