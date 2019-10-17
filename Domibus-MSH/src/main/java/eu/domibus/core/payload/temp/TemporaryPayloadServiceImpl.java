@@ -86,7 +86,7 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
     }
 
     protected IOFileFilter getAgeFileFilter(Domain domain) {
-        final int expirationThresholdInMinutes = domibusPropertyProvider.getIntegerDomainProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
+        final int expirationThresholdInMinutes = domibusPropertyProvider.getIntegerProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
         LOG.debug("Using temp payload retention expiration threshold in minutes [{}]", expirationThresholdInMinutes);
         long cutoff = System.currentTimeMillis() - (expirationThresholdInMinutes * 60 * 1000);
         return FileFilterUtils.ageFileFilter(cutoff);

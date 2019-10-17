@@ -90,7 +90,7 @@ public class ApplicationResource {
         if (domain == null) {
             domain = DomainService.DEFAULT_DOMAIN;
         }
-        return domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_CUSTOM_NAME);
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_CUSTOM_NAME);
     }
 
     /**

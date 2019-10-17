@@ -163,7 +163,7 @@ public class MessagingServiceImplTest {
             partInfo.getLength();
             result = 20 * MessagingServiceImpl.BYTES_IN_MB;
 
-            domibusPropertyProvider.getLongDomainProperty(domain, MessagingServiceImpl.PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
+            domibusPropertyProvider.getLongProperty(domain, MessagingServiceImpl.PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
             result = 15;
         }};
 

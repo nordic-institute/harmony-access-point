@@ -75,7 +75,7 @@ public class ApplicationResourceTest {
     public void testDomibusName(String name) {
         // Given
         new Expectations(applicationResource) {{
-            domibusPropertyProvider.getDomainProperty(DomainService.DEFAULT_DOMAIN, ApplicationResource.DOMIBUS_CUSTOM_NAME);
+            domibusPropertyProvider.getProperty(DomainService.DEFAULT_DOMAIN, ApplicationResource.DOMIBUS_CUSTOM_NAME);
             result = name;
         }};
 

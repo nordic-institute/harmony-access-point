@@ -111,7 +111,7 @@ public class TemporaryPayloadServiceImplTest {
         long currentTimeMillis = 6 * 60 * 1000;
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerDomainProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
+            domibusPropertyProvider.getIntegerProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
             result = expirationThresholdInMinutes;
 
             System.currentTimeMillis();

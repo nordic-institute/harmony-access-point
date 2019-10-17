@@ -76,7 +76,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isPayloadEncryptionActive(Domain domain) {
-        return domibusPropertyProvider.getBooleanDomainProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isPasswordEncryptionActive(Domain domain) {
-        return domibusPropertyProvider.getBooleanDomainProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
     }
 
     @Override

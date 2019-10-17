@@ -123,7 +123,7 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("SourceMessage payloads totalPayloadLength(bytes) [{}]", totalPayloadLength);
 
-        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongDomainProperty(domain, PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
+        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongProperty(domain, PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
         LOG.debug("Using configured payloadsScheduleThresholdMB [{}]", payloadsScheduleThresholdMB);
 
         final Long payloadsScheduleThresholdBytes = payloadsScheduleThresholdMB * BYTES_IN_MB;

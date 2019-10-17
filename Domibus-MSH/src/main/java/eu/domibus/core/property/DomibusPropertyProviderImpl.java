@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
@@ -92,6 +91,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         if (domain == null) {
             LOGGER.error("Domain is null.");
+            return null; // or throw error??
+        }
+
+        if(!prop.isDomainSpecific()) {
+            LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain.", domain);
             return null; // or throw error??
         }
 
@@ -204,7 +208,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getProperty(propertyName, false);
     }
 
-
 //    @Override
     private String getProperty(String propertyName, boolean decrypt) {
         return getPropertyValue(propertyName, null, decrypt);
@@ -214,14 +217,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * Retrieves the property value from the requested domain.
      * If not found, fall back to the property value from the default domain.
      */
-    @Override
-    public String getDomainProperty(Domain domain, String propertyName) {
-        String propertyValue = getProperty(domain, propertyName);
-        if (StringUtils.isEmpty(propertyValue) && !DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            propertyValue = getProperty(DomainService.DEFAULT_DOMAIN, propertyName);
-        }
-        return propertyValue;
-    }
+//    @Override
+//    public String getProperty(Domain domain, String propertyName) {
+//        String propertyValue = getProperty(domain, propertyName);
+//        if (StringUtils.isEmpty(propertyValue) && !DomainService.DEFAULT_DOMAIN.equals(domain)) {
+//            propertyValue = getProperty(DomainService.DEFAULT_DOMAIN, propertyName);
+//        }
+//        return propertyValue;
+//    }
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
@@ -249,14 +252,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 //    }
 
     @Override
-    public Integer getIntegerDomainProperty(Domain domain, String propertyName) {
-        String domainValue = getDomainProperty(domain, propertyName);
+    public Integer getIntegerProperty(Domain domain, String propertyName) {
+        String domainValue = getProperty(domain, propertyName);
         return getIntegerInternal(propertyName, domainValue);
     }
 
     @Override
-    public Long getLongDomainProperty(Domain domain, String propertyName) {
-        String domainValue = getDomainProperty(domain, propertyName);
+    public Long getLongProperty(Domain domain, String propertyName) {
+        String domainValue = getProperty(domain, propertyName);
         return getLongInternal(propertyName, domainValue);
     }
 
@@ -307,8 +310,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 //    }
 
     @Override
-    public Boolean getBooleanDomainProperty(Domain domain, String propertyName) {
-        String domainValue = getDomainProperty(domain, propertyName);
+    public Boolean getBooleanProperty(Domain domain, String propertyName) {
+        String domainValue = getProperty(domain, propertyName);
         return getBooleanInternal(propertyName, domainValue);
     }
 

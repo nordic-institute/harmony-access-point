@@ -17,7 +17,7 @@ public interface DomibusPropertyProvider {
 
 //    String getProperty(String propertyName, boolean decrypt);
 
-    String getProperty(Domain domain, String propertyName);
+//    String getProperty(Domain domain, String propertyName);
 
 //    String getProperty(Domain domain, String propertyName, boolean decrypt);
 
@@ -41,7 +41,7 @@ public interface DomibusPropertyProvider {
      */
 //    String getDomainProperty(String propertyName);
 
-    String getDomainProperty(Domain domain, String propertyName);
+    String getProperty(Domain domain, String propertyName);
 
     Set<String> filterPropertiesName(Predicate<String> predicate);
 
@@ -55,7 +55,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return The {@code Integer} value of the property as specified by the user or the default one provided with the application.
      */
-    Integer getIntegerProperty(String propertyName);
+//    Integer getIntegerProperty(String propertyName);
 
     /**
      * <p>Reads a domain property value and parses it safely as an {@code Integer} before returning it.</p><br />
@@ -66,11 +66,11 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return The {@code Integer} value of the domain property as specified by the user or the default one provided with the application.
      */
-//    Integer getIntegerDomainProperty(String propertyName);
+    Integer getIntegerProperty(String propertyName);
 
-    Integer getIntegerDomainProperty(Domain domain, String propertyName);
+    Integer getIntegerProperty(Domain domain, String propertyName);
 
-    Long getLongDomainProperty(Domain domain, String propertyName);
+    Long getLongProperty(Domain domain, String propertyName);
 
     /**
      * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as a {@code Boolean} before
@@ -95,7 +95,7 @@ public interface DomibusPropertyProvider {
      */
 //    Boolean getBooleanDomainProperty(String propertyName);
 
-    Boolean getBooleanDomainProperty(Domain domain, String propertyName);
+    Boolean getBooleanProperty(Domain domain, String propertyName);
 
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.

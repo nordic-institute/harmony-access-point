@@ -96,7 +96,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
         new Expectations() {{
             domainService.getDomain("default");
             result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getIntegerDomainProperty(DomainService.DEFAULT_DOMAIN, MAXIMUM_LOGIN_ATTEMPT);
+            domibusPropertyProvider.getIntegerProperty(DomainService.DEFAULT_DOMAIN, MAXIMUM_LOGIN_ATTEMPT);
             result = 20;
         }};
 

@@ -126,7 +126,7 @@ public class DomibusPropertyManagerImplTest {
             domainService.getDomain(domainCode);
             result = domain;
 
-            domibusPropertyProvider.getDomainProperty(domain, meta.getName());
+            domibusPropertyProvider.getProperty(domain, meta.getName());
             result = propValue;
         }};
 

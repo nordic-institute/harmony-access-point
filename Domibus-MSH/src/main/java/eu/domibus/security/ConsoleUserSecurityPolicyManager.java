@@ -90,7 +90,7 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
     @Override
     protected int getMaxAttemptAmount(UserEntityBase user) {
         final Domain domain = getCurrentOrDefaultDomainForUser((User) user);
-        return domibusPropertyProvider.getIntegerDomainProperty(domain, MAXIMUM_LOGIN_ATTEMPT);
+        return domibusPropertyProvider.getIntegerProperty(domain, MAXIMUM_LOGIN_ATTEMPT);
     }
 
     @Override
