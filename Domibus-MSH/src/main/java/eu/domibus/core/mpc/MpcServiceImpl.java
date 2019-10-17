@@ -40,7 +40,7 @@ public class MpcServiceImpl implements MpcService {
         if (mpc == null) {
             return false;
         }
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_PULL_FORCE_BY_MPC)) {
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_FORCE_BY_MPC)) {
             return false;
         }
         // Result is true when DOMIBUS_PULL_FORCE_BY_MPC is true AND the mpc contains the separator

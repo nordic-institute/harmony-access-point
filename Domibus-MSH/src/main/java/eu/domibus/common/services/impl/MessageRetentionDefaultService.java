@@ -129,7 +129,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     protected Integer getRetentionValue(String propertyName) {
-        return domibusPropertyProvider.getIntegerDomainProperty(propertyName);
+        return domibusPropertyProvider.getIntegerProperty(propertyName);
     }
 
 }

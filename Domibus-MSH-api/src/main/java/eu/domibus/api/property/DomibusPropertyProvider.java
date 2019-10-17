@@ -66,7 +66,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return The {@code Integer} value of the domain property as specified by the user or the default one provided with the application.
      */
-    Integer getIntegerDomainProperty(String propertyName);
+//    Integer getIntegerDomainProperty(String propertyName);
 
     Integer getIntegerDomainProperty(Domain domain, String propertyName);
 
@@ -93,7 +93,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return The {@code Boolean} value of the domain property as specified by the user or the default one provided with the application.
      */
-    Boolean getBooleanDomainProperty(String propertyName);
+//    Boolean getBooleanDomainProperty(String propertyName);
 
     Boolean getBooleanDomainProperty(Domain domain, String propertyName);
 

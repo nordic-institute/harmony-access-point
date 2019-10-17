@@ -242,11 +242,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getIntegerInternal(propertyName, value);
     }
 
-    @Override
-    public Integer getIntegerDomainProperty(String propertyName) {
-        String domainValue = getProperty(propertyName);
-        return getIntegerInternal(propertyName, domainValue);
-    }
+//    @Override
+//    public Integer getIntegerDomainProperty(String propertyName) {
+//        String domainValue = getProperty(propertyName);
+//        return getIntegerInternal(propertyName, domainValue);
+//    }
 
     @Override
     public Integer getIntegerDomainProperty(Domain domain, String propertyName) {
@@ -300,11 +300,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getBooleanInternal(propertyName, value);
     }
 
-    @Override
-    public Boolean getBooleanDomainProperty(String propertyName) {
-        String domainValue = getProperty(propertyName);
-        return getBooleanInternal(propertyName, domainValue);
-    }
+//    @Override
+//    public Boolean getBooleanDomainProperty(String propertyName) {
+//        String domainValue = getProperty(propertyName);
+//        return getBooleanInternal(propertyName, domainValue);
+//    }
 
     @Override
     public Boolean getBooleanDomainProperty(Domain domain, String propertyName) {

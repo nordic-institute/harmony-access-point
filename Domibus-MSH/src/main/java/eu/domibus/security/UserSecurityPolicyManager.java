@@ -101,7 +101,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
-        int oldPasswordsToCheck = domibusPropertyProvider.getIntegerDomainProperty(getPasswordHistoryPolicyProperty());
+        int oldPasswordsToCheck = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (oldPasswordsToCheck == 0) {
             return;
         }
@@ -119,7 +119,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         LOG.debug("Validating if password expired for user [{}]", userName);
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         LOG.debug("Password expiration policy for user [{}] : [{}] days", userName, maxPasswordAgeInDays);
 
         if (maxPasswordAgeInDays <= 0) {
@@ -141,13 +141,13 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             return null;
         }
 
-        int warningDaysBeforeExpiration = domibusPropertyProvider.getIntegerDomainProperty(warningDaysBeforeExpirationProperty);
+        int warningDaysBeforeExpiration = domibusPropertyProvider.getIntegerProperty(warningDaysBeforeExpirationProperty);
         if (warningDaysBeforeExpiration <= 0) {
             return null;
         }
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 
         if (maxPasswordAgeInDays <= 0) {
             return null;
@@ -190,7 +190,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     private void savePasswordHistory(U user) {
-        int passwordsToKeep = domibusPropertyProvider.getIntegerDomainProperty(getPasswordHistoryPolicyProperty());
+        int passwordsToKeep = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (passwordsToKeep <= 0) {
             return;
         }

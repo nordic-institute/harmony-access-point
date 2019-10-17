@@ -61,7 +61,7 @@ public class MailSender {
         final Boolean alertModuleEnabled = multiDomainAlertConfigurationService.isAlertModuleEnabled();
         LOG.debug("Alert module enabled:[{}]", alertModuleEnabled);
         final String sendEmailActivePropertyName = multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
-        final boolean mailActive = domibusPropertyProvider.getBooleanDomainProperty(sendEmailActivePropertyName);
+        final boolean mailActive = domibusPropertyProvider.getBooleanProperty(sendEmailActivePropertyName);
         if (alertModuleEnabled && mailActive) {
             //static properties.
             final Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);

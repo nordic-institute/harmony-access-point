@@ -100,15 +100,14 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
 
     @Override
     protected int getSuspensionInterval() {
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-
-        int suspensionInterval;
-        if (domain == null) { //it is called for super-users so we read from default domain
-            suspensionInterval = domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
-        } else { //for normal users the domain is set as current Domain
-            suspensionInterval = domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
-        }
-        return suspensionInterval;
+        return domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
+//        int suspensionInterval;
+//        if (domain == null) { //it is called for super-users so we read from default domain
+//            suspensionInterval = domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
+//        } else { //for normal users the domain is set as current Domain
+//            suspensionInterval = domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
+//        }
+//        return suspensionInterval;
     }
 
     @Override
