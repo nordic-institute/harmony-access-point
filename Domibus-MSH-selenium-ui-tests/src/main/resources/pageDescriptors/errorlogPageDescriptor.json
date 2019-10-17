@@ -1,5 +1,5 @@
 {
-  "title": "Audit",
+  "title": "Error Log",
   "filters": [
 	{
 	  "name": "signalMessIDInput",
