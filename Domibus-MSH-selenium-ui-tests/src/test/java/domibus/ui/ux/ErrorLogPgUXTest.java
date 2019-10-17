@@ -1,7 +1,6 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.grid.Pagination;
 import ddsl.enums.PAGES;
 import domibus.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
@@ -13,7 +12,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.errorLog.ErrorLogPage;
 import pages.errorLog.ErrorModal;
-import pages.messages.MessagesPage;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
@@ -37,7 +35,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		log.info("checking page default state");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
@@ -59,7 +57,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		if (page.grid().getRowsNo() < 1) {
 			throw new SkipException("Not enough rows");
@@ -89,7 +87,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		DGrid grid = page.grid();
 		if (grid.getRowsNo() < 3) {
 			throw new SkipException("Not enough rows to test filtering");
@@ -119,7 +117,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		log.info("checking available filters in expanded state");
 		page.filters().expandArea();
@@ -134,7 +132,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 		if (grid.getRowsNo() < 3) {
@@ -168,7 +166,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		DGrid grid = page.grid();
 
 		log.info("filtering by invalid data");
@@ -187,7 +185,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		DGrid grid = page.grid();
 
 		int gridRows = grid.getRowsNo();
@@ -217,7 +215,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put("orderBy", "timestamp");
@@ -235,7 +233,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 	public void clickShowColumnsLink() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -254,7 +252,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 	public void modifyVisibleColumns() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -271,7 +269,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 	public void checkHideLinkNoNewSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -296,7 +294,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		String colName = TestUtils.getNonDefaultColumn(descriptorObj.getJSONObject("grid").getJSONArray("columns"));
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -329,7 +327,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 
@@ -345,7 +343,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 
@@ -361,7 +359,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		DGrid grid = page.grid();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
@@ -382,7 +380,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put("orderBy", "timestamp");

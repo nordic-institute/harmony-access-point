@@ -7,20 +7,15 @@ import ddsl.enums.PAGES;
 import domibus.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.errorLog.ErrorLogPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
-import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -40,7 +35,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		log.info("checking page default state");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
@@ -65,7 +60,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		log.info("found user " + username);
 
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 		page.refreshPage();
 
 		log.info("double clicking on user");
@@ -92,7 +87,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		log.info("found user " + username);
 
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 		page.refreshPage();
 
 		log.info("double clicking on user");
@@ -112,7 +107,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	public void editUsername() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
 		log.info("test for user " + username);
@@ -135,7 +130,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		log.info("found user " + username);
 
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 		page.refreshPage();
 
 		log.info("double clicking on user");
@@ -167,7 +162,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	public void csvFileDownloadHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
@@ -186,7 +181,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
@@ -206,7 +201,7 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		log.info("checking grid");
 		DGrid grid = page.grid();
@@ -221,7 +216,7 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		log.info("checking grid");
 		page.grid().checkAllLink(soft);
@@ -237,7 +232,7 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -269,7 +264,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	public void checkHideLinkNoNewSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		DGrid grid = page.grid();
 		log.info("get column names");
@@ -297,7 +292,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	public void modifyVisibleColumns() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -313,7 +308,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	public void clickShowColumnsLink() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -336,7 +331,7 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 		int index = page.grid().scrollTo("Username", username);
 		page.grid().selectRow(index);
 		log.info("selecting row " + index);
@@ -354,7 +349,7 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 		int index = page.grid().scrollTo("Username", username);
 		page.grid().selectRow(index);
 		log.info("selecting row " + index);
@@ -372,7 +367,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		log.info("checking download for domain " + domain);
 
 		UsersPage page = new UsersPage(driver);
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
 		log.info("downloaded file with name " + fileName);

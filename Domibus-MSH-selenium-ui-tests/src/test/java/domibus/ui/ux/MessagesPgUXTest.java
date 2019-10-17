@@ -2,7 +2,6 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import ddsl.enums.DRoles;
 import domibus.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
@@ -11,7 +10,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
 import rest.RestServicePaths;
-import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -31,7 +29,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	public void openMessagesPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		log.info("Checking page title");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
@@ -61,7 +59,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		String messID = getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		log.info("selecting message with id " + messID);
 		page.refreshPage();
@@ -84,7 +82,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		MessagesPage page = new MessagesPage(driver);
 		page.refreshPage();
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 		DGrid grid = page.grid();
 
 		log.info("selecting mess with id " +messID1);
@@ -106,7 +104,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	public void openAdvancedFilters() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 		page.getFilters().expandArea();
 		advancedFilterPresence(soft, page.getFilters(), descriptorObj.getJSONArray("filters"));
 		soft.assertAll();
@@ -116,7 +114,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -144,7 +142,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -163,7 +161,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		DGrid grid = page.grid();
 		log.info("expanding controls");
@@ -181,7 +179,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 		page.refreshPage();
 
 		DGrid grid = page.grid();
@@ -211,7 +209,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 		page.refreshPage();
 
 		DGrid grid = page.grid();
@@ -244,7 +242,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 		page.refreshPage();
 
 		DGrid grid = page.grid();
@@ -260,7 +258,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 		page.refreshPage();
 		DGrid grid = page.grid();
 		grid.checkChangeNumberOfRows(soft);
@@ -275,7 +273,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
-		page.getSidebar().gGoToPage(PAGES.MESSAGES);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		DGrid grid = page.grid();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
@@ -293,7 +291,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownloadHeaders() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 

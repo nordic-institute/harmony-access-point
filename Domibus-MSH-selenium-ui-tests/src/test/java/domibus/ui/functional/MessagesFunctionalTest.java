@@ -12,7 +12,6 @@ import pages.messages.MessageDetailsModal;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import pages.messages.MessageFilters;
-import rest.RestServicePaths;
 import utils.Generator;
 import utils.soap_client.MessageConstants;
 
@@ -44,7 +43,7 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		String messID = getMessageIDs(null, 1, false).get(0);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -73,7 +72,7 @@ public class MessagesFunctionalTest extends BaseTest {
 		List<String> messageIDs = getMessageIDs(null, 5, false);
 
 		log.info("Login with admin");
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 		DGrid grid = page.grid();
 
@@ -103,7 +102,7 @@ public class MessagesFunctionalTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		List<String> messageIDs = getMessageIDs(null, 5, false);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -155,7 +154,7 @@ public class MessagesFunctionalTest extends BaseTest {
 	public void filterEmptyGrid() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -177,7 +176,7 @@ public class MessagesFunctionalTest extends BaseTest {
 	public void emptySearchAllResults() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -209,7 +208,7 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		String messageID = getMessageIDs(null, 1, false).get(0);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -264,7 +263,7 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -326,7 +325,7 @@ public class MessagesFunctionalTest extends BaseTest {
 		rest.createUser(userAdmin, DRoles.ADMIN, data.getDefaultTestPass(), domain);
 		log.info("created admin with username " + userAdmin);
 
-		login(userAdmin, data.getDefaultTestPass()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(userAdmin, data.getDefaultTestPass()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in as created admin");
 		MessagesPage page = new MessagesPage(driver);
 
@@ -336,7 +335,7 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		page.getSandwichMenu().logout();
 		log.info("logged out");
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in as super admin");
 
 		log.info("checking on default domain if messages are visible");
@@ -368,7 +367,7 @@ public class MessagesFunctionalTest extends BaseTest {
 		String messageIDDomain =  getMessageIDs(domain, 1, false).get(0);
 		String messageIDDefault =  getMessageIDs(null, 1, false).get(0);
 
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.MESSAGES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 
 		MessagesPage page = new MessagesPage(driver);

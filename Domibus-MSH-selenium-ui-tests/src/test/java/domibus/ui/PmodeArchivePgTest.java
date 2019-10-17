@@ -28,14 +28,14 @@ public class PmodeArchivePgTest extends BaseTest {
 
         SoftAssert soft = new SoftAssert();
         log.info("Login into applicatin with Admin credentialsand navigate to Pmode_archive page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Total no of rows in archive grid" + page.grid().getRowsNo());
         if (page.grid().getRowsNo() == 0) {
             log.info("Upload pmode through rest service");
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
             log.info("Navigate to Pmode Archive page");
-            page.getPage().getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+            page.getPage().getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         }
         log.info("Check pmode upload status in application");
         page.getPmodeStatus();
@@ -52,7 +52,7 @@ public class PmodeArchivePgTest extends BaseTest {
 
         SoftAssert soft = new SoftAssert();
         log.info("Login with Admin credentail and navigate to Pmode archive page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Validate Archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
@@ -79,7 +79,7 @@ public class PmodeArchivePgTest extends BaseTest {
     public void ComparePmodesAndDownload() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login with Admin credentials and navigate to Pmode archive page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Validate Pmode Archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
@@ -91,7 +91,7 @@ public class PmodeArchivePgTest extends BaseTest {
         log.info("Printing archive page current pmode: \r\n" + ArchiveCurrentPmode);
         page.refreshPage();
         log.info("navigate to Pmode_current page");
-        page.getPage().getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
+        page.getPage().getSidebar().goToPage(PAGES.PMODE_CURRENT);
         String DefaultPmode = page.getPage().getTextArea().getText();
         System.out.println("printing current page pmode" + DefaultPmode);
         log.info("Ignore white space while xml comparison");
@@ -101,7 +101,7 @@ public class PmodeArchivePgTest extends BaseTest {
         log.info("Compare Current pmode from Pmode archive page & current page ");
         XMLAssert.assertXMLEqual(DefaultPmode, ArchiveCurrentPmode);
         log.info("Navigate to Pmode archive page");
-        page.getPage().getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        page.getPage().getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         log.info("Validate Archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
         log.info("Download current pmode from Archive page");
@@ -116,7 +116,7 @@ public class PmodeArchivePgTest extends BaseTest {
     public void DownloadGridData() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("login into application with Admin user and navigate to Pmode archive page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Download grid data");
         rest.downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
@@ -130,7 +130,7 @@ public class PmodeArchivePgTest extends BaseTest {
     public void DeleteOldFile() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin user and navigate to Pmode archive");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Grid row count is : " + page.grid().getRowsNo());
         if (page.grid().getRowsNo() <= 1) {
@@ -138,7 +138,7 @@ public class PmodeArchivePgTest extends BaseTest {
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
             log.info("Navigate to Pmode Archive page");
-            page.getPage().getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+            page.getPage().getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         }
         log.info("Validate Pmode archive page");
         soft.assertTrue(page.isLoaded(), "page is loaded successfully");
@@ -165,7 +165,7 @@ public class PmodeArchivePgTest extends BaseTest {
     public void RestoreOldFile() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin credential and navigate to Pmode archive page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Validate Pmode archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");
@@ -175,7 +175,7 @@ public class PmodeArchivePgTest extends BaseTest {
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
             rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
             log.info("Validate Pmode Archive");
-            page.getPage().getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+            page.getPage().getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         }
         int x = page.grid().getRowsNo();
         log.info("Grid count before restore operation: " + x);
@@ -196,7 +196,7 @@ public class PmodeArchivePgTest extends BaseTest {
     public void DoubleClick() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin user and Navigate to pmode archive");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PMODE_ARCHIVE);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage page = new PModeArchivePage(driver);
         log.info("Validate Archive page");
         soft.assertTrue(page.isLoaded(), "Archive page is loaded correctly");

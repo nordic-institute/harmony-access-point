@@ -1,10 +1,9 @@
-package domibus.ui.toref;
+package domibus.ui;
 
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -27,7 +26,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openJMSMessagesPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		soft.assertTrue(page.isLoaded());
@@ -38,7 +37,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-2.2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
@@ -62,7 +61,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-2.1", groups = {"multiTenancy", "singleTenancy"})
 	public void clickMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
@@ -82,7 +81,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-3", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessages() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
@@ -105,7 +104,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-3.1", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesBySelector() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		page.filters().getJmsSelectorInput().fill("totally invalid selector");
@@ -135,7 +134,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-4", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesNoResults() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
@@ -156,7 +155,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-5", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesEmptySearch() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
@@ -184,7 +183,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-6", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteJMSMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
@@ -212,7 +211,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-7", groups = {"multiTenancy", "singleTenancy"})
 	public void moveMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		page.grid().waitForRowsToLoad();
@@ -273,7 +272,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		HashMap<String, String> params = new HashMap<>();
@@ -294,7 +293,7 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-9", groups = {"multiTenancy", "singleTenancy"})
 	public void gridSelfAssert() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.JMS_MONITORING);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
 		page.grid().assertControls(soft);

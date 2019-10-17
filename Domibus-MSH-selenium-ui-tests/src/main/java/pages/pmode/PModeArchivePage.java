@@ -17,8 +17,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import rest.RestServicePaths;
 import utils.Generator;
 
-import javax.xml.bind.annotation.XmlAccessOrder;
-
 public class PModeArchivePage extends DomibusPage {
 
     public PModeArchivePage(WebDriver driver) {
@@ -111,7 +109,7 @@ public class PModeArchivePage extends DomibusPage {
         wait.forElementToBeVisible(archiveGridContainer);
         if (isArchiveGridEmpty()) {
             log.debug("Navigate to pmode current page as grid container is empty on Pmode archive page");
-            getPage().getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
+            getPage().getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
             log.debug("Info text shown on Pmode current page "+getPage().infoTxt.getText().trim());
 

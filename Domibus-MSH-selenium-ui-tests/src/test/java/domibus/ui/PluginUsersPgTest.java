@@ -6,7 +6,6 @@ import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -33,7 +32,7 @@ public class PluginUsersPgTest extends BaseTest {
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -52,7 +51,7 @@ public class PluginUsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -80,7 +79,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 // 		login and go to users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -111,7 +110,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 // 		login and go to users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -154,7 +153,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -192,7 +191,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -229,7 +228,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -257,7 +256,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -282,7 +281,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -304,7 +303,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -335,7 +334,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -386,7 +385,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -442,7 +441,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -464,7 +463,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -495,7 +494,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -526,7 +525,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -549,7 +548,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
@@ -576,7 +575,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
@@ -603,7 +602,7 @@ public class PluginUsersPgTest extends BaseTest {
 		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -631,7 +630,7 @@ public class PluginUsersPgTest extends BaseTest {
 		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -659,7 +658,7 @@ public class PluginUsersPgTest extends BaseTest {
 		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -687,7 +686,7 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "PU-21", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.grid().waitForRowsToLoad();
@@ -713,7 +712,7 @@ public class PluginUsersPgTest extends BaseTest {
 		String certId = "CN=puser,O=eDelivery,C=BE:"+id;
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -749,7 +748,7 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "PU-20", groups = {"multiTenancy", "singleTenancy"})
 	public void gridSelfAssert() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.PLUGIN_USERS);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.grid().waitForRowsToLoad();

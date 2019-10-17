@@ -1,7 +1,6 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -12,7 +11,6 @@ import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
-import rest.RestServicePaths;
 import utils.Generator;
 
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ public class UsersPgTest extends BaseTest {
 		loginPage.login(user);
 
 		log.info("Open Users page");
-		loginPage.getSidebar().gGoToPage(PAGES.USERS);
+		loginPage.getSidebar().goToPage(PAGES.USERS);
 		return new UsersPage(driver);
 	}
 

@@ -31,7 +31,7 @@ public class AlertPgTest extends BaseTest {
         soft.assertFalse(lpage.getSandwichMenu().isLoggedIn(), "User not logged in");
         log.info("Alert Message shown : " + lpage.getAlertArea().getAlertMessage());
         lpage.login(data.getAdminUser());
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Number of records : " + apage.grid().getRowsNo());
         log.info("Getting all listed alert info");
@@ -61,7 +61,7 @@ public class AlertPgTest extends BaseTest {
         soft.assertFalse(lpage.getSandwichMenu().isLoggedIn(), "User not logged in");
         log.info("Alert Message shown : " + lpage.getAlertArea().getAlertMessage());
         lpage.login(data.getAdminUser());
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Number of records : " + apage.grid().getRowsNo());
         log.info("Getting all listed alert info");
@@ -85,7 +85,7 @@ public class AlertPgTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Login into application and navigate to Alerts page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ALERTS);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search using basic filters");
         apage.getFilters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
@@ -101,7 +101,7 @@ public class AlertPgTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Login into application and navigate to Alerts page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ALERTS);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         apage.grid().waitForRowsToLoad();
         log.info("Search using basic filter");
@@ -126,7 +126,7 @@ public class AlertPgTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         log.info("Login into application with super admin credentials and navigate to Alerts page");
-        login(data.getAdminUser()).getSidebar().gGoToPage(PAGES.ALERTS);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         AlertFilters AFpage = new AlertFilters(driver);
         log.info("Check presence of Show domain checkbox");
@@ -134,7 +134,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Logout from application");
         logout();
         log.info("Login with admin credentials");
-        login(data.getUser(DRoles.ADMIN)).getSidebar().gGoToPage(PAGES.ALERTS);
+        login(data.getUser(DRoles.ADMIN)).getSidebar().goToPage(PAGES.ALERTS);
         log.info("Validate non availability of Show domain alert checkbox for Admin user");
         soft.assertFalse(AFpage.getShowDomainCheckbox().isPresent(), "CheckBox is not present in case of Admin User");
         soft.assertAll();
@@ -166,7 +166,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Click on Resend button on confirmation pop up");
         modal.getResendButton().click();
         log.info("Navigate to Alerts page");
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using Msg_status_changed alert type");
         apage.getFilters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
@@ -203,7 +203,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Login into application");
         lpage.login(data.getAdminUser());
         log.info("Navigate to Alerts page");
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using basic filter for user_login_failure alert type");
         apage.getFilters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
@@ -239,7 +239,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Login with Super/admin user");
         lpage.login(data.getAdminUser());
         log.info("Navigate to Alerts page");
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search by basic filter for alert type : user account disabled");
         apage.getFilters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);

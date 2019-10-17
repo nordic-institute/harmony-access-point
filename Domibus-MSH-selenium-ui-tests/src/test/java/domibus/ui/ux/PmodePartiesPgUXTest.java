@@ -18,7 +18,7 @@ public class PmodePartiesPgUXTest  extends BaseUXTest{
 
         SoftAssert soft = new SoftAssert();
         PModePartiesPage Ppage=new PModePartiesPage(driver);
-        Ppage.getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
+        Ppage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 
         PModePartiesPage page = new PModePartiesPage(driver);
 
@@ -47,7 +47,7 @@ public class PmodePartiesPgUXTest  extends BaseUXTest{
 
         SoftAssert soft = new SoftAssert();
         PModePartiesPage Ppage=new PModePartiesPage(driver);
-        Ppage.getSidebar().gGoToPage(PAGES.PMODE_PARTIES);
+        Ppage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 
         PModePartiesPage page = new PModePartiesPage(driver);
 

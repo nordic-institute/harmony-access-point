@@ -34,7 +34,7 @@ public class MessageFilterPgTest extends BaseTest {
 		new LoginPage(driver)
 				.login(data.getAdminUser());
 		log.info("logged in");
-		new DomibusPage(driver).getSidebar().gGoToPage(PAGES.MESSAGE_FILTER);
+		new DomibusPage(driver).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
 
 		try {
 			MessageFilterPage page = new MessageFilterPage(driver);

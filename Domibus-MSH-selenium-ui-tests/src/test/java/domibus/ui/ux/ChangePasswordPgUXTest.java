@@ -70,7 +70,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		page.getSandwichMenu().openchangePassword();
 
 		log.info("Navigate to error log page without changing password ");
-		page.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 		page.waitForTitle();
 
@@ -101,7 +101,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getDefaultTestPass());
 
 		log.info("Navigate to Error log page");
-		cpage.getSidebar().gGoToPage(PAGES.ERROR_LOG);
+		cpage.getSidebar().goToPage(PAGES.ERROR_LOG);
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 		cpage.waitForTitle();
 
@@ -126,7 +126,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 	DomibusPage page = new DomibusPage(driver); //login(data.getAdminUser());
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 		log.info("Open change password page by clicking its link");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
@@ -150,7 +150,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 
 		DomibusPage page = new DomibusPage(driver); //login(data.getAdminUser());
-		page.getSidebar().gGoToPage(PAGES.USERS);
+		page.getSidebar().goToPage(PAGES.USERS);
 
 		log.info("Open change password page");
 		page.getSandwichMenu().openchangePassword();

@@ -16,7 +16,6 @@ import utils.TestUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Catalin Comanici
@@ -33,7 +32,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		log.info("checking page default state");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
@@ -56,7 +55,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		HashMap<String, String> entryInfo = page.grid().getRowInfo(0);
 		log.info("gathering grid data - " + entryInfo);
@@ -78,7 +77,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded errors to file " + fileName);
@@ -94,7 +93,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -115,7 +114,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -131,7 +130,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -156,7 +155,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 		String colName = "Issuer";
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -191,7 +190,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 		DGrid grid = page.grid();
 
 		grid.checkAllLink(soft);
@@ -208,7 +207,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		DGrid grid = page.grid();
 		grid.checkChangeNumberOfRows(soft);
@@ -222,7 +221,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		DGrid grid = page.grid();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
@@ -244,7 +243,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().gGoToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);

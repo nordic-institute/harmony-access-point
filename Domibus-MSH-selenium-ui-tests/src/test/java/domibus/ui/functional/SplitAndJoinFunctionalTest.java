@@ -24,7 +24,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.PMODE_CURRENT);
+        page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
         PModeCurrentPage PCpage = new PModeCurrentPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         String path = "./src/main/resources/pmodes/splitPmode.xml";
@@ -50,7 +50,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         rest.uploadPMode("pmodes/splitPmode.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         int beforeMsgCount = Mpage.grid().getPagination().getTotalItems();
@@ -110,7 +110,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         log.info("Navigate to Messages page");
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         log.info("Get total number of message count available");
@@ -177,7 +177,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         int beforeMsgCount = Mpage.grid().getPagination().getTotalItems();
@@ -241,7 +241,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         log.info("Calculating total message count on admin console");
@@ -304,7 +304,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         int beforeMsgCount = Mpage.grid().getPagination().getTotalItems();
@@ -363,7 +363,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         rest.uploadPMode("pmodes/splitPmode.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         int beforeMsgCount = Mpage.grid().getPagination().getTotalItems();
@@ -415,7 +415,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         rest.uploadPMode("pmodes/splitPmode.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
-        page.getSidebar().gGoToPage(PAGES.MESSAGES);
+        page.getSidebar().goToPage(PAGES.MESSAGES);
         MessagesPage Mpage = new MessagesPage(driver);
         SplitAndJoinPage SJpage = new SplitAndJoinPage(driver);
         log.info("Caluclate before message count");
