@@ -99,7 +99,8 @@ public class DWait {
 				return element.getLocation() != null;
 			}
 		});
-
+//		defaultWait.until(ExpectedConditions.)
 	}
+
 
 }
