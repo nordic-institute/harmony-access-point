@@ -22,8 +22,7 @@ public class AlertAccountDisabledConfigurationChangeListener implements DomibusP
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX,
-                DomibusPropertyMetadataManager.DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX);
+                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX);
     }
 
     @Override

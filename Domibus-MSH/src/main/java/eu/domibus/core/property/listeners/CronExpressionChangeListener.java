@@ -40,7 +40,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     @Autowired
     DomibusScheduler domibusScheduler;
 
-    Map<String, String> propertyToJobMap = Stream.of(new String[][]{
+    Map<String, String[]> propertyToJobMap = Stream.of(new String[][]{
             {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
             {DOMIBUS_CERTIFICATE_CHECK_CRON, "saveCertificateAndLogRevocationJob"},
             {DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, "activateSuspendedPluginUsersJob"},
@@ -51,14 +51,13 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, "retentionWorkerJob"},
             {DOMIBUS_MSH_PULL_CRON, "pullRequestWorkerJob"},
             {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
-            {DOMIBUS_ALERT_CLEANER_CRON, "alertCleanerJob"},
-            {DOMIBUS_ALERT_RETRY_CRON, "alertRetryJob"},
-            {DOMIBUS_ALERT_SUPER_CLEANER_CRON, "alertCleanerSuperJob"},
-            {DOMIBUS_ALERT_SUPER_RETRY_CRON, "alertRetryJSuperJob"},
+            //TODO: maybe it is better to split these 2 props into another listener
+            // and there to differentiate between normal and super user jobs by knowing who changed the property
+            {DOMIBUS_ALERT_CLEANER_CRON, "alertCleanerJob,alertCleanerSuperJob"},
+            {DOMIBUS_ALERT_RETRY_CRON, "alertRetryJob,alertRetryJSuperJob"},
             {DOMIBUS_UI_REPLICATION_SYNC_CRON, "uiReplicationJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
-
-    }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+    }).collect(Collectors.toMap(data -> data[0], data -> data[1].split(",")));
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -68,20 +67,21 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        String jobName = propertyToJobMap.get(propertyName);
-        if (jobName == null) {
+        String[] jobNames = propertyToJobMap.get(propertyName);
+        if (jobNames == null) {
             LOGGER.warn("Could not find the corresponding job for the property [{}]", propertyName);
             return;
         }
 
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
 
-        try {
-            domibusScheduler.rescheduleJob(domain, jobName, propertyValue);
-        } catch (DomibusSchedulerException ex) {
-            LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
+        for( String jobName: jobNames) {
+            try {
+                domibusScheduler.rescheduleJob(domain, jobName, propertyValue);
+            } catch (DomibusSchedulerException ex) {
+                LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
+            }
         }
     }
-
 }

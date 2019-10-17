@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_SUPER_ACTIVE;
 
 /**
  * @author Ion Perpegel
@@ -31,7 +30,7 @@ public class AlertActiveChangeListener implements DomibusPropertyChangeListener 
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_ACTIVE, DOMIBUS_ALERT_SUPER_ACTIVE);
+        return StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_ACTIVE);
     }
 
     @Override

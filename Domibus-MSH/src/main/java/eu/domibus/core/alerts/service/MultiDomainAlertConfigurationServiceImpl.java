@@ -220,23 +220,22 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Override
     public Boolean isAlertModuleEnabled() {
-        String propertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_ACTIVE, DOMIBUS_ALERT_SUPER_ACTIVE);
-        return domibusPropertyProvider.getBooleanDomainProperty(propertyName);
+        return domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_ALERT_ACTIVE);
     }
 
     @Override
     public String getSendEmailActivePropertyName() {
-        return getDomainOrSuperProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE);
+        return DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
     }
 
     @Override
     public String getAlertRetryMaxAttemptPropertyName() {
-        return getDomainOrSuperProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS, DOMIBUS_ALERT_SUPER_RETRY_MAX_ATTEMPTS);
+        return DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
     }
 
     @Override
     public String getAlertRetryTimePropertyName() {
-        return getDomainOrSuperProperty(DOMIBUS_ALERT_RETRY_TIME, DOMIBUS_ALERT_SUPER_RETRY_TIME);
+        return DOMIBUS_ALERT_RETRY_TIME;
     }
 
     @Override
@@ -244,20 +243,18 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
 
-
-    private String getDomainOrSuperProperty(final String domainPropertyName, final String superPropertyName) {
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain == null) {
-            return superPropertyName;
-        }
-        return domainPropertyName;
-    }
+//    private String getDomainOrSuperProperty(final String domainPropertyName, final String superPropertyName) {
+//        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+//        if (currentDomain == null) {
+//            return superPropertyName;
+//        }
+//        return domainPropertyName;
+//    }
 
     protected CommonConfiguration readCommonConfiguration(Domain domain) {
         //TODO: revisit this: I am receiving the domain as a parameter but I am reading the bellow properties for the current domain!! Is it OK?
         final boolean emailActive = domibusPropertyProvider.getBooleanDomainProperty(getSendEmailActivePropertyName());
-        final String alertCleanerLifeTimePropertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME, DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME);
-        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerDomainProperty(alertCleanerLifeTimePropertyName);
+        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
 
         if (!emailActive) {
             return new CommonConfiguration(alertLifeTimeInDays);
@@ -267,10 +264,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     private CommonConfiguration readDomainEmailConfiguration(Domain domain, Integer alertLifeTimeInDays) {
-        final String alertSenderPropertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_SENDER_EMAIL, DOMIBUS_ALERT_SUPER_SENDER_EMAIL);
-        final String alertEmailSender = domibusPropertyProvider.getProperty(domain, alertSenderPropertyName);
-        final String alertReceiverPropertyName = getDomainOrSuperProperty(DOMIBUS_ALERT_RECEIVER_EMAIL, DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL);
-        final String alertEmailReceiver = domibusPropertyProvider.getProperty(domain, alertReceiverPropertyName);
+        final String alertEmailSender = domibusPropertyProvider.getProperty(domain, DOMIBUS_ALERT_SENDER_EMAIL);
+        final String alertEmailReceiver = domibusPropertyProvider.getProperty(domain, DOMIBUS_ALERT_RECEIVER_EMAIL);
 
         boolean misConfigured = false;
         if (StringUtils.isEmpty(alertEmailReceiver) || StringUtils.isEmpty(alertEmailSender)) {
@@ -286,7 +281,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
             }
         }
         if (misConfigured) {
-            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in domain:[{}]", alertSenderPropertyName, alertEmailSender, alertReceiverPropertyName, alertEmailReceiver, domain);
+            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in domain:[{}]",
+                    DOMIBUS_ALERT_SENDER_EMAIL, alertEmailSender, DOMIBUS_ALERT_RECEIVER_EMAIL, alertEmailReceiver, domain);
             throw new IllegalArgumentException("Invalid email address configured for the alert module.");
         }
         return new CommonConfiguration(alertLifeTimeInDays, alertEmailSender, alertEmailReceiver);
@@ -327,7 +323,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
             MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
             IntStream.
                     range(0, states.length).
-                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(states[i]), AlertLevel.valueOf(levels[eachStatusHasALevel ? i : 0]))).
+                        mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(states[i]), AlertLevel.valueOf(levels[eachStatusHasALevel ? i : 0]))).
                     forEach(entry -> messagingConfiguration.addStatusLevelAssociation(entry.getKey(), entry.getValue())); //NOSONAR
             LOG.info("Alert message status change module activated for domain:[{}]", domain);
             return messagingConfiguration;
@@ -389,22 +385,22 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         protected String getAlertActivePropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_ACTIVE, DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_ACTIVE);
+            return DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_ACTIVE;
         }
 
         @Override
         protected String getAlertLevelPropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_LEVEL, DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_LEVEL);
+            return DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_LEVEL;
         }
 
         @Override
         protected String getAlertMomentPropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_MOMENT, DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_MOMENT);
+            return DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_MOMENT;
         }
 
         @Override
         protected String getAlertEmailSubjectPropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT, DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_SUBJECT);
+            return DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT;
         }
     }
 
@@ -454,17 +450,17 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         protected String getAlertActivePropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE, DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_ACTIVE);
+            return DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE;
         }
 
         @Override
         protected String getAlertLevelPropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_LOGIN_FAILURE_LEVEL, DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_LEVEL);
+            return DOMIBUS_ALERT_USER_LOGIN_FAILURE_LEVEL;
         }
 
         @Override
         protected String getAlertEmailSubjectPropertyName() {
-            return getDomainOrSuperProperty(DOMIBUS_ALERT_USER_LOGIN_FAILURE_MAIL_SUBJECT, DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_MAIL_SUBJECT);
+            return DOMIBUS_ALERT_USER_LOGIN_FAILURE_MAIL_SUBJECT;
         }
     }
 

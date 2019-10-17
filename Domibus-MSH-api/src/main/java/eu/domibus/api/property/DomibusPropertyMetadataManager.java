@@ -11,11 +11,9 @@ import java.util.Map;
 public interface DomibusPropertyMetadataManager {
 
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.user.account_disabled.";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.super.user.account_disabled.";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.cert.imminent_expiration.";
     String DOMIBUS_ALERT_CERT_EXPIRED_PREFIX = "domibus.alert.cert.expired.";
     String DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.user.login_failure.";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.super.user.login_failure.";
     String DOMIBUS_ALERT_SENDER_SMTP_PREFIX = "domibus.alert.sender.smtp.";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX = "domibus.alert.msg.communication_failure.";
     String DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX = "domibus.alert.password.expired"; //NOSONAR
@@ -27,7 +25,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_SECURITY_KEYSTORE_PREFIX = "domibus.security.keystore.";
     String DOMIBUS_SECURITY_TRUSTSTORE_PREFIX = "domibus.security.truststore.";
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";
-
 
     String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";
     String DOMIBUS_UI_REPLICATION_ENABLED = "domibus.ui.replication.enabled";
@@ -126,8 +123,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
-    String DOMIBUS_ALERT_SUPER_CLEANER_CRON = "domibus.alert.super.cleaner.cron";
-    String DOMIBUS_ALERT_SUPER_RETRY_CRON = "domibus.alert.super.retry.cron";
     String DOMIBUS_UI_REPLICATION_SYNC_CRON = "domibus.ui.replication.sync.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
@@ -142,13 +137,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME = "domibus.alert.cleaner.alert.lifetime";
     String DOMIBUS_ALERT_RETRY_TIME = "domibus.alert.retry.time";
     String DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS = "domibus.alert.retry.max_attempts";
-    String DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME = "domibus.alert.super.cleaner.alert.lifetime";
-    String DOMIBUS_ALERT_SUPER_ACTIVE = "domibus.alert.super.active";
-    String DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE = "domibus.alert.super.mail.sending.active";
-    String DOMIBUS_ALERT_SUPER_RETRY_TIME = "domibus.alert.super.retry.time";
-    String DOMIBUS_ALERT_SUPER_RETRY_MAX_ATTEMPTS = "domibus.alert.super.retry.max_attempts";
-    String DOMIBUS_ALERT_SUPER_SENDER_EMAIL = "domibus.alert.super.sender.email";
-    String DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL = "domibus.alert.super.receiver.email";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX + "active";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX + "states";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX + "level";
@@ -160,13 +148,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_LEVEL = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX + "level";
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_MOMENT = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX + "moment";
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX + "subject";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_ACTIVE = DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX + "active";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_LEVEL = DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX + "level";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_MAIL_SUBJECT = DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX + "mail.subject";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_ACTIVE = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "active";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_LEVEL = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "level";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_MOMENT = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "moment";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_SUBJECT = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "subject";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "active";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_DELAY_DAYS = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "delay_days";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_FREQUENCY_DAYS = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "frequency_days";
