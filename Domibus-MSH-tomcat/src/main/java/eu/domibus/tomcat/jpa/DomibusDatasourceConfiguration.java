@@ -67,7 +67,7 @@ public class DomibusDatasourceConfiguration {
         final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusProperties, DOMIBUS_DATASOURCE_XA_PROPERTY);
 
         LOGGER.debug("Decrypting the property [{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD);
-        prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD, true));
+        prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD));
         return prefixedProperties;
     }
 
@@ -83,7 +83,7 @@ public class DomibusDatasourceConfiguration {
         dataSource.setUrl(dataSourceURL);
         final String user = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_USER);
         dataSource.setUser(user);
-        final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD, true);
+        final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD);
         dataSource.setPassword(password);
         final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE);
         dataSource.setMinPoolSize(minPoolSize);
