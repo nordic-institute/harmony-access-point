@@ -243,18 +243,9 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
 
-//    private String getDomainOrSuperProperty(final String domainPropertyName, final String superPropertyName) {
-//        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//        if (currentDomain == null) {
-//            return superPropertyName;
-//        }
-//        return domainPropertyName;
-//    }
-
     protected CommonConfiguration readCommonConfiguration(Domain domain) {
-        //TODO: revisit this: I am receiving the domain as a parameter but I am reading the bellow properties for the current domain!! Is it OK?
         final boolean emailActive = domibusPropertyProvider.getBooleanDomainProperty(getSendEmailActivePropertyName());
-        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
+        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerDomainProperty(domain, DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
 
         if (!emailActive) {
             return new CommonConfiguration(alertLifeTimeInDays);

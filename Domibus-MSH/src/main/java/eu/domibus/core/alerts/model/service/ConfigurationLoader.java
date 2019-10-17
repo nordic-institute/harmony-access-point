@@ -32,14 +32,12 @@ public class ConfigurationLoader<E> {
 
     public E getConfiguration(ConfigurationReader<E> configurationReader) {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        //TODO: revisit this after we decide what to do with super properties
         final Domain key = currentDomain == null ? SUPER_DOMAIN : currentDomain;
-        final Domain domain = currentDomain == null ? DomainService.DEFAULT_DOMAIN : currentDomain;
-        LOG.debug("Retrieving alert messaging configuration for domain:[{}]", currentDomain);
+        LOG.debug("Retrieving alert messaging configuration for domain: [{}]", key);
         if (this.configuration.get(key) == null) {
             synchronized (this.configuration) {
                 if (this.configuration.get(key) == null) {
-                    E conf = configurationReader.readConfiguration(domain);
+                    E conf = configurationReader.readConfiguration(currentDomain);
                     this.configuration.put(key, conf);
                 }
             }
