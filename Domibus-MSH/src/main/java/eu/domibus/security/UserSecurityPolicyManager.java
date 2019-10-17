@@ -88,7 +88,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMessage);
         }
 
-        String passwordPattern = domibusPropertyProvider.getDomainProperty(getPasswordComplexityPatternProperty());
+        String passwordPattern = domibusPropertyProvider.getProperty(getPasswordComplexityPatternProperty());
         if (StringUtils.isBlank(passwordPattern)) {
             return;
         }

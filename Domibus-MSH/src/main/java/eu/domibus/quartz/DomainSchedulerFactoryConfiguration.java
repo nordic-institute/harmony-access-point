@@ -120,7 +120,7 @@ public class DomainSchedulerFactoryConfiguration {
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -142,7 +142,7 @@ public class DomainSchedulerFactoryConfiguration {
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retryWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_MSH_RETRY_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MSH_RETRY_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -162,7 +162,7 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(pullRetryWorkerJob().getObject());
-        String propertyValue = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_RETRY_CRON);
+        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_PULL_RETRY_CRON);
         obj.setCronExpression(propertyValue);
         LOG.debug("pullRetryWorkerTrigger configured with cronExpression [{}]", propertyValue);
         obj.setStartDelay(20000);
@@ -185,7 +185,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(pullRequestWorkerJob().getObject());
-        String propertyValue = domibusPropertyProvider.getDomainProperty(DOMIBUS_MSH_PULL_CRON);
+        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_MSH_PULL_CRON);
         obj.setCronExpression(propertyValue);
         LOG.debug("pullRequestTrigger configured with cronExpression [{}]", propertyValue);
         obj.setStartDelay(20000);
@@ -215,7 +215,7 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertRetryJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_ALERT_RETRY_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RETRY_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -254,7 +254,7 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_ALERT_CLEANER_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CLEANER_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -283,7 +283,7 @@ public class DomainSchedulerFactoryConfiguration {
     public CronTriggerFactoryBean temporaryPayloadRetentionTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(temporaryPayloadRetentionJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -304,7 +304,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(splitAndJoinExpirationJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON));
         obj.setStartDelay(20000);
         return obj;
     }

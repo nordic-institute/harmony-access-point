@@ -86,7 +86,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         }
 
         // check how many rows to sync
-        int maxRowsToSync = NumberUtils.toInt(domibusPropertyProvider.getDomainProperty(MAX_ROWS_KEY));
+        int maxRowsToSync = NumberUtils.toInt(domibusPropertyProvider.getProperty(MAX_ROWS_KEY));
         if (rowsToSyncCount > maxRowsToSync) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn(WarningUtil.warnOutput("There are more than [{}] rows to sync into TB_MESSAGE_UI table " +

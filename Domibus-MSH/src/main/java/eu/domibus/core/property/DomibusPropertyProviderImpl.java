@@ -46,14 +46,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         if (!domibusConfigurationService.isMultiTenantAware()) {                 //single-tenancy mode
             return getPropertyValue(propertyName, null, prop.isEncrypted());
-        } else {                                                                //multi-tenancy mode
+        } else {                                                                 //multi-tenancy mode
             if (!prop.isDomainSpecific()) {                                      //prop is global
                 return getPropertyValue(propertyName, null, prop.isEncrypted());
-            } else {                                                            //domain or super property
+            } else {                                                             //domain or super property
                 Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-                if (currentDomain == null) {    //super property
+                if (currentDomain == null) {                                     //super property
                     return getSuperOrDefault(propertyName, prop);
-                } else {                                                        //domain property
+                } else {                                                         //domain property
                     return getDomainOrDefault(propertyName, prop, currentDomain);
                 }
             }
@@ -84,11 +84,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 //        }
     }
 
+    //TODO: the goal is to get rid of this method as the domain used should be the current one
+    //TODO: (all cron jobs shoud derive from domibus-base-job, which sets and clears it)
     public String getProperty2(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
         if (prop == null) return null;
 
-        if(domain == null) {
+        if (domain == null) {
             LOGGER.error("Domain is null.");
             return null; // or throw error??
         }
@@ -105,9 +107,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return prop;
     }
 
-    private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain currentDomain) {
-        String propName = currentDomain.getName() + "." + propertyName;
-        return getPropValueOrDefault(propertyName, prop, currentDomain, propName);
+    private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
+        String propName = getPropertyName(domain, propertyName);
+        return getPropValueOrDefault(propertyName, prop, domain, propName);
     }
 
     private String getSuperOrDefault(String propertyName, DomibusPropertyMetadata prop) {
@@ -115,12 +117,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getPropValueOrDefault(propertyName, prop, null, propName);
     }
 
-    private String getPropValueOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain currentDomain, String propName) {
-        String propValue = getPropertyValue(propName, currentDomain, prop.isEncrypted());
+    private String getPropValueOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain, String propName) {
+        String propValue = getPropertyValue(propName, domain, prop.isEncrypted());
         if (!Strings.isNullOrEmpty(propValue)) {
             return propValue;
         } else {                                                        //fall-back on default value from global file
-            return getPropertyValue(propertyName, currentDomain, prop.isEncrypted());
+            return getPropertyValue(propertyName, domain, prop.isEncrypted());
         }
     }
 
@@ -209,18 +211,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDomainProperty(String propertyName) {
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain == null) {
-            currentDomain = DomainService.DEFAULT_DOMAIN;
-        }
-        return getDomainProperty(currentDomain, propertyName);
-    }
-
-    /**
      * Retrieves the property value from the requested domain.
      * If not found, fall back to the property value from the default domain.
      */
@@ -254,7 +244,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Integer getIntegerDomainProperty(String propertyName) {
-        String domainValue = getDomainProperty(propertyName);
+        String domainValue = getProperty(propertyName);
         return getIntegerInternal(propertyName, domainValue);
     }
 
@@ -312,7 +302,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Boolean getBooleanDomainProperty(String propertyName) {
-        String domainValue = getDomainProperty(propertyName);
+        String domainValue = getProperty(propertyName);
         return getBooleanInternal(propertyName, domainValue);
     }
 

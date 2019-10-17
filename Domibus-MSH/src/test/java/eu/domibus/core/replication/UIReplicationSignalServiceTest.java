@@ -44,7 +44,7 @@ public class UIReplicationSignalServiceTest {
     public void testIsReplicationEnabled() {
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(UIReplicationSignalService.UI_REPLICATION_ENABLED);
+            domibusPropertyProvider.getProperty(UIReplicationSignalService.UI_REPLICATION_ENABLED);
             result = true;
         }};
 

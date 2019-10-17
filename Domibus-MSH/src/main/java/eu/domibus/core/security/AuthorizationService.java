@@ -62,7 +62,7 @@ public class AuthorizationService {
     private PModeProvider pModeProvider;
 
     AuthorizationServiceSpi getAuthorizationService() {
-        final String authorizationServiceIndentifier = domibusPropertyProvider.getDomainProperty(IAM_AUTHORIZATION_IDENTIFIER);
+        final String authorizationServiceIndentifier = domibusPropertyProvider.getProperty(IAM_AUTHORIZATION_IDENTIFIER);
         final List<AuthorizationServiceSpi> authorizationServiceList = this.authorizationServiceSpis.stream().
                 filter(authorizationServiceSpi -> authorizationServiceIndentifier.equals(authorizationServiceSpi.getIdentifier())).
                 collect(Collectors.toList());

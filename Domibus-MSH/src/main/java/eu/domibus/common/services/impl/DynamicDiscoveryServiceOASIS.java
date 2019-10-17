@@ -93,7 +93,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             final ProcessIdentifier processIdentifier = new ProcessIdentifier(processId, processIdScheme);
             ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
-            String transportProfileAS4 = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Get the endpoint for " + transportProfileAS4);
             final Endpoint endpoint = sm.getEndpoint(processIdentifier, new TransportProfile(transportProfileAS4));
             if (endpoint == null || endpoint.getAddress() == null || endpoint.getProcessIdentifier() == null) {
@@ -109,12 +109,12 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     }
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
-        final String smlInfo = domibusPropertyProvider.getDomainProperty(SMLZONE_KEY);
+        final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
         if (smlInfo == null) {
             throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
 
-        final String certRegex = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
+        final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
         if (StringUtils.isEmpty(certRegex)) {
             LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
         }
@@ -172,7 +172,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     @Override
     public String getPartyIdType() {
-        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
+        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
         if (StringUtils.isEmpty(propVal)) {
             propVal = URN_TYPE_VALUE;
         }
@@ -181,7 +181,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     @Override
     public String getResponderRole() {
-        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
+        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
         if (StringUtils.isEmpty(propVal)) {
             propVal = DEFAULT_RESPONDER_ROLE;
         }

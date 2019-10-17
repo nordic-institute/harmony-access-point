@@ -79,7 +79,7 @@ public class UserSecurityPolicyManagerTest {
     @Test
     public void checkPasswordComplexity() throws Exception {
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
+            domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
 
@@ -341,7 +341,7 @@ public class UserSecurityPolicyManagerTest {
         new Expectations() {{
             securityPolicyManager.getPasswordComplexityPatternProperty();
             result = "prop2";
-            domibusPropertyProvider.getDomainProperty("prop2");
+            domibusPropertyProvider.getProperty("prop2");
             result = StringUtils.EMPTY;
             securityPolicyManager.getPasswordHistoryPolicyProperty();
             result = "prop3";

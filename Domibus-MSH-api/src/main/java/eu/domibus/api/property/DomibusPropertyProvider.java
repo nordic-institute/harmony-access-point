@@ -39,7 +39,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return the value for that property.
      */
-    String getDomainProperty(String propertyName);
+//    String getDomainProperty(String propertyName);
 
     String getDomainProperty(Domain domain, String propertyName);
 

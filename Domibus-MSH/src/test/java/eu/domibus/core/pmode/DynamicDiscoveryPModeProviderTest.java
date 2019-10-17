@@ -155,7 +155,7 @@ public class DynamicDiscoveryPModeProviderTest {
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServiceOASIS);
 
         /* test selection of dynamic discovery client Peppol compliant*/
-        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getDomainProperty(anyString());
+        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getProperty(anyString());
         dynamicDiscoveryPModeProvider.init();
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServicePEPPOL);
     }
@@ -262,7 +262,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn("false").when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
@@ -271,7 +271,7 @@ public class DynamicDiscoveryPModeProviderTest {
             assertEquals("No matching party found", ex.getErrorDetail());
         }
 
-        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
+        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
         doReturn(true).when(domibusPropertyProvider).getBooleanDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
