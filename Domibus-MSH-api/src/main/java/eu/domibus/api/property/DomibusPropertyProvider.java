@@ -15,11 +15,11 @@ public interface DomibusPropertyProvider {
 
     String getProperty(String propertyName);
 
-    String getProperty(String propertyName, boolean decrypt);
+//    String getProperty(String propertyName, boolean decrypt);
 
     String getProperty(Domain domain, String propertyName);
 
-    String getProperty(Domain domain, String propertyName, boolean decrypt);
+//    String getProperty(Domain domain, String propertyName, boolean decrypt);
 
 
     /*

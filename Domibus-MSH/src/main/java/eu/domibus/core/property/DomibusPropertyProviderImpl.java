@@ -156,8 +156,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getProperty(domain, propertyName, false);
     }
 
-    @Override
-    public String getProperty(Domain domain, String propertyName, boolean decrypt) {
+//    @Override
+    private String getProperty(Domain domain, String propertyName, boolean decrypt) {
         final String domainPropertyName = getPropertyName(domain, propertyName);
         String propertyValue = getPropertyValue(domainPropertyName, domain, decrypt);
         if (StringUtils.isEmpty(propertyValue) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
@@ -205,8 +205,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
 
-    @Override
-    public String getProperty(String propertyName, boolean decrypt) {
+//    @Override
+    private String getProperty(String propertyName, boolean decrypt) {
         return getPropertyValue(propertyName, null, decrypt);
     }
 
