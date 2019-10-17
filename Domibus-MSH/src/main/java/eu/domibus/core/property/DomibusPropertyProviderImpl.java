@@ -1,8 +1,12 @@
 package eu.domibus.core.property;
 
+import com.google.common.base.Strings;
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
@@ -29,6 +33,98 @@ import java.util.function.Predicate;
 @Service
 @Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    public String getProperty2(String propertyName) {
+        DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
+        if (prop == null) return null;
+
+        if (!domibusConfigurationService.isMultiTenantAware()) {                 //single-tenancy mode
+            return getPropertyValue(propertyName, null, prop.isEncrypted());
+        } else {                                                                //multi-tenancy mode
+            if (!prop.isDomainSpecific()) {                                      //prop is global
+                return getPropertyValue(propertyName, null, prop.isEncrypted());
+            } else {                                                            //domain or super property
+                Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+                if (currentDomain == null) {    //super property
+                    return getSuperOrDefault(propertyName, prop);
+                } else {                                                        //domain property
+                    return getDomainOrDefault(propertyName, prop, currentDomain);
+                }
+            }
+        }
+        // var meta = getMetadata(propertyName)
+        // daca suntem in single-tenancy
+        // -> o luam din fisierul global
+        // else, daca suntem in multi-tenancy mode
+//        {
+        // daca e prop globala
+        //-> o luam din fisierul global
+        //else // e prop de domeniu sau super
+//            {
+        //daca currentDomain == null //prop de super
+        //-> o luam din fisierul de superi:
+//                {
+        // prefixam numele cu super.propName
+        //daca o gasim o intoarcem
+        //daca nu, o luam din fisierul global, cu numele propName simplu
+//                }
+        //else currentDomin != null
+//                {
+        // prefixam numele cu currentDomain.Name.propName
+        //daca o gasim o intoarcem
+        //daca nu, o luam din fisierul global, cu numele propName simplu
+//                }
+//            }
+//        }
+    }
+
+    public String getProperty2(Domain domain, String propertyName) {
+        DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
+        if (prop == null) return null;
+
+        if(domain == null) {
+            LOGGER.error("Domain is null.");
+            return null; // or throw error??
+        }
+
+        return getDomainOrDefault(propertyName, prop, domain);
+    }
+
+    private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
+        if (prop == null) {
+            LOGGER.error("Property [{}] could not be found", propertyName);
+            return null; //or create a global prop metadata??
+        }
+        return prop;
+    }
+
+    private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain currentDomain) {
+        String propName = currentDomain.getName() + "." + propertyName;
+        return getPropValueOrDefault(propertyName, prop, currentDomain, propName);
+    }
+
+    private String getSuperOrDefault(String propertyName, DomibusPropertyMetadata prop) {
+        String propName = "super." + propertyName;
+        return getPropValueOrDefault(propertyName, prop, null, propName);
+    }
+
+    private String getPropValueOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain currentDomain, String propName) {
+        String propValue = getPropertyValue(propName, currentDomain, prop.isEncrypted());
+        if (!Strings.isNullOrEmpty(propValue)) {
+            return propValue;
+        } else {                                                        //fall-back on default value from global file
+            return getPropertyValue(propertyName, currentDomain, prop.isEncrypted());
+        }
+    }
+
+    ///////////////
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
