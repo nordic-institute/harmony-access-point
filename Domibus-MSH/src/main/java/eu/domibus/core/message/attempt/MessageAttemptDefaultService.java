@@ -56,7 +56,7 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
         LOG.debug("Updating and creating message attempt");
 
         attempt.setEndDate(new Timestamp(System.currentTimeMillis()));
-        create(attempt);
+        create(attempt);//NOSONAR the @Transactional annotation will not be taken into account because this method is called from inside the same class
     }
 
     protected boolean isMessageAttemptAuditDisabled() {
