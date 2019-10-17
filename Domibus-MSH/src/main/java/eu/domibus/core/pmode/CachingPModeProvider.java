@@ -275,7 +275,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found", null, null);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
         String partyIdType = "";
@@ -307,7 +306,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     protected String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {

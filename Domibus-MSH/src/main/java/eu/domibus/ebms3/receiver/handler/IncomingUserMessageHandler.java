@@ -9,8 +9,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
@@ -36,7 +34,6 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected AuthorizationService authorizationService;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
