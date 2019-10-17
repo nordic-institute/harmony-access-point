@@ -37,7 +37,7 @@ public class ConfigurationLoader<E> {
         if (this.configuration.get(key) == null) {
             synchronized (this.configuration) {
                 if (this.configuration.get(key) == null) {
-                    E conf = configurationReader.readConfiguration(currentDomain);
+                    E conf = configurationReader.readConfiguration();
                     this.configuration.put(key, conf);
                 }
             }
