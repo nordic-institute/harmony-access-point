@@ -164,8 +164,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
 
         String subject = signingCertificate.getSubjectDN().getName();
-        Domain domain = domainContextProvider.getCurrentDomain();
-        String certSubjectExpression = domibusPropertyProvider.getProperty(domain, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+        String certSubjectExpression = domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
         if (StringUtils.isEmpty(certSubjectExpression)) {
             LOG.debug("[{}] is empty, verification is disabled.", DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             return;

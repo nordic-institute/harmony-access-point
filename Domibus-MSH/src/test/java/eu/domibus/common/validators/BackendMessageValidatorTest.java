@@ -50,7 +50,6 @@ public class BackendMessageValidatorTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
-
         }};
 
         /*Happy Flow No error should occur*/
