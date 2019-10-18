@@ -109,8 +109,6 @@ public class ConsoleUserSecurityPolicyManagerTest {
     public void getCurrentOrDefaultDomainForUserTest() {
 
         new Expectations() {{
-            domainContextProvider.getCurrentDomainSafely();
-            result = DomainService.DEFAULT_DOMAIN;
             domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
             result = 3600;
         }};

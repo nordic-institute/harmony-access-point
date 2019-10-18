@@ -146,7 +146,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         String regExp = ".*TEST.EU.*";
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = regExp;
             regexUtil.matches(regExp, signingCertificate.getSubjectDN().getName());
             result = regexUtilLocal.matches(regExp, signingCertificate.getSubjectDN().getName());
@@ -171,7 +171,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstCertificateSubjectExpressionTestException() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty( DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "TEST.EU";
         }};
 
@@ -187,7 +187,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeAgainstCertificateSubjectExpressionTestDisable() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty( DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
         }};
 
@@ -264,7 +264,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
-            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty( DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
@@ -290,7 +290,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
-            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty( DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
@@ -318,7 +318,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
-            domibusPropertyProvider.getProperty((Domain) any, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+            domibusPropertyProvider.getProperty( DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "";
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = false;
