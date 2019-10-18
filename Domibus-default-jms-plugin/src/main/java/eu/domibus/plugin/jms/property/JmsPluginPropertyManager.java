@@ -70,7 +70,7 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
                 PUT_ATTACHMENTS_IN_QUEUE,
         };
         return Arrays.stream(knownPropertyNames)
-                .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, true, true))
+                .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true))
                 .collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

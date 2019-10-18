@@ -52,18 +52,18 @@ public class ConfigurationPropertyServiceImplTest {
     @Before
     public void setUp() {
         props1 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, true, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_REPLICATION_ENABLED, true, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, true, false),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, true, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadataDTO.Type.DOMAIN, false),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
         props2 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_SUPPORT_TEAM_NAME, true, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, true, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, true, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, true, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, true, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_UI_SUPPORT_TEAM_NAME, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
         propertyManagers = Arrays.asList(propertyManager1, propertyManager2);

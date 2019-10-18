@@ -30,14 +30,7 @@ public class DomibusPropertyMetadataDTO {
 
     private String name;
 
-    private int type; // numeric, cronexp, regexp, string, concurrency
-
-    /**
-     * When false, it means global property. When true, it means domain property.
-     * In single tenancy mode, a global property can be changed by regular admins.
-     * In multi tenancy mode, a global property can be changed only by AP admins.
-     */
-    private boolean domainSpecific;
+    private int type;
 
     /**
      * For domain properties, this flag specifies whether the value is read
@@ -61,30 +54,30 @@ public class DomibusPropertyMetadataDTO {
     public DomibusPropertyMetadataDTO() {
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, boolean domainSpecific, boolean withFallback, boolean clusterAware, boolean encrypted) {
+    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, int type, boolean withFallback, boolean clusterAware, boolean encrypted) {
         this.name = name;
         this.writable = writable;
-        this.domainSpecific = domainSpecific;
+        this.type = type;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
         this.module = module;
         this.encrypted = encrypted;
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific) {
-        this(name, module, true, domainSpecific, false, true, false);
+    public DomibusPropertyMetadataDTO(String name, String module, int type) {
+        this(name, module, true, type, false, true, false);
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {
-        this(name, module, true, domainSpecific, withFallback, true, false);
+    public DomibusPropertyMetadataDTO(String name, String module, int type, boolean withFallback) {
+        this(name, module, true, type, withFallback, true, false);
     }
 
-    public DomibusPropertyMetadataDTO(String name, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, true, domainSpecific, withFallback, true, false);
+    public DomibusPropertyMetadataDTO(String name, int type, boolean withFallback) {
+        this(name, Module.MSH, true, type, withFallback, true, false);
     }
 
     public DomibusPropertyMetadataDTO(String name) {
-        this(name, Module.MSH, true, true, true, true, false);
+        this(name, Module.MSH, true, Type.DOMAIN, true, true, false);
     }
 
     public String getName() {
