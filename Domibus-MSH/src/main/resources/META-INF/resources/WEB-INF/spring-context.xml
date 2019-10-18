@@ -16,8 +16,8 @@
 
 <!--    Filter out the scanning of web and ext sub-packages, as their beans are scanner in the context of their mvc-dispatch applications-->
     <context:component-scan base-package="eu.domibus">
-        <context:exclude-filter type="regex" expression="eu.domibus.web..*"/>
-        <context:exclude-filter type="regex" expression="eu.domibus.ext.rest..*"/>
+        <context:exclude-filter type="regex" expression="eu\.domibus\.web\..*"/>
+        <context:exclude-filter type="regex" expression="eu\.domibus\.ext\.rest\..*"/>
     </context:component-scan>
     <context:annotation-config/>
 
