@@ -8,10 +8,29 @@ package eu.domibus.ext.domain;
  * Class that encapsulates the properties of a domibus configuration property;
  */
 public class DomibusPropertyMetadataDTO {
+    public boolean appliesForGlobal() {
+        return (getType() & Type.GLOBAL) == Type.GLOBAL;
+    }
+
+    public boolean appliesForSuper() {
+        return (getType() & Type.SUPER) == Type.SUPER;
+    }
+
+    public boolean appliesForDomain() {
+        return (getType() & Type.DOMAIN) == Type.DOMAIN;
+    }
+
+    public class Type {
+        public static final int GLOBAL = 1;
+        public static final int DOMAIN = 2;
+        public static final int SUPER = 4;
+        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
+        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
+    }
 
     private String name;
 
-    private String type; // numeric, cronexp, regexp, string, concurrency
+    private int type; // numeric, cronexp, regexp, string, concurrency
 
     /**
      * When false, it means global property. When true, it means domain property.
@@ -76,20 +95,12 @@ public class DomibusPropertyMetadataDTO {
         this.name = name;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
-    }
-
-    public boolean isDomainSpecific() {
-        return domainSpecific;
-    }
-
-    public void setDomainSpecific(boolean domainSpecific) {
-        this.domainSpecific = domainSpecific;
     }
 
     public boolean isWithFallback() {

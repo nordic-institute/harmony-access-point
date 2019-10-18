@@ -42,20 +42,30 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
         if (prop == null) {
-            return null; //or throw 
+            return null;
         }
 
         if (!domibusConfigurationService.isMultiTenantAware()) {                 //single-tenancy mode
             return getPropertyValue(propertyName, null, prop.isEncrypted());
         } else {                                                                 //multi-tenancy mode
-            if (!prop.isDomainSpecific()) {                                      //prop is global
+            if (prop.appliesForGlobal()) {                                         //prop is global
                 return getPropertyValue(propertyName, null, prop.isEncrypted());
             } else {                                                             //domain or super property
                 Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-                if (currentDomain == null) {                                     //super property
-                    return getSuperOrDefault(propertyName, prop);
-                } else {                                                         //domain property
-                    return getDomainOrDefault(propertyName, prop, currentDomain);
+                if (currentDomain != null) {                                     //domain property
+                    if(prop.appliesForDomain()) {
+                        return getDomainOrDefault(propertyName, prop, currentDomain);
+                    } else {
+                        LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
+                        return null;
+                    }
+                } else {                                                         //super property
+                    if(prop.appliesForSuper()) {
+                        return getSuperOrDefault(propertyName, prop);
+                    } else {
+                        LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+                        return null;
+                    }
                 }
             }
         }
@@ -68,13 +78,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         if (domain == null) {
-            LOGGER.error("Domain is null.");
-            return null; // or throw error??
+            LOGGER.error("Domain cannot be null.");
+            return null;
         }
 
-        if (!prop.isDomainSpecific()) {
+        if (!prop.appliesForDomain()) {
             LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain [{}].", propertyName, domain);
-            return null; // or throw error??
+            return null;
         }
 
         return getDomainOrDefault(propertyName, prop, domain);
@@ -83,8 +93,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
         if (prop == null) {
-            LOGGER.error("Property [{}] could not be found", propertyName);
-            return null; //or create a global prop metadata??
+            LOGGER.error("Property [{}] has no metadata defined so null was returned.", propertyName);
+            return null;
         }
         return prop;
     }

@@ -31,7 +31,7 @@ public class DomibusPropertyMetadataManagerImplTest {
         DomibusPropertyMetadata actual = props.get(DOMIBUS_UI_TITLE_NAME);
 
         Assert.assertEquals(DOMIBUS_UI_TITLE_NAME, actual.getName());
-        Assert.assertEquals(true, actual.isDomainSpecific());
+        Assert.assertEquals(true, actual.getType() == DomibusPropertyMetadata.Type.DOMAIN);
         Assert.assertEquals(true, actual.isWithFallback());
     }
 

@@ -10,21 +10,38 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class DomibusPropertyMetadata {
 
+    public boolean appliesForGlobal() {
+        return (getType() & Type.GLOBAL) == Type.GLOBAL;
+    }
+
+    public boolean appliesForSuper() {
+        return (getType() & Type.SUPER) == Type.SUPER;
+    }
+
+    public boolean appliesForDomain() {
+        return (getType() & Type.DOMAIN) == Type.DOMAIN;
+    }
+
+    public class Type {
+        public static final int GLOBAL = 1;
+        public static final int DOMAIN = 2;
+        public static final int SUPER = 4;
+        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
+        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
+    }
+
     private String name;
 
-    private String type; // numeric, cronexp, regexp, string, concurrency
-
     /**
-     * When false, it means global property. When true, it means domain property.
+     * When GLOBAL, it means global property. When DOMAIN_SPECIFIC, it means domain property.
      * In single tenancy mode, a global property can be changed by regular admins.
      * In multi tenancy mode, a global property can be changed only by AP admins.
      */
-    private boolean domainSpecific;
+    private int type;
 
     /**
-     * For domain properties, this flag specifies whether the value is read
-     * from the default domain if not found in the current domain.
-     * This is subject to change in the near future.
+     * For domain properties(which also means super properties), this flag specifies whether the value is read
+     * from the global properties file(which contains also default values for domain properties) if not found in the current domain.
      */
     private boolean withFallback;
 
@@ -40,43 +57,41 @@ public class DomibusPropertyMetadata {
 
     private boolean encrypted;
 
-//    private boolean appliesToSuper;
-
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
-        return new DomibusPropertyMetadata(name, false, false);
+        return new DomibusPropertyMetadata(name, Type.GLOBAL, false);
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, false, false, false, false);
+        return new DomibusPropertyMetadata(name, Module.MSH, false, Type.GLOBAL, false, false, false);
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, boolean encrypted) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, false, false, false, encrypted);
+        return new DomibusPropertyMetadata(name, Module.MSH, false, Type.GLOBAL, false, false, encrypted);
     }
 
     public DomibusPropertyMetadata() {
     }
 
-    public DomibusPropertyMetadata(String name, String module, boolean writable, boolean domainSpecific, boolean withFallback, boolean clusterAware, boolean encrypted) {
+    public DomibusPropertyMetadata(String name, String module, boolean writable, int type, boolean withFallback, boolean clusterAware, boolean encrypted) {
         this.name = name;
         this.writable = writable;
-        this.domainSpecific = domainSpecific;
+        this.type = type;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
         this.module = module;
         this.encrypted = encrypted;
     }
 
-    public DomibusPropertyMetadata(String name, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, true, domainSpecific, withFallback, true, false);
+    public DomibusPropertyMetadata(String name,int type, boolean withFallback) {
+        this(name, Module.MSH, true, type, withFallback, true, false);
     }
 
-    public DomibusPropertyMetadata(String name, boolean writable, boolean domainSpecific, boolean withFallback) {
-        this(name, Module.MSH, writable, domainSpecific, withFallback, true, false);
+    public DomibusPropertyMetadata(String name, boolean writable, int type, boolean withFallback) {
+        this(name, Module.MSH, writable, type, withFallback, true, false);
     }
 
-    public DomibusPropertyMetadata(String name, boolean writable, boolean domainSpecific, boolean withFallback, boolean encrypted) {
-        this(name, Module.MSH, writable, domainSpecific, withFallback, true, encrypted);
+    public DomibusPropertyMetadata(String name, boolean writable, int type, boolean withFallback, boolean encrypted) {
+        this(name, Module.MSH, writable, type, withFallback, true, encrypted);
     }
 
     public String getName() {
@@ -87,20 +102,12 @@ public class DomibusPropertyMetadata {
         this.name = name;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
-    }
-
-    public boolean isDomainSpecific() {
-        return domainSpecific;
-    }
-
-    public void setDomainSpecific(boolean domainSpecific) {
-        this.domainSpecific = domainSpecific;
     }
 
     public boolean isWithFallback() {
