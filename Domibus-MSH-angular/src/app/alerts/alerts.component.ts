@@ -18,6 +18,7 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
 import {isNullOrUndefined} from 'util';
 import {AlertsEntry} from './alertsentry';
+import { showOnDirtyErrorStateMatcher, ErrorStateMatcher } from '@angular/material';
 
 @Component({
   moduleId: module.id,
@@ -71,6 +72,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   dateFromName: string;
   dateToName: string;
   displayDomainCheckBox: boolean;
+
+  matcher: ErrorStateMatcher = showOnDirtyErrorStateMatcher;
 
   filter: any;
 
