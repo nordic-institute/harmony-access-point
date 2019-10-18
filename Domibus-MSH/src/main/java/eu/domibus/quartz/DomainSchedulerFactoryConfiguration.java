@@ -281,6 +281,10 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean temporaryPayloadRetentionTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(temporaryPayloadRetentionJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
