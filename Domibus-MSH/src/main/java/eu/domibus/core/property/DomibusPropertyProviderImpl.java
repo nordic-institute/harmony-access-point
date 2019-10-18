@@ -44,7 +44,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (prop == null) {
             return null; //or throw 
         }
-        
+
         if (!domibusConfigurationService.isMultiTenantAware()) {                 //single-tenancy mode
             return getPropertyValue(propertyName, null, prop.isEncrypted());
         } else {                                                                 //multi-tenancy mode
@@ -60,7 +60,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             }
         }
     }
-    
+
     public String getProperty(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
         if (prop == null) {
@@ -72,8 +72,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return null; // or throw error??
         }
 
-        if(!prop.isDomainSpecific()) {
-            LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain.", domain);
+        if (!prop.isDomainSpecific()) {
+            LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain [{}].", propertyName, domain);
             return null; // or throw error??
         }
 
@@ -99,12 +99,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getPropValueOrDefault(specificProprtyName, prop, null, propertyName);
     }
 
-    private String getPropValueOrDefault(String specificProprtyName , DomibusPropertyMetadata prop, Domain domain, String globalPropertyName) {
+    private String getPropValueOrDefault(String specificProprtyName, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
         String propValue = getPropertyValue(specificProprtyName, domain, prop.isEncrypted());
         if (!Strings.isNullOrEmpty(propValue)) {
+            LOGGER.debug("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
             return propValue;
-        } else {                                                        //fall-back on default value from global file
-            return getPropertyValue(globalPropertyName, domain, prop.isEncrypted());
+        } else {
+            if (prop.isWithFallback()) {    //fall-back on default value from global file
+                LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
+                return getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
+            } else {
+                LOGGER.warn("Could not find a value for property [{}] on domain [{}].", originalPropertyName, domain);
+                return null;
+            }
         }
     }
 
@@ -203,7 +210,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 //        }
 //        return propertyValue;
 //    }
-
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         Set<String> filteredPropertyNames = new HashSet<>();
