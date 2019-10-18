@@ -39,10 +39,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
-    public String getProperty2(String propertyName) {
+    public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
-        if (prop == null) return null;
-
+        if (prop == null) {
+            return null; //or throw 
+        }
+        
         if (!domibusConfigurationService.isMultiTenantAware()) {                 //single-tenancy mode
             return getPropertyValue(propertyName, null, prop.isEncrypted());
         } else {                                                                 //multi-tenancy mode
@@ -57,37 +59,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 }
             }
         }
-        // var meta = getMetadata(propertyName)
-        // daca suntem in single-tenancy
-        // -> o luam din fisierul global
-        // else, daca suntem in multi-tenancy mode
-//        {
-        // daca e prop globala
-        //-> o luam din fisierul global
-        //else // e prop de domeniu sau super
-//            {
-        //daca currentDomain == null //prop de super
-        //-> o luam din fisierul de superi:
-//                {
-        // prefixam numele cu super.propName
-        //daca o gasim o intoarcem
-        //daca nu, o luam din fisierul global, cu numele propName simplu
-//                }
-        //else currentDomin != null
-//                {
-        // prefixam numele cu currentDomain.Name.propName
-        //daca o gasim o intoarcem
-        //daca nu, o luam din fisierul global, cu numele propName simplu
-//                }
-//            }
-//        }
     }
-
-    //TODO: the goal is to get rid of this method as the domain used should be the current one
-    //TODO: (all cron jobs shoud derive from domibus-base-job, which sets and clears it)
-    public String getProperty2(Domain domain, String propertyName) {
+    
+    public String getProperty(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
-        if (prop == null) return null;
+        if (prop == null) {
+            return null;
+        }
 
         if (domain == null) {
             LOGGER.error("Domain is null.");
@@ -112,21 +90,21 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
-        String propName = getPropertyName(domain, propertyName);
-        return getPropValueOrDefault(propertyName, prop, domain, propName);
+        String specificProprtyName = getPropertyName(domain, propertyName);
+        return getPropValueOrDefault(specificProprtyName, prop, domain, propertyName);
     }
 
     private String getSuperOrDefault(String propertyName, DomibusPropertyMetadata prop) {
-        String propName = "super." + propertyName;
-        return getPropValueOrDefault(propertyName, prop, null, propName);
+        String specificProprtyName = "super." + propertyName;
+        return getPropValueOrDefault(specificProprtyName, prop, null, propertyName);
     }
 
-    private String getPropValueOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain, String propName) {
-        String propValue = getPropertyValue(propName, domain, prop.isEncrypted());
+    private String getPropValueOrDefault(String specificProprtyName , DomibusPropertyMetadata prop, Domain domain, String globalPropertyName) {
+        String propValue = getPropertyValue(specificProprtyName, domain, prop.isEncrypted());
         if (!Strings.isNullOrEmpty(propValue)) {
             return propValue;
         } else {                                                        //fall-back on default value from global file
-            return getPropertyValue(propertyName, domain, prop.isEncrypted());
+            return getPropertyValue(globalPropertyName, domain, prop.isEncrypted());
         }
     }
 
@@ -155,21 +133,21 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return domain.getCode() + "." + propertyName;
     }
 
-    @Override
-    public String getProperty(Domain domain, String propertyName) {
-        return getProperty(domain, propertyName, false);
-    }
+//    @Override
+//    public String getProperty(Domain domain, String propertyName) {
+//        return getProperty(domain, propertyName, false);
+//    }
 
 //    @Override
-    private String getProperty(Domain domain, String propertyName, boolean decrypt) {
-        final String domainPropertyName = getPropertyName(domain, propertyName);
-        String propertyValue = getPropertyValue(domainPropertyName, domain, decrypt);
-        if (StringUtils.isEmpty(propertyValue) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            propertyValue = getPropertyValue(propertyName, domain, decrypt);
-        }
-
-        return propertyValue;
-    }
+//    private String getProperty(Domain domain, String propertyName, boolean decrypt) {
+//        final String domainPropertyName = getPropertyName(domain, propertyName);
+//        String propertyValue = getPropertyValue(domainPropertyName, domain, decrypt);
+//        if (StringUtils.isEmpty(propertyValue) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
+//            propertyValue = getPropertyValue(propertyName, domain, decrypt);
+//        }
+//
+//        return propertyValue;
+//    }
 
     /**
      * Get the value from the system environment properties; if not found get the value from the system properties; if not found get the value from Domibus properties;
@@ -203,15 +181,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return result;
     }
 
-    @Override
-    public String getProperty(String propertyName) {
-        return getProperty(propertyName, false);
-    }
+//    @Override
+//    public String getProperty(String propertyName) {
+//        return getProperty(propertyName, false);
+//    }
 
 //    @Override
-    private String getProperty(String propertyName, boolean decrypt) {
-        return getPropertyValue(propertyName, null, decrypt);
-    }
+//    private String getProperty(String propertyName, boolean decrypt) {
+//        return getPropertyValue(propertyName, null, decrypt);
+//    }
 
     /**
      * Retrieves the property value from the requested domain.
