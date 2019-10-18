@@ -3,8 +3,11 @@ package eu.domibus.plugin.webService.impl;
 
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,7 +16,9 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import eu.domibus.plugin.webService.dao.MessageInfoDao;
 import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.webService.model.MessageInfoEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +63,15 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Autowired
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
+    @Autowired
+    private DomainContextExtService domainContextExtService;
+
+    @Autowired
+    private DomibusConfigurationExtService domibusConfigurationExtService;
+
+    @Autowired
+    MessageInfoDao messageInfoDao;
+
     public BackendWebServiceImpl(final String name) {
         super(name);
     }
@@ -75,6 +89,8 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
+
+        saveMessageInfo(ebMSHeaderInfo);
 
         addPartInfos(submitRequest, ebMSHeaderInfo);
         if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
@@ -102,6 +118,26 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         final SubmitResponse response = WEBSERVICE_OF.createSubmitResponse();
         response.getMessageID().add(messageId);
         return response;
+    }
+
+    protected void saveMessageInfo(Messaging ebMSHeaderInfo) {
+        if(ebMSHeaderInfo == null || ebMSHeaderInfo.getUserMessage() == null) {
+            return ;
+        }
+
+        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
+        LOG.info("Domain is [{}]", domainDTO);
+
+        boolean isMultiTenantAware = domibusConfigurationExtService.isMultiTenantAware();
+
+        LOG.info("Multitenant [{}]", isMultiTenantAware);
+
+        MessageInfo messageInfo = ebMSHeaderInfo.getUserMessage().getMessageInfo();
+        if(messageInfo != null) {
+            String description = "domain=" + domainDTO.getName() + ", messageId = " + messageInfo.getMessageId();
+            LOG.info("Saving messageId [{}] for domain [{}]", messageInfo.getMessageId(), domainDTO.getName());
+            messageInfoDao.create(new MessageInfoEntity(description));
+        }
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
