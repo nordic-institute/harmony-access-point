@@ -57,9 +57,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_FACTORY_CLASS),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_JTA_PLATFORM),
 
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES),
-                DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE, false, true, true, false),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, false, true, true, false),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION, false, true, true, false),
 
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL),
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION), //move the use=age from xml ?
