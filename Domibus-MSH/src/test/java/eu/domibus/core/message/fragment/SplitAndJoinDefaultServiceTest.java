@@ -965,11 +965,8 @@ public class SplitAndJoinDefaultServiceTest {
         String sourceFileName = sourceFile.getAbsolutePath();
 
         new Expectations(splitAndJoinDefaultService) {{
-            domibusPropertyProvider.getProperty(domain, PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
             result = temporaryDirectoryLocation.getAbsolutePath();
-
-            domainContextProvider.getCurrentDomain();
-            result = domain;
 
             splitAndJoinDefaultService.generateSourceFileName(temporaryDirectoryLocation.getAbsolutePath());
             result = sourceFileName;
