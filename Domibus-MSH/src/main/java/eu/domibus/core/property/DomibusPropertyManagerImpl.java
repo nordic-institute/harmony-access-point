@@ -62,7 +62,10 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
         Domain domain = domainCode == null ? null : this.domainService.getDomain(domainCode);
 
-        return domibusPropertyProvider.getProperty(domain, meta.getName());
+        if (domain != null) {
+            return domibusPropertyProvider.getProperty(domain, meta.getName());
+        }
+        return domibusPropertyProvider.getProperty(meta.getName());
 
 //        if (!meta.isDomainSpecific()) {
 //            return domibusPropertyProvider.getProperty(meta.getName());
