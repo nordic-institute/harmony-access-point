@@ -271,6 +271,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_METRICS_MONITOR_GC = "domibus.metrics.monitor.gc";
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
+    String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
 
     /**
      * Get all the properties metadata that support changing at runtime
