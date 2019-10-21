@@ -275,6 +275,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password";
     String DOMIBUS_JMX_USER = "domibus.jmx.user";
     String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
+    String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
 
     /**
      * Get all the properties metadata that support changing at runtime
