@@ -73,10 +73,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return null;
     }
 
-    private String getGlobalProperty(String propertyName, DomibusPropertyMetadata prop) {
-        return getPropertyValue(propertyName, null, prop.isEncrypted());
-    }
-
     public String getProperty(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
         if (prop == null) {
@@ -94,6 +90,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         return getDomainOrDefault(propertyName, prop, domain);
+    }
+
+    private String getGlobalProperty(String propertyName, DomibusPropertyMetadata prop) {
+        return getPropertyValue(propertyName, null, prop.isEncrypted());
     }
 
     private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
@@ -115,20 +115,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getPropValueOrDefault(specificProprtyName, prop, null, propertyName);
     }
 
-    private String getPropValueOrDefault(String specificProprtyName, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
-        String propValue = getPropertyValue(specificProprtyName, domain, prop.isEncrypted());
-        if (!Strings.isNullOrEmpty(propValue)) {
+    private String getPropValueOrDefault(String specificPropertyName, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
+        String propValue = getPropertyValue(specificPropertyName, domain, prop.isEncrypted());
+        if (!Strings.isNullOrEmpty(propValue)) { // found a value->return it
             LOGGER.debug("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
             return propValue;
-        } else {
-            if (prop.isWithFallback()) {    //fall-back on default value from global file
-                LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
-                return getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
-            } else {
-                LOGGER.warn("Could not find a value for property [{}] on domain [{}].", originalPropertyName, domain);
-                return null;
-            }
         }
+        //didn't find a specific value
+        if (prop.isWithFallback()) {    //fall-back on default value from global file
+            LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
+            return getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
+        }
+        LOGGER.warn("Could not find a value for property [{}] on domain [{}].", originalPropertyName, domain);
+        return null;
     }
 
     ///////////////

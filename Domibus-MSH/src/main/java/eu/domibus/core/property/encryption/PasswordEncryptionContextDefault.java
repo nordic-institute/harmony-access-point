@@ -1,7 +1,6 @@
 package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -14,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PasswordEncryptionContextDefault extends PasswordEncryptionContextAbstract {
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
-
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,
@@ -24,9 +21,6 @@ public class PasswordEncryptionContextDefault extends PasswordEncryptionContextA
         super(passwordEncryptionService, domibusConfigurationService);
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
-
-        //operate on global context, without a current domain
-        domainContextProvider.clearCurrentDomain();
     }
 
     @Override
