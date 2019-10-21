@@ -74,7 +74,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-    
+
     @Override
     public void encryptPasswords() {
         LOG.debug("Encrypting passwords");
