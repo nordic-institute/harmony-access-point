@@ -388,6 +388,10 @@
             </column>
             <column name="REPORTING_TIME" type="TIMESTAMP"/>
             <column name="LAST_ALERT_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_EVENT_ALERT">
@@ -666,7 +670,6 @@
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="BACKEND" type="VARCHAR(255)"/>
             <column name="ENDPOINT" type="VARCHAR(255)"/>
-            <column name="CREATED_BY" type="VARCHAR(255)"/>
             <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
@@ -1087,6 +1090,10 @@
             <column name="GROUP_NAME" type="VARCHAR(255)"/>
             <column name="ENTITY_ID" type="VARCHAR(255)"/>
             <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_REV_INFO">
@@ -1325,6 +1332,10 @@
             <column name="ROLE_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created"/>
+            <column name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
         <createTable tableName="TB_USER_ROLES">
