@@ -393,11 +393,11 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
 
         for (DomibusPropertyMetadataDTO prop : baseProperties.values()) {
-            if (multiplyDomainProperties && prop.isDomainSpecific()) {
+            if (multiplyDomainProperties && prop.isDomain()) {
                 LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
                 for (String domain : getDomains()) {
                     String name = getDomainPropertyName(domain, prop.getName());
-                    DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, true, prop.isWithFallback());
+                    DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, prop.isWithFallback());
                     knownProperties.put(p.getName(), p);
                 }
             } else {

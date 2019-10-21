@@ -72,28 +72,28 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, false, false),
-                new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
-                new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
-                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
+                new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.GLOBAL),
+                new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.GLOBAL),
+                new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.GLOBAL),
+                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.GLOBAL),
                 // without fallback from the default domain :
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
-                new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, true, false),
-                new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, false),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, false), // TODO: handle encryption
+                new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, false),
+                new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, false), // TODO: handle encryption
                 // with fallback from the default domain:
-                new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(EXPRESSION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(FAILED_ACTION, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(SENT_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, true, true),
-                new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Module.FS_PLUGIN, true, true),
+                new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(EXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(SEND_DELAY, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(FAILED_ACTION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(SENT_PURGE_EXPIRED, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

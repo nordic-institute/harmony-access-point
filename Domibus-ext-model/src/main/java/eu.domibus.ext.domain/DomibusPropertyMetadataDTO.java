@@ -8,15 +8,15 @@ package eu.domibus.ext.domain;
  * Class that encapsulates the properties of a domibus configuration property;
  */
 public class DomibusPropertyMetadataDTO {
-    public boolean appliesForGlobal() {
+    public boolean isGlobal() {
         return (getType() & Type.GLOBAL) == Type.GLOBAL;
     }
 
-    public boolean appliesForSuper() {
+    public boolean isSuper() {
         return (getType() & Type.SUPER) == Type.SUPER;
     }
 
-    public boolean appliesForDomain() {
+    public boolean isDomain() {
         return (getType() & Type.DOMAIN) == Type.DOMAIN;
     }
 

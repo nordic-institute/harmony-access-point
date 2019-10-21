@@ -38,7 +38,7 @@ public class FSPluginPropertiesMetadataManagerImplTest {
         DomibusPropertyMetadataDTO actual = props.get(SEND_WORKER_INTERVAL);
 
         Assert.assertEquals(SEND_WORKER_INTERVAL, actual.getName());
-        Assert.assertEquals(false, actual.isDomainSpecific());
+        Assert.assertEquals(false, actual.isDomain());
         Assert.assertEquals(false, actual.isWithFallback());
     }
 

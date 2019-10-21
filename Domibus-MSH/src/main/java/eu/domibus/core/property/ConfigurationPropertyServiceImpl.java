@@ -60,7 +60,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
             if (domibusConfigurationService.isMultiTenantAware()) {
                 if (currentDomain == null) {
-                    knownProps = knownProps.stream().filter(p -> p.appliesForGlobal()).collect(Collectors.toList());
+                    knownProps = knownProps.stream().filter(p -> p.isGlobal()).collect(Collectors.toList());
                 } else {
                     knownProps = knownProps.stream().filter(p -> p.getType() == DomibusPropertyMetadataDTO.Type.DOMAIN).collect(Collectors.toList());
                 }
