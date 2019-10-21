@@ -85,7 +85,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         Domain propertyDomain = null;
         if (domibusConfigurationService.isMultiTenantAware()) {
             propertyDomain = domainCode == null ? null : domainService.getDomain(domainCode);
-            propertyDomain = !propMeta.appliesForGlobal() ? propertyDomain : null;
+            propertyDomain = !propMeta.isGlobal() ? propertyDomain : null;
         }
         this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
 

@@ -10,15 +10,19 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class DomibusPropertyMetadata {
 
-    public boolean appliesForGlobal() {
+    public boolean isOnlyGlobal() {
+        return getType() == Type.GLOBAL;
+    }
+
+    public boolean isGlobal() {
         return (getType() & Type.GLOBAL) == Type.GLOBAL;
     }
 
-    public boolean appliesForSuper() {
+    public boolean isSuper() {
         return (getType() & Type.SUPER) == Type.SUPER;
     }
 
-    public boolean appliesForDomain() {
+    public boolean isDomain() {
         return (getType() & Type.DOMAIN) == Type.DOMAIN;
     }
 
@@ -82,7 +86,7 @@ public class DomibusPropertyMetadata {
         this.encrypted = encrypted;
     }
 
-    public DomibusPropertyMetadata(String name,int type, boolean withFallback) {
+    public DomibusPropertyMetadata(String name, int type, boolean withFallback) {
         this(name, Module.MSH, true, type, withFallback, true, false);
     }
 

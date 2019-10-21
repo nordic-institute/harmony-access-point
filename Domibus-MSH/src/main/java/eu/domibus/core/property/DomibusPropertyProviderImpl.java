@@ -45,30 +45,36 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return null;
         }
 
-        if (!domibusConfigurationService.isMultiTenantAware()) {                 //single-tenancy mode
-            return getPropertyValue(propertyName, null, prop.isEncrypted());
-        } else {                                                                 //multi-tenancy mode
-            if (prop.appliesForGlobal()) {                                         //prop is global
-                return getPropertyValue(propertyName, null, prop.isEncrypted());
-            } else {                                                             //domain or super property
-                Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-                if (currentDomain != null) {                                     //domain property
-                    if(prop.appliesForDomain()) {
-                        return getDomainOrDefault(propertyName, prop, currentDomain);
-                    } else {
-                        LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
-                        return null;
-                    }
-                } else {                                                         //super property
-                    if(prop.appliesForSuper()) {
-                        return getSuperOrDefault(propertyName, prop);
-                    } else {
-                        LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
-                        return null;
-                    }
-                }
-            }
+        if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
+            return getGlobalProperty(propertyName, prop);
         }
+
+        //multi-tenancy mode
+        if (prop.isOnlyGlobal()) {                                               //prop is global
+            return getGlobalProperty(propertyName, prop);
+        }
+        //domain or super property or a combination of 2 ( but not 3)
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        if (currentDomain != null) {                                         //domain property
+            if (prop.isDomain()) {
+                return getDomainOrDefault(propertyName, prop, currentDomain);
+            }
+            LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
+            return null;
+        }
+        //current domain being null, it is super or global property (but not both for now, although it could be and then the global takes precedence)
+        if (prop.isGlobal()) {
+            return getGlobalProperty(propertyName, prop);
+        }
+        if (prop.isSuper()) {
+            return getSuperOrDefault(propertyName, prop);
+        }
+        LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+        return null;
+    }
+
+    private String getGlobalProperty(String propertyName, DomibusPropertyMetadata prop) {
+        return getPropertyValue(propertyName, null, prop.isEncrypted());
     }
 
     public String getProperty(Domain domain, String propertyName) {
@@ -82,7 +88,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return null;
         }
 
-        if (!prop.appliesForDomain()) {
+        if (!prop.isDomain()) {
             LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain [{}].", propertyName, domain);
             return null;
         }
