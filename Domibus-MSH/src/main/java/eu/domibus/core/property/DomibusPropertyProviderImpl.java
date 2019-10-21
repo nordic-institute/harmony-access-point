@@ -50,27 +50,27 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //multi-tenancy mode
-        if (prop.isOnlyGlobal()) {                                               //prop is global
+        if (prop.isOnlyGlobal()) {                                           //prop is only global so the current domain doesn't matter
             return getGlobalProperty(propertyName, prop);
         }
         //domain or super property or a combination of 2 ( but not 3)
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain != null) {                                         //domain property
+        if (currentDomain != null) {                                         //we have a domain in context so try a domain property
             if (prop.isDomain()) {
                 return getDomainOrDefault(propertyName, prop, currentDomain);
             }
             LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
+        } else {                                        //current domain being null, it is super or global property (but not both for now, although it could be and then the global takes precedence)
+            if (prop.isGlobal()) {
+                return getGlobalProperty(propertyName, prop);
+            }
+            if (prop.isSuper()) {
+                return getSuperOrDefault(propertyName, prop);
+            }
+            LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+            return null;
         }
-        //current domain being null, it is super or global property (but not both for now, although it could be and then the global takes precedence)
-        if (prop.isGlobal()) {
-            return getGlobalProperty(propertyName, prop);
-        }
-        if (prop.isSuper()) {
-            return getSuperOrDefault(propertyName, prop);
-        }
-        LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
-        return null;
     }
 
     public String getProperty(Domain domain, String propertyName) {
@@ -79,6 +79,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return null;
         }
 
+        //TODO: to be decided if we accept null as global or super odmains( probably not a good idea)
         if (domain == null) {
             LOGGER.error("Domain cannot be null.");
             return null;
@@ -122,6 +123,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return propValue;
         }
         //didn't find a specific value
+        //check if fallback is acceptable
         if (prop.isWithFallback()) {    //fall-back on default value from global file
             LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
             return getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
