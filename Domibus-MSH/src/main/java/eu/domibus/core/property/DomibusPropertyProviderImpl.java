@@ -38,26 +38,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
-    @Override
-    public String getGlobalProperty(String propertyName) {
-        DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
-        if(!prop.isGlobal()) {
-            throw new IllegalArgumentException("Property: " + propertyName + "is not gloabl.");
-        }
-        return getGlobalProperty(prop);
-    }
-
-    @Override
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
 
         if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
-            return getGlobalProperty(prop);
+            return getGlobalProperty(propertyName, prop);
         }
 
         //multi-tenancy mode
         if (prop.isOnlyGlobal()) {                                           //prop is only global so the current domain doesn't matter
-            return getGlobalProperty(prop);
+            return getGlobalProperty(propertyName, prop);
         }
         //domain or super property or a combination of 2 ( but not 3)
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
@@ -69,7 +59,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return null;
         } else {                                        //current domain being null, it is super or global property (but not both for now, although it could be and then the global takes precedence)
             if (prop.isGlobal()) {
-                return getGlobalProperty(prop);
+                return getGlobalProperty(propertyName, prop);
             }
             if (prop.isSuper()) {
                 return getSuperOrDefault(propertyName, prop);
@@ -79,7 +69,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
-    @Override
     public String getProperty(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
 
@@ -99,8 +88,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getDomainOrDefault(propertyName, prop, domain);
     }
 
-    private String getGlobalProperty(DomibusPropertyMetadata prop) {
-        return getPropertyValue(prop.getName(), null, prop.isEncrypted());
+    private String getGlobalProperty(String propertyName, DomibusPropertyMetadata prop) {
+        return getPropertyValue(propertyName, null, prop.isEncrypted());
     }
 
     private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {

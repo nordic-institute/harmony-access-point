@@ -43,7 +43,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Cacheable(value = "multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
-        return StringUtils.isNotBlank(domibusPropertyProvider.getGlobalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+        return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Override

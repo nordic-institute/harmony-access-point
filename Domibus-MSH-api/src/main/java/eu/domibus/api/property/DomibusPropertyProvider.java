@@ -13,8 +13,6 @@ public interface DomibusPropertyProvider {
 
     String DOMIBUS_PROPERTY_FILE = "domibus.properties";
 
-    String getGlobalProperty(String propertyName);
-
     String getProperty(String propertyName);
 
 //    String getProperty(String propertyName, boolean decrypt);
