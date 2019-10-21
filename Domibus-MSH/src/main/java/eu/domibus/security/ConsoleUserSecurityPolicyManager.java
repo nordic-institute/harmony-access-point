@@ -89,8 +89,8 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
 
     @Override
     protected int getMaxAttemptAmount(UserEntityBase user) {
-        final Domain domain = getCurrentOrDefaultDomainForUser((User) user);
-        return domibusPropertyProvider.getIntegerProperty(domain, MAXIMUM_LOGIN_ATTEMPT);
+    //    final Domain domain = getCurrentOrDefaultDomainForUser((User) user);
+        return domibusPropertyProvider.getIntegerProperty(MAXIMUM_LOGIN_ATTEMPT);
     }
 
     @Override
@@ -115,15 +115,15 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
         return UserEntityBase.Type.CONSOLE;
     }
 
-    private Domain getCurrentOrDefaultDomainForUser(User user) {
-        String domainCode;
-        boolean isSuperAdmin = user.isSuperAdmin();
-        if (isSuperAdmin) {
-            domainCode = DomainService.DEFAULT_DOMAIN.getCode();
-        } else {
-            domainCode = userDomainService.getDomainForUser(user.getUserName());
-        }
-        return domainService.getDomain(domainCode);
-    }
+//    private Domain getCurrentOrDefaultDomainForUser(User user) {
+//        String domainCode;
+//        boolean isSuperAdmin = user.isSuperAdmin();
+//        if (isSuperAdmin) {
+//            domainCode = DomainService.DEFAULT_DOMAIN.getCode();
+//        } else {
+//            domainCode = userDomainService.getDomainForUser(user.getUserName());
+//        }
+//        return domainService.getDomain(domainCode);
+//    }
 
 }

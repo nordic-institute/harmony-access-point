@@ -68,9 +68,9 @@ public interface DomibusPropertyProvider {
      */
     Integer getIntegerProperty(String propertyName);
 
-    Integer getIntegerProperty(Domain domain, String propertyName);
+//    Integer getIntegerProperty(Domain domain, String propertyName);
 
-    Long getLongProperty(Domain domain, String propertyName);
+    Long getLongProperty(String propertyName);
 
     /**
      * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as a {@code Boolean} before

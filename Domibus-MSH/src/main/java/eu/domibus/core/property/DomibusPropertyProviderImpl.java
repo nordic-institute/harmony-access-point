@@ -1,6 +1,5 @@
 package eu.domibus.core.property;
 
-import com.google.common.base.Strings;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -41,9 +40,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
-        if (prop == null) {
-            return null;
-        }
 
         if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
             return getGlobalProperty(propertyName, prop);
@@ -75,19 +71,18 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     public String getProperty(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
-        if (prop == null) {
-            return null;
-        }
 
-        //TODO: to be decided if we accept null as global or super odmains( probably not a good idea)
+        //TODO: to be decided if we accept null as global or super domains( probably not a good idea)
         if (domain == null) {
             LOGGER.error("Domain cannot be null.");
-            return null;
+            // return null;
+            throw new IllegalArgumentException("Domain cannot be null for " + propertyName);
         }
 
         if (!prop.isDomain()) {
             LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain [{}].", propertyName, domain);
-            return null;
+            // return null;
+            throw new IllegalArgumentException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
         }
 
         return getDomainOrDefault(propertyName, prop, domain);
@@ -100,33 +95,36 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
         if (prop == null) {
-            LOGGER.error("Property [{}] has no metadata defined so null was returned.", propertyName);
-            return null;
+            LOGGER.error("Property [{}] has no metadata defined.", propertyName);
+            throw new IllegalArgumentException("Unknown property: " + propertyName);
         }
         return prop;
     }
 
     private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
-        String specificProprtyName = getPropertyName(domain, propertyName);
-        return getPropValueOrDefault(specificProprtyName, prop, domain, propertyName);
+        String specificPropertyName = getPropertyName(domain, propertyName);
+        return getPropValueOrDefault(specificPropertyName, prop, domain, propertyName);
     }
 
     private String getSuperOrDefault(String propertyName, DomibusPropertyMetadata prop) {
-        String specificProprtyName = "super." + propertyName;
-        return getPropValueOrDefault(specificProprtyName, prop, null, propertyName);
+        String specificPropertyName = "super." + propertyName;
+        return getPropValueOrDefault(specificPropertyName, prop, null, propertyName);
     }
 
     private String getPropValueOrDefault(String specificPropertyName, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
         String propValue = getPropertyValue(specificPropertyName, domain, prop.isEncrypted());
-        if (!Strings.isNullOrEmpty(propValue)) { // found a value->return it
+        if (propValue != null) { // found a value->return it
             LOGGER.debug("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
             return propValue;
         }
         //didn't find a specific value
         //check if fallback is acceptable
         if (prop.isWithFallback()) {    //fall-back on default value from global file
-            LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
-            return getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
+            propValue = getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
+            if (propValue != null) { // found a value->return it
+                LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
+                return propValue;
+            }
         }
         LOGGER.warn("Could not find a value for property [{}] on domain [{}].", originalPropertyName, domain);
         return null;
@@ -252,16 +250,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 //        return getIntegerInternal(propertyName, domainValue);
 //    }
 
-    @Override
-    public Integer getIntegerProperty(Domain domain, String propertyName) {
-        String domainValue = getProperty(domain, propertyName);
-        return getIntegerInternal(propertyName, domainValue);
-    }
+//    @Override
+//    public Integer getIntegerProperty(Domain domain, String propertyName) {
+//        String domainValue = getProperty(domain, propertyName);
+//        return getIntegerInternal(propertyName, domainValue);
+//    }
 
     @Override
-    public Long getLongProperty(Domain domain, String propertyName) {
-        String domainValue = getProperty(domain, propertyName);
-        return getLongInternal(propertyName, domainValue);
+    public Long getLongProperty(String propertyName) {
+        String value = getProperty(propertyName);
+        return getLongInternal(propertyName, value);
     }
 
     private Integer getIntegerInternal(String propertyName, String customValue) {

@@ -80,6 +80,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Encrypting passwords");
 
         //operate on global context, without a current domain
+        //TODO: review this
         domainContextProvider.clearCurrentDomain();
         final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService);
         encryptPasswords(passwordEncryptionContext);
