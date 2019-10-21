@@ -107,7 +107,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Search using basic filter");
         int prevCount = apage.grid().getPagination().getTotalItems();
         log.info("Previous count of grid rows:" + prevCount);
-         apage.getFilters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
+        apage.getFilters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
         log.info("Validate Grid row count as zero ");
         soft.assertTrue(apage.grid().getPagination().getTotalItems() < prevCount, "No search result exist");
         log.info("Refresh page");
@@ -232,7 +232,7 @@ public class AlertPgTest extends BaseTest {
         rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
         LoginPage lpage = new LoginPage(driver);
         log.info("Try to login with wrong password for 5 times so that user account gets disabled");
-        for (int i = 0; i <5; i++) {
+        for (int i = 0; i < 5; i++) {
             lpage.login(userName, "abc");
             log.info("Alert Message shown : " + lpage.getAlertArea().getAlertMessage());
         }
@@ -258,6 +258,7 @@ public class AlertPgTest extends BaseTest {
         soft.assertAll();
 
     }
+
     @Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"})
     public void pluginUserLoginFailure() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -265,8 +266,7 @@ public class AlertPgTest extends BaseTest {
         String user = Generator.randomAlphaNumeric(10);
         log.info("Create plugin users");
         rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
-        if(!data.isIsMultiDomain())
-        {
+        if (!data.isIsMultiDomain()) {
             HashMap<String, String> params = new HashMap<>();
             String propName = "domibus.auth.unsecureLoginAllowed";
             String payload = "false";
@@ -278,9 +278,10 @@ public class AlertPgTest extends BaseTest {
         log.info("Send message using plugin user credentials");
         try {
             messageSender.sendMessage(user, data.getNewTestPass(), null, null);
+        } catch (Exception e) {
+            log.debug("Authentication exception" + e);
         }
-        catch(Exception e){ }
-        LoginPage lpage=new LoginPage(driver);
+        LoginPage lpage = new LoginPage(driver);
         log.info("Login into application");
         lpage.login(data.getAdminUser());
         log.info("Navigate to Alerts page");
@@ -297,11 +298,12 @@ public class AlertPgTest extends BaseTest {
         }
         log.info("Validate presence of alert with correct alert type, level ,status and plugin username in parameters");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("PLUGIN_USER_LOGIN_FAILURE"), "Alert for Plugin user login failure is shown ");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("LOW"),"Alert level is low ");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"),"Alert status is success");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(user),"Alert has plugin user name in parameters field");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Alert level is low ");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Alert status is success");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(user), "Alert has plugin user name in parameters field");
         soft.assertAll();
     }
+
     @Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"})
     public void pluginUserDisabled() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -309,8 +311,7 @@ public class AlertPgTest extends BaseTest {
         String user = Generator.randomAlphaNumeric(10);
         log.info("Create plugin users");
         rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
-        if(!data.isIsMultiDomain())
-        {
+        if (!data.isIsMultiDomain()) {
             HashMap<String, String> params = new HashMap<>();
             String propName = "domibus.auth.unsecureLoginAllowed";
             String payload = "false";
@@ -320,16 +321,14 @@ public class AlertPgTest extends BaseTest {
             log.info("Property details after modification" + rest.getDomibusPropertyDetail(params));
         }
         log.info("Send message using plugin user credentials");
-
-            for (int i = 0; i < 5; i++) {
-                try {
-                    messageSender.sendMessage(user, data.getNewTestPass(), null, null);
-                }
-                   catch(Exception e){ }
-                }
-
-
-        LoginPage lpage=new LoginPage(driver);
+        for (int i = 0; i < 5; i++) {
+            try {
+                messageSender.sendMessage(user, data.getNewTestPass(), null, null);
+            } catch (Exception e) {
+                log.debug("Authentication Exception " + e);
+            }
+        }
+        LoginPage lpage = new LoginPage(driver);
         log.info("Login into application");
         lpage.login(data.getAdminUser());
         log.info("Navigate to Alerts page");
@@ -346,24 +345,11 @@ public class AlertPgTest extends BaseTest {
         }
         apage.grid().waitForRowsToLoad();
         log.info("Validate presence of alert for plugin_user_account_disabled");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("PLUGIN_USER_ACCOUNT_DISABLED"),"Top row alert is for Plugin user account disabled");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"),"Proper alert level is shown");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"),"Proper alert status is shown");
-        soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(user),"Alert is shown for same user");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("PLUGIN_USER_ACCOUNT_DISABLED"), "Top row alert is for Plugin user account disabled");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Proper alert level is shown");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Proper alert status is shown");
+        soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(user), "Alert is shown for same user");
         soft.assertAll();
     }
 
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
