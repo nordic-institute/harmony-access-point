@@ -1,11 +1,12 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.common.validators;
 
+import eu.domibus.web.rest.validators.WhiteListed;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
- *
+ * <p>
  * Custom validator that checks that the string value does not contain any char from the blacklist but only chars from the whitelist
  * It heavily relies on the base class
  */

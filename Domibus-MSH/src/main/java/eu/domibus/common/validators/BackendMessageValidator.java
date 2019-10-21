@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.regex.Matcher;
@@ -42,7 +43,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEN
  */
 
 @Service
-@Transactional(noRollbackFor = {IllegalArgumentException.class})
+@Transactional(noRollbackFor = {IllegalArgumentException.class}, propagation = Propagation.SUPPORTS)
 public class BackendMessageValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);

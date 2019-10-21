@@ -46,6 +46,8 @@ import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,7 @@ import java.util.List;
  * @since 3.3
  */
 @Component
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCoreDefaultConverter.class);

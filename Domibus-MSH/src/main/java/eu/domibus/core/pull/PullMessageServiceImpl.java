@@ -1,7 +1,6 @@
 package eu.domibus.core.pull;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
@@ -13,6 +12,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -49,7 +49,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -129,7 +129,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PullRequestResult updatePullMessageAfterReceipt(
             ReliabilityChecker.CheckResult reliabilityCheckSuccessful,
-            ResponseHandler.CheckResult isOk,
+            ResponseHandler.ResponseStatus isOk,
             UserMessageLog userMessageLog,
             LegConfiguration legConfiguration,
             UserMessage userMessage) {
@@ -140,20 +140,20 @@ public class PullMessageServiceImpl implements PullMessageService {
             case OK:
                 switch (isOk) {
                     case OK:
-                        userMessageLogService.setMessageAsAcknowledged(messageId);
+                        userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
                         LOG.debug("[PULL_RECEIPT]:Message:[{}] acknowledged.", messageId);
                         break;
                     case WARNING:
-                        userMessageLogService.setMessageAsAckWithWarnings(messageId);
+                        userMessageLogService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
                         LOG.debug("[PULL_RECEIPT]:Message:[{}] acknowledged with warning.", messageId);
                         break;
                     default:
                         assert false;
                 }
-                backendNotificationService.notifyOfSendSuccess(messageId);
+                backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
-                messagingDao.clearPayloadData(messageId);
+                messagingDao.clearPayloadData(userMessage);
                 userMessageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
                 return new PullRequestResult(userMessageLog);
             case PULL_FAILED:

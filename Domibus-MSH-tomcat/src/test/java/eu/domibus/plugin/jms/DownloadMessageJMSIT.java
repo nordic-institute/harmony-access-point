@@ -3,11 +3,11 @@ package eu.domibus.plugin.jms;
 
 
 import eu.domibus.AbstractBackendJMSIT;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
@@ -50,7 +50,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     MessagingService messagingService;
 
     @Autowired
-    UserMessageLogService userMessageLogService;
+    UserMessageLogDefaultService userMessageLogService;
 
     @Before
     public void before() throws IOException, XmlProcessingException {

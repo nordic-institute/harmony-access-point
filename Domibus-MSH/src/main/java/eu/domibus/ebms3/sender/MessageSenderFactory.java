@@ -3,6 +3,8 @@ package eu.domibus.ebms3.sender;
 import eu.domibus.ebms3.common.model.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
@@ -20,6 +22,7 @@ public class MessageSenderFactory {
     @Autowired
     SourceMessageSender sourceMessageSender;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public MessageSender getMessageSender(final UserMessage userMessage) {
         if (userMessage.isSplitAndJoin()) {
             if (userMessage.getMessageFragment() != null) {

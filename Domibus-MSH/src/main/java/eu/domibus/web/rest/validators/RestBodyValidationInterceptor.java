@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.common.validators.ObjectBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -23,8 +24,8 @@ import java.util.Arrays;
  * A Spring interceptor that ensures that the request body of a REST call does not contain blacklisted chars in any of its String properties
  */
 @ControllerAdvice(annotations = RestController.class)
-public class RequestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(RequestBodyValidationInterceptor.class);
+public class RestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(RestBodyValidationInterceptor.class);
 
     @PostConstruct
     public void init() {

@@ -7,16 +7,17 @@ import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
@@ -25,6 +26,8 @@ import org.apache.commons.lang3.Validate;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
@@ -56,9 +59,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected ResponseHandler responseHandler;
 
     @Autowired
-    protected MessageAttemptService messageAttemptService;
-
-    @Autowired
     protected MessageExchangeService messageExchangeService;
 
     @Autowired
@@ -67,13 +67,12 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected ReliabilityService reliabilityService;
 
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)
-    public void sendMessage(final UserMessage userMessage) {
+    public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
+        final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();
 
         MessageAttempt attempt = new MessageAttempt();
@@ -82,14 +81,13 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         attempt.setStatus(MessageAttemptStatus.SUCCESS);
 
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
-        // Assuming that everything goes fine
-        ResponseHandler.CheckResult isOk = ResponseHandler.CheckResult.OK;
+        ResponseResult responseResult = null;
+        SOAPMessage responseSoapMessage = null;
 
         LegConfiguration legConfiguration = null;
         final String pModeKey;
 
         try {
-
             try {
                 validateBeforeSending(userMessage);
             } catch (DomibusCoreException e) {
@@ -135,15 +133,16 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
 
             getLog().debug("PMode found : " + pModeKey);
-            final SOAPMessage soapMessage = createSOAPMessage(userMessage, legConfiguration);
-            final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
-            isOk = responseHandler.handle(response);
-            if (ResponseHandler.CheckResult.UNMARSHALL_ERROR.equals(isOk)) {
+            final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
+            responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            responseResult = responseHandler.verifyResponse(responseSoapMessage);
+
+            if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
                 EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
-            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, response, pModeKey);
+            reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
@@ -165,12 +164,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
-                updateAndCreateAttempt(attempt);
+                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
-                updateAndCreateAttempt(attempt);
+                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             }
         }
     }
@@ -182,11 +179,4 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;
 
     protected abstract DomibusLogger getLog();
-
-    protected void updateAndCreateAttempt(MessageAttempt attempt) {
-        attempt.setEndDate(new Timestamp(System.currentTimeMillis()));
-        messageAttemptService.create(attempt);
-    }
-
-
 }

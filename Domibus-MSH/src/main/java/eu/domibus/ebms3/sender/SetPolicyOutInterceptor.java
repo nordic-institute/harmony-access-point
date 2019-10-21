@@ -70,6 +70,8 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
 
         final String securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
         message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+        message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+
         LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
 
         String encryptionUsername = extractEncryptionUsername(pModeKey);
@@ -80,6 +82,8 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
             final Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, legConfiguration.getSecurity().getPolicy());
             message.put(PolicyConstants.POLICY_OVERRIDE, policy);
+            message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
+
         } catch (final ConfigurationException e) {
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
             throw new Fault(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity(), null, null));

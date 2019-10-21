@@ -1,6 +1,5 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -10,11 +9,13 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.wss4j.dom.WSConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,8 +31,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -39,6 +40,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Iterator;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
 
@@ -46,6 +48,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DIS
  * @author Christian Koch, Stefan Mueller
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class ReliabilityChecker {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
     private final String UNRECOVERABLE_ERROR_RETRY = DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
@@ -61,39 +64,35 @@ public class ReliabilityChecker {
     protected PModeProvider pModeProvider;
 
     @Autowired
-    protected UserMessageLogService userMessageLogService;
-
-    @Autowired
     protected ErrorLogDao errorLogDao;
 
     @Autowired
     protected ReliabilityMatcher pushMatcher;
 
     @Autowired
-    protected TransformerFactory transformerFactory;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    protected SoapUtil soapUtil;
+
     @Transactional(rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final Reliability reliability) throws EbMS3Exception {
-        return checkReliability(request, response, reliability, pushMatcher);
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
+        return checkReliability(request, response, responseResult, reliability, pushMatcher);
     }
 
-    @Transactional(rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final String pmodeKey) throws EbMS3Exception {
-        return check(request, response, pmodeKey, pushMatcher);
-    }
-
-
-    @Transactional(rollbackFor = EbMS3Exception.class)
-    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final String pmodeKey, final ReliabilityMatcher matcher) throws EbMS3Exception {
-        final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
-        return checkReliability(request, response, legConfiguration.getReliability(), matcher);
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration) throws EbMS3Exception {
+        return check(request, response, responseResult, legConfiguration, pushMatcher);
     }
 
 
-    protected CheckResult checkReliability(final SOAPMessage request, final SOAPMessage response, Reliability reliability, final ReliabilityMatcher matcher) throws EbMS3Exception {
+    @Transactional(rollbackFor = EbMS3Exception.class)
+    public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
+        return checkReliability(request, response, responseResult, legConfiguration.getReliability(), matcher);
+    }
+
+
+    protected CheckResult checkReliability(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, Reliability reliability, final ReliabilityMatcher matcher) throws EbMS3Exception {
         String messageId = null;
 
         if (matcher.matchReliableCallBack(reliability)) {
@@ -103,15 +102,7 @@ public class ReliabilityChecker {
 
         if (matcher.matchReliableReceipt(reliability)) {
             LOG.debug("Checking reliability for outgoing message");
-            final Messaging messaging;
-
-            try {
-                messaging = this.jaxbContext.createUnmarshaller().unmarshal((Node) response.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Messaging.class).getValue();
-            } catch (JAXBException | SOAPException e) {
-                LOG.error(e.getMessage(), e);
-                return matcher.fails();
-            }
-
+            final Messaging messaging = responseResult.getResponseMessaging();
             final SignalMessage signalMessage = messaging.getSignalMessage();
 
             //ReceiptionAwareness or NRR found but not expected? report if configuration=true //TODO: make configurable in domibus.properties
@@ -176,8 +167,8 @@ public class ReliabilityChecker {
                         throw ex;
                     }
 
-                    final NodeList referencesFromSecurityHeader = nonRepudiationChecker.getNonRepudiationNodeList(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
-                    final NodeList referencesFromNonRepudiationInformation = nonRepudiationChecker.getNonRepudiationNodeList(response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN).item(0));
+                    final List<String> referencesFromSecurityHeader = nonRepudiationChecker.getNonRepudiationDetailsFromSecurityInfoNode(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
+                    final List<String> referencesFromNonRepudiationInformation = nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN).item(0));
 
                     if (!nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation)) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_NOT_MATCHING_THE_MESSAGE, soapPartToString(response), soapPartToString(request));
@@ -215,7 +206,8 @@ public class ReliabilityChecker {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
-            transformerFactory.newTransformer().transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
+            Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
+            transformer.transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
             return stringWriter.toString();
         } catch (IOException | TransformerException e) {
             LOG.warn("Couldn't get soap part", e);
@@ -257,7 +249,6 @@ public class ReliabilityChecker {
         exceptionToHandle.setRefToMessageId(messageId);
         Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
         if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
-            userMessageLogService.setMessageAsAcknowledged(messageId);
             // TODO Shouldn't clear the payload data here ?
         }
 

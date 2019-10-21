@@ -1,6 +1,7 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.common.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.web.rest.validators.CustomWhiteListed;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -86,17 +87,14 @@ public class BlacklistValidatorTest {
             returns("^[\\w\\-\\.: @]*$");
         }};
 
-        CustomWhiteListed customChars = new CustomWhiteListed()
-        {
+        CustomWhiteListed customChars = new CustomWhiteListed() {
             @Override
-            public String permitted()
-            {
+            public String permitted() {
                 return "%";
             }
 
             @Override
-            public Class<? extends Annotation> annotationType()
-            {
+            public Class<? extends Annotation> annotationType() {
                 return CustomWhiteListed.class;
             }
         };

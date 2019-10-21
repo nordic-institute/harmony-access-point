@@ -20,7 +20,6 @@ public class UserMessageSender extends AbstractUserMessageSender {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSender.class);
 
-
     @Override
     protected SOAPMessage createSOAPMessage(UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
         return messageBuilder.buildSOAPMessage(userMessage, legConfiguration);

@@ -7,6 +7,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.MessageHeaderEntity;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
@@ -16,6 +17,7 @@ import eu.domibus.ebms3.sender.exception.SendMessageException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.transformer.impl.UserMessageFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -53,9 +55,6 @@ public class EbMS3MessageBuilder {
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
-    @Qualifier("messageFactory")
-    @Autowired
-    protected MessageFactory messageFactory;
 
     @Autowired
     @Qualifier(value = "jaxbContextEBMS")
@@ -66,13 +65,13 @@ public class EbMS3MessageBuilder {
     protected JAXBContext jaxbContextMessageFragment;
 
     @Autowired
-    protected DocumentBuilderFactory documentBuilderFactory;
-
-    @Autowired
     protected MessageIdGenerator messageIdGenerator;
 
     @Autowired
     protected UserMessageFactory userMessageFactory;
+
+    @Autowired
+    protected SoapUtil soapUtil;
 
     public SOAPMessage buildSOAPMessage(final SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPMessage(signalMessage);
@@ -125,7 +124,7 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPUserMessage(final UserMessage userMessage, MessageGroupEntity messageGroupEntity) throws EbMS3Exception {
         final SOAPMessage message;
         try {
-            message = this.messageFactory.createMessage();
+            message = XMLUtilImpl.getMessageFactory().createMessage();
             final Messaging messaging = this.ebMS3Of.createMessaging();
 
             message.getSOAPBody().setAttributeNS(NonRepudiationConstants.ID_NAMESPACE_URI, NonRepudiationConstants.ID_QUALIFIED_NAME, NonRepudiationConstants.URI_WSU_NS);
@@ -171,7 +170,7 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
-            message = this.messageFactory.createMessage();
+            message = XMLUtilImpl.getMessageFactory().createMessage();
             final Messaging messaging = this.ebMS3Of.createMessaging();
 
             if (signalMessage != null) {
@@ -210,8 +209,8 @@ public class EbMS3MessageBuilder {
         }
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
-            this.documentBuilderFactory.setNamespaceAware(true);
-            final DocumentBuilder builder = this.documentBuilderFactory.newDocumentBuilder();
+            final DocumentBuilderFactory documentBuilderFactory = XMLUtilImpl.getDocumentBuilderFactoryNamespaceAware();
+            final DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
             message.getSOAPBody().addDocument(builder.parse(dataHandler.getInputStream()));
             partInfo.setHref(null);
             return;

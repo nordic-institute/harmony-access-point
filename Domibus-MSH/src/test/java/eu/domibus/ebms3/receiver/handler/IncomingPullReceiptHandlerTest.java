@@ -30,6 +30,7 @@ import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
@@ -160,7 +161,8 @@ public class IncomingPullReceiptHandlerTest {
                                                       @Injectable final PullRequestResult pullRequestResult,
                                                       @Injectable final MessagingLock messagingLock,
                                                       @Injectable final SOAPMessage soapMessage,
-                                                      @Injectable final LegConfiguration legConfiguration) throws EbMS3Exception {
+                                                      @Injectable final LegConfiguration legConfiguration,
+                                                      @Injectable ResponseResult responseResult) throws EbMS3Exception {
         final String messageId = "12345";
         final String pModeKey = "pmodeKey";
         final UserMessageLog userMessageLog = new UserMessageLog();
@@ -179,7 +181,6 @@ public class IncomingPullReceiptHandlerTest {
             messagingLock.getMessageState();
             result = MessageState.WAITING;
 
-
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
@@ -189,13 +190,16 @@ public class IncomingPullReceiptHandlerTest {
             messageConfiguration.getPmodeKey();
             result = pModeKey;
 
-            responseHandler.handle(request);
-            result = ResponseHandler.CheckResult.WARNING;
+            responseHandler.verifyResponse(request);
+            result = responseResult;
 
-            reliabilityChecker.check(withAny(soapMessage), request, pModeKey, pullReceiptMatcher);
+            responseResult.getResponseStatus();
+            result = ResponseHandler.ResponseStatus.WARNING;
+
+            reliabilityChecker.check(withAny(soapMessage), request, responseResult, legConfiguration, pullReceiptMatcher);
             result = ReliabilityChecker.CheckResult.OK;
 
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.CheckResult.WARNING, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
             result = pullRequestResult;
         }};
 
@@ -208,9 +212,9 @@ public class IncomingPullReceiptHandlerTest {
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;
-            responseHandler.handle(request);
+            responseHandler.verifyResponse(request);
             times = 1;
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.CheckResult.WARNING, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }};
 
