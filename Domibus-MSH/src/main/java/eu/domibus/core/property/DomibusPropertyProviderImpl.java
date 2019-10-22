@@ -7,6 +7,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
@@ -14,14 +16,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -38,15 +38,24 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
+    @Autowired
+    ApplicationContext applicationContext;
+
+    /**
+     * We inject here all managers: one for each plugin + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+     */
+    //@Autowired
+    //private List<DomibusPropertyManagerExt> propertyManagers;
+
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
 
         if (prop.isOnlyGlobal()) {                                          //prop is only global so the current domain doesn't matter
-            return getGlobalProperty( prop);
+            return getGlobalProperty(prop);
         }
 
         if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
-            return getGlobalProperty( prop);
+            return getGlobalProperty(prop);
         }
 
         //multi-tenancy mode
@@ -60,7 +69,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             return null;
         } else {                                        //current domain being null, it is super or global property (but not both for now, although it could be and then the global takes precedence)
             if (prop.isGlobal()) {
-                return getGlobalProperty( prop);
+                return getGlobalProperty(prop);
             }
             if (prop.isSuper()) {
                 return getSuperOrDefault(propertyName, prop);
@@ -81,7 +90,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
-            return getGlobalProperty( prop);
+            return getGlobalProperty(prop);
         }
 
         if (!prop.isDomain()) {
@@ -98,13 +107,38 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
+
+        // TODO review this
+        if (prop == null) {
+            Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
+
+            for (DomibusPropertyManagerExt propertyManager : propertyManagers.values()) {
+                DomibusPropertyMetadataDTO p = propertyManager.getKnownProperties().get(propertyName);
+                if (p != null) {
+                    LOGGER.warn("External property [{}] retrieved through DomibusPropertyProvider", propertyName);
+                    prop = new DomibusPropertyMetadata(p.getName(), p.getModule(), p.isWritable(), p.getType(), p.isWithFallback(), p.isClusterAware(), p.isEncrypted());
+                    break;
+                }
+            }
+        }
+
         if (prop == null) {
             LOGGER.error("Property [{}] has no metadata defined.", propertyName);
             throw new IllegalArgumentException("Unknown property: " + propertyName);
         }
         return prop;
     }
+    /*
+    private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
+        if (prop == null) {
+            LOGGER.error("Property [{}] has no metadata defined.", propertyName);
+            throw new IllegalArgumentException("Unknown property: " + propertyName);
+        }
+        return prop;
+    }*/
 
     private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
         String specificPropertyName = getPropertyName(domain, propertyName);

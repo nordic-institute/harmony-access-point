@@ -68,6 +68,7 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
                 TO_PARTY_ID, TO_PARTY_TYPE, TO_ROLE,
                 AGREEMENT_REF, SERVICE, SERVICE_TYPE, ACTION,
                 PUT_ATTACHMENTS_IN_QUEUE,
+                "queue.out",
         };
         return Arrays.stream(knownPropertyNames)
                 .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true))
