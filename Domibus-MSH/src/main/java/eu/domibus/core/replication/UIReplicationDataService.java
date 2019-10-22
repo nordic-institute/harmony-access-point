@@ -34,6 +34,7 @@ public interface UIReplicationDataService {
      * @param messageStatus
      * @param jmsTimestamp
      */
+    @Deprecated
     void messageStatusChange(final String messageId, MessageStatus messageStatus, long jmsTimestamp);
 
     /**
@@ -43,7 +44,8 @@ public interface UIReplicationDataService {
      * @param notificationStatus
      * @param jmsTimestamp
      */
-    void messageNotificationStatusChange(final String messageId, NotificationStatus notificationStatus, long jmsTimestamp);
+    @Deprecated
+    void  messageNotificationStatusChange(final String messageId, NotificationStatus notificationStatus, long jmsTimestamp);
 
     /**
      * updates/sync data on receiver/sender side when a change in message change appears
