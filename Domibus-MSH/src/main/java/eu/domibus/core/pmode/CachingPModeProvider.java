@@ -91,19 +91,62 @@ public class CachingPModeProvider extends PModeProvider {
         final Set<Mpc> mpcs = getConfiguration().getMpcs();
         for (Mpc mpc : mpcs) {
             final String qualifiedName = mpc.getQualifiedName();
-            final List<Process> pullProcessByMpc = processDao.findPullProcessByMpc(qualifiedName);
+            final List<Process> pullProcessByMpc = getPullProcessByMpc(qualifiedName);
             pullProcessByMpcCache.put(qualifiedName, pullProcessByMpc);
         }
-        final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
-        Set<Party> initiators = new HashSet<>();
-        for (Process process : processes) {
-            initiators.addAll(process.getInitiatorParties());
-        }
-        for (Party initiator : initiators) {
-            final List<Process> pullProcessesByInitiator = processDao.findPullProcessesByInitiator(initiator);
+
+        Set<Party> initiatorsForPullProcesses = getInitiatorsForPullProcesses();
+        for (Party initiator : initiatorsForPullProcesses) {
+            final List<Process> pullProcessesByInitiator = getPullProcessesWithInitiator(initiator);
             pullProcessesByInitiatorCache.put(initiator, pullProcessesByInitiator);
         }
     }
+
+    protected List<Process> getPullProcessesWithInitiator(Party initiator) {
+        final List<Process> pullProcesses = getAllPullProcesses();
+        return pullProcesses.stream()
+                .filter(process -> hasInitiatorParty(process, initiator.getName()))
+                .collect(Collectors.toList());
+    }
+
+    protected List<Process> getAllPullProcesses() {
+        final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
+        return processes.stream()
+                .filter(process -> isPullProcess(process))
+                .collect(Collectors.toList());
+    }
+
+    protected Set<Party> getInitiatorsForPullProcesses() {
+        Set<Party> initiators = new HashSet<>();
+        final List<Process> pullProcesses = getAllPullProcesses();
+        pullProcesses.stream()
+                .map(process -> process.getInitiatorParties())
+                .forEach(parties -> initiators.addAll(parties));
+        return initiators;
+    }
+
+    protected List<Process> getPullProcessByMpc(final String mpcQualifiedName) {
+        List<Process> result = new ArrayList<>();
+
+        final List<Process> pullProcesses = getAllPullProcesses();
+        for (Process process : pullProcesses) {
+            if (isProcessMatchingMpcLeg(process, mpcQualifiedName)) {
+                LOG.debug("Matched pull process [{}] with mpc [{}]", process.getName(), mpcQualifiedName);
+                result.add(process);
+            }
+        }
+        return result;
+    }
+
+    protected boolean isProcessMatchingMpcLeg(Process process, final String mpcQualifiedName) {
+        Set<LegConfiguration> legConfigurations = process.getLegs();
+        if (legConfigurations == null) {
+            return false;
+        }
+        return legConfigurations.stream()
+                .anyMatch(legConfiguration -> StringUtils.equals(legConfiguration.getDefaultMpc().getQualifiedName(), mpcQualifiedName));
+    }
+
 
     /**
      * The match means that either has an Agreement and its name matches the Agreement name found previously
