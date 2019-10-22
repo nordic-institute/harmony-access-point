@@ -41,11 +41,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     ApplicationContext applicationContext;
 
-    /**
-     * We inject here all managers: one for each plugin + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
-     */
-    //@Autowired
-    //private List<DomibusPropertyManagerExt> propertyManagers;
+    private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
 
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = getPropertyMetadata(propertyName);
@@ -106,30 +102,64 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
     }
 
-    private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
-
-        // TODO review this
-        if (prop == null) {
-            Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
-
-            for (DomibusPropertyManagerExt propertyManager : propertyManagers.values()) {
-                DomibusPropertyMetadataDTO p = propertyManager.getKnownProperties().get(propertyName);
-                if (p != null) {
-                    LOGGER.warn("External property [{}] retrieved through DomibusPropertyProvider", propertyName);
-                    prop = new DomibusPropertyMetadata(p.getName(), p.getModule(), p.isWritable(), p.getType(), p.isWithFallback(), p.isClusterAware(), p.isEncrypted());
-                    break;
-                }
-            }
+    private synchronized DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        if (propertyMetadataMap == null) {
+            propertyMetadataMap = new HashMap<>();
+            //put my properties directly now to avoid infinite loop of bean creation(due to DB properties)
+            propertyMetadataMap.putAll(domibusPropertyMetadataManager.getKnownProperties());
         }
 
+        //if not there, put plugin properties also
+        if (!propertyMetadataMap.containsKey(propertyName)) {
+            //We retrieve here all managers: one for each plugin + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+            Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
+            propertyManagers.values().forEach((DomibusPropertyManagerExt propertyManager) -> {
+                for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
+                    if (propertyMetadataMap.containsKey(entry.getKey())) { //avoid adding the properties of domibus property manager ( added already at the begining of the method)
+                        return;
+                    }
+                    DomibusPropertyMetadataDTO extProp = entry.getValue();
+                    DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getType(), extProp.isWithFallback(),
+                            extProp.isClusterAware(), extProp.isEncrypted());
+                    propertyMetadataMap.put(entry.getKey(), domibusProp);
+                }
+            });
+        }
+
+        DomibusPropertyMetadata prop = propertyMetadataMap.get(propertyName);
         if (prop == null) {
             LOGGER.error("Property [{}] has no metadata defined.", propertyName);
             throw new IllegalArgumentException("Unknown property: " + propertyName);
         }
         return prop;
     }
+
+//    private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+//
+//        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
+//
+//        // TODO review this
+//        if (prop == null) {
+//            //We retrieve here all managers: one for each plugin + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+//            Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
+//
+//            for (DomibusPropertyManagerExt propertyManager : propertyManagers.values()) {
+//                DomibusPropertyMetadataDTO p = propertyManager.getKnownProperties().get(propertyName);
+//                if (p != null) {
+//                    LOGGER.warn("External property [{}] retrieved through DomibusPropertyProvider", propertyName);
+//                    prop = new DomibusPropertyMetadata(p.getName(), p.getModule(), p.isWritable(), p.getType(), p.isWithFallback(), p.isClusterAware(), p.isEncrypted());
+//                    break;
+//                }
+//            }
+//        }
+//
+//        if (prop == null) {
+//            LOGGER.error("Property [{}] has no metadata defined.", propertyName);
+//            throw new IllegalArgumentException("Unknown property: " + propertyName);
+//        }
+//        return prop;
+//    }
+
     /*
     private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
