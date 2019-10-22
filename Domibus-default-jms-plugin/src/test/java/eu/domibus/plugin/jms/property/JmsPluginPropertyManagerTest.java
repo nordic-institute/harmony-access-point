@@ -41,7 +41,7 @@ public class JmsPluginPropertyManagerTest {
             domainExtService.getDomain("default");
             result = testDomain;
 
-            domibusPropertyExtService.getDomainProperty(testDomain, jmsProperty);
+            domibusPropertyExtService.getProperty(testDomain, jmsProperty);
             returns("old-value", testValue);
         }};
 

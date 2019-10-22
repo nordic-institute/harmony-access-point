@@ -118,7 +118,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]",  messageID, jmsCorrelationID, e);
+                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
@@ -178,8 +178,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String queueProperty) {
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, queueProperty);
+//        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+//        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, queueProperty);
+        final String queueValue = domibusPropertyExtService.getProperty(queueProperty);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + queueProperty + "]");
         }

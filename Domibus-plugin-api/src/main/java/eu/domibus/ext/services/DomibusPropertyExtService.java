@@ -25,6 +25,19 @@ public interface DomibusPropertyExtService {
      * @param propertyName The property name for which the value is retrieved
      * @return The property value
      */
+    String getProperty(DomainDTO domain, String propertyName);
+
+    /**
+     * Gets the property value with the provided name for a specific domain
+     *
+     * @param domain The domain property
+     * @param propertyName The property name for which the value is retrieved
+     * @return The property value
+     */
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
+     */
+    @Deprecated
     String getDomainProperty(DomainDTO domain, String propertyName);
 
 
@@ -62,6 +75,10 @@ public interface DomibusPropertyExtService {
      * @param propertyName The property name for which the value is retrieved
      * @param defaultValue The default value to return in case the property value is not found
      * @return The property value
+     */
+    @Deprecated
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
      */
     String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue);
 

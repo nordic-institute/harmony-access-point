@@ -40,9 +40,14 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
         final DomainDTO domain = domainExtService.getDomain(domainCode);
 
         if (StringUtils.equalsIgnoreCase(propertyName, PUT_ATTACHMENTS_IN_QUEUE)) {
-            return domibusPropertyExtService.getDomainProperty(domain, propertyName, "true");
+            String value = domibusPropertyExtService.getProperty(domain, propertyName);
+            if (StringUtils.isEmpty(value)) {
+                value = "true";
+            }
+            return value;
+//            return domibusPropertyExtService.getDomainProperty(domain, propertyName, "true");
         } else {
-            return domibusPropertyExtService.getDomainProperty(domain, propertyName);
+            return domibusPropertyExtService.getProperty(domain, propertyName);
         }
     }
 
