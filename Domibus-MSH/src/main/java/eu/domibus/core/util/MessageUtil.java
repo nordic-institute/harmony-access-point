@@ -421,13 +421,13 @@ public class MessageUtil {
         Map<QName, String> result = new HashMap<>();
 
         final NamedNodeMap attributes = messagingNode.getAttributes();
-        if(attributes == null) {
+        if (attributes == null) {
             LOG.debug("Messaging node attributes is empty");
             return null;
         }
 
         final Node namedItemNS = attributes.getNamedItemNS(WSConstants.WSU_NS, LOCAL_NAME);
-        if(namedItemNS == null) {
+        if (namedItemNS == null) {
             LOG.debug("No named item found with namespace [{}] and local name [{}]", WSConstants.WSU_NS, LOCAL_NAME);
             return null;
         }
@@ -528,15 +528,47 @@ public class MessageUtil {
         }
 
         LOG.debug("Creating Receipt");
+        Receipt receipt = new Receipt();
 
-        final Node nonRepudiationInformationNode = getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
-        try {
-            final String nonRepudiationInformation = nodeToString(nonRepudiationInformationNode);
-            Receipt receipt = new Receipt();
+        final String nonRepudiationInformation = getNonRepudiationInformationFromReceipt(receiptNode);
+        if (StringUtils.isNotEmpty(nonRepudiationInformation)) {
+            LOG.debug("Adding [{}] to the Receipt", NON_REPUDIATION_INFORMATION);
             receipt.getAny().add(nonRepudiationInformation);
-            return receipt;
+        }
+        String userMessageFromReceipt = getUserMessageFromReceipt(receiptNode);
+        if (StringUtils.isNotEmpty(userMessageFromReceipt)) {
+            LOG.debug("Adding [{}] to the Receipt", USER_MESSAGE);
+            receipt.getAny().add(userMessageFromReceipt);
+        }
+
+        return receipt;
+    }
+
+    protected String getNonRepudiationInformationFromReceipt(final Node receiptNode) throws SOAPException {
+        final Node nonRepudiationInformationNode = getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
+        if (nonRepudiationInformationNode == null) {
+            LOG.debug("No [{}] found", NON_REPUDIATION_INFORMATION);
+            return null;
+        }
+
+        try {
+            return nodeToString(nonRepudiationInformationNode);
         } catch (TransformerException e) {
-            throw new SOAPException("Error while creating Receipt", e);
+            throw new SOAPException("Error while getting NonRepudiationInformation", e);
+        }
+    }
+
+    protected String getUserMessageFromReceipt(final Node receiptNode) throws SOAPException {
+        final Node userMessageNode = getFirstChild(receiptNode, USER_MESSAGE);
+        if (userMessageNode == null) {
+            LOG.debug("No [{}] found", USER_MESSAGE);
+            return null;
+        }
+
+        try {
+            return nodeToString(userMessageNode);
+        } catch (TransformerException e) {
+            throw new SOAPException("Error while getting UserMessage", e);
         }
     }
 
