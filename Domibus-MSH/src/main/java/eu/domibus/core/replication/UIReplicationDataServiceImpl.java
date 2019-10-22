@@ -23,7 +23,7 @@ import java.util.Date;
 
 
 /**
- * Service dedicate to replicate
+ * Service dedicated to replicate
  * data in <code>TB_MESSAGE_UI</> table
  * It first reads existing data and then insert it
  *
@@ -175,10 +175,8 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
             return;
         }
 
-        if (entity.getLastModified().getTime() <= jmsTimestamp) {
-            boolean updateSuccess = uiMessageDao.updateMessage(messageId, userMessageLog.getMessageStatus(),
-                    userMessageLog.getDeleted(), userMessageLog.getFailed(), userMessageLog.getRestored(),
-                    userMessageLog.getNextAttempt(), userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax(),
+       // if (entity.getLastModified().getTime() <= jmsTimestamp) {
+            boolean updateSuccess = uiMessageDao.updateMessage(userMessageLog,
                     jmsTime);
             if (updateSuccess) {
                 if (LOG.isDebugEnabled()) {
@@ -187,7 +185,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
                 }
                 return;
             }
-        }
+       // }
         LOG.debug("messageChange skipped for messageId=[{}]", messageId);
     }
 
@@ -257,7 +255,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     }
 
     private UIMessageEntity createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog messageLog, UserMessage userMessage) {
-        //using Dozer
+        //domain converter
         UIMessageEntity entity = domainConverter.convert(messageLog, UIMessageEntity.class);
 
         entity.setEntityId(0); //dozer

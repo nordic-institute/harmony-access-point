@@ -33,7 +33,7 @@ public class UIReplicationListener {
     private DomainContextProvider domainContextProvider;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @JmsListener(destination = "${domibus.jms.queue.ui.replication}", containerFactory = "uiReplicationJmsListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -60,11 +60,11 @@ public class UIReplicationListener {
                 uiReplicationDataService.messageSubmitted(messageId, map.getJMSTimestamp());
                 break;
             case MESSAGE_STATUS_CHANGE:
-                MessageStatus messageStatus = MessageStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_STATUS));
+                MessageStatus messageStatus = MessageStatus.valueOf(map.getStringProperty(UIReplicationSignalServiceImpl.JMS_PROP_STATUS));
                 uiReplicationDataService.messageStatusChange(messageId, messageStatus, map.getJMSTimestamp());
                 break;
             case MESSAGE_NOTIFICATION_STATUS_CHANGE:
-                NotificationStatus notificationStatus = NotificationStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_NOTIF_STATUS));
+                NotificationStatus notificationStatus = NotificationStatus.valueOf(map.getStringProperty(UIReplicationSignalServiceImpl.JMS_PROP_NOTIF_STATUS));
                 uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, map.getJMSTimestamp());
                 break;
             case MESSAGE_CHANGE:

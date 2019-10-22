@@ -28,7 +28,7 @@ import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -131,7 +131,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private PullMessageService pullMessageService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Autowired
     protected MessageGroupDao messageGroupDao;

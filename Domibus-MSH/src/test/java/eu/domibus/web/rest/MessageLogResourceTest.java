@@ -21,7 +21,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -82,7 +82,7 @@ public class MessageLogResourceTest {
     private MessagesLogService messagesLogService;
 
     @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Parameterized.Parameter(0)
     public MessageType messageType;

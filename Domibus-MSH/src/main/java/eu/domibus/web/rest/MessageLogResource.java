@@ -16,7 +16,7 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -76,7 +76,7 @@ public class MessageLogResource extends BaseResource {
     private MessagesLogService messagesLogService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     Date defaultFrom;
     Date defaultTo;

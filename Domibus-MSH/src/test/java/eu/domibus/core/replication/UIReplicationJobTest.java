@@ -23,7 +23,7 @@ public class UIReplicationJobTest {
     private UIMessageDiffService uiMessageDiffService;
 
     @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Injectable
     private DomainService domainService;

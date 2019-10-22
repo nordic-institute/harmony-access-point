@@ -40,8 +40,8 @@ import java.util.Date;
         ),
         @NamedNativeQuery(
                 name    =   "UIMessageEntity.updateMessage",
-                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, DELETED=?2, FAILED=?3, RESTORED=?4, NEXT_ATTEMPT=?5, SEND_ATTEMPTS=?6, SEND_ATTEMPTS_MAX=?7, LAST_MODIFIED=?8 " +
-                        " WHERE MESSAGE_ID=?9"
+                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, RECEIVED=?4, FAILED=?5, RESTORED=?6, NEXT_ATTEMPT=?7, SEND_ATTEMPTS=?8, SEND_ATTEMPTS_MAX=?9, LAST_MODIFIED=?10 " +
+                        " WHERE MESSAGE_ID=?11"
                 ,resultSetMapping = "updateResult"
         )
 })

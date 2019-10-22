@@ -25,7 +25,7 @@ public class UIReplicationJob extends DomibusQuartzJobBean {
     private UIMessageDiffService uiMessageDiffService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {

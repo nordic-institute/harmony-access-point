@@ -21,7 +21,7 @@ import java.util.UUID;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class UIReplicationSignalServiceTest {
+public class UIReplicationSignalServiceImplTest {
 
     @Injectable
     private Queue uiReplicationQueue;
@@ -36,7 +36,7 @@ public class UIReplicationSignalServiceTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
-    UIReplicationSignalService uiReplicationSignalService;
+    UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     private final String messageId = UUID.randomUUID().toString();
 
@@ -44,7 +44,7 @@ public class UIReplicationSignalServiceTest {
     public void testIsReplicationEnabled() {
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(UIReplicationSignalService.UI_REPLICATION_ENABLED);
+            domibusPropertyProvider.getDomainProperty(UIReplicationSignalServiceImpl.UI_REPLICATION_ENABLED);
             result = true;
         }};
 
@@ -104,7 +104,7 @@ public class UIReplicationSignalServiceTest {
         }};
 
         //tested method
-        uiReplicationSignalService.messageStatusChange(messageId, messageStatus);
+        uiReplicationSignalService.messageChange(messageId);
 
         new Verifications() {{
             jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
@@ -124,7 +124,7 @@ public class UIReplicationSignalServiceTest {
         }};
 
         //tested method
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, notificationStatus);
+        uiReplicationSignalService.messageChange(messageId);
 
         new Verifications() {{
             jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);

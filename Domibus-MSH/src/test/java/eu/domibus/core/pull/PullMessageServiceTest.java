@@ -7,7 +7,7 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -65,7 +65,7 @@ public class PullMessageServiceTest {
     private java.util.Properties domibusProperties;
 
     @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;

@@ -247,7 +247,7 @@ public class UIReplicationDataServiceImplTest {
         uiReplicationDataService.messageChange(messageId, jmsTime.getTime());
 
         new FullVerifications(uiReplicationDataService) {{
-            uiMessageDao.updateMessage(messageId, messageStatus, deleted, failed, restored, nextAttempt, sendAttempts, sendAttemptsMax, jmsTime);
+            uiMessageDao.updateMessage(userMessageLog, jmsTime);
         }};
     }
 

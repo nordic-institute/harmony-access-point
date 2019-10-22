@@ -15,7 +15,7 @@ import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -76,7 +76,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Autowired
     protected MpcService mpcService;
@@ -301,7 +301,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         userMessageLog.setMessageStatus(waitingForReceipt);
         messagingLockDao.save(lock);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageStatusChange(userMessageLog.getMessageId(), waitingForReceipt);
+        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, waitingForReceipt, new Timestamp(System.currentTimeMillis()));
     }
 

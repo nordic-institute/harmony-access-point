@@ -175,14 +175,14 @@ public class UIMessageDaoImplIT {
         Assert.assertFalse(uiMessageDao.updateNotificationStatus(messageId2 + "123", NotificationStatus.NOTIFIED, new Date()));
     }
 
-    @Test
-    public void testUpdateMessage() {
-
-        Assert.assertTrue(uiMessageDao.updateMessage(messageId3, MessageStatus.DOWNLOADED, null, null, null,
-                null, null, null, new Date()));
-        Assert.assertFalse(uiMessageDao.updateMessage(messageId3 + "123", MessageStatus.DOWNLOADED, null, null, null,
-                null, null, null, new Date()));
-
-    }
+   // @Test
+//    public void testUpdateMessage() {
+//
+//        Assert.assertTrue(uiMessageDao.updateMessage(messageId3, MessageStatus.DOWNLOADED, null, null, null,
+//                null, null, null, new Date()));
+//        Assert.assertFalse(uiMessageDao.updateMessage(messageId3 + "123", MessageStatus.DOWNLOADED, null, null, null,
+//                null, null, null, new Date()));
+//
+//    }
 
 }

@@ -16,7 +16,7 @@ import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -118,7 +118,7 @@ public class BackendNotificationService {
     private UserMessageHandlerService userMessageHandlerService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Autowired
     protected List<BackendConnector> backendConnectors;
@@ -362,7 +362,7 @@ public class BackendNotificationService {
         notify(messageId, backendName, notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     public void notifyOfSendSuccess(final String messageId) {
@@ -378,7 +378,7 @@ public class BackendNotificationService {
         notify(messageId, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)

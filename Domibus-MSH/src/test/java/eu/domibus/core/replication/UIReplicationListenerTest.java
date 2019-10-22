@@ -27,7 +27,7 @@ public class UIReplicationListenerTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
+    private UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     @Tested
     UIReplicationListener uiReplicationListener;
@@ -64,10 +64,10 @@ public class UIReplicationListenerTest {
             mapMessage.getJMSTimestamp();
             result = jmsTimestamp;
 
-            mapMessage.getStringProperty(UIReplicationSignalService.JMS_PROP_STATUS);
+            mapMessage.getStringProperty(UIReplicationSignalServiceImpl.JMS_PROP_STATUS);
             result = messageStatus.name();
 
-            mapMessage.getStringProperty(UIReplicationSignalService.JMS_PROP_NOTIF_STATUS);
+            mapMessage.getStringProperty(UIReplicationSignalServiceImpl.JMS_PROP_NOTIF_STATUS);
             result = notificationStatus.name();
         }};
 
