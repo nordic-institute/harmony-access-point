@@ -392,7 +392,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
-		log.info("se page size to 100");
+		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
 		log.info("checking info in grid against the file");

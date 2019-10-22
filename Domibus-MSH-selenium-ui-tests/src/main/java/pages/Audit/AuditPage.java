@@ -41,37 +41,13 @@ public class AuditPage extends DomibusPage {
         return new AuditSearchFilters(driver);
     }
 
+    public AuditFilters filters() {
+        return new AuditFilters(driver);
+    }
+
     public Pagination getPagination() {
         return new Pagination(driver);
     }
-
-    public boolean isLoaded() throws Exception {
-        wait.forElementToBeVisible(auditPageHeader);
-        if (!getFilters().getElementByFieldLabel(Table_FieldLabel).isDisplayed()) {
-            return false;
-        }
-        if (!getFilters().getElementByFieldLabel(User_FieldLabel).isDisplayed()) {
-            return false;
-        }
-        if (!getFilters().getElementByFieldLabel(Action_FieldLabel).isDisplayed()) {
-            return false;
-        }
-        wait.forElementToBeVisible(getFilters().searchButton);
-        if (!getFilters().searchButton.isEnabled()) {
-            return false;
-
-        }
-        wait.forElementToBeVisible(getFilters().advancedSearchExpandLnk);
-        if (!getFilters().advancedSearchExpandLnk.isDisplayed()) {
-            return false;
-        }
-
-        if (Integer.valueOf(grid().getPagination().getPageSizeSelect().getSelectedValue()) != 10) {
-            return false;
-        }
-        return true;
-    }
-
 
     public boolean isGridEmpty() {
         if (grid().getRowsNo() != 0) {

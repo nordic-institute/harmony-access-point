@@ -29,6 +29,9 @@ public class DomibusPage extends DComponent {
 	@FindBy(css = ".helpMenu")
 	protected WebElement helpLnk;
 
+	@FindBy(tagName = "md-dialog-container")
+	protected WebElement dialogContainer;
+
 
 	public AlertArea getAlertArea() {
 		return new AlertArea(driver);
@@ -78,5 +81,16 @@ public class DomibusPage extends DComponent {
 		wait.forElementToBe(pageTitle);
 	}
 
+	public boolean hasOpenDialog(){
+		log.info("checking for any opened dialogs");
+		try{
+			wait.forElementToBeVisible(dialogContainer);
+			if(weToDobject(dialogContainer).isVisible()){
+				return true;
+			}
+		}
+		catch (Exception e){}
+		return false;
+	}
 
 }

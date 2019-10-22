@@ -109,6 +109,7 @@ public class DGrid extends DComponent {
 		try {
 			wait.forElementToBe(progressBar);
 			wait.forElementToBeGone(progressBar);
+			wait.forXMillis(100);
 		} catch (Exception e) {
 
 		}
@@ -188,7 +189,10 @@ public class DGrid extends DComponent {
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.click();
 				wait.forAttributeNotEmpty(gridHeaders.get(i), "class");
-				wait.forAttributeToContain(gridHeaders.get(i), "class", "sort-active");
+				try {
+					wait.forAttributeToContain(gridHeaders.get(i), "class", "sort-active");
+				} catch (Exception e) {
+				}
 				return;
 			}
 		}
@@ -226,7 +230,7 @@ public class DGrid extends DComponent {
 	public int getSelectedRowIndex() throws Exception {
 		for (int i = 0; i < gridRows.size(); i++) {
 			String classStr = new DObject(driver, gridRows.get(i)).getAttribute("class");
-			if(null == classStr || classStr.isEmpty()){
+			if (null == classStr || classStr.isEmpty()) {
 				continue;
 			}
 			if (classStr.contains("active")) {
@@ -281,7 +285,7 @@ public class DGrid extends DComponent {
 	public boolean isColumnSortable(String columnName) throws Exception {
 		List<String> columns = getColumnNames();
 		int index = columns.indexOf(columnName);
-		if(index<0){
+		if (index < 0) {
 			throw new Exception("Column not visible,. cannot get sortable status");
 		}
 		WebElement header = gridHeaders.get(index);
@@ -291,7 +295,7 @@ public class DGrid extends DComponent {
 	}
 
 
-	public void assertControls(SoftAssert soft)throws Exception{
+	public void assertControls(SoftAssert soft) throws Exception {
 
 
 		getGridCtrl().showCtrls();
@@ -306,17 +310,19 @@ public class DGrid extends DComponent {
 		checkChangeNumberOfRows(soft);
 	}
 
-	public void checkShowLink(SoftAssert soft) throws Exception{
+	public void checkShowLink(SoftAssert soft) throws Exception {
 		//-----------Show
 		getGridCtrl().showCtrls();
 		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
 	}
-	public void checkHideLink(SoftAssert soft) throws Exception{
+
+	public void checkHideLink(SoftAssert soft) throws Exception {
 		//-----------Hide
 		getGridCtrl().hideCtrls();
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
-	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
+
+	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception {
 		//-----------Show - Modify - Hide
 		for (String colName : chkOptions) {
 			log.info("checking checkbox for " + colName);
@@ -328,7 +334,8 @@ public class DGrid extends DComponent {
 			soft.assertTrue(columnsVsCheckboxes());
 		}
 	}
-	public void checkAllLink(SoftAssert soft) throws Exception{
+
+	public void checkAllLink(SoftAssert soft) throws Exception {
 		//-----------All link
 		getGridCtrl().showCtrls();
 		log.info("clicking All link");
@@ -338,7 +345,8 @@ public class DGrid extends DComponent {
 		List<String> visibleColumns = getColumnNames();
 		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, getGridCtrl().getAllCheckboxLabels()), "All the desired columns are visible");
 	}
-	public void checkNoneLink(SoftAssert soft) throws Exception{
+
+	public void checkNoneLink(SoftAssert soft) throws Exception {
 		//-----------None link
 		getGridCtrl().showCtrls();
 		log.info("clicking None link");
@@ -348,7 +356,8 @@ public class DGrid extends DComponent {
 		List<String> noneColumns = getColumnNames();
 		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
 	}
-	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
+
+	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception {
 		log.info("checking changing number of rows displayed");
 		//----------Rows
 
@@ -361,13 +370,13 @@ public class DGrid extends DComponent {
 		soft.assertTrue(getPagination().getActivePage() == 1, "pagination is reset to 1 after changing number of items per page");
 
 		log.info("check listed number of rows");
-		if(rows > 10){
+		if (rows > 10) {
 			soft.assertTrue(getRowsNo() > 10, "Number of rows is bigger than 10");
 			soft.assertTrue(getRowsNo() <= 25, "Number of rows is less or equal to 25");
 		}
 
 		log.info("check pagination");
-		if(rows > 25){
+		if (rows > 25) {
 			soft.assertTrue(getPagination().hasNextPage(), "If there are more than 25 items there are more than one pages");
 		}
 	}
@@ -409,6 +418,7 @@ public class DGrid extends DComponent {
 		csvFileHeaders.remove("$jacoco Data");
 
 		log.info("checking file headers against column names");
+
 		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
 
 	}
@@ -458,7 +468,7 @@ public class DGrid extends DComponent {
 		for (WebElement gridHeader : gridHeaders) {
 			DObject headerObj = weToDobject(gridHeader);
 			String classes = headerObj.getAttribute("class");
-			if(classes.contains(sortClassName)){
+			if (classes.contains(sortClassName)) {
 				return headerObj.getText();
 			}
 		}
@@ -469,16 +479,18 @@ public class DGrid extends DComponent {
 		String sortIndicatorDesc = "sort-desc";
 		String sortIndicatorAsc = "sort-asc";
 		String columnName = getSortedColumnName();
-		if(null == columnName){return null;	}
+		if (null == columnName) {
+			return null;
+		}
 
 		for (WebElement gridHeader : gridHeaders) {
 			DObject headerObj = weToDobject(gridHeader);
-			if(StringUtils.equalsIgnoreCase(headerObj.getText(), columnName)){
+			if (StringUtils.equalsIgnoreCase(headerObj.getText(), columnName)) {
 				String classes = headerObj.getAttribute("class");
-				if(classes.contains(sortIndicatorDesc)){
+				if (classes.contains(sortIndicatorDesc)) {
 					return Order.DESC;
 				}
-				if(classes.contains(sortIndicatorAsc)){
+				if (classes.contains(sortIndicatorAsc)) {
 					return Order.ASC;
 				}
 			}
@@ -486,7 +498,8 @@ public class DGrid extends DComponent {
 		}
 		throw new Exception("Sort order cannot be determined");
 	}
-	public void checkCSVvsGridDataForSpecificRow(String filename, SoftAssert soft,int i) throws Exception {
+
+	public void checkCSVvsGridDataForSpecificRow(String filename, SoftAssert soft, int i) throws Exception {
 		log.info("Checking csv file vs grid content for specific row");
 
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
@@ -496,22 +509,22 @@ public class DGrid extends DComponent {
 		HashMap<String, String> gridInfo = getRowInfo(i);
 
 
-		log.info("checking listed data for  data row" + i );
-			HashMap<String, String> gridRecord = gridInfo;
-			CSVRecord record = records.get(i);
-			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
-		}
-
-		public String getRowSpecificColumnVal(int rowNumber,String columnName) throws Exception{
-			HashMap<String, String> gridInfo = getRowInfo(rowNumber);
-			String colName=columnName;
-			if(gridInfo.containsKey(columnName)) {
-				String val = gridInfo.get(columnName);
-				return val;
-			}
-			return "";
-		}
+		log.info("checking listed data for  data row" + i);
+		HashMap<String, String> gridRecord = gridInfo;
+		CSVRecord record = records.get(i);
+		soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
 	}
+
+	public String getRowSpecificColumnVal(int rowNumber, String columnName) throws Exception {
+		HashMap<String, String> gridInfo = getRowInfo(rowNumber);
+		String colName = columnName;
+		if (gridInfo.containsKey(columnName)) {
+			String val = gridInfo.get(columnName);
+			return val;
+		}
+		return "";
+	}
+}
 
 
 

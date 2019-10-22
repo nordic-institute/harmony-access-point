@@ -1,6 +1,7 @@
 package ddsl.dcomponents;
 
 import ddsl.dobjects.*;
+import ddsl.dobjects.multi_select.MultiSelect;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -52,6 +53,10 @@ public class DComponent {
 
 	protected Select weToSelect(WebElement element){
 		return new Select(driver, element);
+	}
+
+	protected MultiSelect weToMultiSelect(WebElement element){
+		return new MultiSelect(driver, element);
 	}
 
 	protected DatePicker weToDatePicker(WebElement element){

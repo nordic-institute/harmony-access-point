@@ -32,6 +32,7 @@ public class Select extends DComponent {
 	public Select(WebDriver driver, WebElement container) {
 		super(driver);
 		log.debug("initialize select");
+//		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 
 		this.selectContainer = container;
@@ -79,7 +80,7 @@ public class Select extends DComponent {
 		return getExpandBtn().isEnabled();
 	}
 
-	public void expand() throws Exception{
+	protected void expand() throws Exception{
 		try {
 			getExpandBtn().click();
 			wait.forElementToBeGone(expandBtn);

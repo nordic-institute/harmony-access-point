@@ -20,3 +20,4 @@
 .idea/**
 .\src\main\java\Main.java
 .\src\test\java\domibus.domibus.playTests.*.java
+.\src\test\java\mytests\*

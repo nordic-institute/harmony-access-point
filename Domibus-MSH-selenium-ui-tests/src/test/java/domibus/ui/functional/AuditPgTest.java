@@ -1,4 +1,4 @@
-package domibus.ui.toref;
+package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
@@ -23,82 +23,12 @@ public class AuditPgTest extends BaseTest {
 
     JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 
-    /*    AU-1 - Login as super admin and open Audit page  */
-    @Test(description = "AU-1", groups = {"multiTenancy", "singleTenancy"})
-    public void openAuditPage() throws Exception {
-        SoftAssert soft = new SoftAssert();
-
-        log.info("Login with Admin credential and navigate to Audit page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
-
-        AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page and its elements");
-        soft.assertTrue(auditPage.isLoaded(), "Audit Page is loaded successfully");
-        soft.assertAll();
-    }
-
-    /*   AU-2 - Doubleclick/Single click on one event     */
-    @Test(description = "AU-2", groups = {"multiTenancy", "singleTenancy"})
-    public void doubleClick() throws Exception {
-        SoftAssert soft = new SoftAssert();
-        log.info("Login into application with Admin credentials and navigate to Audit page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
-        AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
-        soft.assertTrue(!auditPage.isGridEmpty(), "Grid has some data");
-        auditPage.grid().doubleClickRow(1);
-        soft.assertTrue(auditPage.isRowSelected(1), "Row is not selected on double click");
-        soft.assertAll();
-    }
-
-    /*    AU-3 - Filter messages using basic filters    */
-    @Test(description = "AU-3", groups = {"multiTenancy", "singleTenancy"})
-    public void searchBasicFilters() throws Exception {
-        SoftAssert soft = new SoftAssert();
-        log.info("Login with Admin user and Navigate to Audit page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
-        AuditPage auditPage = new AuditPage(driver);
-        log.info("Create Plugin user with rest service");
-        rest.createPluginUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.getDefaultTestPass(), null);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
-        log.info("Total number of records in grid are: " + auditPage.getFilters().getPagination().getTotalItems());
-        log.info("Select data PluginUser in Table input field  as basic filter");
-        auditPage.getFilters().setFilterData("table", "PluginUser");
-        log.info("Select Admin in User input field as basic filter");
-        auditPage.getFilters().setFilterData("Action", "Created");
-        log.info("Click on Search button");
-        auditPage.getFilters().getSearchButton().click();
-        log.info("Search result count:" + auditPage.getFilters().getPagination().getTotalItems());
-        soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has some data");
-        boolean result = auditPage.grid().getRowInfo(0).containsValue("PluginUser")
-                && auditPage.grid().getRowInfo(0).containsValue("Created");
-        soft.assertTrue(result, "Top row has Table value as PluginUser, User value as Admin & Action as Created ");
-        soft.assertAll();
-    }
-
-    /*   AU-4 - Open advanced filters  */
-    @Test(description = "AU-4", groups = {"multiTenancy", "singleTenancy"})
-    public void clickAdvanceFilterFilters() throws Exception {
-        SoftAssert soft = new SoftAssert();
-        log.info("Login into application with Admin credentials and navigate to Audit page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
-        AuditPage auditPage = new AuditPage(driver);
-        auditPage.waitForTitle();
-        log.info("Click on Advance search filters");
-        auditPage.getFilters().getAdvancedSearchExpandLnk().click();
-        log.info("Validate all advance filters");
-        soft.assertTrue(auditPage.getFilters().advanceFiltersLoaded(), "Advanced filters ");
-        soft.assertAll();
-    }
-
     /*    AU-6 - Filter events so that there are no results   */
     @Test(description = "AU-6", groups = {"multiTenancy", "singleTenancy"})
     public void searchWithNoData() throws Exception {
         SoftAssert soft = new SoftAssert();
         LoginPage loginPage = new LoginPage(driver);
-        log.info("Validate login page");
-        soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
+
         log.info("Generate Random string for Username");
         String user = Generator.randomAlphaNumeric(10);
         log.info("Create user with rest service");
@@ -139,36 +69,15 @@ public class AuditPgTest extends BaseTest {
         auditPage.getFilters().setFilterData("user", user);
         log.info("Click on search button");
         auditPage.getFilters().getSearchButton().click();
+        auditPage.grid().waitForRowsToLoad();
         log.info("Total search record is :" + auditPage.grid().getPagination().getTotalItems());
         auditPage.refreshPage();
         auditPage.wait.forElementToBeVisible(auditPage.auditPageHeader);
+        auditPage.grid().waitForRowsToLoad();
         soft.assertTrue(auditPage.grid().getPagination().getTotalItems() == prevCount, "Page shows all records after deletion of all selected filter values");
         soft.assertAll();
     }
 
-    /*   AU-9 - Download list of events    */
-    @Test(description = "AU-9", groups = {"multiTenancy", "singleTenancy"})
-    public void downloadCSV() throws Exception {
-        SoftAssert soft = new SoftAssert();
-        log.info("Login into application with Admin credentials and navigate to Audit page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
-        AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "page is loaded successfully");
-        log.info("Download all grid record csv");
-        String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
-        log.info("downloaded audit logs to file :" + fileName);
-        System.out.println(auditPage.grid().getRowsNo());
-        if (auditPage.grid().getRowsNo() >= 10) {
-            log.info("comparing any random row data from downloaded csv and grid");
-            auditPage.grid().checkCSVvsGridDataForSpecificRow(fileName, soft, Generator.randomNumber(10));
-            auditPage.grid().checkCSVvsGridDataForSpecificRow(fileName, soft, Generator.randomNumber(10));
-        } else {
-            log.info("comparing all data from grid row and downloaded csv");
-            auditPage.grid().checkCSVvsGridInfo(fileName, soft);
-        }
-        soft.assertAll();
-    }
 
     /*   AU-14 - Check Action On Audit page Grid data for Record created on Download action on Message page  */
     @Test(description = "AU-14", groups = {"multiTenancy", "singleTenancy"})
@@ -216,7 +125,7 @@ public class AuditPgTest extends BaseTest {
         rest.createMessageFilter(actionName, null);
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded ");
+        soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
         log.info("Set all search filters");
         auditPage.getFilters().setFilterData("table", "Message filter");
         log.info("Click on search button");
@@ -252,7 +161,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Navigate to Audit page");
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded());
+        soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
         log.info("Set all data in search filters");
         auditPage.getFilters().setFilterData("table", "Message filter");
         log.info("Click on search button");
@@ -283,7 +192,7 @@ public class AuditPgTest extends BaseTest {
         mPage.saveAndConfirmChanges();
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded());
+        soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
         log.info("Select data in search filters");
         auditPage.getFilters().setFilterData("table", "Message filter");
         log.info("Click on search button");
@@ -320,7 +229,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Navigate to Audit page");
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded());
+        soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
         log.info("Set all search filter");
         auditPage.getFilters().setFilterData("table", "Message filter");
         log.info("Click on search button");
@@ -416,7 +325,7 @@ public class AuditPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
+
         log.info("Set all search filter data");
         auditPage.getFilters().setFilterData("table", "Pmode");
         log.info("Click in search button");
@@ -456,7 +365,7 @@ public class AuditPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
+
         log.info("Set all search filter data");
         auditPage.getFilters().setFilterData("table", "Pmode");
         log.info("Click on search button");
@@ -495,14 +404,14 @@ public class AuditPgTest extends BaseTest {
         }
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
+
         log.info("Set all search filter data");
         auditPage.getFilters().setFilterData("table", "Pmode");
         log.info("Click on search button");
         auditPage.getFilters().getSearchButton().click();
         auditPage.grid().waitForRowsToLoad();
         log.info("Validate data on Audit page");
-        soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Deleted"), "Proper action is logged");
+        soft.assertTrue(auditPage.grid().getRowInfo(1).containsValue("Deleted"), "Proper action is logged");
         soft.assertAll();
 
     }
@@ -514,20 +423,28 @@ public class AuditPgTest extends BaseTest {
         log.info("Login into application and navigate to Pmode archive page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         DomibusPage page = new DomibusPage(driver);
-        PModeArchivePage pAuditPage = new PModeArchivePage(driver);
-        log.info("Download pmode corresponding to current pmode row");
-        rest.downloadGrid(pAuditPage.getRestServicePath(), null, null);
+
+        log.info("getting pmode id");
+        Integer pmodeID = rest.getLatestPModeID(null);
+        log.info("downloading PMODE with id " + pmodeID);
+        String filename = rest.downloadPmode(null, pmodeID);
+        log.info("downloaded file with name" + filename);
+
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
+
         auditPage.getFilters().setFilterData("table", "Pmode");
         log.info("click on search button");
         auditPage.getFilters().getSearchButton().click();
         auditPage.grid().waitForRowsToLoad();
         log.info("Validate data on Audit page");
-        boolean result = auditPage.grid().getRowInfo(0).containsValue("Downloaded") && auditPage.grid().getRowInfo(0).containsValue("Pmode");
-        System.out.println(result);
-        soft.assertTrue(result, "Event is logged on audit page");
+
+        HashMap<String, String> info = auditPage.grid().getRowInfo(0);
+
+        soft.assertEquals(info.get("Table"), "Pmode", "Table column has value Pmode");
+        soft.assertEquals(info.get("Action"), "Downloaded", "Action column has value Downloaded");
+        soft.assertEquals(info.get("Id"), String.valueOf(pmodeID), "Correct pmodeID listed");
+
         soft.assertAll();
 
     }
@@ -594,7 +511,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Success message shown : " + pPage.getAlertArea().getAlertMessage());
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
-        soft.assertTrue(auditPage.isLoaded(), "Page is loaded successfully");
+
         log.info("Set all search filters");
         auditPage.getFilters().setFilterData("table", "Pmode Archive");
         log.info("Click on search button");
@@ -615,8 +532,7 @@ public class AuditPgTest extends BaseTest {
         String username = Generator.randomAlphaNumeric(10);
         rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
         AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "page is loaded successfully");
+
         log.info("Select User in Table input filter");
         auditPage.getFilters().setFilterData("table", "User");
         log.info("Select Created as Action in filter");
@@ -627,9 +543,9 @@ public class AuditPgTest extends BaseTest {
         log.info("Validate top record Action as Created");
         Boolean result1 = auditPage.grid().getRowInfo(0).containsValue("Created");
         Boolean result = auditPage.grid().getRowInfo(0).containsValue("User");
-        System.out.println(result);
-        System.out.println(result1);
-        //soft.assertTrue(result, "Top row has Table value as User & Action as created ");
+
+        soft.assertTrue(result, "Top row shows Action as created ");
+        soft.assertTrue(result1, "Top row has Table value as User");
         soft.assertAll();
     }
 
@@ -641,14 +557,12 @@ public class AuditPgTest extends BaseTest {
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
         log.info("Create user with rest call");
         String username = Generator.randomAlphaNumeric(10);
-        System.out.println(username);
         rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
         HashMap<String, String> params = new HashMap<>();
         params.put("password", data.getNewTestPass());
         rest.updateUser(username, params);
         AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "page is loaded successfully");
+
         log.info("Select User in Table input filter");
         auditPage.getFilters().setFilterData("table", "User");
         log.info("Select Created as Action in filter");
@@ -675,8 +589,7 @@ public class AuditPgTest extends BaseTest {
         rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
         rest.deleteUser(username, null);
         AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "page is loaded successfully");
+
         log.info("Select User in Table input filter");
         auditPage.getFilters().setFilterData("table", "User");
         log.info("Select Created as Action in filter");
@@ -702,8 +615,7 @@ public class AuditPgTest extends BaseTest {
         String username = Generator.randomAlphaNumeric(10);
         rest.createPluginUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
         AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "page is loaded successfully");
+
         log.info("Select PluginUser as Table field data");
         auditPage.getFilters().setFilterData("table", "PluginUser");
         log.info("Select Created as Action Field data");
@@ -727,12 +639,10 @@ public class AuditPgTest extends BaseTest {
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
         log.info("Create user with rest call");
         String username = Generator.randomAlphaNumeric(10);
-        System.out.println(username);
         rest.createPluginUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
         rest.deletePluginUser(username, null);
         AuditPage auditPage = new AuditPage(driver);
-        log.info("Validate Audit page");
-        soft.assertTrue(auditPage.isLoaded(), "page is loaded successfully");
+
         log.info("Select PluginUser as Table field data");
         auditPage.getFilters().setFilterData("table", "PluginUser");
         log.info("Select Created as Action Field data");

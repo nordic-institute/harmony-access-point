@@ -153,7 +153,7 @@ public class SideNavigation extends DComponent {
 	}
 
 	public void goToPage(PAGES page) throws Exception {
-		log.debug("Navigating to " + page.name());
+		log.info("Navigating to " + page.name());
 		getPageLnk(page).click();
 	}
 

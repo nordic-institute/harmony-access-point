@@ -473,14 +473,43 @@ public class DomibusRestClient {
 	}
 
 	public boolean isPmodeUploaded(String domain) throws Exception {
-
-		switchDomain(domain);
-
-		String getResponse = requestGET(resource.path(RestServicePaths.PMODE_LIST), null).getEntity(String.class);
-		JSONArray entries = new JSONArray(sanitizeResponse(getResponse));
-
+		JSONArray entries = getPmodesList(domain);
 		return entries.length() > 0;
 	}
+
+	private JSONArray getPmodesList(String domain) throws Exception{
+		switchDomain(domain);
+		String getResponse = requestGET(resource.path(RestServicePaths.PMODE_LIST), null).getEntity(String.class);
+		JSONArray entries = new JSONArray(sanitizeResponse(getResponse));
+		return entries;
+	}
+
+	public Integer getLatestPModeID(String domain) throws Exception{
+		switchDomain(domain);
+
+		JSONArray entries = getPmodesList(domain);
+		int pmodeID = 0;
+		for (int i = 0; i < entries.length(); i++) {
+			pmodeID = Math.max(pmodeID, entries.getJSONObject(i).getInt("id"));
+		}
+		return pmodeID;
+	}
+
+	public String downloadPmode(String domain, Integer pmodeID) throws Exception{
+		switchDomain(domain);
+
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.PMODE_CURRENT_DOWNLOAD + pmodeID), null);
+
+		InputStream in = clientResponse.getEntity(InputStream.class);
+		File file = File.createTempFile("pmode", ".xml");
+		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		in.close();
+		return file.getAbsolutePath();
+	}
+
+
+
 
 	// -------------------------------------------- Get Grid -----------------------------------------------------------
 	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception {

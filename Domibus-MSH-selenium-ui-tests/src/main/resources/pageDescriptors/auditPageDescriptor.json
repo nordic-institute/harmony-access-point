@@ -1,78 +1,74 @@
 {
-  "title": "Alerts",
+  "title": "Audit",
   "filters": [
-    {
-      "name": "processedContainer",
-      "placeholder": "Processed",
-      "isDefault": true
-    },
-    {
-      "name": "alertTypeContainer",
-      "placeholder": "Alert Type",
-      "isDefault": true
-    },
-    {
-      "name": "alertStatusContainer",
-      "placeholder": "Alert Status",
-      "isDefault": true
-    },
-    {
-      "name": "alertLevelContainer",
-      "placeholder": "Alert Level",
-      "isDefault": true
-    },
-    {
-      "name": "creationFromContainer",
-      "placeholder": "Creation From:",
-      "isDefault": true
-    },
-    {
-      "name": "creationToContainer",
-      "placeholder": "Creation To:",
-      "isDefault": true
-    },
-    {
-      "name": "alertIdInput",
-      "placeholder": "Alert Id",
-      "isDefault": false
-    },
-    {
-      "name": "reportingFromContainer",
-      "placeholder": "Reporting From:",
-      "isDefault": false
-    },
-
-    {
-      "name": "reportingToContainer",
-      "placeholder": "Reporting To:",
-      "isDefault": false
-    }
-  ,
-    {
-      "name": "showDomainAlertsChk",
-      "placeholder": "",
-      "isDefault": true
-    }
+	{
+	  "name": "tableFilterContainer",
+	  "placeholder": "Table",
+	  "isDefault": true
+	},
+	{
+	  "name": "userFilterContainer",
+	  "placeholder": "User",
+	  "isDefault": true
+	},
+	{
+	  "name": "actionFilterContainer",
+	  "placeholder": "Action",
+	  "isDefault": true
+	},
+	{
+	  "name": "changedFrom",
+	  "placeholder": "Changed from:",
+	  "isDefault": false
+	},
+	{
+	  "name": "changedTo",
+	  "placeholder": "Changed to:",
+	  "isDefault": false
+	}
   ],
-
-  "pagination": {
-    "showSelectedNo": true,
-    "showTotalNo": true,
-    "showPageControls": true
-  },
-"buttons": [
-{
-"name": "Cancel",
-"label": "Cancel",
-"enabledByDefault": false,
-"visibleByDefault": true
-},
-{
-"name": "Save",
-"label": "Save",
-"enabledByDefault": false,
-"visibleByDefault": true
+  "buttons": [],
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "Changed",
+	"columns": [
+	  {
+		"name": "Table",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "User",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Action",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Changed",
+		"type": "datetime",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Id",
+		"type": "numeric",
+		"sortable": false,
+		"visibleByDefault": true
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": false,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  }
 }
-]
-}
-
