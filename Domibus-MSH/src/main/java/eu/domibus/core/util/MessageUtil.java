@@ -421,7 +421,17 @@ public class MessageUtil {
         Map<QName, String> result = new HashMap<>();
 
         final NamedNodeMap attributes = messagingNode.getAttributes();
+        if(attributes == null) {
+            LOG.debug("Messaging node attributes is empty");
+            return null;
+        }
+
         final Node namedItemNS = attributes.getNamedItemNS(WSConstants.WSU_NS, LOCAL_NAME);
+        if(namedItemNS == null) {
+            LOG.debug("No named item found with namespace [{}] and local name [{}]", WSConstants.WSU_NS, LOCAL_NAME);
+            return null;
+        }
+
         final String nodeValue = namedItemNS.getNodeValue();
         LOG.debug("Value for named item [{}] with namespace [{}] is [{}]", LOCAL_NAME, WSConstants.WSU_NS, nodeValue);
 
