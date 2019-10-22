@@ -16,7 +16,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.cglib.core.internal.Function;
 
 import java.security.cert.Certificate;
@@ -38,8 +37,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final String CERTPATH = "certpath";
 
-    private Function<Void
-            , CertificateVerifier> certificateVerifierFactory;
+    private Function<Void, CertificateVerifier> certificateVerifierFactory;
 
     private TSLRepository tslRepository;
 
@@ -61,7 +59,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             final PkiExtService pkiExtService,
             final DssCache dssCache) {
         super(defaultDomainCryptoService);
-        this.certificateVerifierFactory=certificateVerifierFactory;
+        this.certificateVerifierFactory = certificateVerifierFactory;
         this.tslRepository = tslRepository;
         this.validationReport = validationReport;
         this.constraintMapper = constraintMapper;

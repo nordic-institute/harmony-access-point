@@ -19,7 +19,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-/**k
+/**
  * @author Thomas Dussart
  * @since 4.1
  */

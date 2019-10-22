@@ -26,7 +26,7 @@ public class IgnorePivotFilenameFilter implements FilenameFilter {
     @Override
     public boolean accept(File dir, String name) {
         boolean matches = fileNamePattern.matcher(name).matches();
-        LOG.trace("Pivot accept file name:[{}]->[{}]",name,matches);
+        LOG.trace("Pivot accept file name:[{}] within:[{}]->[{}]", name, dir, matches);
         return matches;
     }
 }

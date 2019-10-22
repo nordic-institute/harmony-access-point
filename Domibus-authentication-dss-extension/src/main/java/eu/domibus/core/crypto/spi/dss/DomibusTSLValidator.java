@@ -7,10 +7,8 @@ import eu.europa.esig.dss.policy.ValidationPolicyFacade;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource;
 import eu.europa.esig.dss.tsl.TSLValidationResult;
-import eu.europa.esig.dss.tsl.service.TSLValidator;
 import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.validation.CertificateVerifier;
-import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.validation.executor.ValidationLevel;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
@@ -24,7 +22,7 @@ import java.util.concurrent.Callable;
 /**
  * Class copied from dss to inject a spring bean certificate verifier.
  */
-public class DomibusTSLValidator  implements Callable<TSLValidationResult> {
+public class DomibusTSLValidator implements Callable<TSLValidationResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusTSLValidator.class);
 
@@ -34,12 +32,13 @@ public class DomibusTSLValidator  implements Callable<TSLValidationResult> {
 
     private final List<CertificateToken> potentialSigners;
 
-    private CertificateVerifier  certificateVerifier;
+    private CertificateVerifier certificateVerifier;
+
     /**
      * Constructor used to instantiate a validator for a TSL
      *
-     * @param trustedList      the DSSDocument with a trusted list (not LOTL)
-     * @param countryCode      the country code
+     * @param trustedList         the DSSDocument with a trusted list (not LOTL)
+     * @param countryCode         the country code
      * @param potentialSigners
      * @param certificateVerifier certificate verifier prototype
      */
@@ -47,11 +46,11 @@ public class DomibusTSLValidator  implements Callable<TSLValidationResult> {
             DSSDocument trustedList,
             String countryCode,
             List<CertificateToken> potentialSigners,
-            CertificateVerifier  certificateVerifier) {
+            CertificateVerifier certificateVerifier) {
         this.trustedList = trustedList;
         this.countryCode = countryCode;
         this.potentialSigners = potentialSigners;
-        this.certificateVerifier=certificateVerifier;
+        this.certificateVerifier = certificateVerifier;
     }
 
     @Override

@@ -13,7 +13,6 @@ import eu.europa.esig.dss.tsl.OtherTrustedList;
 import eu.europa.esig.dss.tsl.service.DomibusTSLRepository;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
-import eu.europa.esig.dss.tsl.service.TSLValidationJob;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import net.sf.ehcache.Cache;
@@ -206,15 +205,15 @@ public class DssConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
-        OnlineCRLSource crlSource=null;
+        OnlineCRLSource crlSource = null;
         DomibusDataLoader dataLoader = dataLoader();
         if (checkCrlInDss) {
             crlSource = new OnlineCRLSource(dataLoader);
         }
-        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier(trustedListSource(),crlSource,null,dataLoader);
+        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier(trustedListSource(), crlSource, null, dataLoader);
         certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
-        LOG.debug("Instanciating new certificate verifier:[{}], enableExceptionOnMissingRevocationData:[{}], checkRevocationForUntrustedChain:[{}]",certificateVerifier,enableExceptionOnMissingRevocationData,checkRevocationForUntrustedChain);
+        LOG.debug("Instanciating new certificate verifier:[{}], enableExceptionOnMissingRevocationData:[{}], checkRevocationForUntrustedChain:[{}]", certificateVerifier, enableExceptionOnMissingRevocationData, checkRevocationForUntrustedChain);
         return certificateVerifier;
     }
 

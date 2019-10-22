@@ -261,7 +261,7 @@ public class DomibusDataLoader implements DataLoader {
         httpClientBuilder.setServiceUnavailableRetryStrategy(serviceUnavailableRetryStrategy);
 
 
-        LOG.debug("Return http client for url:[{}] with timeoutSocket:[{}],timeoutConnection:[{}],redirectsEnabled:[{}] ",url,timeoutSocket,timeoutConnection,redirectsEnabled);
+        LOG.debug("Return http client for url:[{}] with timeoutSocket:[{}],timeoutConnection:[{}],redirectsEnabled:[{}] ", url, timeoutSocket, timeoutConnection, redirectsEnabled);
         return httpClientBuilder.build();
     }
 
@@ -507,14 +507,14 @@ public class DomibusDataLoader implements DataLoader {
             }
 
             client = getHttpClient(url);
-            LOG.debug("Calling:[{}]",url);
+            LOG.debug("Calling:[{}]", url);
             httpResponse = getHttpResponse(client, httpRequest);
-            LOG.debug("Response:[{}]",httpResponse);
+            LOG.debug("Response:[{}]", httpResponse);
 
             return readHttpResponse(httpResponse);
 
         } catch (URISyntaxException | IOException e) {
-            LOG.error("Error while executing get request on url:[{}]",url);
+            LOG.error("Error while executing get request on url:[{}]", url);
             throw new DSSException("Unable to process GET call for url '" + url + "'", e);
         } finally {
             try {
