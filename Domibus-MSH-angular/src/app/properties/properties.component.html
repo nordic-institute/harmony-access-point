@@ -12,6 +12,11 @@
             </md-input-container>
           </div>
 
+          <ng-container *ngIf="isIncludeSuperPropertiesVisible">
+            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.includeSuperProperties" id="includeSuperProperties_id">
+            <span>Include Super Properties</span>
+          </ng-container>
+
         </form>
       </div>
     </md-card-content>

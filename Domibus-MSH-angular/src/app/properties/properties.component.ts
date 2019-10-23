@@ -13,7 +13,9 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 
 export class PropertiesComponent implements OnInit {
 
-  filter: { propertyName: string };
+  filter: { propertyName: string, includeSuperProperties: boolean };
+  isIncludeSuperPropertiesVisible: boolean;
+
   loading: boolean = false;
   rows = [];
   count: number = 0;
@@ -25,10 +27,12 @@ export class PropertiesComponent implements OnInit {
   columns: any[] = [];
 
   constructor(private propertiesService: PropertiesService, private alertService: AlertService) {
+    this.filter = {propertyName: '', includeSuperProperties: false};
   }
 
-  ngOnInit() {
-    this.filter = { propertyName: '' };
+  async ngOnInit() {
+    this.isIncludeSuperPropertiesVisible = await this.propertiesService.isIncludeSuperPropertiesVisible();
+
     this.rows = [];
 
     this.loadProperties(this.rowLimiter.pageSize);
@@ -72,7 +76,7 @@ export class PropertiesComponent implements OnInit {
   private async loadProperties(pageSize: number, offset: number = 0) {
     this.loading = true;
     try {
-      var result = await this.propertiesService.getProperties(this.filter.propertyName, pageSize, offset);
+      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.includeSuperProperties, pageSize, offset);
       this.count = result.count;
       this.rows = result.items;
       this.offset = offset;
@@ -92,7 +96,7 @@ export class PropertiesComponent implements OnInit {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
       if (!ex.handled)
-      this.alertService.exception('Could not update property ', ex, false);
+        this.alertService.exception('Could not update property ', ex, false);
     }
   }
 

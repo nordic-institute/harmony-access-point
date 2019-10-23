@@ -1,20 +1,29 @@
 import {Headers, Http, URLSearchParams, Response} from '@angular/http';
-import {AlertService} from "app/common/alert/alert.service";
-import {Injectable} from "@angular/core";
+import {AlertService} from 'app/common/alert/alert.service';
+import {Injectable} from '@angular/core';
+import {DomainService} from '../security/domain.service';
+import {SecurityService} from '../security/security.service';
 
 @Injectable()
 export class PropertiesService {
 
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
 
-  constructor(private http: Http, private alertService: AlertService) {
-
+  constructor(private http: Http, private alertService: AlertService, private securityService: SecurityService, private domainService: DomainService) {
   }
 
-  getProperties(searchString: string, pageSize: number, offset: number): Promise<PropertyListModel> {
+  async isIncludeSuperPropertiesVisible (): Promise<boolean> {
+    const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
+    return isMultiDomain && this.securityService.isCurrentUserSuperAdmin();
+  }
+
+  getProperties(searchString: string, includeSuperProperties: boolean, pageSize: number, offset: number): Promise<PropertyListModel> {
     const searchParams = new URLSearchParams();
     if (searchString && searchString.trim()) {
-       searchParams.set('name', searchString.trim());
+      searchParams.set('name', searchString.trim());
+    }
+    if (includeSuperProperties) {
+      searchParams.set('includeSuperProperties', includeSuperProperties.toString());
     }
     if (pageSize) {
       searchParams.set('pageSize', pageSize.toString());
@@ -36,7 +45,8 @@ export class PropertiesService {
 
   updateProperty(name: any, value: any): Promise<void> {
     return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value)
-      .map(() => {})
+      .map(() => {
+      })
       .toPromise()
       .catch(err => this.alertService.handleError(err));
   }
