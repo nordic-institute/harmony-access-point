@@ -22,7 +22,7 @@ import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.ObjectFactory;
@@ -150,7 +150,7 @@ public class UserMessageHandlerServiceImplTest {
     RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Injectable
-    protected UIReplicationSignalServiceImpl uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     protected MessageUtil messageUtil;

@@ -4,8 +4,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -85,46 +83,6 @@ public class UIReplicationSignalServiceImplTest {
 
         //tested method
         uiReplicationSignalService.userMessageSubmitted(messageId);
-
-        new Verifications() {{
-            jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
-        }};
-    }
-
-    @Test
-    public void testMessageStatusChange(final @Mocked JmsMessage message) {
-        final MessageStatus messageStatus = MessageStatus.ACKNOWLEDGED;
-
-        new Expectations(uiReplicationSignalService) {{
-            uiReplicationSignalService.isReplicationEnabled();
-            result = true;
-
-            uiReplicationSignalService.createJMSMessage(messageId, UIJMSType.MESSAGE_STATUS_CHANGE, messageStatus);
-            result = message;
-        }};
-
-        //tested method
-        uiReplicationSignalService.messageChange(messageId);
-
-        new Verifications() {{
-            jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
-        }};
-    }
-
-    @Test
-    public void testMessageNotificationStatusChange(final @Mocked JmsMessage message) {
-        final NotificationStatus notificationStatus = NotificationStatus.NOTIFIED;
-
-        new Expectations(uiReplicationSignalService) {{
-            uiReplicationSignalService.isReplicationEnabled();
-            result = true;
-
-            uiReplicationSignalService.createJMSMessage(messageId, UIJMSType.MESSAGE_NOTIFICATION_STATUS_CHANGE, notificationStatus);
-            result = message;
-        }};
-
-        //tested method
-        uiReplicationSignalService.messageChange(messageId);
 
         new Verifications() {{
             jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);

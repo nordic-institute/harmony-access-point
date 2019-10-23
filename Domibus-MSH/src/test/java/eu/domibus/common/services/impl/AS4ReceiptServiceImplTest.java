@@ -15,7 +15,7 @@ import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -128,7 +128,7 @@ public class AS4ReceiptServiceImplTest {
     RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Injectable
-    protected UIReplicationSignalServiceImpl uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     protected MessageUtil messageUtil;

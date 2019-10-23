@@ -50,7 +50,7 @@ public class UIReplicationResource {
     @RequestMapping(value = {"/sync"}, method = RequestMethod.GET)
     public ResponseEntity<String> syncData(@RequestParam(value = "limit", defaultValue = "10000") int limit) {
         if (!uiReplicationSignalService.isReplicationEnabled()) {
-            LOG.debug("UIReplication is disabled - no processing will occur");
+            LOG.warn("UIReplication is disabled - no processing will occur");
             return ResponseEntity
                     .ok()
                     .body( "UIReplication is disabled. No records will be synced for TB_MESSAGE_UI table");

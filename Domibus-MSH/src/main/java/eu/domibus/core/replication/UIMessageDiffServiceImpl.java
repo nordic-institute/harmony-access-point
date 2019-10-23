@@ -120,7 +120,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         int recordsToSync = countAll();
 
         if (recordsToSync == 0) {
-            LOG.debug("no records to sync");
+            LOG.warn("no records to sync");
             return 0;
         }
 
@@ -135,12 +135,12 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         startTime = System.currentTimeMillis();
 
         if (!uiMessageEntityList.isEmpty()) {
-            LOG.debug("start to update TB_MESSAGE_UI");
+            LOG.info("start to update TB_MESSAGE_UI");
 
             uiMessageEntityList.stream().forEach(uiMessageEntity ->
                     uiMessageService.saveOrUpdate(uiMessageEntity));
 
-            LOG.debug("finish to update TB_MESSAGE_UI after [{}] milliseconds", System.currentTimeMillis() - startTime);
+            LOG.info("finish to update TB_MESSAGE_UI after [{}] milliseconds", System.currentTimeMillis() - startTime);
         }
         return recordsToSync;
     }
