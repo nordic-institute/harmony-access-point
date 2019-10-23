@@ -2,6 +2,7 @@ package eu.domibus.web.security;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -17,15 +18,17 @@ import static eu.domibus.logging.DomibusLogger.MDC_USER;
  * @author Sebastian-Ion TINCU
  * @since 4.2
  */
-public class AuditInterceptor extends HandlerInterceptorAdapter {
+public class AuthenticatedPrincipalInterceptor extends HandlerInterceptorAdapter {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticatedPrincipalInterceptor.class);
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        LOG.debug("Adding audit information on request [{}]", request.getRequestURI());
+        LOG.trace("Trying to add any authenticated principal information on request [{}]", request.getRequestURI());
 
-        if(SecurityContextHolder.getContext().getAuthentication() != null) {
-            LOG.putMDC(MDC_USER, SecurityContextHolder.getContext().getAuthentication().getName());
+        Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+        if(principal != null) {
+            LOG.trace("Adding the authenticated principal name [{}]", principal.getName());
+            LOG.putMDC(MDC_USER, principal.getName());
         }
 
         return true;
@@ -33,8 +36,7 @@ public class AuditInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
-        LOG.debug("Removing audit information on request [{}]", request.getRequestURI());
-
+        LOG.trace("Removing any authenticated principal information present from request [{}]", request.getRequestURI());
         LOG.removeMDC(MDC_USER);
     }
 }

@@ -66,10 +66,10 @@ public class DomibusJPAConfiguration {
         result.setJpaVendorAdapter(jpaVendorAdapter());
         final PrefixedProperties jpaProperties = jpaProperties();
 
-        if(singleTenantConnectionProviderImpl.isPresent()) {
+        if (singleTenantConnectionProviderImpl.isPresent()) {
             LOG.info("Configuring jpaProperties for single-tenancy");
             jpaProperties.put(Environment.CONNECTION_PROVIDER, singleTenantConnectionProviderImpl.get());
-        }else if (multiTenantConnectionProviderImpl.isPresent()) {
+        } else if (multiTenantConnectionProviderImpl.isPresent()) {
             LOG.info("Configuring jpaProperties for multi-tenancy");
             jpaProperties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
             jpaProperties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProviderImpl.get());

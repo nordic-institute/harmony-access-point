@@ -1,6 +1,5 @@
 package eu.domibus.dao;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -18,7 +17,6 @@ import java.util.Map;
 @Profile("IN_MEMORY_DATABASE")
 public class InMemoryDataBaseConfig extends AbstractDatabaseConfig {
 
-    @Bean
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)

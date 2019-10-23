@@ -1,9 +1,7 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ConfigurationCondition;
@@ -11,6 +9,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
+ * Condition evaluating to true when the application is run in single tenancy mode; otherwise, false.
+ *
  * @author Sebastian-Ion TINCU
  * @since 4.2
  */
@@ -31,7 +31,8 @@ public class SingleTenantAwareEntityManagerCondition implements ConfigurationCon
             LOGGER.debug("Condition not matching: environment is null");
             return false;
         }
-        final boolean isSingleTenantAware = StringUtils.isBlank(environment.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
-        return isSingleTenantAware;
+
+        final MultiTenantAwareEntityManagerCondition multiTenantAwareEntityManagerCondition = new MultiTenantAwareEntityManagerCondition();
+        return !multiTenantAwareEntityManagerCondition.matches(context, metadata);
     }
 }

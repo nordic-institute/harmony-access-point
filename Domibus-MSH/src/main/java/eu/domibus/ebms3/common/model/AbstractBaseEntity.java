@@ -4,6 +4,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Calendar;
@@ -30,6 +31,7 @@ public abstract class AbstractBaseEntity implements Serializable {
     @Column(name = "CREATION_TIME", updatable = false, nullable = false)
     @XmlTransient
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull
     private Date creationTime;
 
     @Column(name = "MODIFICATION_TIME")
@@ -39,6 +41,7 @@ public abstract class AbstractBaseEntity implements Serializable {
 
     @Column(name = "CREATED_BY", nullable = false, updatable = false)
     @XmlTransient
+    @NotNull
     private String createdBy;
 
     @Column(name = "MODIFIED_BY")
@@ -46,22 +49,15 @@ public abstract class AbstractBaseEntity implements Serializable {
     private String modifiedBy;
 
     @PrePersist
-    @PreUpdate
-    void onPersist() {
+    public void updateCreationDetails() {
         String user = LOG.getMDC(DomibusLogger.MDC_USER);
-        if (getCreationTime() == null || getCreatedBy() == null) {
-            updateCreationDetails(user);
-        } else {
-            updateModificationDetails(user);
-        }
-    }
-
-    private void updateCreationDetails(String user) {
         setCreatedBy(user);
         setCreationTime(Calendar.getInstance().getTime());
     }
 
-    private void updateModificationDetails(String user) {
+    @PreUpdate
+    public void updateModificationDetails() {
+        String user = LOG.getMDC(DomibusLogger.MDC_USER);
         setModifiedBy(user);
         setModificationTime(Calendar.getInstance().getTime());
     }

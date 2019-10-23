@@ -1,5 +1,6 @@
 package eu.domibus.core.multitenancy;
 
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -27,18 +28,20 @@ public class DomibusConnectionProvider implements ConnectionProvider {
     @Autowired
     protected DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 
+    @Autowired
+    private DatabaseUtil databaseUtil;
+
     @Override
     public Connection getConnection() throws SQLException {
         LOG.trace("Getting new connection");
-        Connection connection = dataSource.getConnection();
 
         String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
         if(StringUtils.isBlank(mdcUser)) {
-            String userName = connection.getMetaData().getUserName();
+            String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
-        return connection;
+        return dataSource.getConnection();
    }
 
     @Override

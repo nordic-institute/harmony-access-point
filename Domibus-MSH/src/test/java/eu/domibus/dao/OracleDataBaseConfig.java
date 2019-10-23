@@ -1,7 +1,6 @@
 package eu.domibus.dao;
 
 import eu.domibus.audit.AuditIT;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -21,9 +20,8 @@ import java.util.Map;
  */
 @EnableTransactionManagement
 @Profile("ORACLE_DATABASE")
-public class OracleDataBaseConfig extends AbstractDatabaseConfig{
+public class OracleDataBaseConfig extends AbstractDatabaseConfig {
 
-    @Bean
     public DataSource dataSource() {
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
         driverManagerDataSource.setDriverClassName("oracle.jdbc.OracleDriver");

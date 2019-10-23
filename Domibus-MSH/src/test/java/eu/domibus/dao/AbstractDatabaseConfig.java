@@ -1,10 +1,10 @@
 package eu.domibus.dao;
 
 import eu.domibus.core.multitenancy.DomibusConnectionProvider;
+import eu.domibus.core.util.DatabaseUtil;
+import mockit.Deencapsulation;
 import org.hibernate.cfg.Environment;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -22,6 +22,7 @@ import java.util.Properties;
 @Configuration
 public abstract class AbstractDatabaseConfig {
 
+    @Bean("domibusJDBC-XADataSource")
     abstract DataSource dataSource();
 
     abstract Map<Object, Object> getProperties();
@@ -44,11 +45,20 @@ public abstract class AbstractDatabaseConfig {
         return localContainerEntityManagerFactoryBean;
     }
 
-    @Autowired
+    @Bean
     public ConnectionProvider connectionProvider() {
         DomibusConnectionProvider domibusConnectionProvider = new DomibusConnectionProvider();
-        Whitebox.setInternalState(domibusConnectionProvider, "dataSource", dataSource());
+        Deencapsulation.setField(domibusConnectionProvider, "dataSource", dataSource());
+        Deencapsulation.setField(domibusConnectionProvider, "databaseUtil", databaseUtil());
         return domibusConnectionProvider;
+    }
+
+    @Bean
+    public DatabaseUtil databaseUtil() {
+        DatabaseUtil databaseUtil = new DatabaseUtil();
+        Deencapsulation.setField(databaseUtil, "dataSource", dataSource());
+        databaseUtil.init();
+        return databaseUtil;
     }
 
     @Bean
