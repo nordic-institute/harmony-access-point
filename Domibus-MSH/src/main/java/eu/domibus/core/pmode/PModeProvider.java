@@ -242,12 +242,12 @@ public abstract class PModeProvider {
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
 
         final String agreementName;
-        final String senderParty;
         final String service;
         final String action;
         final String leg;
         String mpc;
-        String receiverParty;
+        String senderParty = "";
+        String receiverParty = "";
 
         final String messageId = userMessage.getMessageInfo().getMessageId();
         //add messageId to MDC map
@@ -271,7 +271,9 @@ public abstract class PModeProvider {
                 if (isPull && mpcService.forcePullOnMpc(userMessage)) {
                     LOG.info("Receiver party not found in pMode, extract from MPC");
                     receiverParty = mpcService.extractInitiator(userMessage.getMpc());
+                    exc.setErrorDetail("Receiver Party extract from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
                 } else {
+                    exc.setErrorDetail("Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
                     throw exc;
                 }
             }
@@ -297,6 +299,11 @@ public abstract class PModeProvider {
             return messageExchangeConfiguration;
         } catch (EbMS3Exception e) {
             e.setRefToMessageId(messageId);
+            if (receiverParty.isEmpty()) {
+                e.setErrorDetail("Receiver Party in Pmode is " + null + " and SenderParty is " + senderParty);
+            } else {
+                e.setErrorDetail("Receiver Party in Pmode is " + receiverParty + " and SenderParty is " + senderParty);
+            }
             throw e;
         } catch (IllegalStateException ise) {
             // It can happen if DB is clean and no pmodes are configured yet!

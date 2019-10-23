@@ -157,6 +157,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                 doDynamicDiscovery(userMessage, mshRole);
             } else {
                 LOG.debug("PmodeKey not found, dynamic discovery is not enabled! Check parameter {} for current domain.",  DynamicDiscoveryService.SMLZONE_KEY );
+               // e.setErrorDetail("No matching party found! Sender Party:"+userMessage.getPartyInfo().getFrom().getPartyId()+"Reveiver Party:"+userMessage.getPartyInfo().getTo().getPartyId());
                 throw  e;
             }
         }
