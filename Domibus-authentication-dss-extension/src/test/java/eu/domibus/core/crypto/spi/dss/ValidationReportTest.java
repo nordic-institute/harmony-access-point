@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.europa.esig.dss.jaxb.detailedreport.DetailedReport;
+import eu.europa.esig.dss.detailedreport.DetailedReport;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import mockit.Expectations;
 import mockit.Mocked;
@@ -10,8 +11,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +29,7 @@ public class ValidationReportTest {
 
     @Test(expected = IllegalStateException.class)
     public void isValidNoConfiguredConstraints(@Mocked CertificateReports certificateReports) throws JAXBException {
-        InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
-        JAXBContext jaxbContext = JAXBContext.newInstance(DetailedReport.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        final DetailedReport detailedReport = (DetailedReport) unmarshaller.unmarshal(xmlStream);
+        final XmlDetailedReport detailedReport = getXmlDetailedReport();
 
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
@@ -47,17 +47,14 @@ public class ValidationReportTest {
         constraints.add(new ConstraintInternal("BBB_XCV_ICTIVRSC", "OK"));
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
-            result = new DetailedReport();
+            result = new XmlDetailedReport();
         }};
         Assert.assertFalse(validationReport.extractInvalidConstraints(certificateReports, constraints).isEmpty());
     }
 
     @Test
     public void isValidAnchorAndValidityDate(@Mocked CertificateReports certificateReports) throws JAXBException {
-        InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
-        JAXBContext jaxbContext = JAXBContext.newInstance(DetailedReport.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        final DetailedReport detailedReport = (DetailedReport) unmarshaller.unmarshal(xmlStream);
+        final XmlDetailedReport detailedReport = getXmlDetailedReport();
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
             result = detailedReport;
@@ -71,10 +68,8 @@ public class ValidationReportTest {
 
     @Test
     public void isValidOneConstraintIsWrong(@Mocked CertificateReports certificateReports) throws JAXBException {
-        InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
-        JAXBContext jaxbContext = JAXBContext.newInstance(DetailedReport.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        final DetailedReport detailedReport = (DetailedReport) unmarshaller.unmarshal(xmlStream);
+
+        final XmlDetailedReport detailedReport = getXmlDetailedReport();
 
         final ArrayList<ConstraintInternal> constraints = new ArrayList<>();
         constraints.add(new ConstraintInternal("BBB_XCV_CCCBB", "OK"));
@@ -86,6 +81,14 @@ public class ValidationReportTest {
             result = detailedReport;
         }};
         Assert.assertFalse(validationReport.extractInvalidConstraints(certificateReports, constraints).isEmpty());
+    }
+
+    protected XmlDetailedReport getXmlDetailedReport() throws JAXBException {
+        InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
+        JAXBContext jaxbContext = JAXBContext.newInstance(XmlDetailedReport.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        JAXBElement<XmlDetailedReport> customer = (JAXBElement<XmlDetailedReport>) unmarshaller.unmarshal(new StreamSource(xmlStream), XmlDetailedReport.class);
+        return customer.getValue();
     }
 
 

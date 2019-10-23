@@ -3,8 +3,8 @@ package eu.domibus.core.crypto.spi.dss;
 import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
-import eu.europa.esig.dss.jaxb.detailedreport.DetailedReport;
-import eu.europa.esig.dss.jaxb.detailedreport.XmlConstraint;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlConstraint;
+import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class ValidationReport {
         LOG.debug("Detail report:[{}]", certificateReports.getXmlDetailedReport());
         LOG.debug("Simple report:[{}]", certificateReports.getXmlSimpleReport());
         LOG.debug("Diagnostic data:[{}]", certificateReports.getXmlDiagnosticData());
-        final DetailedReport detailedReport = certificateReports.getDetailedReportJaxb();
+        XmlDetailedReport detailedReport = certificateReports.getDetailedReportJaxb();
         if (constraints == null || constraints.isEmpty()) {
             throw new IllegalStateException("A minimum set of constraints should be set.");
         }
