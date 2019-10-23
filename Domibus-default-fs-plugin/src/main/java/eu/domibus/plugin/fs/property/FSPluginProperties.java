@@ -397,7 +397,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
                 LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
                 for (String domain : getDomains()) {
                     String name = getDomainPropertyName(domain, prop.getName());
-                    DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, prop.isWithFallback());
+                    DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, prop.isWithFallback());
                     knownProperties.put(p.getName(), p);
                 }
             } else {

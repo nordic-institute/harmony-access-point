@@ -9,18 +9,18 @@ package eu.domibus.ext.domain;
  */
 public class DomibusPropertyMetadataDTO {
     public boolean isGlobal() {
-        return (getType() & Type.GLOBAL) == Type.GLOBAL;
+        return (getUsage() & Usage.GLOBAL) == Usage.GLOBAL;
     }
 
     public boolean isSuper() {
-        return (getType() & Type.SUPER) == Type.SUPER;
+        return (getUsage() & Usage.SUPER) == Usage.SUPER;
     }
 
     public boolean isDomain() {
-        return (getType() & Type.DOMAIN) == Type.DOMAIN;
+        return (getUsage() & Usage.DOMAIN) == Usage.DOMAIN;
     }
 
-    public class Type {
+    public class Usage {
         public static final int GLOBAL = 1;
         public static final int DOMAIN = 2;
         public static final int SUPER = 4;
@@ -30,7 +30,21 @@ public class DomibusPropertyMetadataDTO {
 
     private String name;
 
-    private int type;
+    private String type; // numeric, cronexp, regexp, string, concurrency
+
+    /**
+     * When false, it means global property. When true, it means domain property.
+     * In single tenancy mode, a global property can be changed by regular admins.
+     * In multi tenancy mode, a global property can be changed only by AP admins.
+     */
+    private boolean domainSpecific;
+
+    /**
+     * When GLOBAL, it means global property. When DOMAIN, it means domain property, when SUPER, it means for super-users
+     * In single tenancy mode, a global property can be changed by regular admins.
+     * In multi tenancy mode, a global property can be changed only by AP admins.
+     */
+    private int usage;
 
     /**
      * For domain properties, this flag specifies whether the value is read
@@ -54,30 +68,30 @@ public class DomibusPropertyMetadataDTO {
     public DomibusPropertyMetadataDTO() {
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, int type, boolean withFallback, boolean clusterAware, boolean encrypted) {
+    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted) {
         this.name = name;
         this.writable = writable;
-        this.type = type;
+        this.usage = usage;
         this.withFallback = withFallback;
         this.clusterAware = clusterAware;
         this.module = module;
         this.encrypted = encrypted;
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, int type) {
-        this(name, module, true, type, false, true, false);
+    public DomibusPropertyMetadataDTO(String name, String module, int usage) {
+        this(name, module, true, usage, false, true, false);
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, int type, boolean withFallback) {
-        this(name, module, true, type, withFallback, true, false);
+    public DomibusPropertyMetadataDTO(String name, String module, int usage, boolean withFallback) {
+        this(name, module, true, usage, withFallback, true, false);
     }
 
-    public DomibusPropertyMetadataDTO(String name, int type, boolean withFallback) {
-        this(name, Module.MSH, true, type, withFallback, true, false);
+    public DomibusPropertyMetadataDTO(String name, int usage, boolean withFallback) {
+        this(name, Module.MSH, true, usage, withFallback, true, false);
     }
 
     public DomibusPropertyMetadataDTO(String name) {
-        this(name, Module.MSH, true, Type.DOMAIN, true, true, false);
+        this(name, Module.MSH, true, Usage.DOMAIN, true, true, false);
     }
 
     public String getName() {
@@ -88,12 +102,36 @@ public class DomibusPropertyMetadataDTO {
         this.name = name;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
+    }
+
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.domain.DomibusPropertyMetadataDTO#getUsage() }
+     */
+    @Deprecated
+    public boolean isDomainSpecific() {
+        return domainSpecific;
+    }
+
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.domain.DomibusPropertyMetadataDTO#setUsage(int) }
+     */
+    @Deprecated
+    public void setDomainSpecific(boolean domainSpecific) {
+        this.domainSpecific = domainSpecific;
+    }
+
+    public int getUsage() {
+        return usage;
+    }
+
+    public void setUsage(int usage) {
+        this.usage = usage;
     }
 
     public boolean isWithFallback() {

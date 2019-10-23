@@ -90,7 +90,7 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
                 "queue.out",
         };
         return Arrays.stream(knownPropertyNames)
-                .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Type.DOMAIN, true))
+                .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true))
                 .collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 

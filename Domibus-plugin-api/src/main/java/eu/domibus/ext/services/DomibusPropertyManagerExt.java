@@ -15,6 +15,10 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param propertyName the property name whose value is requested
      * @return the current property value
      */
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyManagerExt#getKnownPropertyValue(java.lang.String) }
+     */
+    @Deprecated
     String getKnownPropertyValue(String domainCode, String propertyName);
 
     /**

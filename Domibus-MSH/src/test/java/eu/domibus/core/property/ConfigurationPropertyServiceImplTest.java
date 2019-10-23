@@ -52,25 +52,25 @@ public class ConfigurationPropertyServiceImplTest {
     @Before
     public void setUp() {
         props1 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadataDTO.Type.DOMAIN, false),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
         props2 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_SUPPORT_TEAM_NAME, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadataDTO.Type.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_UI_SUPPORT_TEAM_NAME, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
         propertyManagers = Arrays.asList(propertyManager1, propertyManager2);
     }
 
     DomibusPropertyMetadata convert(DomibusPropertyMetadataDTO meta) {
-        return new DomibusPropertyMetadata(meta.getName(), meta.getModule(), meta.isWritable(), meta.getType(),
+        return new DomibusPropertyMetadata(meta.getName(), meta.getModule(), meta.isWritable(), meta.getUsage(),
                 meta.isWithFallback(), meta.isClusterAware(), meta.isEncrypted());
     }
 
