@@ -106,7 +106,7 @@
         <wss4j.ws.security.common>2.2.4</wss4j.ws.security.common>
         <dss.version>5.4</dss.version>
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>5.4</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
         <!--Please keep those two dependencies version aligned with transitive dependency-->
         <json-smart.version>2.3</json-smart.version>
         <ehcache.version>2.10.5</ehcache.version>
