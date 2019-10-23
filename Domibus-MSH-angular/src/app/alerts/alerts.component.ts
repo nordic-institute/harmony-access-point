@@ -79,10 +79,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     this.getAlertTypes();
     this.getAlertLevels();
-    this.getAlertStatuses();
-    if (this.securityService.isCurrentUserSuperAdmin()) {
-      this.displayDomainCheckBox = true;
-    }
+    this.getAlertStatuses(); 
   }
 
   ngOnInit() {
@@ -112,8 +109,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     this.dateFromName = '';
     this.dateToName = '';
-    this.displayDomainCheckBox = false;
-
+    this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
     this.columnPicker.allColumns = [

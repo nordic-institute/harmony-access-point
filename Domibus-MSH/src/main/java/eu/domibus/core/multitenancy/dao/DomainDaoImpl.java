@@ -68,6 +68,10 @@ public class DomainDaoImpl implements DomainDao {
             if (StringUtils.containsIgnoreCase(fileName, DOMAIN_FILE_SUFFIX)) {
                 LOG.trace("Getting domain code from file [{}]", fileName);
                 String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
+                if (StringUtils.equalsAnyIgnoreCase(domainCode, "default", "super")) {
+                    // "default" and "super" are not additional domains, but regular ones
+                    continue;
+                }
 
                 Domain domain = new Domain(domainCode, null);
                 domain.setName(getDomainTitle(domain));
