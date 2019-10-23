@@ -4,10 +4,7 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
@@ -56,6 +53,9 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Autowired
     protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+
+    @Autowired
+    protected DomainContextExtService domainContextProvider;
 
     private List<String> domains;
 
@@ -416,7 +416,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public String getKnownPropertyValue(String domain, String propertyName) {
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
         if (!hasKnownProperty(propertyName)) {
             throw new IllegalArgumentException("Unknown property name: " + propertyName);
         }
@@ -428,7 +428,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
             }
         }
         String baseName = getBasePropertyName(propertyName);
-        String key1 = DOMAIN_PREFIX + domain + DOT + baseName;
+        String key1 = DOMAIN_PREFIX + domainCode + DOT + baseName;
         String key2 = PROPERTY_PREFIX + baseName;
 
         if (this.properties.containsKey(key1)) {
@@ -438,6 +438,13 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
             return this.properties.getProperty(key2);
         }
         return null;
+    }
+
+    @Override
+    public String getKnownPropertyValue(String propertyName) {
+        DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
+        String domainCode = currentDomain == null ? null : currentDomain.getCode();
+        return getKnownPropertyValue(domainCode, propertyName);
     }
 
     @Override
@@ -459,7 +466,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         propertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
     }
 
-    @Override 
+    @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }

@@ -21,10 +21,10 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
     @Test
     public void testFind() throws Exception {
 
-        List<DomibusProperty> list = configurationPropertyService.getProperties("title");
+        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties("title", false);
         Assert.assertTrue(list.size() > 0);
 
-        List<DomibusProperty> list2 = configurationPropertyService.getProperties("domibus.ui.title.name");
+        List<DomibusProperty> list2 = configurationPropertyService.getAllWritableProperties("domibus.ui.title.name", false);
         Assert.assertEquals(1, list2.size());
     }
 
@@ -33,7 +33,7 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
 
         String name = DOMIBUS_UI_TITLE_NAME;
 
-        List<DomibusProperty> list = configurationPropertyService.getProperties(name);
+        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties(name, false);
         Assert.assertEquals(1, list.size());
 
         String originalValue = list.get(0).getValue();
@@ -41,7 +41,7 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
 
         configurationPropertyService.setPropertyValue(name, newValue);
 
-        list = configurationPropertyService.getProperties(name);
+        list = configurationPropertyService.getAllWritableProperties(name, false);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();
@@ -56,7 +56,7 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
 
         configurationPropertyService.setPropertyValue(name, newValue);
 
-        List<DomibusProperty> list = configurationPropertyService.getProperties(name);
+        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties(name, false);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();

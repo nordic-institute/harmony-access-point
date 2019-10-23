@@ -46,11 +46,11 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     private List<DomibusPropertyManagerExt> propertyManagers;
 
-    public List<DomibusProperty> getProperties(String name) {
+    public List<DomibusProperty> getAllWritableProperties(String name, boolean includeSuperProperties) {
         List<DomibusProperty> list = new ArrayList<>();
 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        String domainCode = currentDomain == null ? null : currentDomain.getCode();
+//        String domainCode = currentDomain == null ? null : currentDomain.getCode();
 
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
             List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
@@ -60,14 +60,20 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
             if (domibusConfigurationService.isMultiTenantAware()) {
                 if (currentDomain == null) {
-                    knownProps = knownProps.stream().filter(p -> p.isGlobal()).collect(Collectors.toList());
+                    //TODO: include super properties if asked so
+                    if(includeSuperProperties) {
+                        knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
+                    } else {
+                        knownProps = knownProps.stream().filter(p -> p.isGlobal()).collect(Collectors.toList());
+                    }
                 } else {
-                    knownProps = knownProps.stream().filter(p -> p.getType() == DomibusPropertyMetadataDTO.Type.DOMAIN).collect(Collectors.toList());
+                    knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
                 }
             }
 
             for (DomibusPropertyMetadataDTO p : knownProps) {
-                String value = propertyManager.getKnownPropertyValue(domainCode, p.getName());
+//                String value = propertyManager.getKnownPropertyValue(domainCode, p.getName());
+                String value = propertyManager.getKnownPropertyValue(p.getName());
                 DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
 
                 DomibusProperty prop = new DomibusProperty();

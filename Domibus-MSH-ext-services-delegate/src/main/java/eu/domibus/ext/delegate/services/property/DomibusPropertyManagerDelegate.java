@@ -38,6 +38,11 @@ public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt
     }
 
     @Override
+    public String getKnownPropertyValue(String propertyName) {
+        return domibusPropertyManager.getKnownPropertyValue(propertyName);
+    }
+
+    @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         domibusPropertyManager.setKnownPropertyValue(domainCode, propertyName, propertyValue, broadcast);
     }

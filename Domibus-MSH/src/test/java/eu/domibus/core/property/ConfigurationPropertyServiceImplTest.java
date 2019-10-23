@@ -89,26 +89,26 @@ public class ConfigurationPropertyServiceImplTest {
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
-            propertyManager1.getKnownPropertyValue(domainCode, DOMIBUS_UI_TITLE_NAME);
+            propertyManager1.getKnownPropertyValue(DOMIBUS_UI_TITLE_NAME);
             result = "val1";
 
             domainConverter.convert(props1.get(DOMIBUS_UI_TITLE_NAME), DomibusPropertyMetadata.class);
             result = convert(props1.get(DOMIBUS_UI_TITLE_NAME));
 
-            propertyManager1.getKnownPropertyValue(domainCode, DOMIBUS_UI_REPLICATION_ENABLED);
+            propertyManager1.getKnownPropertyValue(DOMIBUS_UI_REPLICATION_ENABLED);
             result = "val2";
 
             domainConverter.convert(props1.get(DOMIBUS_UI_REPLICATION_ENABLED), DomibusPropertyMetadata.class);
             result = convert(props1.get(DOMIBUS_UI_REPLICATION_ENABLED));
 
-            propertyManager2.getKnownPropertyValue(domainCode, DOMIBUS_UI_SUPPORT_TEAM_NAME);
+            propertyManager2.getKnownPropertyValue(DOMIBUS_UI_SUPPORT_TEAM_NAME);
             result = "val3";
 
             domainConverter.convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME), DomibusPropertyMetadata.class);
             result = convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME));
         }};
 
-        List<DomibusProperty> actual = domibusPropertyService.getProperties("domibus.UI");
+        List<DomibusProperty> actual = domibusPropertyService.getAllWritableProperties("domibus.UI", false);
 
         Assert.assertEquals(3, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));

@@ -19,7 +19,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Property manager for the JmsPlugin properties.
  */
 @Service
@@ -33,22 +33,36 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
+        return getKnownPropertyValue(propertyName);
+
+//        if (!hasKnownProperty(propertyName)) {
+//            throw new IllegalArgumentException("Unknown property: " + propertyName);
+//        }
+//
+//        final DomainDTO domain = domainExtService.getDomain(domainCode);
+//
+//        if (StringUtils.equalsIgnoreCase(propertyName, PUT_ATTACHMENTS_IN_QUEUE)) {
+//            return domibusPropertyExtService.getDomainProperty(domain, propertyName, "true");
+//        } else {
+//            return domibusPropertyExtService.getProperty(domain, propertyName);
+//        }
+    }
+
+    @Override
+    public String getKnownPropertyValue(String propertyName) {
         if (!hasKnownProperty(propertyName)) {
             throw new IllegalArgumentException("Unknown property: " + propertyName);
         }
 
-        final DomainDTO domain = domainExtService.getDomain(domainCode);
-
         if (StringUtils.equalsIgnoreCase(propertyName, PUT_ATTACHMENTS_IN_QUEUE)) {
-            String value = domibusPropertyExtService.getProperty(domain, propertyName);
+            String value = domibusPropertyExtService.getProperty(propertyName);
             if (StringUtils.isEmpty(value)) {
                 value = "true";
             }
             return value;
-//            return domibusPropertyExtService.getDomainProperty(domain, propertyName, "true");
-        } else {
-            return domibusPropertyExtService.getProperty(domain, propertyName);
         }
+
+        return domibusPropertyExtService.getProperty(propertyName);
     }
 
     @Override

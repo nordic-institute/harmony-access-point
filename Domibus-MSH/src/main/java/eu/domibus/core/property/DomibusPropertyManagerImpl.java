@@ -55,18 +55,12 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
-        if (meta == null) {
-            throw new IllegalArgumentException(propertyName);
-        }
+        return getKnownPropertyValue(propertyName);
 
-        Domain domain = domainCode == null ? null : this.domainService.getDomain(domainCode);
-
-        if (domain != null) {
-            return domibusPropertyProvider.getProperty(domain, meta.getName());
-        }
-        return domibusPropertyProvider.getProperty(meta.getName());
-
+//        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
+//        if (meta == null) {
+//            throw new IllegalArgumentException(propertyName);
+//        }
 //        if (!meta.isDomainSpecific()) {
 //            return domibusPropertyProvider.getProperty(meta.getName());
 //        } else {
@@ -76,6 +70,15 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 //                return domibusPropertyProvider.getProperty(domain, meta.getName());
 //            }
 //        }
+    }
+
+    @Override
+    public String getKnownPropertyValue(String propertyName) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException(propertyName);
+        }
+
+        return domibusPropertyProvider.getProperty(propertyName);
     }
 
     @Override

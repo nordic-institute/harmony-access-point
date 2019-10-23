@@ -40,7 +40,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return System.getProperty(DOMIBUS_CONFIG_LOCATION);
     }
 
-    @Cacheable(value = "multitenantCache")
+    @Cacheable("multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
         return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));

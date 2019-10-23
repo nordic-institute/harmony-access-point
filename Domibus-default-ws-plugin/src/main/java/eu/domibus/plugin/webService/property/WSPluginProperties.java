@@ -46,6 +46,11 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
+       return getKnownPropertyValue(propertyName);
+    }
+
+    @Override
+    public String getKnownPropertyValue(String propertyName) {
         switch (propertyName) {
             case SCHEMA_VALIDATION_ENABLED_PROPERTY:
                 return this.isSchemaValidationEnabled().toString();

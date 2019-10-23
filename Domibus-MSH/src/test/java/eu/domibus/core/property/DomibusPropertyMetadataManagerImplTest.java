@@ -1,11 +1,13 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 
@@ -16,6 +18,9 @@ public class DomibusPropertyMetadataManagerImplTest {
 
     @Tested
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    @Injectable
+    ApplicationContext applicationContext;
 
     @Test
     public void getKnownProperties_nonExisting() {

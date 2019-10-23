@@ -18,6 +18,14 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
     String getKnownPropertyValue(String domainCode, String propertyName);
 
     /**
+     * Returns the current property value for the current domain
+     *
+     * @param propertyName the property name whose value is requested
+     * @return the current property value
+     */
+    String getKnownPropertyValue(String propertyName);
+
+    /**
      * Replaces/Sets the current property value
      *
      * @param domainCode    the domain on which the property value is set

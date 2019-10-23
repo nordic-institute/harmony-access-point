@@ -86,11 +86,11 @@ public class DomibusPropertyManagerImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void getKnownPropertyValue_nonExisting() {
         new Expectations() {{
-            domibusPropertyMetadataManager.getKnownProperties();
-            result = props;
+            domibusPropertyMetadataManager.hasKnownProperty("nonExistingPropName");
+            result = false;
         }};
 
-        String actual = domibusPropertyManager.getKnownPropertyValue(domainCode, "nonExistingPropName");
+        String actual = domibusPropertyManager.getKnownPropertyValue("nonExistingPropName");
     }
 
     @Test
@@ -99,17 +99,14 @@ public class DomibusPropertyManagerImplTest {
         String propValue = "propValue";
 
         new Expectations() {{
-            domibusPropertyMetadataManager.getKnownProperties();
-            result = props;
+            domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT);
+            result = true;
 
-            domainService.getDomain(domainCode);
-            result = domain;
-
-            domibusPropertyProvider.getProperty(domain, meta.getName());
+            domibusPropertyProvider.getProperty(meta.getName());
             result = propValue;
         }};
 
-        String actual = domibusPropertyManager.getKnownPropertyValue(domainCode, DOMIBUS_ALERT_SENDER_SMTP_PORT);
+        String actual = domibusPropertyManager.getKnownPropertyValue(DOMIBUS_ALERT_SENDER_SMTP_PORT);
 
         Assert.assertEquals(propValue, actual);
     }
@@ -120,13 +117,10 @@ public class DomibusPropertyManagerImplTest {
         String propValue = "propValue";
 
         new Expectations() {{
-            domibusPropertyMetadataManager.getKnownProperties();
-            result = props;
+            domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
+            result = true;
 
-            domainService.getDomain(domainCode);
-            result = domain;
-
-            domibusPropertyProvider.getProperty(domain, meta.getName());
+            domibusPropertyProvider.getProperty(meta.getName());
             result = propValue;
         }};
 
@@ -141,13 +135,10 @@ public class DomibusPropertyManagerImplTest {
         String propValue = "propValue";
 
         new Expectations() {{
-            domibusPropertyMetadataManager.getKnownProperties();
-            result = props;
+            domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
+            result = true;
 
-            domainService.getDomain(domainCode);
-            result = domain;
-
-            domibusPropertyProvider.getProperty(domain, meta.getName());
+            domibusPropertyProvider.getProperty(meta.getName());
             result = propValue;
         }};
 
