@@ -61,10 +61,10 @@ public class AuthorizationService {
     @Autowired
     private PModeProvider pModeProvider;
 
-    AuthorizationServiceSpi getAuthorizationService() {
-        final String authorizationServiceIndentifier = domibusPropertyProvider.getProperty(IAM_AUTHORIZATION_IDENTIFIER);
+    protected AuthorizationServiceSpi getAuthorizationService() {
+        final String authorizationServiceIdentifier = domibusPropertyProvider.getProperty(IAM_AUTHORIZATION_IDENTIFIER);
         final List<AuthorizationServiceSpi> authorizationServiceList = this.authorizationServiceSpis.stream().
-                filter(authorizationServiceSpi -> authorizationServiceIndentifier.equals(authorizationServiceSpi.getIdentifier())).
+                filter(authorizationServiceSpi -> authorizationServiceIdentifier.equals(authorizationServiceSpi.getIdentifier())).
                 collect(Collectors.toList());
 
         if (LOG.isDebugEnabled()) {
@@ -73,10 +73,10 @@ public class AuthorizationService {
         }
 
         if (authorizationServiceList.size() > 1) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIndentifier));
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIdentifier));
         }
         if (authorizationServiceList.isEmpty()) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIndentifier));
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIdentifier));
         }
         return authorizationServiceList.get(0);
     }
