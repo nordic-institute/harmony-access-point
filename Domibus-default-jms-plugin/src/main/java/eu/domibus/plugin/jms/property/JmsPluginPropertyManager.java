@@ -1,13 +1,9 @@
 package eu.domibus.plugin.jms.property;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -23,18 +19,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
  * Property manager for the JmsPlugin properties.
  */
 @Service
-public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
-
-    @Autowired
-    protected DomibusPropertyExtService domibusPropertyExtService;
-
-    @Autowired
-    protected DomainExtService domainExtService;
-
-    @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
-        return getKnownPropertyValue(propertyName);
-    }
+public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
@@ -54,29 +39,6 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
-
-        final DomainDTO domain = domainExtService.getDomain(domainCode);
-        domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String propertyName, String propertyValue) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
-        domibusPropertyExtService.setProperty(propertyName, propertyValue);
-    }
-
-    @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         String[] knownPropertyNames = new String[]{
                 FROM_PARTY_ID, FROM_PARTY_TYPE, FROM_ROLE,
@@ -90,8 +52,4 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
                 .collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
-    @Override
-    public boolean hasKnownProperty(String name) {
-        return getKnownProperties().containsKey(name);
-    }
 }
