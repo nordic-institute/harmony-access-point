@@ -3,8 +3,10 @@ package eu.domibus.core.property;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -35,6 +37,12 @@ public class ConfigurationPropertyServiceImplTest {
     @Injectable
     private List<DomibusPropertyManagerExt> propertyManagers;
 
+    @Injectable
+    private AuthUtils authUtils;
+
+    @Injectable
+    private DomainTaskExecutor domainTaskExecutor;
+
     @Mocked
     @Spy
     private DomibusPropertyManagerExt propertyManager1;
@@ -43,7 +51,7 @@ public class ConfigurationPropertyServiceImplTest {
     private DomibusPropertyManagerExt propertyManager2;
 
     @Tested
-    ConfigurationPropertyServiceImpl domibusPropertyService;
+    ConfigurationPropertyServiceImpl configurationPropertyService;
 
     Map<String, DomibusPropertyMetadataDTO> props1, props2;
     String domainCode = "domain1";
@@ -77,8 +85,6 @@ public class ConfigurationPropertyServiceImplTest {
     @Test
     public void getProperties() {
         new Expectations() {{
-            domainContextProvider.getCurrentDomainSafely();
-            result = domain;
 
             propertyManager1.getKnownProperties();
             result = props1;
@@ -108,7 +114,7 @@ public class ConfigurationPropertyServiceImplTest {
             result = convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME));
         }};
 
-        List<DomibusProperty> actual = domibusPropertyService.getAllWritableProperties("domibus.UI", false);
+        List<DomibusProperty> actual = configurationPropertyService.getAllWritableProperties("domibus.UI", true);
 
         Assert.assertEquals(3, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
@@ -120,9 +126,6 @@ public class ConfigurationPropertyServiceImplTest {
     @Test
     public void setPropertyValue() {
         new Expectations() {{
-            domainContextProvider.getCurrentDomainSafely();
-            result = domain;
-
             propertyManager2.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
             result = false;
 
@@ -130,18 +133,16 @@ public class ConfigurationPropertyServiceImplTest {
             result = true;
         }};
 
-        domibusPropertyService.setPropertyValue(DOMIBUS_UI_TITLE_NAME, true, "val11");
+        configurationPropertyService.setPropertyValue(DOMIBUS_UI_TITLE_NAME, true, "val11");
 
         new Verifications() {{
-            propertyManager1.setKnownPropertyValue(domainCode, DOMIBUS_UI_TITLE_NAME, "val11");
+            propertyManager1.setKnownPropertyValue(DOMIBUS_UI_TITLE_NAME, "val11");
         }};
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void setPropertyValue_notMatch() {
         new Expectations() {{
-            domainContextProvider.getCurrentDomainSafely();
-            result = domain;
 
             propertyManager1.hasKnownProperty("non_existing_prop");
             result = false;
@@ -150,6 +151,6 @@ public class ConfigurationPropertyServiceImplTest {
             result = false;
         }};
 
-        domibusPropertyService.setPropertyValue("non_existing_prop", true,"val11");
+        configurationPropertyService.setPropertyValue("non_existing_prop", true, "val11");
     }
 }

@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -39,6 +40,9 @@ public class DomibusPropertyManagerImplTest {
 
     @Injectable
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Tested
     DomibusPropertyManagerImpl domibusPropertyManager;
@@ -94,7 +98,7 @@ public class DomibusPropertyManagerImplTest {
     }
 
     @Test
-    public void getKnownPropertyValue1() {
+    public void getKnownPropertyValue_global() {
         DomibusPropertyMetadata meta = props.get(DOMIBUS_ALERT_SENDER_SMTP_PORT);
         String propValue = "propValue";
 
@@ -112,7 +116,7 @@ public class DomibusPropertyManagerImplTest {
     }
 
     @Test
-    public void getKnownPropertyValue2() {
+    public void getKnownPropertyValue_domainPropNoFallback() {
         DomibusPropertyMetadata meta = props.get(DOMIBUS_UI_TITLE_NAME);
         String propValue = "propValue";
 
@@ -120,7 +124,7 @@ public class DomibusPropertyManagerImplTest {
             domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
             result = true;
 
-            domibusPropertyProvider.getProperty(meta.getName());
+            domibusPropertyProvider.getProperty((Domain)any, meta.getName());
             result = propValue;
         }};
 
@@ -130,7 +134,7 @@ public class DomibusPropertyManagerImplTest {
     }
 
     @Test
-    public void getKnownPropertyValue3() {
+    public void getKnownPropertyValue_domainPropWithFallback() {
         DomibusPropertyMetadata meta = props.get(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
         String propValue = "propValue";
 
@@ -138,7 +142,7 @@ public class DomibusPropertyManagerImplTest {
             domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
             result = true;
 
-            domibusPropertyProvider.getProperty(meta.getName());
+            domibusPropertyProvider.getProperty((Domain)any, meta.getName());
             result = propValue;
         }};
 
@@ -160,15 +164,11 @@ public class DomibusPropertyManagerImplTest {
 
     @Test
     public void setKnownPropertyValue() {
-        DomibusPropertyMetadata meta = props.get(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
         String propValue = "propValue";
 
         new Expectations() {{
             domibusPropertyMetadataManager.getKnownProperties();
             result = props;
-
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
 
             domainService.getDomain(domainCode);
             result = domain;

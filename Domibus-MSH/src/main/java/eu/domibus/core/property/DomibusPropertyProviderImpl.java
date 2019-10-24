@@ -37,7 +37,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
-
+    /**
+     * Retrieves the property value, taking into account the property usages and the current domain.
+     * If needed, it falls back to the default value provided in the global properties set.
+     */
+    @Override
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
@@ -54,7 +58,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         if (currentDomain != null) {                               //we have a domain in context so try a domain property
             if (prop.isDomain()) {
-                return getDomainOrDefault(propertyName, prop, currentDomain);
+                return getDomainOrDefaultValue(propertyName, prop, currentDomain);
             }
             LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
@@ -63,21 +67,23 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 return getGlobalProperty(prop);
             }
             if (prop.isSuper()) {
-                return getSuperOrDefault(propertyName, prop);
+                return getSuperOrDefaultValue(propertyName, prop);
             }
             LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
             return null;
         }
     }
 
+    /**
+     * Retrieves the property value from the requested domain.
+     * If not found, fall back to the property value from the global properties set.
+     */
+    @Override
     public String getProperty(Domain domain, String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
-        //TODO: to be decided if we accept null as global or super domains( probably not a good idea)
         if (domain == null) {
-            LOGGER.error("Domain cannot be null.");
-            // return null;
-            throw new IllegalArgumentException("Domain cannot be null for " + propertyName);
+            throw new IllegalArgumentException("Property " + propertyName + " cannot be retrieved without a domain");
         }
 
         if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
@@ -85,30 +91,62 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         if (!prop.isDomain()) {
-            LOGGER.error("Property [{}] is not domain specific so it cannot be called with a domain [{}].", propertyName, domain);
-            // return null;
             throw new IllegalArgumentException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
         }
 
-        return getDomainOrDefault(propertyName, prop, domain);
+        return getDomainOrDefaultValue(propertyName, prop, domain);
+    }
+
+    /**
+     * Sets a new property value for the given property, in the given domain.
+     * Note: A null domain is used for global and super properties.
+     */
+    @Override
+    public void setPropertyValue(Domain domain, String propertyName, String propertyValue) {
+        String propertyKey = propertyName;
+
+        // in single-tenancy mode - the property key is always the property name
+        // in multi-tenancy mode - some properties will be prefixed (depends on usage)
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+            if (domain != null) {
+                if (prop.isDomain()) {
+                    propertyKey = getPropertyKeyForDomain(domain, propertyName);
+                } else {
+                    String error = String.format("Property [{}] is not applicable for a specific domain so it cannot be set.", propertyName);
+                    throw new IllegalArgumentException(error);
+                }
+            } else {
+                if (prop.isSuper()) {
+                    propertyKey = getPropertyKeyForSuper(propertyName);
+                } else {
+                    if (!prop.isGlobal()) {
+                        String error = String.format("Property [{}] is not applicable for global usage so it cannot be set.", propertyName);
+                        throw new IllegalArgumentException(error);
+                    }
+                }
+            }
+        }
+
+        this.domibusProperties.setProperty(propertyKey, propertyValue);
     }
 
     private String getGlobalProperty(DomibusPropertyMetadata prop) {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
     }
 
-    private String getDomainOrDefault(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
-        String specificPropertyName = getPropertyNameForDomain(domain, propertyName);
-        return getPropValueOrDefault(specificPropertyName, prop, domain, propertyName);
+    private String getDomainOrDefaultValue(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
+        String propertyKey = getPropertyKeyForDomain(domain, propertyName);
+        return getPropValueOrDefault(propertyKey, prop, domain, propertyName);
     }
 
-    private String getSuperOrDefault(String propertyName, DomibusPropertyMetadata prop) {
-        String specificPropertyName = getPropertyNameForSuper(propertyName);
-        return getPropValueOrDefault(specificPropertyName, prop, null, propertyName);
+    private String getSuperOrDefaultValue(String propertyName, DomibusPropertyMetadata prop) {
+        String propertyKey = getPropertyKeyForSuper(propertyName);
+        return getPropValueOrDefault(propertyKey, prop, null, propertyName);
     }
 
-    private String getPropValueOrDefault(String specificPropertyName, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
-        String propValue = getPropertyValue(specificPropertyName, domain, prop.isEncrypted());
+    private String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
+        String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
         if (propValue != null) { // found a value->return it
             LOGGER.debug("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
             return propValue;
@@ -126,7 +164,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return null;
     }
 
-    protected String getPropertyNameForSuper(String propertyName) {
+    protected String getPropertyKeyForSuper(String propertyName) {
         return "super." + propertyName;
     }
 
@@ -151,29 +189,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
-    protected String getPropertyNameForDomain(Domain domain, String propertyName) {
+    protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
         return domain.getCode() + "." + propertyName;
     }
 
-
-//    @Override
-//    public String getProperty(Domain domain, String propertyName) {
-//        return getProperty(domain, propertyName, false);
-//    }
-
-//    @Override
-//    private String getProperty(Domain domain, String propertyName, boolean decrypt) {
-//        final String domainPropertyName = getPropertyName(domain, propertyName);
-//        String propertyValue = getPropertyValue(domainPropertyName, domain, decrypt);
-//        if (StringUtils.isEmpty(propertyValue) && DomainService.DEFAULT_DOMAIN.equals(domain)) {
-//            propertyValue = getPropertyValue(propertyName, domain, decrypt);
-//        }
-//
-//        return propertyValue;
-//    }
-
     /**
-     * Get the value from the system environment properties; if not found get the value from the system properties; if not found get the value from Domibus properties;
+     * Get the value from the system environment properties;
+     * if not found, get the value from the system properties;
+     * if not found, get the value from Domibus properties;
      * if still not found, look inside the Domibus default properties.
      *
      * @param propertyName the property name
@@ -204,28 +227,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return result;
     }
 
-//    @Override
-//    public String getProperty(String propertyName) {
-//        return getProperty(propertyName, false);
-//    }
-
-//    @Override
-//    private String getProperty(String propertyName, boolean decrypt) {
-//        return getPropertyValue(propertyName, null, decrypt);
-//    }
-
-    /**
-     * Retrieves the property value from the requested domain.
-     * If not found, fall back to the property value from the default domain.
-     */
-//    @Override
-//    public String getProperty(Domain domain, String propertyName) {
-//        String propertyValue = getProperty(domain, propertyName);
-//        if (StringUtils.isEmpty(propertyValue) && !DomainService.DEFAULT_DOMAIN.equals(domain)) {
-//            propertyValue = getProperty(DomainService.DEFAULT_DOMAIN, propertyName);
-//        }
-//        return propertyValue;
-//    }
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         Set<String> filteredPropertyNames = new HashSet<>();
@@ -244,18 +245,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         String value = getProperty(propertyName);
         return getIntegerInternal(propertyName, value);
     }
-
-//    @Override
-//    public Integer getIntegerDomainProperty(String propertyName) {
-//        String domainValue = getProperty(propertyName);
-//        return getIntegerInternal(propertyName, domainValue);
-//    }
-
-//    @Override
-//    public Integer getIntegerProperty(Domain domain, String propertyName) {
-//        String domainValue = getProperty(domain, propertyName);
-//        return getIntegerInternal(propertyName, domainValue);
-//    }
 
     @Override
     public Long getLongProperty(String propertyName) {
@@ -303,12 +292,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getBooleanInternal(propertyName, value);
     }
 
-//    @Override
-//    public Boolean getBooleanDomainProperty(String propertyName) {
-//        String domainValue = getProperty(propertyName);
-//        return getBooleanInternal(propertyName, domainValue);
-//    }
-
     @Override
     public Boolean getBooleanProperty(Domain domain, String propertyName) {
         String domainValue = getProperty(domain, propertyName);
@@ -320,7 +303,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyNameForDomain(domain, propertyName);
+        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
         boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
         if (!domainPropertyKeyFound) {
             domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
@@ -363,28 +346,5 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return defaultValue;
     }
 
-    @Override
-    public void setPropertyValue(Domain domain, String propertyName, String propertyValue) {
-        String propertyKey = propertyName;
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (domain != null) {
-            if (prop.isDomain()) {
-                propertyKey = getPropertyNameForDomain(domain, propertyName);
-            } else {
-                LOGGER.error("Property [{}] is not applicable for a specific domain so it cannot be set.", propertyName);
-                return;
-            }
-        } else {
-            if (prop.isSuper()) {
-                propertyKey = getPropertyNameForSuper(propertyName);
-            } else {
-                if (!prop.isGlobal()) {
-                    LOGGER.error("Property [{}] is not applicable for global usage so it cannot be set.", propertyName);
-                    return;
-                }
-            }
-        }
-        this.domibusProperties.setProperty(propertyKey, propertyValue);
-    }
 
 }

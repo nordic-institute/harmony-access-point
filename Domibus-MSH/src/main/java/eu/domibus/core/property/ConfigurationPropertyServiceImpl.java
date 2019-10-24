@@ -100,16 +100,22 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     public void setPropertyValue(String name, boolean isDomain, String value) {
         boolean handled = false;
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
-            if (propertyManager.hasKnownProperty(name)) {
-                if(isDomain) {
-                    propertyManager.setKnownPropertyValue(name, value);
-                } else {
-                    domainTaskExecutor.submit(() -> {
-                        propertyManager.setKnownPropertyValue(name, value);
-                    });
-                }
-                handled = true;
+            if (!propertyManager.hasKnownProperty(name)) {
+                continue;
             }
+
+            if (isDomain) {
+                propertyManager.setKnownPropertyValue(name, value);
+            } else {
+                if (!authUtils.isSuperAdmin()) {
+                    throw new IllegalArgumentException("Cannot set global or super properties if not a super user.");
+                }
+                // for non-domain properties, we set the value in the null-domain context:
+                domainTaskExecutor.submit(() -> {
+                    propertyManager.setKnownPropertyValue(name, value);
+                });
+            }
+            handled = true;
         }
 
         if (!handled) {

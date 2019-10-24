@@ -13,41 +13,32 @@ public interface DomibusPropertyProvider {
 
     String DOMIBUS_PROPERTY_FILE = "domibus.properties";
 
+    /**
+     * Retrieves the property value, taking into account the property usages and the current domain.
+     * If needed, it falls back to the default value provided in the global properties set.
+     */
     String getProperty(String propertyName);
 
-//    String getProperty(String propertyName, boolean decrypt);
-
-//    String getProperty(Domain domain, String propertyName);
-
-//    String getProperty(Domain domain, String propertyName, boolean decrypt);
-
-
-    /*
-    The getDomainProperty methods retrieve the specified property
-    falling back to the property from the DEFAULT domain if not found.
-     */
 
     /**
-     * Look for a property in the active domain configuration file. If the property is not found, it will search for the property in
+     * Look for a property in the provided domain configuration file. If the property is not found, it will search for the property in
      * the following locations and in the respective order:
      * conf/domibus.properties, classpath://domibus.properties, classpath://domibus-default.properties
-
+     * <p>
      * When actions are executed under a super admin user, there is no domain set on the current thread.
      * Nevertheless we need to retrieve some default properties. So if no domain is found, this method will retrieve
      * properties from the default one.
      *
+     * @param domain       the domain.
      * @param propertyName the property name.
      * @return the value for that property.
      */
-//    String getDomainProperty(String propertyName);
-
     String getProperty(Domain domain, String propertyName);
 
     Set<String> filterPropertiesName(Predicate<String> predicate);
 
     /**
-     * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as an {@code Integer} before
-     * returning it.</p><br />
+     * <p>Reads a property value and parses it safely as an {@code Integer} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
      * domibus.properties files that are provided with the application.</p>
@@ -55,26 +46,21 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return The {@code Integer} value of the property as specified by the user or the default one provided with the application.
      */
-//    Integer getIntegerProperty(String propertyName);
+    Integer getIntegerProperty(String propertyName);
 
     /**
-     * <p>Reads a domain property value and parses it safely as an {@code Integer} before returning it.</p><br />
+     * <p>Reads the property value and parses it safely as an {@code Long} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     * @return The {@code Integer} value of the domain property as specified by the user or the default one provided with the application.
+     * @return The {@code Long} value of the property as specified by the user or the default one provided with the application.
      */
-    Integer getIntegerProperty(String propertyName);
-
-//    Integer getIntegerProperty(Domain domain, String propertyName);
-
     Long getLongProperty(String propertyName);
 
     /**
-     * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as a {@code Boolean} before
-     * returning it.</p><br />
+     * <p>Reads a property value and parses it safely as a {@code Boolean} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
      * domibus.properties files that are provided with the application.</p>
@@ -91,10 +77,9 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
+     * @param domain       the domain.
      * @return The {@code Boolean} value of the domain property as specified by the user or the default one provided with the application.
      */
-//    Boolean getBooleanDomainProperty(String propertyName);
-
     Boolean getBooleanProperty(Domain domain, String propertyName);
 
     /**
@@ -117,8 +102,9 @@ public interface DomibusPropertyProvider {
 
     /**
      * Changes the value of the given property key.
-     * @param domain the domain of the property
-     * @param propertyName the name of the property
+     *
+     * @param domain        the domain of the property
+     * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
      */
     void setPropertyValue(Domain domain, String propertyName, String propertyValue);
