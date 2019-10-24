@@ -100,7 +100,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         }
 
 
-        UserMessageLog userMessageLog = this.userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         final int sendAttempts = userMessageLog.getSendAttempts() + 1;
         LOG.debug("[PULL_REQUEST]:Message[{}]:Increasing send attempts to[{}]", messageId, sendAttempts);
         userMessageLog.setSendAttempts(sendAttempts);
@@ -437,6 +437,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void releaseLockAfterReceipt(final PullRequestResult requestResult) {
         LOG.debug("[releaseLockAfterReceipt]:Message:[{}] release lock]", requestResult.getMessageId());

@@ -125,7 +125,6 @@ public class UpdateRetryLoggingService {
     public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageInfo().getMessageId());
 
-        final String messageId = userMessageLog.getMessageId();
         NotificationStatus notificationStatus = userMessageLog.getNotificationStatus();
         boolean isTestMessage = userMessageLog.isTestMessage();
 

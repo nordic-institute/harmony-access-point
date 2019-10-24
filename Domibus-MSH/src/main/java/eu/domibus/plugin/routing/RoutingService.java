@@ -13,6 +13,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +66,7 @@ public class RoutingService {
         return coreConverter.convert(filters, BackendFilter.class);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @CacheEvict(value = "backendFilterCache", allEntries = true)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public void updateBackendFilters(final List<BackendFilter> filters) {

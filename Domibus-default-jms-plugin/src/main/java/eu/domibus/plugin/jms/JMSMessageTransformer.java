@@ -1,7 +1,6 @@
 package eu.domibus.plugin.jms;
 
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -10,6 +9,7 @@ import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -129,8 +129,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     protected String getProperty(String propertyName, String defaultValue) {
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        return domibusPropertyExtService.getDomainProperty(currentDomain, JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName, defaultValue);
+        String value = domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName);
+        if (StringUtils.isEmpty(value)) {
+            value = defaultValue;
+        }
+        return value;
     }
 
 

@@ -27,7 +27,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
@@ -71,8 +70,7 @@ public class PullRequestHandler {
     public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
             LOG.info("Message id [{}], refToMessageId [{}]", messageId, refToMessageId);
-            // Sonar Bug: ignored because the following call happens within a transaction that gets started by the web service calling this method
-            return handleRequest(messageId, pullContext); // NOSONAR
+            return handleRequest(messageId, pullContext);
         } else {
             return notifyNoMessage(pullContext, refToMessageId);
         }
@@ -85,8 +83,6 @@ public class PullRequestHandler {
         return messageBuilder.getSoapMessage(ebMS3Exception);
     }
 
-
-    @Transactional
     public SOAPMessage handleRequest(String messageId, PullContext pullContext) {
         LegConfiguration leg = null;
         ReliabilityChecker.CheckResult checkResult = ReliabilityChecker.CheckResult.PULL_FAILED;

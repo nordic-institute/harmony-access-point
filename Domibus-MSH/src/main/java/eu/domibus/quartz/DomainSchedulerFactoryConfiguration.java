@@ -10,13 +10,18 @@ import eu.domibus.core.alerts.job.AlertCleanerJob;
 import eu.domibus.core.alerts.job.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.AlertRetrySuperJob;
+import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.pull.PullRetryWorker;
+import eu.domibus.core.replication.UIReplicationJob;
 import eu.domibus.ebms3.common.quartz.AutowiringSpringBeanJobFactory;
 import eu.domibus.ebms3.puller.MessagePullerJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.security.ActivateSuspendedPluginUsersJob;
+import eu.domibus.security.ActivateSuspendedSuperUsersJob;
+import eu.domibus.security.ActivateSuspendedUsersJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.CronTriggerImpl;
@@ -310,6 +315,105 @@ public class DomainSchedulerFactoryConfiguration {
         obj.setJobDetail(splitAndJoinExpirationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON));
         obj.setStartDelay(20000);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean activateSuspendedUsersJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(ActivateSuspendedUsersJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean activateSuspendedUserTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(activateSuspendedUsersJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON));
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean activateSuspendedPluginUsersJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(ActivateSuspendedPluginUsersJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean activateSuspendedPluginUserTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(activateSuspendedPluginUsersJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON));
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean activateSuspendedSuperUsersJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(ActivateSuspendedSuperUsersJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean activateSuspendedSuperUserTrigger() {
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(activateSuspendedSuperUsersJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON));
+        obj.setGroup(GROUP_GENERAL);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean saveCertificateAndLogRevocationJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(SaveCertificateAndLogRevocationJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean saveCertificateAndLogRevocationTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(saveCertificateAndLogRevocationJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_CERTIFICATE_CHECK_CRON));
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean uiReplicationJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(UIReplicationJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean uiReplicationTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(uiReplicationJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
+        obj.setStartDelay(30000);
         return obj;
     }
 

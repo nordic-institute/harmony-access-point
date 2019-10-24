@@ -50,7 +50,7 @@ public class XMLUtilImpl implements XMLUtil {
     });
 
     private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = ThreadLocal.withInitial(() -> {
-       return createTransformerFactory();
+        return createTransformerFactory();
     });
 
     private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = ThreadLocal.withInitial(() -> {

@@ -146,7 +146,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     public void deliverMessage(final String messageId) {
         LOG.debug("Delivering message");
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
+        final String queueValue = domibusPropertyExtService.getProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
         }
@@ -178,8 +178,6 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String queueProperty) {
-//        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-//        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, queueProperty);
         final String queueValue = domibusPropertyExtService.getProperty(queueProperty);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + queueProperty + "]");
