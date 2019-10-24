@@ -62,7 +62,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
         final String smlInfo = domibusPropertyProvider.getDomainProperty(SMLZONE_KEY);
         if (smlInfo == null) {
-            throw new ConfigurationException("SML Zone missing. Please configure it in domibus.properties");
+            throw new ConfigurationException("SML Zone missing. Please configure it");
         }
         String mode = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_MODE);
         if (StringUtils.isEmpty(mode)) {
