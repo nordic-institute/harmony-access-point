@@ -47,6 +47,11 @@ public class DomibusPropertyMetadataDTO {
     private int usage;
 
     /**
+     * If it can be suffixed with different sufixes
+     */
+    private boolean isComposable;
+
+    /**
      * For domain properties, this flag specifies whether the value is read
      * from the default domain if not found in the current domain.
      * This is subject to change in the near future.
@@ -68,7 +73,7 @@ public class DomibusPropertyMetadataDTO {
     public DomibusPropertyMetadataDTO() {
     }
 
-    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted) {
+    public DomibusPropertyMetadataDTO(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this.name = name;
         this.writable = writable;
         this.usage = usage;
@@ -76,22 +81,23 @@ public class DomibusPropertyMetadataDTO {
         this.clusterAware = clusterAware;
         this.module = module;
         this.encrypted = encrypted;
+        this.isComposable = isComposable;
     }
 
     public DomibusPropertyMetadataDTO(String name, String module, int usage) {
-        this(name, module, true, usage, false, true, false);
+        this(name, module, true, usage, false, true, false, false);
     }
 
     public DomibusPropertyMetadataDTO(String name, String module, int usage, boolean withFallback) {
-        this(name, module, true, usage, withFallback, true, false);
+        this(name, module, true, usage, withFallback, true, false, false);
     }
 
     public DomibusPropertyMetadataDTO(String name, int usage, boolean withFallback) {
-        this(name, Module.MSH, true, usage, withFallback, true, false);
+        this(name, Module.MSH, true, usage, withFallback, true, false, false);
     }
 
     public DomibusPropertyMetadataDTO(String name) {
-        this(name, Module.MSH, true, Usage.DOMAIN, true, true, false);
+        this(name, Module.MSH, true, Usage.DOMAIN, true, true, false, false);
     }
 
     public String getName() {
@@ -132,6 +138,14 @@ public class DomibusPropertyMetadataDTO {
 
     public void setUsage(int usage) {
         this.usage = usage;
+    }
+
+    public boolean isComposable() {
+        return isComposable;
+    }
+
+    public void setComposable(boolean composable) {
+        isComposable = composable;
     }
 
     public boolean isWithFallback() {

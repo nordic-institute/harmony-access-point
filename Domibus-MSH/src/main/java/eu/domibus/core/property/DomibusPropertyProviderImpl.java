@@ -62,7 +62,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             }
             LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
-        } else {                                                   //current domain being null, it is super or global property (but not both for now, although it could be and then the global takes precedence)
+        } else {                                                   //current domain being null, it is super or global property (but not both)
             if (prop.isGlobal()) {
                 return getGlobalProperty(prop);
             }

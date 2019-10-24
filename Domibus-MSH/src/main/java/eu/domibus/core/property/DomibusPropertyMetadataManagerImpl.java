@@ -3,6 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -119,6 +121,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_PASSWORD),
 
                 DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION),
+
+                new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Module.MSH, false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, true),
 
                 //writable properties
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -343,53 +347,24 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                     }
                     DomibusPropertyMetadataDTO extProp = entry.getValue();
                     DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-                            extProp.isClusterAware(), extProp.isEncrypted());
+                            extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
                     propertyMetadataMap.put(entry.getKey(), domibusProp);
                 }
             });
         }
 
         DomibusPropertyMetadata prop = propertyMetadataMap.get(propertyName);
-        if (prop == null) {
-            LOGGER.error("Property [{}] has no metadata defined.", propertyName);
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
+        if (prop != null) {
+            return prop;
         }
-        return prop;
+
+        //try to see if it is a composable property
+        Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
+        if (propMeta.isPresent()) {
+            return propMeta.get();
+        }
+
+        throw new IllegalArgumentException("Unknown property: " + propertyName);
     }
 
-//    private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-//
-//        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
-//
-//        // TODO review this
-//        if (prop == null) {
-//            //We retrieve here all managers: one for each plugin + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
-//            Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
-//
-//            for (DomibusPropertyManagerExt propertyManager : propertyManagers.values()) {
-//                DomibusPropertyMetadataDTO p = propertyManager.getKnownProperties().get(propertyName);
-//                if (p != null) {
-//                    LOGGER.warn("External property [{}] retrieved through DomibusPropertyProvider", propertyName);
-//                    prop = new DomibusPropertyMetadata(p.getName(), p.getModule(), p.isWritable(), p.getType(), p.isWithFallback(), p.isClusterAware(), p.isEncrypted());
-//                    break;
-//                }
-//            }
-//        }
-//
-//        if (prop == null) {
-//            LOGGER.error("Property [{}] has no metadata defined.", propertyName);
-//            throw new IllegalArgumentException("Unknown property: " + propertyName);
-//        }
-//        return prop;
-//    }
-
-    /*
-    private DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
-        if (prop == null) {
-            LOGGER.error("Property [{}] has no metadata defined.", propertyName);
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
-        return prop;
-    }*/
 }

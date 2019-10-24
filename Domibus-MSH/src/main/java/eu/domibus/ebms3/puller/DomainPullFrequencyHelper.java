@@ -24,7 +24,7 @@ public class DomainPullFrequencyHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomainPullFrequencyHelper.class);
 
-    public static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX = "domibus.pull.request.send.per.job.cycle.per.mpc.";
+    public static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX = DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC + ".";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

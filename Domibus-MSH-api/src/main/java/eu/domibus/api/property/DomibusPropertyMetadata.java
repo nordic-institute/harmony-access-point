@@ -46,6 +46,11 @@ public class DomibusPropertyMetadata {
     private int usage;
 
     /**
+     * If it can be suffixed with different sufixes
+     */
+    private boolean isComposable;
+
+    /**
      * For domain properties(which also means super properties), this flag specifies whether the value is read
      * from the global properties file(which contains also default values for domain properties) if not found in the current domain.
      */
@@ -68,17 +73,17 @@ public class DomibusPropertyMetadata {
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, false);
+        return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, false, false);
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, boolean encrypted) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, encrypted);
+        return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, encrypted, false);
     }
 
     public DomibusPropertyMetadata() {
     }
 
-    public DomibusPropertyMetadata(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted) {
+    public DomibusPropertyMetadata(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this.name = name;
         this.writable = writable;
         this.usage = usage;
@@ -86,18 +91,19 @@ public class DomibusPropertyMetadata {
         this.clusterAware = clusterAware;
         this.module = module;
         this.encrypted = encrypted;
+        this.isComposable = isComposable;
     }
 
     public DomibusPropertyMetadata(String name, int usage, boolean withFallback) {
-        this(name, Module.MSH, true, usage, withFallback, true, false);
+        this(name, Module.MSH, true, usage, withFallback, true, false, false);
     }
 
     public DomibusPropertyMetadata(String name, boolean writable, int usage, boolean withFallback) {
-        this(name, Module.MSH, writable, usage, withFallback, true, false);
+        this(name, Module.MSH, writable, usage, withFallback, true, false, false);
     }
 
     public DomibusPropertyMetadata(String name, boolean writable, int usage, boolean withFallback, boolean encrypted) {
-        this(name, Module.MSH, writable, usage, withFallback, true, encrypted);
+        this(name, Module.MSH, writable, usage, withFallback, true, encrypted, false);
     }
 
     public String getName() {
@@ -122,6 +128,14 @@ public class DomibusPropertyMetadata {
 
     public void setUsage(int usage) {
         this.usage = usage;
+    }
+
+    public boolean isComposable() {
+        return isComposable;
+    }
+
+    public void setComposable(boolean composable) {
+        isComposable = composable;
     }
 
     public boolean isWithFallback() {
