@@ -293,22 +293,14 @@ public class CachingPModeProviderTest {
             result = true;
             configurationDAO.readEager();
             result = configuration;
-            processDao.findPullProcessesByInitiator(red_gw);
-            result = Lists.newArrayList(filter);
-            processDao.findPullProcessesByInitiator(blue_gw);
-            result = Lists.newArrayList();
         }};
         cachingPModeProvider.init();
+
         List<Process> pullProcessesByInitiator = cachingPModeProvider.findPullProcessesByInitiator(red_gw);
         Assert.assertEquals(5, pullProcessesByInitiator.size());
+
         pullProcessesByInitiator = cachingPModeProvider.findPullProcessesByInitiator(blue_gw);
         Assert.assertEquals(0, pullProcessesByInitiator.size());
-        new Verifications() {{
-            processDao.findPullProcessesByInitiator(red_gw);
-            times = 1;
-            processDao.findPullProcessesByInitiator(blue_gw);
-            times = 1;
-        }};
     }
 
     @Test
@@ -337,22 +329,16 @@ public class CachingPModeProviderTest {
             result = true;
             configurationDAO.readEager();
             result = configuration;
-            processDao.findPullProcessByMpc(mpcName);
-            result = Lists.newArrayList(new Process());
-            processDao.findPullProcessByMpc(emptyMpc);
-            result = Lists.newArrayList();
         }};
         cachingPModeProvider.init();
         List<Process> pullProcessesByMpc = cachingPModeProvider.findPullProcessByMpc(mpcName);
         Assert.assertEquals(1, pullProcessesByMpc.size());
+        Assert.assertEquals(pullProcessesByMpc.iterator().next().getName(), "tc13Process");
         pullProcessesByMpc = cachingPModeProvider.findPullProcessByMpc(emptyMpc);
-        Assert.assertEquals(0, pullProcessesByMpc.size());
-        new Verifications() {{
-            processDao.findPullProcessByMpc(mpcName);
-            times = 1;
-            processDao.findPullProcessByMpc(emptyMpc);
-            times = 1;
-        }};
+        Assert.assertEquals(1, pullProcessesByMpc.size());
+        Assert.assertEquals(pullProcessesByMpc.iterator().next().getName(), "tc14Process");
+
+
     }
 
     @Test
