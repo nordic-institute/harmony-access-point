@@ -40,6 +40,7 @@ import java.util.*;
 
 /**
  * @author Thomas Dussart
+ * @author Cosmin Baciu
  * @since 3.3
  */
 @Service
@@ -54,6 +55,7 @@ public class MessageUtil {
     public static final String MESSAGE_ID = "MessageId";
     public static final String REF_TO_MESSAGE_ID = "RefToMessageId";
     public static final String RECEIPT = "Receipt";
+    public static final String PULL_REQUEST = "PullRequest";
     public static final String NON_REPUDIATION_INFORMATION = "NonRepudiationInformation";
     public static final String ERROR_DETAIL = "ErrorDetail";
     public static final String DESCRIPTION = "Description";
@@ -83,6 +85,7 @@ public class MessageUtil {
     public static final String TYPE = "type";
     public static final String HREF = "href";
     public static final String PART_PROPERTIES = "PartProperties";
+    public static final String YYYY_MM_DD_T_HH_MM_SS_SSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     @Qualifier("jaxbContextEBMS")
     @Autowired
@@ -174,13 +177,13 @@ public class MessageUtil {
     }
 
     protected PayloadInfo createPayloadInfo(Node userMessageNode) {
-        LOG.debug("Creating PayloadInfo");
-
         final Node payloadInfoNode = getFirstChild(userMessageNode, PAYLOAD_INFO);
         if (payloadInfoNode == null) {
             LOG.debug("PayloadInfo is null");
             return null;
         }
+        LOG.debug("Creating PayloadInfo");
+
         PayloadInfo result = new PayloadInfo();
 
         final List<Node> partInfoNodes = getChildren(payloadInfoNode, PART_INFO);
@@ -204,13 +207,13 @@ public class MessageUtil {
     }
 
     protected PartProperties createPartProperties(Node partInfoNode) {
-        LOG.debug("Creating createPartProperties");
-
         final Node partPropertiesNode = getFirstChild(partInfoNode, PART_PROPERTIES);
         if (partPropertiesNode == null) {
             LOG.debug("PartProperties is null");
             return null;
         }
+        LOG.debug("Creating createPartProperties");
+
         PartProperties result = new PartProperties();
         Set<Property> properties = new HashSet<>();
 
@@ -226,13 +229,13 @@ public class MessageUtil {
     }
 
     protected MessageProperties createMessageProperties(Node userMessageNode) {
-        LOG.debug("Creating MessageProperties");
-
         final Node messagePropertiesNode = getFirstChild(userMessageNode, MESSAGE_PROPERTIES);
         if (messagePropertiesNode == null) {
             LOG.debug("MessageProperties is null");
             return null;
         }
+        LOG.debug("Creating MessageProperties");
+
         MessageProperties result = new MessageProperties();
 
         final List<Node> propertyNodes = getChildren(messagePropertiesNode, PROPERTY);
@@ -258,13 +261,13 @@ public class MessageUtil {
     }
 
     protected CollaborationInfo createCollaborationInfo(Node userMessageNode) {
-        LOG.debug("Creating CollaborationInfo");
-
         final Node collaborationInfoNode = getFirstChild(userMessageNode, COLLABORATION_INFO);
         if (collaborationInfoNode == null) {
             LOG.debug("CollaborationInfo is null");
             return null;
         }
+        LOG.debug("Creating CollaborationInfo");
+
         CollaborationInfo result = new CollaborationInfo();
         eu.domibus.ebms3.common.model.Service service = createService(collaborationInfoNode);
         result.setService(service);
@@ -287,6 +290,7 @@ public class MessageUtil {
             LOG.debug("AgreementRef is null");
             return null;
         }
+        LOG.debug("Creating AgreementRef");
 
         final String serviceType = getAttribute(agreementRefNode, "type");
         final String serviceValue = getTextContent(agreementRefNode);
@@ -303,6 +307,7 @@ public class MessageUtil {
             LOG.debug("Service is null");
             return null;
         }
+        LOG.debug("Creating Service");
 
         final String serviceType = getAttribute(serviceNode, "type");
         final String serviceValue = getTextContent(serviceNode);
@@ -314,13 +319,13 @@ public class MessageUtil {
     }
 
     protected PartyInfo createPartyInfo(Node userMessageNode) {
-        LOG.debug("Creating PartyInfo");
-
         final Node partyInfoNode = getFirstChild(userMessageNode, PARTY_INFO);
         if (partyInfoNode == null) {
             LOG.debug("PartyInfo is null");
             return null;
         }
+        LOG.debug("Creating PartyInfo");
+
         PartyInfo result = new PartyInfo();
 
         final From from = createFrom(partyInfoNode);
@@ -392,6 +397,8 @@ public class MessageUtil {
             LOG.debug("SignalMessage is null");
             return null;
         }
+        LOG.debug("Creating SignalMessage");
+
         SignalMessage result = new SignalMessage();
 
         final MessageInfo messageInfo = createMessageInfo(signalNode);
@@ -399,6 +406,9 @@ public class MessageUtil {
 
         final Receipt receipt = createReceipt(signalNode);
         result.setReceipt(receipt);
+
+        PullRequest pullRequest = createPullRequest(signalNode);
+        result.setPullRequest(pullRequest);
 
         Set<Error> error = createErrors(signalNode);
         if (CollectionUtils.isNotEmpty(error)) {
@@ -411,7 +421,17 @@ public class MessageUtil {
         Map<QName, String> result = new HashMap<>();
 
         final NamedNodeMap attributes = messagingNode.getAttributes();
+        if (attributes == null) {
+            LOG.debug("Messaging node attributes is empty");
+            return null;
+        }
+
         final Node namedItemNS = attributes.getNamedItemNS(WSConstants.WSU_NS, LOCAL_NAME);
+        if (namedItemNS == null) {
+            LOG.debug("No named item found with namespace [{}] and local name [{}]", WSConstants.WSU_NS, LOCAL_NAME);
+            return null;
+        }
+
         final String nodeValue = namedItemNS.getNodeValue();
         LOG.debug("Value for named item [{}] with namespace [{}] is [{}]", LOCAL_NAME, WSConstants.WSU_NS, nodeValue);
 
@@ -421,11 +441,16 @@ public class MessageUtil {
     }
 
     protected Set<Error> createErrors(Node signalNode) {
-        LOG.debug("Creating Errors");
-
         Set<Error> result = new HashSet<>();
 
         final List<Node> errorNodeList = getChildren(signalNode, ERROR);
+        if (CollectionUtils.isEmpty(errorNodeList)) {
+            LOG.debug("Errors node is null");
+            return result;
+        }
+
+        LOG.debug("Creating Errors");
+
         for (Node errorNode : errorNodeList) {
             Error error = createError(errorNode);
             result.add(error);
@@ -496,23 +521,70 @@ public class MessageUtil {
     }
 
     protected Receipt createReceipt(final Node signalNode) throws SOAPException {
-        LOG.debug("Creating Receipt");
-
         final Node receiptNode = getFirstChild(signalNode, RECEIPT);
         if (receiptNode == null) {
-            LOG.debug("Could not find Receipt node");
+            LOG.debug("Receipt node is null");
             return null;
         }
 
-        final Node nonRepudiationInformationNode = getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
-        try {
-            final String nonRepudiationInformation = nodeToString(nonRepudiationInformationNode);
-            Receipt receipt = new Receipt();
+        LOG.debug("Creating Receipt");
+        Receipt receipt = new Receipt();
+
+        final String nonRepudiationInformation = getNonRepudiationInformationFromReceipt(receiptNode);
+        if (StringUtils.isNotEmpty(nonRepudiationInformation)) {
+            LOG.debug("Adding [{}] to the Receipt", NON_REPUDIATION_INFORMATION);
             receipt.getAny().add(nonRepudiationInformation);
-            return receipt;
-        } catch (TransformerException e) {
-            throw new SOAPException("Error while creating Receipt", e);
         }
+        String userMessageFromReceipt = getUserMessageFromReceipt(receiptNode);
+        if (StringUtils.isNotEmpty(userMessageFromReceipt)) {
+            LOG.debug("Adding [{}] to the Receipt", USER_MESSAGE);
+            receipt.getAny().add(userMessageFromReceipt);
+        }
+
+        return receipt;
+    }
+
+    protected String getNonRepudiationInformationFromReceipt(final Node receiptNode) throws SOAPException {
+        final Node nonRepudiationInformationNode = getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
+        if (nonRepudiationInformationNode == null) {
+            LOG.debug("No [{}] found", NON_REPUDIATION_INFORMATION);
+            return null;
+        }
+
+        try {
+            return nodeToString(nonRepudiationInformationNode);
+        } catch (TransformerException e) {
+            throw new SOAPException("Error while getting NonRepudiationInformation", e);
+        }
+    }
+
+    protected String getUserMessageFromReceipt(final Node receiptNode) throws SOAPException {
+        final Node userMessageNode = getFirstChild(receiptNode, USER_MESSAGE);
+        if (userMessageNode == null) {
+            LOG.debug("No [{}] found", USER_MESSAGE);
+            return null;
+        }
+
+        try {
+            return nodeToString(userMessageNode);
+        } catch (TransformerException e) {
+            throw new SOAPException("Error while getting UserMessage", e);
+        }
+    }
+
+    protected PullRequest createPullRequest(Node signalNode) {
+        final Node pullRequestNode = getFirstChild(signalNode, PULL_REQUEST);
+        if (pullRequestNode == null) {
+            LOG.debug("PullRequest is null");
+            return null;
+        }
+        LOG.debug("Creating PullRequest");
+
+        PullRequest result = new PullRequest();
+        final String mpc = getAttribute(pullRequestNode, "mpc");
+        result.setMpc(mpc);
+
+        return result;
     }
 
     protected String nodeToString(final Node node) throws TransformerException {
@@ -524,13 +596,12 @@ public class MessageUtil {
     }
 
     protected MessageInfo createMessageInfo(final Node signalNode) {
-        LOG.debug("Creating MessageInfo");
-
         final Node messageInfoNode = getFirstChild(signalNode, MESSAGE_INFO);
         if (messageInfoNode == null) {
             LOG.debug("MessageInfo is null");
             return null;
         }
+        LOG.debug("Creating MessageInfo");
 
         MessageInfo messageInfo = new MessageInfo();
         final String timestampString = getFirstChildValue(messageInfoNode, TIMESTAMP);
@@ -549,7 +620,7 @@ public class MessageUtil {
     }
 
     protected Date toDate(String dateString) {
-        String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        String pattern = YYYY_MM_DD_T_HH_MM_SS_SSS_Z;
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
         final LocalDateTime localDateTime = LocalDateTime.parse(dateString, dtf);
         return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());

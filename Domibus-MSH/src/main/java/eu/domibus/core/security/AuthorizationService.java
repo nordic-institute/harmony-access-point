@@ -61,7 +61,7 @@ public class AuthorizationService {
     @Autowired
     private PModeProvider pModeProvider;
 
-    AuthorizationServiceSpi getAuthorizationService() {
+    protected AuthorizationServiceSpi getAuthorizationService() {
         final String authorizationServiceIndentifier = domibusPropertyProvider.getDomainProperty(IAM_AUTHORIZATION_IDENTIFIER);
         final List<AuthorizationServiceSpi> authorizationServiceList = this.authorizationServiceSpis.stream().
                 filter(authorizationServiceSpi -> authorizationServiceIndentifier.equals(authorizationServiceSpi.getIdentifier())).

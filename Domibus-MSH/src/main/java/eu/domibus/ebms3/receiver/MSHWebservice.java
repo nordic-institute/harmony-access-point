@@ -14,8 +14,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
@@ -27,6 +25,7 @@ import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
  * This method is responsible for the receiving of ebMS3 messages and the sending of signal messages like receipts or ebMS3 errors in return
  *
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  * @since 3.0
  */
 
@@ -46,7 +45,6 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Timer(value = INCOMING_USER_MESSAGE)
     @Counter(INCOMING_USER_MESSAGE)
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
 

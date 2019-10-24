@@ -3,14 +3,14 @@ package eu.domibus.ebms3.sender;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -25,8 +25,9 @@ import javax.xml.ws.WebServiceException;
  * It is only saving userMessage found in the ServerOutInterceptor=&gt; PullMessage.
  */
 //@thom test this class
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawPulledMessageInterceptor.class);
 
     @Autowired
     private MessageExchangeService messageExchangeService;
@@ -43,12 +44,14 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(SoapMessage message) throws Fault {
         Object messageType = message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
         Object messageId = message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
-        if(!MessageType.USER_MESSAGE.equals(messageType) || messageId==null){
+        if (!MessageType.USER_MESSAGE.equals(messageType) || messageId == null) {
+            LOG.trace("No handling is performed: message type is [{}]", messageType);
             return;
         }
         try {
             SOAPMessage soapContent = message.getContent(SOAPMessage.class);
-            messageExchangeService.saveRawXml(soapUtil.getRawXMLMessage(soapContent),messageId.toString());
+            String rawXMLMessage = soapUtil.getRawXMLMessage(soapContent);
+            messageExchangeService.saveRawXml(rawXMLMessage, messageId.toString());
         } catch (TransformerException e) {
             throw new WebServiceException(new IllegalArgumentException(e));
         }
