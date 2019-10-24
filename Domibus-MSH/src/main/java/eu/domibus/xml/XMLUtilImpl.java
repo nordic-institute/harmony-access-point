@@ -50,7 +50,7 @@ public class XMLUtilImpl implements XMLUtil {
     });
 
     private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = ThreadLocal.withInitial(() -> {
-       return createSecuredTransformerFactory();
+        return createTransformerFactory();
     });
 
     private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = ThreadLocal.withInitial(() -> {
@@ -69,18 +69,14 @@ public class XMLUtilImpl implements XMLUtil {
         return documentBuilderFactoryNamespaceAwareThreadLocal.get();
     }
 
-    public static TransformerFactory createSecuredTransformerFactory() {
-        TransformerFactory transformerFactory = createTransformerFactory();
+    public static TransformerFactory createTransformerFactory() {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
         try {
             transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (TransformerConfigurationException e) {
             throw new DomibusXMLException("Error initializing TransformerFactory", e);
         }
         return transformerFactory;
-    }
-
-    public static TransformerFactory createTransformerFactory() {
-        return TransformerFactory.newInstance();
     }
 
     public static MessageFactory getMessageFactory() {
