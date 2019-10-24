@@ -31,6 +31,25 @@ import java.util.function.Predicate;
 @Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
+
+    @Autowired
+    @Qualifier("domibusProperties")
+    protected Properties domibusProperties;
+
+    @Autowired
+    @Qualifier("domibusDefaultProperties")
+    protected Properties domibusDefaultProperties;
+
+    @Autowired
+    protected PropertyResolver propertyResolver;
+
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected PasswordEncryptionService passwordEncryptionService;
+
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
@@ -97,6 +116,30 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getDomainOrDefaultValue(propertyName, prop, domain);
     }
 
+    @Override
+    public Integer getIntegerProperty(String propertyName) {
+        String value = getProperty(propertyName);
+        return getIntegerInternal(propertyName, value);
+    }
+
+    @Override
+    public Long getLongProperty(String propertyName) {
+        String value = getProperty(propertyName);
+        return getLongInternal(propertyName, value);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String propertyName) {
+        String value = getProperty(propertyName);
+        return getBooleanInternal(propertyName, value);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(Domain domain, String propertyName) {
+        String domainValue = getProperty(domain, propertyName);
+        return getBooleanInternal(propertyName, domainValue);
+    }
+
     /**
      * Sets a new property value for the given property, in the given domain.
      * Note: A null domain is used for global and super properties.
@@ -130,6 +173,76 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         this.domibusProperties.setProperty(propertyKey, propertyValue);
     }
+
+    @Override
+    public Set<String> filterPropertiesName(Predicate<String> predicate) {
+        Set<String> filteredPropertyNames = new HashSet<>();
+        final Enumeration<?> enumeration = domibusProperties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            final String propertyName = (String) enumeration.nextElement();
+            if (predicate.test(propertyName)) {
+                filteredPropertyNames.add(propertyName);
+            }
+        }
+        return filteredPropertyNames;
+    }
+
+    /**
+     * Get the value from the system environment properties;
+     * if not found, get the value from the system properties;
+     * if not found, get the value from Domibus properties;
+     * if still not found, look inside the Domibus default properties.
+     *
+     * @param propertyName the property name
+     * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
+     */
+    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
+        String result = System.getenv(propertyName);
+        if (StringUtils.isEmpty(result)) {
+            result = System.getProperty(propertyName);
+        }
+        if (StringUtils.isEmpty(result)) {
+            result = domibusProperties.getProperty(propertyName);
+
+            // There is no need to retrieve the default Domibus property value here since the Domibus properties above will contain it, unless overwritten by users.
+            // For String property values, if users have overwritten their original default Domibus property values, it is their responsibility to ensure they are valid.
+            // For all the other Boolean and Integer property values, if users have overwritten their original default Domibus property values, they are defaulted back to their
+            // original default Domibus values when invalid (please check the #getInteger..(..) and #getBoolean..(..) methods below).
+        }
+        if (StringUtils.contains(result, "${")) {
+            LOGGER.debug("Resolving property [{}]", propertyName);
+            result = propertyResolver.getResolvedValue(result, domibusProperties, true);
+        }
+        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
+            LOGGER.debug("Decrypting property [{}]", propertyName);
+            result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
+        }
+
+        return result;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
+        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
+        boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
+        if (!domainPropertyKeyFound) {
+            domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
+        }
+        return domainPropertyKeyFound;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsPropertyKey(String propertyName) {
+        return domibusProperties.containsKey(propertyName);
+    }
+
 
     private String getGlobalProperty(DomibusPropertyMetadata prop) {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
@@ -168,88 +281,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return "super." + propertyName;
     }
 
-    ///////////////
-
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
-
-    @Autowired
-    @Qualifier("domibusProperties")
-    protected Properties domibusProperties;
-
-    @Autowired
-    @Qualifier("domibusDefaultProperties")
-    protected Properties domibusDefaultProperties;
-
-    @Autowired
-    protected PropertyResolver propertyResolver;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    protected PasswordEncryptionService passwordEncryptionService;
-
     protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
         return domain.getCode() + "." + propertyName;
-    }
-
-    /**
-     * Get the value from the system environment properties;
-     * if not found, get the value from the system properties;
-     * if not found, get the value from Domibus properties;
-     * if still not found, look inside the Domibus default properties.
-     *
-     * @param propertyName the property name
-     * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
-     */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
-        String result = System.getenv(propertyName);
-        if (StringUtils.isEmpty(result)) {
-            result = System.getProperty(propertyName);
-        }
-        if (StringUtils.isEmpty(result)) {
-            result = domibusProperties.getProperty(propertyName);
-
-            // There is no need to retrieve the default Domibus property value here since the Domibus properties above will contain it, unless overwritten by users.
-            // For String property values, if users have overwritten their original default Domibus property values, it is their responsibility to ensure they are valid.
-            // For all the other Boolean and Integer property values, if users have overwritten their original default Domibus property values, they are defaulted back to their
-            // original default Domibus values when invalid (please check the #getInteger..(..) and #getBoolean..(..) methods below).
-        }
-        if (StringUtils.contains(result, "${")) {
-            LOGGER.debug("Resolving property [{}]", propertyName);
-            result = propertyResolver.getResolvedValue(result, domibusProperties, true);
-        }
-        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
-            LOGGER.debug("Decrypting property [{}]", propertyName);
-            result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
-        }
-
-        return result;
-    }
-
-    @Override
-    public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        Set<String> filteredPropertyNames = new HashSet<>();
-        final Enumeration<?> enumeration = domibusProperties.propertyNames();
-        while (enumeration.hasMoreElements()) {
-            final String propertyName = (String) enumeration.nextElement();
-            if (predicate.test(propertyName)) {
-                filteredPropertyNames.add(propertyName);
-            }
-        }
-        return filteredPropertyNames;
-    }
-
-    @Override
-    public Integer getIntegerProperty(String propertyName) {
-        String value = getProperty(propertyName);
-        return getIntegerInternal(propertyName, value);
-    }
-
-    @Override
-    public Long getLongProperty(String propertyName) {
-        String value = getProperty(propertyName);
-        return getLongInternal(propertyName, value);
     }
 
     private Integer getIntegerInternal(String propertyName, String customValue) {
@@ -284,39 +317,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected Long getDefaultLongValue(String propertyName) {
         Long defaultValue = MapUtils.getLong(domibusDefaultProperties, propertyName);
         return checkDefaultValue(propertyName, defaultValue);
-    }
-
-    @Override
-    public Boolean getBooleanProperty(String propertyName) {
-        String value = getProperty(propertyName);
-        return getBooleanInternal(propertyName, value);
-    }
-
-    @Override
-    public Boolean getBooleanProperty(Domain domain, String propertyName) {
-        String domainValue = getProperty(domain, propertyName);
-        return getBooleanInternal(propertyName, domainValue);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
-        if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
-        }
-        return domainPropertyKeyFound;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsPropertyKey(String propertyName) {
-        return domibusProperties.containsKey(propertyName);
     }
 
     private Boolean getBooleanInternal(String propertyName, String customValue) {
