@@ -188,6 +188,28 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
+        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
+        boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
+        if (!domainPropertyKeyFound) {
+            domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
+        }
+        return domainPropertyKeyFound;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsPropertyKey(String propertyName) {
+        return domibusProperties.containsKey(propertyName);
+    }
+
+
+    /**
      * Get the value from the system environment properties;
      * if not found, get the value from the system properties;
      * if not found, get the value from Domibus properties;
@@ -220,30 +242,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         return result;
     }
-
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
-        if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
-        }
-        return domainPropertyKeyFound;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsPropertyKey(String propertyName) {
-        return domibusProperties.containsKey(propertyName);
-    }
-
-
     private String getGlobalProperty(DomibusPropertyMetadata prop) {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
     }
