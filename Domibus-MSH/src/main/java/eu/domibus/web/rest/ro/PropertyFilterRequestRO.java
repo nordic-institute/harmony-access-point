@@ -15,7 +15,7 @@ public class PropertyFilterRequestRO implements Serializable {
 
     private String name;
 
-    private boolean includeSuperProperties;
+    private boolean showDomain;
 
 
 
@@ -43,11 +43,11 @@ public class PropertyFilterRequestRO implements Serializable {
         this.name = name;
     }
 
-    public boolean isIncludeSuperProperties() {
-        return includeSuperProperties;
+    public boolean isShowDomain() {
+        return showDomain;
     }
 
-    public void setIncludeSuperProperties(boolean includeSuperProperties) {
-        this.includeSuperProperties = includeSuperProperties;
+    public void setShowDomain(boolean showDomain) {
+        this.showDomain = showDomain;
     }
 }

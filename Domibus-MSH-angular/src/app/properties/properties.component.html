@@ -12,8 +12,8 @@
             </md-input-container>
           </div>
 
-          <ng-container *ngIf="isIncludeSuperPropertiesVisible">
-            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.includeSuperProperties" id="includeSuperProperties_id">
+          <ng-container *ngIf="showGlobalPropertiesControl">
+            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id">
             <span>Include Super Properties</span>
           </ng-container>
 

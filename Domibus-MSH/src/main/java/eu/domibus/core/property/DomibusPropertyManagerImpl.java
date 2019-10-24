@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyManager;
@@ -37,6 +38,9 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
     /**
      * Returns the properties that this PropertyProvider is able to handle.
      *
@@ -55,21 +59,11 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-        return getKnownPropertyValue(propertyName);
-
-//        DomibusPropertyMetadata meta = this.getKnownProperties().get(propertyName);
-//        if (meta == null) {
-//            throw new IllegalArgumentException(propertyName);
-//        }
-//        if (!meta.isDomainSpecific()) {
-//            return domibusPropertyProvider.getProperty(meta.getName());
-//        } else {
-//            if (meta.isWithFallback()) {
-//                return domibusPropertyProvider.getDomainProperty(domain, meta.getName());
-//            } else {
-//                return domibusPropertyProvider.getProperty(domain, meta.getName());
-//            }
-//        }
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException(propertyName);
+        }
+        Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
+        return domibusPropertyProvider.getProperty(domain, propertyName);
     }
 
     @Override
@@ -83,24 +77,46 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
-        if (propMeta == null) {
-            throw new IllegalArgumentException(propertyName);
-        }
+        Domain domain = domainCode != null ? domainService.getDomain(domainCode) : null;
+        this.setPropertyValue(domain, propertyName, propertyValue, true);
 
-        Domain propertyDomain = null;
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            propertyDomain = domainCode == null ? null : domainService.getDomain(domainCode);
-            propertyDomain = !propMeta.isGlobal() ? propertyDomain : null;
-        }
-        this.domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
-
-        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+//        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
+//        if (propMeta == null) {
+//            throw new IllegalArgumentException(propertyName);
+//        }
+//
+//        Domain propertyDomain = null;
+//        if (domibusConfigurationService.isMultiTenantAware()) {
+//            propertyDomain = domainCode == null ? null : domainService.getDomain(domainCode);
+//            propertyDomain = propMeta.isGlobal() ? null : propertyDomain;
+//        }
+//        domibusPropertyProvider.setPropertyValue(propertyDomain, propertyName, propertyValue);
+//
+//        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
+//        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String propertyName, String propertyValue) {
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        this.setPropertyValue(domain, propertyName, propertyValue, true);
+    }
+
+    private void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
+        DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
+        if (propMeta == null) {
+            throw new IllegalArgumentException(propertyName);
+        }
+
+        domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
+
+        String domainCode = domain != null ? domain.getCode() : null;
+        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
+        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
 }

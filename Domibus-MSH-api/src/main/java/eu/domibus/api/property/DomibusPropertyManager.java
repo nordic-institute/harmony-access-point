@@ -35,6 +35,14 @@ public interface DomibusPropertyManager extends DomibusPropertyMetadataManager {
     void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue);
 
     /**
+     * Replaces/Sets the current property value in the current domain
+     *
+     * @param propertyName  the property name whose value is set
+     * @param propertyValue the new property value
+     */
+    void setKnownPropertyValue(String propertyName, String propertyValue);
+
+    /**
      * Replaces/Sets the current property value
      *
      * @param domainCode    the domain on which the property value is set

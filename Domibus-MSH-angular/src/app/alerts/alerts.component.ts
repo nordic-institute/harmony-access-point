@@ -79,7 +79,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     this.getAlertTypes();
     this.getAlertLevels();
-    this.getAlertStatuses(); 
+    this.getAlertStatuses();
   }
 
   ngOnInit() {

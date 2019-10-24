@@ -448,8 +448,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue,
-                                      boolean broadcast) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         if (!hasKnownProperty(propertyName)) {
             throw new IllegalArgumentException("Unknown property name: " + propertyName);
         }
@@ -469,6 +468,13 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String propertyName, String propertyValue) {
+        DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
+        String domainCode = currentDomain == null ? null : currentDomain.getCode();
+        setKnownPropertyValue(domainCode, propertyName,propertyValue);
     }
 
 }

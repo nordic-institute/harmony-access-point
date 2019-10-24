@@ -46,7 +46,7 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-       return getKnownPropertyValue(propertyName);
+        return getKnownPropertyValue(propertyName);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+    public void setKnownPropertyValue(String propertyName, String propertyValue) {
         Boolean value = Boolean.valueOf(propertyValue);
         switch (propertyName) {
             case SCHEMA_VALIDATION_ENABLED_PROPERTY:
@@ -80,6 +80,11 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
             default:
                 LOG.debug("Property [{}] cannot be set because it is not found", propertyName);
         }
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+        setKnownPropertyValue(propertyName, propertyValue);
     }
 
     private Boolean isMtomEnabled() {

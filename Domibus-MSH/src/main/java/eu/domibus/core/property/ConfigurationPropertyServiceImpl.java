@@ -2,10 +2,11 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -46,11 +47,16 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     private List<DomibusPropertyManagerExt> propertyManagers;
 
-    public List<DomibusProperty> getAllWritableProperties(String name, boolean includeSuperProperties) {
+    @Autowired
+    private AuthUtils authUtils;
+
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
+
+    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> list = new ArrayList<>();
 
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//        String domainCode = currentDomain == null ? null : currentDomain.getCode();
+//        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
 
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
             List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
@@ -59,20 +65,23 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                     .collect(Collectors.toList());
 
             if (domibusConfigurationService.isMultiTenantAware()) {
-                if (currentDomain == null) {
-                    //TODO: include super properties if asked so
-                    if(includeSuperProperties) {
+                if (showDomain) {
+                    knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
+                } else {
+                    if (authUtils.isSuperAdmin()) {
                         knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
                     } else {
-                        knownProps = knownProps.stream().filter(p -> p.isGlobal()).collect(Collectors.toList());
+                        throw new IllegalArgumentException("Cannot request global and super properties if not a super user.");
                     }
-                } else {
-                    knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
                 }
+//                if (currentDomain == null) { //todo:review if it can happen
+//                    knownProps = knownProps.stream().filter(p -> p.isGlobal()).collect(Collectors.toList());
+//                } else {
+//                    knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
+//                }
             }
 
             for (DomibusPropertyMetadataDTO p : knownProps) {
-//                String value = propertyManager.getKnownPropertyValue(domainCode, p.getName());
                 String value = propertyManager.getKnownPropertyValue(p.getName());
                 DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
 
@@ -88,14 +97,17 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     @Transactional(noRollbackFor = DomibusCoreException.class)
-    public void setPropertyValue(String name, String value) {
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        String domainCode = currentDomain == null ? null : currentDomain.getCode();
-
+    public void setPropertyValue(String name, boolean isDomain, String value) {
         boolean handled = false;
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
             if (propertyManager.hasKnownProperty(name)) {
-                propertyManager.setKnownPropertyValue(domainCode, name, value);
+                if(isDomain) {
+                    propertyManager.setKnownPropertyValue(name, value);
+                } else {
+                    domainTaskExecutor.submit(() -> {
+                        propertyManager.setKnownPropertyValue(name, value);
+                    });
+                }
                 handled = true;
             }
         }

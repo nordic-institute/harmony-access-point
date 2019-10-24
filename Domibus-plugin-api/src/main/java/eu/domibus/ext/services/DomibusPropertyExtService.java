@@ -40,7 +40,6 @@ public interface DomibusPropertyExtService {
     @Deprecated
     String getDomainProperty(DomainDTO domain, String propertyName);
 
-
     /**
      * Sets the property value with the provided name for a specific domain
      *
@@ -48,8 +47,21 @@ public interface DomibusPropertyExtService {
      * @param propertyName The property name for which the value is updated
      * @param propertyValue The new property value
      */
+    /**
+     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#setProperty(java.lang.String, java.lang.String) }
+     */
+    @Deprecated
     void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue);
 
+    /**
+     * Sets the property value with the provided name for the current domain
+     *
+     * @param propertyName The property name for which the value is updated
+     * @param propertyValue The new property value
+     */
+    void setProperty(String propertyName, String propertyValue);
+
+    void setProperty(String propertyName, boolean isDomain, String propertyValue);
 
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.

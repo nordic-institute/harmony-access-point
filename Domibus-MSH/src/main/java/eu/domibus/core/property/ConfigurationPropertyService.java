@@ -18,7 +18,7 @@ public interface ConfigurationPropertyService {
      * @param name the filter value
      * @return
      */
-    List<DomibusProperty> getAllWritableProperties(String name, boolean includeSuperProperties);
+    List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties);
 
     /**
      * Stets the property with specified name to the specified value
@@ -26,6 +26,6 @@ public interface ConfigurationPropertyService {
      * @param name  name of the property
      * @param value the new value
      */
-    void setPropertyValue(String name, String value);
+    void setPropertyValue(String name, boolean isDomain, String value);
 
 }

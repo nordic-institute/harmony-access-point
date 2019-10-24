@@ -9,21 +9,16 @@ export class PropertiesService {
 
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
 
-  constructor(private http: Http, private alertService: AlertService, private securityService: SecurityService, private domainService: DomainService) {
+  constructor(private http: Http, private alertService: AlertService) {
   }
 
-  async isIncludeSuperPropertiesVisible (): Promise<boolean> {
-    const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
-    return isMultiDomain && this.securityService.isCurrentUserSuperAdmin();
-  }
-
-  getProperties(searchString: string, includeSuperProperties: boolean, pageSize: number, offset: number): Promise<PropertyListModel> {
+  getProperties(searchString: string, showDomainProperties: boolean, pageSize: number, offset: number): Promise<PropertyListModel> {
     const searchParams = new URLSearchParams();
     if (searchString && searchString.trim()) {
       searchParams.set('name', searchString.trim());
     }
-    if (includeSuperProperties) {
-      searchParams.set('includeSuperProperties', includeSuperProperties.toString());
+    if (showDomainProperties) {
+      searchParams.set('showDomain', showDomainProperties.toString());
     }
     if (pageSize) {
       searchParams.set('pageSize', pageSize.toString());
@@ -43,8 +38,8 @@ export class PropertiesService {
     return body || {};
   }
 
-  updateProperty(name: any, value: any): Promise<void> {
-    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value)
+  updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
+    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain: isDomain)
       .map(() => {
       })
       .toPromise()

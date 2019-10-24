@@ -130,7 +130,7 @@ public class ConfigurationPropertyServiceImplTest {
             result = true;
         }};
 
-        domibusPropertyService.setPropertyValue(DOMIBUS_UI_TITLE_NAME, "val11");
+        domibusPropertyService.setPropertyValue(DOMIBUS_UI_TITLE_NAME, true, "val11");
 
         new Verifications() {{
             propertyManager1.setKnownPropertyValue(domainCode, DOMIBUS_UI_TITLE_NAME, "val11");
@@ -150,6 +150,6 @@ public class ConfigurationPropertyServiceImplTest {
             result = false;
         }};
 
-        domibusPropertyService.setPropertyValue("non_existing_prop", "val11");
+        domibusPropertyService.setPropertyValue("non_existing_prop", true,"val11");
     }
 }

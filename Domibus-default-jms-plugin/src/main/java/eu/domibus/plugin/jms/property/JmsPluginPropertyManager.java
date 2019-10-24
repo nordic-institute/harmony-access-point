@@ -34,18 +34,6 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
         return getKnownPropertyValue(propertyName);
-
-//        if (!hasKnownProperty(propertyName)) {
-//            throw new IllegalArgumentException("Unknown property: " + propertyName);
-//        }
-//
-//        final DomainDTO domain = domainExtService.getDomain(domainCode);
-//
-//        if (StringUtils.equalsIgnoreCase(propertyName, PUT_ATTACHMENTS_IN_QUEUE)) {
-//            return domibusPropertyExtService.getDomainProperty(domain, propertyName, "true");
-//        } else {
-//            return domibusPropertyExtService.getProperty(domain, propertyName);
-//        }
     }
 
     @Override
@@ -78,6 +66,14 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String propertyName, String propertyValue) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new IllegalArgumentException("Unknown property: " + propertyName);
+        }
+        domibusPropertyExtService.setProperty(propertyName, propertyValue);
     }
 
     @Override

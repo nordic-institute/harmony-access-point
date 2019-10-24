@@ -3,6 +3,7 @@ import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService} from './properties.service';
 import {Headers} from '@angular/http';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
+import {SecurityService} from '../security/security.service';
 
 @Component({
   moduleId: module.id,
@@ -13,8 +14,8 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 
 export class PropertiesComponent implements OnInit {
 
-  filter: { propertyName: string, includeSuperProperties: boolean };
-  isIncludeSuperPropertiesVisible: boolean;
+  filter: { propertyName: string, showDomainProperties: boolean };
+  showGlobalPropertiesControl: boolean;
 
   loading: boolean = false;
   rows = [];
@@ -26,12 +27,12 @@ export class PropertiesComponent implements OnInit {
 
   columns: any[] = [];
 
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService) {
-    this.filter = {propertyName: '', includeSuperProperties: false};
+  constructor(private propertiesService: PropertiesService, private alertService: AlertService,  private securityService: SecurityService) {
+    this.filter = {propertyName: '', showDomainProperties: true};
   }
 
   async ngOnInit() {
-    this.isIncludeSuperPropertiesVisible = await this.propertiesService.isIncludeSuperPropertiesVisible();
+    this.showGlobalPropertiesControl = this.securityService.isCurrentUserSuperAdmin();
 
     this.rows = [];
 
@@ -76,7 +77,7 @@ export class PropertiesComponent implements OnInit {
   private async loadProperties(pageSize: number, offset: number = 0) {
     this.loading = true;
     try {
-      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.includeSuperProperties, pageSize, offset);
+      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties, pageSize, offset);
       this.count = result.count;
       this.rows = result.items;
       this.offset = offset;
@@ -91,7 +92,7 @@ export class PropertiesComponent implements OnInit {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
-      await this.propertiesService.updateProperty(row.metadata.name, row.value);
+      await this.propertiesService.updateProperty(row.metadata.name, this.filter.showDomainProperties, row.value);
     } catch (ex) {
       row.currentValue = row.oldValue;
       this.revertProperty(row);

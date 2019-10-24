@@ -8,7 +8,6 @@ import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
 import eu.domibus.web.rest.validators.SkipWhiteListed;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -42,7 +41,7 @@ public class ConfigurationPropertyResource {
     @GetMapping(path = "/properties")
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
-        List<DomibusProperty> items = configurationPropertyService.getAllWritableProperties(request.getName(), request.isIncludeSuperProperties());
+        List<DomibusProperty> items = configurationPropertyService.getAllWritableProperties(request.getName(), request.isShowDomain());
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -52,34 +51,12 @@ public class ConfigurationPropertyResource {
         return response;
     }
 
-//    @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")
-//    @GetMapping(path = "/superProperties")
-//    public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request, String domain) {
-//        if (StringUtils.isEmpty(domain)) {
-//            domainContextProvider.clearCurrentDomain();
-//        } else
-//            domainContextProvider.setCurrentDomain(domain);
-//
-//        return this.getProperties(request);
-//    }
-
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @PutMapping(path = "/properties/{propertyName:.+}")
     @SkipWhiteListed
-    public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue) {
-        configurationPropertyService.setPropertyValue(propertyName, propertyValue);
+    public void setProperty(@PathVariable String propertyName, @RequestParam(required = false, defaultValue = "true") boolean isDomain,
+                            @RequestBody String propertyValue) {
+        configurationPropertyService.setPropertyValue(propertyName, isDomain, propertyValue);
     }
 
-//    @PreAuthorize("hasAnyRole('ROLE_AP_ADMIN')")
-//    @PutMapping(path = "/superProperties/{propertyName:.+}")
-//    @SkipWhiteListed
-//    public void setProperty(@PathVariable String propertyName, @RequestBody String propertyValue, String domain) {
-//        if (StringUtils.isEmpty(domain)) {
-//            domainContextProvider.clearCurrentDomain();
-//        } else {
-//            domainContextProvider.setCurrentDomain(domain);
-//        }
-//
-//        this.setProperty(propertyName, propertyValue);
-//    }
 }
