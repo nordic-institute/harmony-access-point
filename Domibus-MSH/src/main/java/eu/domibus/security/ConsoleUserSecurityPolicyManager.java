@@ -89,7 +89,6 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
 
     @Override
     protected int getMaxAttemptAmount(UserEntityBase user) {
-    //    final Domain domain = getCurrentOrDefaultDomainForUser((User) user);
         return domibusPropertyProvider.getIntegerProperty(MAXIMUM_LOGIN_ATTEMPT);
     }
 
@@ -101,29 +100,11 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
     @Override
     protected int getSuspensionInterval() {
         return domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
-//        int suspensionInterval;
-//        if (domain == null) { //it is called for super-users so we read from default domain
-//            suspensionInterval = domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
-//        } else { //for normal users the domain is set as current Domain
-//            suspensionInterval = domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
-//        }
-//        return suspensionInterval;
     }
 
     @Override
     protected UserEntityBase.Type getUserType() {
         return UserEntityBase.Type.CONSOLE;
     }
-
-//    private Domain getCurrentOrDefaultDomainForUser(User user) {
-//        String domainCode;
-//        boolean isSuperAdmin = user.isSuperAdmin();
-//        if (isSuperAdmin) {
-//            domainCode = DomainService.DEFAULT_DOMAIN.getCode();
-//        } else {
-//            domainCode = userDomainService.getDomainForUser(user.getUserName());
-//        }
-//        return domainService.getDomain(domainCode);
-//    }
 
 }

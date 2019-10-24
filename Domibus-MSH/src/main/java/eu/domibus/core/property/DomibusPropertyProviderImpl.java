@@ -148,7 +148,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
         String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
         if (propValue != null) { // found a value->return it
-            LOGGER.debug("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
+            LOGGER.trace("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
             return propValue;
         }
         //didn't find a specific value
@@ -156,7 +156,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (prop.isWithFallback()) {    //fall-back on default value from global file
             propValue = getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
             if (propValue != null) { // found a value->return it
-                LOGGER.debug("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
+                LOGGER.trace("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
                 return propValue;
             }
         }
@@ -345,6 +345,5 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOGGER.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
         return defaultValue;
     }
-
 
 }
