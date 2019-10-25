@@ -1,12 +1,13 @@
 package eu.domibus.core.replication;
 
 /**
- * Signals creation or update of a User or Signal message
+ * Signals the creation or the update of a User or Signal message
  *
  * since 4.1.2
  * @author Catalin Enache
  */
 public interface UIReplicationSignalService {
+
     boolean isReplicationEnabled();
 
     void userMessageReceived(String messageId);
