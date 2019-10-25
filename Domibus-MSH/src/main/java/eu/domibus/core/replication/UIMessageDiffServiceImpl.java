@@ -135,12 +135,12 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         startTime = System.currentTimeMillis();
 
         if (!uiMessageEntityList.isEmpty()) {
-            LOG.info("start to update TB_MESSAGE_UI");
+            LOG.debug("start to update TB_MESSAGE_UI");
 
             uiMessageEntityList.stream().forEach(uiMessageEntity ->
                     uiMessageService.saveOrUpdate(uiMessageEntity));
 
-            LOG.info("finish to update TB_MESSAGE_UI after [{}] milliseconds", System.currentTimeMillis() - startTime);
+            LOG.debug("finish to update TB_MESSAGE_UI after [{}] milliseconds", System.currentTimeMillis() - startTime);
         }
         return recordsToSync;
     }
