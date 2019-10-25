@@ -60,6 +60,9 @@ public class UIReplicationListener {
             case MESSAGE_CHANGE:
                 uiReplicationDataService.messageChange(messageId, map.getJMSTimestamp());
                 break;
+            case MESSAGE_RESYNC:
+                uiReplicationDataService.messageToResync(messageId);
+                break;
             case SIGNAL_MESSAGE_SUBMITTED:
                 uiReplicationDataService.signalMessageSubmitted(messageId, map.getJMSTimestamp());
                 break;

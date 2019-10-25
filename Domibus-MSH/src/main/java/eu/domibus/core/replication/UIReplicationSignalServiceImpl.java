@@ -90,6 +90,18 @@ public class UIReplicationSignalServiceImpl implements UIReplicationSignalServic
     }
 
     @Override
+    public void messageToResync(String messageId) {
+        LOG.debug("send message change to queue - start");
+        if (!isReplicationEnabled()) {
+            return;
+        }
+        final JmsMessage message = createJMSMessage(messageId, UIJMSType.MESSAGE_RESYNC);
+
+        jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
+        LOG.debug("send message change to queue");
+    }
+
+    @Override
     public void signalMessageSubmitted(String messageId) {
         if (!isReplicationEnabled()) {
             return;

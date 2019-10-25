@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UIReplicationResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationResource.class);
+    public static final String SYNC_UI_REPLICATION_DISABLED = "UIReplication is disabled. No records will be synced for TB_MESSAGE_UI table";
 
     @Autowired
     private UIMessageDiffService uiMessageDiffService;
@@ -48,17 +49,17 @@ public class UIReplicationResource {
     }
 
     @RequestMapping(value = {"/sync"}, method = RequestMethod.GET)
-    public ResponseEntity<String> syncData(@RequestParam(value = "limit", defaultValue = "10000") int limit) {
+    public ResponseEntity<String> syncData(@RequestParam(value = "limit", defaultValue = "1000") int limit) {
         if (!uiReplicationSignalService.isReplicationEnabled()) {
-            LOG.warn("UIReplication is disabled - no processing will occur");
+            LOG.warn(SYNC_UI_REPLICATION_DISABLED);
             return ResponseEntity
                     .ok()
-                    .body( "UIReplication is disabled. No records will be synced for TB_MESSAGE_UI table");
+                    .body( SYNC_UI_REPLICATION_DISABLED);
         }
 
         LOG.debug("sync data was requested with limit={}", limit);
 
-        int syncedRows = uiMessageDiffService.findAndSyncUIMessages(limit);
+        int syncedRows = uiMessageDiffService
 
         return ResponseEntity
                 .ok()

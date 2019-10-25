@@ -5,6 +5,7 @@ import eu.domibus.common.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
 
     /** max no of records to be synchronized using cron job */
     static final String MAX_ROWS_KEY = DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
+    public static final String MESSAGE_FIND_AND_SYC_FIRST = "find and sync first [{}] UIMessages";
 
     @Autowired
     private UIMessageDiffDao uiMessageDiffDao;
@@ -35,6 +37,9 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
 
     @Autowired
     private UIMessageService uiMessageService;
+
+    @Autowired
+    private UIReplicationSignalService uiReplicationSignalService;
 
     @Override
     @Transactional(readOnly = true, propagation=Propagation.SUPPORTS)
@@ -141,6 +146,32 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
                     uiMessageService.saveOrUpdate(uiMessageEntity));
 
             LOG.info("finish to update TB_MESSAGE_UI after [{}] milliseconds", System.currentTimeMillis() - startTime);
+        }
+        return recordsToSync;
+    }
+
+    @Override
+    public int findAndEnqueueMessagesForSync(int limit) {
+        LOG.debug(MESSAGE_FIND_AND_SYC_FIRST, limit);
+        int recordsToSync = countAll();
+
+        if (recordsToSync == 0) {
+            LOG.warn("no records to sync");
+            return 0;
+        }
+
+        List<String> messageIdList =
+                findAll(limit).
+                        stream().
+                        map(diffEntity -> diffEntity.getMessageId()).
+                        collect(Collectors.toList());
+
+        if (CollectionUtils.isNotEmpty(messageIdList)) {
+            LOG.debug("start to enqueue messages to be synced");
+
+            messageIdList.stream().forEach(messageId -> uiReplicationSignalService.messageToResync(messageId));
+
+            LOG.debug("start to enqueue messages to be synced - end");
         }
         return recordsToSync;
     }

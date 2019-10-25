@@ -84,7 +84,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      * @param jmsTimestamp
      */
     @Override
-    public void messageChange(String messageId, long jmsTimestamp) {
+    public void messageChange(final String messageId, long jmsTimestamp) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         final UIMessageEntity entity = uiMessageDao.findUIMessageByMessageId(messageId);
         final Date jmsTime = new Date(jmsTimestamp);

@@ -33,6 +33,13 @@ public interface UIReplicationDataService {
     void messageChange(final String messageId, final long jmsTimestamp);
 
     /**
+     * updates/sync data on receiver/sender side when a change in message change appears
+     *
+     * @param messageId
+     */
+    void messageToResync(final String messageId);
+
+    /**
      * replicates data on sender side when a new signal message is submitted
      *
      * @param messageId

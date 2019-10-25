@@ -34,4 +34,9 @@ public interface UIMessageDiffService {
      * run the diff query against {@code V_MESSAGE_UI} view and sync the data
      */
     int findAndSyncUIMessages(int limit);
+
+    /**
+     * run the diff query against {@code V_MESSAGE_UI} view and enqueue messages to be synced
+     */
+    int findAndEnqueueMessagesForSync(int limit);
 }
