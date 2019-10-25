@@ -301,8 +301,7 @@ public class CachingPModeProvider extends PModeProvider {
                     }
                     LOG.trace("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
                     if (StringUtils.equalsIgnoreCase(partyIdType, identifierPartyIdType) && StringUtils.equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
-                        LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
-                        LOG.trace("Found matching Party with PartyId:[{}] and PartyName:[{}] ", id.getValue(), party.getName());
+                        LOG.trace("Found Party with matching PartyId:[{}] and type:[{}] with PartyName:[{}] ", id.getValue(), partyIdType, party.getName());
                         return party.getName();
                     }
                 }
