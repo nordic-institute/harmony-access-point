@@ -43,7 +43,7 @@ public class PluginUsersPage extends DomibusPage {
 	@FindBy(css = "#userDeleteButton")
 	private WebElement deleteBtn;
 
-	public PluginUsersFilterArea getFilters() {
+	public PluginUsersFilterArea filters() {
 		return new PluginUsersFilterArea(driver);
 	}
 
@@ -102,9 +102,9 @@ public class PluginUsersPage extends DomibusPage {
 		if (!userGridContainer.isDisplayed()) {
 			return false;
 		}
-		if (!filters.isLoaded()) {
-			return false;
-		}
+//		if (!filters.isLoaded()) {
+//			return false;
+//		}
 
 		return true;
 	}

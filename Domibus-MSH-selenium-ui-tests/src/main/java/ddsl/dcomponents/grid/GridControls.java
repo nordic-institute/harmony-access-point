@@ -62,7 +62,7 @@ public class GridControls extends DComponent {
 		return null;
 	}
 
-	public void checkBoxWithLabel(String name) throws Exception{
+	public void  checkBoxWithLabel(String name) throws Exception{
 		boolean found = false;
 		for (WebElement chk : chkContainer) {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));

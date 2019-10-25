@@ -258,4 +258,17 @@ public class BaseTest {
 		log.info("user not found .. returning null");
 		return null;
 	}
+
+	public String getNonDefaultDomain() throws Exception {
+		log.info("getting domains");
+		List<String> domains = rest.getDomainNames();
+		String domain1 = "";
+		for (String domain : domains) {
+			if (!StringUtils.equalsIgnoreCase(domain, "Default")) {
+				domain1 = domain;
+				break;
+			}
+		}
+		return domain1;
+	}
 }
