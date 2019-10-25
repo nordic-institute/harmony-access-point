@@ -5,8 +5,6 @@ import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -118,24 +116,6 @@ public class UIReplicationSignalServiceImpl implements UIReplicationSignalServic
         return JMSMessageBuilder.create()
                 .type(uiJMSType.name())
                 .property(MessageConstants.MESSAGE_ID, messageId)
-                .property(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode())
-                .build();
-    }
-
-    protected JmsMessage createJMSMessage(String messageId, UIJMSType uiJMSType, MessageStatus messageStatus) {
-        return JMSMessageBuilder.create()
-                .type(uiJMSType.name())
-                .property(MessageConstants.MESSAGE_ID, messageId)
-                .property(JMS_PROP_STATUS, messageStatus.name())
-                .property(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode())
-                .build();
-    }
-
-    protected JmsMessage createJMSMessage(String messageId, UIJMSType uiJMSType, NotificationStatus notificationStatus) {
-        return JMSMessageBuilder.create()
-                .type(uiJMSType.name())
-                .property(MessageConstants.MESSAGE_ID, messageId)
-                .property(JMS_PROP_NOTIF_STATUS, notificationStatus.name())
                 .property(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode())
                 .build();
     }

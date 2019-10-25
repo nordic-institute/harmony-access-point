@@ -83,7 +83,6 @@ public class UIMessageDaoImplIT {
         uiMessageEntity.setSendAttempts(0);
         uiMessageEntity.setSendAttemptsMax(5);
         uiMessageEntity.setLastModified(new Date(System.currentTimeMillis()));
-        uiMessageEntity.setLastModified2(new Date(System.currentTimeMillis()));
 
         uiMessageDao.create(uiMessageEntity);
 
@@ -157,32 +156,5 @@ public class UIMessageDaoImplIT {
         uiMessageDao.saveOrUpdate(uiMessageEntity3);
         Assert.assertEquals(3, uiMessageDao.findUIMessageByMessageId(messageId3).getSendAttempts());
     }
-
-    @Test
-    public void testUpdateMessageStatus() {
-
-        Assert.assertTrue(uiMessageDao.updateMessageStatus(messageId1, MessageStatus.SEND_ENQUEUED, null,
-                null, null, new Date()));
-
-        Assert.assertFalse(uiMessageDao.updateMessageStatus(messageId1 + "123", MessageStatus.SEND_ENQUEUED, null,
-                null, null, new Date()));
-    }
-
-    @Test
-    public void testUpdateNotificationStatus() {
-        Assert.assertTrue(uiMessageDao.updateNotificationStatus(messageId2, NotificationStatus.NOTIFIED, new Date()));
-
-        Assert.assertFalse(uiMessageDao.updateNotificationStatus(messageId2 + "123", NotificationStatus.NOTIFIED, new Date()));
-    }
-
-   // @Test
-//    public void testUpdateMessage() {
-//
-//        Assert.assertTrue(uiMessageDao.updateMessage(messageId3, MessageStatus.DOWNLOADED, null, null, null,
-//                null, null, null, new Date()));
-//        Assert.assertFalse(uiMessageDao.updateMessage(messageId3 + "123", MessageStatus.DOWNLOADED, null, null, null,
-//                null, null, null, new Date()));
-//
-//    }
 
 }

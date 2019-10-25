@@ -27,21 +27,9 @@ import java.util.Date;
 @SqlResultSetMapping(name="updateResult", columns = { @ColumnResult(name = "count")})
 @NamedNativeQueries({
         @NamedNativeQuery(
-                name    =   "UIMessageEntity.updateMessageStatus",
-                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, DELETED=?2, NEXT_ATTEMPT=?3, FAILED=?4, LAST_MODIFIED=?5 " +
-                        " WHERE MESSAGE_ID=?6"
-                ,resultSetMapping = "updateResult"
-        ),
-        @NamedNativeQuery(
-                name    =   "UIMessageEntity.updateNotificationStatus",
-                query   =   "UPDATE TB_MESSAGE_UI SET NOTIFICATION_STATUS=?1, LAST_MODIFIED2=?2 " +
-                        " WHERE MESSAGE_ID=?3"
-                ,resultSetMapping = "updateResult"
-        ),
-        @NamedNativeQuery(
                 name    =   "UIMessageEntity.updateMessage",
-                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, RECEIVED=?4, FAILED=?5, RESTORED=?6, NEXT_ATTEMPT=?7, SEND_ATTEMPTS=?8, SEND_ATTEMPTS_MAX=?9, LAST_MODIFIED=?10 " +
-                        " WHERE MESSAGE_ID=?11"
+                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, FAILED=?4, RESTORED=?5, NEXT_ATTEMPT=?6, SEND_ATTEMPTS=?7, SEND_ATTEMPTS_MAX=?8, LAST_MODIFIED=?9 " +
+                        " WHERE MESSAGE_ID=?10"
                 ,resultSetMapping = "updateResult"
         )
 })
@@ -117,11 +105,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LAST_MODIFIED", nullable = false)
     private Date lastModified;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "LAST_MODIFIED2", nullable = false)
-    private Date lastModified2;
-
 
     public String getMessageId() {
         return messageId;
@@ -281,14 +264,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
 
     public void setLastModified(Date version) {
         this.lastModified = version;
-    }
-
-    public Date getLastModified2() {
-        return lastModified2;
-    }
-
-    public void setLastModified2(Date lastModified2) {
-        this.lastModified2 = lastModified2;
     }
 
     @Override

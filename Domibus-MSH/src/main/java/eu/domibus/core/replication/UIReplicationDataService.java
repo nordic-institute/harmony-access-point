@@ -1,8 +1,5 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-
 /**
  * Replication Data service interface - all operations of writing data into {@code TB_MESSAGE_UI} table
  *
@@ -17,7 +14,7 @@ public interface UIReplicationDataService {
      * @param messageId
      * @param jmsTimestamp
      */
-    void messageReceived(final String messageId, long jmsTimestamp);
+    void userMessageReceived(final String messageId, long jmsTimestamp);
 
     /**
      * replicates data on sender side when a new user message is submitted
@@ -25,27 +22,7 @@ public interface UIReplicationDataService {
      * @param messageId
      * @param jmsTimestamp
      */
-    void messageSubmitted(final String messageId, final long jmsTimestamp);
-
-    /**
-     * updates/sync data on receiver/sender side when a change in messages status appears
-     *
-     *  @param messageId
-     * @param messageStatus
-     * @param jmsTimestamp
-     */
-    @Deprecated
-    void messageStatusChange(final String messageId, MessageStatus messageStatus, long jmsTimestamp);
-
-    /**
-     * updates/sync data on receiver/sender side when a change in messages notification status appears
-     *
-     * @param messageId
-     * @param notificationStatus
-     * @param jmsTimestamp
-     */
-    @Deprecated
-    void  messageNotificationStatusChange(final String messageId, NotificationStatus notificationStatus, long jmsTimestamp);
+    void userMessageSubmitted(final String messageId, final long jmsTimestamp);
 
     /**
      * updates/sync data on receiver/sender side when a change in message change appears
