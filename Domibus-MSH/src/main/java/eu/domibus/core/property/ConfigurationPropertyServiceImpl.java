@@ -74,22 +74,21 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                         throw new IllegalArgumentException("Cannot request global and super properties if not a super user.");
                     }
                 }
-//                if (currentDomain == null) { //todo:review if it can happen
-//                    knownProps = knownProps.stream().filter(p -> p.isGlobal()).collect(Collectors.toList());
-//                } else {
-//                    knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
-//                }
             }
 
             for (DomibusPropertyMetadataDTO p : knownProps) {
-                String value = propertyManager.getKnownPropertyValue(p.getName());
-                DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+                try {
+                    String value = propertyManager.getKnownPropertyValue(p.getName());
+                    DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
 
-                DomibusProperty prop = new DomibusProperty();
-                prop.setMetadata(meta);
-                prop.setValue(value);
+                    DomibusProperty prop = new DomibusProperty();
+                    prop.setMetadata(meta);
+                    prop.setValue(value);
 
-                list.add(prop);
+                    list.add(prop);
+                } catch (Throwable ex) {
+                    int i = 1;
+                }
             }
         }
 

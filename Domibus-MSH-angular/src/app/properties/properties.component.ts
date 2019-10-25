@@ -27,7 +27,7 @@ export class PropertiesComponent implements OnInit {
 
   columns: any[] = [];
 
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService,  private securityService: SecurityService) {
+  constructor(private propertiesService: PropertiesService, private alertService: AlertService, private securityService: SecurityService) {
     this.filter = {propertyName: '', showDomainProperties: true};
   }
 
@@ -74,7 +74,7 @@ export class PropertiesComponent implements OnInit {
     return row && row.currentValue && row.currentValue != row.value;
   }
 
-  private async loadProperties(pageSize: number, offset: number = 0) {
+  private async loadProperties(pageSize: number = this.rowLimiter.pageSize, offset: number = 0) {
     this.loading = true;
     try {
       var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties, pageSize, offset);
@@ -86,6 +86,10 @@ export class PropertiesComponent implements OnInit {
       this.alertService.exception('Could not load properties ', ex, false);
     }
     this.loading = false;
+  }
+
+  refresh() {
+    this.loadProperties();
   }
 
   private async updateProperty(row) {

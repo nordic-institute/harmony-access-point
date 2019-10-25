@@ -242,7 +242,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         return result;
     }
-    
+
     private String getGlobalProperty(DomibusPropertyMetadata prop) {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
     }
