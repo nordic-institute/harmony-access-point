@@ -25,9 +25,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_
 @Service
 public class UIReplicationSignalServiceImpl implements UIReplicationSignalService {
 
-    static final String JMS_PROP_STATUS = "status";
-    static final String JMS_PROP_NOTIF_STATUS = "notif_status";
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationSignalServiceImpl.class);
 
     static final String UI_REPLICATION_ENABLED = DOMIBUS_UI_REPLICATION_ENABLED;
