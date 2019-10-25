@@ -308,7 +308,6 @@ public class PModeDao extends PModeProvider {
                 LOG.debug("", e); // Its ok to not know all identifiers, we just have to know one
             }
         }
-        //LOG.businessError(DomibusMessageCode.BUS_PARTY_ID_NOT_FOUND, partyIds);
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found with PartyId:"+partyIdEx, null, null);
     }
 
