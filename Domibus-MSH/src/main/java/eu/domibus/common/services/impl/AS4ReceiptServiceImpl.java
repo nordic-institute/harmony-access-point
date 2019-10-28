@@ -249,9 +249,13 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             LOG.debug("Initializing the templates instance");
             InputStream generateAS4ReceiptStream = getAs4ReceiptXslInputStream();
             Source messageToReceiptTransform = new StreamSource(generateAS4ReceiptStream);
-            templates = XMLUtilImpl.createTransformerFactory().newTemplates(messageToReceiptTransform);
+            templates = createTransformerFactoryForTemplates().newTemplates(messageToReceiptTransform);
         }
         return templates;
+    }
+
+    protected TransformerFactory createTransformerFactoryForTemplates() {
+        return TransformerFactory.newInstance();
     }
 
     protected InputStream getAs4ReceiptXslInputStream() throws IOException {
