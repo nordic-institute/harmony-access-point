@@ -75,13 +75,10 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 //non-writable properties:
-                //(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
                 new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(OUT_QUEUE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, true, false, false),
 
-
-//
                 //writable properties
                 new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
@@ -89,9 +86,9 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 // without fallback from the default domain :
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false), // TODO: handle encryption
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),
                 new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
-                new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false), // TODO: handle encryption
+                new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),
                 // with fallback from the default domain:
                 new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
