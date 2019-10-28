@@ -39,7 +39,7 @@ export class PropertiesService {
   }
 
   updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
-    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain: isDomain}})
+    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain}})
       .map(() => {
       })
       .toPromise()

@@ -61,8 +61,6 @@ public interface DomibusPropertyExtService {
      */
     void setProperty(String propertyName, String propertyValue);
 
-    void setProperty(String propertyName, boolean isDomain, String propertyValue);
-
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.
      * If not found, the property will be looked within the domibus/default-domain properties

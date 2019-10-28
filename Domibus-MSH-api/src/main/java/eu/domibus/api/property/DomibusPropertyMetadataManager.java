@@ -272,7 +272,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
     String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
-    String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password";
+    String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password"; //NOSONAR
     String DOMIBUS_JMX_USER = "domibus.jmx.user";
     String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
