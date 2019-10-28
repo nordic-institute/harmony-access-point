@@ -36,8 +36,8 @@ public class DomibusPropertyMetadataManagerImplTest {
         DomibusPropertyMetadata actual = props.get(DOMIBUS_UI_TITLE_NAME);
 
         Assert.assertEquals(DOMIBUS_UI_TITLE_NAME, actual.getName());
-        Assert.assertEquals(true, actual.getUsage() == DomibusPropertyMetadata.Usage.DOMAIN);
-        Assert.assertEquals(true, actual.isWithFallback());
+        Assert.assertEquals(actual.getUsage(), DomibusPropertyMetadata.Usage.DOMAIN);
+        Assert.assertTrue(actual.isWithFallback());
     }
 
     @Test
@@ -51,6 +51,6 @@ public class DomibusPropertyMetadataManagerImplTest {
     public void hasKnownProperty() {
         boolean actual = domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
 
-        Assert.assertEquals(true, actual);
+        Assert.assertTrue(actual);
     }
 }

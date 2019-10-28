@@ -83,7 +83,7 @@ public class DomibusDatasourceConfiguration {
         dataSource.setUrl(dataSourceURL);
         final String user = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_USER);
         dataSource.setUser(user);
-        final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD);
+        final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD); //NOSONAR
         dataSource.setPassword(password);
         final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE);
         dataSource.setMinPoolSize(minPoolSize);

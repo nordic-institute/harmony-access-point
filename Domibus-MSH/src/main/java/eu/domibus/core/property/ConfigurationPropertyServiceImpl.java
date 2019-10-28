@@ -77,18 +77,14 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             }
 
             for (DomibusPropertyMetadataDTO p : knownProps) {
-                try {
-                    String value = propertyManager.getKnownPropertyValue(p.getName());
-                    DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+                String value = propertyManager.getKnownPropertyValue(p.getName());
+                DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
 
-                    DomibusProperty prop = new DomibusProperty();
-                    prop.setMetadata(meta);
-                    prop.setValue(value);
+                DomibusProperty prop = new DomibusProperty();
+                prop.setMetadata(meta);
+                prop.setValue(value);
 
-                    list.add(prop);
-                } catch (Throwable ex) {
-                    int i = 1;
-                }
+                list.add(prop);
             }
         }
 

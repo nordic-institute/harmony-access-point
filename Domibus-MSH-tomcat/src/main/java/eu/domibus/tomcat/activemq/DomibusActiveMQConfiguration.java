@@ -60,7 +60,7 @@ public class DomibusActiveMQConfiguration {
         result.setUserName(userName);
         LOGGER.debug("Using ActiveMQ userName [{}]", userName);
 
-        final String password = domibusPropertyProvider.getProperty(ACTIVE_MQ_PASSWORD);
+        final String password = domibusPropertyProvider.getProperty(ACTIVE_MQ_PASSWORD); //NOSONAR
         result.setPassword(password);
 
         final Integer closeTimeout = domibusPropertyProvider.getIntegerProperty(ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT);

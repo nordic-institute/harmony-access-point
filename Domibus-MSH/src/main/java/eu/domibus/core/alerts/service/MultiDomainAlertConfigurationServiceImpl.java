@@ -273,7 +273,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
         if (misConfigured) {
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory.",
+            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in the domain [{}].",
                     DOMIBUS_ALERT_SENDER_EMAIL, alertEmailSender, DOMIBUS_ALERT_RECEIVER_EMAIL, alertEmailReceiver, currentDomain);
             throw new IllegalArgumentException("Invalid email address configured for the alert module.");
         }
