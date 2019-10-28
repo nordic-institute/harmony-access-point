@@ -393,7 +393,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     public X509Certificate loadCertificateFromString(String content) throws CertificateException {
         if (content == null) {
-            throw new IllegalArgumentException("Certificate content cannot be null.");
+            throw new CertificateException("Certificate content cannot be null.");
         }
 
         CertificateFactory certFactory = null;
@@ -417,7 +417,7 @@ public class CertificateServiceImpl implements CertificateService {
         return cert;
     }
 
-    private boolean isPemFormat(String content) {
+    protected boolean isPemFormat(String content) {
         return content.startsWith("-----BEGIN CERTIFICATE-----");
     }
 
