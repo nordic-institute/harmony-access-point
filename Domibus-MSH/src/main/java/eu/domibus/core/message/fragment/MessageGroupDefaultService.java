@@ -4,6 +4,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
@@ -17,6 +19,7 @@ public class MessageGroupDefaultService implements MessageGroupService {
     @Autowired
     protected MessageGroupDao messageGroupDao;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setSourceMessageId(String sourceMessageId, String groupId) {
         LOG.debug("Updating the SourceMessage id [{}] for group [{}]", sourceMessageId, groupId);
