@@ -64,12 +64,25 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     protected static final String PASSWORD_ENCRYPTION_ACTIVE = "password.encryption.active"; //NOSONAR
 
+    public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "fsplugin.password.encryption.properties"; //NOSONAR
+
+    protected static final String OUT_QUEUE = "send.queue";
+
     @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return Arrays.stream(new DomibusPropertyMetadataDTO[]{
+                //non-writable properties:
+                //(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
+                new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, false, false),
+                new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, false, false),
+                new DomibusPropertyMetadataDTO(OUT_QUEUE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, true, false, false),
+
+
+//
+                //writable properties
                 new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
