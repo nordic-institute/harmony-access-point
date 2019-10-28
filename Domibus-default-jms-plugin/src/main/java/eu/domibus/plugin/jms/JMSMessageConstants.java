@@ -52,4 +52,13 @@ public class JMSMessageConstants {
 
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password"; //NOSONAR
+
+    public static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
+
+    public static final String QUEUE_NOTIFICATION = "queue.notification";
+    public static final String QUEUE_IN = "queue.in";
+    public static final String QUEUE_IN_CONCURRENCY = "queue.in.concurrency";
 }

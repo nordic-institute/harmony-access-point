@@ -38,16 +38,13 @@ public class JmsPluginPropertyManagerTest {
     @Test
     public void setKnownPropertyValue() {
         new Expectations() {{
-            domainExtService.getDomain("default");
-            result = testDomain;
-
-            domibusPropertyExtService.getProperty(testDomain, jmsProperty);
+            domibusPropertyExtService.getProperty(jmsProperty);
             returns("old-value", testValue);
         }};
 
-        final String oldValue = jmsPluginPropertyManager.getKnownPropertyValue("default", jmsProperty);
-        jmsPluginPropertyManager.setKnownPropertyValue("default", jmsProperty, testValue);
-        final String newValue = jmsPluginPropertyManager.getKnownPropertyValue("default", jmsProperty);
+        final String oldValue = jmsPluginPropertyManager.getKnownPropertyValue(jmsProperty);
+        jmsPluginPropertyManager.setKnownPropertyValue(jmsProperty, testValue);
+        final String newValue = jmsPluginPropertyManager.getKnownPropertyValue(jmsProperty);
 
         Assert.assertTrue(oldValue != newValue);
         Assert.assertEquals(testValue, newValue);
@@ -70,14 +67,14 @@ public class JmsPluginPropertyManagerTest {
         String unknownPropertyName = "jmsplugin.unknown.property";
 
         try {
-            jmsPluginPropertyManager.getKnownPropertyValue("default", unknownPropertyName);
+            jmsPluginPropertyManager.getKnownPropertyValue(unknownPropertyName);
             Assert.fail("Expected exception not thrown");
         } catch (IllegalArgumentException ex) {
             Assert.assertTrue(ex.getMessage().contains(unknownPropertyName));
         }
 
         try {
-            jmsPluginPropertyManager.setKnownPropertyValue("default", unknownPropertyName, testValue);
+            jmsPluginPropertyManager.setKnownPropertyValue(unknownPropertyName, testValue);
             Assert.fail("Expected exception not thrown");
         } catch (IllegalArgumentException ex) {
             Assert.assertTrue(ex.getMessage().contains(unknownPropertyName));

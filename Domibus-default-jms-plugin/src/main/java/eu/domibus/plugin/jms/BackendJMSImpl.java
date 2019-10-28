@@ -33,8 +33,7 @@ import javax.jms.Session;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
+import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -42,11 +41,6 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
 public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSImpl.class);
-
-    protected static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
-    protected static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
-    protected static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
-    protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
     @Autowired
     protected JMSExtService jmsExtService;
