@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.KeyStoreException;
-import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -252,7 +252,7 @@ public class PartyResource extends BaseResource {
         TrustStoreEntry cert = null;
         try {
             cert = certificateService.convertCertificateContent(content);
-        } catch (CertificateException e) {
+        } catch (DomibusCertificateException e) {
             throw new IllegalArgumentException("certificate could not be parsed");
         }
         if (cert == null) {

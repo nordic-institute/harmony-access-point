@@ -68,7 +68,7 @@ public interface CertificateService {
      * @return a certificate
      * @throws CertificateException if the base64 string cannot be deserialized to a certificate
      */
-    X509Certificate loadCertificateFromString(String content) throws CertificateException;
+    X509Certificate loadCertificateFromString(String content);
 
     /**
      * Returns the certificate entry from the trust store given an alias
@@ -120,5 +120,5 @@ public interface CertificateService {
      * @return a certificate entry
      * @throws CertificateException if the base64 string cannot be converted to a certificate entry
      */
-    TrustStoreEntry convertCertificateContent(String certificateContent) throws CertificateException;
+    TrustStoreEntry convertCertificateContent(String certificateContent);
 }
