@@ -392,27 +392,33 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     public X509Certificate loadCertificateFromString(String content) throws CertificateException {
+        if (content == null) {
+            throw new IllegalArgumentException("Certificate content cannot be null.");
+        }
+
         CertificateFactory certFactory = null;
         X509Certificate cert = null;
         try {
             certFactory = CertificateFactory.getInstance("X.509");
         } catch (CertificateException e) {
-            LOG.warn("Error initializing certificate factory ", e);
             throw new DomibusCertificateException("Could not initialize certificate factory", e);
         }
 
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        if (!content.startsWith("-----BEGIN CERTIFICATE-----")) {
+        if (!isPemFormat(content)) {
             in = Base64.getMimeDecoder().wrap(in);
         }
 
         try {
             cert = (X509Certificate) certFactory.generateCertificate(in);
         } catch (CertificateException e) {
-            LOG.warn("Error generating certificate ", e);
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
         return cert;
+    }
+
+    private boolean isPemFormat(String content) {
+        return content.startsWith("-----BEGIN CERTIFICATE-----");
     }
 
     /**
