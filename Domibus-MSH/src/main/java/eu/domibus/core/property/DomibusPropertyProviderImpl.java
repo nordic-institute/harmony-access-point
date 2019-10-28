@@ -77,7 +77,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         if (currentDomain != null) {                               //we have a domain in context so try a domain property
             if (prop.isDomain()) {
-                return getDomainOrDefaultValue(propertyName, prop, currentDomain);
+                return getDomainOrDefaultValue(prop, currentDomain);
             }
             LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
@@ -86,7 +86,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 return getGlobalProperty(prop);
             }
             if (prop.isSuper()) {
-                return getSuperOrDefaultValue(propertyName, prop);
+                return getSuperOrDefaultValue(prop);
             }
             LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
             return null;
@@ -113,7 +113,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             throw new IllegalArgumentException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
         }
 
-        return getDomainOrDefaultValue(propertyName, prop, domain);
+        return getDomainOrDefaultValue(prop, domain);
     }
 
     @Override
@@ -247,32 +247,31 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
     }
 
-    private String getDomainOrDefaultValue(String propertyName, DomibusPropertyMetadata prop, Domain domain) {
-        String propertyKey = getPropertyKeyForDomain(domain, propertyName);
-        return getPropValueOrDefault(propertyKey, prop, domain, propertyName);
+    private String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
+        String propertyKey = getPropertyKeyForDomain(domain, prop.getName());
+        return getPropValueOrDefault(propertyKey, prop, domain);
     }
 
-    private String getSuperOrDefaultValue(String propertyName, DomibusPropertyMetadata prop) {
-        String propertyKey = getPropertyKeyForSuper(propertyName);
-        return getPropValueOrDefault(propertyKey, prop, null, propertyName);
+    private String getSuperOrDefaultValue(DomibusPropertyMetadata prop) {
+        String propertyKey = getPropertyKeyForSuper(prop.getName());
+        return getPropValueOrDefault(propertyKey, prop, null);
     }
 
-    private String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain, String originalPropertyName) {
+    private String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
         String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
         if (propValue != null) { // found a value->return it
-            LOGGER.trace("Returned specific value for property [{}] on domain [{}].", originalPropertyName, domain);
+            LOGGER.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);
             return propValue;
         }
-        //didn't find a specific value
-        //check if fallback is acceptable
-        if (prop.isWithFallback()) {    //fall-back on default value from global file
-            propValue = getPropertyValue(originalPropertyName, domain, prop.isEncrypted());
+        // didn't find a domain-specific value, try to fallback if acceptable
+        if (prop.isWithFallback()) {    //fall-back to the default value from global properties file
+            propValue = getPropertyValue(prop.getName(), domain, prop.isEncrypted());
             if (propValue != null) { // found a value->return it
-                LOGGER.trace("Returned fallback value for property [{}] on domain [{}].", originalPropertyName, domain);
+                LOGGER.trace("Returned fallback value for property [{}] on domain [{}].", prop.getName(), domain);
                 return propValue;
             }
         }
-        LOGGER.warn("Could not find a value for property [{}] on domain [{}].", originalPropertyName, domain);
+        LOGGER.debug("Could not find a value for property [{}] on domain [{}].", prop.getName(), domain);
         return null;
     }
 

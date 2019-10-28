@@ -25,6 +25,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     ApplicationContext applicationContext;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
+    private boolean externalPropertiesLoaded = false;
+    private Object propertyMetadataMapLock = new Object();
 
     /**
      * Returns all the properties that this PropertyProvider is able to handle, writable and read-only alike.
@@ -32,6 +34,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
      * @return a map
      * @implNote This list will be moved in the database eventually.
      */
+    @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
 
         return Arrays.stream(new DomibusPropertyMetadata[]{
@@ -162,7 +165,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
-                new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION, DomibusPropertyMetadata.Usage.DOMAIN, false),
+                new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_STORAGE_LOCATION, DomibusPropertyMetadata.Usage.DOMAIN, false),
                 new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
@@ -325,46 +328,78 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
+    @Override
     public boolean hasKnownProperty(String name) {
         return this.getKnownProperties().containsKey(name);
     }
 
-    public synchronized DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-        if (propertyMetadataMap == null) {
-            propertyMetadataMap = new HashMap<>();
-            //put my properties directly now to avoid infinite loop of bean creation(due to DB properties)
-            propertyMetadataMap.putAll(this.getKnownProperties());
-        }
+    /**
+     * Returns the metadata for a given propertyName,
+     * by interrogating all property managers known to Domibus in order to find it.
+     * If not found, it assumes it is a domain property and it creates the corresponding metadata on-the-fly.
+     *
+     * @param propertyName
+     * @return
+     */
+    public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
 
-        //if not there, put plugin properties also
-        if (!propertyMetadataMap.containsKey(propertyName)) {
-            //We retrieve here all managers: one for each plugin + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
-            Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
-            propertyManagers.values().forEach((DomibusPropertyManagerExt propertyManager) -> {
-                for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
-                    if (propertyMetadataMap.containsKey(entry.getKey())) { //avoid adding the properties of domibus property manager ( added already at the begining of the method)
-                        return;
-                    }
-                    DomibusPropertyMetadataDTO extProp = entry.getValue();
-                    DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-                            extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
-                    propertyMetadataMap.put(entry.getKey(), domibusProp);
-                }
-            });
-        }
+        initializeIfNeeded(propertyName);
 
         DomibusPropertyMetadata prop = propertyMetadataMap.get(propertyName);
         if (prop != null) {
             return prop;
         }
 
-        //try to see if it is a composable property
+        // try to see if it is a composable property, i.e. propertyName+suffix
         Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
             return propMeta.get();
         }
 
-        throw new IllegalArgumentException("Unknown property: " + propertyName);
+        // if still not found, initialize metadata on-the-fly
+        LOGGER.warn("Initializing metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
+        synchronized (propertyMetadataMapLock) {
+            DomibusPropertyMetadata newProp = new DomibusPropertyMetadata(propertyName, "", false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, false);
+            propertyMetadataMap.put(propertyName, newProp);
+            return newProp;
+        }
+    }
+
+    /**
+     * Initializes the metadata map.
+     * Initially, during the bean creation stage, only a few domibus-core properties are needed;
+     * later on the properties from all managers will be added to the map.
+     */
+    protected void initializeIfNeeded(String propertyName) {
+        if (propertyMetadataMap == null) {
+            synchronized (propertyMetadataMapLock) {
+                propertyMetadataMap = new HashMap<>();
+                // add domibus-core properties directly now, to avoid infinite loop of bean creation(due to DB properties)
+                propertyMetadataMap.putAll(this.getKnownProperties());
+            }
+        }
+
+        // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
+        if (!externalPropertiesLoaded && !propertyMetadataMap.containsKey(propertyName)) {
+            synchronized (propertyMetadataMapLock) {
+                if (!propertyMetadataMap.containsKey(propertyName)) { // double-check locking
+                    // we retrieve here all managers: one for each plugin/extension + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+                    Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
+                    propertyManagers.values().forEach(propertyManager -> {
+                        for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
+                            if (propertyMetadataMap.containsKey(entry.getKey())) { //avoid adding the properties of domibus property manager (added already at the beginning of the method)
+                                return;
+                            }
+                            DomibusPropertyMetadataDTO extProp = entry.getValue();
+                            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
+                                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
+                            propertyMetadataMap.put(entry.getKey(), domibusProp);
+                        }
+                    });
+                    externalPropertiesLoaded = true;
+                }
+            }
+        }
     }
 
 }
