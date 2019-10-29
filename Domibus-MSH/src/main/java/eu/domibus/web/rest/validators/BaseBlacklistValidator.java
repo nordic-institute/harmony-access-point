@@ -2,6 +2,7 @@ package eu.domibus.web.rest.validators;
 
 import com.google.common.base.Strings;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
