@@ -31,7 +31,7 @@ public class UIReplicationListener {
     private DomainContextProvider domainContextProvider;
 
     @Autowired
-    private UIReplicationSignalServiceImpl uiReplicationSignalService;
+    private UIReplicationSignalService uiReplicationSignalService;
 
     @JmsListener(destination = "${domibus.jms.queue.ui.replication}", containerFactory = "uiReplicationJmsListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRES_NEW)

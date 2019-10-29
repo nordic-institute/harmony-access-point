@@ -8,7 +8,7 @@ import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.logging.UserMessageLogEntityBuilder;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
@@ -31,7 +31,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     BackendNotificationService backendNotificationService;
 
     @Autowired
-    protected UIReplicationSignalServiceImpl uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     private UserMessageLog createUserMessageLog(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
         // Builds the user message log

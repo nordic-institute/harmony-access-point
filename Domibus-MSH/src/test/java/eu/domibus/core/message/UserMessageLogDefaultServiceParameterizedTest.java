@@ -6,7 +6,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.Injectable;
@@ -38,7 +38,7 @@ public class UserMessageLogDefaultServiceParameterizedTest {
     private BackendNotificationService backendNotificationService;
 
     @Injectable
-    private UIReplicationSignalServiceImpl uiReplicationSignalService;
+    private UIReplicationSignalService uiReplicationSignalService;
 
     @Parameterized.Parameter(0)
     public String service;

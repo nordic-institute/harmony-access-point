@@ -1,7 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.core.replication.UIMessageDiffService;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class UIReplicationResource {
     private UIMessageDiffService uiMessageDiffService;
 
     @Autowired
-    private UIReplicationSignalServiceImpl uiReplicationSignalService;
+    private UIReplicationSignalService uiReplicationSignalService;
 
     @RequestMapping(value = {"/count"}, method = RequestMethod.GET)
     public ResponseEntity<String> countData() {

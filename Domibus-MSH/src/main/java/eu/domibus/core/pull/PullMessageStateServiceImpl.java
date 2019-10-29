@@ -5,7 +5,7 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
@@ -42,7 +42,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     protected BackendNotificationService backendNotificationService;
 
     @Autowired
-    protected UIReplicationSignalServiceImpl uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected MessagingDao messagingDao;

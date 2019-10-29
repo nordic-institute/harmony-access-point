@@ -1,7 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.core.replication.UIMessageDiffService;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -31,7 +31,7 @@ public class UIReplicationResourceTest {
     private UIMessageDiffService uiMessageDiffService;
 
     @Injectable
-    private UIReplicationSignalServiceImpl uiReplicationSignalService;
+    private UIReplicationSignalService uiReplicationSignalService;
 
     @Test
     public void testCountData() {

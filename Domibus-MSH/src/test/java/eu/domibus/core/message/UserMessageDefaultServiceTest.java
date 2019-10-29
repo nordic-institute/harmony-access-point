@@ -22,7 +22,7 @@ import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -118,7 +118,7 @@ public class UserMessageDefaultServiceTest {
     private PullMessageService pullMessageService;
 
     @Injectable
-    protected UIReplicationSignalServiceImpl uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     MessageGroupDao messageGroupDao;

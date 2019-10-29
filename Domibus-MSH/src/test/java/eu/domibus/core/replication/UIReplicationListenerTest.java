@@ -27,7 +27,7 @@ public class UIReplicationListenerTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    private UIReplicationSignalServiceImpl uiReplicationSignalService;
+    private UIReplicationSignalService uiReplicationSignalService;
 
     @Tested
     UIReplicationListener uiReplicationListener;

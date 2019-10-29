@@ -9,7 +9,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.core.message.SignalMessageLogDefaultService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.replication.UIReplicationSignalServiceImpl;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
@@ -56,7 +56,7 @@ public class ResponseHandler {
     private SignalMessageLogDefaultService signalMessageLogDefaultService;
 
     @Autowired
-    private UIReplicationSignalServiceImpl uiReplicationSignalService;
+    private UIReplicationSignalService uiReplicationSignalService;
 
     public CheckResult handle(final SOAPMessage response) throws EbMS3Exception {
 

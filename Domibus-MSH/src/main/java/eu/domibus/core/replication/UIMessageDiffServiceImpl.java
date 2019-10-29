@@ -120,7 +120,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         int recordsToSync = countAll();
 
         if (recordsToSync == 0) {
-            LOG.warn("no records to sync");
+            LOG.debug("no records to sync");
             return 0;
         }
 
