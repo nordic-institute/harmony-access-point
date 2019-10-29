@@ -282,7 +282,7 @@ public class PModeDao extends PModeProvider {
         Identifier identifier;
         for (final PartyId partyId : partyIds) {
             LOG.debug("Trying to find party [{}]", partyId);
-            partyIdEx=partyId.getValue();
+            partyIdEx = partyId.getValue();
             try {
                 String type = partyId.getType();
                 if (type == null || type.isEmpty()) { //PartyId must be an URI
@@ -308,7 +308,7 @@ public class PModeDao extends PModeProvider {
                 LOG.debug("", e); // Its ok to not know all identifiers, we just have to know one
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found with PartyId:"+partyIdEx, null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found with PartyId:" + partyIdEx, null, null);
     }
 
     @Override
