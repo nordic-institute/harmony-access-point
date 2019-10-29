@@ -242,10 +242,9 @@ public class PartyResource extends BaseResource {
     public TrustStoreRO convertCertificateContent(@PathVariable(name = "partyName") String partyName,
                                                   @RequestBody CertificateContentRo certificate) {
         if (certificate == null) {
-            throw new IllegalArgumentException("certificate parameter must be provided");
+            throw new IllegalArgumentException("Certificate parameter must be provided");
         }
-
-
+        
         String content = certificate.getContent();
         LOG.debug("certificate base 64 received [{}] ", content);
 
@@ -253,10 +252,10 @@ public class PartyResource extends BaseResource {
         try {
             cert = certificateService.convertCertificateContent(content);
         } catch (DomibusCertificateException e) {
-            throw new IllegalArgumentException("certificate could not be parsed");
+            throw new IllegalArgumentException("Certificate could not be parsed", e);
         }
         if (cert == null) {
-            throw new IllegalArgumentException("certificate could not be parsed");
+            throw new IllegalArgumentException("Certificate could not be parsed");
         }
 
         return domainConverter.convert(cert, TrustStoreRO.class);
