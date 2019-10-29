@@ -215,7 +215,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void rejoinSourceMessage(String groupId, String sourceMessageFile, String backendName) {
         LOG.debug("Rejoining SourceMessage for group [{}]", groupId);
 
@@ -373,7 +372,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void setSourceMessageAsFailed(UserMessage userMessage) {
         final String messageId = userMessage.getMessageInfo().getMessageId();
@@ -387,7 +385,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         updateRetryLoggingService.messageFailed(userMessage, messageLog);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void setUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Setting the UserMessage fragment [{}] as failed", messageId);
@@ -412,6 +409,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         updateRetryLoggingService.messageFailed(userMessage, messageLog);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void handleSourceMessageSignalError(String messageId, Error error) {
         LOG.debug("SplitAndJoin handleSourceMessageSignalError for message [{}] and error [{}]", messageId, error);
@@ -419,6 +417,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         sendSplitAndJoinFailed(messageId);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void handleExpiredGroups() {
         handleExpiredReceivedGroups();
