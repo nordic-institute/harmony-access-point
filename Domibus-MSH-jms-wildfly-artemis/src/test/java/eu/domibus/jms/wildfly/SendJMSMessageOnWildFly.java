@@ -11,6 +11,8 @@ public class SendJMSMessageOnWildFly {
     private static final String PROVIDER_URL = "http-remoting://localhost:8085";
     // the user has to be added as Application user using $WILDLFY_HOME/bin/add-user.bat or .sh file and it should appear
     // in $WILDLFY_HOME/standalone/configuration/application-users.properties file
+    // also his role defined in $WILDLFY_HOME/standalone/configuration/application-roles.properties file
+    // should match the one defined in standalone-full.xml under <security-setting> entry of <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
     private static final String USER = "jmssender";
     private static final String PASSWORD = "jmssender";
     // EDELIVERY-4728: we are connecting to a jboss/exported connection defined in standalone-full.xml
