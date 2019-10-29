@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
@@ -7,7 +8,6 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.Injectable;
 import mockit.Tested;

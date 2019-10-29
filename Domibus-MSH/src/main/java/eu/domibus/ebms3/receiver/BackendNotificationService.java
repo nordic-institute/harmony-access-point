@@ -362,7 +362,7 @@ public class BackendNotificationService {
         notify(messageId, backendName, notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     public void notifyOfSendSuccess(final String messageId) {
@@ -378,7 +378,7 @@ public class BackendNotificationService {
         notify(messageId, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)

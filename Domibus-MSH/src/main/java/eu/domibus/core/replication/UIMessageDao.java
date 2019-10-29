@@ -1,7 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
+import eu.domibus.common.model.logging.UserMessageLog;
 
 import java.util.Date;
 import java.util.List;
@@ -21,13 +20,6 @@ public interface UIMessageDao {
 
     void saveOrUpdate(UIMessageEntity uiMessageEntity);
 
-    boolean updateMessageStatus(final String messageId, final MessageStatus messageStatus,
-                                final Date deleted, final Date nextAttempt, final Date failed, final Date lastModified);
-
-    boolean updateNotificationStatus(final String messageId, final NotificationStatus notificationStatus,
-                                      final Date lastModified);
-
-    boolean updateMessage(String messageId, MessageStatus messageStatus, Date deleted, Date failed, Date restored, Date nextAttempt,
-                                 Integer sendAttempts, Integer sendAttemptsMax, Date lastModified);
+    boolean updateMessage(UserMessageLog userMessageLog, Date lastModified);
 
 }
