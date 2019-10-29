@@ -391,9 +391,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
 
-    public X509Certificate loadCertificateFromString(String content) throws CertificateException {
+    public X509Certificate loadCertificateFromString(String content) {
         if (content == null) {
-            throw new CertificateException("Certificate content cannot be null.");
+            throw new DomibusCertificateException("Certificate content cannot be null.");
         }
 
         CertificateFactory certFactory = null;
@@ -506,7 +506,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
 
-    public TrustStoreEntry convertCertificateContent(String certificateContent) throws CertificateException {
+    public TrustStoreEntry convertCertificateContent(String certificateContent) {
         X509Certificate cert = loadCertificateFromString(certificateContent);
         return createTrustStoreEntry(null, cert);
     }
