@@ -9,11 +9,11 @@ import java.util.UUID;
 public class SendJMSMessageOnWildFly {
 
     private static final String PROVIDER_URL = "http-remoting://localhost:8085";
-    //the user has to be added as Application user using $WILDLFY_HOME/bin/add-user.bat or .sh file and it should appear
+    // the user has to be added as Application user using $WILDLFY_HOME/bin/add-user.bat or .sh file and it should appear
     // in $WILDLFY_HOME/standalone/configuration/application-users.properties file
     private static final String USER = "jmssender";
     private static final String PASSWORD = "jmssender";
-    //EDELIVERY-4728: we are connecting to a jboss/exported connection defined in standalone-full.xml
+    // EDELIVERY-4728: we are connecting to a jboss/exported connection defined in standalone-full.xml
     // e.g. entries="java:jboss/exported/jms/ConnectionFactory"
     private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
     private static final String QUEUE = "jms/queue/DomibusBusinessMessageInQueue";
