@@ -104,9 +104,9 @@
         <!--IAM extension properties -->
         <!-- Please keep in sync with CXF version -->
         <wss4j.ws.security.common>2.2.4</wss4j.ws.security.common>
-        <dss.version>5.4</dss.version>
+        <dss.version>5.5</dss.version>
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>5.4</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
         <!--Please keep those two dependencies version aligned with transitive dependency-->
         <json-smart.version>2.3</json-smart.version>
         <ehcache.version>2.10.5</ehcache.version>
@@ -697,6 +697,12 @@
                 <artifactId>dss-service</artifactId>
                 <version>${dss.version}</version>
             </dependency>
+            <dependency>
+                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <artifactId>dss-crl-parser-x509crl</artifactId>
+                <version>${dss.version}</version>
+            </dependency>
+
 
             <!--UUMDS extension -->
 
