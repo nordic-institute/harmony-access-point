@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.model.web;
 
-import eu.domibus.web.rest.validators.SkipWhiteListed;
+import eu.domibus.api.validators.SkipWhiteListed;
 
 import java.util.Date;
 import java.util.List;
