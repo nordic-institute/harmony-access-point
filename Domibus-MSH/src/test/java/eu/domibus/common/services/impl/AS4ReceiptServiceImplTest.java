@@ -8,7 +8,6 @@ import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;

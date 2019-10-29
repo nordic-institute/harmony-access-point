@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.KeyStoreException;
-import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -242,21 +242,20 @@ public class PartyResource extends BaseResource {
     public TrustStoreRO convertCertificateContent(@PathVariable(name = "partyName") String partyName,
                                                   @RequestBody CertificateContentRo certificate) {
         if (certificate == null) {
-            throw new IllegalArgumentException("certificate parameter must be provided");
+            throw new IllegalArgumentException("Certificate parameter must be provided");
         }
-
-
+        
         String content = certificate.getContent();
         LOG.debug("certificate base 64 received [{}] ", content);
 
         TrustStoreEntry cert = null;
         try {
             cert = certificateService.convertCertificateContent(content);
-        } catch (CertificateException e) {
-            throw new IllegalArgumentException("certificate could not be parsed");
+        } catch (DomibusCertificateException e) {
+            throw new IllegalArgumentException("Certificate could not be parsed", e);
         }
         if (cert == null) {
-            throw new IllegalArgumentException("certificate could not be parsed");
+            throw new IllegalArgumentException("Certificate could not be parsed");
         }
 
         return domainConverter.convert(cert, TrustStoreRO.class);

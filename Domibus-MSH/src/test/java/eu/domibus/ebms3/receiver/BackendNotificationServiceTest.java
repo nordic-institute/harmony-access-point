@@ -12,7 +12,6 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
