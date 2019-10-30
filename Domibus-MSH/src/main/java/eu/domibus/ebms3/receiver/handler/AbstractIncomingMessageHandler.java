@@ -45,7 +45,6 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     @Autowired
     protected PModeProvider pModeProvider;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         SOAPMessage responseMessage = null;
