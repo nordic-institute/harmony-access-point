@@ -33,7 +33,16 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
             //already logged by the authentication service
             throw new AuthenticationExtException(e);
         }
+    }
 
+    @Override
+    public void enforceAuthentication(HttpServletRequest httpRequest) throws AuthenticationExtException {
+        try {
+            authenticationService.enforceAuthentication(httpRequest);
+        } catch (Exception e) {
+            //already logged by the authentication service
+            throw new AuthenticationExtException(e);
+        }
     }
 
     @Override
@@ -50,4 +59,5 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
     public boolean isUnsecureLoginAllowed() {
         return authUtils.isUnsecureLoginAllowed();
     }
+
 }
