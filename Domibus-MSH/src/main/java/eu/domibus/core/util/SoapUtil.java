@@ -123,7 +123,7 @@ public class SoapUtil {
         MessageFactory factory = XMLUtilImpl.getMessageFactory();
         SOAPMessage message = factory.createMessage();
 
-        DocumentBuilderFactory dbFactory = XMLUtilImpl.getDocumentBuilderFactory();
+        DocumentBuilderFactory dbFactory = XMLUtilImpl.getDocumentBuilderFactoryNamespaceAware();
         DocumentBuilder builder = dbFactory.newDocumentBuilder();
 
         try (StringReader stringReader = new StringReader(rawXml); InputStream targetStream =

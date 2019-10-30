@@ -78,7 +78,6 @@ public class MessagingServiceImpl implements MessagingService {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (messaging == null || messaging.getUserMessage() == null) {
@@ -154,7 +153,6 @@ public class MessagingServiceImpl implements MessagingService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
