@@ -51,6 +51,7 @@ import java.lang.reflect.Method;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
@@ -252,7 +253,7 @@ public class DynamicDiscoveryPModeProviderTest {
     public void testFindUserMessageExchangeContextPartyNotFound() throws Exception {
 
         Configuration testData = initializeConfiguration(NO_DYNINITIATOR_AND_NOT_SELF);
-
+        Set<PartyId> partyId = null;
         DynamicDiscoveryPModeProvider classUnderTest = mock(DynamicDiscoveryPModeProvider.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         doReturn(testData).when(classUnderTest).getConfiguration();
         Whitebox.setInternalState(classUnderTest, "domainProvider", domainProvider);
@@ -264,11 +265,12 @@ public class DynamicDiscoveryPModeProviderTest {
 
         doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
+            partyId= userMessage.getPartyInfo().getFrom().getPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("No matching party found", ex.getErrorDetail());
+            assertEquals(("Sender party could not found for the value  " + partyId), ex.getErrorDetail());
         }
 
         doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
