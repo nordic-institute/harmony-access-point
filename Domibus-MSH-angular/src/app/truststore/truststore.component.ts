@@ -11,8 +11,8 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {AlertService} from '../common/alert/alert.service';
-import * as FileSaver from 'file-saver';
-import {Http, Response} from '@angular/http';
+import {Http, ResponseContentType} from '@angular/http';
+
 @Component({
   selector: 'app-truststore',
   templateUrl: './truststore.component.html',
@@ -36,10 +36,10 @@ export class TruststoreComponent implements OnInit {
   rows: Array<any> = [];
   offset: number;
 
-  constructor (private http: Http, private trustStoreService: TrustStoreService, public dialog: MdDialog, public alertService: AlertService) {
+  constructor(private http: Http, private trustStoreService: TrustStoreService, public dialog: MdDialog, public alertService: AlertService) {
   }
 
-  ngOnInit (): void {
+  ngOnInit(): void {
     this.columnPicker.allColumns = [
       {
 
@@ -81,40 +81,40 @@ export class TruststoreComponent implements OnInit {
     this.getTrustStoreEntries();
   }
 
-  getTrustStoreEntries (): void {
+  getTrustStoreEntries(): void {
     this.trustStoreService.getEntries().subscribe(trustStoreEntries => {
       this.trustStoreEntries = trustStoreEntries;
       this.offset = 0;
     });
   }
 
-  onSelect ({selected}) {
+  onSelect({selected}) {
     this.selectedMessages.splice(0, this.selectedMessages.length);
     this.selectedMessages.push(...selected);
   }
 
-  onActivate (event) {
+  onActivate(event) {
     if ('dblclick' === event.type) {
       this.details(event.row);
     }
   }
 
-  details (selectedRow: any) {
+  details(selectedRow: any) {
     this.dialog.open(TruststoreDialogComponent, {data: {trustStoreEntry: selectedRow}})
       .afterClosed().subscribe(result => {
     });
   }
 
-  onChangePage (event: any): void {
+  onChangePage(event: any): void {
     this.offset = event.offset;
   }
 
-  changePageSize (newPageSize: number) {
+  changePageSize(newPageSize: number) {
     this.rowLimiter.pageSize = newPageSize;
     this.getTrustStoreEntries();
   }
 
-  openEditTrustStore () {
+  openEditTrustStore() {
     this.dialog.open(TrustStoreUploadComponent).componentInstance.onTruststoreUploaded
       .subscribe(updated => {
         this.getTrustStoreEntries();
@@ -125,26 +125,12 @@ export class TruststoreComponent implements OnInit {
    * Method called when Download button or icon is clicked
    */
   downLoadCurrentTrustStore() {
-    this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL).subscribe(res => {
-      TruststoreComponent.downloadTrustStoreFile(res.text());
-    }, err => {
-      this.alertService.exception("Error downloading TrustStore:",err);
-    });
-    /* } else {
-       this.alertService.error(this.ERROR_TRUSTSTORE_EMPTY)
-     }*/
-  }
-
-  /**
-   * Downloader for the jks file
-   * @param data
-   */
-  private static downloadTrustStoreFile(data: any) {
-
-    const blob = new Blob([data], {type: 'application/octet-stream;charset=ANSI'});
-    let filename = 'TrustStore';
-    filename += '.jks';
-    FileSaver.saveAs(blob, filename);
+    this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL, {responseType: ResponseContentType.Blob})
+      .subscribe(res => {
+        this.trustStoreService.saveTrustStoreFile(res.blob());
+      }, err => {
+        this.alertService.exception('Error downloading TrustStore:', err);
+      });
   }
 
   /**
@@ -152,17 +138,16 @@ export class TruststoreComponent implements OnInit {
    * @returns {boolean} true, if button can be enabled; and false, otherwise
    */
   canDownload(): boolean {
-    if(this.trustStoreEntries.length > 0)
-    {
+    if (this.trustStoreEntries.length > 0) {
       return true;
-    }else
+    } else
       return false;
   }
 
   /**
    * Saves the content of the datatable into a CSV file
    */
-  saveAsCSV () {
+  saveAsCSV() {
     if (this.trustStoreEntries.length > AlertComponent.MAX_COUNT_CSV) {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;

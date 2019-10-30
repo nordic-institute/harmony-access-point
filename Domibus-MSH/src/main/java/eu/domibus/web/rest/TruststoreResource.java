@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -94,9 +93,9 @@ public class TruststoreResource extends BaseResource {
         return ResponseEntity.ok("Truststore file has been successfully replaced.");
     }
 
-    @RequestMapping(value = "/download", method = RequestMethod.GET,produces ="application/octet-stream;charset=ISO-8859-1")
+    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
-        File file = new File(domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
+        File file = new File(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
 
