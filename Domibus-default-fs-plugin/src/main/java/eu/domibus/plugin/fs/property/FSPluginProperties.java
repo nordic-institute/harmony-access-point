@@ -10,6 +10,7 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -180,7 +181,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         String result = getDomainProperty(domain, PASSWORD, null);
         if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}] for domain [{}]", PASSWORD, domain);
-            final DomainDTO domainDTO = domainExtService.getDomain(domain);
+            //passwords are encrypted using the key of the default domain; this is because there is no clear segregation between FS Plugin properties per domain
+            final DomainDTO domainDTO = domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
             result = pluginPasswordEncryptionService.decryptProperty(domainDTO, PASSWORD, result);
         }
         return result;
@@ -202,7 +204,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         String result = getDomainPropertyNoDefault(domain, AUTHENTICATION_PASSWORD, null);
         if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}] for domain [{}]", AUTHENTICATION_PASSWORD, domain);
-            final DomainDTO domainDTO = domainExtService.getDomain(domain);
+            //passwords are encrypted using the key of the default domain; this is because there is no clear segregation between FS Plugin properties per domain
+            final DomainDTO domainDTO = domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
             result = pluginPasswordEncryptionService.decryptProperty(domainDTO, AUTHENTICATION_PASSWORD, result);
         }
         return result;
