@@ -1,14 +1,14 @@
 version: '3.2'
 services:
   mysqlc2:
-    image: domibustest/domibus-mysql:${bamboo_DOMIBUS_VERSION}
+    image: domibustest/domibus-mysql:${DOMIBUS_VERSION}
     environment:
       - MYSQL_ROOT_PASSWORD=123456
       - MYSQL_DATABASE=domibus
       - MYSQL_USER=edelivery
       - MYSQL_PASSWORD=edelivery
   tomcatc2:
-    image: domibustest/domibus-tomcat:${bamboo_DOMIBUS_VERSION}
+    image: domibustest/domibus-tomcat:${DOMIBUS_VERSION}
     environment:
       - DB_TYPE=MySQL
       - DB_HOST=mysqlc2
