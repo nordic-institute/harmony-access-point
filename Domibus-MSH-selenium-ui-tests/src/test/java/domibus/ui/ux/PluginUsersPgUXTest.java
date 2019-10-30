@@ -220,8 +220,6 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
-
-
 	@Test(description = "PU-18", groups = {"multiTenancy", "singleTenancy"})
 	public void filterPluginUserList() throws Exception {
 		List<String> usernames = new ArrayList<>();

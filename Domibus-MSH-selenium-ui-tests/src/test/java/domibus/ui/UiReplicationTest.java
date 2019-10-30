@@ -51,7 +51,7 @@ public class UiReplicationTest {
     /*
     This method will identify all unsynchronized data and then manually synchonize it through rest call
      */
-    @Test(priority = 1, description = "UR-1", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority = 1, description = "UR-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void getDataFromDataBase() throws Exception {
         log.info("Generate random username for plugin user");
         String user = Generator.randomAlphaNumeric(10);
@@ -94,7 +94,7 @@ public class UiReplicationTest {
     /*
     This method will compare all common columns of tables tb_message_ui & tb_message_log
      */
-    @Test(priority = 2, description = "UR-2", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority = 2, description = "UR-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void compareAllData() throws Exception {
         SoftAssert soft = new SoftAssert();
         String[] dataArray1 = new String[13];

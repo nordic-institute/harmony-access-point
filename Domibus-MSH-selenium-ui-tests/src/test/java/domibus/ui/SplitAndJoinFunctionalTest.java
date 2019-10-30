@@ -1,4 +1,4 @@
-package domibus.ui.functional;
+package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
