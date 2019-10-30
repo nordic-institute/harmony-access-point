@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.DomibusCacheService;
@@ -21,6 +22,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -36,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
 
 /**
@@ -44,6 +48,9 @@ import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTST
  */
 @RunWith(JMockit.class)
 public class TruststoreResourceTest {
+
+    private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+    private static final String TEST_KEYSTORE = "testkeystore.jks";
 
     @Tested
     TruststoreResource truststoreResource;
@@ -68,6 +75,9 @@ public class TruststoreResourceTest {
 
     @Injectable
     ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void testUploadTruststoreFileSuccess() throws IOException {
@@ -182,7 +192,7 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable  MultipartFile multipartFile) throws Exception {
+    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile) throws Exception {
         // GIVEN
         final String emptyPassword = "";
 
@@ -192,5 +202,27 @@ public class TruststoreResourceTest {
         // THEN
         Assert.assertEquals("Should have rejected the request as bad", HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assert.assertTrue("Should have returned the correct error message", response.getBody().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
+    }
+
+    @Test
+    public void testDownload() throws IOException {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+            result = RESOURCE_PATH + TEST_KEYSTORE;
+        }};
+
+        // When
+        ResponseEntity<? extends Resource> responseEntity = truststoreResource.downloadTrustStore();
+
+        // Then
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+    }
+
+    private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
+        Assert.assertNotNull(responseEntity);
+        Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
+        Assert.assertEquals("attachment; filename=TrustStore.jks", responseEntity.getHeaders().get("content-disposition").get(0));
+        Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
     }
 }
