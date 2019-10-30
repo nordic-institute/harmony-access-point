@@ -93,6 +93,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         userAlertsService.triggerPasswordExpirationEvents();
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void reactivateSuspendedUsers() {
         userSecurityPolicyManager.reactivateSuspendedUsers();
