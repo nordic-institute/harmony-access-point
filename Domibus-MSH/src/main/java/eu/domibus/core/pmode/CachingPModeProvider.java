@@ -320,33 +320,37 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
-        String partyIdType = "";
+        String partyIdType = StringUtils.EMPTY;
+        String partyIdEx = StringUtils.EMPTY;
+        final EbMS3Exception ex;
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final PartyId id : partyId) {
+                partyIdEx = id.getValue();
                 for (final Identifier identifier : party.getIdentifiers()) {
                     if (id.getType() != null) {
                         partyIdType = id.getType();
                         try {
                             URI.create(partyIdType);
                         } catch (final IllegalArgumentException e) {
-                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
-                            ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
+                            ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, e);
+                            ex.setErrorDetail("PartyIdType of PartyId " + id.getValue() + " is not a valid URI [CORE].");
+                            LOG.trace("No matching party found! PartyIdType [{}] of PartyId [{}] is not a valid URI [CORE].", partyIdType, id.getValue());
                             throw ex;
                         }
                     }
-                    String identifierPartyIdType = "";
+                    String identifierPartyIdType = StringUtils.EMPTY;
                     if (identifier.getPartyIdType() != null) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
                     LOG.trace("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
                     if (StringUtils.equalsIgnoreCase(partyIdType, identifierPartyIdType) && StringUtils.equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
-                        LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
+                        LOG.trace("Found Party with matching PartyId:[{}] and type:[{}] with PartyName:[{}] ", id.getValue(), partyIdType, party.getName());
                         return party.getName();
                     }
                 }
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found with PartyId " + partyIdEx, null, null);
     }
 
     @Override
