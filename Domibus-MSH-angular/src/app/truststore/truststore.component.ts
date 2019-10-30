@@ -124,7 +124,7 @@ export class TruststoreComponent implements OnInit {
   /**
    * Method called when Download button or icon is clicked
    */
-  downLoadCurrentTrustStore() {
+  downloadCurrentTrustStore() {
     this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL, {responseType: ResponseContentType.Blob})
       .subscribe(res => {
         this.trustStoreService.saveTrustStoreFile(res.blob());
