@@ -12,6 +12,7 @@ import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -277,10 +278,11 @@ public class PModeDao extends PModeProvider {
 
     protected String findPartyName(final Collection<PartyId> partyIds) throws EbMS3Exception {
         LOG.warn(STR_WARN_NO_USSAGE_ALLOWED);
-
+        String partyIdEx = StringUtils.EMPTY;
         Identifier identifier;
         for (final PartyId partyId : partyIds) {
             LOG.debug("Trying to find party [{}]", partyId);
+            partyIdEx = partyId.getValue();
             try {
                 String type = partyId.getType();
                 if (type == null || type.isEmpty()) { //PartyId must be an URI
@@ -306,8 +308,7 @@ public class PModeDao extends PModeProvider {
                 LOG.debug("", e); // Its ok to not know all identifiers, we just have to know one
             }
         }
-        LOG.businessError(DomibusMessageCode.BUS_PARTY_ID_NOT_FOUND, partyIds);
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found with PartyId:" + partyIdEx, null, null);
     }
 
     @Override

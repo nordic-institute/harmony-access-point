@@ -242,13 +242,14 @@ public abstract class PModeProvider {
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
 
         final String agreementName;
-        final String senderParty;
         final String service;
         final String action;
         final String leg;
         String mpc;
-        String receiverParty;
-
+        String senderParty;
+        String receiverParty = StringUtils.EMPTY;
+        final Set<PartyId> fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
+        final Set<PartyId> toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
         final String messageId = userMessage.getMessageInfo().getMessageId();
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
@@ -262,19 +263,29 @@ public abstract class PModeProvider {
         try {
             agreementName = findAgreement(userMessage.getCollaborationInfo().getAgreementRef());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_AGREEMENT_FOUND, agreementName, userMessage.getCollaborationInfo().getAgreementRef());
-            senderParty = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
-            LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, senderParty, userMessage.getPartyInfo().getFrom().getPartyId());
             try {
-                receiverParty = findPartyName(userMessage.getPartyInfo().getTo().getPartyId());
-                LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, receiverParty, userMessage.getPartyInfo().getTo().getPartyId());
+                senderParty = findPartyName(fromPartyId);
+                LOG.businessInfo(DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND, senderParty, fromPartyId);
+            } catch (EbMS3Exception exc) {
+                LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
+                exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
+                throw exc;
+            }
+            try {
+                receiverParty = findPartyName(toPartyId);
+                LOG.businessInfo(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_FOUND, receiverParty, toPartyId);
             } catch (EbMS3Exception exc) {
                 if (isPull && mpcService.forcePullOnMpc(userMessage)) {
                     LOG.info("Receiver party not found in pMode, extract from MPC");
                     receiverParty = mpcService.extractInitiator(userMessage.getMpc());
+                    exc.setErrorDetail("Receiver Party extracted from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
                 } else {
+                    LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
+                    exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
                     throw exc;
                 }
             }
+            LOG.debug("Found SenderParty as [{}] and  Receiver Party as [{}]", senderParty, receiverParty);
             service = findServiceName(userMessage.getCollaborationInfo().getService());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getCollaborationInfo().getService());
             action = findActionName(userMessage.getCollaborationInfo().getAction());
