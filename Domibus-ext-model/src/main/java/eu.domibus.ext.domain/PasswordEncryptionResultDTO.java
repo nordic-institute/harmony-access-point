@@ -4,7 +4,7 @@ package eu.domibus.ext.domain;
  * Contains the result of the property encryption
  *
  * @author Cosmin Baciu
- * @since 4.1.1
+ * @since 4.1.2
  */
 public class PasswordEncryptionResultDTO {
 
