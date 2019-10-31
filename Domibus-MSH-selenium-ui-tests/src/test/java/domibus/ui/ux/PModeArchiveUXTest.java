@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.PModeCurrentPage;
+import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.archive.PMAModal;
 import pages.pmode.archive.PModeArchivePage;
 import rest.RestServicePaths;

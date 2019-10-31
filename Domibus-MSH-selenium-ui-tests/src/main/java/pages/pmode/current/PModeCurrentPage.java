@@ -1,4 +1,4 @@
-package pages.pmode;
+package pages.pmode.current;
 
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;

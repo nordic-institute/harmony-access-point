@@ -8,7 +8,7 @@ import org.testng.asserts.SoftAssert;
 import pages.SplitAndJoin.SplitAndJoinPage;
 import pages.errorLog.ErrorModal;
 import pages.messages.MessagesPage;
-import pages.pmode.PModeCurrentPage;;
+import pages.pmode.current.PModeCurrentPage;;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;

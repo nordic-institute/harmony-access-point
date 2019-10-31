@@ -1,8 +1,7 @@
-package pages.pmode;
+package pages.pmode.parties;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.By;
@@ -12,10 +11,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
+import pages.pmode.parties.PartyIdentifierModal;
 
-import javax.print.DocFlavor;
-import java.lang.reflect.Field;
 import java.util.List;
 
 /**

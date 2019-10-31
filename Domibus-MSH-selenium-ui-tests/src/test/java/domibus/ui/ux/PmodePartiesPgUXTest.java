@@ -4,7 +4,7 @@ import ddsl.enums.PAGES;
 import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.PModePartiesPage;
+import pages.pmode.parties.PModePartiesPage;
 
 import java.util.HashMap;
 import java.util.List;

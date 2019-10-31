@@ -1,0 +1,93 @@
+{
+  "title": "JMS Monitoring",
+  "filters": [
+	{
+	  "name": "jmsQueueSelect",
+	  "placeholder": "Source",
+	  "isDefault": true
+	},
+	{
+	  "name": "jmsFromDatePicker",
+	  "placeholder": "Received From:",
+	  "isDefault": true
+	},
+	{
+	  "name": "jmsToDatePicker",
+	  "placeholder": "Received Up To:",
+	  "isDefault": true
+	},
+	{
+	  "name": "jmsSelectorInput",
+	  "placeholder": "Selector",
+	  "isDefault": true
+	},
+	{
+	  "name": "jmsTypeInput",
+	  "placeholder": "JMS Type",
+	  "isDefault": true
+	}
+  ],
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "Time",
+	"columns": [
+	  {
+		"name": "ID",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "JMS Type",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Time Content",
+		"type": "datetime",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Custom prop",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "JMS prop",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Actions",
+		"type": "action",
+		"sortable": true,
+		"visibleByDefault": true
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": true,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  },
+  "buttons": [
+	{
+	  "name": "downloadBtn",
+	  "label": "Download",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "resendBtn",
+	  "label": "Resend",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	}
+  ]
+}

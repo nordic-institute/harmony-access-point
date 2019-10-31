@@ -1,12 +1,13 @@
-package domibus.ui;
+package domibus.ui.functional;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.PModeCofirmationModal;
-import pages.pmode.PModeCurrentPage;
+import pages.pmode.current.PModeCofirmationModal;
+import pages.pmode.current.PModeCurrentPage;
 
 /**
  * @author Catalin Comanici
@@ -15,6 +16,7 @@ import pages.pmode.PModeCurrentPage;
  */
 public class PModeCurrentPgTests extends BaseTest {
 
+	/*	PMC-1 - Login as super admin and open PMode - Current page	*/
 	@Test(description = "PMC-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openPModeCurrentWindow() throws Exception{
 
@@ -38,110 +40,106 @@ public class PModeCurrentPgTests extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "PMC-2", groups = {"multiTenancy", "singleTenancy"})
+
+	/*PMC-5 - User edits PMode file using the text area available in the page to an invalid XML*/
+	@Test(description = "PMC-5", groups = {"multiTenancy", "singleTenancy"})
 	public void editPModeInvalidXML() throws Exception{
 
 		String expectedErrorMess = "Failed to upload the PMode file due to: WstxUnexpectedCharException: Unexpected character";
 
+		log.info("uploading pmode");
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
 		PModeCurrentPage page = new PModeCurrentPage(driver);
-
+		log.info("getting listed pmode");
 		String beforeEdit = page.getTextArea().getText();
 
-		page.getTextArea().fill("THIS IS MY INVALID XML!!!!");
+		log.info("editing pmode");
+		page.getTextArea().fill("THIS IS MY INVALID XML");
+		log.info("saving pmode");
 		page.getSaveBtn().click();
 
 		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-		modal.getDescriptionTextArea().fill("This modification is invalid!!");
+		modal.getDescriptionTextArea().fill("This modification is invalid");
 		modal.clickOK();
 
+		log.info("checking error messages");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(expectedErrorMess), "Page shows correct message");
 
 		page.refreshPage();
 		String afterEdit = page.getTextArea().getText();
-
+		log.info("checking the listed pmode was not affected");
 		soft.assertEquals(beforeEdit, afterEdit, "Current PMode is not changed");
 
 		soft.assertAll();
 	}
 
-
-	@Test(description = "PMC-3", groups = {"multiTenancy", "singleTenancy"})
+	/*PMC-6 - User edits PMode file using the text area available in the page so that it is valid*/
+	@Test(description = "PMC-6", groups = {"multiTenancy", "singleTenancy"})
 	public void editPModeValidXML() throws Exception{
 
+		log.info("uploading pmode");
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
+		log.info("getting current pmode");
 		PModeCurrentPage page = new PModeCurrentPage(driver);
-
 		String beforeEdit = page.getTextArea().getText();
-
 		String afterEdit = beforeEdit.replaceAll("\\t", " ").replaceAll("localhost", "mockhost");
-//		afterEdit;
 
+//		afterEdit;
+		log.info("editing and saving new pmode");
 		page.getTextArea().fill(afterEdit);
 		page.getSaveBtn().click();
 
 		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-		modal.getDescriptionTextArea().fill("This modification is valid!!");
+		modal.getDescriptionTextArea().fill("This modification is valid");
 		modal.clickOK();
 
+		log.info("checking success message");
 		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS), "Page shows correct message");
 
 		page.refreshPage();
 		String afterRefresh = page.getTextArea().getText();
-
+		log.info("checking the new edited pmode");
 		soft.assertEquals(afterEdit, afterRefresh, "Current PMode is updated changed");
 
 		soft.assertAll();
 	}
 
-	@Test(description = "PMC-4", groups = {"multiTenancy"})
+	/*PMC-7 - Domain segregation*/
+	@Test(description = "PMC-7", groups = {"multiTenancy"})
 	public void domainSegregationPMode() throws Exception{
 
 		String domainName = rest.getDomainNames().get(1);
 		String domaincode = rest.getDomainCodeForName(domainName);
 
+		log.info("uploading different pmodes on 2 different domains");
+
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domaincode);
+		rest.uploadPMode("pmodes/multipleParties.xml", domaincode);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
+		log.info("gettting pmodes listed for each domain");
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 
-		String defaultPMode = page.getTextArea().getText();
-		String alteredPMode = defaultPMode.replaceAll("\\t", " ").replaceAll("localhost", "alteredhost");
+		String defaultPmode = page.getTextArea().getText();
 
+		log.info("changing domain");
 		page.getDomainSelector().selectOptionByText(domainName);
+		String d1Pmode = page.getTextArea().getText();
 
-		page.getTextArea().fill(alteredPMode);
-		page.getSaveBtn().click();
-
-		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-		modal.getDescriptionTextArea().fill("Modification for domain " + domainName);
-		modal.clickOK();
-
-		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
-		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS), "Page shows correct message");
-
-		page.refreshPage();
-		String afterRefresh = page.getTextArea().getText();
-
-		soft.assertEquals(alteredPMode, afterRefresh, "Current PMode is updated changed");
-
-		page.getDomainSelector().selectOptionByText("Default");
-
-		String defaultAfterRefresh = page.getTextArea().getText();
-		soft.assertEquals(defaultPMode, defaultAfterRefresh, "On default domain the PMode is not changed");
+		log.info("comparing pmodes");
+		soft.assertTrue(!XMLUnit.compareXML(defaultPmode, d1Pmode).identical(), "The 2 pmodes are not identical");
 
 		soft.assertAll();
 	}

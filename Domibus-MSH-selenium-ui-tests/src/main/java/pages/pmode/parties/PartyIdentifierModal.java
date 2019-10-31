@@ -1,4 +1,4 @@
-package pages.pmode;
+package pages.pmode.parties;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;

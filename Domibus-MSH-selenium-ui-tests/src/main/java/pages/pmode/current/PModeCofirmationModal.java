@@ -1,4 +1,4 @@
-package pages.pmode;
+package pages.pmode.current;
 
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DInput;

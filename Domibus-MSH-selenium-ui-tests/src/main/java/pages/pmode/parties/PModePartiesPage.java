@@ -1,6 +1,5 @@
-package pages.pmode;
+package pages.pmode.parties;
 
-import com.sun.jersey.spi.StringReader;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
@@ -10,9 +9,9 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import pages.pmode.current.PModeCofirmationModal;
+import pages.pmode.current.PModeCurrentPage;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;

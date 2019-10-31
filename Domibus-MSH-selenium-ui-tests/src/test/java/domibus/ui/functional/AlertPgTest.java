@@ -285,7 +285,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Login into application");
         lpage.login(data.getAdminUser());
         log.info("Navigate to Alerts page");
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using basic filter for plugin_user_login_failure alert type");
         apage.getFilters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
@@ -332,7 +332,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Login into application");
         lpage.login(data.getAdminUser());
         log.info("Navigate to Alerts page");
-        page.getSidebar().gGoToPage(PAGES.ALERTS);
+        page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using basic filter for plugin_user_account_disabled alert type");
         apage.getFilters().basicFilterBy(null, "PLUGIN_USER_ACCOUNT_DISABLED", null, null, null, null);

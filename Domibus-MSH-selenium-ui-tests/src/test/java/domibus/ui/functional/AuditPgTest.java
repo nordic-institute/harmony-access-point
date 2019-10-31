@@ -11,8 +11,11 @@ import pages.Audit.AuditPage;
 import pages.login.LoginPage;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
-import pages.pmode.*;
-import rest.RestServicePaths;
+import pages.pmode.current.PModeArchivePage;
+import pages.pmode.current.PModeCofirmationModal;
+import pages.pmode.current.PModeCurrentPage;
+import pages.pmode.parties.PModePartiesPage;
+import pages.pmode.parties.PartyModal;
 import utils.Generator;
 import utils.TestUtils;
 
