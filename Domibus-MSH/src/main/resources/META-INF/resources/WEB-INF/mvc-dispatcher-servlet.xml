@@ -27,25 +27,27 @@
             <mvc:exclude-mapping path="/rest/security/user/domain"/>
             <mvc:exclude-mapping path="/rest/security/user/password"/>
             <mvc:exclude-mapping path="/rest/application/**"/>
-            <bean class="eu.domibus.web.security.DefaultPasswordInterceptor" />
+            <bean class="eu.domibus.web.security.DefaultPasswordInterceptor"/>
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/rest/**"/>
-            <bean class="eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor" />
+            <bean class="eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <property name="maxUploadSize" value="10000000" />
+        <property name="maxUploadSize" value="10000000"/>
     </bean>
 
-    <mvc:annotation-driven >
+    <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
-            <bean id="customMappingJackson2HttpMessageConverter" class="eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter">
+            <bean id="customMappingJackson2HttpMessageConverter"
+                  class="eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter">
                 <property name="jsonPrefix" value=")]}',\n"/>
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
 
     <mvc:resources mapping="/**" location="/"/>
+
 </beans>

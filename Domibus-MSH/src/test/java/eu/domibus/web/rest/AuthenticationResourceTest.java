@@ -104,7 +104,7 @@ public class AuthenticationResourceTest {
             authenticationService.authenticate("user", "user", DomainService.DEFAULT_DOMAIN.getCode());
             result = userDetail;
         }};
-        authenticationResource.authenticate(loginRO, new MockHttpServletResponse());
+        authenticationResource.authenticate(loginRO, new MockHttpServletResponse(), null);
         new Verifications() {{
             String message;
             WarningUtil.warnOutput(message = withCapture());

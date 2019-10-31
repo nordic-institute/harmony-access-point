@@ -84,4 +84,22 @@
     <bean id="messageIdGenerator"
           class="eu.domibus.common.services.impl.MessageIdGenerator">
     </bean>
+
+    <bean id="sessionRegistry"
+          class="org.springframework.security.core.session.SessionRegistryImpl"/>
+
+    <bean id="sas"
+          class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+                    <constructor-arg ref="sessionRegistry"/>
+                    <property name="maximumSessions" value="1"/>
+                </bean>
+                <bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+                    <constructor-arg ref="sessionRegistry"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
 </beans>

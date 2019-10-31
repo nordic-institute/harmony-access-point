@@ -10,6 +10,7 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.dao.security.UserPasswordHistoryDao;
+import eu.domibus.common.model.security.UserDetail;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.common.model.security.UserLoginErrorReason;
 import eu.domibus.common.model.security.UserPasswordHistory;
@@ -19,7 +20,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,7 +142,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     public Integer getDaysTillExpiration(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
         String warningDaysBeforeExpirationProperty = getWarningDaysBeforeExpirationProperty();
-        if(StringUtils.isBlank(warningDaysBeforeExpirationProperty)) {
+        if (StringUtils.isBlank(warningDaysBeforeExpirationProperty)) {
             return null;
         }
 
@@ -261,6 +266,12 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(user, true);
     }
 
+    @Autowired
+    SessionRegistry sessionRegistry;
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
+
     public UserEntityBase applyLockingPolicyOnUpdate(UserBase user) {
         UserEntityBase userEntity = getUserDao().findByUserName(user.getUserName());
         if (!userEntity.isActive() && user.isActive()) {
@@ -268,10 +279,23 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             userEntity.setAttemptCount(0);
         } else if (!user.isActive() && userEntity.isActive()) {
             LOG.debug("User:[{}] has been disabled by administrator", user.getUserName());
+
+            killSession(user);
+
             getUserAlertsService().triggerDisabledEvent(user);
         }
         userEntity.setActive(user.isActive());
         return userEntity;
+    }
+
+    private void killSession(UserBase user) {
+        Optional<UserDetail> ud = sessionRegistry.getAllPrincipals().stream().map(p -> ((UserDetail) p)).filter(u -> u.getUsername().equals(user.getUserName())).findFirst();
+        if (ud.isPresent()) {
+            List<SessionInformation> sess = sessionRegistry.getAllSessions(ud.get(), false);
+            sess.forEach(session -> {
+                session.expireNow();
+            });
+        }
     }
 
     @Transactional

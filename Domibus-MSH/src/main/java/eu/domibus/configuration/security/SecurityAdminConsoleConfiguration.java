@@ -15,7 +15,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 /**
  * Default Spring security config for Domibus
@@ -54,11 +56,21 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
         return provider;
     }
 
+    @Autowired
+    SessionRegistry sessionRegistry;
+
     @Override
     public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
-                .antMatchers( "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name());
+                .antMatchers( "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .and()
+
+                .sessionManagement()
+                .maximumSessions(10)               //(1)
+                .maxSessionsPreventsLogin(false)    //(2)
+                .sessionRegistry(sessionRegistry) //(4)
+        ;
     }
 
     @Override
@@ -70,6 +82,11 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     @Override
     protected void configureAuthenticationManagerBuilder(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(daoAuthenticationProvider());
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 
 }
