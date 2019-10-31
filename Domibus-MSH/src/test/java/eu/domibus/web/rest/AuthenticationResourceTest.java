@@ -1,10 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserDetail;
@@ -32,6 +29,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,6 +80,9 @@ public class AuthenticationResourceTest {
 
     @Injectable
     private AuthUtils authUtils;
+
+    @Injectable
+    CompositeSessionAuthenticationStrategy compositeSessionAuthenticationStrategy;
 
     @Mocked
     Logger LOG;

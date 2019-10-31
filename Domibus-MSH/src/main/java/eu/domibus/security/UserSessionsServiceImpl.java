@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementation for {@link AuthenticationService}
+ * Implementation for {@link UserSessionsService}
  *
  * @author Ion Perpegel
  * @since 4.2
