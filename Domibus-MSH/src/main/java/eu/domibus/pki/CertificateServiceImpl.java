@@ -36,6 +36,9 @@ import javax.naming.ldap.Rdn;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
@@ -44,6 +47,7 @@ import java.security.cert.*;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -506,6 +510,13 @@ public class CertificateServiceImpl implements CertificateService {
         return null;
     }
 
+    @Override
+    public byte[] getTruststoreContent() throws IOException {
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        File file = new File(location);
+        Path path = Paths.get(file.getAbsolutePath());
+        return Files.readAllBytes(path);
+    }
 
     public TrustStoreEntry convertCertificateContent(String certificateContent) {
         X509Certificate cert = loadCertificateFromString(certificateContent);
