@@ -27,7 +27,7 @@ public class Dialog extends DComponent {
 	}
 
 	@FindBy(id = "yesbuttondialog_id")
-	private WebElement yesBtn;
+	public WebElement yesBtn;
 
 	@FindBy(id = "nobuttondialog_id")
 	private WebElement noBtn;

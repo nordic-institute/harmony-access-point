@@ -7,6 +7,7 @@ import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
 import domibus.BaseUXTest;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -550,5 +551,46 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
+
+	/*	PU-32 - Create duplicate plugin users by smashing the save button multiple times 	*/
+	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})
+	public void newUserSaveMultipleSaves() throws Exception {
+
+		String username = Generator.randomAlphaNumeric(9);
+		log.info("creating user " + username);
+
+		SoftAssert soft = new SoftAssert();
+
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		log.info("checking buttons state");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
+
+//		create new user
+		log.info("filling plugin user form");
+		page.newUser(username, DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+
+		for (int i = 0; i < 10; i++) {
+			try {
+				log.info("saving");
+				page.saveBtn.click();
+				new Dialog(driver).yesBtn.click();
+			} catch (Exception e) {	}
+		}
+
+		page.grid().waitForRowsToLoad();
+
+		List<String> knownUsernames = new ArrayList<>();
+		List<HashMap<String, String>> allInfo = page.grid().getAllRowInfo();
+		for (HashMap<String, String> info : allInfo) {
+			String pluginUser = info.get("User Name");
+			soft.assertTrue(!knownUsernames.contains(pluginUser), "Username already present in list: " + pluginUser);
+			knownUsernames.add(pluginUser);
+		}
+
+		soft.assertAll();
+	}
 
 }

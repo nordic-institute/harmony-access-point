@@ -32,7 +32,7 @@ public class PluginUsersPage extends DomibusPage {
 	private WebElement cancelBtn;
 
 	@FindBy(css = "#userSaveButton")
-	private WebElement saveBtn;
+	public WebElement saveBtn;
 
 	@FindBy(css = "#userNewButton")
 	private WebElement newBtn;
