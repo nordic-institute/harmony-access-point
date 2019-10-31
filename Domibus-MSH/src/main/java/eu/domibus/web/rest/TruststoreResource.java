@@ -64,7 +64,6 @@ public class TruststoreResource extends BaseResource {
     @Autowired
     private CsvServiceImpl csvServiceImpl;
 
-
     @Autowired
     private ErrorHandlerService errorHandlerService;
 
@@ -95,13 +94,12 @@ public class TruststoreResource extends BaseResource {
 
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
-        File file = new File(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
-        Path path = Paths.get(file.getAbsolutePath());
-        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+        byte[] content = certificateService.getTruststoreContent();
+        ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
-            status = HttpStatus.NO_CONTENT;
+            status = HttpStatus.NO_CONTENT;;
         }
 
         return ResponseEntity.status(status)
