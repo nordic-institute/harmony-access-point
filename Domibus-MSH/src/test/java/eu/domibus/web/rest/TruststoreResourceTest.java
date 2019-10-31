@@ -49,9 +49,6 @@ import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTST
 @RunWith(JMockit.class)
 public class TruststoreResourceTest {
 
-    private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
-    private static final String TEST_KEYSTORE = "testkeystore.jks";
-
     @Tested
     TruststoreResource truststoreResource;
 
@@ -206,10 +203,11 @@ public class TruststoreResourceTest {
 
     @Test
     public void testDownload() throws IOException {
+        final byte[] fileContent = new byte[]{1, 0, 1};
         // Given
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-            result = RESOURCE_PATH + TEST_KEYSTORE;
+            certificateService.getTruststoreContent();
+            result = fileContent;
         }};
 
         // When
