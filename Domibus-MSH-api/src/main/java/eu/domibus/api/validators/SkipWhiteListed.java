@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.api.validators;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

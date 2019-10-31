@@ -1,9 +1,8 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.ListDao;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -133,8 +132,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
         UIMessageEntity uiMessageEntityFound = findUIMessageByMessageId(uiMessageEntity.getMessageId()); //NOSONAR
         Date currentDate = new Date(System.currentTimeMillis());
         uiMessageEntity.setLastModified(currentDate);
-        uiMessageEntity.setLastModified2(currentDate);
         if (uiMessageEntityFound != null) {
+
             LOG.debug("TB_MESSAGE_UI will be updated for messageId=[{}]", uiMessageEntityFound.getMessageId());
             uiMessageEntity.setEntityId(uiMessageEntityFound.getEntityId());
             em.merge(uiMessageEntity);
@@ -146,55 +145,19 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
     }
 
     @Override
-    public boolean updateMessageStatus(String messageId, MessageStatus messageStatus, Date deleted, Date nextAttempt,
-                                       Date failed, Date lastModified) {
-        try {
-            int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessageStatus", UIMessageEntity.class)
-                    .setParameter(1, messageStatus.name())
-                    .setParameter(2, deleted, TemporalType.TIMESTAMP)
-                    .setParameter(3, nextAttempt, TemporalType.TIMESTAMP)
-                    .setParameter(4, failed, TemporalType.TIMESTAMP)
-                    .setParameter(5, lastModified, TemporalType.TIMESTAMP)
-                    .setParameter(6, messageId)
-                    .executeUpdate();
-            return rowsUpdated == 1;
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateNotificationStatus(String messageId, NotificationStatus notificationStatus, Date lastModified2) {
-        try {
-            int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateNotificationStatus", UIMessageEntity.class)
-                    .setParameter(1, notificationStatus.name())
-                    .setParameter(2, lastModified2, TemporalType.TIMESTAMP)
-                    .setParameter(3, messageId)
-                    .executeUpdate();
-            return rowsUpdated == 1;
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateMessage(String messageId, MessageStatus messageStatus, Date deleted, Date failed, Date restored, Date nextAttempt,
-                                 Integer sendAttempts, Integer sendAttemptsMax, Date lastModified) {
+    public boolean updateMessage(UserMessageLog userMessageLog, Date lastModified) {
         try {
             int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessage", UIMessageEntity.class)
-                    .setParameter(1, messageStatus.name())
-                    .setParameter(2, deleted, TemporalType.TIMESTAMP)
-                    .setParameter(3, failed, TemporalType.TIMESTAMP)
-                    .setParameter(4, restored, TemporalType.TIMESTAMP)
-                    .setParameter(5, nextAttempt, TemporalType.TIMESTAMP)
-                    .setParameter(6, sendAttempts)
-                    .setParameter(7, sendAttemptsMax)
-                    .setParameter(8, lastModified, TemporalType.TIMESTAMP)
-                    .setParameter(9, messageId)
+                    .setParameter(1, userMessageLog.getMessageStatus().name())
+                    .setParameter(2, userMessageLog.getNotificationStatus().name())
+                    .setParameter(3, userMessageLog.getDeleted(), TemporalType.TIMESTAMP)
+                    .setParameter(4, userMessageLog.getFailed(), TemporalType.TIMESTAMP)
+                    .setParameter(5, userMessageLog.getRestored(), TemporalType.TIMESTAMP)
+                    .setParameter(6, userMessageLog.getNextAttempt(), TemporalType.TIMESTAMP)
+                    .setParameter(7, userMessageLog.getSendAttempts())
+                    .setParameter(8, userMessageLog.getSendAttemptsMax())
+                    .setParameter(9, lastModified, TemporalType.TIMESTAMP)
+                    .setParameter(10, userMessageLog.getMessageId())
                     .executeUpdate();
             return rowsUpdated == 1;
 

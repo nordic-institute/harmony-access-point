@@ -1,5 +1,7 @@
 package eu.domibus.common.validators;
 
+import eu.domibus.api.validators.CustomWhiteListed;
+import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.CustomWhiteListed;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;

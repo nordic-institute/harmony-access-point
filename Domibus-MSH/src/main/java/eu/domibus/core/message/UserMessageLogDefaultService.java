@@ -87,7 +87,8 @@ public class UserMessageLogDefaultService {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
-        uiReplicationSignalService.messageStatusChange(messageLog.getMessageId(), newStatus);
+
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {

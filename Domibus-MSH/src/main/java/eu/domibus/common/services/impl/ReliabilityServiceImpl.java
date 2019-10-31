@@ -10,6 +10,7 @@ import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
@@ -63,6 +64,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     protected ResponseHandler responseHandler;
+
+    @Autowired
+    private UIReplicationSignalService uiReplicationSignalService;
 
     /**
      * {@inheritDoc}
@@ -127,6 +131,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 }
                 break;
         }
+        //call ui replication sync service
+        uiReplicationSignalService.messageChange(messageId);
 
         LOG.debug("Finished handling reliability");
     }
