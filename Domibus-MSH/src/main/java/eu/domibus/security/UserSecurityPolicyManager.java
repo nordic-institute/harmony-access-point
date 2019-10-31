@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
@@ -20,7 +21,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -64,6 +64,9 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    UserSessionsService userSessionsService;
 
     protected abstract String getPasswordComplexityPatternProperty();
 
@@ -266,12 +269,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(user, true);
     }
 
-    @Autowired
-    SessionRegistry sessionRegistry;
-
-    @Autowired
-    private ApplicationEventPublisher publisher;
-
     public UserEntityBase applyLockingPolicyOnUpdate(UserBase user) {
         UserEntityBase userEntity = getUserDao().findByUserName(user.getUserName());
         if (!userEntity.isActive() && user.isActive()) {
@@ -280,7 +277,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         } else if (!user.isActive() && userEntity.isActive()) {
             LOG.debug("User:[{}] has been disabled by administrator", user.getUserName());
 
-            killSession(user);
+            userSessionsService.invalidateSessions(user);
 
             getUserAlertsService().triggerDisabledEvent(user);
         }
@@ -288,15 +285,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         return userEntity;
     }
 
-    private void killSession(UserBase user) {
-        Optional<UserDetail> ud = sessionRegistry.getAllPrincipals().stream().map(p -> ((UserDetail) p)).filter(u -> u.getUsername().equals(user.getUserName())).findFirst();
-        if (ud.isPresent()) {
-            List<SessionInformation> sess = sessionRegistry.getAllSessions(ud.get(), false);
-            sess.forEach(session -> {
-                session.expireNow();
-            });
-        }
-    }
 
     @Transactional
     public void reactivateSuspendedUsers() {
