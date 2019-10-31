@@ -45,11 +45,6 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
-        return getKnownPropertyValue(propertyName);
-    }
-
-    @Override
     public String getKnownPropertyValue(String propertyName) {
         switch (propertyName) {
             case SCHEMA_VALIDATION_ENABLED_PROPERTY:
@@ -60,11 +55,6 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
                 LOG.debug("Property [{}] not found in known property list", propertyName);
                 return null;
         }
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
     @Override

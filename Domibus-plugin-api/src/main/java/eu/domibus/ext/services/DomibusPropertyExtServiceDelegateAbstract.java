@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
  * Abstract class that implements DomibusPropertyManagerExt and delegates its methods to DomibusPropertyExtService
  * Used to derive external property managers that delegate to Domibus property manager. Ex: JmsPluginProperyManager, DSS PropertyManager
  */
-@Service
 public abstract class DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
     @Autowired
@@ -29,13 +28,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     @Autowired
     protected DomainExtService domainExtService;
 
-    @Override
     public abstract Map<String, DomibusPropertyMetadataDTO> getKnownProperties();
-
-    @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
-        return getKnownPropertyValue(propertyName);
-    }
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
@@ -54,11 +47,6 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
         final DomainDTO domain = domainExtService.getDomain(domainCode);
         domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
     @Override

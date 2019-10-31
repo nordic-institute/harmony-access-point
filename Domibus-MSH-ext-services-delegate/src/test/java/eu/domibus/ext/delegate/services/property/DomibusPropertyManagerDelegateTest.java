@@ -44,14 +44,14 @@ public class DomibusPropertyManagerDelegateTest {
     @Test
     public void getKnownPropertyValue() {
         new Expectations() {{
-            domibusPropertyManager.getKnownPropertyValue(domainCode, propertyName);
+            domibusPropertyManager.getKnownPropertyValue(propertyName);
             result = propertyValue;
         }};
 
-        String actual = domibusPropertyManagerDelegate.getKnownPropertyValue(domainCode, propertyName);
+        String actual = domibusPropertyManagerDelegate.getKnownPropertyValue(propertyName);
 
         new Verifications() {{
-            domibusPropertyManager.getKnownPropertyValue(domainCode, propertyName);
+            domibusPropertyManager.getKnownPropertyValue(propertyName);
         }};
 
         Assert.assertEquals(propertyValue, actual);
@@ -68,10 +68,10 @@ public class DomibusPropertyManagerDelegateTest {
 
     @Test
     public void testSetKnownPropertyValue() {
-        domibusPropertyManagerDelegate.setKnownPropertyValue(domainCode, propertyName, propertyValue);
+        domibusPropertyManagerDelegate.setKnownPropertyValue(propertyName, propertyValue);
 
         new Verifications() {{
-            domibusPropertyManager.setKnownPropertyValue(domainCode, propertyName, propertyValue);
+            domibusPropertyManager.setKnownPropertyValue(propertyName, propertyValue);
         }};
     }
 
