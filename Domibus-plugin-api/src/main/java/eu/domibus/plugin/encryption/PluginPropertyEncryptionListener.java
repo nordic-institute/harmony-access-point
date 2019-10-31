@@ -6,7 +6,7 @@ package eu.domibus.plugin.encryption;
  * Plugins must use the password encryption exposed services to handle the password encryption.
  *
  * @author Cosmin Baciu
- * @since 4.1.1
+ * @since 4.1.2
  */
 public interface PluginPropertyEncryptionListener {
 

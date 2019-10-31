@@ -1,17 +1,31 @@
 package eu.domibus.ext.domain;
 
 /**
+ * Contains the result of the property encryption
+ *
  * @author Cosmin Baciu
  * @since 4.1.1
  */
 public class PasswordEncryptionResultDTO {
 
+    /**
+     * The property name
+     */
     protected String propertyName;
 
+    /**
+     * The property value in clear
+     */
     protected String propertyValue;
 
+    /**
+     * The base64 encrypted value
+     */
     protected String base64EncryptedValue;
 
+    /**
+     * The formatted base64 value. Eg. ENC(...)
+     */
     protected String formattedBase64EncryptedValue;
 
     public String getPropertyName() {
