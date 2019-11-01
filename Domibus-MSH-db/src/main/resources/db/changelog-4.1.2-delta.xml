@@ -6,9 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <changeSet author="Ioana Dragusanu" id="EDELIVERY-5506">
-        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
-                             tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_CERTIFICATE_ID"
+        <addUniqueConstraint columnNames="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 

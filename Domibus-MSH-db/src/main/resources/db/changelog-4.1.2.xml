@@ -1124,10 +1124,7 @@
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
 
-        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
-                             tableName="TB_AUTHENTICATION_ENTRY"/>
-
-        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_CERTIFICATE_ID"
+        <addUniqueConstraint columnNames="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 
