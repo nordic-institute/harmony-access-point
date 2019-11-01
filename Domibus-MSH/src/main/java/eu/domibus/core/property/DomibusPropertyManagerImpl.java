@@ -55,18 +55,15 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException(propertyName);
-        }
+        checkPropertyExists(propertyName);
+
         Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
         return domibusPropertyProvider.getProperty(domain, propertyName);
     }
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException(propertyName);
-        }
+        checkPropertyExists(propertyName);
 
         return domibusPropertyProvider.getProperty(propertyName);
     }
@@ -91,7 +88,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     private void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
         if (propMeta == null) {
-            throw new IllegalArgumentException(propertyName);
+            throw new DomibusPropertyException("Property " + propertyName + " not found.");
         }
 
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
@@ -100,4 +97,11 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
         propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
     }
+
+    private void checkPropertyExists(String propertyName) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new DomibusPropertyException("Property " + propertyName + " not found.");
+        }
+    }
+
 }

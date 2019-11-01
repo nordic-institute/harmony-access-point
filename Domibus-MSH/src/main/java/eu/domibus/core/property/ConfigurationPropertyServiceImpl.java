@@ -87,7 +87,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 if (authUtils.isSuperAdmin()) {
                     knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
                 } else {
-                    throw new IllegalArgumentException("Cannot request global and super properties if not a super user.");
+                    throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
                 }
             }
         }
@@ -104,7 +104,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 propertyManager.setKnownPropertyValue(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
-                    throw new IllegalArgumentException("Cannot set global or super properties if not a super user.");
+                    throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
                 }
                 // for non-domain properties, we set the value in the null-domain context:
                 domainTaskExecutor.submit(() -> {
@@ -118,12 +118,13 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
-        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream().filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
+        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
+                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
         if (found.isPresent()) {
             return found.get();
         }
 
-        throw new IllegalArgumentException("Property manager not found for property " + propertyName);
+        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
     }
 
 }
