@@ -4,6 +4,7 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -417,7 +418,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     protected String getKnownPropertyValue(String domainCode, String propertyName) {
         if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property name: " + propertyName);
+            throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
         }
 
         // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
@@ -449,7 +450,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property name: " + propertyName);
+            throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
         }
 
         String propertyKey = propertyName;

@@ -3,6 +3,7 @@ package eu.domibus.ext.services;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -32,28 +33,28 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
+        checkPropertyExists(propertyName);
 
         return domibusPropertyExtService.getProperty(propertyName);
     }
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
+        checkPropertyExists(propertyName);
 
         final DomainDTO domain = domainExtService.getDomain(domainCode);
         domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
     }
 
+    private void checkPropertyExists(String propertyName) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new DomibusPropertyExtException("Unknown property: " + propertyName);
+        }
+    }
+
     @Override
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
+        checkPropertyExists(propertyName);
         domibusPropertyExtService.setProperty(propertyName, propertyValue);
     }
 

@@ -102,7 +102,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         if (domain == null) {
-            throw new IllegalArgumentException("Property " + propertyName + " cannot be retrieved without a domain");
+            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
 
         if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
@@ -110,7 +110,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         if (!prop.isDomain()) {
-            throw new IllegalArgumentException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
+            throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
         }
 
         return getDomainOrDefaultValue(prop, domain);
