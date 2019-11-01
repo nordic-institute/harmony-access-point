@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PasswordEncryptionContextDefault extends PasswordEncryptionContextAbstract {
 
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,

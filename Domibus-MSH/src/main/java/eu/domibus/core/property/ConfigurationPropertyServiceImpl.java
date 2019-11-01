@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Service called from the ConfigurationPropertyResource REST class
  * responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 @Service
@@ -56,25 +56,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> list = new ArrayList<>();
 
-//        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
-            List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
-                    .filter(p -> p.isWritable())
-                    .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
-                    .collect(Collectors.toList());
-
-            if (domibusConfigurationService.isMultiTenantAware()) {
-                if (showDomain) {
-                    knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
-                } else {
-                    if (authUtils.isSuperAdmin()) {
-                        knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
-                    } else {
-                        throw new IllegalArgumentException("Cannot request global and super properties if not a super user.");
-                    }
-                }
-            }
+            List<DomibusPropertyMetadataDTO> knownProps = filterProperties(name, showDomain, propertyManager);
 
             for (DomibusPropertyMetadataDTO p : knownProps) {
                 String value = propertyManager.getKnownPropertyValue(p.getName());
@@ -91,15 +74,33 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return list;
     }
 
+    private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
+        List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
+                .filter(p -> p.isWritable())
+                .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
+                .collect(Collectors.toList());
+
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            if (showDomain) {
+                knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
+            } else {
+                if (authUtils.isSuperAdmin()) {
+                    knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
+                } else {
+                    throw new IllegalArgumentException("Cannot request global and super properties if not a super user.");
+                }
+            }
+        }
+        return knownProps;
+    }
+
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) {
-        boolean handled = false;
-        for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
-            if (!propertyManager.hasKnownProperty(name)) {
-                continue;
-            }
+        try {
+            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
 
             if (isDomain) {
+                LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
                 propertyManager.setKnownPropertyValue(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
@@ -107,16 +108,22 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 }
                 // for non-domain properties, we set the value in the null-domain context:
                 domainTaskExecutor.submit(() -> {
+                    LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
                     propertyManager.setKnownPropertyValue(name, value);
                 });
             }
-            handled = true;
+        } catch (IllegalArgumentException ex) {
+            LOG.error("Could not set property [{}].", name);
+        }
+    }
+
+    protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
+        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream().filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
+        if (found.isPresent()) {
+            return found.get();
         }
 
-        if (!handled) {
-            LOG.debug("Property manager not found for [{}]", name);
-            throw new IllegalArgumentException("Property not found: " + name);
-        }
+        throw new IllegalArgumentException("Property manager not found for property " + propertyName);
     }
 
 }
