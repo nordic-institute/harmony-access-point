@@ -10,6 +10,14 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: spring-security-core-5.1.5.RELEASE.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
+        <!-- Affects Spring Framework 5.0.5 -->
+        <cve>CVE-2018-1258</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: activemq-jaas-5.15.8.jar
    ]]></notes>
         <gav regex="true">^org\.apache\.activemq:.*$</gav>
@@ -48,6 +56,7 @@
              To mitigate the issue, we need to limit RMI access to trusted users only.
              In Domibus, RMI is not used. -->
         <cve>CVE-2017-15708</cve>
+        <vulnerabilityName>Remote code execution</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
