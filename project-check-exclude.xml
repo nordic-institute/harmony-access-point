@@ -12,7 +12,7 @@
         <notes><![CDATA[
    file name: spring-security-core-5.1.5.RELEASE.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
+        <gav regex="true">^org\.apache\.xbean:xbean-spring:.*$</gav>
         <!-- Affects Spring Framework 5.0.5 -->
         <cve>CVE-2018-1258</cve>
     </suppress>
