@@ -41,10 +41,8 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     DomibusScheduler domibusScheduler;
 
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
-            {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
             {DOMIBUS_CERTIFICATE_CHECK_CRON, "saveCertificateAndLogRevocationJob"},
             {DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, "activateSuspendedPluginUsersJob"},
-            {DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, "userPasswordPolicyAlertJob"},
             {DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, "pluginUserPasswordPolicyAlertJob"},
             {DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, "temporaryPayloadRetentionJob"},
             {DOMIBUS_MSH_RETRY_CRON, "retryWorkerJob"},

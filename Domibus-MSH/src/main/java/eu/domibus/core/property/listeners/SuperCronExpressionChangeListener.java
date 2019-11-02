@@ -27,9 +27,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Handles the change of cron expression properties
  */
 @Service
-public class AlertCronExpressionChangeListener implements DomibusPropertyChangeListener {
+public class SuperCronExpressionChangeListener implements DomibusPropertyChangeListener {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(AlertCronExpressionChangeListener.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(SuperCronExpressionChangeListener.class);
 
     @Autowired
     protected DomainService domainService;
@@ -41,7 +41,8 @@ public class AlertCronExpressionChangeListener implements DomibusPropertyChangeL
     DomibusScheduler domibusScheduler;
 
     Map<String, String[]> propertyToJobMap = Stream.of(new String[][]{
-            // TODO: differentiate between normal and super user jobs by knowing who changed the property
+            {DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, "userPasswordPolicyAlertJob,superUserPasswordPolicyAlertJob"},
+            {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob,activateSuspendedSuperUsersJob"},
             {DOMIBUS_ALERT_CLEANER_CRON, "alertCleanerJob,alertCleanerSuperJob"},
             {DOMIBUS_ALERT_RETRY_CRON, "alertRetryJob,alertRetryJSuperJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1].split(",")));
@@ -61,14 +62,14 @@ public class AlertCronExpressionChangeListener implements DomibusPropertyChangeL
         }
 
         final Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
-
-        for( String jobName: jobNames) {
-            try {
-                domibusScheduler.rescheduleJob(domain, jobName, propertyValue);
-            } catch (DomibusSchedulerException ex) {
-                LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
-            }
+        //here we have a convention: first job is domain, the second is for super-users;
+        //TODO: The correct solution would be to have the same job name for both, as the job instance itself is found by looking in the corresponding BD schema
+        String jobName = domain != null ? jobNames[0] : jobNames[1];
+        try {
+            domibusScheduler.rescheduleJob(domain, jobName, propertyValue);
+        } catch (DomibusSchedulerException ex) {
+            LOGGER.error("Could not reschedule [{}] ", propertyName, ex);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
         }
     }
 }
