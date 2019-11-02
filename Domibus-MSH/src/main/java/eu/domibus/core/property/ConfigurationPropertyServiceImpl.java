@@ -54,21 +54,29 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomainTaskExecutor domainTaskExecutor;
 
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
-        List<DomibusProperty> list = new ArrayList<>();
+        List<DomibusProperty> allProperties = new ArrayList<>();
 
         for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
-            List<DomibusPropertyMetadataDTO> knownProps = filterProperties(name, showDomain, propertyManager);
+            List<DomibusPropertyMetadataDTO> propertyMetadata = filterProperties(name, showDomain, propertyManager);
+            List<DomibusProperty> moduleProperties = createProperties(propertyManager, propertyMetadata);
+            allProperties.addAll(moduleProperties);
+        }
 
-            for (DomibusPropertyMetadataDTO p : knownProps) {
-                String value = propertyManager.getKnownPropertyValue(p.getName());
-                DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+        return allProperties;
+    }
 
-                DomibusProperty prop = new DomibusProperty();
-                prop.setMetadata(meta);
-                prop.setValue(value);
+    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
+        List<DomibusProperty> list = new ArrayList<>();
 
-                list.add(prop);
-            }
+        for (DomibusPropertyMetadataDTO p : knownProps) {
+            String value = propertyManager.getKnownPropertyValue(p.getName());
+            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+
+            DomibusProperty prop = new DomibusProperty();
+            prop.setMetadata(meta);
+            prop.setValue(value);
+
+            list.add(prop);
         }
 
         return list;
