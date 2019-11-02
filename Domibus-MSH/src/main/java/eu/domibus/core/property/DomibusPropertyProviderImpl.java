@@ -158,32 +158,51 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public void setPropertyValue(Domain domain, String propertyName, String propertyValue) {
-        String propertyKey = propertyName;
-
-        // in single-tenancy mode - the property key is always the property name
-        // in multi-tenancy mode - some properties will be prefixed (depends on usage)
+        String propertyKey;
         if (domibusConfigurationService.isMultiTenantAware()) {
-            DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
-            if (domain != null) {
-                if (prop.isDomain()) {
-                    propertyKey = getPropertyKeyForDomain(domain, propertyName);
-                } else {
-                    String error = String.format("Property [{}] is not applicable for a specific domain so it cannot be set.", propertyName);
-                    throw new IllegalArgumentException(error);
-                }
-            } else {
-                if (prop.isSuper()) {
-                    propertyKey = getPropertyKeyForSuper(propertyName);
-                } else {
-                    if (!prop.isGlobal()) {
-                        String error = String.format("Property [{}] is not applicable for global usage so it cannot be set.", propertyName);
-                        throw new IllegalArgumentException(error);
-                    }
-                }
-            }
+            // in multi-tenancy mode - some properties will be prefixed (depends on usage)
+            propertyKey = calculatePropertyKeyInMultiTenancy(domain, propertyName);
+        } else {
+            // in single-tenancy mode - the property key is always the property name
+            propertyKey = propertyName;
         }
 
         this.domibusProperties.setProperty(propertyKey, propertyValue);
+    }
+
+    private String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
+        String propertyKey = null;
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (domain != null) {
+            propertyKey = calculatePropertyKeyForDomain(domain, propertyName, prop);
+        } else {
+            propertyKey = calculatePropertyKeyWithoutDomain(propertyName, prop);
+        }
+        return propertyKey;
+    }
+
+    private String calculatePropertyKeyWithoutDomain(String propertyName, DomibusPropertyMetadata prop) {
+        String propertyKey = propertyName;
+        if (prop.isSuper()) {
+            propertyKey = getPropertyKeyForSuper(propertyName);
+        } else {
+            if (!prop.isGlobal()) {
+                String error = String.format("Property [{}] is not applicable for global usage so it cannot be set.", propertyName);
+                throw new IllegalArgumentException(error);
+            }
+        }
+        return propertyKey;
+    }
+
+    private String calculatePropertyKeyForDomain(Domain domain, String propertyName, DomibusPropertyMetadata prop) {
+        String propertyKey;
+        if (prop.isDomain()) {
+            propertyKey = getPropertyKeyForDomain(domain, propertyName);
+        } else {
+            String error = String.format("Property [{}] is not applicable for a specific domain so it cannot be set.", propertyName);
+            throw new IllegalArgumentException(error);
+        }
+        return propertyKey;
     }
 
     @Override
