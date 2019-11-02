@@ -64,28 +64,37 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     public String getProperty(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
-        if (prop.isOnlyGlobal()) {                                 //prop is only global so the current domain doesn't matter
+        //prop is only global so the current domain doesn't matter
+        if (prop.isOnlyGlobal()) {
+            LOGGER.trace("Property [{}] is only global (so the current domain doesn't matter) thus retrieving the global value", propertyName);
             return getGlobalProperty(prop);
         }
 
-        if (!domibusConfigurationService.isMultiTenantAware()) {   //single-tenancy mode
+        //single-tenancy mode
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            LOGGER.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
             return getGlobalProperty(prop);
         }
 
         //multi-tenancy mode
         //domain or super property or a combination of 2 ( but not 3)
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain != null) {                               //we have a domain in context so try a domain property
+        //we have a domain in context so try a domain property
+        if (currentDomain != null) {
             if (prop.isDomain()) {
+                LOGGER.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
                 return getDomainOrDefaultValue(prop, currentDomain);
             }
             LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
-        } else {                                                   //current domain being null, it is super or global property (but not both)
+        } else {
+            //current domain being null, it is super or global property (but not both)
             if (prop.isGlobal()) {
+                LOGGER.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
                 return getGlobalProperty(prop);
             }
             if (prop.isSuper()) {
+                LOGGER.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
                 return getSuperOrDefaultValue(prop);
             }
             LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
@@ -99,13 +108,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(Domain domain, String propertyName) {
+        LOGGER.trace("Retrieving value for property [{}] on domain.", propertyName, domain);
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         if (domain == null) {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
 
-        if (!domibusConfigurationService.isMultiTenantAware()) {             //single-tenancy mode
+        //single-tenancy mode
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain.", propertyName, domain);
             return getGlobalProperty(prop);
         }
 
