@@ -75,15 +75,15 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public void encryptPasswords() {
         LOG.debug("Encrypting passwords");
 
-        final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService);
-        encryptPasswords(passwordEncryptionContext);
-
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
             for (Domain domain : domains) {
                 final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
                 encryptPasswords(passwordEncryptionContextDomain);
             }
+        } else {
+            final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService);
+            encryptPasswords(passwordEncryptionContext);
         }
 
         domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
