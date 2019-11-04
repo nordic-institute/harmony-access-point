@@ -111,7 +111,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getDomainProperty(SMLZONE_KEY);
         if (smlInfo == null) {
-            throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
+            throw new ConfigurationException("SML Zone missing. Please configure it.");
         }
 
         final String certRegex = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_CERT_REGEX);

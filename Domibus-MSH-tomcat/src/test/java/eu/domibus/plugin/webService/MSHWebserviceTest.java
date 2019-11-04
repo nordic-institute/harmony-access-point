@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceException;
 
 @Primary
@@ -16,8 +15,6 @@ import javax.xml.ws.WebServiceException;
 public class MSHWebserviceTest extends MSHWebservice {
 
     protected Messaging messaging;
-
-
 
     @Autowired
     MessageUtil messageUtil;

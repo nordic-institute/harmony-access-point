@@ -327,8 +327,10 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * @param messageId the user message
      */
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveRawXml(String rawXml, String messageId) {
+        LOG.debug("Saving rawXML for message [{}]", messageId);
+
         RawEnvelopeLog newRawEnvelopeLog = new RawEnvelopeLog();
         newRawEnvelopeLog.setRawXML(rawXml);
         newRawEnvelopeLog.setMessageId(messageId);
