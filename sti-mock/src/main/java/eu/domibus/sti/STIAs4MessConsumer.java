@@ -2,6 +2,8 @@ package eu.domibus.sti;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Hashtable;
 
@@ -22,6 +24,9 @@ public class STIAs4MessConsumer implements MessageListener{
 
     public final static String QUEUE = "jms/domibus.backend.jms.outQueue";
 
+    @Value("${sti.provider.url}")
+    private String providerUrl;
+
     private QueueConnectionFactory qconFactory;
 
     private QueueConnection qcon;
@@ -32,19 +37,24 @@ public class STIAs4MessConsumer implements MessageListener{
 
     private Queue queue;
 
-    private boolean quit = false;
+    private boolean connected = false;
 
 
-    @PostConstruct
+    @Scheduled(fixedRateString = "${broker.connection.retry.fixedRate.in.milliseconds}", initialDelayString = "5000")
     public void init(){
+        if(connected) {
+            LOG.debug("Jms receiver connected");
+            return;
+        }
         InitialContext ic = null;
         try {
             ic = getInitialContext();
             initJmsReceiver(ic,QUEUE);
             LOG.info("JMS Ready To Receive Messages on queue:[{}]",QUEUE);
-
+            connected=true;
         } catch (NamingException | JMSException e) {
-            System.out.println(e);
+            LOG.error("Error connecting to jms queue on:[{}]",providerUrl,e);
+            connected=false;
         }
         /*STIAs4MessConsumer qr = new STIAs4MessConsumer();
         qr.init(ic, QUEUE);
@@ -88,7 +98,7 @@ public class STIAs4MessConsumer implements MessageListener{
         qcon.start();
     }
 
-    public void close() throws JMSException    {
+    public void close() throws JMSException {
         qreceiver.close();
         qsession.close();
         qcon.close();
@@ -110,12 +120,15 @@ public class STIAs4MessConsumer implements MessageListener{
         qr.close();
     }*/
 
-    private static InitialContext getInitialContext()
+
+
+
+    private InitialContext getInitialContext()
             throws NamingException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, JNDI_FACTORY);
-        env.put(Context.PROVIDER_URL, "t3://localhost:7002/");
+        env.put(Context.PROVIDER_URL, providerUrl);
         return new InitialContext(env);
     }
 }
