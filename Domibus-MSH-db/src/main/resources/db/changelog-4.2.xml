@@ -8,7 +8,9 @@
     <property name="now" value="sysdate" dbms="oracle"/>
     <property name="now" value="now()" dbms="mysql"/>
     <property name="current_db_user" value="user" dbms="oracle"/>
-    <property name="current_db_user" value="user()" dbms="mysql"/>
+    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
+    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
+    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
