@@ -31,6 +31,11 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     @Autowired
     Endpoint backendInterfaceEndpoint;
 
+    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new DomibusPropertyMetadataDTO[]{
+            new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+            new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+    }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+
     @Override
     public boolean hasKnownProperty(String name) {
         return StringUtils.equalsAnyIgnoreCase(name, SCHEMA_VALIDATION_ENABLED_PROPERTY, MTOM_ENABLED_PROPERTY);
@@ -38,10 +43,7 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        return Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+        return knownProperties;
     }
 
     @Override

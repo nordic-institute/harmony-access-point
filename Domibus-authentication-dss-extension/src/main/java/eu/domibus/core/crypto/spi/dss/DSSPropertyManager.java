@@ -21,17 +21,16 @@ public class DSSPropertyManager extends DomibusPropertyExtServiceDelegateAbstrac
     public static final String DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_NAME = "domibus.authentication.dss.constraint.name";
     public static final String DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_STATUS = "domibus.authentication.dss.constraint.status";
 
-    private String[] knownPropertyNames = new String[]{
+    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new String[]{
             DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_NAME,
             DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_STATUS
-    };
+    })
+            .map(name -> new DomibusPropertyMetadataDTO(name, Module.DSS, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, true, true, false, true))
+            .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-
-        return Arrays.stream(knownPropertyNames)
-                .map(name -> new DomibusPropertyMetadataDTO(name, Module.DSS, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, true, true, false, true))
-                .collect(Collectors.toMap(x -> x.getName(), x -> x));
+        return knownProperties;
     }
 
 }
