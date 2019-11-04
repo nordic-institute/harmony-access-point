@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
@@ -57,6 +58,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
 
+    @Autowired
+    private UIReplicationSignalService uiReplicationSignalService;
+
     /**
      * {@inheritDoc}
      */
@@ -65,6 +69,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     public void handleReliability(final String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, final ResponseHandler.CheckResult isOk, final LegConfiguration legConfiguration) {
         LOG.debug("Handling reliability");
         changeMessageStatusAndNotify(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
+        //call ui replication sync service
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     /**

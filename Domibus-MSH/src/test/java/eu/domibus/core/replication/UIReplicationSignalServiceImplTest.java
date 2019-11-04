@@ -4,8 +4,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -21,7 +19,7 @@ import java.util.UUID;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class UIReplicationSignalServiceTest {
+public class UIReplicationSignalServiceImplTest {
 
     @Injectable
     private Queue uiReplicationQueue;
@@ -36,7 +34,7 @@ public class UIReplicationSignalServiceTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
-    UIReplicationSignalService uiReplicationSignalService;
+    UIReplicationSignalServiceImpl uiReplicationSignalService;
 
     private final String messageId = UUID.randomUUID().toString();
 
@@ -44,7 +42,7 @@ public class UIReplicationSignalServiceTest {
     public void testIsReplicationEnabled() {
 
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(UIReplicationSignalService.UI_REPLICATION_ENABLED);
+            domibusPropertyProvider.getDomainProperty(UIReplicationSignalServiceImpl.UI_REPLICATION_ENABLED);
             result = true;
         }};
 
@@ -85,46 +83,6 @@ public class UIReplicationSignalServiceTest {
 
         //tested method
         uiReplicationSignalService.userMessageSubmitted(messageId);
-
-        new Verifications() {{
-            jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
-        }};
-    }
-
-    @Test
-    public void testMessageStatusChange(final @Mocked JmsMessage message) {
-        final MessageStatus messageStatus = MessageStatus.ACKNOWLEDGED;
-
-        new Expectations(uiReplicationSignalService) {{
-            uiReplicationSignalService.isReplicationEnabled();
-            result = true;
-
-            uiReplicationSignalService.createJMSMessage(messageId, UIJMSType.MESSAGE_STATUS_CHANGE, messageStatus);
-            result = message;
-        }};
-
-        //tested method
-        uiReplicationSignalService.messageStatusChange(messageId, messageStatus);
-
-        new Verifications() {{
-            jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
-        }};
-    }
-
-    @Test
-    public void testMessageNotificationStatusChange(final @Mocked JmsMessage message) {
-        final NotificationStatus notificationStatus = NotificationStatus.NOTIFIED;
-
-        new Expectations(uiReplicationSignalService) {{
-            uiReplicationSignalService.isReplicationEnabled();
-            result = true;
-
-            uiReplicationSignalService.createJMSMessage(messageId, UIJMSType.MESSAGE_NOTIFICATION_STATUS_CHANGE, notificationStatus);
-            result = message;
-        }};
-
-        //tested method
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, notificationStatus);
 
         new Verifications() {{
             jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
