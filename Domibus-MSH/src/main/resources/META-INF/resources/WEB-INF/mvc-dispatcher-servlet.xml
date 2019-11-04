@@ -41,8 +41,7 @@
 
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
-            <bean id="customMappingJackson2HttpMessageConverter"
-                  class="eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter">
+            <bean id="customMappingJackson2HttpMessageConverter" class="eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter">
                 <property name="jsonPrefix" value=")]}',\n"/>
             </bean>
         </mvc:message-converters>
