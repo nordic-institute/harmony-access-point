@@ -79,14 +79,13 @@ public class UIReplicationSignalServiceImpl implements UIReplicationSignalServic
 
     @Override
     public void messageChange(String messageId) {
-        LOG.debug("send message change to queue - start");
+        LOG.debug("updateMessage required, lastModified=[{}]", System.currentTimeMillis());
         if (!isReplicationEnabled()) {
             return;
         }
         final JmsMessage message = createJMSMessage(messageId, UIJMSType.MESSAGE_CHANGE);
 
         jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
-        LOG.debug("send message change to queue");
     }
 
     @Override

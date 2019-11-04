@@ -104,7 +104,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
                     jmsTime);
             if (updateSuccess) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("{}Message with messageId=[{}] synced",
+                    LOG.debug("{}Message with messageId=[{}] updated",
                             MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId);
                 }
                 return;

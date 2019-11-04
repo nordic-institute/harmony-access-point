@@ -155,6 +155,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 messagingDao.clearPayloadData(messageId);
                 userMessageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
+                uiReplicationSignalService.messageChange(messageId);
                 return new PullRequestResult(userMessageLog);
             case PULL_FAILED:
                 return pullFailedOnReceipt(legConfiguration, userMessageLog);

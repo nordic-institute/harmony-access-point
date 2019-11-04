@@ -146,6 +146,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
 
     @Override
     public boolean updateMessage(UserMessageLog userMessageLog, Date lastModified) {
+        LOG.debug("updateMessage executed MessageStatus=[{}] NotificationStatus=[{}] lastModified=[{}]",
+                userMessageLog.getMessageStatus(), userMessageLog.getNotificationStatus(), lastModified.getTime());
         try {
             int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessage", UIMessageEntity.class)
                     .setParameter(1, userMessageLog.getMessageStatus().name())
