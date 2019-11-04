@@ -108,16 +108,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(Domain domain, String propertyName) {
-        LOGGER.trace("Retrieving value for property [{}] on domain.", propertyName, domain);
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
-
+        LOGGER.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
         if (domain == null) {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
 
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain.", propertyName, domain);
+            LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
 
@@ -167,7 +166,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             propertyKey = propertyName;
         }
 
-        this.domibusProperties.setProperty(propertyKey, propertyValue);
+        domibusProperties.setProperty(propertyKey, propertyValue);
     }
 
     private String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
@@ -188,7 +187,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         } else {
             if (!prop.isGlobal()) {
                 String error = String.format("Property [{}] is not applicable for global usage so it cannot be set.", propertyName);
-                throw new IllegalArgumentException(error);
+                throw new DomibusPropertyException(error);
             }
         }
         return propertyKey;
@@ -200,7 +199,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             propertyKey = getPropertyKeyForDomain(domain, propertyName);
         } else {
             String error = String.format("Property [{}] is not applicable for a specific domain so it cannot be set.", propertyName);
-            throw new IllegalArgumentException(error);
+            throw new DomibusPropertyException(error);
         }
         return propertyKey;
     }
@@ -274,16 +273,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return result;
     }
 
-    private String getGlobalProperty(DomibusPropertyMetadata prop) {
+    protected String getGlobalProperty(DomibusPropertyMetadata prop) {
         return getPropertyValue(prop.getName(), null, prop.isEncrypted());
     }
 
-    private String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
+    protected String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
         String propertyKey = getPropertyKeyForDomain(domain, prop.getName());
         return getPropValueOrDefault(propertyKey, prop, domain);
     }
 
-    private String getSuperOrDefaultValue(DomibusPropertyMetadata prop) {
+    protected String getSuperOrDefaultValue(DomibusPropertyMetadata prop) {
         String propertyKey = getPropertyKeyForSuper(prop.getName());
         return getPropValueOrDefault(propertyKey, prop, null);
     }
