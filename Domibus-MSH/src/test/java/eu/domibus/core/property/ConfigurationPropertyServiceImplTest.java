@@ -125,12 +125,9 @@ public class ConfigurationPropertyServiceImplTest {
 
     @Test
     public void setPropertyValue() {
-        new Expectations() {{
-            propertyManager2.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
-            result = false;
-
-            propertyManager1.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
-            result = true;
+        new Expectations(configurationPropertyService) {{
+            configurationPropertyService.getManagerForProperty(DOMIBUS_UI_TITLE_NAME);
+            result = propertyManager1;
         }};
 
         configurationPropertyService.setPropertyValue(DOMIBUS_UI_TITLE_NAME, true, "val11");
@@ -140,7 +137,21 @@ public class ConfigurationPropertyServiceImplTest {
         }};
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
+    public void getManagerForProperty() {
+        new Expectations(configurationPropertyService) {{
+            propertyManager1.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
+            result = false;
+            propertyManager2.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
+            result = true;
+        }};
+
+        DomibusPropertyManagerExt manager = configurationPropertyService.getManagerForProperty(DOMIBUS_UI_TITLE_NAME);
+
+        Assert.assertEquals(propertyManager2, manager);
+    }
+
+    @Test(expected = DomibusPropertyException.class)
     public void setPropertyValue_notMatch() {
         new Expectations() {{
 

@@ -87,7 +87,7 @@ public class DomibusPropertyManagerImplTest {
         Assert.assertEquals(true, actual);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DomibusPropertyException.class)
     public void getKnownPropertyValue_nonExisting() {
         new Expectations() {{
             domibusPropertyMetadataManager.hasKnownProperty("nonExistingPropName");
@@ -152,7 +152,7 @@ public class DomibusPropertyManagerImplTest {
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DomibusPropertyException.class)
     public void setKnownPropertyValue_nonExisting() {
         new Expectations() {{
             domibusPropertyMetadataManager.getKnownProperties();

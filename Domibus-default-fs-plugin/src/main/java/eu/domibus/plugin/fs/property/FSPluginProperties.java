@@ -60,7 +60,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private List<String> domains;
 
-    private Map<String, DomibusPropertyMetadataDTO> knownProperties;
+    protected Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
     public static final String ACTION_DELETE = "delete";
 
