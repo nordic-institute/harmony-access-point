@@ -59,22 +59,4 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
         return allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
-
-    @Override
-    public String getKnownPropertyValue(String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
-
-        if (StringUtils.equalsIgnoreCase(propertyName, PUT_ATTACHMENTS_IN_QUEUE)) {
-            String value = domibusPropertyExtService.getProperty(propertyName);
-            if (StringUtils.isEmpty(value)) {
-                value = "true";
-            }
-            return value;
-        }
-
-        return domibusPropertyExtService.getProperty(propertyName);
-    }
-
 }

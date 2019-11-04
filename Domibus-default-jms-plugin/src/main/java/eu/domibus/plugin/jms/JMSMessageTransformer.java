@@ -9,7 +9,6 @@ import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -110,7 +109,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 }
             }
 
-            final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE, "true"));
+            final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE));
             for (final Submission.Payload p : submission.getPayloads()) {
                 // counter is increased for payloads (not for bodyload which is always set to payload_1)
                 counter = transformFromSubmissionHandlePayload(messageOut, putAttachmentsInQueue, counter, p);
@@ -125,17 +124,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     protected String getProperty(String propertyName) {
-        return getProperty(propertyName, null);
+        return domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName);
     }
-
-    protected String getProperty(String propertyName, String defaultValue) {
-        String value = domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName);
-        if (StringUtils.isEmpty(value)) {
-            value = defaultValue;
-        }
-        return value;
-    }
-
 
     private int transformFromSubmissionHandlePayload(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Submission.Payload p) throws JMSException, IOException {
         if (p.isInBody()) {
