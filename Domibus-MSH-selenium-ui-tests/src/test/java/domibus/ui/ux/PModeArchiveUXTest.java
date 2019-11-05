@@ -140,7 +140,9 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
 
 		if (page.grid().getRowsNo() < 2) {
-			throw new SkipException("Cannot restore old file because there is no old file");
+			rest.uploadPMode("pmodes/doNothingSelfSending.xml", null);
+			rest.uploadPMode("pmodes/multipleParties.xml", null);
+			page.refreshPage();
 		}
 
 		log.info("doubleclick row 1");

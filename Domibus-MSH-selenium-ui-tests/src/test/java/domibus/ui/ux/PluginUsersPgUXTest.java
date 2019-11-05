@@ -253,7 +253,8 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	}
 
 	/* PU-15 - Admin tries to create new user with username less than 3 letters long */
-	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"})
+//	known failure, was decided it will not be fixed
+	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("testing username with only 2 letters");

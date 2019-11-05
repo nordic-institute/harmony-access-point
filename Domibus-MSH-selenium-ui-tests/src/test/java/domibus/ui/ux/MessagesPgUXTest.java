@@ -114,9 +114,9 @@ public class MessagesPgUXTest extends BaseUXTest {
 	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-		log.info("logged in");
+
 		MessagesPage page = new MessagesPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);

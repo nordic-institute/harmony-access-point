@@ -330,11 +330,14 @@ public class DomibusRestClient {
 		}
 	}
 
-	public JSONArray getPluginUsers(String domain) {
+	public JSONArray getPluginUsers(String domain, String authType) {
 
 		switchDomain(domain);
 
-		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), null);
+		HashMap<String, String> params = new HashMap<>();
+		params.put("authType", authType);
+
+		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get users ");
 		}

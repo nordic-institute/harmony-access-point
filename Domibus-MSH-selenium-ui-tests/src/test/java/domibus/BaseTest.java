@@ -218,7 +218,7 @@ public class BaseTest {
 
 		if (!forceNew) {
 			log.info("trying to find existing user with desired config");
-			JSONArray users = rest.getPluginUsers(domain);
+			JSONArray users = rest.getPluginUsers(domain, "BASIC");
 			for (int i = 0; i < users.length(); i++) {
 				JSONObject user = users.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
@@ -246,7 +246,7 @@ public class BaseTest {
 			log.info("deactivated user " + username);
 		}
 
-		JSONArray users = rest.getPluginUsers(domain);
+		JSONArray users = rest.getPluginUsers(domain, "BASIC");
 		log.info("searching for user in the system");
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);
