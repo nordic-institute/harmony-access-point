@@ -13,12 +13,32 @@ import java.util.Map;
  */
 public interface NotificationListener {
 
+    /**
+     * Get the plugin name
+     *
+     * @return the plugin name
+     */
     String getBackendName();
 
+    /**
+     * Gets the plugin notification queue that will be used by Domibus to notify the plugin
+     *
+     * @return
+     */
     Queue getBackendNotificationQueue();
 
+    /**
+     * Get the plugin mode. See also {@link eu.domibus.plugin.BackendConnector.Mode}
+     *
+     * @return the plugin mode
+     */
     BackendConnector.Mode getMode();
 
+    /**
+     * Configured notifications sent to the plugin, depending on their MODE (PULL or PUSH)
+     *
+     * @return the plugin notifications
+     */
     List<NotificationType> getRequiredNotificationTypeList();
 
     /**
