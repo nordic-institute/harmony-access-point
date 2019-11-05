@@ -1,4 +1,4 @@
-package domibus.ui.toref;
+package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
@@ -55,8 +55,6 @@ public class JMSMessPgUXTest extends BaseUXTest {
 
 		soft.assertAll();
 	}
-
-
 
 	/*JMS-2 - Doubleclik on one message*/
 	@Test(description = "JMS-2", groups = {"multiTenancy", "singleTenancy"})

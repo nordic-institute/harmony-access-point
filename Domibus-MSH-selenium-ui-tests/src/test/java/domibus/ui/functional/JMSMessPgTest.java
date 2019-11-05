@@ -1,4 +1,4 @@
-package domibus.ui.toref;
+package domibus.ui.functional;
 
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
@@ -167,5 +167,4 @@ public class JMSMessPgTest extends BaseTest {
 
 		soft.assertAll();
 	}
-
 }
