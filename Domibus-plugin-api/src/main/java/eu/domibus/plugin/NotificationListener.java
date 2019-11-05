@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Domibus sends notifications to the plugins when different events occur. For the list of events see {@link NotificationType}.
+ * The plugin can be notified via the backend notification queue or directly via callbacks.
+ *
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
  */
