@@ -38,6 +38,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -133,7 +134,6 @@ public class UserMessageDefaultServiceTest {
     PModeProvider pModeProvider;
 
 
-
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
                                            @Injectable MessageGroupEntity messageGroupEntity,
@@ -161,7 +161,7 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void createMessageFragments(@Injectable UserMessage sourceMessage,
                                        @Injectable MessageGroupEntity messageGroupEntity
-                                       ) throws MessagingProcessingException {
+    ) throws MessagingProcessingException {
         String messageId = "123";
         String backendName = "mybackend";
 
@@ -554,18 +554,70 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
         final String queueName = "wsQueue";
 
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
-
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices(); result = notificationListeners;
-            notificationListener1.getBackendNotificationQueue().getQueueName(); result = queueName;
+            userMessageDefaultService.deleteMessagePluginCallback((String) any);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            jmsManager.consumeMessage(queueName, messageId);
+            userMessageDefaultService.deleteMessagePluginCallback(messageId);
+        }};
+    }
+
+    @Test
+    public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
+                                                @Injectable UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        final String backend = "myPlugin";
+        final List<NotificationListener> notificationListeners = new ArrayList<>();
+        notificationListeners.add(notificationListener1);
+
+        new Expectations(userMessageDefaultService) {{
+            backendNotificationService.getNotificationListenerServices();
+            result = notificationListeners;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getBackend();
+            result = backend;
+
+            backendNotificationService.getNotificationListener(backend);
+            result = notificationListener1;
+
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+        }};
+
+        userMessageDefaultService.deleteMessagePluginCallback(messageId);
+
+        new Verifications() {{
+            userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
+        }};
+    }
+
+    @Test
+    public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
+                                                                       @Injectable UserMessageLog userMessageLog,
+                                                                       @Injectable Queue backendNotificationQueue) throws JMSException {
+        final String messageId = "1";
+        final String backendQueue = "myPluginQueue";
+
+        new Expectations(userMessageDefaultService) {{
+            notificationListener.getBackendNotificationQueue();
+            result = backendNotificationQueue;
+
+            backendNotificationQueue.getQueueName();
+            result = backendQueue;
+
+
+        }};
+
+        userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener);
+
+        new Verifications() {{
+            jmsManager.consumeMessage(backendQueue, messageId);
+            notificationListener.deleteMessageCallback(messageId);
         }};
     }
 
@@ -590,7 +642,8 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            signalMessageDao.findSignalMessagesByRefMessageId(messageId); result = Lists.newArrayList(signalMessage);
+            signalMessageDao.findSignalMessagesByRefMessageId(messageId);
+            result = Lists.newArrayList(signalMessage);
         }};
 
         userMessageDefaultService.handleSignalMessageDelete(messageId);
@@ -605,13 +658,15 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            signalMessageDao.findSignalMessagesByRefMessageId(messageId); result = Lists.<SignalMessage>newArrayList();
+            signalMessageDao.findSignalMessagesByRefMessageId(messageId);
+            result = Lists.<SignalMessage>newArrayList();
         }};
 
         userMessageDefaultService.handleSignalMessageDelete(messageId);
 
         new Verifications() {{
-            signalMessageDao.clear((SignalMessage) any); times = 0;
+            signalMessageDao.clear((SignalMessage) any);
+            times = 0;
         }};
     }
 
@@ -621,7 +676,8 @@ public class UserMessageDefaultServiceTest {
         final String signalMessageId = "signalMessageId";
 
         new Expectations() {{
-            signalMessageDao.findSignalMessageIdsByRefMessageId(messageId); result = Lists.newArrayList(signalMessageId);
+            signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
+            result = Lists.newArrayList(signalMessageId);
         }};
 
         userMessageDefaultService.handleSignalMessageDelete(messageId);
@@ -636,13 +692,15 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            signalMessageDao.findSignalMessageIdsByRefMessageId(messageId); result = Lists.<String>newArrayList();
+            signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
+            result = Lists.<String>newArrayList();
         }};
 
         userMessageDefaultService.handleSignalMessageDelete(messageId);
 
         new Verifications() {{
-            userMessageLogService.setMessageAsDeleted(anyString); times = 0;
+            userMessageLogService.setMessageAsDeleted(anyString);
+            times = 0;
         }};
     }
 
