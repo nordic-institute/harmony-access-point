@@ -292,7 +292,7 @@ public class BackendNotificationService {
         }
     }
 
-    protected NotificationListener getNotificationListener(String backendName) {
+    public NotificationListener getNotificationListener(String backendName) {
         for (final NotificationListener notificationListenerService : notificationListenerServices) {
             if (notificationListenerService.getBackendName().equalsIgnoreCase(backendName)) {
                 return notificationListenerService;
@@ -301,7 +301,7 @@ public class BackendNotificationService {
         return null;
     }
 
-    protected BackendConnector getBackendConnector(String backendName) {
+    public BackendConnector getBackendConnector(String backendName) {
         for (final BackendConnector backendConnector : backendConnectors) {
             if (backendConnector.getName().equalsIgnoreCase(backendName)) {
                 return backendConnector;
@@ -345,7 +345,14 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), notificationListener.getBackendNotificationQueue());
+        Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
+        if (backendNotificationQueue != null) {
+            LOG.debug("Notifying plugin [{}] using queue", backendName);
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+        } else {
+            LOG.debug("Notifying plugin [{}] using callback", backendName);
+            notificationListener.notify(messageId, notificationType, properties);
+        }
     }
 
     public void notifyOfSendFailure(UserMessage userMessage) {
