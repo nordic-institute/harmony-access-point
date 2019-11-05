@@ -112,11 +112,13 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected void updateRolesIfNecessary(eu.domibus.api.user.User user, User existing) {
         if (sameRoles(user, existing)) {
+            LOG.trace("Role didn't change for user [{}], no updates needed.", user.getUserName());
             return;
         }
 
         //if downgrade role then invalidate session
         if (existing.hasRole(AuthRole.ROLE_AP_ADMIN) || user.hasRole(AuthRole.ROLE_USER)) {
+            LOG.trace("Downgrading user role, invalidate session of user [{}].", user.getUserName());
             userSessionsService.invalidateSessions(existing);
         }
 

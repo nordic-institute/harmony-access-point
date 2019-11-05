@@ -67,9 +67,9 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
                 .and()
 
                 .sessionManagement()
-                .maximumSessions(10)               //(1)
-                .maxSessionsPreventsLogin(false)    //(2)
-                .sessionRegistry(sessionRegistry) //(4)
+                .maximumSessions(10)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry)
         ;
     }
 
