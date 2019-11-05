@@ -37,9 +37,14 @@ public class DomainServiceImpl implements DomainService {
     protected DomainDao domainDao;
 
 
+    private List<Domain> domains;
+
     @Override
-    public List<Domain> getDomains() {
-        return domainDao.findAll();
+    public synchronized List<Domain> getDomains() {
+        if (domains == null) {
+            domains = domainDao.findAll();
+        }
+        return domains;
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
