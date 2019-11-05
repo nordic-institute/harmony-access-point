@@ -186,7 +186,10 @@ public class DomibusRestClient {
 	}
 
 	// -------------------------------------------- Users --------------------------------------------------------------
-	public JSONArray getUsers() {
+	public JSONArray getUsers(String domain) {
+
+		switchDomain(domain);
+
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get users ");
@@ -239,12 +242,12 @@ public class DomibusRestClient {
 		}
 	}
 
-	public void updateUser(String username, HashMap<String, String> toUpdate) {
+	public void updateUser(String username, HashMap<String, String> toUpdate, String domain) {
 		HashMap<String, String> adminUser = data.getAdminUser();
 		JSONObject user = null;
 
 		try {
-			JSONArray array = getUsers();
+			JSONArray array = getUsers(domain);
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tmpUser = array.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(tmpUser.getString("userName"), username)) {
@@ -271,16 +274,16 @@ public class DomibusRestClient {
 		}
 	}
 
-	public void unblockUser(String username) {
+	public void unblockUser(String username, String domain) {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "true");
-		updateUser(username, toUpdate);
+		updateUser(username, toUpdate, domain);
 	}
 
-	public void blockUser(String username) {
+	public void blockUser(String username, String domain) {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "false");
-		updateUser(username, toUpdate);
+		updateUser(username, toUpdate, domain);
 	}
 
 	// ----------------------------------------- Plugin Users ----------------------------------------------------------
@@ -516,14 +519,19 @@ public class DomibusRestClient {
 		switchDomain(domain);
 
 		ClientResponse clientResponse = requestGET(resource.path(path), params);
-		System.out.println(clientResponse.getStatus());
-		InputStream in = clientResponse.getEntity(InputStream.class);
 
-		File file = File.createTempFile("domibus", ".csv");
-		Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		if (clientResponse.getStatus() == 200) {
+			InputStream in = clientResponse.getEntity(InputStream.class);
 
-		in.close();
-		return file.getAbsolutePath();
+			File file = File.createTempFile("domibus", ".csv");
+			Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+			in.close();
+			return file.getAbsolutePath();
+		} else {
+			log.debug(clientResponse.getEntity(String.class));
+			throw new Exception("Could not download file. Request status is " + clientResponse.getStatus());
+		}
 	}
 
 	// -------------------------------------------- Message ------------------------------------------------------------

@@ -21,7 +21,7 @@ import java.util.List;
 public class DatePicker extends DComponent {
 	public DatePicker(WebDriver driver, WebElement container) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
 	private final String dateFormat = "dd/MM/yyyy HH:mm";

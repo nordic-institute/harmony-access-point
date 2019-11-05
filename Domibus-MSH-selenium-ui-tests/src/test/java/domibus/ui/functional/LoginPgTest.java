@@ -151,7 +151,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "Displayed message is correct (2)");
 
-		rest.unblockUser(username);
+		rest.unblockUser(username, null);
 		log.info("Unblocked user account");
 
 //		wait required because the unlock is done trough REST API
@@ -189,7 +189,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
 
-		rest.unblockUser(username);
+		rest.unblockUser(username, null);
 		log.info("Unblocked user account");
 
 //		wait required because the unlock is done trough REST API

@@ -163,7 +163,7 @@ public class BaseTest {
 
 		if (!forceNew) {
 			log.info("trying to find existing user with desired config");
-			JSONArray users = rest.getUsers();
+			JSONArray users = rest.getUsers(domain);
 			for (int i = 0; i < users.length(); i++) {
 				JSONObject user = users.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
@@ -188,7 +188,7 @@ public class BaseTest {
 		log.info("created user " + username);
 
 		if (!active) {
-			rest.blockUser(username);
+			rest.blockUser(username, domain);
 			log.info("deactivated user " + username);
 		}
 		if (deleted) {
@@ -196,7 +196,7 @@ public class BaseTest {
 			log.info("deleted user " + username);
 		}
 
-		JSONArray users = rest.getUsers();
+		JSONArray users = rest.getUsers(domain);
 		log.info("searching for user in the system");
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);
@@ -242,7 +242,7 @@ public class BaseTest {
 		log.info("created user " + username);
 
 		if (!active) {
-			rest.blockUser(username);
+			rest.blockUser(username, domain);
 			log.info("deactivated user " + username);
 		}
 

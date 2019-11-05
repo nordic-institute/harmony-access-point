@@ -46,27 +46,33 @@
 		"visibleByDefault": false
 	  },
 	  {
-		"name": "Time Content",
+		"name": "Time",
 		"type": "datetime",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
-		"name": "Custom prop",
+		"name": "Content",
 		"type": "text",
 		"sortable": true,
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Custom prop",
+		"type": "text",
+		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "JMS prop",
 		"type": "text",
-		"sortable": true,
+		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Actions",
 		"type": "action",
-		"sortable": true,
+		"sortable": false,
 		"visibleByDefault": true
 	  }
 	],
@@ -78,16 +84,26 @@
   },
   "buttons": [
 	{
-	  "name": "downloadBtn",
-	  "label": "Download",
+	  "name": "cancelButton",
+	  "label": "Cancel",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
-	},
-	{
-	  "name": "resendBtn",
-	  "label": "Resend",
+	},{
+	  "name": "saveButton",
+	  "label": "Save",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},{
+	  "name": "moveButton",
+	  "label": "Move",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},{
+	  "name": "deleteButton",
+	  "label": "Delete",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
 	}
+
   ]
 }

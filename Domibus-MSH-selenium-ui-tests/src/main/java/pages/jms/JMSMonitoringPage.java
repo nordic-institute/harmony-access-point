@@ -22,19 +22,19 @@ public class JMSMonitoringPage extends DomibusPage {
 	}
 
 	@FindBy(css = "#errorLogTable")
-	WebElement messagesTableGrid;
+	public WebElement messagesTableGrid;
 
 	@FindBy(css = "#jmsCancelButton")
-	WebElement cancelButton;
+	public WebElement cancelButton;
 
 	@FindBy(css = "#jmsSaveButton")
-	WebElement saveButton;
+	public WebElement saveButton;
 
 	@FindBy(css = "#jmsMoveButton")
-	WebElement moveButton;
+	public WebElement moveButton;
 
 	@FindBy(css = "#jmsDeleteButton")
-	WebElement deleteButton;
+	public WebElement deleteButton;
 
 	public DGrid grid() {
 		return new DGrid(driver, messagesTableGrid);

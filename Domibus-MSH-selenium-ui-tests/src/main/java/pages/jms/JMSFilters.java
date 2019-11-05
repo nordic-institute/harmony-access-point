@@ -38,6 +38,10 @@ public class JMSFilters extends DomibusPage {
 	@FindBy(css = "#jmsSearchButton")
 	WebElement jmsSearchButton;
 
+	public void clickSearch() throws Exception {
+		log.info("clicking search");
+		weToDButton(jmsSearchButton).click();
+	}
 
 	public JMSSelect getJmsQueueSelect() {
 		return new JMSSelect(driver ,jmsQueueSelect);

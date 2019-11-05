@@ -563,7 +563,7 @@ public class AuditPgTest extends BaseTest {
         rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), null);
         HashMap<String, String> params = new HashMap<>();
         params.put("password", data.getNewTestPass());
-        rest.updateUser(username, params);
+        rest.updateUser(username, params, null);
         AuditPage auditPage = new AuditPage(driver);
 
         log.info("Select User in Table input filter");

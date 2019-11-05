@@ -5,7 +5,9 @@ import ddsl.enums.DRoles;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -21,6 +23,7 @@ public class TestRunData {
 	public static SimpleDateFormat UI_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	public static SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'GMT'Z");
 	public static SimpleDateFormat TESTSERVICE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss");
+	public static SimpleDateFormat DATEWIDGET_DATE_FORMAT = new SimpleDateFormat(" dd/MM/yyyy HH:mm");
 
 
 	public TestRunData() {
@@ -64,7 +67,6 @@ public class TestRunData {
 		return getUser(DRoles.ADMIN);
 	}
 
-
 	public String getUiBaseUrl() {
 		return prop.getProperty("UI_BASE_URL");
 	}
@@ -104,5 +106,11 @@ public class TestRunData {
 	public Integer getUiReplicationcronTime() {
 		return Integer.valueOf(prop.getProperty("UIReplication_CronTime"));
 	}
+
+	public String fromUIToWidgetFormat(String uiDate) throws ParseException {
+		Date date = UI_DATE_FORMAT.parse(uiDate);
+		return DATEWIDGET_DATE_FORMAT.format(date);
+	}
+
 
 }
