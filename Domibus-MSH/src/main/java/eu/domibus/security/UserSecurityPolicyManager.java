@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
@@ -59,6 +60,9 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    UserSessionsService userSessionsService;
 
     protected abstract String getPasswordComplexityPatternProperty();
 
@@ -137,7 +141,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     public Integer getDaysTillExpiration(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
         String warningDaysBeforeExpirationProperty = getWarningDaysBeforeExpirationProperty();
-        if(StringUtils.isBlank(warningDaysBeforeExpirationProperty)) {
+        if (StringUtils.isBlank(warningDaysBeforeExpirationProperty)) {
             return null;
         }
 
@@ -267,12 +271,14 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             userEntity.setSuspensionDate(null);
             userEntity.setAttemptCount(0);
         } else if (!user.isActive() && userEntity.isActive()) {
-            LOG.debug("User:[{}] has been disabled by administrator", user.getUserName());
+            LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
+            userSessionsService.invalidateSessions(user);
             getUserAlertsService().triggerDisabledEvent(user);
         }
         userEntity.setActive(user.isActive());
         return userEntity;
     }
+
 
     @Transactional
     public void reactivateSuspendedUsers() {

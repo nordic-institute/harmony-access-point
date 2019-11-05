@@ -121,10 +121,7 @@ public class User extends UserEntityBaseImpl implements UserEntityBase {
     }
 
     public boolean isSuperAdmin() {
-        if (roles == null) {
-            return false;
-        }
-        return roles.stream().anyMatch(role -> AuthRole.ROLE_AP_ADMIN.name().equals(role.getName()));
+        return hasRole(AuthRole.ROLE_AP_ADMIN);
     }
 
     @Override
@@ -140,4 +137,10 @@ public class User extends UserEntityBaseImpl implements UserEntityBase {
         return userName.hashCode();
     }
 
+    public boolean hasRole(AuthRole role) {
+        if (roles == null) {
+            return false;
+        }
+        return roles.stream().anyMatch(r -> r.getName().equals(role.name()));
+    }
 }

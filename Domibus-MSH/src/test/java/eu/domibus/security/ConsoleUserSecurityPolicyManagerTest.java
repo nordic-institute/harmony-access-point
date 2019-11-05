@@ -4,6 +4,7 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
@@ -54,6 +55,9 @@ public class ConsoleUserSecurityPolicyManagerTest {
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    UserSessionsService userSessionsService;
 
     @Tested
     ConsoleUserSecurityPolicyManager userSecurityPolicyManager;

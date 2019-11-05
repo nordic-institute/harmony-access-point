@@ -34,6 +34,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -84,6 +85,10 @@ public class AuthenticationResource {
     @Autowired
     private AuthUtils authUtils;
 
+    @Autowired
+    CompositeSessionAuthenticationStrategy sas;
+
+
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
@@ -96,7 +101,7 @@ public class AuthenticationResource {
 
     @RequestMapping(value = "authentication", method = RequestMethod.POST)
     @Transactional(noRollbackFor = BadCredentialsException.class)
-    public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response) {
+    public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response, HttpServletRequest request) {
 
         String domainCode = userDomainService.getDomainForUser(loginRO.getUsername());
         LOG.debug("Determined domain [{}] for user [{}]", domainCode, loginRO.getUsername());
@@ -120,9 +125,10 @@ public class AuthenticationResource {
             LOG.warn(WarningUtil.warnOutput(principal.getUsername() + " is using default password."));
         }
 
+        sas.onAuthentication( SecurityContextHolder.getContext().getAuthentication(), request, response);
+
         return createUserRO(principal, loginRO.getUsername());
     }
-
 
     @RequestMapping(value = "authentication", method = RequestMethod.DELETE)
     public void logout(HttpServletRequest request, HttpServletResponse response) {

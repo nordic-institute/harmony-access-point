@@ -15,7 +15,16 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+
+import java.util.Arrays;
 
 /**
  * Default Spring security config for Domibus
@@ -34,6 +43,10 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    SessionRegistry sessionRegistry;
+
 
     @Bean(name = "authenticationManagerForAdminConsole")
     @Override
@@ -58,7 +71,14 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
-                .antMatchers( "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name());
+                .antMatchers("/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .and()
+
+                .sessionManagement()
+                .maximumSessions(10)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry)
+        ;
     }
 
     @Override
