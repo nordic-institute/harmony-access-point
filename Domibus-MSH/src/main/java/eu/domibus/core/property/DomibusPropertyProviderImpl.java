@@ -287,7 +287,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getPropValueOrDefault(propertyKey, prop, null);
     }
 
-    private String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
+    protected String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
         String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
         if (propValue != null) { // found a value->return it
             LOGGER.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);

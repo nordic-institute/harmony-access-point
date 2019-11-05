@@ -14,7 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -365,7 +368,7 @@ public class DomibusPropertyProviderImplTestGlobal {
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty(domain.getCode() + "."  + propertyName, propertyValue);
+            domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
             times = 1;
         }};
     }
@@ -384,7 +387,7 @@ public class DomibusPropertyProviderImplTestGlobal {
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty(domain.getCode() + "."  + propertyName, propertyValue);
+            domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
             times = 0;
         }};
     }
@@ -403,7 +406,7 @@ public class DomibusPropertyProviderImplTestGlobal {
         domibusPropertyProvider.setPropertyValue(null, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty("super."  + propertyName, propertyValue);
+            domibusProperties.setProperty("super." + propertyName, propertyValue);
             times = 1;
         }};
     }
@@ -442,6 +445,132 @@ public class DomibusPropertyProviderImplTestGlobal {
 
         new Verifications() {{
             domibusProperties.setProperty(propertyName, propertyValue);
+            times = 0;
+        }};
+    }
+
+    @Test()
+    public void getIntegerProperty() {
+        String val = "2";
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getProperty(propertyName);
+            result = val;
+        }};
+
+        Integer res = domibusPropertyProvider.getIntegerProperty(propertyName);
+
+        assertEquals(Integer.valueOf(val), res);
+    }
+
+    @Test()
+    public void getLongProperty() {
+        String val = "2";
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getProperty(propertyName);
+            result = val;
+        }};
+
+        Long res = domibusPropertyProvider.getLongProperty(propertyName);
+
+        assertEquals(Long.valueOf(val), res);
+    }
+
+    @Test()
+    public void getBooleanProperty() {
+        String val = "true";
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getProperty(propertyName);
+            result = val;
+        }};
+
+        Boolean res = domibusPropertyProvider.getBooleanProperty(propertyName);
+
+        assertEquals(Boolean.valueOf(val), res);
+    }
+
+    @Test()
+    public void getBooleanDomainProperty() {
+        String val = "true";
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getProperty(domain, propertyName);
+            result = val;
+        }};
+
+        Boolean res = domibusPropertyProvider.getBooleanProperty(domain, propertyName);
+
+        assertEquals(Boolean.valueOf(val), res);
+    }
+
+    @Test()
+    public void filterPropertiesName() {
+        new Expectations(domibusPropertyProvider) {{
+            domibusProperties.propertyNames();
+            result = Collections.enumeration(Arrays.asList("alert.email", "cron.expression"));
+        }};
+
+        Set<String> res = domibusPropertyProvider.filterPropertiesName(s -> s.startsWith("alert"));
+
+        assertEquals("alert.email", res.toArray()[0]);
+    }
+
+    @Test()
+    public void getDomainOrDefaultValue_SpecificValue() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
+
+        String propertyKey = domain.getCode() + "." + propertyName;
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getPropertyValue(propertyKey, domain, prop.isEncrypted());
+            result = propertyValue;
+        }};
+
+        String res = domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
+
+        assertEquals(propertyValue, res);
+
+        new Verifications() {{
+            domibusPropertyProvider.getPropertyValue(prop.getName(), domain, prop.isEncrypted());
+            times = 0;
+        }};
+    }
+
+    @Test()
+    public void getDomainOrDefaultValue_Fallback() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
+
+        String propertyKey = domain.getCode() + "." + propertyName;
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getPropertyValue(propertyKey, domain, prop.isEncrypted());
+            result = null;
+            domibusPropertyProvider.getPropertyValue(prop.getName(), domain, prop.isEncrypted());
+            result = propertyValue;
+        }};
+
+        String res = domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
+
+        assertEquals(propertyValue, res);
+
+        new Verifications() {{
+            domibusPropertyProvider.getPropertyValue(prop.getName(), domain, prop.isEncrypted());
+            times = 1;
+        }};
+    }
+
+    @Test()
+    public void getDomainOrDefaultValue_NoFallback() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, false);
+
+        String propertyKey = domain.getCode() + "." + propertyName;
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getPropertyValue(propertyKey, domain, prop.isEncrypted());
+            result = null;
+        }};
+
+        String res = domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
+
+        assertEquals(null, res);
+
+        new Verifications() {{
+            domibusPropertyProvider.getPropertyValue(prop.getName(), domain, prop.isEncrypted());
             times = 0;
         }};
     }
