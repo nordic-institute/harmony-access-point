@@ -3,10 +3,7 @@ package eu.domibus.security;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.UserDomain;
-import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
@@ -72,6 +69,9 @@ public class UserSecurityPolicyManagerTest {
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    UserSessionsService userSessionsService;
 
     @Tested
     UserSecurityPolicyManager securityPolicyManager;
@@ -460,14 +460,14 @@ public class UserSecurityPolicyManagerTest {
             result = 1;
             securityPolicyManager.getUserDao();
             result = userDao;
-            userDao.getSuspendedUsers((Date)any);
+            userDao.getSuspendedUsers((Date) any);
             result = users;
         }};
 
         securityPolicyManager.reactivateSuspendedUsers();
 
         assertEquals(true, user1.isActive());
-        assertEquals((long)0, (long)user1.getAttemptCount());
+        assertEquals((long) 0, (long) user1.getAttemptCount());
         assertEquals(null, user1.getSuspensionDate());
 
     }

@@ -1,8 +1,8 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
@@ -11,6 +11,7 @@ import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
 import eu.domibus.common.dao.security.UserDao;
 import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.model.security.User;
+import eu.domibus.common.model.security.UserRole;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -22,7 +23,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -60,6 +64,9 @@ public class UserPersistenceServiceImplTest {
 
     @Injectable
     private EventService eventService;
+
+    @Injectable
+    UserSessionsService userSessionsService;
 
     @Autowired
     private DomainCoreConverter domainConverter2;
@@ -252,6 +259,35 @@ public class UserPersistenceServiceImplTest {
             securityPolicyManager.changePassword(userEntity, newPassword);
             times = 1;
             userDao.update(userEntity);
+            times = 1;
+        }};
+
+    }
+
+    @Test
+    public void updateRolesIfNecessaryTest() {
+        final User existing = new User() {{
+            setUserName("user1");
+            setActive(false);
+            setSuspensionDate(new Date());
+            setAttemptCount(5);
+            addRole(new UserRole(AuthRole.ROLE_ADMIN.name()));
+        }};
+
+        eu.domibus.api.user.User user = new eu.domibus.api.user.User() {{
+            setUserName("user1");
+            setActive(true);
+            setAuthorities(Arrays.asList(AuthRole.ROLE_USER.name()));
+        }};
+
+        new Expectations(existing) {{
+            existing.clearRoles();
+        }};
+
+        userPersistenceService.updateRolesIfNecessary(user, existing);
+
+        new Verifications() {{
+            userSessionsService.invalidateSessions(existing);
             times = 1;
         }};
 
