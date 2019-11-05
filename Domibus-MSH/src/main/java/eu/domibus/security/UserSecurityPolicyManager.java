@@ -271,10 +271,8 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             userEntity.setSuspensionDate(null);
             userEntity.setAttemptCount(0);
         } else if (!user.isActive() && userEntity.isActive()) {
-            LOG.debug("User:[{}] has been disabled by administrator", user.getUserName());
-
+            LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
             userSessionsService.invalidateSessions(user);
-
             getUserAlertsService().triggerDisabledEvent(user);
         }
         userEntity.setActive(user.isActive());

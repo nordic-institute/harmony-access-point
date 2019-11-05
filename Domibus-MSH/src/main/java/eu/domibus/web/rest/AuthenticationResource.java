@@ -85,6 +85,10 @@ public class AuthenticationResource {
     @Autowired
     private AuthUtils authUtils;
 
+    @Autowired
+    CompositeSessionAuthenticationStrategy sas;
+
+
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
@@ -125,9 +129,6 @@ public class AuthenticationResource {
 
         return createUserRO(principal, loginRO.getUsername());
     }
-
-    @Autowired
-    CompositeSessionAuthenticationStrategy sas;
 
     @RequestMapping(value = "authentication", method = RequestMethod.DELETE)
     public void logout(HttpServletRequest request, HttpServletResponse response) {
