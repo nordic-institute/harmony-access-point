@@ -292,7 +292,8 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final PasswordEncryptionResult passwordEncryptionResult = encryptedValueOptional.get();
         LOG.debug("Replacing value for property [{}] with [{}]", filePropertyName, passwordEncryptionResult.getFormattedBase64EncryptedValue());
 
-        String newLine = StringUtils.replace(line, passwordEncryptionResult.getPropertyValue(), passwordEncryptionResult.getFormattedBase64EncryptedValue());
+        String newLine = filePropertyName + PROPERTY_VALUE_DELIMITER + passwordEncryptionResult.getFormattedBase64EncryptedValue();
+        LOG.debug("New encrypted value for property is [{}]", newLine);
 
         return newLine;
     }

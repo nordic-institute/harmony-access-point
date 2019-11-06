@@ -319,6 +319,7 @@
         "summary" : "Upload a PMode file",
         "description" : "Upload the PMode file",
         "operationId" : "uploadPMode",
+        "consumes" : [ "multipart/form-data", "application/x-www-form-urlencoded" ],
         "parameters" : [ {
           "name" : "file",
           "in" : "formData",

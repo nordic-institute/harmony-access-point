@@ -364,6 +364,22 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
+    public void replaceLineWithPropertyNameContainingPropertyValue() {
+        String line = "domibus.alert.sender.smtp.password=password";
+        String encryptedValue = "myEncryptedValue";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+        PasswordEncryptionResult passwordEncryptionResult = new PasswordEncryptionResult();
+        passwordEncryptionResult.setPropertyName("domibus.alert.sender.smtp.password");
+        passwordEncryptionResult.setPropertyValue("password");
+        passwordEncryptionResult.setFormattedBase64EncryptedValue("ENC(" + encryptedValue + ")");
+        encryptedProperties.add(passwordEncryptionResult);
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("domibus.alert.sender.smtp.password=ENC(myEncryptedValue)", replacedLine);
+    }
+
+    @Test
     public void arePropertiesMatching() {
         String propertyName = "myProperty";
         PasswordEncryptionResult passwordEncryptionResult = new PasswordEncryptionResult();

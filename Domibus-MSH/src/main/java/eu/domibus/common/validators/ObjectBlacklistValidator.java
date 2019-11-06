@@ -1,9 +1,9 @@
 package eu.domibus.common.validators;
 
+import eu.domibus.api.validators.CustomWhiteListed;
+import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.validators.CustomWhiteListed;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
-import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;

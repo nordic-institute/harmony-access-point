@@ -1,8 +1,6 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -54,18 +52,10 @@ public class UIReplicationListener {
 
         switch (UIJMSType.valueOf(jmsType)) {
             case USER_MESSAGE_RECEIVED:
-                uiReplicationDataService.messageReceived(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.userMessageReceived(messageId, map.getJMSTimestamp());
                 break;
             case USER_MESSAGE_SUBMITTED:
-                uiReplicationDataService.messageSubmitted(messageId, map.getJMSTimestamp());
-                break;
-            case MESSAGE_STATUS_CHANGE:
-                MessageStatus messageStatus = MessageStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_STATUS));
-                uiReplicationDataService.messageStatusChange(messageId, messageStatus, map.getJMSTimestamp());
-                break;
-            case MESSAGE_NOTIFICATION_STATUS_CHANGE:
-                NotificationStatus notificationStatus = NotificationStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_NOTIF_STATUS));
-                uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, map.getJMSTimestamp());
+                uiReplicationDataService.userMessageSubmitted(messageId, map.getJMSTimestamp());
                 break;
             case MESSAGE_CHANGE:
                 uiReplicationDataService.messageChange(messageId, map.getJMSTimestamp());

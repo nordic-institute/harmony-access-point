@@ -1,6 +1,6 @@
 package eu.domibus.core.party;
 
-import eu.domibus.web.rest.validators.CustomWhiteListed;
+import eu.domibus.api.validators.CustomWhiteListed;
 
 /**
  * @author Ion Perpegel
