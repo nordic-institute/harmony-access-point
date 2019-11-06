@@ -65,6 +65,7 @@ public class MessageListenerContainerInitializer {
         LOG.info("Shutting down MessageListenerContainer instances");
 
         for (MessageListenerContainer instance : instances) {
+            LOG.trace("Shutting down MessageListenerContainer instances [{}]", instance);
             try {
                 ((AbstractJmsListeningContainer) instance).shutdown();
             } catch (Exception e) {
