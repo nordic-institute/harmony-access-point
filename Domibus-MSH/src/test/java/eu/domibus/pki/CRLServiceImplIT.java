@@ -2,6 +2,7 @@ package eu.domibus.pki;
 
 import eu.domibus.SpringTestConfiguration;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
+import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
@@ -48,6 +49,11 @@ public class CRLServiceImplIT {
         @Bean
         CRLUtil crlUtil() {
             return Mockito.mock(CRLUtil.class);
+        }
+
+        @Bean
+        public DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager() {
+            return Mockito.mock(DomibusPropertyMetadataManagerImpl.class);
         }
     }
 

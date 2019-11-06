@@ -3,6 +3,7 @@ package eu.domibus.security;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserEntityBase;
@@ -49,6 +50,9 @@ public class PluginUserSecurityPolicyManagerTest {
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    UserSessionsService userSessionsService;
 
     @Tested
     PluginUserSecurityPolicyManager userSecurityPolicyManager;
@@ -100,7 +104,7 @@ public class PluginUserSecurityPolicyManagerTest {
     public void testGetSuspensionInterval() {
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
+            domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
             result = 3600;
         }};
 

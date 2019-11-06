@@ -31,6 +31,11 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     @Autowired
     Endpoint backendInterfaceEndpoint;
 
+    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new DomibusPropertyMetadataDTO[]{
+            new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+            new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+    }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+
     @Override
     public boolean hasKnownProperty(String name) {
         return StringUtils.equalsAnyIgnoreCase(name, SCHEMA_VALIDATION_ENABLED_PROPERTY, MTOM_ENABLED_PROPERTY);
@@ -38,14 +43,11 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        return Arrays.stream(new DomibusPropertyMetadataDTO[]{
-                new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Module.WS_PLUGIN, false),
-                new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Module.WS_PLUGIN, false),
-        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+        return knownProperties;
     }
 
     @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
+    public String getKnownPropertyValue(String propertyName) {
         switch (propertyName) {
             case SCHEMA_VALIDATION_ENABLED_PROPERTY:
                 return this.isSchemaValidationEnabled().toString();
@@ -58,12 +60,7 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+    public void setKnownPropertyValue(String propertyName, String propertyValue) {
         Boolean value = Boolean.valueOf(propertyValue);
         switch (propertyName) {
             case SCHEMA_VALIDATION_ENABLED_PROPERTY:
@@ -75,6 +72,11 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
             default:
                 LOG.debug("Property [{}] cannot be set because it is not found", propertyName);
         }
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+        setKnownPropertyValue(propertyName, propertyValue);
     }
 
     private Boolean isMtomEnabled() {

@@ -50,10 +50,9 @@ public class DomainDaoImplTest {
 
         List<Domain> domains = domainDao.findAll();
 
-        assertEquals(3, domains.size());
-        assertEquals("default", domains.get(0).getCode());
-        assertEquals("Adomain", domains.get(1).getCode());
-        assertEquals("Zdomain", domains.get(2).getCode());
+        assertEquals(2, domains.size());
+        assertEquals("Adomain", domains.get(0).getCode());
+        assertEquals("Zdomain", domains.get(1).getCode());
     }
 
 }

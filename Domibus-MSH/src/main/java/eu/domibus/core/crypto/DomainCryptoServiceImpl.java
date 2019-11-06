@@ -73,7 +73,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @PostConstruct
     public void init() {
-        String spiIdentifier = domibusPropertyProvider.getDomainProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
+        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
                     DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);

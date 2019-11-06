@@ -3,6 +3,7 @@ package eu.domibus.plugin.jms;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.plugin.Submission;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
@@ -98,6 +99,10 @@ public class JMSMessageTransformerTest {
         Submission.Payload objBodyload = new Submission.Payload("", payLoadDataHandler2, listTypedProperty, true, null, null);
         submissionObj.addPayload(objBodyload);
 
+        new Expectations() {{
+            domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE);
+            result = "false";
+        }};
 
         MapMessage messageMap = new ActiveMQMapMessage();
         messageMap = testObj.transformFromSubmission(submissionObj, messageMap);

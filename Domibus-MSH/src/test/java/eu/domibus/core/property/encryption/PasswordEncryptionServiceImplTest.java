@@ -2,6 +2,7 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
@@ -58,6 +59,9 @@ public class PasswordEncryptionServiceImplTest {
 
     @Injectable
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Tested
     PasswordEncryptionServiceImpl passwordEncryptionService;

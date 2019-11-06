@@ -125,7 +125,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     }
 
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS)) {
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS)) {
             LOG.debug("Sender certificate verification is disabled");
             return;
         }
@@ -164,8 +164,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
 
         String subject = signingCertificate.getSubjectDN().getName();
-        Domain domain = domainContextProvider.getCurrentDomain();
-        String certSubjectExpression = domibusPropertyProvider.getProperty(domain, DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
+        String certSubjectExpression = domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
         if (StringUtils.isEmpty(certSubjectExpression)) {
             LOG.debug("[{}] is empty, verification is disabled.", DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             return;
@@ -179,7 +178,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     }
 
     protected void authorizeAgainstCertificateCNMatch(X509Certificate signingCertificate, String alias) {
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK)) {
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK)) {
             LOG.debug("Sender alias verification is disabled");
             return;
         }

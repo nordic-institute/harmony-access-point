@@ -247,7 +247,7 @@ public class ReliabilityChecker {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final String messageId) {
         exceptionToHandle.setRefToMessageId(messageId);
-        Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
+        Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanProperty(UNRECOVERABLE_ERROR_RETRY);
         if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
             // TODO Shouldn't clear the payload data here ?
         }
