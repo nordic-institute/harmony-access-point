@@ -99,6 +99,7 @@ public class PasswordEncryptionServiceImplTest {
 
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
         }};
 
         passwordEncryptionService.encryptPasswords();
@@ -108,7 +109,7 @@ public class PasswordEncryptionServiceImplTest {
             times = 1;
 
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContext) any);
-            times = 2;
+            times = 3;
         }};
     }
 
