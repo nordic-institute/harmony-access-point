@@ -7,7 +7,6 @@ import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ebms3.common.UserMessageDefaultServiceHelper;
-import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -35,7 +34,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     static final String LOG_WARN_NO_RECORD_FOUND = "no record found in TB_MESSAGE_UI for messageId=[{}]";
 
-    static final long WAIT_BEFORE_QUERY_SOURCE_TABLES = 200;
+    static final long WAIT_BEFORE_PERFORMING_UPDATE = 200;
 
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
@@ -88,12 +87,12 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     @Override
     public void messageChange(String messageId, long jmsTimestamp) {
 
-        LOG.debug("wait [{}] ms and then start the update", WAIT_BEFORE_QUERY_SOURCE_TABLES);
+        LOG.debug("wait [{}] ms and then start the update", WAIT_BEFORE_PERFORMING_UPDATE);
         try {
             //TODO EDELIVERY-5517
             //ugly stuff till we send messages with delay or implement another mechanism
             //updates are done in parallel and we need a delay as data may not be yet committed /visible
-            Thread.sleep(WAIT_BEFORE_QUERY_SOURCE_TABLES);
+            Thread.sleep(WAIT_BEFORE_PERFORMING_UPDATE);
         } catch (InterruptedException e) {
             LOG.error("exception while sleeping ", e);
         }
@@ -105,19 +104,14 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
             return;
         }
 
-        if (entity.getLastModified() == null) {
-            LOG.warn("LAST_MODIFIED is null for messageid=[{}]", messageId);
-            return;
-        }
-
-        if (entity.getLastModified().getTime() <= jmsTimestamp) {
+        //run the update only if necessary
+        if (entity.getLastModified() != null && entity.getLastModified().getTime() <= jmsTimestamp) {
             final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             boolean updateSuccess = uiMessageDao.updateMessage(userMessageLog,
                     jmsTimestamp);
             if (updateSuccess) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("{}Message with messageId=[{}] updated",
-                            MessageType.USER_MESSAGE.equals(userMessageLog.getMessageType()) ? "User" : "Signal", messageId);
+                    LOG.debug("{} updated", userMessageLog.getMessageType());
                 }
                 return;
             }
