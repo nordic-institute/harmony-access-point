@@ -93,7 +93,7 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
 
     @Override
     protected int getSuspensionInterval() {
-        return domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
+        return domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
     }
 
     @Override

@@ -31,7 +31,8 @@
           <!-- Alert Id (Advanced) -->
           <md-input-container *ngIf="advancedSearch">
             <input mdInput placeholder="Alert Id" name="alertId" [(ngModel)]="filter.alertId"
-                   #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}">
+                   #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}" [errorStateMatcher]="matcher">
+            <md-error *ngIf="alertId.invalid && (alertId.dirty || alertId.touched)">Alert Id must be 19 digits long and must not start with a 0</md-error>
           </md-input-container>
           <!-- Alert Level (Basic) -->
           <md-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"

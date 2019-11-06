@@ -8,7 +8,5 @@ import eu.domibus.api.multitenancy.Domain;
  */
 @FunctionalInterface
 public interface ConfigurationReader<E> {
-
-    E readConfiguration(Domain domain);
-
+    E readConfiguration();
 }

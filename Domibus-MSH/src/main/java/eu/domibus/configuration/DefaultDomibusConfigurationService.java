@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -26,7 +28,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomibusConfigurationService.class);
 
-    private static final String DATABASE_DIALECT = "domibus.entityManagerFactory.jpaProperty.hibernate.dialect";
+    private static final String DATABASE_DIALECT = DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
 
     private DataBaseEngine dataBaseEngine;
 
@@ -38,7 +40,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return System.getProperty(DOMIBUS_CONFIG_LOCATION);
     }
 
-    @Cacheable(value = "multitenantCache")
+    @Cacheable("multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
         return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
@@ -74,7 +76,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isPayloadEncryptionActive(Domain domain) {
-        return domibusPropertyProvider.getBooleanDomainProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
     }
 
     @Override
@@ -84,7 +86,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isPasswordEncryptionActive(Domain domain) {
-        return domibusPropertyProvider.getBooleanDomainProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
     }
 
     @Override

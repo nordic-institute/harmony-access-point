@@ -62,10 +62,10 @@ public class PModeFileResource {
         LOG.debug("getCurrentPMode -> start");
         return pModeExtService.getCurrentPmode();
     }
-
+    
     @ApiOperation(value = "Upload a PMode file", notes = "Upload the PMode file",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
-    @PostMapping
+    @PostMapping(consumes = {"multipart/form-data","application/x-www-form-urlencoded"})
     public ResponseEntity<String> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid String pModeDescription) {

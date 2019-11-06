@@ -1,11 +1,13 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 
@@ -16,6 +18,9 @@ public class DomibusPropertyMetadataManagerImplTest {
 
     @Tested
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    @Injectable
+    ApplicationContext applicationContext;
 
     @Test
     public void getKnownProperties_nonExisting() {
@@ -31,8 +36,8 @@ public class DomibusPropertyMetadataManagerImplTest {
         DomibusPropertyMetadata actual = props.get(DOMIBUS_UI_TITLE_NAME);
 
         Assert.assertEquals(DOMIBUS_UI_TITLE_NAME, actual.getName());
-        Assert.assertEquals(true, actual.isDomainSpecific());
-        Assert.assertEquals(true, actual.isWithFallback());
+        Assert.assertEquals(actual.getUsage(), DomibusPropertyMetadata.Usage.DOMAIN);
+        Assert.assertTrue(actual.isWithFallback());
     }
 
     @Test
@@ -46,6 +51,6 @@ public class DomibusPropertyMetadataManagerImplTest {
     public void hasKnownProperty() {
         boolean actual = domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
 
-        Assert.assertEquals(true, actual);
+        Assert.assertTrue(actual);
     }
 }

@@ -91,7 +91,7 @@ public class UserMessageLogDefaultServiceTest {
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));
             userMessageLogDao.setMessageStatus(messageLog, messageStatus);
-            uiReplicationSignalService.messageStatusChange(messageId, messageStatus);
+            uiReplicationSignalService.messageChange(messageId);
         }};
     }
 

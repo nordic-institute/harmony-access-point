@@ -120,7 +120,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
         final Integer duration = eventConfiguration.getEventDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 
         LocalDate from = LocalDate.now().minusDays(maxPasswordAgeInDays);
         LocalDate to = LocalDate.now().minusDays(maxPasswordAgeInDays).plusDays(duration);
@@ -142,7 +142,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         }
         final Integer duration = eventConfiguration.getEventDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 
         LocalDate from = LocalDate.now().minusDays(maxPasswordAgeInDays).minusDays(duration);
         LocalDate to = LocalDate.now().minusDays(maxPasswordAgeInDays);

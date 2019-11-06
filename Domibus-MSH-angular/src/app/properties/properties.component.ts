@@ -3,6 +3,7 @@ import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService} from './properties.service';
 import {Headers} from '@angular/http';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
+import {SecurityService} from '../security/security.service';
 
 @Component({
   moduleId: module.id,
@@ -13,7 +14,9 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 
 export class PropertiesComponent implements OnInit {
 
-  filter: { propertyName: string };
+  filter: { propertyName: string, showDomainProperties: boolean };
+  showGlobalPropertiesControl: boolean;
+
   loading: boolean = false;
   rows = [];
   count: number = 0;
@@ -24,11 +27,13 @@ export class PropertiesComponent implements OnInit {
 
   columns: any[] = [];
 
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService) {
+  constructor(private propertiesService: PropertiesService, private alertService: AlertService, private securityService: SecurityService) {
+    this.filter = {propertyName: '', showDomainProperties: true};
   }
 
-  ngOnInit() {
-    this.filter = { propertyName: '' };
+  async ngOnInit() {
+    this.showGlobalPropertiesControl = this.securityService.isCurrentUserSuperAdmin();
+
     this.rows = [];
 
     this.loadProperties(this.rowLimiter.pageSize);
@@ -69,10 +74,10 @@ export class PropertiesComponent implements OnInit {
     return row && row.currentValue && row.currentValue != row.value;
   }
 
-  private async loadProperties(pageSize: number, offset: number = 0) {
+  private async loadProperties(pageSize: number = this.rowLimiter.pageSize, offset: number = 0) {
     this.loading = true;
     try {
-      var result = await this.propertiesService.getProperties(this.filter.propertyName, pageSize, offset);
+      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties, pageSize, offset);
       this.count = result.count;
       this.rows = result.items;
       this.offset = offset;
@@ -83,16 +88,20 @@ export class PropertiesComponent implements OnInit {
     this.loading = false;
   }
 
+  refresh() {
+    this.loadProperties();
+  }
+
   private async updateProperty(row) {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
-      await this.propertiesService.updateProperty(row.metadata.name, row.value);
+      await this.propertiesService.updateProperty(row.metadata.name, this.filter.showDomainProperties, row.value);
     } catch (ex) {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
       if (!ex.handled)
-      this.alertService.exception('Could not update property ', ex, false);
+        this.alertService.exception('Could not update property ', ex, false);
     }
   }
 

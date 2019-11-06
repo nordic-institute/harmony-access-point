@@ -600,9 +600,6 @@
             <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="LAST_MODIFIED2" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
 
         <createTable tableName="TB_MESSAGING">

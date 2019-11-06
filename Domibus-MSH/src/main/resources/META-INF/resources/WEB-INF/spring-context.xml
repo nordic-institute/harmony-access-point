@@ -84,4 +84,5 @@
     <bean id="messageIdGenerator"
           class="eu.domibus.common.services.impl.MessageIdGenerator">
     </bean>
+
 </beans>

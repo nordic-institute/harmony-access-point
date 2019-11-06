@@ -23,7 +23,7 @@ public class MessageIdGenerator {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public String generateMessageId() {
-        String messageIdSuffix = domibusPropertyProvider.getDomainProperty(MESSAGE_ID_SUFFIX_PROPERTY);
+        String messageIdSuffix = domibusPropertyProvider.getProperty(MESSAGE_ID_SUFFIX_PROPERTY);
         return uuidGenerator.generate() + "@" + messageIdSuffix;
     }
 }

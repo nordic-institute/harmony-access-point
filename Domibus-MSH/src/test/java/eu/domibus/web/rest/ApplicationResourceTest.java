@@ -75,7 +75,7 @@ public class ApplicationResourceTest {
     public void testDomibusName(String name) {
         // Given
         new Expectations(applicationResource) {{
-            domibusPropertyProvider.getDomainProperty(DomainService.DEFAULT_DOMAIN, ApplicationResource.DOMIBUS_CUSTOM_NAME);
+            domibusPropertyProvider.getProperty(DomainService.DEFAULT_DOMAIN, ApplicationResource.DOMIBUS_CUSTOM_NAME);
             result = name;
         }};
 
@@ -156,10 +156,10 @@ public class ApplicationResourceTest {
         final String supportTeamName = "The Avengers";
         final String supportTeamEmail = "ironman@avengers.com";
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(ApplicationResource.SUPPORT_TEAM_NAME_KEY);
+            domibusPropertyProvider.getProperty(ApplicationResource.SUPPORT_TEAM_NAME_KEY);
             result = supportTeamName;
 
-            domibusPropertyProvider.getDomainProperty(ApplicationResource.SUPPORT_TEAM_EMAIL_KEY);
+            domibusPropertyProvider.getProperty(ApplicationResource.SUPPORT_TEAM_EMAIL_KEY);
             result = supportTeamEmail;
         }};
 

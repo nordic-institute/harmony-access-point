@@ -301,7 +301,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         userMessageLog.setMessageStatus(waitingForReceipt);
         messagingLockDao.save(lock);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageStatusChange(userMessageLog.getMessageId(), waitingForReceipt);
+        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, waitingForReceipt, new Timestamp(System.currentTimeMillis()));
     }
 
@@ -467,11 +467,11 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     @Override
     public boolean allowMultipleLegsInPullProcess() {
-        return domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_PULL_MULTIPLE_LEGS);
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_MULTIPLE_LEGS);
     }
 
     @Override
     public boolean allowDynamicInitiatorInPullProcess() {
-        return domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_PULL_DYNAMIC_INITIATOR);
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_DYNAMIC_INITIATOR);
     }
 }

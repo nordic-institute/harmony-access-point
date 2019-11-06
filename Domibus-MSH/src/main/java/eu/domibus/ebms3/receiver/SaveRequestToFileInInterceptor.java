@@ -69,9 +69,7 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
         LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domainCode);
 
-        Domain domain = domainService.getDomain(domainCode);
-
-        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(domain, PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+        final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {
             throw new Fault(new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not store Source Message: the property [" + PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION + "] is not defined"));
         }

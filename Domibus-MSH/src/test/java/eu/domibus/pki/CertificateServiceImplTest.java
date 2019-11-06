@@ -26,14 +26,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -53,6 +51,12 @@ import static org.junit.Assert.*;
  */
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
+
+    private static final String TEST_CERTIFICATE_CONTENT = "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";
+    private static final String TEST_CERTIFICATE_CONTENT_PEM = "-----BEGIN CERTIFICATE-----\n" +
+            TEST_CERTIFICATE_CONTENT + "\n" +
+            "-----END CERTIFICATE-----";
+
 
     @Tested
     CertificateServiceImpl certificateService;
@@ -129,10 +133,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void testCertificateChain() throws CertificateException {
-
-        String certStr = "-----BEGIN CERTIFICATE-----\n" +
-                "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\n" +
-                "-----END CERTIFICATE-----";
+        String certStr = TEST_CERTIFICATE_CONTENT_PEM;
 
         InputStream in = new ByteArrayInputStream(certStr.getBytes());
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
@@ -628,26 +629,60 @@ public class CertificateServiceImplTest {
         }};
     }
 
-//    @Test
-//    public void validateLoadOperation(final @Mocked ByteArrayInputStream newTrustStoreBytes) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableKeyException {
-//        final String password = "test123";
-//        final String type = "jks";
-//
-//        KeyStoreSpi keyStoreSpiMock = mock(KeyStoreSpi.class);
-//        KeyStore keyStore = new KeyStore(keyStoreSpiMock, null, type) {};
-//        keyStore.load(null);  // this is important to put the internal state "initialized" to true
-//
-//        when(keyStoreSpiMock.engineGetKey(any(), any())).thenReturn(mock(Key.class));
-//
-//        new Expectations() {{
-//            KeyStore.getInstance(type);
-//            result = keyStore;
-//        }};
-//        certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
-//        new VerificationsInOrder() {{
-//            keyStore.load(newTrustStoreBytes, password.toCharArray());
-//            times = 1;
-//        }};
-//    }
+    @Test
+    public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableKeyException {
+        final String password = "test123";
+        final String type = "jks";
+
+        new Expectations() {{
+            KeyStore.getInstance(type);
+            result = keyStore;
+        }};
+        certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
+        new VerificationsInOrder() {{
+            keyStore.load(newTrustStoreBytes, password.toCharArray());
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testPemFormatCertificateContent() {
+        boolean result = this.certificateService.isPemFormat(TEST_CERTIFICATE_CONTENT_PEM);
+        Assert.assertEquals(true, result);
+
+        byte[] binaryCert = TEST_CERTIFICATE_CONTENT.getBytes();
+        boolean nonPemResult = this.certificateService.isPemFormat(binaryCert.toString());
+        Assert.assertEquals(false, nonPemResult);
+    }
+
+    @Test
+    public void testLoadCertificateFromString() throws CertificateException {
+        String certStr = TEST_CERTIFICATE_CONTENT_PEM;
+
+        X509Certificate cert = this.certificateService.loadCertificateFromString(certStr);
+        Assert.assertNotNull(cert);
+
+        String certStr2 = java.util.Base64.getMimeEncoder().encodeToString(certStr.getBytes());
+        X509Certificate cert2 = this.certificateService.loadCertificateFromString(certStr2);
+        Assert.assertNotNull(cert2);
+
+        String certStr3 = TEST_CERTIFICATE_CONTENT;
+        X509Certificate cert3 = this.certificateService.loadCertificateFromString(certStr3);
+        Assert.assertNotNull(cert3);
+
+        Assert.assertEquals(cert.toString(), cert2.toString());
+        Assert.assertEquals(cert.toString(), cert3.toString());
+    }
+
+    @Test
+    public void testConvertCertificateContent() throws CertificateException {
+        String certStr = TEST_CERTIFICATE_CONTENT_PEM;
+        String subject = "OU=DEV, O=DIGIT, EMAILADDRESS=uumds@uumds.eu, C=BE, ST=Belgium, CN=UUMDS tests client certificate VALID";
+        String fingerprint = "ac5493f0e0032f060d37596b28b3e0533bd92a7a";
+
+        TrustStoreEntry entry = this.certificateService.convertCertificateContent(certStr);
+        Assert.assertEquals(subject, entry.getSubject());
+        Assert.assertEquals(fingerprint, entry.getFingerprints());
+    }
 
 }

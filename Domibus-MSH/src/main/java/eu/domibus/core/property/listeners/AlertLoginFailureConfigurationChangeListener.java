@@ -22,8 +22,7 @@ public class AlertLoginFailureConfigurationChangeListener implements DomibusProp
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX,
-                DomibusPropertyMetadataManager.DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX);
+                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX);
     }
 
     @Override

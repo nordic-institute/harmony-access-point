@@ -79,12 +79,11 @@ export class PartyDetailsComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const arrayBuffer = reader.result;
-      const array = new Uint8Array(arrayBuffer);
-      const binaryString = String.fromCharCode.apply(null, array);
-      this.party.certificateContent = binaryString;
+      var binaryData = reader.result;
 
-      this.partyService.uploadCertificate({content: binaryString}, this.party.name)
+      this.party.certificateContent = btoa(binaryData); // base64
+
+      this.partyService.uploadCertificate({content: this.party.certificateContent}, this.party.name)
         .subscribe(res => {
             this.party.certificate = res;
           },
@@ -97,7 +96,7 @@ export class PartyDetailsComponent implements OnInit {
       this.alertService.exception('Error reding certificate file ' + file.name, err);
     };
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsBinaryString(file);
   }
 
   initColumns() {
