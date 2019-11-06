@@ -35,6 +35,8 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     static final String LOG_WARN_NO_RECORD_FOUND = "no record found in TB_MESSAGE_UI for messageId=[{}]";
 
+    static final long WAIT_BEFORE_QUERY_SOURCE_TABLES = 200;
+
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
 
@@ -85,7 +87,15 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      */
     @Override
     public void messageChange(String messageId, long jmsTimestamp) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+
+        LOG.debug("wait [{}] ms and then start the update", WAIT_BEFORE_QUERY_SOURCE_TABLES);
+        try {
+            //ugly stuff till we send messages with delay or implement another mechanism
+            Thread.sleep(WAIT_BEFORE_QUERY_SOURCE_TABLES);
+        } catch (InterruptedException e) {
+            LOG.error("exception while sleeping ", e);
+        }
+
         final UIMessageEntity entity = uiMessageDao.findUIMessageByMessageId(messageId);
         final Date jmsTime = new Date(jmsTimestamp);
 
@@ -100,6 +110,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         }
 
         if (entity.getLastModified().getTime() <= jmsTimestamp) {
+            final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             boolean updateSuccess = uiMessageDao.updateMessage(userMessageLog,
                     jmsTime);
             if (updateSuccess) {
