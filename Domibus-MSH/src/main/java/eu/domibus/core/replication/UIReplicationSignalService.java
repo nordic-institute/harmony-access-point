@@ -56,7 +56,7 @@ public class UIReplicationSignalService {
      * @return boolean replication enabled or not
      */
     public boolean isReplicationEnabled() {
-        boolean uiReplicationEnabled = Boolean.parseBoolean(domibusPropertyProvider.getDomainProperty(UI_REPLICATION_ENABLED));
+        boolean uiReplicationEnabled = Boolean.parseBoolean(domibusPropertyProvider.getProperty(UI_REPLICATION_ENABLED));
 
         if (!uiReplicationEnabled) {
             LOG.debug("UIReplication is disabled - no processing will occur");

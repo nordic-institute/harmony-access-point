@@ -2,6 +2,7 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
@@ -71,10 +72,15 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
     @Override
     public void encryptPasswords() {
         LOG.debug("Encrypting passwords");
 
+        //operate on global context, without a current domain
+        domainContextProvider.clearCurrentDomain();
         final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService);
         encryptPasswords(passwordEncryptionContext);
 

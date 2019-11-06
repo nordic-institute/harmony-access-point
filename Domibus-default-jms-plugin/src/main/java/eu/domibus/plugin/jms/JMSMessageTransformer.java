@@ -1,7 +1,6 @@
 package eu.domibus.plugin.jms;
 
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -110,7 +109,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 }
             }
 
-            final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE, "true"));
+            final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE));
             for (final Submission.Payload p : submission.getPayloads()) {
                 // counter is increased for payloads (not for bodyload which is always set to payload_1)
                 counter = transformFromSubmissionHandlePayload(messageOut, putAttachmentsInQueue, counter, p);
@@ -125,14 +124,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     protected String getProperty(String propertyName) {
-        return getProperty(propertyName, null);
+        return domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName);
     }
-
-    protected String getProperty(String propertyName, String defaultValue) {
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        return domibusPropertyExtService.getDomainProperty(currentDomain, JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName, defaultValue);
-    }
-
 
     private int transformFromSubmissionHandlePayload(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Submission.Payload p) throws JMSException, IOException {
         if (p.isInBody()) {

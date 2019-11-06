@@ -104,7 +104,7 @@ public class PluginUserSecurityPolicyManagerTest {
     public void testGetSuspensionInterval() {
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
+            domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
             result = 3600;
         }};
 

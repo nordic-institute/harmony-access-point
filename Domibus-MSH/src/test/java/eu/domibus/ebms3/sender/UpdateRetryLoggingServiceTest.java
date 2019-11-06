@@ -249,7 +249,7 @@ public class UpdateRetryLoggingServiceTest {
         final long received = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; // received one hour ago
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
+            domibusPropertyProvider.getBooleanProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
             result = true;
 
             userMessageLog.getSendAttempts();

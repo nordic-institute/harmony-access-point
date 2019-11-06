@@ -98,9 +98,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
         user.setUserName("user1");
         user.addRole(new UserRole(AuthRole.ROLE_AP_ADMIN.name()));
         new Expectations() {{
-            domainService.getDomain("default");
-            result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getIntegerDomainProperty(DomainService.DEFAULT_DOMAIN, MAXIMUM_LOGIN_ATTEMPT);
+            domibusPropertyProvider.getIntegerProperty(MAXIMUM_LOGIN_ATTEMPT);
             result = 20;
         }};
 
@@ -113,9 +111,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
     public void getCurrentOrDefaultDomainForUserTest() {
 
         new Expectations() {{
-            domainContextProvider.getCurrentDomainSafely();
-            result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
+            domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
             result = 3600;
         }};
 

@@ -67,6 +67,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 import static org.awaitility.Awaitility.with;
 
@@ -109,9 +110,9 @@ public abstract class AbstractIT {
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
         int activeMQRmiServerPort = SocketUtils.findAvailableTcpPort(1200, 1300);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 61690);
-        System.setProperty("activeMQ.connectorPort", String.valueOf(activeMQConnectorPort));
-        System.setProperty("activeMQ.rmiServerPort", String.valueOf(activeMQRmiServerPort));
-        System.setProperty("activeMQ.transportConnector.uri", "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
+        System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
+        System.setProperty(ACTIVE_MQ_RMI_SERVER_PORT, String.valueOf(activeMQRmiServerPort));
+        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
         LOG.info("activeMQ.rmiServerPort=[{}]", activeMQRmiServerPort);
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);

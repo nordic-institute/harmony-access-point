@@ -24,11 +24,9 @@ public class AlertCommonConfigurationChangeListener implements DomibusPropertyCh
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsAnyIgnoreCase(propertyName,
                 DOMIBUS_ALERT_MAIL_SENDING_ACTIVE,
-                DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE,
-                DOMIBUS_ALERT_SENDER_EMAIL, DOMIBUS_ALERT_SUPER_SENDER_EMAIL,
-                DOMIBUS_ALERT_RECEIVER_EMAIL, DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL,
-                DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME,
-                DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME);
+                DOMIBUS_ALERT_SENDER_EMAIL,
+                DOMIBUS_ALERT_RECEIVER_EMAIL,
+                DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
     }
 
     @Override

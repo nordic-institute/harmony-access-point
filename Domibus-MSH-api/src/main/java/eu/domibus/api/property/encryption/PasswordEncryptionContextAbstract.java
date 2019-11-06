@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
@@ -19,8 +22,6 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionContextAbstract.class);
 
-    public static final String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
-    public static final String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location"; //NOSONAR
     public static final String ENCRYPTED_KEY = "encrypted.key";
 
     protected PasswordEncryptionService passwordEncryptionService;
@@ -76,8 +77,6 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
         return new File(encryptionKeyLocation, ENCRYPTED_KEY);
     }
-
-
 
 
 }

@@ -23,6 +23,8 @@ import javax.sql.DataSource;
 import java.util.Optional;
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -55,7 +57,7 @@ public class DomibusJPAConfiguration {
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setPersistenceUnitName("domibusJTA");
-        final String packagesToScanString = domibusPropertyProvider.getProperty("domibus.entityManagerFactory.packagesToScan");
+        final String packagesToScanString = domibusPropertyProvider.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN);
         if (StringUtils.isNotEmpty(packagesToScanString)) {
             final String[] packagesToScan = StringUtils.split(packagesToScanString, ",");
             result.setPackagesToScan(packagesToScan);

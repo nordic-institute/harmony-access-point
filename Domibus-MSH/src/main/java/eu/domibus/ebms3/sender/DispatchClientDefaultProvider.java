@@ -123,15 +123,15 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
     protected void setHttpClientPolicy(HTTPClientPolicy httpClientPolicy) {
         //ConnectionTimeOut - Specifies the amount of time, in milliseconds, that the consumer will attempt to establish a connection before it times out. 0 is infinite.
-        int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT));
+        int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT));
         httpClientPolicy.setConnectionTimeout(connectionTimeout);
         //ReceiveTimeOut - Specifies the amount of time, in milliseconds, that the consumer will wait for a response before it times out. 0 is infinite.
-        int receiveTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_RECEIVETIMEOUT));
+        int receiveTimeout = Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_RECEIVETIMEOUT));
         httpClientPolicy.setReceiveTimeout(receiveTimeout);
-        httpClientPolicy.setAllowChunking(Boolean.valueOf(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_ALLOWCHUNKING)));
-        httpClientPolicy.setChunkingThreshold(Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD)));
+        httpClientPolicy.setAllowChunking(Boolean.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_ALLOWCHUNKING)));
+        httpClientPolicy.setChunkingThreshold(Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD)));
 
-        Boolean keepAlive = Boolean.parseBoolean(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE));
+        Boolean keepAlive = Boolean.parseBoolean(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE));
         ConnectionType connectionType = ConnectionType.CLOSE;
         if (keepAlive) {
             connectionType = ConnectionType.KEEP_ALIVE;

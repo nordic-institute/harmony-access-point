@@ -90,7 +90,7 @@ public class ApplicationResource {
         if (domain == null) {
             domain = DomainService.DEFAULT_DOMAIN;
         }
-        return domibusPropertyProvider.getDomainProperty(domain, DOMIBUS_CUSTOM_NAME);
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_CUSTOM_NAME);
     }
 
     /**
@@ -178,27 +178,27 @@ public class ApplicationResource {
     }
 
     private String getPasswordPattern() {
-        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PASSWORD_POLICY_PATTERN);
+        return domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_PATTERN);
     }
 
     private String getPasswordValidationMessage() {
-        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE);
+        return domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE);
     }
 
     private String getPluginPasswordPattern() {
-        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN);
+        return domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN);
     }
     private String getPluginPasswordValidationMessage() {
-        return domibusPropertyProvider.getDomainProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE);
+        return domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE);
     }
 
     private String getSupportTeamName() {
-        return domibusPropertyProvider.getDomainProperty(SUPPORT_TEAM_NAME_KEY);
+        return domibusPropertyProvider.getProperty(SUPPORT_TEAM_NAME_KEY);
     }
 
     private String getSupportTeamEmail() {
         /*TBC - should we validate this email address or not?
          * */
-        return domibusPropertyProvider.getDomainProperty(SUPPORT_TEAM_EMAIL_KEY);
+        return domibusPropertyProvider.getProperty(SUPPORT_TEAM_EMAIL_KEY);
     }
 }

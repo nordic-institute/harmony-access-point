@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Thomas Dussart
  * @since 4.1
@@ -28,23 +30,7 @@ public class MetricsConfiguration {
 
     protected static final Logger LOG = LoggerFactory.getLogger(MetricsConfiguration.class);
 
-    protected static final String DOMIBUS_METRICS_JMX_REPORTER_ENABLE = "domibus.metrics.jmx.reporter.enable";
-
-    protected static final String DOMIBUS_METRICS_SL4J_REPORTER_ENABLE = "domibus.metrics.sl4j.reporter.enable";
-
-    protected static final String DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER = "domibus.metrics.sl4j.reporter.period.number";
-
-    protected static final String DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT = "domibus.metrics.sl4j.reporter.period.time.unit";
-
     protected static final Marker STATISTIC_MARKER = MarkerFactory.getMarker("STATISTIC");
-
-    protected static final String DOMIBUS_METRICS_MONITOR_MEMORY = "domibus.metrics.monitor.memory";
-
-    protected static final String DOMIBUS_METRICS_MONITOR_GC = "domibus.metrics.monitor.gc";
-
-    protected static final String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
-
-    protected static final String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
 
     @Bean
     public HealthCheckRegistry healthCheckRegistry() {
@@ -84,7 +70,7 @@ public class MetricsConfiguration {
             metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils));
         }
 
-        Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL4J_REPORTER_ENABLE);
+        Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE);
         if (sl4jReporterEnabled) {
             Integer periodProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER);
             String timeUnitProperty = domibusPropertyProvider.getProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT);
