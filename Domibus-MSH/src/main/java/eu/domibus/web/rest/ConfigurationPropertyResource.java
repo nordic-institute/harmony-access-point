@@ -2,12 +2,12 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
-import eu.domibus.web.rest.validators.SkipWhiteListed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
