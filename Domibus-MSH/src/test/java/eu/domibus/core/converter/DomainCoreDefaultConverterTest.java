@@ -64,8 +64,6 @@ import java.util.List;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-@Ignore
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
