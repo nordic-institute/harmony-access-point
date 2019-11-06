@@ -4,7 +4,6 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Cosmin Baciu
