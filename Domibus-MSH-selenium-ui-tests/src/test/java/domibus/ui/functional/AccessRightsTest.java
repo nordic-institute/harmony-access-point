@@ -4,7 +4,6 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -24,11 +23,11 @@ public class AccessRightsTest extends BaseTest {
 	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
+		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
+		loginPage.login(username, data.defaultPass());
 		log.info("Logged in with user: " + username);
 
 
@@ -43,11 +42,11 @@ public class AccessRightsTest extends BaseTest {
 	public void userAccessDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), "Default");
+		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
+		loginPage.login(username, data.defaultPass());
 		log.info("Logged in with user: " + username);
 
 		log.info("Checking domain selector for: " + username);
@@ -65,11 +64,11 @@ public class AccessRightsTest extends BaseTest {
 	public void adminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), "Default");
+		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
+		loginPage.login(username, data.defaultPass());
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);
@@ -83,11 +82,11 @@ public class AccessRightsTest extends BaseTest {
 	public void adminDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.getDefaultTestPass(), "Default");
+		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
+		loginPage.login(username, data.defaultPass());
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);

@@ -5,13 +5,10 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
-import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
 import utils.Generator;
-
-import java.util.HashMap;
 
 
 /**
@@ -26,11 +23,11 @@ public class LoginPgTest extends BaseTest {
 
 	private void checkUserLogin(String role, SoftAssert soft) throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, role, data.getDefaultTestPass(), null);
+		rest.createUser(username, role, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, role));
 
 		log.info(String.format("Login %s with role %s", username, role));
-		login(username, data.getDefaultTestPass());
+		login(username, data.defaultPass());
 
 		DomibusPage page = new DomibusPage(driver);
 		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
@@ -64,13 +61,13 @@ public class LoginPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 		LoginPage page = new LoginPage(driver);
 
-		page.login("invalidUserTest", data.getDefaultTestPass());
-		log.info(String.format("Trying to login with user=%s and pass=%s", "invalidUserTest", data.getDefaultTestPass()));
+		page.login("invalidUserTest", data.defaultPass());
+		log.info(String.format("Trying to login with user=%s and pass=%s", "invalidUserTest", data.defaultPass()));
 
 		soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
@@ -92,7 +89,7 @@ public class LoginPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 		LoginPage page = new LoginPage(driver);
@@ -119,7 +116,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Try to login with valid username and invalid password more than 5 times");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 
@@ -144,8 +141,8 @@ public class LoginPgTest extends BaseTest {
 			}
 		}
 
-		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.getDefaultTestPass()));
-		page.login(username, data.getDefaultTestPass());
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.defaultPass()));
+		page.login(username, data.defaultPass());
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed (2)");
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
@@ -157,8 +154,8 @@ public class LoginPgTest extends BaseTest {
 //		wait required because the unlock is done trough REST API
 		page.wait.forXMillis(500);
 
-		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.getDefaultTestPass()));
-		page.login(username, data.getDefaultTestPass());
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.defaultPass()));
+		page.login(username, data.defaultPass());
 		soft.assertTrue(new DomibusPage(driver).getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
 		rest.deleteUser(username, null);
@@ -173,7 +170,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Admin unlocks account and user tries to login with valid username and password");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
-		rest.createUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 
@@ -184,8 +181,8 @@ public class LoginPgTest extends BaseTest {
 			page.login(username, "password So Wrong");
 		}
 
-		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.getDefaultTestPass()));
-		page.login(username, data.getDefaultTestPass());
+		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.defaultPass()));
+		page.login(username, data.defaultPass());
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
 
@@ -196,7 +193,7 @@ public class LoginPgTest extends BaseTest {
 		page.wait.forXMillis(500);
 
 		log.info("Attempting login after account is unblocked");
-		page.login(username, data.getDefaultTestPass());
+		page.login(username, data.defaultPass());
 		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
 		rest.deleteUser(username, null);

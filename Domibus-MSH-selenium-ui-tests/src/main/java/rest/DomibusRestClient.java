@@ -123,7 +123,7 @@ public class DomibusRestClient {
 	}
 
 	public void switchDomain(String domainName) {
-		if (null == domainName || domainName.isEmpty()) {
+		if (StringUtils.isEmpty(domainName)) {
 			domainName = "default";
 		}
 
@@ -336,6 +336,8 @@ public class DomibusRestClient {
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put("authType", authType);
+		params.put("page", "0");
+		params.put("pageSize", "10000");
 
 		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
 		if (response.getStatus() != 200) {

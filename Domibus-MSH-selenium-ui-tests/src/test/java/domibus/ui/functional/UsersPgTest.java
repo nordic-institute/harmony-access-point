@@ -163,7 +163,7 @@ public class UsersPgTest extends BaseTest {
 
 //		create new user
 		log.info("creating new user " + username);
-		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 		page.grid().waitForRowsToLoad();
 
 		log.info("Press cancel");
@@ -190,7 +190,7 @@ public class UsersPgTest extends BaseTest {
 
 //		create new user
 		log.info("creating new user " + username);
-		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, "tuser@bnc.com", DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 		page.grid().waitForRowsToLoad();
 
 		log.info("Press Save");
@@ -297,7 +297,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("Creating user " + username);
 		UserModal modal = new UserModal(driver);
-		modal.fillData(username, null, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		modal.fillData(username, null, DRoles.USER, data.defaultPass(), data.defaultPass());
 
 		log.info("Uncheck the active checkbox");
 		modal.getActiveChk().uncheck();
@@ -308,7 +308,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("logging out");
 		page.getSandwichMenu().logout();
-		DomibusPage pg = login(username, data.getDefaultTestPass());
+		DomibusPage pg = login(username, data.defaultPass());
 		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed for deactivated user trying to login");
 		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
 
@@ -332,7 +332,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("logging out");
 		page.getSandwichMenu().logout();
 
-		pg = login(username, data.getDefaultTestPass());
+		pg = login(username, data.defaultPass());
 		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed for deactivated user trying to login");
 		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
 
@@ -360,7 +360,7 @@ public class UsersPgTest extends BaseTest {
 		page.getSandwichMenu().logout();
 
 		log.info("try to login with old password");
-		DomibusPage pg = login(username, data.getDefaultTestPass());
+		DomibusPage pg = login(username, data.defaultPass());
 		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed when trying to login with old password");
 		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "User notified he has wrong credentials");
 
@@ -431,7 +431,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("login with username " + username);
 		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.getDefaultTestPass());
+		loginPage.login(username, data.defaultPass());
 
 		soft.assertEquals(loginPage.getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
 
@@ -453,7 +453,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("creating new user with existing active username");
 		page.getNewBtn().click();
 		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.fillData(username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
 		log.info("Saving");
@@ -467,7 +467,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("creating new user with existing deleted username");
 		page.getNewBtn().click();
 		um = new UserModal(driver);
-		um.fillData(deleted_username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.fillData(deleted_username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
 		log.info("Saving");
@@ -495,7 +495,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("creating new user with existing active username");
 		page.getNewBtn().click();
 		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.fillData(username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
 		log.info("Saving");
@@ -509,7 +509,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("creating new user with existing deleted username");
 		page.getNewBtn().click();
 		um = new UserModal(driver);
-		um.fillData(deleted_username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.fillData(deleted_username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
 		log.info("Saving");
@@ -537,7 +537,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("creating new user");
 		page.getNewBtn().click();
 		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.fillData(username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
 		page.saveAndConfirm();
@@ -564,7 +564,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("creating new user");
 		page.getNewBtn().click();
 		UserModal um = new UserModal(driver);
-		um.fillData(username, "", DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		um.fillData(username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
 		page.saveAndConfirm();
@@ -584,7 +584,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("created user " + username);
 
 		SoftAssert soft = new SoftAssert();
-		UsersPage page = loginAndGoToUsersPage(username, data.getDefaultTestPass());
+		UsersPage page = loginAndGoToUsersPage(username, data.defaultPass());
 
 		log.info("deleteing created user");
 		page.grid().scrollToAndSelect("Username", username);

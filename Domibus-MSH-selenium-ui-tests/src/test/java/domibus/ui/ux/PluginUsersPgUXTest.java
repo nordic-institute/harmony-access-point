@@ -1,19 +1,15 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.errorLog.ErrorLogPage;
-import pages.plugin_users.CertPluginUserModal;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
 import utils.Generator;
@@ -108,7 +104,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		soft.assertEquals(errMess, DMessages.PASS_POLICY_MESSAGE, "Password policy clearly displayed when wrong pass is entered");
 
 		log.info("setting passord and confirmation not to match");
-		pum.getPasswordInput().fill(data.getDefaultTestPass());
+		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
 
 		log.info("check error message");
@@ -210,7 +206,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		errMess = pum.getPassErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_POLICY_MESSAGE, "Password policy clearly displayed when wrong pass is entered");
 
-		pum.getPasswordInput().fill(data.getDefaultTestPass());
+		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
@@ -225,7 +221,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			String username = Generator.randomAlphaNumeric(10);
-			rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+			rest.createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 			usernames.add(username);
 		}
 
@@ -270,8 +266,8 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		log.info("fill username with aa");
 		modal.getUserNameInput().fill("aa");
 		modal.getRolesSelect().selectOptionByText(DRoles.ADMIN);
-		modal.getPasswordInput().fill(data.getDefaultTestPass());
-		modal.getConfirmationInput().fill(data.getDefaultTestPass());
+		modal.getPasswordInput().fill(data.defaultPass());
+		modal.getConfirmationInput().fill(data.defaultPass());
 
 		log.info("checking the ok button to be disabled");
 		soft.assertTrue(!modal.getOkBtn().isEnabled(), "OK button is disabled until user enters username with more than 3 characters");

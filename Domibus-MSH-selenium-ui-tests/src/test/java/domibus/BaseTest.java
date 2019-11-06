@@ -138,14 +138,14 @@ public class BaseTest {
 		String messageRefID = Generator.randomAlphaNumeric(10);
 		String conversationID = Generator.randomAlphaNumeric(10);
 
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), domainCode);
+		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), domainCode);
 		log.info("Created plugin user " + user + " on domain " + domainCode);
 
 		log.info("Uploading PMODE ");
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
 		for (int i = 0; i < noOf; i++) {
-			messIDs.add(messageSender.sendMessage(user, data.getDefaultTestPass(), messageRefID, conversationID));
+			messIDs.add(messageSender.sendMessage(user, data.defaultPass(), messageRefID, conversationID));
 		}
 		log.info("Sent messages " + noOf);
 
@@ -184,7 +184,7 @@ public class BaseTest {
 			}
 		}
 
-		rest.createUser(username, role, data.getDefaultTestPass(), domain);
+		rest.createUser(username, role, data.defaultPass(), domain);
 		log.info("created user " + username);
 
 		if (!active) {
@@ -238,7 +238,7 @@ public class BaseTest {
 			}
 		}
 
-		rest.createPluginUser(username, role, data.getDefaultTestPass(), domain);
+		rest.createPluginUser(username, role, data.defaultPass(), domain);
 		log.info("created user " + username);
 
 		if (!active) {

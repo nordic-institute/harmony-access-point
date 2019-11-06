@@ -6,8 +6,6 @@ import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
-import domibus.BaseUXTest;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -50,7 +48,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 //		create new user
 		log.info("filling form for new user " + username);
-		page.newUser(username, DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 		page.grid().waitForRowsToLoad();
 
 		log.info("checking Cancel button state");
@@ -85,7 +83,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 //		create new user
 		log.info("filling plugin user form");
-		page.newUser(username, DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 
 		page.grid().waitForRowsToLoad();
 		log.info("checking buttons state");
@@ -380,7 +378,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		log.info("creating new user on default domain");
-		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.USER, data.defaultPass(), data.defaultPass());
 		log.info("saving");
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -388,7 +386,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking for error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domain1),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, domain1);
@@ -408,7 +406,7 @@ public class PluginUsersPgTest extends BaseTest {
 		PluginUsersPage page = new PluginUsersPage(driver);
 
 		log.info("adding new plugin user with username " + username);
-		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.USER, data.defaultPass(), data.defaultPass());
 		log.info("saving");
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -416,7 +414,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking page for errors");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME_1, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, "default"),
 				"Error message is shown");
 
 		soft.assertAll();
@@ -436,7 +434,7 @@ public class PluginUsersPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		PluginUsersPage page = new PluginUsersPage(driver);
 		log.info("creating new user");
-		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.USER, data.defaultPass(), data.defaultPass());
 
 		log.info("saving");
 		page.getSaveBtn().click();
@@ -445,7 +443,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking page for errors");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domain1),
 				"Error message is shown");
 
 		soft.assertAll();
@@ -500,20 +498,20 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "*****", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicatePluginUsersSameDomain() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), null);
+		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		PluginUsersPage page = new PluginUsersPage(driver);
-		page.newUser(username, DRoles.USER, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.USER, data.defaultPass(), data.defaultPass());
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, "default"),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, null);
@@ -532,7 +530,7 @@ public class PluginUsersPgTest extends BaseTest {
 				break;
 			}
 		}
-		rest.createPluginUser(username, DRoles.USER, data.getDefaultTestPass(), rest.getDomainCodeForName(domain1));
+		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), rest.getDomainCodeForName(domain1));
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
@@ -570,7 +568,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 //		create new user
 		log.info("filling plugin user form");
-		page.newUser(username, DRoles.ADMIN, data.getDefaultTestPass(), data.getDefaultTestPass());
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 
 		for (int i = 0; i < 10; i++) {
 			try {

@@ -82,9 +82,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	@Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickDeletedUser() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
 		String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
-		log.info("found user " + username);
 
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);

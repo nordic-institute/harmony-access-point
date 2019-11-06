@@ -5,16 +5,12 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.BaseTest;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.jms.JMSMessModal;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
-import rest.RestServicePaths;
-import utils.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -143,7 +139,7 @@ public class JMSMessPgTest extends BaseTest {
 		log.info("checking for domain " + domain);
 		JSONObject user = getUser(domain, DRoles.ADMIN, true, false, false);
 
-		login(user.getString("userName"), data.getDefaultTestPass());
+		login(user.getString("userName"), data.defaultPass());
 		log.info("logging in with admin " + user.getString("userName"));
 
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);

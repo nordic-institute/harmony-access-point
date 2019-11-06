@@ -98,7 +98,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
 
 		log.info("Fill data in Current password,new password and confirmation fields");
-		cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getDefaultTestPass());
+		cpage.setPassFields(data.defaultPass(), data.defaultPass(), data.defaultPass());
 
 		log.info("Navigate to Error log page");
 		cpage.getSidebar().goToPage(PAGES.ERROR_LOG);
@@ -132,7 +132,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
 
 		log.info("Fill correct data in current password , valid and different data in new password and confirmation field");
-		cpage.setPassFields(data.getDefaultTestPass(), data.getDefaultTestPass(), data.getNewTestPass());
+		cpage.setPassFields(data.defaultPass(), data.defaultPass(), data.getNewTestPass());
 
 		log.info("press tab key");
 		cpage.getConfirmationField().pressTABKey();
@@ -160,7 +160,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		String pass = "invalid_pass";
 
 		log.info("Fill correct data for current password and invalid but same for new password and confirmation field");
-		cpage.setPassFields(data.getDefaultTestPass(), pass, pass);
+		cpage.setPassFields(data.defaultPass(), pass, pass);
 		log.info("press tab ");
 		cpage.getConfirmationField().pressTABKey();
 
@@ -185,7 +185,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
 
 		log.info("Fill current data for current password, invalid  and different data for new password and confirmation field");
-		cpage.setPassFields(data.getDefaultTestPass(), "INVALID_PASS_1", "invalid_pass_2");
+		cpage.setPassFields(data.defaultPass(), "INVALID_PASS_1", "invalid_pass_2");
 
 		log.info("press tab key");
 		cpage.getConfirmationField().pressTABKey();

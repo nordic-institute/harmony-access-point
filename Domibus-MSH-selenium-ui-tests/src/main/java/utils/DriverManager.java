@@ -6,6 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
 
 /**
@@ -33,6 +34,7 @@ public class DriverManager {
 		System.setProperty("webdriver.chrome.driver", data.getChromeDriverPath());
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+		options.setHeadless(data.isHeadless());
 		WebDriver driver = new ChromeDriver(options);
 		driver.manage().window().maximize();
 		return driver;
@@ -43,7 +45,10 @@ public class DriverManager {
 		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
 		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
 
-		WebDriver driver = new FirefoxDriver();
+		FirefoxOptions options = new FirefoxOptions();
+		options.setHeadless(data.isHeadless());
+
+		WebDriver driver = new FirefoxDriver(options);
 		driver.manage().window().maximize();
 		return driver;
 	}

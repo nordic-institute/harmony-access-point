@@ -14,8 +14,10 @@ public class AlertPage extends DomibusPage {
         super(driver);
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
     }
+
     @FindBy(id = "alertsTable")
     public WebElement gridContainer;
+
     @FindBy(id = "alertsHeader_id")
     public WebElement alertsPageHeader;
 
@@ -25,10 +27,7 @@ public class AlertPage extends DomibusPage {
         return new DGrid(driver, gridContainer);
     }
 
-    public Pagination getPagination() {
-        return new Pagination(driver);
-    }
-    public AlertFilters getFilters(){ return new AlertFilters(driver);}
+    public AlertFilters filters(){ return new AlertFilters(driver);}
 
 
 

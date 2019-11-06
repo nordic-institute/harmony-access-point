@@ -79,7 +79,7 @@ public class BaseUXTest extends BaseTest {
 
 		HashMap<String, String> userInfo = new HashMap<>();
 		userInfo.put("username", user);
-		userInfo.put("pass", data.getDefaultTestPass());
+		userInfo.put("pass", data.defaultPass());
 
 		login(userInfo);
 

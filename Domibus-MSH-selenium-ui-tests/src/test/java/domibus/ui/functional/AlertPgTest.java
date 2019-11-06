@@ -19,20 +19,24 @@ import java.util.List;
 public class AlertPgTest extends BaseTest {
 
     //This method will do Search using Basic filters
-
     @Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})
     public void searchBasicFilters() throws Exception {
         SoftAssert soft = new SoftAssert();
-        DomibusPage page = new DomibusPage(driver);
-        LoginPage lpage = new LoginPage(driver);
         String userName = Generator.randomAlphaNumeric(3);
-        rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
-        lpage.login(userName, data.getNewTestPass());
-        soft.assertFalse(lpage.getSandwichMenu().isLoggedIn(), "User not logged in");
-        log.info("Alert Message shown : " + lpage.getAlertArea().getAlertMessage());
-        lpage.login(data.getAdminUser());
-        page.getSidebar().goToPage(PAGES.ALERTS);
+        rest.createUser(userName, DRoles.USER, data.defaultPass(), null);
+        log.info("created user " + userName);
+
+        log.info("invalid login with " + userName);
+        DomibusPage page = login(userName, data.getNewTestPass());
+        soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
+        log.info("Alert Message shown : " + page.getAlertArea().getAlertMessage());
+
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
+        if(data.isIsMultiDomain()){
+            apage.filters().showDomainAlert();
+        }
+
         log.info("Number of records : " + apage.grid().getRowsNo());
         log.info("Getting all listed alert info");
         log.info("Alert type for top row : " + apage.grid().getRowInfo(0).get("Alert Type"));
@@ -40,7 +44,7 @@ public class AlertPgTest extends BaseTest {
         List<HashMap<String, String>> allRowInfo = apage.grid().getAllRowInfo();
         HashMap<String, String> fAlert = allRowInfo.get(0);
         log.info("Basic filtering by " + fAlert);
-        apage.getFilters().basicFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status"),
+        apage.filters().basicFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status"),
                 fAlert.get("Alert level"), fAlert.get("Creation Time"), null);
         apage.grid().waitForRowsToLoad();
         String afterSearchAlertType = apage.grid().getRowInfo(0).get("Alert Type");
@@ -53,16 +57,21 @@ public class AlertPgTest extends BaseTest {
     @Test(description = "ALRT-6", groups = {"multiTenancy", "singleTenancy"})
     public void searchAdvanceFilters() throws Exception {
         SoftAssert soft = new SoftAssert();
-        DomibusPage page = new DomibusPage(driver);
-        LoginPage lpage = new LoginPage(driver);
         String userName = Generator.randomAlphaNumeric(3);
-        rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
-        lpage.login(userName, data.getNewTestPass());
-        soft.assertFalse(lpage.getSandwichMenu().isLoggedIn(), "User not logged in");
-        log.info("Alert Message shown : " + lpage.getAlertArea().getAlertMessage());
-        lpage.login(data.getAdminUser());
-        page.getSidebar().goToPage(PAGES.ALERTS);
+        rest.createUser(userName, DRoles.USER, data.defaultPass(), null);
+        log.info("created user " + userName);
+
+        log.info("invalid login with " + userName);
+        DomibusPage page = login(userName, data.getNewTestPass());
+        soft.assertFalse(page.getSandwichMenu().isLoggedIn(), "User not logged in");
+        log.info("Alert Message shown : " + page.getAlertArea().getAlertMessage());
+
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
+        if(data.isIsMultiDomain()){
+            apage.filters().showDomainAlert();
+        }
+
         log.info("Number of records : " + apage.grid().getRowsNo());
         log.info("Getting all listed alert info");
         log.info("Alert type for top row : " + apage.grid().getRowInfo(0).get("Alert Type"));
@@ -70,7 +79,7 @@ public class AlertPgTest extends BaseTest {
         List<HashMap<String, String>> allRowInfo = apage.grid().getAllRowInfo();
         HashMap<String, String> fAlert = allRowInfo.get(0);
         log.info("Advance filtering by " + fAlert);
-        apage.getFilters().advancedFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status")
+        apage.filters().advancedFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status")
                 , null, fAlert.get("Alert Level"), fAlert.get("Creation Time"), null,
                 fAlert.get("Reporting Time"), null);
         apage.grid().waitForRowsToLoad();
@@ -88,7 +97,7 @@ public class AlertPgTest extends BaseTest {
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search using basic filters");
-        apage.getFilters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
+        apage.filters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
         apage.grid().waitForRowsToLoad();
         log.info("Validate grid count as zero");
         soft.assertTrue(apage.grid().getPagination().getTotalItems() == 0, "No search result exist");
@@ -99,19 +108,28 @@ public class AlertPgTest extends BaseTest {
     @Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
     public void deleteSearchCriteria() throws Exception {
         SoftAssert soft = new SoftAssert();
-        DomibusPage page = new DomibusPage(driver);
         log.info("Login into application and navigate to Alerts page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
-        apage.grid().waitForRowsToLoad();
+        if(data.isIsMultiDomain()){
+            apage.filters().showDomainAlert();
+            apage.grid().waitForRowsToLoad();
+        }
+
         log.info("Search using basic filter");
         int prevCount = apage.grid().getPagination().getTotalItems();
         log.info("Previous count of grid rows:" + prevCount);
-        apage.getFilters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
+        apage.filters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
         log.info("Validate Grid row count as zero ");
         soft.assertTrue(apage.grid().getPagination().getTotalItems() < prevCount, "No search result exist");
         log.info("Refresh page");
+
         apage.refreshPage();
+        if(data.isIsMultiDomain()){
+            apage.filters().showDomainAlert();
+            apage.grid().waitForRowsToLoad();
+        }
+
         log.info("Wait for grid row to load ");
         apage.grid().waitForRowsToLoad();
         log.info("Validate actual grid row count ");
@@ -124,19 +142,19 @@ public class AlertPgTest extends BaseTest {
     @Test(description = "ALRT-11", groups = {"multiTenancy"})
     public void showDomainAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
-        DomibusPage page = new DomibusPage(driver);
         log.info("Login into application with super admin credentials and navigate to Alerts page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
-        AlertFilters AFpage = new AlertFilters(driver);
+        AlertFilters filters = apage.filters();
         log.info("Check presence of Show domain checkbox");
-        soft.assertTrue(AFpage.getShowDomainCheckbox().isPresent(), "CheckBox is  present in case of Admin User");
+        soft.assertTrue(filters.getShowDomainCheckbox().isPresent(), "CheckBox is  present in case of super User");
         log.info("Logout from application");
         logout();
         log.info("Login with admin credentials");
-        login(data.getUser(DRoles.ADMIN)).getSidebar().goToPage(PAGES.ALERTS);
+        login(getUser(null, DRoles.ADMIN, true, false, false).getString("userName"), data.defaultPass())
+                .getSidebar().goToPage(PAGES.ALERTS);
         log.info("Validate non availability of Show domain alert checkbox for Admin user");
-        soft.assertFalse(AFpage.getShowDomainCheckbox().isPresent(), "CheckBox is not present in case of Admin User");
+        soft.assertFalse(filters.getShowDomainCheckbox().isPresent(), "CheckBox is not present in case of Admin User");
         soft.assertAll();
     }
 
@@ -149,9 +167,9 @@ public class AlertPgTest extends BaseTest {
         rest.uploadPMode("pmodes/Edelivery-blue-NoRetry.xml", null);
         String user = Generator.randomAlphaNumeric(10);
         log.info("Create plugin users");
-        rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
+        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
         log.info("Send message using plugin user credentials");
-        String messID = messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+        String messID = messageSender.sendMessage(user, data.defaultPass(), null, null);
         log.info("Login into application");
         login(data.getAdminUser());
         MessagesPage Mpage = new MessagesPage(driver);
@@ -169,13 +187,13 @@ public class AlertPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using Msg_status_changed alert type");
-        apage.getFilters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
+        apage.filters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
         log.info("Check if Multidomain exists");
         if (data.isIsMultiDomain()) {
             log.info("Click on Show domain checkbox");
-            apage.getFilters().getShowDomainCheckbox().click();
+            apage.filters().getShowDomainCheckbox().click();
             log.info("Click on search button");
-            apage.getFilters().getSearchButton().click();
+            apage.filters().getSearchButton().click();
         }
         log.info("Validate data for given message id,status ,alert type ,alert status and level");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("MSG_STATUS_CHANGED"), "Top row contains alert type as Msg_Status_Changed");
@@ -196,7 +214,7 @@ public class AlertPgTest extends BaseTest {
         LoginPage lpage = new LoginPage(driver);
         String userName = Generator.randomAlphaNumeric(3);
         log.info("Create user");
-        rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
+        rest.createUser(userName, DRoles.USER, data.defaultPass(), null);
         log.info("Try to login with user with wrong password");
         lpage.login(userName, data.getNewTestPass());
         log.info("Alert message shown :" + page.getAlertArea().getAlertMessage());
@@ -206,13 +224,13 @@ public class AlertPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using basic filter for user_login_failure alert type");
-        apage.getFilters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
+        apage.filters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
         log.info("Check if multidomain exists");
         if (data.isIsMultiDomain()) {
             log.info("Select show domain check box");
-            apage.getFilters().getShowDomainCheckbox().click();
+            apage.filters().getShowDomainCheckbox().click();
             log.info("Click on search button");
-            apage.getFilters().getSearchButton().click();
+            apage.filters().getSearchButton().click();
         }
         log.info("Validate pressence of alert data for user_login_failure alert type for given user");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
@@ -229,7 +247,7 @@ public class AlertPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         String userName = Generator.randomAlphaNumeric(3);
         log.info("Create user");
-        rest.createUser(userName, DRoles.USER, data.getDefaultTestPass(), null);
+        rest.createUser(userName, DRoles.USER, data.defaultPass(), null);
         LoginPage lpage = new LoginPage(driver);
         log.info("Try to login with wrong password for 5 times so that user account gets disabled");
         for (int i = 0; i < 5; i++) {
@@ -242,13 +260,13 @@ public class AlertPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search by basic filter for alert type : user account disabled");
-        apage.getFilters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
+        apage.filters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
         log.info("Check if multi domain exists");
         if (data.isIsMultiDomain()) {
             log.info("Check show domain alert checkbox");
-            apage.getFilters().getShowDomainCheckbox().click();
+            apage.filters().getShowDomainCheckbox().click();
             log.info("Click on search button");
-            apage.getFilters().getSearchButton().click();
+            apage.filters().getSearchButton().click();
         }
         log.info("Validate top row for user account disabled alert type for given user");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_ACCOUNT_DISABLED"), "Alert for disabled account is shown ");
@@ -265,7 +283,7 @@ public class AlertPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         String user = Generator.randomAlphaNumeric(10);
         log.info("Create plugin users");
-        rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
+        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
         if (!data.isIsMultiDomain()) {
             HashMap<String, String> params = new HashMap<>();
             String propName = "domibus.auth.unsecureLoginAllowed";
@@ -288,13 +306,13 @@ public class AlertPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using basic filter for plugin_user_login_failure alert type");
-        apage.getFilters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
+        apage.filters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
         log.info("Check if multidomain exists");
         if (data.isIsMultiDomain()) {
             log.info("Select show domain check box");
-            apage.getFilters().getShowDomainCheckbox().click();
+            apage.filters().getShowDomainCheckbox().click();
             log.info("Click on search button");
-            apage.getFilters().getSearchButton().click();
+            apage.filters().getSearchButton().click();
         }
         log.info("Validate presence of alert with correct alert type, level ,status and plugin username in parameters");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("PLUGIN_USER_LOGIN_FAILURE"), "Alert for Plugin user login failure is shown ");
@@ -310,7 +328,7 @@ public class AlertPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         String user = Generator.randomAlphaNumeric(10);
         log.info("Create plugin users");
-        rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(), null);
+        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
         if (!data.isIsMultiDomain()) {
             HashMap<String, String> params = new HashMap<>();
             String propName = "domibus.auth.unsecureLoginAllowed";
@@ -335,13 +353,13 @@ public class AlertPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search data using basic filter for plugin_user_account_disabled alert type");
-        apage.getFilters().basicFilterBy(null, "PLUGIN_USER_ACCOUNT_DISABLED", null, null, null, null);
+        apage.filters().basicFilterBy(null, "PLUGIN_USER_ACCOUNT_DISABLED", null, null, null, null);
         log.info("Check if multidomain exists");
         if (data.isIsMultiDomain()) {
             log.info("Select show domain check box");
-            apage.getFilters().getShowDomainCheckbox().click();
+            apage.filters().getShowDomainCheckbox().click();
             log.info("Click on search button");
-            apage.getFilters().getSearchButton().click();
+            apage.filters().getSearchButton().click();
         }
         apage.grid().waitForRowsToLoad();
         log.info("Validate presence of alert for plugin_user_account_disabled");

@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -206,7 +207,8 @@ public class MessagesFunctionalTest extends BaseTest {
 	public void downloadMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String messageID = getMessageIDs(null, 1, false).get(0);
+		String pluginUsername = getPluginUser(null, DRoles.ADMIN, true, true).getString("userName");
+		String messageID = messageSender.sendMessage(pluginUsername, data.defaultPass(), Generator.randomAlphaNumeric(10), Generator.randomAlphaNumeric(10));
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -257,9 +259,9 @@ public class MessagesFunctionalTest extends BaseTest {
 	public void resendMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.getDefaultTestPass(),null);
+		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(),null);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageID =  messageSender.sendMessage(user, data.getDefaultTestPass(), null, null);
+		String messageID =  messageSender.sendMessage(user, data.defaultPass(), null, null);
 
 		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
@@ -304,28 +306,28 @@ public class MessagesFunctionalTest extends BaseTest {
 
 		String domainName = rest.getDomainNames().get(1);
 		String domain = rest.getDomainCodeForName(domainName);
-		log.info(String.format("Domain name = %, domain code = %s", domainName, domain));
+		log.info(String.format("Domain name = %s", domainName));
 
 		String userDomain = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDomain, DRoles.ADMIN, data.getDefaultTestPass(),domain);
+		rest.createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(),domain);
 		log.info("created plugin user " + userDomain);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
-		String messageIDDomain =  messageSender.sendMessage(userDomain, data.getDefaultTestPass(), null, null);
+		String messageIDDomain =  messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDomain);
 
 		log.info("Switching to default domain");
 		String userDefault = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDefault, DRoles.ADMIN, data.getDefaultTestPass(),null);
+		rest.createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(),null);
 		log.info("created plugin user " + userDefault);
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		String messageIDDefault =  messageSender.sendMessage(userDefault, data.getDefaultTestPass(), null, null);
+		String messageIDDefault =  messageSender.sendMessage(userDefault, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDefault);
 
 		String userAdmin = Generator.randomAlphaNumeric(10);
-		rest.createUser(userAdmin, DRoles.ADMIN, data.getDefaultTestPass(), domain);
+		rest.createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created admin with username " + userAdmin);
 
-		login(userAdmin, data.getDefaultTestPass()).getSidebar().goToPage(PAGES.MESSAGES);
+		login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in as created admin");
 		MessagesPage page = new MessagesPage(driver);
 

@@ -35,7 +35,7 @@ public class TestRunData {
 	private void loadTestData() {
 		try {
 			String filename = System.getenv("propertiesFile");
-			FileInputStream stream = new FileInputStream(new File( filename));
+			FileInputStream stream = new FileInputStream(new File(filename));
 			prop.load(stream);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -46,13 +46,13 @@ public class TestRunData {
 
 		HashMap<String, String> toReturn = new HashMap<>();
 
-		toReturn.put("username", prop.getProperty(role+".username"));
-		toReturn.put("pass", prop.getProperty(role+".password"));
+		toReturn.put("username", prop.getProperty(role + ".username"));
+		toReturn.put("pass", prop.getProperty(role + ".password"));
 
 		return toReturn;
 	}
 
-	public String getDefaultTestPass() {
+	public String defaultPass() {
 		return prop.getProperty("default.password");
 	}
 
@@ -85,6 +85,15 @@ public class TestRunData {
 
 	public boolean isIsMultiDomain() {
 		return Boolean.valueOf(prop.getProperty("isMultiDomain"));
+	}
+
+	public boolean isHeadless() {
+		try {
+			return Boolean.valueOf(prop.getProperty("headless"));
+		} catch (Exception e) {
+			System.out.println("e = " + e);
+			return false;
+		}
 	}
 
 	public String getChromeDriverPath() {
