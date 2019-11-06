@@ -97,7 +97,7 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             result = domains;
 
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
         }};
 
@@ -108,7 +108,7 @@ public class PasswordEncryptionServiceImplTest {
             times = 1;
 
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContext) any);
-            times = 3;
+            times = 2;
         }};
     }
 

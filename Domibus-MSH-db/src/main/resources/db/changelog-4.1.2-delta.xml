@@ -5,6 +5,11 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
+    <changeSet author="Ioana Dragusanu" id="EDELIVERY-5506">
+        <addUniqueConstraint columnNames="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+    </changeSet>
+
     <changeSet author="Cosmin Baciu" id="EDELIVERY-3637">
         <addColumn tableName="TB_PART_INFO">
             <column name="ENCRYPTED" type="BOOLEAN" defaultValueBoolean="false"/>
@@ -319,7 +324,7 @@
                                   constraintName="FK_PLUGIN_USER_PASSWD_HISTORY"/>
 
         <dropForeignKeyConstraint baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
-                                  constraintName="FK_AUTH_ENTRY_AUD_REV" />
+                                  constraintName="FK_AUTH_ENTRY_AUD_REV"/>
     </changeSet>
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-2">
         <comment>Modify data types</comment>
@@ -1108,7 +1113,8 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SPLITTING"/>
 
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
-                                 constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false" initiallyDeferred="false"
+                                 constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false"
+                                 initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
 
