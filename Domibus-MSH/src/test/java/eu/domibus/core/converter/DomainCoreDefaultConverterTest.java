@@ -43,6 +43,7 @@ import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@Ignore
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
