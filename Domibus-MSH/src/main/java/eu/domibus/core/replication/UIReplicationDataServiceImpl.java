@@ -90,15 +90,16 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
         LOG.debug("wait [{}] ms and then start the update", WAIT_BEFORE_QUERY_SOURCE_TABLES);
         try {
+            //TODO EDELIVERY-5517
             //ugly stuff till we send messages with delay or implement another mechanism
+            //updates are done in parallel and we need a delay as data may not be yet committed /visible
             Thread.sleep(WAIT_BEFORE_QUERY_SOURCE_TABLES);
         } catch (InterruptedException e) {
             LOG.error("exception while sleeping ", e);
         }
 
+        //search for an existing record first
         final UIMessageEntity entity = uiMessageDao.findUIMessageByMessageId(messageId);
-        final Date jmsTime = new Date(jmsTimestamp);
-
         if (entity == null) {
             LOG.warn(LOG_WARN_NO_RECORD_FOUND, messageId);
             return;
@@ -112,7 +113,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         if (entity.getLastModified().getTime() <= jmsTimestamp) {
             final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             boolean updateSuccess = uiMessageDao.updateMessage(userMessageLog,
-                    jmsTime);
+                    jmsTimestamp);
             if (updateSuccess) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("{}Message with messageId=[{}] updated",
