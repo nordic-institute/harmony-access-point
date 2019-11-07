@@ -53,7 +53,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -62,6 +67,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import sun.security.x509.X509CertImpl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,19 +75,41 @@ import java.util.List;
  * @author Ioana Dragusanu
  * @since 4.1
  */
-@TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapperImpl.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {EventMapperImpl.class, DomainCoreDefaultConverter.class}, excludeFilters = @ComponentScan.Filter(type = FilterType.CUSTOM,
+            classes = ComponentScanCustomFilter.class))
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {
 
+    }
+
+    static class ComponentScanCustomFilter implements TypeFilter {
+
+        @Override
+        public boolean match(MetadataReader metadataReader,
+                             MetadataReaderFactory metadataReaderFactory) throws IOException {
+            ClassMetadata classMetadata = metadataReader.getClassMetadata();
+            String fullyQualifiedName = classMetadata.getClassName();
+            String className = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
+            boolean result = (className.compareTo("AbstractPropertyValueDecorator") == 0 ||
+                    className.compareTo("EventMapper") == 0 ||
+                    className.compareTo("DomibusCoreMapper") == 0 ||
+                    className.compareTo("DomainCoreDefaultConverterTest$ComponentScanCustomFilter") == 0 ||
+                    className.compareTo("DomainCoreDefaultConverterTest") == 0 ||
+                    className.compareTo("DomainCoreConverter") == 0
+            ) ? true : false;
+
+            System.out.println("!!!!!~~~~~~~~ " + className + "   " + result);
+            return result;
+        }
     }
 
     @Autowired
