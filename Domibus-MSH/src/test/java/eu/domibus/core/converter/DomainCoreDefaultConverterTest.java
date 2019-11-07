@@ -19,7 +19,10 @@ import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.alerts.model.mapper.AbstractPropertyValueDecorator;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
@@ -72,7 +75,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {AbstractPropertyValueDecorator.class, EventMapperImpl.class, EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })

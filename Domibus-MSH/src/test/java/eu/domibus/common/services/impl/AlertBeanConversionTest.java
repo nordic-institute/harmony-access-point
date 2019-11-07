@@ -2,6 +2,7 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.core.alerts.model.common.AuthenticationEvent;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -34,7 +36,11 @@ public class AlertBeanConversionTest {
     private EventMapper eventMapper;
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapperImpl_.class})
+    @ComponentScan(basePackageClasses = {EventMapperImpl.class})
+    @ImportResource({
+            "classpath:config/commonsTestContext.xml"
+    })
+
     static class ContextConfiguration {
     }
 
