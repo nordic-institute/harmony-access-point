@@ -112,7 +112,7 @@
         <ehcache.version>2.10.5</ehcache.version>
 
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <java.version>8</java.version>
+        <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
@@ -459,7 +459,11 @@
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
-
+<!--            <dependency>-->
+<!--                <groupId>javax.activation</groupId>-->
+<!--                <artifactId>activation</artifactId>-->
+<!--                <version>1.1.1</version>-->
+<!--            </dependency>-->
             <!-- End JAXB -->
 
             <!-- ActiveMQ -->
