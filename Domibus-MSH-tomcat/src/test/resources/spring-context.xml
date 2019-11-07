@@ -16,13 +16,13 @@
     <context:component-scan base-package="eu.domibus.web"/>
     <mvc:annotation-driven/>
 
-    <bean id="domibusJDBC-XADataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="domibusJDBC-XADataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" depends-on="userTransactionService">
         <property name="driverClassName" value="org.h2.Driver"/>
         <property name="url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"/>
         <property name="username" value="sa"/>
         <property name="password" value=""/>
     </bean>
-    <bean id="domibusJDBC-nonXADataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="domibusJDBC-nonXADataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" depends-on="userTransactionService">
         <property name="driverClassName" value="org.h2.Driver"/>
         <property name="url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"/>
         <property name="username" value="sa"/>

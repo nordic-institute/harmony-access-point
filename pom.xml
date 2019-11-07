@@ -53,6 +53,7 @@
         <xstream.version>1.4.11</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>
+        <jaxb.version>2.3.0</jaxb.version>
         <dom4j.version>2.1.1</dom4j.version>
         <tika.version>1.22</tika.version>
         <peppol.version>1.1.3</peppol.version>
@@ -534,6 +535,17 @@
                 <version>${cxf.version}</version>
             </dependency>
             <!-- End CXF -->
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
 
             <!-- Difi libraries -->
             <dependency>
