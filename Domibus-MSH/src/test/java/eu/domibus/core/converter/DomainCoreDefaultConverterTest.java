@@ -76,7 +76,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapperImpl.class, ObjectServiceImpl.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {EventMapperImpl.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
