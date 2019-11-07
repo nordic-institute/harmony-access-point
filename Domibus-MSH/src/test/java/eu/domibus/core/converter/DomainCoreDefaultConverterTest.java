@@ -44,6 +44,7 @@ import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
+import eu.europa.ec.digit.commons.test.ObjectServiceImpl;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
 import org.junit.Ignore;
@@ -75,7 +76,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {AbstractPropertyValueDecorator.class, EventMapperImpl.class, EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {EventMapperImpl.class, ObjectServiceImpl.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -84,13 +85,13 @@ public class DomainCoreDefaultConverterTest {
     }
 
     @Autowired
-    DomainCoreConverter domainCoreConverter;
-
-    @Injectable
-    EventMapper eventMapper;
+    private DomainCoreConverter domainCoreConverter;
 
     @Autowired
-    ObjectService objectService;
+    private EventMapper eventMapper;
+
+    @Autowired
+    private ObjectService objectService;
 
     @Test
     public void testConvertPartyResponseRo() throws Exception {
