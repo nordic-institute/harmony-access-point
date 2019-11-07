@@ -238,8 +238,9 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-framework-bom</artifactId>
-            <type>pom</type>
+            <version>${spring.version}</version>
             <scope>import</scope>
+            <type>pom</type>
         </dependency>
 
         <!-- Hibernate -->

@@ -181,11 +181,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
             <!-- Domibus modules -->
             <dependency>
                 <groupId>eu.domibus</groupId>
