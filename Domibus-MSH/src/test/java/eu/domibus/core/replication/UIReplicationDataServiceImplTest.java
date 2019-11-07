@@ -150,9 +150,6 @@ public class UIReplicationDataServiceImplTest {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
         new Expectations(uiReplicationDataService) {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
             uiMessageDao.findUIMessageByMessageId(anyString);
             result = null;
         }};

@@ -1,5 +1,6 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
@@ -32,9 +33,9 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationDataServiceImpl.class);
 
-    static final String LOG_WARN_NO_RECORD_FOUND = "no record found in TB_MESSAGE_UI for messageId=[{}]";
+    static final String DOMIBUS_UI_REPLICATION_WAIT_BEFORE_UPDATE = "domibus.ui.replication.wait.before.update";
 
-    static final long WAIT_BEFORE_PERFORMING_UPDATE = 200;
+    static final String LOG_WARN_NO_RECORD_FOUND = "no record found in TB_MESSAGE_UI for messageId=[{}]";
 
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
@@ -53,6 +54,10 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     @Autowired
     private DomainCoreConverter domainConverter;
+
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
+
 
     /**
      * {@inheritDoc}
@@ -87,12 +92,13 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     @Override
     public void messageChange(String messageId, long jmsTimestamp) {
 
-        LOG.debug("wait [{}] ms and then start the update", WAIT_BEFORE_PERFORMING_UPDATE);
+        int timeToWait = getWaitTimeBeforePerformingUpdate();
+        LOG.debug("wait [{}] ms and then start the update", timeToWait);
         try {
             //TODO EDELIVERY-5517
             //ugly stuff till we send messages with delay or implement another mechanism
             //updates are done in parallel and we need a delay as data may not be yet committed /visible
-            Thread.sleep(WAIT_BEFORE_PERFORMING_UPDATE);
+            Thread.sleep(timeToWait);
         } catch (InterruptedException e) {
             LOG.error("exception while sleeping ", e);
         }
@@ -110,13 +116,15 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
             boolean updateSuccess = uiMessageDao.updateMessage(userMessageLog,
                     jmsTimestamp);
             if (updateSuccess) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("{} updated", userMessageLog.getMessageType());
-                }
+                LOG.debug("{} updated", userMessageLog.getMessageType());
                 return;
             }
         }
         LOG.debug("messageChange skipped for messageId=[{}]", messageId);
+    }
+
+    private int getWaitTimeBeforePerformingUpdate() {
+        return domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_REPLICATION_WAIT_BEFORE_UPDATE);
     }
 
     /**
