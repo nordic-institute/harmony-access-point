@@ -53,8 +53,6 @@ public interface UserMessageService {
 
     void deleteFailedMessage(String messageId);
 
-    void delete(List<String> messageIds);
-
     void deleteMessage(String messageId);
 
     void scheduleSending(String messageId, boolean isSplitAndJoin);

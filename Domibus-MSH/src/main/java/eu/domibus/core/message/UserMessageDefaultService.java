@@ -303,6 +303,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     /**
      * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
+     *
      * @param messageId
      * @param jmsMessage
      * @param isSplitAndJoin
@@ -494,19 +495,6 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void delete(List<String> messageIds) {
-        if (messageIds == null) {
-            LOG.debug("Nothing to delete");
-            return;
-        }
-
-        LOG.debug("Deleting [{}] messages", messageIds.size());
-        for (final String messageId : messageIds) {
-            deleteMessage(messageId);
-        }
-    }
-
-    @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);
@@ -516,23 +504,51 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
-        if (backendNotificationService.getNotificationListenerServices() != null) {
-            for (NotificationListener notificationListener : backendNotificationService.getNotificationListenerServices()) {
-                try {
-                    String queueName = notificationListener.getBackendNotificationQueue().getQueueName();
-                    JmsMessage message = jmsManager.consumeMessage(queueName, messageId);
-                    if (message != null) {
-                        LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
-                    }
-                } catch (JMSException jmsEx) {
-                    LOG.error("Error trying to get the queue name", jmsEx);
-                    throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
-                }
-            }
-        }
+        deleteMessagePluginCallback(messageId);
+
         messagingDao.clearPayloadData(messageId);
         userMessageLogService.setMessageAsDeleted(messageId);
         handleSignalMessageDelete(messageId);
+    }
+
+    protected void deleteMessagePluginCallback(String messageId) {
+        if (backendNotificationService.getNotificationListenerServices() == null) {
+            LOG.debug("No notification listeners found");
+            return;
+        }
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        if (userMessageLog == null) {
+            LOG.warn("Could not find message with id [{}]", messageId);
+            return;
+        }
+        String backend = userMessageLog.getBackend();
+        if (StringUtils.isEmpty(backend)) {
+            LOG.warn("Could not find backend for message with id [{}]", messageId);
+            return;
+        }
+        NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
+        if (notificationListener == null) {
+            LOG.warn("Could not find notification listener for backend [{}]", backend);
+            return;
+        }
+        deleteMessagePluginCallback(messageId, notificationListener);
+    }
+
+    protected void deleteMessagePluginCallback(String messageId, NotificationListener notificationListener) {
+        try {
+            Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
+            if (backendNotificationQueue != null) {
+                String queueName = backendNotificationQueue.getQueueName();
+                JmsMessage message = jmsManager.consumeMessage(queueName, messageId);
+                if (message != null) {
+                    LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
+                }
+            }
+        } catch (JMSException jmsEx) {
+            LOG.error("Error trying to get the queue name", jmsEx);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
+        }
+        notificationListener.deleteMessageCallback(messageId);
     }
 
     protected void handleSignalMessageDelete(String messageId) {
