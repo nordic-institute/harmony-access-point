@@ -23,6 +23,7 @@ import eu.domibus.core.alerts.model.mapper.AbstractPropertyValueDecorator;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
+import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
@@ -51,10 +52,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -82,41 +80,30 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapperImpl.class, DomainCoreDefaultConverter.class}, excludeFilters = @ComponentScan.Filter(type = FilterType.CUSTOM,
-            classes = ComponentScanCustomFilter.class))
+    //@ComponentScan(basePackageClasses = {EventMapperImpl.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {
-
-    }
-
-    static class ComponentScanCustomFilter implements TypeFilter {
-
-        @Override
-        public boolean match(MetadataReader metadataReader,
-                             MetadataReaderFactory metadataReaderFactory) throws IOException {
-            ClassMetadata classMetadata = metadataReader.getClassMetadata();
-            String fullyQualifiedName = classMetadata.getClassName();
-            String className = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
-            boolean result = (className.compareTo("AbstractPropertyValueDecorator") == 0 ||
-                    className.compareTo("EventMapper") == 0 ||
-                    className.compareTo("DomibusCoreMapper") == 0 ||
-                    className.compareTo("DomainCoreDefaultConverterTest$ComponentScanCustomFilter") == 0 ||
-                    className.compareTo("DomainCoreDefaultConverterTest") == 0 ||
-                    className.compareTo("DomainCoreConverter") == 0
-            ) ? true : false;
-
-            System.out.println("!!!!!~~~~~~~~ " + className + "   " + result);
-            return result;
+        @Bean
+        public DomainCoreConverter domainCoreConverter() {
+            return new DomainCoreDefaultConverter();
         }
+
+        @Bean
+        public DomibusCoreMapper domibusCoreMapper() {
+            return new DomibusCoreMapperImpl();
+        }
+
+        @Bean
+        public EventMapper eventMapper() {
+            return new EventMapperImpl_();
+        }
+
     }
 
     @Autowired
     private DomainCoreConverter domainCoreConverter;
-
-    @Autowired
-    private EventMapper eventMapper;
 
     @Autowired
     private ObjectService objectService;
