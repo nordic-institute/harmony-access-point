@@ -97,8 +97,9 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             result = domains;
 
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
         }};
 
         passwordEncryptionService.encryptPasswords();

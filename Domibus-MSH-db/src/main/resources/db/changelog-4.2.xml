@@ -17,7 +17,7 @@
 
     <!-- Quartz tables -->
     <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
-    
+
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
@@ -491,7 +491,8 @@
             <column name="FRAGMENT_COUNT" remarks="The message fragment count" type="INT"/>
             <column name="SENT_FRAGMENTS" remarks="Stores how many fragments have been sent" type="INT"/>
             <column name="RECEIVED_FRAGMENTS" remarks="Stores how many fragments have been received" type="INT"/>
-            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm used for the SourceMessage" type="VARCHAR(255)"/>
+            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm used for the SourceMessage"
+                    type="VARCHAR(255)"/>
             <column name="COMPRESSED_MESSAGE_SIZE" remarks="The size of the message after compression" type="BIGINT"/>
             <column name="SOAP_ACTION" remarks="The Soap action value" type="VARCHAR(255)"/>
             <column name="FK_MESSAGE_HEADER_ID" remarks="Foreign key to the TB_MESSAGE_HEADER" type="BIGINT"/>
@@ -960,14 +961,16 @@
             <column name="RECEIPT_ID_PK" type="BIGINT"/>
         </createTable>
 
-        <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode" tableName="TB_SPLITTING">
+        <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode"
+                     tableName="TB_SPLITTING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SPLITTING"/>
             </column>
             <column name="NAME" remarks="Splitting configuration name" type="VARCHAR(255)"/>
             <column name="FRAGMENT_SIZE" remarks="The fragment size" type="INT"/>
             <column name="COMPRESSION" remarks="True if compression will be used" type="BOOLEAN"/>
-            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
+            <column name="COMPRESSION_ALGORITHM"
+                    remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
             <column name="JOIN_INTERVAL" remarks="The join interval" type="INT"/>
             <column name="FK_BUSINESSPROCESS" remarks="Foreign key to the business process" type="BIGINT"/>
         </createTable>
@@ -1120,6 +1123,9 @@
         <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UQ_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
+
+        <addUniqueConstraint columnNames="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 
     <changeSet author="Catalin Enache" id="1564477107969-104">
@@ -2089,7 +2095,8 @@
             message_log.message_subtype
             FROM
             tb_message_log message_log
-            LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id = message_info.message_id,tb_user_message user_message
+            LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id =
+            message_info.message_id,tb_user_message user_message
             LEFT OUTER JOIN tb_property property ON user_message.id_pk = property.messageproperties_id
             LEFT OUTER JOIN tb_property property2 ON user_message.id_pk = property2.messageproperties_id
             LEFT OUTER JOIN tb_party_id partyid5_ ON user_message.id_pk = partyid5_.from_id
@@ -2136,7 +2143,8 @@
             AND message_info.ref_to_message_id = message_info2.message_id
             AND property.name = 'originalSender'
             AND property2.name = 'finalRecipient'
-            ) result WHERE result.received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
+            ) result WHERE result.received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1'
+            HOUR
             MINUS
             SELECT
             message_id,
