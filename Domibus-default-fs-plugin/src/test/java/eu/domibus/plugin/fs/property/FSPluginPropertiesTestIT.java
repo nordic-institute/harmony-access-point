@@ -207,6 +207,7 @@ public class FSPluginPropertiesTestIT {
         final String oldPropertyValue2 = "/tmp/fs_plugin_data";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
+        fSPluginProperties.knownProperties = null;
         Mockito.reset(domibusConfigurationExtService);
         when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(false);
 

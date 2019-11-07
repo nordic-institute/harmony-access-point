@@ -60,6 +60,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     private List<String> domains;
 
+    protected Map<String, DomibusPropertyMetadataDTO> knownProperties;
+
     public static final String ACTION_DELETE = "delete";
 
     public static final String ACTION_ARCHIVE = "archive";
@@ -384,29 +386,28 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+        if(knownProperties == null) {
+            knownProperties = new HashMap<>();
 
-        Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
+            Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
+            // in single-domain mode - we only expose the "base" properties
+            // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
+            // in multi-tenancy mode - we only expose the "base" properties from the current domain
+            boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
 
-        Map<String, DomibusPropertyMetadataDTO> knownProperties = new HashMap<>();
-
-        // in single-domain mode - we only expose the "base" properties
-        // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
-        // in multi-tenancy mode - we only expose the "base" properties from the current domain
-
-        boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
-
-        for (DomibusPropertyMetadataDTO prop : baseProperties.values()) {
-            if (multiplyDomainProperties && prop.isDomainSpecific()) {
-                LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
-                for (String domain : getDomains()) {
-                    String name = getDomainPropertyName(domain, prop.getName());
-                    DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, true, prop.isWithFallback());
-                    knownProperties.put(p.getName(), p);
+            for (DomibusPropertyMetadataDTO prop : baseProperties.values()) {
+                if (multiplyDomainProperties && prop.isDomainSpecific()) {
+                    LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
+                    for (String domain : getDomains()) {
+                        String name = getDomainPropertyName(domain, prop.getName());
+                        DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, true, prop.isWithFallback());
+                        knownProperties.put(p.getName(), p);
+                    }
+                } else {
+                    LOG.debug("Adding the simple property [{}] to the known property list.", prop.getName());
+                    prop.setName(PROPERTY_PREFIX + prop.getName());
+                    knownProperties.put(prop.getName(), prop);
                 }
-            } else {
-                LOG.debug("Adding the simple property [{}] to the known property list.", prop.getName());
-                prop.setName(PROPERTY_PREFIX + prop.getName());
-                knownProperties.put(prop.getName(), prop);
             }
         }
 
