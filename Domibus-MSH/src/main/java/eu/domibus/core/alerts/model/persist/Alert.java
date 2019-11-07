@@ -35,7 +35,7 @@ public class Alert extends AbstractBaseEntity{
 
     @Column(name = "ALERT_TYPE")
     @Enumerated(EnumType.STRING)
-    @NotNull
+    //@NotNull
     private AlertType alertType;
 
     @Column(name = "REPORTING_TIME")
@@ -44,7 +44,7 @@ public class Alert extends AbstractBaseEntity{
 
     @Column(name = "CREATION_TIME")
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull
+    //@NotNull
     private Date creationTime;
 
     @Column(name = "NEXT_ATTEMPT")
@@ -55,7 +55,7 @@ public class Alert extends AbstractBaseEntity{
     private Integer attempts;
 
     @Column(name = "MAX_ATTEMPTS_NUMBER")
-    @NotNull
+    //@NotNull
     private Integer maxAttempts;
 
     @Column(name = "REPORTING_TIME_FAILURE")
@@ -68,12 +68,12 @@ public class Alert extends AbstractBaseEntity{
 
     @Column(name = "ALERT_STATUS")
     @Enumerated(EnumType.STRING)
-    @NotNull
+    //@NotNull
     private AlertStatus alertStatus;
 
     @Column(name = "ALERT_LEVEL")
     @Enumerated(EnumType.STRING)
-    @NotNull
+    //@NotNull
     private AlertLevel alertLevel;
 
     public void addEvent(Event event){

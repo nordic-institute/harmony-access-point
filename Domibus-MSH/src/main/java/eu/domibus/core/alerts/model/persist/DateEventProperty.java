@@ -15,7 +15,7 @@ import java.util.Date;
 @DiscriminatorValue("DATE")
 public class DateEventProperty extends AbstractEventProperty<Date>{
 
-    @NotNull
+    //@NotNull
     @Column(name = "DATE_VALUE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateValue; //NOSONAR

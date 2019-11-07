@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class StringEventProperty extends AbstractEventProperty<String> {
 
 
-    @NotNull
+    //@NotNull
     @Column(name = "STRING_VALUE")
     private String stringValue; //NOSONAR
 
