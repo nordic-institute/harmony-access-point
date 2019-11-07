@@ -19,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_
 /**
  * Implementation for {@code UIReplicationSignalService}
  *
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Catalin Enache
  * @since 4.0
  */
 @Service
@@ -49,7 +49,7 @@ public class UIReplicationSignalServiceImpl implements UIReplicationSignalServic
      */
     @Override
     public boolean isReplicationEnabled() {
-        boolean uiReplicationEnabled = Boolean.parseBoolean(domibusPropertyProvider.getDomainProperty(UI_REPLICATION_ENABLED));
+        boolean uiReplicationEnabled = domibusPropertyProvider.getBooleanProperty(UI_REPLICATION_ENABLED);
 
         if (!uiReplicationEnabled) {
             LOG.debug("UIReplication is disabled - no processing will occur");
@@ -59,57 +59,40 @@ public class UIReplicationSignalServiceImpl implements UIReplicationSignalServic
 
     @Override
     public void userMessageReceived(String messageId) {
-        if (!isReplicationEnabled()) {
-            return;
-        }
-        final JmsMessage message = createJMSMessage(messageId, UIJMSType.USER_MESSAGE_RECEIVED);
-
-        jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
+        checkReplicationStatusAndSendMessage(messageId, UIJMSType.USER_MESSAGE_RECEIVED);
     }
 
     @Override
     public void userMessageSubmitted(String messageId) {
-        if (!isReplicationEnabled()) {
-            return;
-        }
-        final JmsMessage message = createJMSMessage(messageId, UIJMSType.USER_MESSAGE_SUBMITTED);
-
-        jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
+        checkReplicationStatusAndSendMessage(messageId, UIJMSType.USER_MESSAGE_SUBMITTED);
     }
 
     @Override
     public void messageChange(String messageId) {
-        LOG.debug("send message change to queue - start");
-        if (!isReplicationEnabled()) {
-            return;
-        }
-        final JmsMessage message = createJMSMessage(messageId, UIJMSType.MESSAGE_CHANGE);
-
-        jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
-        LOG.debug("send message change to queue");
+        checkReplicationStatusAndSendMessage(messageId, UIJMSType.MESSAGE_CHANGE);
     }
 
     @Override
     public void signalMessageSubmitted(String messageId) {
-        if (!isReplicationEnabled()) {
-            return;
-        }
-        final JmsMessage message = createJMSMessage(messageId, UIJMSType.SIGNAL_MESSAGE_SUBMITTED);
-
-        jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
+        checkReplicationStatusAndSendMessage(messageId, UIJMSType.SIGNAL_MESSAGE_SUBMITTED);
     }
 
     @Override
     public void signalMessageReceived(String messageId) {
+        checkReplicationStatusAndSendMessage(messageId, UIJMSType.SIGNAL_MESSAGE_RECEIVED);
+    }
+
+
+    void checkReplicationStatusAndSendMessage(final String messageId, UIJMSType uiJMSType) {
         if (!isReplicationEnabled()) {
             return;
         }
-        final JmsMessage message = createJMSMessage(messageId, UIJMSType.SIGNAL_MESSAGE_RECEIVED);
+        final JmsMessage message = createJMSMessage(messageId, uiJMSType);
 
         jmsManager.sendMapMessageToQueue(message, uiReplicationQueue);
     }
 
-    protected JmsMessage createJMSMessage(String messageId, UIJMSType uiJMSType) {
+    JmsMessage createJMSMessage(String messageId, UIJMSType uiJMSType) {
         return JMSMessageBuilder.create()
                 .type(uiJMSType.name())
                 .property(MessageConstants.MESSAGE_ID, messageId)

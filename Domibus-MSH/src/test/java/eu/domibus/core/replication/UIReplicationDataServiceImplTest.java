@@ -141,7 +141,7 @@ public class UIReplicationDataServiceImplTest {
         uiReplicationDataService.messageChange(messageId, jmsTime.getTime());
 
         new FullVerifications(uiReplicationDataService) {{
-            uiMessageDao.updateMessage(userMessageLog, jmsTime);
+            uiMessageDao.updateMessage(userMessageLog, jmsTime.getTime());
         }};
     }
 
@@ -150,9 +150,6 @@ public class UIReplicationDataServiceImplTest {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
         new Expectations(uiReplicationDataService) {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
             uiMessageDao.findUIMessageByMessageId(anyString);
             result = null;
         }};
