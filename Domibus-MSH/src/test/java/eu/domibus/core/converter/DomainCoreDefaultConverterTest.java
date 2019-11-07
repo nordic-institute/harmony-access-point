@@ -51,8 +51,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import sun.security.x509.X509CertImpl;
 
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ import java.util.List;
  * @author Ioana Dragusanu
  * @since 4.1
  */
-
+@TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class DomainCoreDefaultConverterTest {
