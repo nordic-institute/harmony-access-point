@@ -19,11 +19,11 @@ import javax.validation.constraints.NotNull;
 
 public abstract class AbstractEventProperty<T> extends AbstractBaseEntity {
 
-    //@NotNull
+    @NotNull
     @Column(name = "PROPERTY_TYPE")
     protected String key; //NOSONAR
 
-    //@NotNull
+    @NotNull
     @ManyToOne
     @JoinColumn(name="FK_EVENT")
     private Event event; //NOSONAR

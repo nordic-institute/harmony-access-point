@@ -23,12 +23,12 @@ public class Event extends AbstractBaseEntity {
 
     @Column(name = "EVENT_TYPE")
     @Enumerated(EnumType.STRING)
-    //@NotNull
+    @NotNull
     private EventType type;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "REPORTING_TIME")
-    //@NotNull
+    @NotNull
     private Date reportingTime;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
