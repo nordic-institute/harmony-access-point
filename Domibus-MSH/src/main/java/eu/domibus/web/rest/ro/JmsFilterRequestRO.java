@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.CustomWhiteListed;
+import eu.domibus.api.validators.CustomWhiteListed;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;

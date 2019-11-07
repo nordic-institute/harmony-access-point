@@ -9,13 +9,14 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -59,9 +60,6 @@ public class SourceMessageSender implements MessageSender {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    protected UserMessageLogDao userMessageLogDao;
-
-    @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
@@ -77,12 +75,12 @@ public class SourceMessageSender implements MessageSender {
     protected SplitAndJoinService splitAndJoinService;
 
     @Override
-    public void sendMessage(final UserMessage userMessage) {
+    public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(userMessage), currentDomain);
+        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(messaging.getUserMessage(), userMessageLog), currentDomain);
     }
 
-    protected void doSendMessage(final UserMessage userMessage) {
+    protected void doSendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         String messageId = userMessage.getMessageInfo().getMessageId();
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 

@@ -9,6 +9,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.List;
  * Created by Cosmin Baciu on 04-Aug-16.
  */
 @Component
+@Transactional(propagation = Propagation.SUPPORTS)
 public class SubmissionValidatorListProviderImpl implements SubmissionValidatorListProvider, ApplicationContextAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionValidatorListProviderImpl.class);

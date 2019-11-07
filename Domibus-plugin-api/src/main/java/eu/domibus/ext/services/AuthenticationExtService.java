@@ -14,11 +14,20 @@ public interface AuthenticationExtService {
 
     /**
      * Authenticates the caller using one of the following authentication methods in this specific order: basic authentication, https or blue coat
+     * Note: it may bypass authentication if specified in domibus configuration.
      *
      * @param httpRequest the HttpServletRequest request
      * @throws AuthenticationExtException in case an error occurs while authenticating the caller
      */
     void authenticate(HttpServletRequest httpRequest) throws AuthenticationExtException;
+
+    /**
+     * Authenticates the caller using one of the following authentication methods in this specific order: basic authentication, https or blue coat
+     *
+     * @param httpRequest the HttpServletRequest request
+     * @throws AuthenticationExtException in case an error occurs while authenticating the caller
+     */
+    void enforceAuthentication(HttpServletRequest httpRequest) throws AuthenticationExtException;
 
     /**
      * Authenticates the caller using basic authentication method

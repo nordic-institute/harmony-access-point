@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -42,6 +44,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DispatchClientDefaultProvider.class);
 
     public static final String PMODE_KEY_CONTEXT_PROPERTY = "PMODE_KEY_CONTEXT_PROPERTY";
+    public static final String MESSAGING_KEY_CONTEXT_PROPERTY = "MESSAGING_KEY_CONTEXT_PROPERTY";
     public static final String ASYMMETRIC_SIG_ALGO_PROPERTY = "ASYMMETRIC_SIG_ALGO_PROPERTY";
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final QName SERVICE_NAME = new QName("http://domibus.eu", "msh-dispatch-service");
@@ -68,6 +71,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Qualifier("domibusProxyService")
     protected DomibusProxyService domibusProxyService;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
@@ -119,15 +123,15 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
     protected void setHttpClientPolicy(HTTPClientPolicy httpClientPolicy) {
         //ConnectionTimeOut - Specifies the amount of time, in milliseconds, that the consumer will attempt to establish a connection before it times out. 0 is infinite.
-        int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT));
+        int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT));
         httpClientPolicy.setConnectionTimeout(connectionTimeout);
         //ReceiveTimeOut - Specifies the amount of time, in milliseconds, that the consumer will wait for a response before it times out. 0 is infinite.
-        int receiveTimeout = Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_RECEIVETIMEOUT));
+        int receiveTimeout = Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_RECEIVETIMEOUT));
         httpClientPolicy.setReceiveTimeout(receiveTimeout);
-        httpClientPolicy.setAllowChunking(Boolean.valueOf(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_ALLOWCHUNKING)));
-        httpClientPolicy.setChunkingThreshold(Integer.parseInt(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD)));
+        httpClientPolicy.setAllowChunking(Boolean.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_ALLOWCHUNKING)));
+        httpClientPolicy.setChunkingThreshold(Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD)));
 
-        Boolean keepAlive = Boolean.parseBoolean(domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE));
+        Boolean keepAlive = Boolean.parseBoolean(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE));
         ConnectionType connectionType = ConnectionType.CLOSE;
         if (keepAlive) {
             connectionType = ConnectionType.KEEP_ALIVE;

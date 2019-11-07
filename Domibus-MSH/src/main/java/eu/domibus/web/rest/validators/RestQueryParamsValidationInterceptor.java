@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.common.validators.ItemsBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;

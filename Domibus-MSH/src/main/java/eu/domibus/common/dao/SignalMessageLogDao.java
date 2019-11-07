@@ -2,6 +2,7 @@ package eu.domibus.common.dao;
 
 import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogInfoFilter;
@@ -30,6 +31,18 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
 
     public SignalMessageLogDao() {
         super(SignalMessageLog.class);
+    }
+
+    @Override
+    public MessageStatus getMessageStatus(String messageId) {
+        try {
+            TypedQuery<MessageStatus> query = em.createNamedQuery("SignalMessageLog.getMessageStatus", MessageStatus.class);
+            query.setParameter(STR_MESSAGE_ID, messageId);
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with id [" + messageId + "]");
+            return MessageStatus.NOT_FOUND;
+        }
     }
 
     public SignalMessageLog findByMessageId(String messageId) {

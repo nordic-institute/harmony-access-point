@@ -28,7 +28,7 @@ public class AlertMethodFactory {
         AlertMethod result = alertMethodLog;
 
         final String sendEmailActivePropertyName = multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
-        final boolean mailActive = domibusPropertyProvider.getBooleanDomainProperty(sendEmailActivePropertyName);
+        final boolean mailActive = domibusPropertyProvider.getBooleanProperty(sendEmailActivePropertyName);
         if (mailActive) {
             result = alertMethodEmail;
         }

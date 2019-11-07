@@ -26,8 +26,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 @RunWith(JMockit.class)
 public class BackendMessageValidatorTest {
-
-//    private static final String DOMIBUS_CONFIGURATION_FILE = "domibus-configuration.xml";
     private static final String MESSAGE_ID_PATTERN = "^[\\x20-\\x7E]*$";
     private static final String RED = "red_gw";
     private static final String BLUE = "blue_gw";
@@ -48,9 +46,8 @@ public class BackendMessageValidatorTest {
     public void validateMessageId() throws Exception {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
-
         }};
 
         /*Happy Flow No error should occur*/
@@ -133,7 +130,7 @@ public class BackendMessageValidatorTest {
     public void validateRefToMessageId() throws Exception {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty( BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
 
         }};
@@ -216,7 +213,7 @@ public class BackendMessageValidatorTest {
     public void testConfigurationNotSpecified() {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = null;
         }};
 
@@ -344,23 +341,6 @@ public class BackendMessageValidatorTest {
         }
 
     }
-
-
-    //TODO use this when the domibus-configuration.xml is moved in the domibus-test module classpath
-    /*protected String loadMessageIdPatternFromConfigurationFile() throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
-        MessageIdPatternRetriever messageIdPatternRetriever = new MessageIdPatternRetriever();
-        if (messageIdPatternRetriever.getMessageIdPattern() == null) {
-            File f = new File(getClass().getClassLoader().getResource(DOMIBUS_CONFIGURATION_FILE).toURI());
-            InputSource is = new InputSource(new FileInputStream(f));
-            SAXParserFactory spf = SAXParserFactory.newInstance();
-            spf.setNamespaceAware(true);
-            SAXParser saxParser = spf.newSAXParser();
-            XMLReader xmlReader = saxParser.getXMLReader();
-            xmlReader.setContentHandler(messageIdPatternRetriever);
-            xmlReader.parse(is);
-        }
-        return messageIdPatternRetriever.getMessageIdPattern();
-    }*/
 }
 
 class MessageIdPatternRetriever extends DefaultHandler {

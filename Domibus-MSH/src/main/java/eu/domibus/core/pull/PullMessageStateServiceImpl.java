@@ -65,8 +65,18 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Override
     @Transactional
     public void sendFailed(final UserMessageLog userMessageLog) {
-        LOG.debug("Message:[{}] failed to be pull.", userMessageLog.getMessageId());
+        if (userMessageLog == null) {
+            LOG.warn("Could not mark message as failed: userMessageLog is null");
+            return;
+        }
+
+        LOG.debug("Setting [{}] message as failed", userMessageLog.getMessageId());
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
+        if (userMessage == null) {
+            LOG.debug("Could not set [{}] message as failed: could not find userMessage", userMessageLog.getMessageId());
+            return;
+        }
+
         updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
     }
 
@@ -79,7 +89,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", userMessageLog.getMessageId(), userMessageLog.getMessageStatus(), readyToPull);
         userMessageLog.setMessageStatus(readyToPull);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageStatusChange(userMessageLog.getMessageId(), readyToPull);
+        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
     }
 

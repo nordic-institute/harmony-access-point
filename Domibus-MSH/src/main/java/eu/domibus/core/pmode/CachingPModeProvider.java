@@ -17,6 +17,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,19 +91,62 @@ public class CachingPModeProvider extends PModeProvider {
         final Set<Mpc> mpcs = getConfiguration().getMpcs();
         for (Mpc mpc : mpcs) {
             final String qualifiedName = mpc.getQualifiedName();
-            final List<Process> pullProcessByMpc = processDao.findPullProcessByMpc(qualifiedName);
+            final List<Process> pullProcessByMpc = getPullProcessByMpc(qualifiedName);
             pullProcessByMpcCache.put(qualifiedName, pullProcessByMpc);
         }
-        final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
-        Set<Party> initiators = new HashSet<>();
-        for (Process process : processes) {
-            initiators.addAll(process.getInitiatorParties());
-        }
-        for (Party initiator : initiators) {
-            final List<Process> pullProcessesByInitiator = processDao.findPullProcessesByInitiator(initiator);
+
+        Set<Party> initiatorsForPullProcesses = getInitiatorsForPullProcesses();
+        for (Party initiator : initiatorsForPullProcesses) {
+            final List<Process> pullProcessesByInitiator = getPullProcessesWithInitiator(initiator);
             pullProcessesByInitiatorCache.put(initiator, pullProcessesByInitiator);
         }
     }
+
+    protected List<Process> getPullProcessesWithInitiator(Party initiator) {
+        final List<Process> pullProcesses = getAllPullProcesses();
+        return pullProcesses.stream()
+                .filter(process -> hasInitiatorParty(process, initiator.getName()))
+                .collect(Collectors.toList());
+    }
+
+    protected List<Process> getAllPullProcesses() {
+        final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
+        return processes.stream()
+                .filter(process -> isPullProcess(process))
+                .collect(Collectors.toList());
+    }
+
+    protected Set<Party> getInitiatorsForPullProcesses() {
+        Set<Party> initiators = new HashSet<>();
+        final List<Process> pullProcesses = getAllPullProcesses();
+        pullProcesses.stream()
+                .map(process -> process.getInitiatorParties())
+                .forEach(parties -> initiators.addAll(parties));
+        return initiators;
+    }
+
+    protected List<Process> getPullProcessByMpc(final String mpcQualifiedName) {
+        List<Process> result = new ArrayList<>();
+
+        final List<Process> pullProcesses = getAllPullProcesses();
+        for (Process process : pullProcesses) {
+            if (isProcessMatchingMpcLeg(process, mpcQualifiedName)) {
+                LOG.debug("Matched pull process [{}] with mpc [{}]", process.getName(), mpcQualifiedName);
+                result.add(process);
+            }
+        }
+        return result;
+    }
+
+    protected boolean isProcessMatchingMpcLeg(Process process, final String mpcQualifiedName) {
+        Set<LegConfiguration> legConfigurations = process.getLegs();
+        if (legConfigurations == null) {
+            return false;
+        }
+        return legConfigurations.stream()
+                .anyMatch(legConfiguration -> StringUtils.equals(legConfiguration.getDefaultMpc().getQualifiedName(), mpcQualifiedName));
+    }
+
 
     /**
      * The match means that either has an Agreement and its name matches the Agreement name found previously
@@ -275,35 +319,38 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    //@Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
-        String partyIdType = "";
+        String partyIdType = StringUtils.EMPTY;
+        String partyIdEx = StringUtils.EMPTY;
+        final EbMS3Exception ex;
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final PartyId id : partyId) {
+                partyIdEx = id.getValue();
                 for (final Identifier identifier : party.getIdentifiers()) {
                     if (id.getType() != null) {
                         partyIdType = id.getType();
                         try {
                             URI.create(partyIdType);
                         } catch (final IllegalArgumentException e) {
-                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
-                            ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
+                            ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, e);
+                            ex.setErrorDetail("PartyIdType of PartyId " + id.getValue() + " is not a valid URI [CORE].");
+                            LOG.trace("No matching party found! PartyIdType [{}] of PartyId [{}] is not a valid URI [CORE].", partyIdType, id.getValue());
                             throw ex;
                         }
                     }
-                    String identifierPartyIdType = "";
+                    String identifierPartyIdType = StringUtils.EMPTY;
                     if (identifier.getPartyIdType() != null) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
                     LOG.trace("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
                     if (StringUtils.equalsIgnoreCase(partyIdType, identifierPartyIdType) && StringUtils.equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
-                        LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
+                        LOG.trace("Found Party with matching PartyId:[{}] and type:[{}] with PartyName:[{}] ", id.getValue(), partyIdType, party.getName());
                         return party.getName();
                     }
                 }
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found with PartyId " + partyIdEx, null, null);
     }
 
     @Override
@@ -321,6 +368,7 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found", null, null);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
@@ -334,6 +382,7 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(final String pModeKey) {
         final String partyKey = this.getSenderPartyNameFromPModeKey(pModeKey);
@@ -345,6 +394,7 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching sender party found with name: " + partyKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(final String pModeKey) {
         final String partyKey = this.getReceiverPartyNameFromPModeKey(pModeKey);
@@ -356,6 +406,7 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching receiver party found with name: " + partyKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Service getService(final String pModeKey) {
         final String serviceKey = this.getServiceNameFromPModeKey(pModeKey);
@@ -367,6 +418,7 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching service found with name: " + serviceKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Action getAction(final String pModeKey) {
         final String actionKey = this.getActionNameFromPModeKey(pModeKey);
@@ -378,6 +430,7 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching action found with name: " + actionKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Agreement getAgreement(final String pModeKey) {
         final String agreementKey = this.getAgreementRefNameFromPModeKey(pModeKey);
@@ -389,6 +442,7 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching agreement found with name: " + agreementKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(final String pModeKey) {
         final String legKey = this.getLegConfigurationNameFromPModeKey(pModeKey);
@@ -517,9 +571,52 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<Process> findPullProcessesByMessageContext(
-            final MessageExchangeConfiguration messageExchangeConfiguration) {
-        return processDao.findPullProcessesByMessageContext(messageExchangeConfiguration);
+    public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
+        List<Process> allProcesses = findAllProcesses();
+        List<Process> result = new ArrayList<>();
+        for (Process process : allProcesses) {
+            boolean pullProcess = isPullProcess(process);
+            if (!pullProcess) {
+                continue;
+            }
+
+            boolean hasLeg = hasLeg(process, messageExchangeConfiguration.getLeg());
+            if (!hasLeg) {
+                continue;
+            }
+            boolean hasInitiatorParty = hasInitiatorParty(process, messageExchangeConfiguration.getReceiverParty());
+            if (!hasInitiatorParty) {
+                continue;
+            }
+            boolean hasResponderParty = hasResponderParty(process, messageExchangeConfiguration.getSenderParty());
+            if (!hasResponderParty) {
+                continue;
+            }
+            result.add(process);
+        }
+        return result;
+    }
+
+    protected boolean isPullProcess(Process process) {
+        return StringUtils.equals(BackendConnector.Mode.PULL.getFileMapping(), process.getMepBinding().getValue());
+    }
+
+    protected boolean hasLeg(Process process, String legName) {
+        return process.getLegs().stream().anyMatch(leg -> StringUtils.equals(leg.getName(), legName));
+    }
+
+    protected boolean hasInitiatorParty(Process process, String partyName) {
+        Set<Party> initiatorParties = process.getInitiatorParties();
+        return matchesParty(initiatorParties, partyName);
+    }
+
+    protected boolean hasResponderParty(Process process, String partyName) {
+        Set<Party> responderParties = process.getResponderParties();
+        return matchesParty(responderParties, partyName);
+    }
+
+    protected boolean matchesParty(Set<Party> parties, String partyName) {
+        return parties.stream().anyMatch(initiatorParty -> StringUtils.equals(initiatorParty.getName(), partyName));
     }
 
     @Override
@@ -560,14 +657,43 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(String service, String action) {
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
         List result = new ArrayList<String>();
-        for (Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
+        List<Process> processes = filterProcessesByMep(meps);
+        for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
+                LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
                 result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
             }
         }
         return result;
+    }
+
+    protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {
+        List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
+        processes = processes.stream().filter(process -> isMEPMatch(process, meps)).collect(Collectors.toList());
+
+        return processes;
+    }
+
+    protected boolean isMEPMatch(Process process, final List<MessageExchangePattern> meps) {
+        if (CollectionUtils.isEmpty(meps)) { // process can have any mep
+            return true;
+        }
+
+        if (process == null || process.getMepBinding() == null  // invalid process
+                || process.getMepBinding().getValue() == null) {
+            return false;
+        }
+
+        for (MessageExchangePattern mep : meps) {
+            if (mep.getUri().equals(process.getMepBinding().getValue())) {
+                LOG.trace("Found match for mep [{}]", mep.getUri());
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String
@@ -582,6 +708,7 @@ public class CachingPModeProvider extends PModeProvider {
     private void handleProcessParties(Process process, List result) {
         for (Party party : process.getResponderParties()) {
             for (Identifier identifier : party.getIdentifiers()) {
+                LOG.trace("Add matching party [{}] from process [{}]", identifier.getPartyId(), process.getName());
                 result.add(identifier.getPartyId());
             }
         }

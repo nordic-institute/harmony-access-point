@@ -8,6 +8,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_FORCE_BY_MPC;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR;
@@ -17,6 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PUL
  * @since 4.1
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class MpcServiceImpl implements MpcService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MpcServiceImpl.class);
 
@@ -37,11 +40,11 @@ public class MpcServiceImpl implements MpcService {
         if (mpc == null) {
             return false;
         }
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_PULL_FORCE_BY_MPC)) {
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_FORCE_BY_MPC)) {
             return false;
         }
         // Result is true when DOMIBUS_PULL_FORCE_BY_MPC is true AND the mpc contains the separator
-        String separator = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR);
+        String separator = domibusPropertyProvider.getProperty(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR);
         if (separator != null && mpc.contains(separator)) {
             return true;
         }
@@ -53,7 +56,7 @@ public class MpcServiceImpl implements MpcService {
         if (mpc == null) {
             return null;
         }
-        String separator = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR);
+        String separator = domibusPropertyProvider.getProperty(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR);
         try {
             return mpc.substring(mpc.indexOf(separator) + separator.length() + 1); // +1 for the final '/'
         } catch (StringIndexOutOfBoundsException exc) {
@@ -67,7 +70,7 @@ public class MpcServiceImpl implements MpcService {
         if (mpc == null) {
             return null;
         }
-        String separator = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR);
+        String separator = domibusPropertyProvider.getProperty(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR);
         try {
             return mpc.substring(0, mpc.indexOf(separator) - 1); // -1 for the '/'
         } catch (StringIndexOutOfBoundsException exc) {

@@ -26,16 +26,14 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -60,14 +58,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
     private static final String XSLT_GENERATE_AS4_RECEIPT_XSL = "xslt/GenerateAS4Receipt.xsl";
 
+    protected Templates templates;
     protected byte[] as4ReceiptXslBytes;
-
-    @Autowired
-    private TransformerFactory transformerFactory;
-
-    @Qualifier("messageFactory")
-    @Autowired
-    private MessageFactory messageFactory;
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;
@@ -125,6 +117,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         return generateReceipt(request, messaging, ReplyPattern.RESPONSE, nonRepudiation, false, false);
     }
 
+
+
     @Override
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
@@ -138,9 +132,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
-                responseMessage = messageFactory.createMessage();
-                InputStream generateAS4ReceiptStream = getAs4ReceiptXslInputStream();
-                Source messageToReceiptTransform = new StreamSource(generateAS4ReceiptStream);
+                responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
 
 
                 String messageId;
@@ -159,7 +151,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     requestMessage = request.getSOAPPart().getContent();
                 }
 
-                final Transformer transformer = this.transformerFactory.newTransformer(messageToReceiptTransform);
+
+                final Transformer transformer = getTemplates().newTransformer();
                 transformer.setParameter("messageid", messageId);
                 transformer.setParameter("timestamp", timestamp);
                 transformer.setParameter("nonRepudiation", Boolean.toString(nonRepudiation));
@@ -198,7 +191,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         try {
             LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-            Messaging messaging = messageUtil.getMessaging(responseMessage);
+            Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
             final SignalMessage signalMessage = messaging.getSignalMessage();
 
             if (selfSendingFlag) {
@@ -234,10 +227,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             signalMessageLogDao.create(signalMessageLog);
 
             uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
-        } catch (JAXBException | SOAPException ex) {
+        } catch (SOAPException ex) {
             LOG.error("Unable to save the SignalMessage due to error: ", ex);
         }
-
     }
 
 
@@ -250,6 +242,20 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
         final SOAPElement messagingElement = (SOAPElement) childElements.next();
         messagingElement.addAttribute(NonRepudiationConstants.ID_QNAME, "_1" + DigestUtils.sha256Hex(userMessage.getMessageInfo().getMessageId()));
+    }
+
+    protected Templates getTemplates() throws IOException, TransformerConfigurationException {
+        if (templates == null) {
+            LOG.debug("Initializing the templates instance");
+            InputStream generateAS4ReceiptStream = getAs4ReceiptXslInputStream();
+            Source messageToReceiptTransform = new StreamSource(generateAS4ReceiptStream);
+            templates = createTransformerFactoryForTemplates().newTemplates(messageToReceiptTransform);
+        }
+        return templates;
+    }
+
+    protected TransformerFactory createTransformerFactoryForTemplates() {
+        return TransformerFactory.newInstance();
     }
 
     protected InputStream getAs4ReceiptXslInputStream() throws IOException {

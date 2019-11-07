@@ -188,7 +188,7 @@ public class MessageRetentionServiceTest {
         final String propertyName = "retentionLimitProperty";
 
         new Expectations(messageRetentionService) {{
-            domibusPropertyProvider.getIntegerDomainProperty(propertyName);
+            domibusPropertyProvider.getIntegerProperty(propertyName);
             result = 5;
         }};
 

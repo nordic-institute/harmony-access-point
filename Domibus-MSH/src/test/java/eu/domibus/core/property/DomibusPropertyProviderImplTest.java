@@ -199,4 +199,6 @@ public class DomibusPropertyProviderImplTest {
     private void thenPropertyValueTakenFromDefaults(String message, Object expectedValue) {
         Assert.assertEquals(message, result, expectedValue);
     }
+
+
 }

@@ -20,6 +20,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -59,10 +61,10 @@ public class AuthorizationService {
     @Autowired
     private PModeProvider pModeProvider;
 
-    AuthorizationServiceSpi getAuthorizationService() {
-        final String authorizationServiceIndentifier = domibusPropertyProvider.getDomainProperty(IAM_AUTHORIZATION_IDENTIFIER);
+    protected AuthorizationServiceSpi getAuthorizationService() {
+        final String authorizationServiceIdentifier = domibusPropertyProvider.getProperty(IAM_AUTHORIZATION_IDENTIFIER);
         final List<AuthorizationServiceSpi> authorizationServiceList = this.authorizationServiceSpis.stream().
-                filter(authorizationServiceSpi -> authorizationServiceIndentifier.equals(authorizationServiceSpi.getIdentifier())).
+                filter(authorizationServiceSpi -> authorizationServiceIdentifier.equals(authorizationServiceSpi.getIdentifier())).
                 collect(Collectors.toList());
 
         if (LOG.isDebugEnabled()) {
@@ -71,10 +73,10 @@ public class AuthorizationService {
         }
 
         if (authorizationServiceList.size() > 1) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIndentifier));
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIdentifier));
         }
         if (authorizationServiceList.isEmpty()) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIndentifier));
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIdentifier));
         }
         return authorizationServiceList.get(0);
     }
@@ -94,14 +96,13 @@ public class AuthorizationService {
                 domainCoreConverter.convert(pullRequest, PullRequestDTO.class), pullRequestPmodeData);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
-        final UserMessagePmodeData userMessagePmodeData;
-
-        userMessagePmodeData = pModeProvider.getUserMessagePmodeData(userMessage);
+        final UserMessagePmodeData userMessagePmodeData= pModeProvider.getUserMessagePmodeData(userMessage);
 
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
                 domainCoreConverter.convert(userMessage, UserMessageDTO.class), userMessagePmodeData);
@@ -109,7 +110,7 @@ public class AuthorizationService {
     }
 
     private boolean isAuthorizationEnabled(SOAPMessage request) {
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.debug("No trust verification of sending certificate");
             return false;
         }

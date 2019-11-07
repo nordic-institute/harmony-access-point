@@ -78,7 +78,6 @@ public class MessagingServiceImpl implements MessagingService {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (messaging == null || messaging.getUserMessage() == null) {
@@ -88,7 +87,7 @@ public class MessagingServiceImpl implements MessagingService {
         if (MSHRole.SENDING == mshRole && messaging.getUserMessage().isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
-            if (scheduleSourceMessagePayloads(messaging, currentDomain)) {
+            if (scheduleSourceMessagePayloads(messaging)) {
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(
                         () -> {
@@ -109,7 +108,7 @@ public class MessagingServiceImpl implements MessagingService {
         messagingDao.create(messaging);
     }
 
-    protected boolean scheduleSourceMessagePayloads(Messaging messaging, final Domain domain) {
+    protected boolean scheduleSourceMessagePayloads(Messaging messaging) {
         final PayloadInfo payloadInfo = messaging.getUserMessage().getPayloadInfo();
         final List<PartInfo> partInfos = payloadInfo.getPartInfo();
         if (payloadInfo == null || partInfos == null || partInfos.isEmpty()) {
@@ -123,7 +122,7 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("SourceMessage payloads totalPayloadLength(bytes) [{}]", totalPayloadLength);
 
-        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongDomainProperty(domain, PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
+        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongProperty(PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
         LOG.debug("Using configured payloadsScheduleThresholdMB [{}]", payloadsScheduleThresholdMB);
 
         final Long payloadsScheduleThresholdBytes = payloadsScheduleThresholdMB * BYTES_IN_MB;
@@ -154,7 +153,6 @@ public class MessagingServiceImpl implements MessagingService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {

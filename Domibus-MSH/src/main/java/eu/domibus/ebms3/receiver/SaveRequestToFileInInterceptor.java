@@ -2,7 +2,9 @@ package eu.domibus.ebms3.receiver;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
@@ -51,16 +53,21 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
 
     protected MessageUtil messageUtil;
 
+    protected DomainService domainService;
+
+
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handleMessage(Message message) throws Fault {
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
         String messageId = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_MESSAGE_ID);
         boolean compression = Boolean.valueOf(getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
-        String domain = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_DOMAIN);
+        String domainCode = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_DOMAIN);
         String encoding = (String) message.get(Message.ENCODING);
         String contentType = (String) message.get(Message.CONTENT_TYPE);
         LOG.putMDC(Message.CONTENT_TYPE, contentType);
+        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
+        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domainCode);
 
         final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {
@@ -87,8 +94,6 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
             throw new Fault(e);
         }
         LOG.putMDC(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE, fileName);
-        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
-        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domain);
     }
 
     protected void replaceSoapEnvelope(Message message, String contentTypeHeader) throws IOException {
@@ -128,5 +133,9 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
 
     public void setMessageUtil(MessageUtil messageUtil) {
         this.messageUtil = messageUtil;
+    }
+
+    public void setDomainService(DomainService domainService) {
+        this.domainService = domainService;
     }
 }

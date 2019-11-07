@@ -2,6 +2,7 @@ package eu.domibus.core.message.fragment;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -70,6 +71,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 4.1
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     private static final Long MB_IN_BYTES = 1048576L;
@@ -213,7 +215,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void rejoinSourceMessage(String groupId, String sourceMessageFile, String backendName) {
         LOG.debug("Rejoining SourceMessage for group [{}]", groupId);
 
@@ -370,7 +371,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void setSourceMessageAsFailed(UserMessage userMessage) {
         final String messageId = userMessage.getMessageInfo().getMessageId();
@@ -384,7 +384,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         updateRetryLoggingService.messageFailed(userMessage, messageLog);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void setUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Setting the UserMessage fragment [{}] as failed", messageId);
@@ -409,6 +408,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         updateRetryLoggingService.messageFailed(userMessage, messageLog);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void handleSourceMessageSignalError(String messageId, Error error) {
         LOG.debug("SplitAndJoin handleSourceMessageSignalError for message [{}] and error [{}]", messageId, error);
@@ -416,6 +416,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         sendSplitAndJoinFailed(messageId);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void handleExpiredGroups() {
         handleExpiredReceivedGroups();

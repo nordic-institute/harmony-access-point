@@ -14,7 +14,11 @@
                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
                            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <context:component-scan base-package="eu.domibus"/>
+<!--    Filter out the scanning of web and ext sub-packages, as their beans are scanner in the context of their mvc-dispatch applications-->
+    <context:component-scan base-package="eu.domibus">
+        <context:exclude-filter type="regex" expression="eu\.domibus\.web\..*"/>
+        <context:exclude-filter type="regex" expression="eu\.domibus\.ext\.rest\..*"/>
+    </context:component-scan>
     <context:annotation-config/>
 
     <util:properties id="domibusDefaultProperties" ignore-resource-not-found="true"
@@ -34,38 +38,22 @@
     <import resource="classpath*:config/*-domibusContext.xml"/>
 
     <jms:annotation-driven/>
-
-    <tx:annotation-driven order="1" transaction-manager="transactionManager" proxy-target-class="true"/>
-    <tx:advice id="txAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <tx:method name="*" propagation="REQUIRED"/>
-        </tx:attributes>
-    </tx:advice>
-    <aop:config proxy-target-class="true">
-        <!-- all services from eu.domibus package which do not use a specific @Transactional annotation; the implementations of the org.apache.cxf.phase.PhaseInterceptor are not taken into account due to final methods present in the CXF abstract class
-        We need to exclude the domibusUserTransactionServiceImpConfigurationInit bean so that the circular dependency with the transactionManager is avoided -->
-        <aop:pointcut id="allMethods" expression="execution(public * eu.domibus..*(..)) and not @annotation(org.springframework.transaction.annotation.Transactional) and not within(@org.springframework.transaction.annotation.Transactional *) and not within(org.apache.cxf.phase.PhaseInterceptor+)"/>
-        <aop:advisor order="2" advice-ref="txAdvice" pointcut-ref="allMethods"/>
-    </aop:config>
+    <tx:annotation-driven proxy-target-class="true"/>
     <aop:aspectj-autoproxy proxy-target-class="true"/>
-
+    <cache:annotation-driven/>
 
     <import resource="classpath*:config/*-jms-context.xml"/>
     <import resource="classpath*:config/*-taskexecutor-context.xml"/>
 
     <import resource="classpath*:config/*-plugin.xml"/>
     <import resource="file:///${domibus.config.location}/plugins/config/*-plugin.xml" />
-    <import resource="domibus-configuration.xml"/>
 
     <import resource="domibus-plugins.xml"/>
     <import resource="classpath*:config/domibus-transactions.xml"/>
     <import resource="classpath*:config/domibus-datasources.xml"/>
     <import resource="jpa-config.xml"/>
-    <import resource="msh-config.xml"/>
     <import resource="cxf-endpoint.xml"/>
 
-
-    <cache:annotation-driven/>
 
     <!-- JAXB Context for mapping of ebMS3 schema -->
     <bean id="jaxbContextEBMS" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
@@ -98,5 +86,8 @@
         <constructor-arg value="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"/>
     </bean>
     <bean id="dateFormatter" class="eu.domibus.ebms3.common.model.TimestampDateFormatter"/>
+    <bean id="messageIdGenerator"
+          class="eu.domibus.common.services.impl.MessageIdGenerator">
+    </bean>
 
 </beans>

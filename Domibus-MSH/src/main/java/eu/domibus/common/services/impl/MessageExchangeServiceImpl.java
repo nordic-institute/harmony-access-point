@@ -70,10 +70,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
 
-    private static final String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
-
-    private static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
-
     private static final String PULL = "pull";
 
     @Autowired
@@ -329,8 +325,10 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * @param messageId the user message
      */
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveRawXml(String rawXml, String messageId) {
+        LOG.debug("Saving rawXML for message [{}]", messageId);
+
         RawEnvelopeLog newRawEnvelopeLog = new RawEnvelopeLog();
         newRawEnvelopeLog.setRawXML(rawXml);
         newRawEnvelopeLog.setMessageId(messageId);
@@ -338,7 +336,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     @Override
-    @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = ChainCertificateInvalidException.class)
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
@@ -346,7 +344,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
+        if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
             try {
                 boolean certificateChainValid = multiDomainCertificateProvider.isCertificateChainValid(domainProvider.getCurrentDomain(), receiverName);
@@ -381,14 +379,14 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     @Override
-    @Transactional(noRollbackFor = ChainCertificateInvalidException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = ChainCertificateInvalidException.class)
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy)) {
             LOG.debug("Validation of the sender certificate is skipped.");
             return;
         }
-        if (domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
+        if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + senderName + "]";
             try {
                 X509Certificate certificate = multiDomainCertificateProvider.getCertificateFromKeystore(domainProvider.getCurrentDomain(), senderName);

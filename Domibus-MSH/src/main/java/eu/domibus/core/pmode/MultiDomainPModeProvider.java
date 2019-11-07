@@ -9,15 +9,15 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Service;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +29,7 @@ import java.util.Map;
  * @since 4.0
  */
 @org.springframework.stereotype.Service
+@Transactional(propagation = Propagation.SUPPORTS)
 @Primary
 public class MultiDomainPModeProvider extends PModeProvider {
 
@@ -140,11 +141,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getGatewayParty();
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(String pModeKey) {
         return getCurrentPModeProvider().getSenderParty(pModeKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(String pModeKey) {
         return getCurrentPModeProvider().getReceiverParty(pModeKey);
@@ -170,6 +173,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getAgreement(pModeKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(String pModeKey) {
         return getCurrentPModeProvider().getLegConfiguration(pModeKey);
@@ -231,8 +235,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(String service, String action) {
-        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action);
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action, meps);
     }
 
     @Override

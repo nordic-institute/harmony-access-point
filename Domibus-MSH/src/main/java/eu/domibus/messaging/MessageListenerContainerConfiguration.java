@@ -202,7 +202,7 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
 
-        final String concurrency = domibusPropertyProvider.getDomainProperty(domain, domainPropertyConcurrency);
+        final String concurrency = domibusPropertyProvider.getProperty(domain, domainPropertyConcurrency);
         messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);

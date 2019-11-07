@@ -9,22 +9,20 @@ package eu.domibus.ext.services;
 public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManagerExt {
 
     /**
-     * Returns the current property value
+     * Returns the current property value for the current domain
      *
-     * @param domainCode   the domain on which the property value is requested
      * @param propertyName the property name whose value is requested
      * @return the current property value
      */
-    String getKnownPropertyValue(String domainCode, String propertyName);
+    String getKnownPropertyValue(String propertyName);
 
     /**
-     * Replaces/Sets the current property value
+     * Replaces/Sets the current property value in the current domain
      *
-     * @param domainCode    the domain on which the property value is set
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
      */
-    void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue);
+    void setKnownPropertyValue(String propertyName, String propertyValue);
 
     /**
      * Replaces/Sets the current property value

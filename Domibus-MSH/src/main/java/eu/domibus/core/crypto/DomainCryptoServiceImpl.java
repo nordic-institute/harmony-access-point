@@ -20,6 +20,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.callback.CallbackHandler;
@@ -71,7 +73,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @PostConstruct
     public void init() {
-        String spiIdentifier = domibusPropertyProvider.getDomainProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
+        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
                     DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
@@ -104,6 +106,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         return iamProvider.getCertificateFromKeyStore(alias);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public X509Certificate getCertificateFromTrustStore(String alias) throws KeyStoreException {
         return iamProvider.getCertificateFromTrustStore(alias);

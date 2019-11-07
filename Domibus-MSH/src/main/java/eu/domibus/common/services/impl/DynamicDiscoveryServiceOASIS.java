@@ -3,7 +3,6 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.DynamicDiscoveryService;
@@ -28,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyStore;
 import java.util.regex.Matcher;
@@ -72,6 +73,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     DomibusProxyService domibusProxyService;
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
+    @Transactional(noRollbackFor = IllegalStateException.class, propagation = Propagation.SUPPORTS)
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
                                           final String participantIdScheme,
@@ -91,7 +93,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             final ProcessIdentifier processIdentifier = new ProcessIdentifier(processId, processIdScheme);
             ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
-            String transportProfileAS4 = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Get the endpoint for " + transportProfileAS4);
             final Endpoint endpoint = sm.getEndpoint(processIdentifier, new TransportProfile(transportProfileAS4));
             if (endpoint == null || endpoint.getAddress() == null || endpoint.getProcessIdentifier() == null) {
@@ -107,12 +109,12 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     }
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
-        final String smlInfo = domibusPropertyProvider.getDomainProperty(SMLZONE_KEY);
+        final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
         if (smlInfo == null) {
-            throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
+            throw new ConfigurationException("SML Zone missing. Please configure it.");
         }
 
-        final String certRegex = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
+        final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
         if (StringUtils.isEmpty(certRegex)) {
             LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
         }
@@ -146,7 +148,8 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             String value = extract(documentId, "value");
             return new DocumentIdentifier(value, scheme);
         } catch (IllegalStateException ise) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Could not extract @scheme and @value from " + documentId, null, ise);
+            LOG.debug("Could not extract @scheme and @value from [{}], DocumentIdentifier will be created with empty scheme", documentId, ise);
+            return new DocumentIdentifier(documentId);
         }
     }
 
@@ -169,7 +172,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     @Override
     public String getPartyIdType() {
-        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
+        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
         if (StringUtils.isEmpty(propVal)) {
             propVal = URN_TYPE_VALUE;
         }
@@ -178,7 +181,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     @Override
     public String getResponderRole() {
-        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
+        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
         if (StringUtils.isEmpty(propVal)) {
             propVal = DEFAULT_RESPONDER_ROLE;
         }

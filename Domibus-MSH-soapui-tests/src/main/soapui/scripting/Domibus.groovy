@@ -1146,16 +1146,17 @@ def findNumberOfDomain(String inputSite) {
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  Domain Functions
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-    static def getDomainName(String domainInfo, log) {
+	// To be removed in the future after confirming that it is not needed
+    /*static def getDomainName(String domainInfo, log) {
         debugLog("  ====  Calling \"getDomainName\".", log)
         assert((domainInfo != null) && (domainInfo != "")),"Error:getDomainName: provided domain info are empty.";
-        debugLog("  getDomainName  [][]  Get domain name from domain info: $domainInfo.", log)
+        debugLog("  getDomainName  [][]  Get current domain name from domain info: $domainInfo.", log)
         def jsonSlurper = new JsonSlurper()
         def domainMap = jsonSlurper.parseText(domainInfo)
         assert(domainMap.name != null),"Error:getDomain: Domain informations are corrupted: $domainInfo.";
-		debugLog("  ====  End \"getDomainName\": returning domain name value "+domainMap.name+".", log)
+		debugLog("  ====  End \"getDomainName\": returning current domain name value \""+domainMap.name+"\".", log)
         return domainMap.name;
-    }
+    }*/
 //---------------------------------------------------------------------------------------------------------------------------------
     static def getDomain(String side, context, log, String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD) {
         debugLog("  ====  Calling \"getDomain\".", log)
@@ -1164,13 +1165,13 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 
-        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
+		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/name",
 						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", 
 						"-H", "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-v"]
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[0].contains('{"code":')),"Error:getDomain: Error while trying to connect to domibus."
+        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getDomain: Error in the getDomain response."
 		debugLog("  ====  END \"getDomain\".", log)
         return commandResult[0].substring(5)
     }
@@ -1182,17 +1183,18 @@ def findNumberOfDomain(String inputSite) {
 
         assert(userLogin==SUPER_USER),"Error:setDomain: To manipulate domains, login must be done with user: \"$SUPER_USER\"."
         debugLog("  setDomain  [][]  Set domain for Domibus $side.", log)
-        if (domainValue == getDomainName(getDomain(side, context, log), log)) {
+		if (domainValue == getDomain(side, context, log)) {
             debugLog("  setDomain  [][]  Requested domain is equal to the current value: no action needed", log)
         } else {
+			debugLog("  setDomain  [][]  Calling curl command to switch to domain \"$domainValue\"", log)
             commandString=["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
 						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", 
-						"-H", "Content-Type: application/json",
+						"-H", "Content-Type: text/plain",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
-						"-X", "PUT",
-						"--data-binary", "\"\"" + domainValue + "\"\"\""]
+						"-X", "PUT","-v",
+						"--data-binary", "$domainValue"]
             commandResult = runCurlCommand(commandString, log)
-            assert(commandResult[0].contains('{"entries":')||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
+            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
             debugLog("  setDomain  [][]  Domain set to $domainValue.",log)
         }
 		debugLog("  ====  END \"setDomain\".", log)
@@ -2442,6 +2444,28 @@ static def String pathToLogFiles(side, log, context) {
 		log.info ("jmsMessagesMap size = "+jmsMessagesMap.size());
 		
 		switch(queueName.toLowerCase()){
+			case "domibus.backend.jms.replyqueue":
+				while ((i < jmsMessagesMap.messages.size())&&(!found)) {
+					assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details.";
+					if(jmsMessagesMap.messages[i].customProperties.messageId!=null){
+						if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
+							debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId+"\".", log);
+							if(jmsMessagesMap.messages[i].customProperties.ErrorMessage!=null){
+								if(jmsMessagesMap.messages[i].customProperties.ErrorMessage.contains(pattern)){
+									found=true;
+								}
+							}
+							else{
+								log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null ErrorMessage: not possible to use this entry ...";
+							}
+						}
+					}
+					else{
+						log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null message ID: not possible to use this entry ...";
+					}
+					i++;
+				}
+				break;
 			case "domibus.backend.jms.errornotifyconsumer":
 				while ((i < jmsMessagesMap.messages.size())&&(!found)) {
 					assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details.";
@@ -2469,7 +2493,7 @@ static def String pathToLogFiles(side, log, context) {
 			// ...
 			
 			default:
-                log.error "Unknown queue \"queueName\"";
+                log.error "Unknown queue \"$queueName\"";
         }
 		
 		if(outcome){

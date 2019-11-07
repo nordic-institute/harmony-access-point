@@ -56,7 +56,7 @@ public class CsvServiceImpl implements CsvService {
 
     @Override
     public int getMaxNumberRowsToExport() {
-        return NumberUtils.toInt(domibusPropertyProvider.getDomainProperty(MAXIMUM_NUMBER_CSV_ROWS));
+        return NumberUtils.toInt(domibusPropertyProvider.getProperty(MAXIMUM_NUMBER_CSV_ROWS));
     }
 
     @Override

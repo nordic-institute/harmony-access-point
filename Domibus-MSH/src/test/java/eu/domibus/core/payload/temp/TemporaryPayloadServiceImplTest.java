@@ -1,5 +1,6 @@
 package eu.domibus.core.payload.temp;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -32,7 +33,8 @@ public class TemporaryPayloadServiceImplTest {
 
     @Test
     public void cleanTemporaryPayloads(@Injectable File directory,
-                                       @Injectable File file1) {
+                                       @Injectable File file1,
+                                       @Injectable Domain domain) {
         final Collection<File> filesToClean = new ArrayList<>();
         filesToClean.add(file1);
 
@@ -78,7 +80,8 @@ public class TemporaryPayloadServiceImplTest {
     @Test
     public void getRegexFileFilter(@Mocked Pattern regexPattern,
                                    @Mocked FileFilterUtils fileFilterUtils,
-                                   @Mocked RegexIOFileFilter regexIOFileFilter) {
+                                   @Mocked RegexIOFileFilter regexIOFileFilter,
+                                   @Injectable Domain domain) {
         String excludeRegex = "regexExpression";
 
         new Expectations() {{
@@ -102,7 +105,8 @@ public class TemporaryPayloadServiceImplTest {
     @Test
     public void getAgeFileFilter(@Mocked System system,
                                  @Mocked FileFilterUtils fileFilterUtils,
-                                 @Mocked LoggerFactory loggerFactory) {
+                                 @Mocked LoggerFactory loggerFactory,
+                                 @Injectable Domain domain) {
         int expirationThresholdInMinutes = 5;
         long currentTimeMillis = 6 * 60 * 1000;
 
@@ -123,7 +127,8 @@ public class TemporaryPayloadServiceImplTest {
 
     @Test
     public void getTemporaryLocations(@Injectable File dir1,
-                                      @Injectable File dir2) {
+                                      @Injectable File dir2,
+                                      @Injectable Domain domain) {
         String directories = "dir1,dir2";
 
         new Expectations(temporaryPayloadService) {{

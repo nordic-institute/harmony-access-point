@@ -1,5 +1,6 @@
 package eu.domibus.core.message.fragment;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -947,7 +948,8 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    public void mergeSourceFile(@Injectable MessageGroupEntity messageGroupEntity) throws IOException {
+    public void mergeSourceFile(@Injectable MessageGroupEntity messageGroupEntity,
+                                @Injectable Domain domain) throws IOException {
         List<File> fragmentFilesInOrder = new ArrayList<>();
         final File file1 = testFolder.newFile("file1.txt");
         FileUtils.writeStringToFile(file1, "text1", Charset.defaultCharset());

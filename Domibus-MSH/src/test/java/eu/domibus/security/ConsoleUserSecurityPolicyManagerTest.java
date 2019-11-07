@@ -4,6 +4,7 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
@@ -55,6 +56,9 @@ public class ConsoleUserSecurityPolicyManagerTest {
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    UserSessionsService userSessionsService;
+
     @Tested
     ConsoleUserSecurityPolicyManager userSecurityPolicyManager;
 
@@ -94,9 +98,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
         user.setUserName("user1");
         user.addRole(new UserRole(AuthRole.ROLE_AP_ADMIN.name()));
         new Expectations() {{
-            domainService.getDomain("default");
-            result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getIntegerDomainProperty(DomainService.DEFAULT_DOMAIN, MAXIMUM_LOGIN_ATTEMPT);
+            domibusPropertyProvider.getIntegerProperty(MAXIMUM_LOGIN_ATTEMPT);
             result = 20;
         }};
 
@@ -109,9 +111,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
     public void getCurrentOrDefaultDomainForUserTest() {
 
         new Expectations() {{
-            domainContextProvider.getCurrentDomainSafely();
-            result = DomainService.DEFAULT_DOMAIN;
-            domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
+            domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
             result = 3600;
         }};
 

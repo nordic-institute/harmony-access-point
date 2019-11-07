@@ -29,6 +29,8 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
 
+    protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
+
     public MessageLogDao(final Class<F> type) {
         super(type);
     }
@@ -62,14 +64,7 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, messageLog.getMessageType(), messageStatus);
     }
 
-    public MessageStatus getMessageStatus(String messageId) {
-        try {
-            return findByMessageId(messageId).getMessageStatus();
-        } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id [" + messageId + "]");
-            return MessageStatus.NOT_FOUND;
-        }
-    }
+    public abstract MessageStatus getMessageStatus(String messageId);
 
     protected abstract MessageLog findByMessageId(String messageId);
 

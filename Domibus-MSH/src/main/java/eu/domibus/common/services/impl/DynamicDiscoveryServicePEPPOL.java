@@ -60,11 +60,11 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
     public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
-        final String smlInfo = domibusPropertyProvider.getDomainProperty(SMLZONE_KEY);
+        final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
         if (smlInfo == null) {
-            throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
+            throw new ConfigurationException("SML Zone missing. Please configure it");
         }
-        String mode = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_MODE);
+        String mode = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_MODE);
         if (StringUtils.isEmpty(mode)) {
             mode = Mode.TEST;
         }
@@ -82,7 +82,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             LOG.debug("Getting the ServiceMetadata");
             final ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
-            String transportProfileAS4 = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Getting the Endpoint from ServiceMetadata with transportprofile [{}]", transportProfileAS4);
             final Endpoint endpoint = sm.getEndpoint(processIdentifier, TransportProfile.of(transportProfileAS4));
 
@@ -121,7 +121,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     @Override
     public String getPartyIdType() {
-        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
+        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
         if (StringUtils.isEmpty(propVal)) {
             propVal = PARTYID_TYPE;
         }
@@ -130,7 +130,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     @Override
     public String getResponderRole() {
-        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
+        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
         if (StringUtils.isEmpty(propVal)) {
             propVal = RESPONDER_ROLE;
         }

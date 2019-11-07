@@ -36,6 +36,9 @@ import javax.naming.ldap.Rdn;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
@@ -44,6 +47,7 @@ import java.security.cert.*;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -391,23 +395,34 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
 
-    public X509Certificate loadCertificateFromString(String content) throws CertificateException {
+    public X509Certificate loadCertificateFromString(String content) {
+        if (content == null) {
+            throw new DomibusCertificateException("Certificate content cannot be null.");
+        }
+
         CertificateFactory certFactory = null;
         X509Certificate cert = null;
         try {
             certFactory = CertificateFactory.getInstance("X.509");
         } catch (CertificateException e) {
-            LOG.warn("Error initializing certificate factory ", e);
             throw new DomibusCertificateException("Could not initialize certificate factory", e);
         }
+
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        if (!isPemFormat(content)) {
+            in = Base64.getMimeDecoder().wrap(in);
+        }
+
         try {
             cert = (X509Certificate) certFactory.generateCertificate(in);
         } catch (CertificateException e) {
-            LOG.warn("Error generating certificate ", e);
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
         return cert;
+    }
+
+    protected boolean isPemFormat(String content) {
+        return content.startsWith("-----BEGIN CERTIFICATE-----");
     }
 
     /**
@@ -433,6 +448,7 @@ public class CertificateServiceImpl implements CertificateService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
         List<X509Certificate> certificates = new ArrayList<>();
         try (PemReader reader = new PemReader(new StringReader(chain))) {
@@ -494,58 +510,59 @@ public class CertificateServiceImpl implements CertificateService {
         return null;
     }
 
+    @Override
+    public byte[] getTruststoreContent() throws IOException {
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        File file = new File(location);
+        Path path = Paths.get(file.getAbsolutePath());
+        return Files.readAllBytes(path);
+    }
 
-    public TrustStoreEntry convertCertificateContent(String certificateContent) throws CertificateException {
+    public TrustStoreEntry convertCertificateContent(String certificateContent) {
         X509Certificate cert = loadCertificateFromString(certificateContent);
-        return createTrustStoreEntry(cert);
+        return createTrustStoreEntry(null, cert);
     }
 
     public TrustStoreEntry getPartyCertificateFromTruststore(String partyName) throws KeyStoreException {
         X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
         LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
-        TrustStoreEntry res = createTrustStoreEntry(cert);
-        if (res != null)
-            res.setFingerprints(extractFingerprints(cert));
-        return res;
+        return createTrustStoreEntry(partyName, cert);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
         X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
         LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
         return cert;
     }
 
-    private TrustStoreEntry createTrustStoreEntry(X509Certificate certificate) {
-        return createTrustStoreEntry(null, certificate);
-    }
-
-    private TrustStoreEntry createTrustStoreEntry(String alias, X509Certificate certificate) {
+    private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
         if (certificate == null)
             return null;
-        return new TrustStoreEntry(
+        TrustStoreEntry entry = new TrustStoreEntry(
                 alias,
                 certificate.getSubjectDN().getName(),
                 certificate.getIssuerDN().getName(),
                 certificate.getNotBefore(),
                 certificate.getNotAfter());
+        entry.setFingerprints(extractFingerprints(certificate));
+        return entry;
     }
 
     private String extractFingerprints(final X509Certificate certificate) {
         if (certificate == null)
             return null;
 
-        MessageDigest md = null;
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
-            LOG.warn("Error initializing MessageDigest ", e);
             throw new DomibusCertificateException("Could not initialize MessageDigest", e);
         }
-        byte[] der = new byte[0];
+        byte[] der;
         try {
             der = certificate.getEncoded();
         } catch (CertificateEncodingException e) {
-            LOG.warn("Error encoding certificate ", e);
             throw new DomibusCertificateException("Could not encode certificate", e);
         }
         md.update(der);

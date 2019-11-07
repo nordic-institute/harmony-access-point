@@ -1,5 +1,6 @@
 package eu.domibus.api.routing;
 
+import eu.domibus.api.validators.CustomWhiteListed;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ public class RoutingCriteria implements Serializable {
 
     private String name;
 
+    @CustomWhiteListed(permitted = "./")
     private String expression;
 
     public int getEntityId() {

@@ -58,8 +58,8 @@
         <dom4j.version>2.1.1</dom4j.version>
         <tika.version>1.22</tika.version>
         <peppol.version>1.0.4</peppol.version>
-        <dynamic.discovery.client.version>1.10</dynamic.discovery.client.version>
-        <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <dynamic.discovery.client.version>1.11</dynamic.discovery.client.version>
+        <javax.validation.version>1.1.0.Final</javax.validation.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.178</h2.version>
         <liquibase.version>3.5.3</liquibase.version>
@@ -104,9 +104,9 @@
         <!--IAM extension properties -->
         <!-- Please keep in sync with CXF version -->
         <wss4j.ws.security.common>2.2.4</wss4j.ws.security.common>
-        <dss.version>5.4</dss.version>
+        <dss.version>5.5</dss.version>
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>5.4</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
         <!--Please keep those two dependencies version aligned with transitive dependency-->
         <json-smart.version>2.3</json-smart.version>
         <ehcache.version>2.10.5</ehcache.version>
@@ -115,6 +115,7 @@
         <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -301,6 +302,12 @@
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- End BouncyCastle -->
+
+            <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>${java-uuid-generator.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -718,6 +725,12 @@
                 <artifactId>dss-service</artifactId>
                 <version>${dss.version}</version>
             </dependency>
+            <dependency>
+                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <artifactId>dss-crl-parser-x509crl</artifactId>
+                <version>${dss.version}</version>
+            </dependency>
+
 
             <!--UUMDS extension -->
 

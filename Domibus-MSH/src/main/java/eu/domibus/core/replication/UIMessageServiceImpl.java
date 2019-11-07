@@ -76,7 +76,6 @@ public class UIMessageServiceImpl implements UIMessageService {
         }
     }
 
-
     /**
      * Converts {@link UIMessageEntity} object to {@link MessageLogRO} to be used on GUI
      *

@@ -9,6 +9,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.dao.PartyDao;
 import eu.domibus.common.model.configuration.Process;
@@ -17,6 +18,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -25,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -91,7 +92,20 @@ public class PartyServiceImpl implements PartyService {
      */
     @Override
     public List<String> findPartyNamesByServiceAndAction(String service, String action) {
-        return pModeProvider.findPartyIdByServiceAndAction(service, action);
+        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
+        List<MessageExchangePattern> meps = new ArrayList<>();
+        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
+        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+        return pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
     }
 
     /**
@@ -466,7 +480,7 @@ public class PartyServiceImpl implements PartyService {
     protected void updatePartyCertificate(Map<String, String> partyToCertificateMap, ReplacementResult replacementResult) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         List<String> aliases = getRemovedParties(replacementResult);
-        if(CollectionUtils.isNotEmpty(aliases)) {
+        if (CollectionUtils.isNotEmpty(aliases)) {
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
         }
         List<CertificateEntry> certificates = new ArrayList<>();
@@ -480,14 +494,14 @@ public class PartyServiceImpl implements PartyService {
             try {
                 X509Certificate cert = certificateService.loadCertificateFromString(certificateContent);
                 certificates.add(new CertificateEntry(partyName, cert));
-            } catch (CertificateException e) {
+            } catch (DomibusCertificateException e) {
                 LOG.error("Error deserializing certificate", e);
                 throw new IllegalStateException(e);
             }
         }
-       if(CollectionUtils.isNotEmpty(certificates)) {
-           multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
-       }
+        if (CollectionUtils.isNotEmpty(certificates)) {
+            multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
+        }
     }
 
     protected List<String> getRemovedParties(ReplacementResult replacementResult) {

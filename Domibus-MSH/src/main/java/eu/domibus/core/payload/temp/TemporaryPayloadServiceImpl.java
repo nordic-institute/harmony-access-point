@@ -1,8 +1,10 @@
 package eu.domibus.core.payload.temp;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -32,8 +34,13 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
-    public void cleanTemporaryPayloads() {
+    public void cleanTemporaryPayloads(Domain domain) {
         final List<File> temporaryLocations = getTemporaryLocations();
+        if (CollectionUtils.isEmpty(temporaryLocations)) {
+            LOG.debug("Nothing to clean:no temporary locations defined for domain [{}]", domain);
+            return;
+        }
+
         LOG.debug("Cleaning temporaryLocations [{}]", temporaryLocations);
 
         for (File temporaryLocation : temporaryLocations) {
@@ -112,10 +119,19 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
 
         LOG.debug("Getting directory [{}] from Domibus properties", directoryValue);
         final String property = domibusPropertyProvider.getProperty(directoryValue);
+        if (StringUtils.isBlank(property)) {
+            LOG.debug("No value defined for property [{}]", directoryValue);
+            return null;
+        }
+
         return getDirectoryIfExists(property);
     }
 
     protected File getDirectoryIfExists(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+
         File directory = new File(value);
         if (directory.exists()) {
             LOG.debug("Directory [{}] exists", directory);

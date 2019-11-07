@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -14,19 +15,26 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import eu.domibus.web.rest.validators.SkipWhiteListed;
+import eu.domibus.api.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -56,9 +64,12 @@ public class TruststoreResource extends BaseResource {
     @Autowired
     private CsvServiceImpl csvServiceImpl;
 
-
     @Autowired
     private ErrorHandlerService errorHandlerService;
+
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
+
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
@@ -79,6 +90,22 @@ public class TruststoreResource extends BaseResource {
 
         multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststore.getOriginalFilename(), truststore.getBytes(), password);
         return ResponseEntity.ok("Truststore file has been successfully replaced.");
+    }
+
+    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
+        byte[] content = certificateService.getTruststoreContent();
+        ByteArrayResource resource = new ByteArrayResource(content);
+
+        HttpStatus status = HttpStatus.OK;
+        if (resource.getByteArray().length == 0) {
+            status = HttpStatus.NO_CONTENT;;
+        }
+
+        return ResponseEntity.status(status)
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header("content-disposition", "attachment; filename=TrustStore.jks")
+                .body(resource);
     }
 
     @RequestMapping(value = {"/list"}, method = GET)
