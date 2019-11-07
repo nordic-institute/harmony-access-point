@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.*;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -27,7 +28,6 @@ public class AuthenticationDefaultService implements AuthenticationService {
     protected static final String CLIENT_CERT_ATTRIBUTE_KEY = "javax.servlet.request.X509Certificate";
     protected static final String CLIENT_CERT_HEADER_KEY = "Client-Cert";
 
-
     @Autowired
     protected AuthUtils authUtils;
 
@@ -40,6 +40,9 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    private DatabaseUtil databaseUtil;
 
     @Override
     public Authentication basicAuthenticate(String user, String password) {
@@ -56,6 +59,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
         /* id domibus allows unsecure login, do not authenticate anymore, just go on */
         if (authUtils.isUnsecureLoginAllowed()) {
+            LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             LOG.securityInfo(DomibusMessageCode.SEC_UNSECURED_LOGIN_ALLOWED);
             return;
         }
