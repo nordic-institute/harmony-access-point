@@ -111,7 +111,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
             result = X_509_V_3;
             certificateService.isCertificateChainValid((List<Certificate>) any);
             result = false;
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = true;
             certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
             result = x509Certificate;
@@ -132,7 +132,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
             result = "#X509-99bde7b7-932f-4dbd-82dd-3539ba51791b";
             binarySecurityTokenReference.getValueType();
             result = X_509_V_3;
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = false;
             certificateService.extractLeafCertificateFromChain((List<X509Certificate>) any);
             result = x509Certificate;
@@ -177,7 +177,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         SoapMessage soapMessage = getSoapMessageForDom(doc);
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
             result = true;
         }};
         trustSenderInterceptor.handleMessage(soapMessage);
@@ -199,7 +199,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         expiredCertificateChain.add(expiredCertificate);
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = true;
             certificateService.isCertificateChainValid(certificateChain);
             result = true;
@@ -219,7 +219,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
         expiredCertificateChain.add(expiredCertificate);
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING);
             result = false;
         }};
         Assert.assertTrue(trustSenderInterceptor.checkCertificateValidity(expiredCertificateChain, "test sender", false));
@@ -228,7 +228,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     @Test
     public void testHandleOneTestActivated(@Mocked final SoapMessage message) {
         new Expectations() {{
-            domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING);
             result = false;
         }};
         trustSenderInterceptor.handleMessage(message);

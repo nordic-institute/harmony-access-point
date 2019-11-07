@@ -2,6 +2,7 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
@@ -59,6 +60,9 @@ public class PasswordEncryptionServiceImplTest {
     @Injectable
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
     @Tested
     PasswordEncryptionServiceImpl passwordEncryptionService;
 
@@ -93,8 +97,9 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             result = domains;
 
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
             passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
         }};
 
         passwordEncryptionService.encryptPasswords();
@@ -357,6 +362,22 @@ public class PasswordEncryptionServiceImplTest {
 
         final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
         assertEquals("myProperty=ENC(myEncryptedValue)", replacedLine);
+    }
+
+    @Test
+    public void replaceLineWithPropertyNameContainingPropertyValue() {
+        String line = "domibus.alert.sender.smtp.password=password";
+        String encryptedValue = "myEncryptedValue";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+        PasswordEncryptionResult passwordEncryptionResult = new PasswordEncryptionResult();
+        passwordEncryptionResult.setPropertyName("domibus.alert.sender.smtp.password");
+        passwordEncryptionResult.setPropertyValue("password");
+        passwordEncryptionResult.setFormattedBase64EncryptedValue("ENC(" + encryptedValue + ")");
+        encryptedProperties.add(passwordEncryptionResult);
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("domibus.alert.sender.smtp.password=ENC(myEncryptedValue)", replacedLine);
     }
 
     @Test

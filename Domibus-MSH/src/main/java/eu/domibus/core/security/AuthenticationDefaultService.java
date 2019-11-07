@@ -55,14 +55,20 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
     @Override
     public void authenticate(HttpServletRequest httpRequest) throws AuthenticationException {
-        LOG.debug("Authenticating for " + httpRequest.getRequestURI());
 
-        /* id domibus allows unsecure login, do not authenticate anymore, just go on */
+        /* if domibus allows unsecure login, do not authenticate anymore, just go on */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             LOG.securityInfo(DomibusMessageCode.SEC_UNSECURED_LOGIN_ALLOWED);
             return;
         }
+
+        this.enforceAuthentication(httpRequest);
+    }
+
+    @Override
+    public void enforceAuthentication(HttpServletRequest httpRequest) throws AuthenticationException {
+        LOG.debug("Authenticating for [{}]", httpRequest.getRequestURI());
 
         final Object certificateAttribute = httpRequest.getAttribute(CLIENT_CERT_ATTRIBUTE_KEY);
         final String certHeaderValue = httpRequest.getHeader(CLIENT_CERT_HEADER_KEY);

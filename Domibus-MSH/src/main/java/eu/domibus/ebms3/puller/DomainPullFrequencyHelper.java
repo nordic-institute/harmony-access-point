@@ -24,7 +24,7 @@ public class DomainPullFrequencyHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomainPullFrequencyHelper.class);
 
-    public static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX = "domibus.pull.request.send.per.job.cycle.per.mpc.";
+    public static final String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX = DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC + ".";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -48,8 +48,8 @@ public class DomainPullFrequencyHelper {
 
     private synchronized void addMpcName(String mpcName) {
         final Integer requestPerJobCyclePerMpc = getNumberOfPullRequestsPerMpc(mpcName);
-        final Integer recoveringTimeInSeconds = Integer.valueOf(domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME));
-        final Integer numberOfErrorBeforeDecrease = Integer.valueOf(domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT));
+        final Integer recoveringTimeInSeconds = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME));
+        final Integer numberOfErrorBeforeDecrease = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT));
         if (recoveringTimeInSeconds != 0) {
             LOG.debug("Domain pull pace settings->requestPerJobCyclePerMpc:[{}], recoveringTimeInSeconds:[{}], numberOfErrorBeforeDecrease:[{}]", requestPerJobCyclePerMpc, recoveringTimeInSeconds, numberOfErrorBeforeDecrease);
         }
@@ -58,8 +58,8 @@ public class DomainPullFrequencyHelper {
 
 
     private int getNumberOfPullRequestsPerMpc(String mpc) {
-        final String defaultNumberOfPullRequestsPerMpc = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE);
-        String numberOfPullRequestsPerMpc = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + mpc);
+        final String defaultNumberOfPullRequestsPerMpc = domibusPropertyProvider.getProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE);
+        String numberOfPullRequestsPerMpc = domibusPropertyProvider.getProperty(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX + mpc);
         if (StringUtils.isEmpty(numberOfPullRequestsPerMpc)) {
             numberOfPullRequestsPerMpc = defaultNumberOfPullRequestsPerMpc;
         }

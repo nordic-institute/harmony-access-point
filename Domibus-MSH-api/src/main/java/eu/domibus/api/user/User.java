@@ -123,9 +123,13 @@ public class User implements UserBase {
     }
 
     public boolean isSuperAdmin() {
+        return hasRole(AuthRole.ROLE_AP_ADMIN);
+    }
+
+    public boolean hasRole(AuthRole role) {
         if (authorities == null) {
             return false;
         }
-        return authorities.contains(AuthRole.ROLE_AP_ADMIN.name());
+        return authorities.contains(role.name());
     }
 }

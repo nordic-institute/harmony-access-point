@@ -14,6 +14,8 @@ import org.springframework.context.annotation.DependsOn;
 
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -23,7 +25,6 @@ public class DomibusDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusDatasourceConfiguration.class);
 
-    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password"; //NOSONAR
     public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
     @Autowired
@@ -39,23 +40,23 @@ public class DomibusDatasourceConfiguration {
         AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
         dataSource.setUniqueResourceName("domibusJDBC-XA");
 
-        final String xaDataSourceClassName = domibusPropertyProvider.getProperty("domibus.datasource.xa.xaDataSourceClassName");
+        final String xaDataSourceClassName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME);
         dataSource.setXaDataSourceClassName(xaDataSourceClassName);
         dataSource.setXaProperties(xaProperties());
-        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.minPoolSize");
+        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE);
         dataSource.setMinPoolSize(minPoolSize);
-        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxPoolSize");
+        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE);
         dataSource.setMaxPoolSize(maxPoolSize);
-        final Integer maxLifeTime = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxLifetime");
+        final Integer maxLifeTime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_LIFETIME);
         dataSource.setMaxLifetime(maxLifeTime);
 
-        final Integer borrowConnectionTimeout = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.borrowConnectionTimeout");
+        final Integer borrowConnectionTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT);
         dataSource.setBorrowConnectionTimeout(borrowConnectionTimeout);
-        final Integer reapTimeout = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.reapTimeout");
+        final Integer reapTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT);
         dataSource.setReapTimeout(reapTimeout);
-        final Integer maxIdleTime = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maxIdleTime");
+        final Integer maxIdleTime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME);
         dataSource.setMaxIdleTime(maxIdleTime);
-        final Integer maintenanceInterval = domibusPropertyProvider.getIntegerProperty("domibus.datasource.xa.maintenanceInterval");
+        final Integer maintenanceInterval = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL);
         dataSource.setMaintenanceInterval(maintenanceInterval);
 
         return dataSource;
@@ -66,7 +67,7 @@ public class DomibusDatasourceConfiguration {
         final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusProperties, DOMIBUS_DATASOURCE_XA_PROPERTY);
 
         LOGGER.debug("Decrypting the property [{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD);
-        prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD, true));
+        prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD));
         return prefixedProperties;
     }
 
@@ -76,19 +77,19 @@ public class DomibusDatasourceConfiguration {
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
         dataSource.setUniqueResourceName("domibusNonXADataSource");
 
-        final String driverClassName = domibusPropertyProvider.getProperty("domibus.datasource.driverClassName");
+        final String driverClassName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME);
         dataSource.setDriverClassName(driverClassName);
-        final String dataSourceURL = domibusPropertyProvider.getProperty("domibus.datasource.url");
+        final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_URL);
         dataSource.setUrl(dataSourceURL);
-        final String user = domibusPropertyProvider.getProperty("domibus.datasource.user");
+        final String user = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_USER);
         dataSource.setUser(user);
-        final String password = domibusPropertyProvider.getProperty("domibus.datasource.password", true);
+        final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD); //NOSONAR
         dataSource.setPassword(password);
-        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.minPoolSize");
+        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE);
         dataSource.setMinPoolSize(minPoolSize);
-        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty("domibus.datasource.maxPoolSize");
+        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
         dataSource.setMaxPoolSize(maxPoolSize);
-        final Integer maxLifetime = domibusPropertyProvider.getIntegerProperty("domibus.datasource.maxLifetime");
+        final Integer maxLifetime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
         dataSource.setMaxLifetime(maxLifetime);
 
         return dataSource;

@@ -18,6 +18,7 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
 import {isNullOrUndefined} from 'util';
 import {AlertsEntry} from './alertsentry';
+import {showOnDirtyErrorStateMatcher, ErrorStateMatcher} from '@angular/material';
 
 @Component({
   moduleId: module.id,
@@ -72,6 +73,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   dateToName: string;
   displayDomainCheckBox: boolean;
 
+  matcher: ErrorStateMatcher = showOnDirtyErrorStateMatcher;
+
   filter: any;
 
   constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
@@ -80,9 +83,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.getAlertTypes();
     this.getAlertLevels();
     this.getAlertStatuses();
-    if (this.securityService.isCurrentUserSuperAdmin()) {
-      this.displayDomainCheckBox = true;
-    }
   }
 
   ngOnInit() {
@@ -112,7 +112,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     this.dateFromName = '';
     this.dateToName = '';
-    this.displayDomainCheckBox = false;
+    this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
 
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 

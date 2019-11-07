@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DATABASE_SCHEMA;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -27,7 +29,6 @@ public class DomainServiceImpl implements DomainService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
-    private static final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -36,9 +37,14 @@ public class DomainServiceImpl implements DomainService {
     protected DomainDao domainDao;
 
 
+    private List<Domain> domains;
+
     @Override
-    public List<Domain> getDomains() {
-        return domainDao.findAll();
+    public synchronized List<Domain> getDomains() {
+        if (domains == null) {
+            domains = domainDao.findAll();
+        }
+        return domains;
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)

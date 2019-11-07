@@ -37,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -289,9 +290,6 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
             result = userMessageLog;
-
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
-            result = MessageStatus.SEND_ENQUEUED;
 
             messageExchangeService.retrieveMessageRestoreStatus(messageId);
             result = MessageStatus.SEND_ENQUEUED;
@@ -563,20 +561,70 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
         final String queueName = "wsQueue";
 
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.deleteMessagePluginCallback((String) any);
+        }};
+
+        userMessageDefaultService.deleteMessage(messageId);
+
+        new Verifications() {{
+            userMessageDefaultService.deleteMessagePluginCallback(messageId);
+        }};
+    }
+
+    @Test
+    public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
+                                                @Injectable UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        final String backend = "myPlugin";
         final List<NotificationListener> notificationListeners = new ArrayList<>();
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
             backendNotificationService.getNotificationListenerServices();
             result = notificationListeners;
-            notificationListener1.getBackendNotificationQueue().getQueueName();
-            result = queueName;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getBackend();
+            result = backend;
+
+            backendNotificationService.getNotificationListener(backend);
+            result = notificationListener1;
+
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
         }};
 
-        userMessageDefaultService.deleteMessage(messageId);
+        userMessageDefaultService.deleteMessagePluginCallback(messageId);
 
         new Verifications() {{
-            jmsManager.consumeMessage(queueName, messageId);
+            userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
+        }};
+    }
+
+    @Test
+    public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
+                                                                       @Injectable UserMessageLog userMessageLog,
+                                                                       @Injectable Queue backendNotificationQueue) throws JMSException {
+        final String messageId = "1";
+        final String backendQueue = "myPluginQueue";
+
+        new Expectations(userMessageDefaultService) {{
+            notificationListener.getBackendNotificationQueue();
+            result = backendNotificationQueue;
+
+            backendNotificationQueue.getQueueName();
+            result = backendQueue;
+
+
+        }};
+
+        userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener);
+
+        new Verifications() {{
+            jmsManager.consumeMessage(backendQueue, messageId);
+            notificationListener.deleteMessageCallback(messageId);
         }};
     }
 

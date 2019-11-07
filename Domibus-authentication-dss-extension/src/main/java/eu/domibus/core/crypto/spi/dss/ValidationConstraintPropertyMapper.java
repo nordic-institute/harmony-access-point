@@ -9,6 +9,9 @@ import org.springframework.core.env.Environment;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.core.crypto.spi.dss.DSSPropertyManager.DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_NAME;
+import static eu.domibus.core.crypto.spi.dss.DSSPropertyManager.DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_STATUS;
+
 /**
  * @author Thomas Dussart
  * @see ConstraintInternal
@@ -24,10 +27,9 @@ import java.util.Map;
  */
 public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<ConstraintInternal> {
 
+    private static final String DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME = DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_NAME;
 
-    private static final String DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME = "domibus.authentication.dss.constraint.name";
-
-    private static final String DOMIBUS_DSS_DEFAULT_CONSTRAINT_STATUS = "domibus.authentication.dss.constraint.status";
+    private static final String DOMIBUS_DSS_DEFAULT_CONSTRAINT_STATUS = DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_STATUS;
 
 
     public ValidationConstraintPropertyMapper(final DomibusPropertyExtService domibusPropertyExtService,
@@ -45,7 +47,7 @@ public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<Cons
     }
 
     @Override
-    ConstraintInternal transform(Map<String, ImmutablePair<String, String>> keyValues) {
+    protected ConstraintInternal transform(Map<String, ImmutablePair<String, String>> keyValues) {
         if (keyValues.isEmpty()) {
             throw new IllegalStateException("Constraints are mandatory.");
         }

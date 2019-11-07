@@ -146,7 +146,7 @@ public class UpdateRetryLoggingService {
         if (userMessage.isUserMessageFragment()) {
             return true;
         }
-        return domibusPropertyProvider.getBooleanDomainProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
+        return domibusPropertyProvider.getBooleanProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
     }
 
 

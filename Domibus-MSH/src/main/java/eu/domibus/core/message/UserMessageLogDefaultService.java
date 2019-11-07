@@ -87,7 +87,8 @@ public class UserMessageLogDefaultService {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
-        uiReplicationSignalService.messageStatusChange(messageLog.getMessageId(), newStatus);
+
+        uiReplicationSignalService.messageChange(messageLog.getMessageId());
     }
 
     public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
@@ -97,7 +98,7 @@ public class UserMessageLogDefaultService {
     public void setSignalMessageAsDeleted(final String signalMessageid) {
         final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageid);
         signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
-        uiReplicationSignalService.messageStatusChange(signalMessageLog.getMessageId(), MessageStatus.DELETED);
+        uiReplicationSignalService.messageChange(signalMessageLog.getMessageId());
     }
 
     public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {

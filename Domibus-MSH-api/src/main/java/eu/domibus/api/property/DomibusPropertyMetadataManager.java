@@ -11,11 +11,9 @@ import java.util.Map;
 public interface DomibusPropertyMetadataManager {
 
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.user.account_disabled.";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.super.user.account_disabled.";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.cert.imminent_expiration.";
     String DOMIBUS_ALERT_CERT_EXPIRED_PREFIX = "domibus.alert.cert.expired.";
     String DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.user.login_failure.";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX = "domibus.alert.super.user.login_failure.";
     String DOMIBUS_ALERT_SENDER_SMTP_PREFIX = "domibus.alert.sender.smtp.";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX = "domibus.alert.msg.communication_failure.";
     String DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX = "domibus.alert.password.expired"; //NOSONAR
@@ -27,7 +25,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_SECURITY_KEYSTORE_PREFIX = "domibus.security.keystore.";
     String DOMIBUS_SECURITY_TRUSTSTORE_PREFIX = "domibus.security.truststore.";
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";
-
 
     String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";
     String DOMIBUS_UI_REPLICATION_ENABLED = "domibus.ui.replication.enabled";
@@ -126,8 +123,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
-    String DOMIBUS_ALERT_SUPER_CLEANER_CRON = "domibus.alert.super.cleaner.cron";
-    String DOMIBUS_ALERT_SUPER_RETRY_CRON = "domibus.alert.super.retry.cron";
     String DOMIBUS_UI_REPLICATION_SYNC_CRON = "domibus.ui.replication.sync.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
@@ -142,13 +137,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME = "domibus.alert.cleaner.alert.lifetime";
     String DOMIBUS_ALERT_RETRY_TIME = "domibus.alert.retry.time";
     String DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS = "domibus.alert.retry.max_attempts";
-    String DOMIBUS_ALERT_SUPER_CLEANER_ALERT_LIFETIME = "domibus.alert.super.cleaner.alert.lifetime";
-    String DOMIBUS_ALERT_SUPER_ACTIVE = "domibus.alert.super.active";
-    String DOMIBUS_ALERT_SUPER_MAIL_SENDING_ACTIVE = "domibus.alert.super.mail.sending.active";
-    String DOMIBUS_ALERT_SUPER_RETRY_TIME = "domibus.alert.super.retry.time";
-    String DOMIBUS_ALERT_SUPER_RETRY_MAX_ATTEMPTS = "domibus.alert.super.retry.max_attempts";
-    String DOMIBUS_ALERT_SUPER_SENDER_EMAIL = "domibus.alert.super.sender.email";
-    String DOMIBUS_ALERT_SUPER_RECEIVER_EMAIL = "domibus.alert.super.receiver.email";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX + "active";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX + "states";
     String DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX + "level";
@@ -160,13 +148,6 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_LEVEL = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX + "level";
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_MOMENT = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX + "moment";
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX + "subject";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_ACTIVE = DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX + "active";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_LEVEL = DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX + "level";
-    String DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_MAIL_SUBJECT = DOMIBUS_ALERT_SUPER_USER_LOGIN_FAILURE_PREFIX + "mail.subject";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_ACTIVE = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "active";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_LEVEL = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "level";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_MOMENT = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "moment";
-    String DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_SUBJECT = DOMIBUS_ALERT_SUPER_USER_ACCOUNT_DISABLED_PREFIX + "subject";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "active";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_DELAY_DAYS = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "delay_days";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_FREQUENCY_DAYS = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "frequency_days";
@@ -222,6 +203,80 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
+    String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
+
+    String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
+    String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
+    String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
+    String DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME = "domibus.datasource.xa.xaDataSourceClassName";
+    String DOMIBUS_DATASOURCE_XA_MAX_LIFETIME = "domibus.datasource.xa.maxLifetime";
+    String DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE = "domibus.datasource.xa.minPoolSize";
+    String DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE = "domibus.datasource.xa.maxPoolSize";
+    String DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT = "domibus.datasource.xa.borrowConnectionTimeout";
+    String DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT = "domibus.datasource.xa.reapTimeout";
+    String DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME = "domibus.datasource.xa.maxIdleTime";
+    String DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL = "domibus.datasource.xa.maintenanceInterval";
+    String DOMIBUS_DATASOURCE_XA_PROPERTY_USER = "domibus.datasource.xa.property.user";
+    String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password"; //NOSONAR
+    String DOMIBUS_DATASOURCE_XA_PROPERTY_url = "domibus.datasource.xa.property.url";
+    String DOMIBUS_DATASOURCE_XA_PROPERTY_URL = "domibus.datasource.xa.property.URL";
+    String DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME = "domibus.datasource.driverClassName";
+    String DOMIBUS_DATASOURCE_URL = "domibus.datasource.url";
+    String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";
+    String DOMIBUS_DATASOURCE_PASSWORD = "domibus.datasource.password";//NOSONAR
+    String DOMIBUS_DATASOURCE_MAX_LIFETIME = "domibus.datasource.maxLifetime";
+    String DOMIBUS_DATASOURCE_MIN_POOL_SIZE = "domibus.datasource.minPoolSize";
+    String DOMIBUS_DATASOURCE_MAX_POOL_SIZE = "domibus.datasource.maxPoolSize";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT = "domibus.entityManagerFactory.jpaProperty.hibernate.dialect";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS = "domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL = "domibus.entityManagerFactory.jpaProperty.hibernate.format_sql";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_FACTORY_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_JTA_PLATFORM = "domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform";
+    String DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.password.encryption.active"; //NOSONAR
+    String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
+    String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR
+    String DOMIBUS_JMS_QUEUE_PULL = "domibus.jms.queue.pull";
+    String DOMIBUS_JMS_QUEUE_UI_REPLICATION = "domibus.jms.queue.ui.replication";
+    String DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.XAConnectionFactory.maxPoolSize";
+    String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
+    String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
+    String COM_ATOMIKOS_ICATCH_OUTPUT_DIR = "com.atomikos.icatch.output_dir";
+    String COM_ATOMIKOS_ICATCH_LOG_BASE_DIR = "com.atomikos.icatch.log_base_dir";
+    String COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT = "com.atomikos.icatch.default_jta_timeout";
+    String COM_ATOMIKOS_ICATCH_MAX_TIMEOUT = "com.atomikos.icatch.max_timeout";
+    String ACTIVE_MQ_BROKER_HOST = "activeMQ.broker.host";
+    String ACTIVE_MQ_BROKER_NAME = "activeMQ.brokerName";
+    String ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE = "activeMQ.embedded.configurationFile";
+    String ACTIVE_MQ_JMXURL = "activeMQ.JMXURL";
+    String ACTIVE_MQ_CONNECTOR_PORT = "activeMQ.connectorPort";
+    String ACTIVE_MQ_RMI_SERVER_PORT = "activeMQ.rmiServerPort";
+    String ACTIVE_MQ_TRANSPORT_CONNECTOR_URI = "activeMQ.transportConnector.uri";
+    String ACTIVE_MQ_USERNAME = "activeMQ.username";
+    String ACTIVE_MQ_PASSWORD = "activeMQ.password";//NOSONAR
+    String ACTIVE_MQ_PERSISTENT = "activeMQ.persistent";
+    String ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT = "activeMQ.connection.closeTimeout";
+    String ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT = "activeMQ.connection.connectResponseTimeout";
+    String DOMIBUS_ALERT_QUEUE_CONCURRENCY = "domibus.alert.queue.concurrency";
+    String MESSAGE_FACTORY_CLASS = "messageFactoryClass";
+    String COMPRESSION_BLACKLIST = "compressionBlacklist";
+    String DOMIBUS_INTERNAL_QUEUE_CONCURENCY = "domibus.internal.queue.concurency";
+    String DOMIBUS_METRICS_JMX_REPORTER_ENABLE = "domibus.metrics.jmx.reporter.enable";
+    String DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE = "domibus.metrics.sl4j.reporter.enable";
+    String DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT = "domibus.metrics.sl4j.reporter.period.time.unit";
+    String DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER = "domibus.metrics.sl4j.reporter.period.number";
+    String DOMIBUS_METRICS_MONITOR_MEMORY = "domibus.metrics.monitor.memory";
+    String DOMIBUS_METRICS_MONITOR_GC = "domibus.metrics.monitor.gc";
+    String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
+    String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
+    String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
+    String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password"; //NOSONAR
+    String DOMIBUS_JMX_USER = "domibus.jmx.user";
+    String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
+    String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
+    String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
 
     /**
      * Get all the properties metadata that support changing at runtime

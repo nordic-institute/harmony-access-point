@@ -31,7 +31,7 @@ public class ConfigurationLoaderTest {
         configurationLoader.getConfiguration(configurationReader);
         configurationLoader.getConfiguration(configurationReader);
         new Verifications() {{
-            configurationReader.readConfiguration(domain);
+            configurationReader.readConfiguration();
             times = 1;
         }};
     }
@@ -47,7 +47,7 @@ public class ConfigurationLoaderTest {
         configurationLoader.getConfiguration(configurationReader);
         
         new Verifications() {{
-            configurationReader.readConfiguration(DomainService.DEFAULT_DOMAIN);
+            configurationReader.readConfiguration();
             times = 1;
         }};
     }

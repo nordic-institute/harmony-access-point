@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMAIN_TITLE;
 
@@ -34,6 +35,7 @@ public class DomainDaoImpl implements DomainDao {
 
     private static final String[] DOMAIN_FILE_EXTENSION = {"properties"};
     private static final String DOMAIN_FILE_SUFFIX = "-domibus";
+    public static final String SUPER = "super";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -47,9 +49,9 @@ public class DomainDaoImpl implements DomainDao {
         LOG.trace("Finding all domains");
 
         List<Domain> result = new ArrayList<>();
-        result.add(DomainService.DEFAULT_DOMAIN);
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOG.trace("Domibus is running in non multitenant mode, adding only the default domain");
+            result.add(DomainService.DEFAULT_DOMAIN);
             return result;
         }
 
@@ -62,22 +64,27 @@ public class DomainDaoImpl implements DomainDao {
             return result;
         }
 
-        List<Domain> additionalDomains = new ArrayList<>();
-        for (File propertyFile : propertyFiles) {
-            final String fileName = propertyFile.getName();
-            if (StringUtils.containsIgnoreCase(fileName, DOMAIN_FILE_SUFFIX)) {
-                LOG.trace("Getting domain code from file [{}]", fileName);
-                String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
+        List<String> fileNames = propertyFiles.stream().map(file -> file.getName())
+                .filter(fileName -> StringUtils.containsIgnoreCase(fileName, DOMAIN_FILE_SUFFIX))
+                .filter(fileName -> !StringUtils.containsIgnoreCase(fileName, SUPER)).collect(Collectors.toList());
 
-                Domain domain = new Domain(domainCode, null);
-                domain.setName(getDomainTitle(domain));
-                additionalDomains.add(domain);
+        List<Domain> domains = new ArrayList<>();
+        for (String fileName : fileNames) {
+            LOG.trace("Getting domain code from file [{}]", fileName);
+            String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
 
-                LOG.trace("Added domain [{}]", domain);
-            }
+            Domain domain = new Domain(domainCode, null);
+            domain.setName(getDomainTitle(domain));
+            domains.add(domain);
+
+            LOG.trace("Added domain [{}]", domain);
         }
-        additionalDomains.sort(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER));
-        result.addAll(additionalDomains);
+        if(!domains.stream().anyMatch(domain-> DomainService.DEFAULT_DOMAIN.equals(domain))) {
+            LOG.warn("Default domain is normally present in the configuration.");
+        }
+
+        domains.sort(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER));
+        result.addAll(domains);
 
         LOG.trace("Found the following domains [{}]", result);
 

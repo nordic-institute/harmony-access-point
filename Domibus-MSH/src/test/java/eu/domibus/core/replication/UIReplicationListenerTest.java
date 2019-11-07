@@ -57,8 +57,6 @@ public class UIReplicationListenerTest {
             mapMessage.getJMSType();
             result = UIJMSType.USER_MESSAGE_RECEIVED.name();
             result = UIJMSType.USER_MESSAGE_SUBMITTED.name();
-            result = UIJMSType.MESSAGE_STATUS_CHANGE.name();
-            result = UIJMSType.MESSAGE_NOTIFICATION_STATUS_CHANGE.name();
             result = UIJMSType.MESSAGE_CHANGE.name();
             result = UIJMSType.SIGNAL_MESSAGE_SUBMITTED.name();
             result = UIJMSType.SIGNAL_MESSAGE_RECEIVED.name();
@@ -66,17 +64,9 @@ public class UIReplicationListenerTest {
 
             mapMessage.getJMSTimestamp();
             result = jmsTimestamp;
-
-            mapMessage.getStringProperty(UIReplicationSignalService.JMS_PROP_STATUS);
-            result = messageStatus.name();
-
-            mapMessage.getStringProperty(UIReplicationSignalService.JMS_PROP_NOTIF_STATUS);
-            result = notificationStatus.name();
         }};
 
         //tested method
-        uiReplicationListener.processUIReplication(mapMessage);
-        uiReplicationListener.processUIReplication(mapMessage);
         uiReplicationListener.processUIReplication(mapMessage);
         uiReplicationListener.processUIReplication(mapMessage);
         uiReplicationListener.processUIReplication(mapMessage);
@@ -96,20 +86,10 @@ public class UIReplicationListenerTest {
             databaseUtil.getDatabaseUserName();
 
             long jmsTimestampActual;
-            uiReplicationDataService.messageReceived(messageId, jmsTimestampActual = withCapture());
+            uiReplicationDataService.userMessageReceived(messageId, jmsTimestampActual = withCapture());
             Assert.assertEquals(jmsTimestamp, jmsTimestampActual);
 
-            uiReplicationDataService.messageSubmitted(messageId, jmsTimestampActual = withCapture());
-            Assert.assertEquals(jmsTimestamp, jmsTimestampActual);
-
-            MessageStatus messageStatusActual;
-            uiReplicationDataService.messageStatusChange(messageId, messageStatusActual = withCapture(), jmsTimestampActual = withCapture());
-            Assert.assertEquals(messageStatus, messageStatusActual);
-            Assert.assertEquals(jmsTimestamp, jmsTimestampActual);
-
-            NotificationStatus notificationStatusActual;
-            uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatusActual = withCapture(), jmsTimestampActual = withCapture());
-            Assert.assertEquals(notificationStatus, notificationStatusActual);
+            uiReplicationDataService.userMessageSubmitted(messageId, jmsTimestampActual = withCapture());
             Assert.assertEquals(jmsTimestamp, jmsTimestampActual);
 
             uiReplicationDataService.messageChange(messageId, jmsTimestampActual = withCapture());

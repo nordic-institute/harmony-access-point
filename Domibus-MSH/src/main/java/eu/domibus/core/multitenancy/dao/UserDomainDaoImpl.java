@@ -2,13 +2,13 @@ package eu.domibus.core.multitenancy.dao;
 
 
 import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.security.User;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -51,7 +51,8 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findPreferredDomains", UserDomainEntity.class);
         return namedQuery.getResultList();
     }
-    
+
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setDomainByUser(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);

@@ -8,9 +8,9 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Service used by PropertyResource, responsible with getting and setting of domibus props that can be changed at runtime
+ * Service used by ConfigurationPropertyResource, responsible with getting and setting of domibus props that can be changed at runtime
  */
-public interface DomibusPropertyService {
+public interface ConfigurationPropertyService {
 
     /**
      * Retrieves all properties from MSH and plugins that contains this string in its name
@@ -18,7 +18,7 @@ public interface DomibusPropertyService {
      * @param name the filter value
      * @return
      */
-    List<DomibusProperty> getProperties(String name);
+    List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties);
 
     /**
      * Stets the property with specified name to the specified value
@@ -26,6 +26,6 @@ public interface DomibusPropertyService {
      * @param name  name of the property
      * @param value the new value
      */
-    void setPropertyValue(String name, String value);
+    void setPropertyValue(String name, boolean isDomain, String value);
 
 }

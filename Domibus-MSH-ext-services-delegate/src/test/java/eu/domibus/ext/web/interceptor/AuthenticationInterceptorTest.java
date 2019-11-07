@@ -35,7 +35,7 @@ public class AuthenticationInterceptorTest {
                               @Injectable final Object handler) throws Exception {
 
         new Expectations() {{
-            authenticationExtService.authenticate(httpRequest);
+            authenticationExtService.enforceAuthentication(httpRequest);
         }};
 
         assertTrue(authenticationInterceptor.preHandle(httpRequest, httpServletResponse, handler));
@@ -48,7 +48,7 @@ public class AuthenticationInterceptorTest {
                               @Injectable final Object handler) throws Exception {
 
         new Expectations() {{
-            authenticationExtService.authenticate(httpRequest);
+            authenticationExtService.enforceAuthentication(httpRequest);
             result = new AuthenticationExtException(DomibusErrorCode.DOM_002, "authentication error");
         }};
 

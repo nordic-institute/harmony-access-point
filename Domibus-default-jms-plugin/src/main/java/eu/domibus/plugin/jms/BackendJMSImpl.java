@@ -33,8 +33,7 @@ import javax.jms.Session;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
+import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -42,11 +41,6 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
 public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSImpl.class);
-
-    protected static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
-    protected static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
-    protected static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
-    protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
     @Autowired
     protected JMSExtService jmsExtService;
@@ -118,7 +112,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]",  messageID, jmsCorrelationID, e);
+                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
@@ -146,7 +140,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     public void deliverMessage(final String messageId) {
         LOG.debug("Delivering message");
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
+        final String queueValue = domibusPropertyExtService.getProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
         }
@@ -178,8 +172,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String queueProperty) {
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, queueProperty);
+        final String queueValue = domibusPropertyExtService.getProperty(queueProperty);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + queueProperty + "]");
         }

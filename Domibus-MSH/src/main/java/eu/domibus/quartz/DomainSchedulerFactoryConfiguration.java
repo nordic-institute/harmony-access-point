@@ -4,6 +4,7 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.job.AlertCleanerJob;
 import eu.domibus.core.alerts.job.AlertCleanerSuperJob;
@@ -124,7 +125,7 @@ public class DomainSchedulerFactoryConfiguration {
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -146,7 +147,7 @@ public class DomainSchedulerFactoryConfiguration {
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retryWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_MSH_RETRY_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MSH_RETRY_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -166,7 +167,7 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(pullRetryWorkerJob().getObject());
-        String propertyValue = domibusPropertyProvider.getDomainProperty(DOMIBUS_PULL_RETRY_CRON);
+        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_PULL_RETRY_CRON);
         obj.setCronExpression(propertyValue);
         LOG.debug("pullRetryWorkerTrigger configured with cronExpression [{}]", propertyValue);
         obj.setStartDelay(20000);
@@ -189,7 +190,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(pullRequestWorkerJob().getObject());
-        String propertyValue = domibusPropertyProvider.getDomainProperty(DOMIBUS_MSH_PULL_CRON);
+        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_MSH_PULL_CRON);
         obj.setCronExpression(propertyValue);
         LOG.debug("pullRequestTrigger configured with cronExpression [{}]", propertyValue);
         obj.setStartDelay(20000);
@@ -219,7 +220,7 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertRetryJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_ALERT_RETRY_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RETRY_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -229,7 +230,7 @@ public class DomainSchedulerFactoryConfiguration {
     public CronTriggerFactoryBean alertRetrySuperWorkerTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertRetryJSuperJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_RETRY_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RETRY_CRON));
         obj.setStartDelay(20000);
         obj.setGroup(GROUP_GENERAL);
         return obj;
@@ -258,7 +259,7 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_ALERT_CLEANER_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CLEANER_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -268,7 +269,7 @@ public class DomainSchedulerFactoryConfiguration {
     public CronTriggerFactoryBean alertSuperCleanerTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerSuperJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_CLEANER_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CLEANER_CRON));
         obj.setStartDelay(20000);
         obj.setGroup(GROUP_GENERAL);
         return obj;
@@ -291,7 +292,7 @@ public class DomainSchedulerFactoryConfiguration {
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(temporaryPayloadRetentionJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -312,7 +313,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(splitAndJoinExpirationJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -333,7 +334,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(activateSuspendedUsersJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON));
         return obj;
     }
 
@@ -353,7 +354,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(activateSuspendedPluginUsersJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON));
         return obj;
     }
 
@@ -370,7 +371,7 @@ public class DomainSchedulerFactoryConfiguration {
     public CronTriggerFactoryBean activateSuspendedSuperUserTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(activateSuspendedSuperUsersJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON));
         obj.setGroup(GROUP_GENERAL);
         return obj;
     }
@@ -391,7 +392,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(saveCertificateAndLogRevocationJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_CERTIFICATE_CHECK_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_CERTIFICATE_CHECK_CRON));
         return obj;
     }
 
@@ -411,7 +412,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(uiReplicationJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
         obj.setStartDelay(30000);
         return obj;
     }
@@ -486,7 +487,7 @@ public class DomainSchedulerFactoryConfiguration {
         Properties properties = new Properties();
         properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
-        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty("domibus.deployment.clustered"));
+        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_DEPLOYMENT_CLUSTERED));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");

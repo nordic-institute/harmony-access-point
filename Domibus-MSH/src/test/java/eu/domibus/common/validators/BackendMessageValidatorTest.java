@@ -46,9 +46,8 @@ public class BackendMessageValidatorTest {
     public void validateMessageId() throws Exception {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
-
         }};
 
         /*Happy Flow No error should occur*/
@@ -131,7 +130,7 @@ public class BackendMessageValidatorTest {
     public void validateRefToMessageId() throws Exception {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty( BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
 
         }};
@@ -214,7 +213,7 @@ public class BackendMessageValidatorTest {
     public void testConfigurationNotSpecified() {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty((Domain) any, BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = null;
         }};
 

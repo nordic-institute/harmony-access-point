@@ -1,5 +1,6 @@
 package eu.domibus.configuration.passwordPolicy;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -30,6 +31,9 @@ public class JobConfiguration {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean userPasswordPolicyAlertTrigger() {
@@ -37,7 +41,7 @@ public class JobConfiguration {
         CronTriggerFactoryBean bean = new CronTriggerFactoryBean();
 
         bean.setJobDetail(userPasswordPolicyAlertJob().getObject());
-        bean.setCronExpression(domibusPropertyProvider.getDomainProperty(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON));
+        bean.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON));
 
         return bean;
     }
@@ -81,7 +85,9 @@ public class JobConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean pluginUserPasswordPolicyAlertTrigger() {
-
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
         CronTriggerFactoryBean bean = new CronTriggerFactoryBean();
 
         bean.setJobDetail(pluginUserPasswordPolicyAlertJob().getObject());
