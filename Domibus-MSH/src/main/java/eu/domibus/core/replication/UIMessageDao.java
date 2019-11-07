@@ -2,7 +2,6 @@ package eu.domibus.core.replication;
 
 import eu.domibus.common.model.logging.UserMessageLog;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +19,6 @@ public interface UIMessageDao {
 
     void saveOrUpdate(UIMessageEntity uiMessageEntity);
 
-    boolean updateMessage(UserMessageLog userMessageLog, Date lastModified);
+    boolean updateMessage(UserMessageLog userMessageLog, long lastModified);
 
 }
