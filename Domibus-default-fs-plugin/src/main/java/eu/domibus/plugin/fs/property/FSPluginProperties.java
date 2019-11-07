@@ -385,7 +385,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     @Override
-    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+    public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         if(knownProperties == null) {
             knownProperties = new HashMap<>();
 
