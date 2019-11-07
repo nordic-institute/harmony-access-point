@@ -19,7 +19,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 /**
  * @author Ion Perpegel
  * @since 4.1.1
- *
+ * <p>
  * Property manager for the JmsPlugin properties.
  */
 @Service
@@ -30,6 +30,17 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
 
     @Autowired
     protected DomainExtService domainExtService;
+
+    private String[] knownPropertyNames = new String[]{
+            FROM_PARTY_ID, FROM_PARTY_TYPE, FROM_ROLE,
+            TO_PARTY_ID, TO_PARTY_TYPE, TO_ROLE,
+            AGREEMENT_REF, SERVICE, SERVICE_TYPE, ACTION,
+            PUT_ATTACHMENTS_IN_QUEUE,
+    };
+
+    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(knownPropertyNames)
+            .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, true, true))
+            .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
@@ -63,15 +74,7 @@ public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        String[] knownPropertyNames = new String[]{
-                FROM_PARTY_ID, FROM_PARTY_TYPE, FROM_ROLE,
-                TO_PARTY_ID, TO_PARTY_TYPE, TO_ROLE,
-                AGREEMENT_REF, SERVICE, SERVICE_TYPE, ACTION,
-                PUT_ATTACHMENTS_IN_QUEUE,
-        };
-        return Arrays.stream(knownPropertyNames)
-                .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, true, true))
-                .collect(Collectors.toMap(x -> x.getName(), x -> x));
+        return knownProperties;
     }
 
     @Override
