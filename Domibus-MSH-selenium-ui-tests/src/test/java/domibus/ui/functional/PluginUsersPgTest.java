@@ -511,7 +511,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, "default"),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN, username),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, null);

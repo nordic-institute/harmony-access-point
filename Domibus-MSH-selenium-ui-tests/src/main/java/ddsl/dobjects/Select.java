@@ -55,13 +55,22 @@ public class Select extends DComponent {
 	private DObject getSelectContainer() {
 		return new DObject(driver, selectContainer);
 	}
+
 	public DButton getExpandBtn() {
 		return new DButton(driver, expandBtn);
 	}
+
 	private DObject getSelectedOptionElement() {
 		return new DObject(driver, selectedOptionValue);
 	}
-	public String getSelectedValue() throws Exception{return getSelectedOptionElement().getText();}
+
+	public String getSelectedValue() throws Exception {
+		try {
+			return getSelectedOptionElement().getText();
+		} catch (Exception e) {
+		}
+		return null;
+	}
 
 	private void extractOptionIDs() {
 		wait.forElementToBeVisible(selectContainer);
@@ -76,15 +85,16 @@ public class Select extends DComponent {
 		log.debug("option ids identified");
 	}
 
-	public boolean isDisplayed() throws Exception{
+	public boolean isDisplayed() throws Exception {
 		return getExpandBtn().isEnabled();
 	}
 
-	protected void expand() throws Exception{
+	protected void expand() throws Exception {
 		try {
 			getExpandBtn().click();
 			wait.forElementToBeGone(expandBtn);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 	}
 
 	protected List<DObject> getOptionElements() throws Exception {
@@ -99,17 +109,19 @@ public class Select extends DComponent {
 		return optionObj;
 	}
 
-	public boolean selectOptionByText(String text) throws Exception{
+	public boolean selectOptionByText(String text) throws Exception {
 
-		if(StringUtils.isEmpty(text)){return false;}
+		if (StringUtils.isEmpty(text)) {
+			return false;
+		}
 
 		List<DObject> optionObj = getOptionElements();
 
-		wait.forElementToHaveText(optionObj.get(optionObj.size()-1).element);
+		wait.forElementToHaveText(optionObj.get(optionObj.size() - 1).element);
 
 		for (DObject dObject : optionObj) {
 
-			if(StringUtils.equalsIgnoreCase(dObject.getText(), text)){
+			if (StringUtils.equalsIgnoreCase(dObject.getText(), text)) {
 				dObject.click();
 				return true;
 			}
@@ -119,7 +131,7 @@ public class Select extends DComponent {
 	}
 
 	public boolean selectOptionByIndex(int index) throws Exception {
-		if (index >= optionIDs.size() || index<0) {
+		if (index >= optionIDs.size() || index < 0) {
 			return false;
 		}
 
@@ -128,7 +140,7 @@ public class Select extends DComponent {
 	}
 
 
-	public List<String> getOptionsTexts() throws Exception{
+	public List<String> getOptionsTexts() throws Exception {
 		List<String> texts = new ArrayList<>();
 		List<DObject> options = getOptionElements();
 

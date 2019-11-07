@@ -35,7 +35,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Logout");
 		page.getSandwichMenu().logout();
 
-		rest.deleteUser(username, null);
+//		rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
 	}
 
@@ -76,7 +76,7 @@ public class LoginPgTest extends BaseTest {
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
-		rest.deleteUser(username, null);
+		//rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
 
 		soft.assertAll();
@@ -104,7 +104,7 @@ public class LoginPgTest extends BaseTest {
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
-		rest.deleteUser(username, null);
+//		rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
 
 		soft.assertAll();
@@ -158,7 +158,7 @@ public class LoginPgTest extends BaseTest {
 		page.login(username, data.defaultPass());
 		soft.assertTrue(new DomibusPage(driver).getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
-		rest.deleteUser(username, null);
+//		rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
 
 		soft.assertAll();
@@ -196,7 +196,7 @@ public class LoginPgTest extends BaseTest {
 		page.login(username, data.defaultPass());
 		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User is on Messages page, account is unblocked");
 
-		rest.deleteUser(username, null);
+//		rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
 
 		soft.assertAll();

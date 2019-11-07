@@ -1,11 +1,13 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -14,6 +16,7 @@ import pages.users.UsersPage;
 import utils.Generator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -105,20 +108,21 @@ public class UsersPgTest extends BaseTest {
 	public void availableRoles() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		ArrayList<HashMap<String, String>> roles = new ArrayList<>();
-		roles.add(data.getUser(DRoles.ADMIN));
+		ArrayList<String> roles = new ArrayList<>();
+		roles.add(DRoles.ADMIN);
 		if (data.isIsMultiDomain()) {
-			roles.add(data.getUser(DRoles.SUPER));
+			roles.add(DRoles.SUPER);
 		}
 		log.info("This test runs for roles: " + roles);
 
-		for (HashMap<String, String> role : roles) {
-			UsersPage page = loginAndGoToUsersPage(role);
+		for (String role : roles) {
+			String username = getUser(null, role, true, false, true).getString("userName");
+			UsersPage page = loginAndGoToUsersPage(username, data.defaultPass());
 
 			log.info("checking available options for role: " + role);
 			ArrayList<DButton> buttons = new ArrayList<>();
-			buttons.add(page.getEditBtn());
 			buttons.add(page.getNewBtn());
+			buttons.add(page.getEditBtn());
 
 			for (DButton button : buttons) {
 				page.grid().selectRow(0);
@@ -128,14 +132,17 @@ public class UsersPgTest extends BaseTest {
 				UserModal modal = new UserModal(driver);
 
 				log.info("retrieving available options");
+				String currentSelectedRole = modal.getRoleSelect().getSelectedValue();
 				List<String> visibleRoles = modal.getRoleSelect().getOptionsTexts();
 
 				soft.assertTrue(visibleRoles.contains(DRoles.USER), "USER role is available");
 				soft.assertTrue(visibleRoles.contains(DRoles.ADMIN), "ADMIN role is available");
 
 				if (role.equals(DRoles.SUPER)) {
-					soft.assertTrue(visibleRoles.size() == 3, "all three options available");
-					soft.assertTrue(visibleRoles.contains(DRoles.SUPER), "SUPER role is available");
+					if(StringUtils.isEmpty(currentSelectedRole)){
+						soft.assertTrue(visibleRoles.size() == 3, "all three options available");
+						soft.assertTrue(visibleRoles.contains(DRoles.SUPER), "SUPER role is available");
+					}
 				} else {
 					soft.assertTrue(visibleRoles.size() == 2, "2 options available");
 				}
@@ -372,15 +379,16 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/*USR-16 - Admin tries to create new user with username less than 3 letters long*/
-	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void userNameValidations() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
 		log.info("click New");
 		page.getNewBtn().click();
-		UserModal modal = new UserModal(driver);
 
+
+		UserModal modal = new UserModal(driver);
 		log.info("checking with only one letter");
 		modal.getUserNameInput().fill("t");
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
@@ -500,6 +508,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("Saving");
 		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
@@ -514,6 +523,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("Saving");
 		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
