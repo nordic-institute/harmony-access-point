@@ -20,7 +20,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Property manager for the JmsPlugin properties.
+ * Property manager for the Default JMS plugin properties.
  */
 @Service
 public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {

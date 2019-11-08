@@ -36,7 +36,7 @@ public class DomibusPropertyMetadataDTO {
     private boolean withFallback;
 
     /**
-     * When true, pre property must be changed across the cluster machines, so a notification is raised
+     * When true, the property must be changed across the cluster machines, so a notification is raised
      */
     private boolean clusterAware;
 
@@ -46,7 +46,7 @@ public class DomibusPropertyMetadataDTO {
     private String section;
 
     /**
-     * Correspondts to the existing descriptions of properties found in domibus.properties files
+     * Corresponds to the existing descriptions of properties found in domibus.properties files
      * ex: #The location of the keystore
      */
     private String description;

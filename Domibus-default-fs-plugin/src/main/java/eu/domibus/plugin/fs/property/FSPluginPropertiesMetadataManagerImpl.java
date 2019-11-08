@@ -11,6 +11,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * <p>
+ * Property manager for the Default FS plugin properties.
+ */
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
@@ -74,9 +80,9 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, Module.FS_PLUGIN, false, false),
             // without fallback from the default domain :
             new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, true, false),
-            new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
+            new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, false),
             new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, true, false),
-            new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, false), // TODO: handle encryption
+            new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, false),
             // with fallback from the default domain:
             new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, true, true),
             new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, true, true),
@@ -92,11 +98,17 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Module.FS_PLUGIN, true, true),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return knownProperties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasKnownProperty(String name) {
         return this.getKnownProperties().containsKey(name);
