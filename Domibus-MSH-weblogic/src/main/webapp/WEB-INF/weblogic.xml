@@ -14,7 +14,6 @@
             <package-name>com.google.*</package-name>
             <package-name>org.codehaus.stax2.*</package-name>
             <package-name>org.bouncycastle.*</package-name>
-            <package-name>org.apache.wss4j.*</package-name>
             <package-name>org.apache.cxf.*</package-name>
             <package-name>org.apache.commons.io.*</package-name>
             <package-name>org.apache.commons.lang.*</package-name>

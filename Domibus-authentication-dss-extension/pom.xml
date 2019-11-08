@@ -60,7 +60,7 @@
             <artifactId>quartz</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Wss4j dependencies -->
+        <!-- CXF dependencies -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
