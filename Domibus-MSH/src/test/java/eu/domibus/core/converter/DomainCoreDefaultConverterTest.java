@@ -19,11 +19,8 @@ import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.core.alerts.model.mapper.AbstractPropertyValueDecorator;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
-import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
-import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
@@ -45,18 +42,11 @@ import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
-import eu.europa.ec.digit.commons.test.ObjectServiceImpl;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import mockit.Injectable;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
-import org.springframework.core.type.ClassMetadata;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -65,7 +55,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import sun.security.x509.X509CertImpl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,7 +69,6 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    //@ComponentScan(basePackageClasses = {EventMapperImpl.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -99,7 +87,6 @@ public class DomainCoreDefaultConverterTest {
         public EventMapper eventMapper() {
             return new EventMapperImpl_();
         }
-
     }
 
     @Autowired

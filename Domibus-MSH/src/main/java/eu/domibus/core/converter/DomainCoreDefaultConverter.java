@@ -57,7 +57,7 @@ import java.util.List;
  * @since 3.3
  */
 @Component
-//@Transactional(propagation = Propagation.SUPPORTS)
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCoreDefaultConverter.class);
