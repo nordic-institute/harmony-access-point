@@ -14,6 +14,7 @@ import pages.login.LoginPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import utils.Generator;
+import utils.TestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,21 @@ import java.util.List;
 
 
 public class UsersPgTest extends BaseTest {
+
+	ArrayList<String> ADMIN_VISIBLE_ROLES = new ArrayList<>(Arrays.asList(DRoles.ADMIN, DRoles.USER));
+
+	ArrayList<String> SUPER_NEW_VISIBLE_ROLES = new ArrayList<>(Arrays.asList(DRoles.SUPER, DRoles.ADMIN, DRoles.USER));
+
+	ArrayList<String> SUPER_EDIT_USER_VISIBLE_ROLES = new ArrayList<>(Arrays.asList(DRoles.ADMIN, DRoles.USER));
+	ArrayList<String> SUPER_EDIT_ADMIN_VISIBLE_ROLES = new ArrayList<>(Arrays.asList(DRoles.ADMIN, DRoles.USER));
+	ArrayList<String> SUPER_EDIT_SUPER_VISIBLE_ROLES = new ArrayList<>(Arrays.asList(DRoles.SUPER));
+
+	private boolean testRoleList(List<String> expectedOptions, UserModal modal) throws Exception {
+		log.info("getting visible options");
+		List<String> visibleOptions = modal.getRoleSelect().getOptionsTexts();
+		return TestUtils.isEqualListContent(visibleOptions, expectedOptions);
+	}
+
 
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
 		LoginPage loginPage = new LoginPage(driver);
@@ -105,57 +121,67 @@ public class UsersPgTest extends BaseTest {
 
 	/* Available roles in Role drop down on new/edit pop up */
 	@Test(description = "USR-12", groups = {"multiTenancy", "singleTenancy"})
-	public void availableRoles() throws Exception {
+	public void availableRolesAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		ArrayList<String> roles = new ArrayList<>();
-		roles.add(DRoles.ADMIN);
-		if (data.isIsMultiDomain()) {
-			roles.add(DRoles.SUPER);
-		}
-		log.info("This test runs for roles: " + roles);
+		String adminUser = getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		String toEditUser = getUser(null, DRoles.ADMIN, true, false, false).getString("userName");
 
-		for (String role : roles) {
-			String username = getUser(null, role, true, false, true).getString("userName");
-			UsersPage page = loginAndGoToUsersPage(username, data.defaultPass());
+		log.info("got user " + toEditUser);
+		log.info("got admin " + adminUser);
 
-			log.info("checking available options for role: " + role);
-			ArrayList<DButton> buttons = new ArrayList<>();
-			buttons.add(page.getNewBtn());
-			buttons.add(page.getEditBtn());
+		login(adminUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
+		UsersPage page = new UsersPage(driver);
 
-			for (DButton button : buttons) {
-				page.grid().selectRow(0);
-				log.info("checking dialog for " + button.getText() + " user");
-				button.click();
+		log.info("click NEW");
+		page.getNewBtn().click();
+		UserModal modal = new UserModal(driver);
+		soft.assertTrue(testRoleList(ADMIN_VISIBLE_ROLES, modal), "Roles available for ADMIN");
 
-				UserModal modal = new UserModal(driver);
+		log.info("closing user modal");
+		page.clickVoidSpace();
 
-				log.info("retrieving available options");
-				String currentSelectedRole = modal.getRoleSelect().getSelectedValue();
-				List<String> visibleRoles = modal.getRoleSelect().getOptionsTexts();
+		log.info("editing user " + toEditUser);
+		page.grid().scrollToAndDoubleClick("Username", toEditUser);
+		soft.assertTrue(testRoleList(ADMIN_VISIBLE_ROLES, modal), "Roles available for ADMIN");
 
-				soft.assertTrue(visibleRoles.contains(DRoles.USER), "USER role is available");
-				soft.assertTrue(visibleRoles.contains(DRoles.ADMIN), "ADMIN role is available");
+		log.info("closing user modal");
+		page.clickVoidSpace();
 
-				if (role.equals(DRoles.SUPER)) {
-					if(StringUtils.isEmpty(currentSelectedRole)){
-						soft.assertTrue(visibleRoles.size() == 3, "all three options available");
-						soft.assertTrue(visibleRoles.contains(DRoles.SUPER), "SUPER role is available");
-					}
-				} else {
-					soft.assertTrue(visibleRoles.size() == 2, "2 options available");
-				}
-				log.info("closing dialog");
-				page.clickVoidSpace();
-			}
+		if(data.isIsMultiDomain()) {
+			logout();
+			String superUser = getUser(null, DRoles.SUPER, true, false, true).getString("userName");
+			log.info("checking for super admin " +superUser);
+			login(superUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
 
-			log.info("logout");
-			page.getSandwichMenu().logout();
+			log.info("click NEW");
+			page.getNewBtn().click();
+			soft.assertTrue(testRoleList(SUPER_NEW_VISIBLE_ROLES, modal), "All roles available for SUPER when creating new user");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+			log.info("editing user " + toEditUser);
+			page.grid().scrollToAndDoubleClick("Username", toEditUser);
+			soft.assertTrue(testRoleList(SUPER_EDIT_USER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing a user");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+			log.info("editing admin " + adminUser);
+			page.grid().scrollToAndDoubleClick("Username", adminUser);
+			soft.assertTrue(testRoleList(SUPER_EDIT_ADMIN_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+			log.info("editing super user " + superUser);
+			page.grid().scrollToAndDoubleClick("Username", superUser);
+			soft.assertTrue(testRoleList(SUPER_EDIT_SUPER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
+			log.info("closing modal");
+			page.clickVoidSpace();
 		}
 
 		soft.assertAll();
 	}
+
 
 	/* USR-4 - Create new user and press cancel */
 	@Test(description = "USR-4", groups = {"multiTenancy", "singleTenancy"})
@@ -512,7 +538,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username, domains.get(1)), "Correct message displayed");
 
 //		deleted user
 		log.info("creating new user with existing deleted username");
@@ -527,7 +553,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, deleted_username, domains.get(1)), "Correct message displayed");
 
 
 		soft.assertAll();

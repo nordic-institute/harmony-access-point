@@ -158,4 +158,11 @@ public class TestUtils {
 		return StringUtils.EMPTY;
 	}
 
+	public static boolean isEqualListContent(List<String> l1, List<String> l2){
+		Collections.sort(l1);
+		Collections.sort(l2);
+		return ListUtils.isEqualList(l1,l2);
+	}
+
+
 }

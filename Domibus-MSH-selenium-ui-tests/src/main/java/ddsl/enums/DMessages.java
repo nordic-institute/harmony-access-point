@@ -59,7 +59,7 @@ public class DMessages {
 	public  static final String CHANGEPASSWORD_WRONG_CURRENT_PASSWORD= "Password could not be changed. [DOM_001]:The current password does not match the provided one.";
 
 	public class Users {
-		public static final String DUPLICATE_USERNAME_ERROR = "Duplicate user name for user: %s.";
+		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' not completed successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 	}
 
 }
