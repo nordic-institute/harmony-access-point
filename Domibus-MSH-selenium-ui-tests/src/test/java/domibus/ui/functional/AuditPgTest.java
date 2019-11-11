@@ -384,62 +384,55 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteParty() throws Exception {
 		log.info("upload pmode");
-		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		rest.uploadPMode("pmodes/multipleParties.xml", null);
 		SoftAssert soft = new SoftAssert();
+
 		log.info("Login and navigate to pmode parties page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
-		PModeCurrentPage pcPage = new PModeCurrentPage(driver);
-		String defaultPmode = pcPage.getTextArea().getText();
-		boolean isPresent = defaultPmode.contains("party=\"blue_gw\"");
-		log.info("System party name is blue_gw: " + isPresent);
-		DomibusPage page = new DomibusPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		PModePartiesPage pPage = new PModePartiesPage(driver);
-		int rowCount = pPage.grid().getPagination().getTotalItems();
-		log.info("Total row count" + rowCount);
 		pPage.grid().scrollToAndSelect("Party Name", "red_gw");
 		pPage.getDeleteButton().click();
 		pPage.getSaveButton().click();
-		log.info("Success message shown : " + pPage.getAlertArea().getAlertMessage());
+		log.info("Message shown : " + pPage.getAlertArea().getAlertMessage());
 
-		page.getSidebar().goToPage(PAGES.AUDIT);
+		pPage.getSidebar().goToPage(PAGES.AUDIT);
+
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Set all search filter data");
-		auditPage.getFilters().setFilterData("table", "Pmode");
-		log.info("Click on search button");
-		auditPage.getFilters().getSearchButton().click();
+		auditPage.filters().getTableFilter().selectOptionByText("Pmode");
+		auditPage.filters().clickSearch();
 		auditPage.grid().waitForRowsToLoad();
-		log.info("Validate data on Audit page");
-		soft.assertTrue(auditPage.grid().getRowInfo(1).containsValue("Deleted"), "Proper action is logged");
-		soft.assertAll();
 
+		log.info("Validate data on Audit page");
+		soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Created"), "Created action is logged");
+		soft.assertTrue(auditPage.grid().getRowInfo(1).containsValue("Deleted"), "Deleted action is logged");
+
+		soft.assertAll();
 	}
 
 	/*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
 	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"})
 	public void pmodeDownload() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		log.info("Login into application and navigate to Pmode archive page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		DomibusPage page = new DomibusPage(driver);
+		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
+		SoftAssert soft = new SoftAssert();
 		log.info("getting pmode id");
 		Integer pmodeID = rest.getLatestPModeID(null);
 		log.info("downloading PMODE with id " + pmodeID);
 		String filename = rest.downloadPmode(null, pmodeID);
 		log.info("downloaded file with name" + filename);
 
-		page.getSidebar().goToPage(PAGES.AUDIT);
-		AuditPage auditPage = new AuditPage(driver);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage page = new AuditPage(driver);
 
-		auditPage.getFilters().setFilterData("table", "Pmode");
+		page.getFilters().setFilterData("table", "Pmode");
 		log.info("click on search button");
-		auditPage.getFilters().getSearchButton().click();
-		auditPage.grid().waitForRowsToLoad();
+		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
 		log.info("Validate data on Audit page");
 
-		HashMap<String, String> info = auditPage.grid().getRowInfo(0);
+		HashMap<String, String> info = page.grid().getRowInfo(0);
 
 		soft.assertEquals(info.get("Table"), "Pmode", "Table column has value Pmode");
 		soft.assertEquals(info.get("Action"), "Downloaded", "Action column has value Downloaded");
@@ -490,35 +483,46 @@ public class AuditPgTest extends BaseTest {
 	public void deletePmodeFromArchive() throws Exception {
 		log.info("upload pmode");
 		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+
 		SoftAssert soft = new SoftAssert();
-		log.info("Login and navigate to pmode parties page");
+
+		log.info("Login and navigate to pmode archive page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		PModeArchivePage pAuditPage = new PModeArchivePage(driver);
-		PModePartiesPage pPage = new PModePartiesPage(driver);
-		DomibusPage page = new DomibusPage(driver);
-		if (pAuditPage.grid().getRowsNo() == 1) {
+
+		PModeArchivePage archivePage = new PModeArchivePage(driver);
+
+
+		if (archivePage.grid().getRowsNo() == 1) {
 			log.info("Upload pmode");
 			rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+			archivePage.refreshPage();
+			archivePage.grid().waitForRowsToLoad();
 		}
-		log.info("Select row with index 1");
-		pAuditPage.grid().selectRow(1);
-		log.info("Click on delete button");
-		pAuditPage.getDeleteButton().click();
-		log.info("click on save button");
-		pAuditPage.getSaveButton().click();
-		log.info("Click on yes button on confirmation pop up");
-		pAuditPage.getConfirmation().confirm();
-		log.info("Success message shown : " + pPage.getAlertArea().getAlertMessage());
-		page.getSidebar().goToPage(PAGES.AUDIT);
-		AuditPage auditPage = new AuditPage(driver);
 
+		log.info("Select row with index 1");
+		archivePage.grid().selectRow(1);
+
+		log.info("Click on delete button");
+		archivePage.getDeleteButton().click();
+		log.info("click on save button");
+		archivePage.getSaveButton().click();
+		log.info("Click on yes button on confirmation pop up");
+		archivePage.getConfirmation().confirm();
+
+		log.info("Success message shown : " + archivePage.getAlertArea().getAlertMessage());
+		archivePage.getSidebar().goToPage(PAGES.AUDIT);
+
+		AuditPage auditPage = new AuditPage(driver);
 		log.info("Set all search filters");
 		auditPage.getFilters().setFilterData("table", "Pmode Archive");
+
 		log.info("Click on search button");
 		auditPage.getFilters().getSearchButton().click();
 		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate data on Audit page");
-		soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Deleted"), "Proper action is logged");
+		soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Deleted"), "Delete action is logged");
+
 		soft.assertAll();
 	}
 
