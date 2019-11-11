@@ -60,6 +60,7 @@ public class DMessages {
 
 	public class Users {
 		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' not completed successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
+		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "Duplicate user name for user: %s.";
 	}
 
 }
