@@ -378,6 +378,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         if (propertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
                 if (!internalPropertiesLoaded) { // double-check locking
+                    LOGGER.trace("Initializing core properties");
                     propertyMetadataMap = new HashMap<>(this.getKnownProperties());
                     internalPropertiesLoaded = true;
                 }
@@ -391,6 +392,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         if (!externalPropertiesLoaded) {
             synchronized (propertyMetadataMapLock) {
                 if (!externalPropertiesLoaded) { // double-check locking
+                    LOGGER.trace("Initializing external properties");
                     loadAllProperties();
                     externalPropertiesLoaded = true;
                 }
