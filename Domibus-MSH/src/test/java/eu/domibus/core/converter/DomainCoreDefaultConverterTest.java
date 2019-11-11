@@ -13,6 +13,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.clustering.CommandEntity;
 import eu.domibus.common.model.audit.Audit;
 import eu.domibus.common.model.logging.ErrorLogEntry;
@@ -30,6 +31,7 @@ import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.PullRequest;
@@ -46,6 +48,7 @@ import mockit.Injectable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -73,6 +76,10 @@ public class DomainCoreDefaultConverterTest {
     })
     static class ContextConfiguration {
 
+        @Bean
+        public DateUtil dateUtil() {
+            return new DateUtilImpl();
+        }
     }
 
     @Autowired
