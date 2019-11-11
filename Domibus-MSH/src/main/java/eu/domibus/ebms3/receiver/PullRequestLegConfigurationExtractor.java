@@ -11,6 +11,8 @@ import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.sender.MSHDispatcher;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 /**
@@ -19,6 +21,9 @@ import org.apache.cxf.binding.soap.SoapMessage;
  */
 
 public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullRequestLegConfigurationExtractor.class);
+
     private MessageExchangeService messageExchangeService;
 
     PullRequestLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
@@ -46,7 +51,7 @@ public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfi
                 LOG.debug("Extract initiator from mpc");
                 initiatorPartyName = messageExchangeService.extractInitiator(mpc);
             }
-            LOG.info("Initiator is [{}]", initiatorPartyName);
+            LOG.debug("Initiator is [{}]", initiatorPartyName);
 
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(pullContext.getAgreement(),
                     pullContext.getResponder().getName(),
@@ -54,7 +59,7 @@ public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfi
                     legConfiguration.getService().getName(),
                     legConfiguration.getAction().getName(),
                     legConfiguration.getName());
-            LOG.info("Extracted the exchange configuration, pModeKey is [{}]", messageExchangeConfiguration.getPmodeKey());
+            LOG.debug("Extracted the exchange configuration, pModeKey is [{}]", messageExchangeConfiguration.getPmodeKey());
             setUpMessage(messageExchangeConfiguration.getPmodeKey());
             return legConfiguration;
         } catch (PModeException p) {
