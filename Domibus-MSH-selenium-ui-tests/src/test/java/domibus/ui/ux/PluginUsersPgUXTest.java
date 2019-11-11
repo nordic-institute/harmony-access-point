@@ -56,19 +56,20 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	/*	PU-2 - Doubleclick on one user	*/
 	@Test(description = "PU-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickRow() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
-		log.info("checking username " + username);
-
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
-		int index = page.grid().scrollTo("User Name", username);
+		if(page.grid().getRowsNo()==0){
+			getPluginUser(null, DRoles.USER, true, true);
+			page.refreshPage();
+		}
+
 		log.info("getting user info");
-		HashMap<String, String> row = page.grid().getRowInfo(index);
+		HashMap<String, String> row = page.grid().getRowInfo(0);
 
 		log.info("double click user");
-		page.grid().scrollToAndDoubleClick("User Name", username);
+		page.grid().doubleClickRow(0);
 
 		PluginUserModal pum = new PluginUserModal(driver);
 
@@ -78,7 +79,6 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		soft.assertEquals(row.get("Original User"), pum.getOriginalUserInput().getText(), "Correct orig user is displayed");
 
 		soft.assertAll();
-
 	}
 
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
@@ -149,8 +149,8 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		log.info("changing to auth type CERTIFICATE");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -227,9 +227,8 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
-
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		page.filters().search(null, null, null, usernames.get(0));
 		soft.assertEquals(page.grid().getRowInfo(0).get("User Name"), usernames.get(0), "Search by username return correct result");

@@ -55,9 +55,7 @@ public class EditModal extends DComponent {
 		wait.forElementToBeGone(cancelBtn);
 	}
 
-	public boolean isOKBtnEnabled() throws Exception {
-		return getOkBtn().isEnabled();
-	}
+
 
 
 }

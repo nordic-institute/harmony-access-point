@@ -56,7 +56,7 @@ public class DWait {
 
 	public void forElementToBeGone(WebElement element) {
 		try {
-			defaultWait.until(ExpectedConditions.not(ExpectedConditions.visibilityOf(element)));
+			defaultWait.until(ExpectedConditions.invisibilityOf(element));
 		} catch (Exception e) {
 		}
 	}
