@@ -20,7 +20,6 @@
     "@angular/compiler": "^4.1.0",
     "@angular/core": "^4.1.0",
     "@angular/forms": "^4.1.0",
-    "@angular/http": "^4.1.0",
     "@angular/material": "^2.0.0-beta.8",
     "@angular/platform-browser": "^4.1.0",
     "@angular/platform-browser-dynamic": "^4.1.0",
@@ -33,15 +32,17 @@
     "md2": "0.0.29",
     "rxjs": "^5.0.1",
     "ts-helpers": "^1.1.1",
-    "zone.js": "^0.8.9"
+    "tslib": "^1.10.0",
+    "zone.js": "~0.9.1"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "~0.803.18",
     "@angular/cli": "^8.3.18",
     "@angular/compiler-cli": "^4.1.0",
     "@types/file-saver": "0.0.1",
     "@types/jasmine": "2.5.47",
     "@types/node": "^7.0.14",
-    "codelyzer": "~3.0.0",
+    "codelyzer": "^5.0.1",
     "jasmine-core": "2.6.1",
     "jasmine-spec-reporter": "4.1.0",
     "karma": "1.7.0",
