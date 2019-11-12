@@ -134,6 +134,7 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void addMessageResentAudit(final String messageId) {
         auditDao.saveMessageAudit(
