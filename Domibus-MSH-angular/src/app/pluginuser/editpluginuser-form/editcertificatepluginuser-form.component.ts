@@ -1,6 +1,6 @@
 import {Component, Inject, ChangeDetectorRef, OnInit} from '@angular/core';
 import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {MD_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../../user/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
 import {PluginUserRO} from '../pluginuser';
@@ -29,7 +29,7 @@ export class EditcertificatepluginuserFormComponent {
   public certificateIdMessage = PluginUserService.certificateIdMessage;
 
   constructor (public dialogRef: MatDialogRef<EditcertificatepluginuserFormComponent>,
-               @Inject(MD_DIALOG_DATA) public data: any,
+               @Inject(MAT_DIALOG_DATA) public data: any,
                fb: FormBuilder) {
 
     this.existingRoles = data.userroles;

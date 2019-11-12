@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialog, MatDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
@@ -47,7 +47,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   pModeExists: boolean;
   isBusy: boolean;
 
-  constructor(public dialog: MdDialog, public partyService: PartyService, public alertService: AlertService, private http: HttpClient) {
+  constructor(public dialog: MatDialog, public partyService: PartyService, public alertService: AlertService, private http: HttpClient) {
     super();
   }
 

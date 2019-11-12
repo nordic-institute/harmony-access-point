@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialog, MatDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
@@ -41,7 +41,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   dirty: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
   }
 
   ngOnInit() {

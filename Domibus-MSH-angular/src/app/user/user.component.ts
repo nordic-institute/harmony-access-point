@@ -1,7 +1,7 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UserResponseRO, UserState} from './user';
 import {UserSearchCriteria, UserService} from './user.service';
-import {MdDialog, MatDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from 'app/user/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
@@ -65,7 +65,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   constructor(private http: HttpClient,
               private userService: UserService,
-              public dialog: MdDialog,
+              public dialog: MatDialog,
               private userValidatorService: UserValidatorService,
               private alertService: AlertService,
               private securityService: SecurityService,

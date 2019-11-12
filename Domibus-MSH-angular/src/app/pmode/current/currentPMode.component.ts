@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
 import {CancelDialogComponent} from 'app/common/cancel-dialog/cancel-dialog.component';
@@ -36,9 +36,9 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Constructor
    * @param {Http} http Http object used for the requests
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
-   * @param {MdDialog} dialog Object used for opening dialogs
+   * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
   }
 
   /**

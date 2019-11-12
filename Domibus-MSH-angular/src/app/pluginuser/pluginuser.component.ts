@@ -6,7 +6,7 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
 import {PluginUserRO} from './pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicpluginuser-form.component';
 import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
 import {UserService} from '../user/user.service';
@@ -43,7 +43,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
   userRoles: Array<String>;
 
-  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MdDialog) {
+  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog) {
     super();
   }
 

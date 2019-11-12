@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
@@ -25,7 +25,7 @@ export class DomainSelectorComponent implements OnInit {
 
   constructor(private domainService: DomainService,
               private securityService: SecurityService,
-              private dialog: MdDialog,
+              private dialog: MatDialog,
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {

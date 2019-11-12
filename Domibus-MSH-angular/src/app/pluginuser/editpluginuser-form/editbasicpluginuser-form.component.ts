@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {MD_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../../user/uservalidator.service';
 import {PluginUserRO} from '../pluginuser';
 import {PluginUserService} from '../pluginuser.service';
@@ -33,7 +33,7 @@ export class EditbasicpluginuserFormComponent implements OnInit {
   public certificateIdMessage = PluginUserService.certificateIdMessage;
 
   constructor(public dialogRef: MatDialogRef<EditbasicpluginuserFormComponent>,
-              @Inject(MD_DIALOG_DATA) public data: any,
+              @Inject(MAT_DIALOG_DATA) public data: any,
               fb: FormBuilder,
               private securityService: SecurityService,
               userValidatorService: UserValidatorService) {

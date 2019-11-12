@@ -2,7 +2,7 @@ import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
-import {MdDialog, MatDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
@@ -65,7 +65,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
     super();
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import {MD_DIALOG_DATA, MatDialogRef} from "@angular/material";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 
 @Component({
   selector: 'app-party-identifier-details',
@@ -12,7 +12,7 @@ export class PartyIdentifierDetailsComponent implements OnInit {
 
   partyIdentifier: any;
 
-  constructor(public dialogRef: MatDialogRef<PartyIdentifierDetailsComponent>, @Inject(MD_DIALOG_DATA) public data: any) {
+  constructor(public dialogRef: MatDialogRef<PartyIdentifierDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.partyIdentifier = data.edit;
   }
 

@@ -3,18 +3,18 @@ import {ErrorHandler, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {
-  MdButtonModule,
-  MdButtonToggleModule,
-  MdCheckboxModule,
-  MdDialogModule,
-  MdExpansionModule,
-  MdIconModule,
-  MdInputModule,
-  MdListModule,
-  MdMenuModule,
-  MdSelectModule,
-  MdSidenavModule,
-  MdTooltipModule
+  MatButtonModule,
+  MatButtonToggleModule,
+  MatCheckboxModule,
+  MatDialogModule,
+  MatExpansionModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatMenuModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatTooltipModule
 } from '@angular/material';
 import 'hammerjs';
 
@@ -177,24 +177,24 @@ import {PropertiesComponent} from './properties/properties.component';
     BrowserAnimationsModule,
     FormsModule,
     NgxDatatableModule,
-    MdButtonModule,
-    MdDialogModule,
-    MdTooltipModule,
-    MdMenuModule,
-    MdInputModule,
-    MdIconModule,
-    MdListModule,
-    MdSidenavModule,
-    MdSelectModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatMenuModule,
+    MatInputModule,
+    MatIconModule,
+    MatListModule,
+    MatSidenavModule,
+    MatSelectModule,
     routing,
     ReactiveFormsModule,
     Md2Module,
     Md2SelectModule,
     SharedModule,
-    MdExpansionModule,
-    MdCheckboxModule,
-    MdButtonToggleModule,
-    MdTooltipModule
+    MatExpansionModule,
+    MatCheckboxModule,
+    MatButtonToggleModule,
+    MatTooltipModule
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {SecurityService} from '../security.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {SecurityEventService} from '../security.event.service';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {DefaultPasswordDialogComponent} from 'app/security/default-password-dialog/default-password-dialog.component';
 import {Server} from '../Server';
 
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               private securityService: SecurityService,
               private alertService: AlertService,
               private securityEventService: SecurityEventService,
-              private dialog: MdDialog) {
+              private dialog: MatDialog) {
 
   }
 

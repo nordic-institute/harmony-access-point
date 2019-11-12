@@ -4,7 +4,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
-import {MdDialog, MatDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
@@ -51,7 +51,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
-  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService, public dialog: MdDialog, private renderer: Renderer2) {
+  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private renderer: Renderer2) {
     super();
   }
 

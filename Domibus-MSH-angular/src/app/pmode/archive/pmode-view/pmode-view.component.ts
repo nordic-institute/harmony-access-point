@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MatDialogRef, MD_DIALOG_DATA} from '@angular/material';
+import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 
 @Component({
   selector: 'app-pmode-upload',
@@ -15,7 +15,7 @@ export class PmodeViewComponent implements OnInit {
   @ViewChild('pmode_view_content')
   private pmode_view_content;
 
-  constructor (@Inject(MD_DIALOG_DATA) public data: { metadata: any, content: string },
+  constructor (@Inject(MAT_DIALOG_DATA) public data: { metadata: any, content: string },
                public dialogRef: MatDialogRef<PmodeViewComponent>) {
   }
 

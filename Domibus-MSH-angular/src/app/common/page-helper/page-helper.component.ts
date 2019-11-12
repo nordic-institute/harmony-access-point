@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {NavigationStart, Router} from '@angular/router';
 import {isNullOrUndefined} from 'util';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
@@ -16,7 +16,7 @@ export class PageHelperComponent implements OnInit {
   helpPages: Map<String, String> = new Map<String, String>();
   activateHelp: boolean = false;
 
-  constructor(public dialog: MdDialog, private router: Router, private domibusInfoService: DomibusInfoService) {
+  constructor(public dialog: MatDialog, private router: Router, private domibusInfoService: DomibusInfoService) {
   }
 
   async ngOnInit() {

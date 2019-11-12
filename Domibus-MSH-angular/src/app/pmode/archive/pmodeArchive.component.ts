@@ -3,7 +3,7 @@ import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {isNullOrUndefined} from 'util';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
@@ -75,9 +75,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * Constructor
    * @param {Http} http Http object used for the requests
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
-   * @param {MdDialog} dialog Object used for opening dialogs
+   * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog, private domainService: DomainService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private domainService: DomainService) {
   }
 
   /**

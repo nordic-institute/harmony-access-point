@@ -4,7 +4,7 @@ import {MessageLogResult} from './messagelogresult';
 import {Observable} from 'rxjs';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagelogDialogComponent} from 'app/messagelog/messagelog-dialog/messagelog-dialog.component';
-import {MdDialog, MdSelectChange} from '@angular/material';
+import {MatDialog, MdSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -64,7 +64,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   conversationIdValue: String;
 
   constructor (private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-               public dialog: MdDialog, private elementRef: ElementRef) {
+               public dialog: MatDialog, private elementRef: ElementRef) {
     super();
   }
 

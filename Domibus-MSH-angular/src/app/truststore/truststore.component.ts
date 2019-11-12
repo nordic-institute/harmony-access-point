@@ -4,7 +4,7 @@ import 'rxjs/add/operator/catch';
 import {TrustStoreService} from './trustore.service';
 import {TrustStoreEntry} from './trustore.model';
 import {TruststoreDialogComponent} from './truststore-dialog/truststore-dialog.component';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {TrustStoreUploadComponent} from './truststore-upload/truststore-upload.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -36,7 +36,7 @@ export class TruststoreComponent implements OnInit {
   rows: Array<any> = [];
   offset: number;
 
-  constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MdDialog, public alertService: AlertService) {
+  constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog, public alertService: AlertService) {
   }
 
   ngOnInit(): void {

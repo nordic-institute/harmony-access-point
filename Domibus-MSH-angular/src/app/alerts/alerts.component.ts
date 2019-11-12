@@ -8,7 +8,7 @@ import {AlertsResult} from './alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
@@ -76,7 +76,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   filter: any;
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private securityService: SecurityService) {
     super();
 
     this.getAlertTypes();
