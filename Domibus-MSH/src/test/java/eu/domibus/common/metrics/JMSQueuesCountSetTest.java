@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * @since 4.1.1
  * @author Catalin Enache *
+ * @since 4.1.1
  */
 public class JMSQueuesCountSetTest {
 
