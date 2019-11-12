@@ -1,5 +1,5 @@
-import {Component, Inject, ChangeDetectorRef, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../uservalidator.service';
 import {SecurityService} from '../../security/security.service';
@@ -41,14 +41,14 @@ export class EditUserComponent implements OnInit {
 
   userForm: FormGroup;
 
-  constructor (public dialogRef: MatDialogRef<EditUserComponent>,
-               @Inject(MAT_DIALOG_DATA) public data: any,
-               fb: FormBuilder,
-               userValidatorService: UserValidatorService,
-               private userService: UserService,
-               private securityService: SecurityService,
-               private cdr: ChangeDetectorRef,
-               private domainService: DomainService) {
+  constructor(public dialogRef: MatDialogRef<EditUserComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any,
+              fb: FormBuilder,
+              userValidatorService: UserValidatorService,
+              private userService: UserService,
+              private securityService: SecurityService,
+              private cdr: ChangeDetectorRef,
+              private domainService: DomainService) {
 
     this.existingRoles = data.userroles;
     this.existingDomains = data.userdomains;
@@ -97,7 +97,7 @@ export class EditUserComponent implements OnInit {
     }
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
     this.isDomainVisible = await this.userService.isDomainVisible();
 
     const passwordPolicy = await this.securityService.getPasswordPolicy();
@@ -105,47 +105,47 @@ export class EditUserComponent implements OnInit {
     this.passwordValidationMessage = passwordPolicy.validationMessage;
   }
 
-  updateUserName (event) {
+  updateUserName(event) {
     this.userName = event.target.value;
   }
 
-  updateEmail (event) {
+  updateEmail(event) {
     this.email = event.target.value;
   }
 
-  updatePassword (event) {
+  updatePassword(event) {
     this.password = event.target.value;
   }
 
-  updateConfirmation (event) {
+  updateConfirmation(event) {
     this.confirmation = event.target.value;
   }
 
-  updateActive (event) {
+  updateActive(event) {
     this.active = event.target.checked;
   }
 
-  submitForm () {
+  submitForm() {
     this.dialogRef.close(true);
   }
 
-  isCurrentUser (): boolean {
+  isCurrentUser(): boolean {
     let currentUser = this.securityService.getCurrentUser();
     return currentUser && currentUser.username === this.userName;
   }
 
-  isSuperAdmin () {
+  isSuperAdmin() {
     return this.role === SecurityService.ROLE_AP_ADMIN;
   }
 
-  isDomainDisabled () {
+  isDomainDisabled() {
     // if the edited user is not super-user
     return !this.isSuperAdmin();
   }
 
-  onRoleChange () {
+  onRoleChange() {
     if (this.role !== SecurityService.ROLE_AP_ADMIN) {
-      this.domainService.getCurrentDomain().delay(0)
+      this.domainService.getCurrentDomain() //.delay(0)
         .subscribe((dom) => {
           this.domain = dom.code;
         });
@@ -153,7 +153,7 @@ export class EditUserComponent implements OnInit {
   }
 
   // filters out roles so that the user cannot change from ap admin to the other 2 roles or vice-versa
-  getAllowedRoles (allRoles, userRole) {
+  getAllowedRoles(allRoles, userRole) {
     if (userRole === SecurityService.ROLE_AP_ADMIN) {
       return [SecurityService.ROLE_AP_ADMIN];
     } else {
