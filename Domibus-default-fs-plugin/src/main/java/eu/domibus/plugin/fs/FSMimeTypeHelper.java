@@ -4,6 +4,7 @@ import org.apache.tika.mime.MimeTypeException;
 
 /**
  * @author Cosmin Baciu
+ * @since 4.1.2
  */
 public interface FSMimeTypeHelper {
 

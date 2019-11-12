@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 /**
  * @author Cosmin Baciu
+ * @since 4.1.2
  */
 public interface FSXMLHelper {
 

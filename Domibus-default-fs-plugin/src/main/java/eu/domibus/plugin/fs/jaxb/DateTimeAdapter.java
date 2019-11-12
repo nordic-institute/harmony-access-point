@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
  * Custom adapter which extends {@link XmlAdapter} for {@code xsd:dateTime} mapped to {@code LocalDateTime}
  *
  * @author Cosmin Baciu
+ * @since 4.1.2
  */
 public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 

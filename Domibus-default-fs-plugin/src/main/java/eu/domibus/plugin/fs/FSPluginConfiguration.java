@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Cosmin Baciu
+ * @since 4.1.2
  */
 @Configuration("fsPluginConfiguration")
 public class FSPluginConfiguration {
