@@ -132,6 +132,7 @@ public class FSMessageTransformerTest {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_metadata.xml");
         // Transform FSMessage to Submission
         FSMessageTransformer transformer = new FSMessageTransformer();
+        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
         Submission submission = transformer.transformToSubmission(fsMessage);
 
         assertTransformValues(submission);
@@ -143,6 +144,7 @@ public class FSMessageTransformerTest {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_WithPayloadInfo_metadata.xml");
         // Transform FSMessage to Submission
         FSMessageTransformer transformer = new FSMessageTransformer();
+        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
         Submission submission = transformer.transformToSubmission(fsMessage);
 
         assertTransformPayloadInfo(submission);
@@ -154,6 +156,7 @@ public class FSMessageTransformerTest {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_WithPayloadInfo_metadata.xml");
         // Transform FSMessage to Submission
         FSMessageTransformer transformer = new FSMessageTransformer();
+        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
         // perform the transformation to - from and back to subbmission
         Submission submission0 = transformer.transformToSubmission(fsMessage);
         FSMessage fsMessage1 = transformer.transformFromSubmission(submission0, null);
@@ -167,6 +170,7 @@ public class FSMessageTransformerTest {
     public void testTransformToSubmission_MultiplePartInfo() throws Exception {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_MultiplePartInfo_metadata.xml");
         FSMessageTransformer transformer = new FSMessageTransformer();
+        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
         // expect exception on multiple PartInfo in PayloadInfo
         transformer.transformToSubmission(fsMessage);
     }

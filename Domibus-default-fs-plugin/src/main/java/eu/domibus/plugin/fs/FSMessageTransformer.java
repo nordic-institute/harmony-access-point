@@ -9,6 +9,7 @@ import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -24,10 +25,11 @@ import java.util.Map;
  * {@link eu.domibus.plugin.Submission} and vice versa
  *
  * @author @author FERNANDES Henrique, GONCALVES Bruno
+ * @author Cosmin Baciu
  */
 @Component
-public class FSMessageTransformer
-        implements MessageRetrievalTransformer<FSMessage>, MessageSubmissionTransformer<FSMessage> {
+public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessage>, MessageSubmissionTransformer<FSMessage> {
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageTransformer.class);
 
     private static final String PAYLOAD_PROPERTY_MIME_TYPE = "MimeType";
@@ -37,7 +39,10 @@ public class FSMessageTransformer
      */
     private static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 
-    private final ObjectFactory objectFactory = new ObjectFactory();
+    protected final ObjectFactory objectFactory = new ObjectFactory();
+
+    @Autowired
+    protected FSMimeTypeHelper fsMimeTypeHelper;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
@@ -95,7 +100,7 @@ public class FSMessageTransformer
             final FSPayload fsPayload = entry.getValue();
             DataHandler dataHandler = fsPayload.getDataHandler();
             final String fileName = fsPayload.getFileName();
-            String mimeType = FSMimeTypeHelper.getMimeType(dataHandler.getName());
+            String mimeType = fsMimeTypeHelper.getMimeType(dataHandler.getName());
 
             /* PartInfo defined in the metadata file take precedence to the plugin properties */
             String metadataContentId = extractContentIdFromMetadata(metadata);

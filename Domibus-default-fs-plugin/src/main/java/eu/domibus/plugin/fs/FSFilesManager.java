@@ -42,7 +42,10 @@ public class FSFilesManager {
     public static final String FAILED_FOLDER = "FAILED";
 
     @Autowired
-    private FSPluginProperties fsPluginProperties;
+    protected FSPluginProperties fsPluginProperties;
+
+    @Autowired
+    protected FSFileNameHelper fsFileNameHelper;
 
     public FileObject getEnsureRootLocation(final String location, final String domain,
                                             final String user, final String password) throws FileSystemException {
@@ -73,7 +76,7 @@ public class FSFilesManager {
         return rootDir;
     }
 
-    private void checkRootDirExists(FileObject rootDir) throws FileSystemException {
+    protected void checkRootDirExists(FileObject rootDir) throws FileSystemException {
         if (!rootDir.exists()) {
             throw new FSSetUpException("Root location does not exist: " + rootDir.getName());
         }
@@ -86,7 +89,7 @@ public class FSFilesManager {
         return rootDir;
     }
 
-    private FileSystemManager getVFSManager() throws FileSystemException {
+    protected FileSystemManager getVFSManager() throws FileSystemException {
         return VFS.getManager();
     }
 
@@ -131,7 +134,7 @@ public class FSFilesManager {
      * @throws FileSystemException On error parsing the path, or on error finding the file.
      */
     public boolean hasLockFile(FileObject file) throws FileSystemException {
-        final FileObject lockFile = resolveSibling(file, FSFileNameHelper.getLockFilename(file));
+        final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
         LOG.debug("Checking if lock file exists [{}]", file.getName().getURI());
         final boolean exists = lockFile.exists();
         LOG.debug("Lock file [{}] exists? [{}]", file.getName().getURI(), exists);
@@ -146,7 +149,7 @@ public class FSFilesManager {
      * @throws FileSystemException On error parsing the path, or on error finding the file.
      */
     public FileObject createLockFile(FileObject file) throws FileSystemException {
-        final FileObject lockFile = resolveSibling(file, FSFileNameHelper.getLockFilename(file));
+        final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
         LOG.debug("Creating lock file for [{}]", file.getName().getBaseName());
         lockFile.createFile();
         return lockFile;
@@ -160,7 +163,7 @@ public class FSFilesManager {
      * @throws FileSystemException On error parsing the path, or on error finding the file.
      */
     public boolean deleteLockFile(FileObject file) throws FileSystemException {
-        final FileObject lockFile = resolveSibling(file, FSFileNameHelper.getLockFilename(file));
+        final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
         if (lockFile.exists()) {
             LOG.debug("Deleting lock file for [{}]", file.getName().getBaseName());
             return lockFile.delete();

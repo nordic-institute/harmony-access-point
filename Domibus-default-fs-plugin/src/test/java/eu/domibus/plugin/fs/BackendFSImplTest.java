@@ -25,11 +25,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
@@ -89,6 +91,12 @@ public class BackendFSImplTest {
 
     @Injectable
     String name = "fsplugin";
+
+    @Injectable
+    FSXMLHelper fsxmlHelper;
+
+    @Injectable
+    protected FSMimeTypeHelper fsMimeTypeHelper;
 
     @Tested
     BackendFSImpl backendFS;
@@ -172,8 +180,16 @@ public class BackendFSImplTest {
         FileObject metadataFile = files[0];
 
         Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME, metadataFile.getName().getBaseName());
-        Assert.assertEquals(FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml"),
-                FSTestHelper.getUserMessage(metadataFile.getContent().getInputStream()));
+
+
+        UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        new Verifications() {{
+            UserMessage savedUserMessage = null;
+            fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
+            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+        }};
+
+
         metadataFile.delete();
         metadataFile.close();
 
@@ -257,8 +273,15 @@ public class BackendFSImplTest {
         FileObject fileMetadata = files[0];
         Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
                 fileMetadata.getName().getBaseName());
-        Assert.assertEquals(FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml"),
-                FSTestHelper.getUserMessage(fileMetadata.getContent().getInputStream()));
+
+        UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        new Verifications() {{
+            UserMessage savedUserMessage = null;
+            fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
+            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+        }};
+
+
         fileMetadata.delete();
         fileMetadata.close();
 
