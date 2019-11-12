@@ -113,7 +113,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
       }
 
       this.rows = newRows;
-      this.filter = result.filter;
+      this['filter'] = result.filter;
       this.levels = result.levels;
 
       this.loading = false;

@@ -97,8 +97,8 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       return ['Message Id', 'Error Code', 'Timestamp'].indexOf(col.name) != -1
     });
 
-    this.orderBy = 'timestamp';
-    this.asc = false;
+    this['orderBy'] = 'timestamp';
+    this['asc'] = false;
 
     this.search();
   }
@@ -184,7 +184,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
         result.filter.notifiedTo = new Date(result.filter.notifiedTo);
       }
 
-      this.filter = result.filter;
+      this['filter'] = result.filter;
       this.mshRoles = result.mshRoles;
       this.errorCodes = result.errorCodes;
 

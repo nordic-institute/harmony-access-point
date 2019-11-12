@@ -84,8 +84,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.rows = [];
     this.count = 0;
     this.offset = 0;
-    this.orderBy = 'received';
-    this.asc = false;
+    this['orderBy'] = 'received';
+    this['asc'] = false;
 
     this.messageResent = new EventEmitter(false);
 
@@ -309,7 +309,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
         result.filter.receivedTo = new Date(result.filter.receivedTo);
       }
       result.filter.isTestMessage = !isNullOrUndefined(result.filter.messageSubtype);
-      this.filter = result.filter;
+      this['filter'] = result.filter;
 
       this.mshRoles = result.mshRoles;
       this.msgTypes = result.msgTypes;

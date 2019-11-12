@@ -135,8 +135,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
 
-    this.orderBy = 'creationTime';
-    this.asc = false;
+    this['orderBy'] = 'creationTime';
+    this['asc'] = false;
 
     this.search();
   }

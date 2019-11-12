@@ -72,7 +72,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   ngOnInit() {
     super.ngOnInit();
 
-    this.filter = new MessagesRequestRO();
+    this['filter'] = new MessagesRequestRO();
 
     this.offset = 0;
     this.timestampFromMaxDate = new Date();
