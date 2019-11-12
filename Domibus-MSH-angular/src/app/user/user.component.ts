@@ -1,7 +1,7 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UserResponseRO, UserState} from './user';
 import {UserSearchCriteria, UserService} from './user.service';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MdDialog, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from 'app/user/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
@@ -29,11 +29,11 @@ export class UserComponent implements OnInit, DirtyOperations {
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
 
-  @ViewChild('passwordTpl') passwordTpl: TemplateRef<any>;
-  @ViewChild('editableTpl') editableTpl: TemplateRef<any>;
-  @ViewChild('checkBoxTpl') checkBoxTpl: TemplateRef<any>;
-  @ViewChild('deletedTpl') deletedTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('passwordTpl', {static: false}) passwordTpl: TemplateRef<any>;
+  @ViewChild('editableTpl', {static: false}) editableTpl: TemplateRef<any>;
+  @ViewChild('checkBoxTpl', {static: false}) checkBoxTpl: TemplateRef<any>;
+  @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -238,7 +238,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
     this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
     this.setIsDirty();
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
       data: {
         edit: false,
         user: this.editedUser,
@@ -271,7 +271,7 @@ export class UserComponent implements OnInit, DirtyOperations {
   buttonEditAction(currentUser) {
     if (this.isBusy) return;
 
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
       data: {
         edit: true,
         user: currentUser,
@@ -287,7 +287,7 @@ export class UserComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private onSaveEditForm(formRef: MdDialogRef<EditUserComponent>) {
+  private onSaveEditForm(formRef: MatDialogRef<EditUserComponent>) {
     const editForm = formRef.componentInstance;
     const user = this.editedUser;
     if (!user) return;

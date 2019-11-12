@@ -1,6 +1,6 @@
 import {Component, Inject} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
+import {MD_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {BackendFilterEntry} from '../backendfilterentry';
 
 let NEW_MODE = 'New Message Filter';
@@ -25,7 +25,7 @@ export class EditMessageFilterComponent {
 
   messageFilterForm: FormGroup;
 
-  constructor(public dialogRef: MdDialogRef<EditMessageFilterComponent>,
+  constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>,
               @Inject(MD_DIALOG_DATA) public data: any,
               fb: FormBuilder) {
     if (!(data.edit)) {

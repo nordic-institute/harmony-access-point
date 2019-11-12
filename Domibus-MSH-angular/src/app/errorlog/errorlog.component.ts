@@ -4,7 +4,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MdDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
@@ -28,7 +28,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
   timestampFromMaxDate: Date = new Date();
   timestampToMinDate: Date = null;
@@ -255,7 +255,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   }
 
   details(selectedRow: any) {
-    let dialogRef: MdDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
+    let dialogRef: MatDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
     dialogRef.componentInstance.message = selectedRow;
     // dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
     dialogRef.afterClosed().subscribe(result => {

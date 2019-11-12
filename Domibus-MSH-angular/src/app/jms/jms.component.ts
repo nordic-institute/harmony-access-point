@@ -2,7 +2,7 @@ import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MdDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
@@ -35,9 +35,9 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   defaultQueueSet: EventEmitter<boolean>;
   queuesInfoGot: EventEmitter<boolean>;
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithJSONTpl') rowWithJSONTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   queues: any[];
   orderedQueues: any[];
@@ -299,7 +299,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   move() {
-    const dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
+    const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
 
@@ -349,7 +349,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   moveAction(row) {
-    let dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
+    let dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
       try {
@@ -386,7 +386,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   details(selectedRow: any) {
-    let dialogRef: MdDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
+    let dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
     dialogRef.afterClosed().subscribe(result => {

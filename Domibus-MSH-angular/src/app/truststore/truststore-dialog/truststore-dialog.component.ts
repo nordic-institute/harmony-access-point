@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {TrustStoreEntry} from "../trustore.model";
-import {MD_DIALOG_DATA, MdDialogRef} from "@angular/material";
+import {MD_DIALOG_DATA, MatDialogRef} from "@angular/material";
 
 /**
  * @Author Dussart Thomas
@@ -17,7 +17,7 @@ export class TruststoreDialogComponent {
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
   trustStoreEntry: TrustStoreEntry;
 
-  constructor(public dialogRef: MdDialogRef<TruststoreDialogComponent>, @Inject(MD_DIALOG_DATA) public data: any) {
+  constructor(public dialogRef: MatDialogRef<TruststoreDialogComponent>, @Inject(MD_DIALOG_DATA) public data: any) {
     this.trustStoreEntry = data.trustStoreEntry;
   }
 

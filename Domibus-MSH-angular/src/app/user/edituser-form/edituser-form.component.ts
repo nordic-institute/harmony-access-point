@@ -1,6 +1,6 @@
 import {Component, Inject, ChangeDetectorRef, OnInit} from '@angular/core';
 import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
+import {MD_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../uservalidator.service';
 import {SecurityService} from '../../security/security.service';
 import {UserService} from '../user.service';
@@ -41,7 +41,7 @@ export class EditUserComponent implements OnInit {
 
   userForm: FormGroup;
 
-  constructor (public dialogRef: MdDialogRef<EditUserComponent>,
+  constructor (public dialogRef: MatDialogRef<EditUserComponent>,
                @Inject(MD_DIALOG_DATA) public data: any,
                fb: FormBuilder,
                userValidatorService: UserValidatorService,

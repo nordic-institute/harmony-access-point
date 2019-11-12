@@ -27,7 +27,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   columnPicker: ColumnPickerBase = new ColumnPickerBase()
   rowLimiter: RowLimiterBase = new RowLimiterBase()
 
-  @ViewChild('rowWithToggleTpl') rowWithToggleTpl: TemplateRef<any>;
+  @ViewChild('rowWithToggleTpl', {static: false}) rowWithToggleTpl: TemplateRef<any>;
 
   levels: Array<String>;
 

@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MdDialogRef, MD_DIALOG_DATA} from '@angular/material';
+import {MatDialogRef, MD_DIALOG_DATA} from '@angular/material';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
 
@@ -19,11 +19,11 @@ export class PmodeUploadComponent implements OnInit {
 
   useFileSelector: boolean = true;
 
-  @ViewChild('fileInput')
+  @ViewChild('fileInput', {static: false})
   private fileInput;
 
   constructor(@Inject(MD_DIALOG_DATA) private data: { pModeContents: string },
-              public dialogRef: MdDialogRef<PmodeUploadComponent>, private http: HttpClient, private alertService: AlertService) {
+              public dialogRef: MatDialogRef<PmodeUploadComponent>, private http: HttpClient, private alertService: AlertService) {
   }
 
   ngOnInit() {

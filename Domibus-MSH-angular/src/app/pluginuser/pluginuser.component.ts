@@ -24,7 +24,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   providers: [PluginUserService, UserService]
 })
 export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
-  @ViewChild('activeTpl') activeTpl: TemplateRef<any>;
+  @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();

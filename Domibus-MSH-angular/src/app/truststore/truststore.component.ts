@@ -27,7 +27,7 @@ export class TruststoreComponent implements OnInit {
 
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
   trustStoreEntries: Array<TrustStoreEntry>;
   selectedMessages: Array<any>;

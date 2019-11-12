@@ -33,9 +33,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   static readonly ALERTS_LEVELS_URL: string = AlertsComponent.ALERTS_URL + '/levels';
   static readonly ALERTS_PARAMS_URL: string = AlertsComponent.ALERTS_URL + '/params';
 
-  @ViewChild('rowProcessed') rowProcessed: TemplateRef<any>;
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
+  @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   public rowLimiter: RowLimiterBase;

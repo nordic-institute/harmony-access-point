@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MdDialog, MatDialogRef} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
@@ -109,7 +109,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonNew() {
-    let formRef: MdDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
+    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
     formRef.afterClosed().subscribe(result => {
       if (result == true) {
         let backendEntry = this.createEntry(formRef);
@@ -156,7 +156,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonEditAction(row) {
-    let formRef: MdDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
+    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
         edit: row
@@ -183,7 +183,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private createEntry(formRef: MdDialogRef<EditMessageFilterComponent>) {
+  private createEntry(formRef: MatDialogRef<EditMessageFilterComponent>) {
     let routingCriterias: Array<RoutingCriteriaEntry> = [];
 
     for (var criteria of this.routingCriterias) {

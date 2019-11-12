@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MdDialog, MatDialogRef} from '@angular/material';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
@@ -288,7 +288,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     const rowCopy = JSON.parse(JSON.stringify(row));
     const allProcessesCopy = JSON.parse(JSON.stringify(this.allProcesses));
 
-    const dialogRef: MdDialogRef<PartyDetailsComponent> = this.dialog.open(PartyDetailsComponent, {
+    const dialogRef: MatDialogRef<PartyDetailsComponent> = this.dialog.open(PartyDetailsComponent, {
       data: {
         edit: rowCopy,
         allProcesses: allProcessesCopy

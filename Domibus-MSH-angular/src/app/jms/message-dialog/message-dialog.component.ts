@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 
 @Component({
   selector: 'app-message-dialog',
@@ -12,7 +12,7 @@ export class MessageDialogComponent implements OnInit {
   currentSearchSelectedSource: any;
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(public dialogRef: MdDialogRef<MessageDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<MessageDialogComponent>) {
   }
 
   ngOnInit() {

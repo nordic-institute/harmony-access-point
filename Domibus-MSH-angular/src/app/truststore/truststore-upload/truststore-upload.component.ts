@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Output, ViewChild} from "@angular/core";
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 import {TrustStoreService} from "../trustore.service";
 import {AlertService} from "../../common/alert/alert.service";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
@@ -18,9 +18,9 @@ export class TrustStoreUploadComponent {
 
   @Output() onTruststoreUploaded: EventEmitter<any> = new EventEmitter();
 
-  @ViewChild('fileInput') fileInput;
+  @ViewChild('fileInput', {static: false}) fileInput;
 
-  constructor(public dialogRef: MdDialogRef<TrustStoreUploadComponent>,
+  constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>,
               private truststoreService: TrustStoreService,
               private alertService: AlertService,
               private fb: FormBuilder) {

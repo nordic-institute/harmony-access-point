@@ -37,9 +37,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
 
   private ERROR_PMODE_EMPTY = 'As PMode is empty, no file was downloaded.';
 
-  @ViewChild('descriptionTpl') public descriptionTpl: TemplateRef<any>;
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('descriptionTpl', {static: false}) public descriptionTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();

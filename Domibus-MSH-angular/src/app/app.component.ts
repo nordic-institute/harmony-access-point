@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
   extAuthProviderEnabled: boolean = false;
   extAuthProvideRedirectTo: string;
 
-  @ViewChild(RouterOutlet)
+  @ViewChild(RouterOutlet, {static: false})
   outlet: RouterOutlet;
 
   constructor (private securityService: SecurityService,

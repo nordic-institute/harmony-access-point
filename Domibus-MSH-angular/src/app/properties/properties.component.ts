@@ -22,7 +22,7 @@ export class PropertiesComponent implements OnInit {
   offset: number = 0;
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  @ViewChild('propertyValueTpl') propertyValueTpl: TemplateRef<any>;
+  @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
   columns: any[] = [];
 

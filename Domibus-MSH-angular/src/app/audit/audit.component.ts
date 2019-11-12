@@ -26,7 +26,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 })
 export class AuditComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
 // --- Search components binding ---
   existingAuditTargets = [];
