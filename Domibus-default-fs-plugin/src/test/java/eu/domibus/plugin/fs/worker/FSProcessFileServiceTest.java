@@ -43,6 +43,9 @@ public class FSProcessFileServiceTest {
     @Injectable
     protected FSXMLHelper fsxmlHelper;
 
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
+
 
     private String domain = null;
 
@@ -145,6 +148,8 @@ public class FSProcessFileServiceTest {
         final String newFileName = "content_" + messageId + ".xml";
 
         new Expectations() {{
+            fsFileNameHelper.deriveFileName("content.xml", messageId);
+            result = newFileName;
 
             fsFilesManager.renameFile(contentFile, newFileName);
             result = new FileSystemException("Unable to rename the file");

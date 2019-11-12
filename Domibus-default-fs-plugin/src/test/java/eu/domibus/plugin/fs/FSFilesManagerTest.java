@@ -30,6 +30,9 @@ public class FSFilesManagerTest {
     @Injectable
     private FileObject mockedRootDir;
 
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
+
     @Before
     public void setUp() throws FileSystemException {
         String location = "ram:///FSFilesManagerTest";
