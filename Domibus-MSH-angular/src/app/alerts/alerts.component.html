@@ -122,7 +122,7 @@
 
           <!-- Search Button and Basic/Advanced Search-->
           <div class="searchArea">
-            <button md-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
+            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
                     button-click-behaviour>
               <mat-icon>search</mat-icon>
               <span>Search</span>
@@ -152,8 +152,8 @@
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                          (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()"
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
+    <button mat-icon-button color="primary" (click)="saveAsCSV()"
+            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
       <img src="assets/images/exportCSV.svg" width="30" height="30">
     </button>
   </div>
@@ -189,12 +189,12 @@
   </ng-template>
 
   <div class="group-action-button">
-    <button id="alertsCancelButton" md-raised-button color="primary" (click)="cancel()"
+    <button id="alertsCancelButton" mat-raised-button color="primary" (click)="cancel()"
             [disabled]="!isDirty()" button-click-behaviour>
       <mat-icon>cancel</mat-icon>
       <span>Cancel</span>
     </button>
-    <button id="alertsSaveButton" md-raised-button color="primary" (click)="save(false)"
+    <button id="alertsSaveButton" mat-raised-button color="primary" (click)="save(false)"
             [disabled]="!isDirty()" button-click-behaviour>
       <mat-icon>save</mat-icon>
       <span>Save</span>

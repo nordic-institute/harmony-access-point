@@ -1,4 +1,4 @@
-<h2 md-dialog-title>Party</h2>
+<h2 mat-dialog-title>Party</h2>
 
 <mat-dialog-content style="width:75vw;height:75vh;padding-top:25px;">
   <form #myForm="ngForm">
@@ -79,16 +79,16 @@
             </ngx-datatable>
 
             <div>
-              <button md-raised-button (click)="addIdentifier()" color="primary">
+              <button mat-raised-button (click)="addIdentifier()" color="primary">
                 <mat-icon>add</mat-icon>
                 <span>New</span>
               </button>
-              <button md-raised-button (click)="editIdentifier()" color="primary"
+              <button mat-raised-button (click)="editIdentifier()" color="primary"
                       [disabled]="selectedIdentifiers.length==0">
                 <mat-icon>edit</mat-icon>
                 <span>Edit</span>
               </button>
-              <button md-raised-button (click)="removeIdentifier()" color="primary"
+              <button mat-raised-button (click)="removeIdentifier()" color="primary"
                       [disabled]="selectedIdentifiers.length==0">
                 <mat-icon>delete</mat-icon>
                 <span>Delete</span>
@@ -145,11 +145,11 @@
     </div>
 
 
-    <button md-raised-button (click)="ok()" color="primary"
+    <button mat-raised-button (click)="ok()" color="primary"
             [disabled]="party_name.invalid || party_endPoint.invalid || identifiers.length == 0">
       <span>OK</span>
     </button>
-    <button md-raised-button (click)="cancel()" color="primary">
+    <button mat-raised-button (click)="cancel()" color="primary">
       <span>Cancel</span>
     </button>
   </form>

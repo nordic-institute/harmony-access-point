@@ -30,7 +30,7 @@
         </md2-datepicker>
 
         <div class="searchArea">
-          <button md-raised-button color="primary" id="searchbutton_id" (click)="searchAndCount()" button-click-behaviour>
+          <button mat-raised-button color="primary" id="searchbutton_id" (click)="searchAndCount()" button-click-behaviour>
             <mat-icon>search</mat-icon>
             <span>Search</span>
           </button>
@@ -52,8 +52,8 @@
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                          (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
+    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
+            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
       <img src="assets/images/exportCSV.svg" width="30" height="30">
     </button>
   </div>

@@ -65,8 +65,8 @@
                    (keydown.escape)="revertProperty(row)">
 
             <span class="property-edit-buttons input-group-addon">
-              <button md-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)"><mat-icon md-tooltip="Save" mdTooltipPosition="above">save</mat-icon></button>
-              <button md-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)"><mat-icon md-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon></button>
+              <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)"><mat-icon mat-tooltip="Save" mdTooltipPosition="above">save</mat-icon></button>
+              <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)"><mat-icon mat-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon></button>
             </span>
 
           </div>

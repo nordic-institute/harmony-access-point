@@ -4,8 +4,8 @@
     <mat-card>
       <mat-card-content>
         <form name="messageFilterForm" #messageFilterForm="ngForm">
-          <button md-icon-button color="primary" (click)="saveAsCSV()"
-                  id="saveascsvbutton_id" md-tooltip="Export as CSV">
+          <button mat-icon-button color="primary" (click)="saveAsCSV()"
+                  id="saveascsvbutton_id" mat-tooltip="Export as CSV">
             <img src="assets/images/exportCSV.svg" width="30" height="30">
           </button>
           <ngx-datatable
@@ -63,20 +63,20 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
               <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-                <button md-icon-button color="primary" type="button" [disabled]="row.$$index===0"
+                <button mat-icon-button color="primary" type="button" [disabled]="row.$$index===0"
                         (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{row.$$index}}_id" tooltip="Move Up">
                   <mat-icon>arrow_drop_up</mat-icon>
                 </button>
-                <button md-icon-button color="primary" type="button" [disabled]="row.$$index===rows.length - 1"
+                <button mat-icon-button color="primary" type="button" [disabled]="row.$$index===rows.length - 1"
                         (click)="buttonMoveDownAction(row)" id="moveDownButtonRow{{row.$$index}}_id"
                         tooltip="Move Down">
                   <mat-icon>arrow_drop_down</mat-icon>
                 </button>
-                <button md-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
+                <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
                         id="editButtonRow{{row.$$index}}_id" tooltip="Edit">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button md-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
+                <button mat-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
                         id="deleteButtonRow{{row.$$index}}_id" tooltip="Delete">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -87,14 +87,14 @@
           <table class="group-action-button">
             <tr>
               <td>
-                <button md-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
+                <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
                         (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
                   <mat-icon>arrow_drop_up</mat-icon>
                   <span>Move Up</span>
                 </button>
               </td>
               <td>
-                <button md-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
+                <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
                         (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
                   <mat-icon>arrow_drop_down</mat-icon>
                   <span>Move Down</span>
@@ -105,27 +105,27 @@
           <table class="group-action-button">
             <tr>
               <td>
-                <button md-raised-button color="primary" type="button" [disabled]="!enableCancel"
+                <button mat-raised-button color="primary" type="button" [disabled]="!enableCancel"
                         (click)="cancelDialog()" id="cancelbutton_id" button-click-behaviour>
                   <mat-icon>cancel</mat-icon>
                   <span>Cancel</span>
                 </button>
-                <button md-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="saveDialog(false)"
+                <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="saveDialog(false)"
                         id="savebutton_id" button-click-behaviour>
                   <mat-icon>save</mat-icon>
                   <span>Save</span>
                 </button>
-                <button md-raised-button color="primary" type="button" (click)="buttonNew()" id="newbutton_id"
+                <button mat-raised-button color="primary" type="button" (click)="buttonNew()" id="newbutton_id"
                         button-click-behaviour>
                   <mat-icon>add</mat-icon>
                   <span>New</span>
                 </button>
-                <button md-raised-button color="primary" type="button" [disabled]="!enableEdit"
+                <button mat-raised-button color="primary" type="button" [disabled]="!enableEdit"
                         (click)="buttonEditAction(this.selected[0])" id="editbutton_id" button-click-behaviour>
                   <mat-icon>edit</mat-icon>
                   <span>Edit</span>
                 </button>
-                <button md-raised-button color="primary" type="button" [disabled]="!enableDelete"
+                <button mat-raised-button color="primary" type="button" [disabled]="!enableDelete"
                         (click)="buttonDelete()" id="deletebutton_id" button-click-behaviour>
                   <mat-icon>delete</mat-icon>
                   <span>Delete</span>

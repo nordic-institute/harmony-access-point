@@ -91,6 +91,7 @@ import {LogoutAuthExtProviderComponent} from './security/logout/logout.component
 import {RedirectHomeGuard} from './common/guards/redirect-home.guard';
 import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.components';
 import {PropertiesComponent} from './properties/properties.component';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -194,7 +195,8 @@ import {PropertiesComponent} from './properties/properties.component';
     MatExpansionModule,
     MatCheckboxModule,
     MatButtonToggleModule,
-    MatTooltipModule
+    MatTooltipModule,
+    HttpClientModule
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

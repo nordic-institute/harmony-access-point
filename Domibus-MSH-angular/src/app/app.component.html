@@ -8,85 +8,85 @@
       </div>
     </div>
 
-    <button md-raised-button class="sideNavButton" [routerLink]="['/']" id="messages_id" *ngIf="isUser()">
-      <mat-icon md-tooltip="Messages">message</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/']" id="messages_id" *ngIf="isUser()">
+      <mat-icon mat-tooltip="Messages">message</mat-icon>
       <span>Messages</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()" id="messagefilter_id">
-      <mat-icon md-tooltip="Message Filter">filter_list
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()" id="messagefilter_id">
+      <mat-icon mat-tooltip="Message Filter">filter_list
       </mat-icon>
       <span>Message Filter</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/errorlog']" id="errorlog_id" *ngIf="isUser()">
-      <mat-icon md-tooltip="Error Log">sms_failed</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/errorlog']" id="errorlog_id" *ngIf="isUser()">
+      <mat-icon mat-tooltip="Error Log">sms_failed</mat-icon>
       <span>Error Log</span>
     </button>
     <mat-expansion-panel *ngIf="isAdmin()">
       <mat-expansion-panel-header>
-        <button md-raised-button class="sideNavButton" id="pmode_id">
-          <mat-icon md-tooltip="PMode">description</mat-icon>
+        <button mat-raised-button class="sideNavButton" id="pmode_id">
+          <mat-icon mat-tooltip="PMode">description</mat-icon>
           <span *ngIf="fullMenu">PMode</span>
         </button>
       </mat-expansion-panel-header>
       <!--[ngClass]="{ 'alert': message, 'alert-success': message.type === 'success', 'alert-error': message.type === 'error' }"-->
       <div class="sideNavSubmenu">
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" id="current_pmode_id">
-          <mat-icon md-tooltip="Current PMode">receipt</mat-icon>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" id="current_pmode_id">
+          <mat-icon mat-tooltip="Current PMode">receipt</mat-icon>
           <span>Current</span>
         </button>
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" id="pmode_archive_id">
-          <mat-icon md-tooltip="PMode Archive">history</mat-icon>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" id="pmode_archive_id">
+          <mat-icon mat-tooltip="PMode Archive">history</mat-icon>
           <span>Archive</span>
         </button>
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" id="pmode_party_id">
-          <mat-icon md-tooltip="Party management">device_hub</mat-icon>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" id="pmode_party_id">
+          <mat-icon mat-tooltip="Party management">device_hub</mat-icon>
           <span>Parties</span>
         </button>
       </div>
     </mat-expansion-panel>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/jms']" *ngIf="isAdmin()" id="jmsmonitoring_id">
-      <mat-icon md-tooltip="JMS Monitoring">computer</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/jms']" *ngIf="isAdmin()" id="jmsmonitoring_id">
+      <mat-icon mat-tooltip="JMS Monitoring">computer</mat-icon>
       <span>JMS Monitoring</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
-      <mat-icon md-tooltip="Truststore">vpn_key</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
+      <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
       <span>Truststore</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/user']" *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
-      <mat-icon md-tooltip="Users">people</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/user']" *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
+      <mat-icon mat-tooltip="Users">people</mat-icon>
       <span>Users</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()" id="plugin_user_id">
-      <mat-icon md-tooltip="Plugin Users">people_outline</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()" id="plugin_user_id">
+      <mat-icon mat-tooltip="Plugin Users">people_outline</mat-icon>
       <span>Plugin Users</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/audit']" *ngIf="isAdmin()" id="audit_id">
-      <mat-icon md-tooltip="Audit">update</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/audit']" *ngIf="isAdmin()" id="audit_id">
+      <mat-icon mat-tooltip="Audit">update</mat-icon>
       <span>Audit</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/alerts']" *ngIf="isAdmin()" id="alerts_id">
-      <mat-icon md-tooltip="Alerts">add_alert</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/alerts']" *ngIf="isAdmin()" id="alerts_id">
+      <mat-icon mat-tooltip="Alerts">add_alert</mat-icon>
       <span>Alerts</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/testservice']" *ngIf="isAdmin()" id="testservice_id">
-      <mat-icon md-tooltip="Test Service">import_export</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/testservice']" *ngIf="isAdmin()" id="testservice_id">
+      <mat-icon mat-tooltip="Test Service">import_export</mat-icon>
       <span *ngIf="fullMenu">Test Service</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdmin()" id="logging_id">
-      <mat-icon md-tooltip="Logging">list_alt</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdmin()" id="logging_id">
+      <mat-icon mat-tooltip="Logging">list_alt</mat-icon>
       <span *ngIf="fullMenu">Logging</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin() && false" id="properties_id">
-      <mat-icon md-tooltip="Properties">settings</mat-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin() && false" id="properties_id">
+      <mat-icon mat-tooltip="Properties">settings</mat-icon>
       <span>Properties</span>
     </button>
     <div class="collapse-button">
-      <button *ngIf="fullMenu" md-raised-button id="expand_id" (click)="toggleMenu()">
-        <mat-icon md-tooltip="Collapse">chevron_left</mat-icon>
+      <button *ngIf="fullMenu" mat-raised-button id="expand_id" (click)="toggleMenu()">
+        <mat-icon mat-tooltip="Collapse">chevron_left</mat-icon>
       </button>
 
-      <button *ngIf="!fullMenu" md-raised-button id="collapse_id" (click)="toggleMenu()">
-        <mat-icon md-tooltip="Expand">chevron_right</mat-icon>
+      <button *ngIf="!fullMenu" mat-raised-button id="collapse_id" (click)="toggleMenu()">
+        <mat-icon mat-tooltip="Expand">chevron_right</mat-icon>
       </button>
     </div>
 
@@ -119,7 +119,7 @@
         <page-helper></page-helper>
       </div>
       <div id="sandwichMenu">
-        <button md-icon-button [mat-menu-trigger-for]="settingsMenu" id="settingsmenu_id" mat-tooltip="Menu">
+        <button mat-icon-button [mat-menu-trigger-for]="settingsMenu" id="settingsmenu_id" mat-tooltip="Menu">
           <mat-icon>menu</mat-icon>
         </button>
 
@@ -127,19 +127,19 @@
 
           <div *ngIf="currentUser">
 
-            <button md-menu-item disabled="true" id="currentuser_id">
+            <button mat-menu-item disabled="true" id="currentuser_id">
               <mat-icon>person</mat-icon>
               <span>{{currentUser}}</span>
             </button>
 
             <hr/>
 
-            <button md-menu-item (click)="changePassword()" id="changePassword_id" *ngIf="!isExtAuthProviderEnabled()">
+            <button mat-menu-item (click)="changePassword()" id="changePassword_id" *ngIf="!isExtAuthProviderEnabled()">
               <mat-icon>edit</mat-icon>
               <span>Change Password</span>
             </button>
 
-            <button md-menu-item (click)="logout($event)" id="logout_id">
+            <button mat-menu-item (click)="logout($event)" id="logout_id">
               <mat-icon>power_settings_new</mat-icon>
               <span>Logout</span>
             </button>
@@ -147,7 +147,7 @@
           </div>
 
           <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle;margin: 2px;">
-            <button md-menu-item disabled="true">
+            <button mat-menu-item disabled="true">
               <mat-icon>person_outline</mat-icon>
               <span>Not logged in</span>
             </button>

@@ -26,7 +26,7 @@
         </mat-form-field>
 
         <div class="searchArea">
-          <button md-raised-button color="primary" id="searchbutton_id" (click)="trySearch()"
+          <button mat-raised-button color="primary" id="searchbutton_id" (click)="trySearch()"
                   button-click-behaviour>
             <mat-icon>search</mat-icon>
             <span>Search</span>
@@ -51,8 +51,8 @@
 
     </app-column-picker>
     </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
+    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
+            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
       <img src="assets/images/exportCSV.svg" width="30" height="30">
     </button>
   </div>
@@ -90,26 +90,26 @@
   <table class="group-action-button">
     <tr>
       <td>
-        <button id="userCancelButton" md-raised-button (click)="cancel()" color="primary" [disabled]="!canCancel()"
+        <button id="userCancelButton" mat-raised-button (click)="cancel()" color="primary" [disabled]="!canCancel()"
                 button-click-behaviour>
           <mat-icon>cancel</mat-icon>
           <span>Cancel</span>
         </button>
-        <button id="userSaveButton" md-raised-button (click)="save()" color="primary" [disabled]="!canSave()"
+        <button id="userSaveButton" mat-raised-button (click)="save()" color="primary" [disabled]="!canSave()"
                 button-click-behaviour>
           <mat-icon>save</mat-icon>
           <span>Save</span>
         </button>
-        <button id="userNewButton" md-raised-button (click)="add()" color="primary" button-click-behaviour>
+        <button id="userNewButton" mat-raised-button (click)="add()" color="primary" button-click-behaviour>
           <mat-icon>add</mat-icon>
           <span>New</span>
         </button>
-        <button md-raised-button (click)="edit(null)" color="primary" [disabled]="!canEdit()"
+        <button mat-raised-button (click)="edit(null)" color="primary" [disabled]="!canEdit()"
                 button-click-behaviour>
           <mat-icon>edit</mat-icon>
           <span>Edit</span>
         </button>
-        <button id="userDeleteButton" md-raised-button (click)="delete()" [disabled]="!canEdit()" color="primary"
+        <button id="userDeleteButton" mat-raised-button (click)="delete()" [disabled]="!canEdit()" color="primary"
                 button-click-behaviour>
           <mat-icon>delete</mat-icon>
           <span>Delete</span>

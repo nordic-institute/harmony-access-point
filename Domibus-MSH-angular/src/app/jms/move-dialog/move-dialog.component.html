@@ -1,4 +1,4 @@
-<h1 id="messageDialogTitle" md-dialog-title>
+<h1 id="messageDialogTitle" mat-dialog-title>
   Click on "Ok" to confirm that you want to move the selected messages<br>
   WARNING: This operation will be executed immediately and cannot be reverted.<br>
   Click on "Cancel" to leave the message untouched.
@@ -17,14 +17,14 @@
   <div class="divTableBody">
     <div class="divTableRow">
       <div class="divTableCell" style="width:50%">
-        <button id="messageDialogResendButton" md-raised-button color="primary"
+        <button id="messageDialogResendButton" mat-raised-button color="primary"
                 (click)="dialogRef.close({destination:selectedSource.name})" [disabled]="!canOk()">
           <mat-icon>check_circle</mat-icon>
           <span>OK</span>
         </button>
       </div>
       <div class="divTableCell" style="width:50%">
-        <button id="messageDialogCancelButton" md-raised-button color="primary" (click)="dialogRef.close({})">
+        <button id="messageDialogCancelButton" mat-raised-button color="primary" (click)="dialogRef.close({})">
           <mat-icon>cancel</mat-icon>
           <span>Cancel</span>
         </button>

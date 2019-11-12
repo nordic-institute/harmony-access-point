@@ -39,7 +39,7 @@
         </mat-form-field>
 
         <div class="searchArea">
-          <button id="jmsSearchButton" md-raised-button color="primary" (click)="trySearch()" [disabled]="!canSearch()"
+          <button id="jmsSearchButton" mat-raised-button color="primary" (click)="trySearch()" [disabled]="!canSearch()"
                   button-click-behaviour>
             <mat-icon>search</mat-icon>
             <span>Search</span>
@@ -60,8 +60,8 @@
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                        (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
+    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
+            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
       <img src="assets/images/exportCSV.svg" width="30" height="30">
     </button>
   </div>
@@ -98,33 +98,33 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="jmsMoveButtonRow{{row.$$index}}_id" md-icon-button color="primary" (click)="moveAction(row)"
+    <button id="jmsMoveButtonRow{{row.$$index}}_id" mat-icon-button color="primary" (click)="moveAction(row)"
             tooltip="Move">
       <mat-icon>move_to_inbox</mat-icon>
     </button>
-    <button id="jmsDeleteButtonRow{{row.$$index}}_id" md-icon-button color="primary" (click)="deleteAction(row)"
+    <button id="jmsDeleteButtonRow{{row.$$index}}_id" mat-icon-button color="primary" (click)="deleteAction(row)"
             tooltip="Delete">
       <mat-icon>delete</mat-icon>
     </button>
   </ng-template>
 
   <div class="group-action-button">
-    <button id="jmsCancelButton" md-raised-button color="primary" (click)="cancel()"
+    <button id="jmsCancelButton" mat-raised-button color="primary" (click)="cancel()"
             [disabled]="markedForDeletionMessages.length == 0" button-click-behaviour>
       <mat-icon>cancel</mat-icon>
       <span>Cancel</span>
     </button>
-    <button id="jmsSaveButton" md-raised-button color="primary" (click)="save()"
+    <button id="jmsSaveButton" mat-raised-button color="primary" (click)="save()"
             [disabled]="markedForDeletionMessages.length == 0" button-click-behaviour>
       <mat-icon>save</mat-icon>
       <span>Save</span>
     </button>
-    <button id="jmsMoveButton" md-raised-button color="primary" (click)="move()"
+    <button id="jmsMoveButton" mat-raised-button color="primary" (click)="move()"
             [disabled]="selectedMessages.length == 0" button-click-behaviour>
       <mat-icon>move_to_inbox</mat-icon>
       <span>Move</span>
     </button>
-    <button id="jmsDeleteButton" md-raised-button color="primary" (click)="delete()"
+    <button id="jmsDeleteButton" mat-raised-button color="primary" (click)="delete()"
             [disabled]="selectedMessages.length == 0" button-click-behaviour>
       <mat-icon>delete</mat-icon>
       <span>Delete</span>

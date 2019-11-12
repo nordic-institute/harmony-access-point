@@ -1,5 +1,5 @@
-<h2 md-dialog-title *ngIf="useFileSelector">Upload File</h2>
-<h2 md-dialog-title *ngIf="!useFileSelector">Save PMode changes</h2>
+<h2 mat-dialog-title *ngIf="useFileSelector">Upload File</h2>
+<h2 mat-dialog-title *ngIf="!useFileSelector">Save PMode changes</h2>
 <mat-dialog-content style="height:180px;width:450px">
   <mat-card>
     <mat-card-content>
@@ -17,11 +17,11 @@
 <table class="buttonsRow">
   <tr>
     <td>
-      <button id="okbuttonupload_id" md-raised-button color="primary" (click)="submit()" style="margin-top:10px" [disabled]="!enableSubmit">
+      <button id="okbuttonupload_id" mat-raised-button color="primary" (click)="submit()" style="margin-top:10px" [disabled]="!enableSubmit">
         <mat-icon>check_circle</mat-icon>
         <span>OK</span>
       </button>
-      <button id="cancelbuttonupload_id" md-raised-button color="primary" (click)="cancel()"
+      <button id="cancelbuttonupload_id" mat-raised-button color="primary" (click)="cancel()"
               style="margin-top:10px">
         <mat-icon>cancel</mat-icon>
         <span>Cancel</span>
