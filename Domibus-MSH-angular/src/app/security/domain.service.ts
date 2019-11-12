@@ -1,5 +1,5 @@
 ﻿import {Injectable} from '@angular/core';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpClient, Headers, Response} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {AsyncSubject, BehaviorSubject, Subject} from 'rxjs';
 import 'rxjs/add/operator/map';
@@ -16,7 +16,7 @@ export class DomainService {
   private isMultiDomainSubject: Subject<boolean>;
   private domainSubject: Subject<Domain>;
 
-  constructor (private http: Http, private titleService: Title) {
+  constructor (private http: HttpClient, private titleService: Title) {
   }
 
   isMultiDomain (): Observable<boolean> {

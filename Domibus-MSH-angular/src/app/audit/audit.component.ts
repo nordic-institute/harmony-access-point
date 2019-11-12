@@ -59,7 +59,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
 // --- lets init the component's data ---
     this.existingUsers = [];
     const userObservable = this.userService.getUserNames();
-    userObservable.subscribe((userName: string) => this.existingUsers.push(userName));
+    userObservable.subscribe((userNames: string[]) => this.existingUsers.push(...userNames));
 
     this.existingActions = [];
     const actionObservable = this.auditService.listActions();
@@ -67,7 +67,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
 
     this.existingAuditTargets = [];
     const existingTargets = this.auditService.listTargetTypes();
-    existingTargets.subscribe((target: string) => this.existingAuditTargets.push(target));
+    existingTargets.subscribe((targets: string[]) => this.existingAuditTargets.push(...targets));
 
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;

@@ -1,19 +1,17 @@
-import {Headers, Http, URLSearchParams, Response} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
-import {DomainService} from '../security/domain.service';
-import {SecurityService} from '../security/security.service';
 
 @Injectable()
 export class PropertiesService {
 
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
 
-  constructor(private http: Http, private alertService: AlertService) {
+  constructor(private http: HttpClient, private alertService: AlertService) {
   }
 
   getProperties(searchString: string, showDomainProperties: boolean, pageSize: number, offset: number): Promise<PropertyListModel> {
-    const searchParams = new URLSearchParams();
+    const searchParams = new HttpParams();
     if (searchString && searchString.trim()) {
       searchParams.set('name', searchString.trim());
     }
@@ -27,19 +25,13 @@ export class PropertiesService {
       searchParams.set('page', offset.toString());
     }
 
-    return this.http.get(PropertiesService.PROPERTIES_URL, {search: searchParams})
-      .map(this.extractData)
+    return this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams})
       .toPromise()
       .catch(err => this.alertService.handleError(err));
   }
 
-  private extractData(res: Response) {
-    let body = res.json();
-    return body || {};
-  }
-
   updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
-    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain}})
+    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain: isDomain.toString()}})
       .map(() => {
       })
       .toPromise()

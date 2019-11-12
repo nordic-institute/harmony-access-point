@@ -5,7 +5,7 @@ import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {MdDialog} from '@angular/material';
@@ -16,7 +16,6 @@ import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
-import {isNullOrUndefined} from 'util';
 import {AlertsEntry} from './alertsentry';
 import {showOnDirtyErrorStateMatcher, ErrorStateMatcher} from '@angular/material';
 
@@ -77,7 +76,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   filter: any;
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
     super();
 
     this.getAlertTypes();
@@ -143,29 +142,21 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   getAlertTypes(): void {
-    this.http.get(AlertsComponent.ALERTS_TYPES_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_TYPES_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aTypes => this.aTypes = aTypes);
   }
 
   getAlertStatuses(): void {
-    this.http.get(AlertsComponent.ALERTS_STATUS_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_STATUS_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aStatuses => this.aStatuses = aStatuses);
   }
 
   getAlertLevels(): void {
-    this.http.get(AlertsComponent.ALERTS_LEVELS_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_LEVELS_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aLevels => this.aLevels = aLevels);
-  }
-
-  private extractData(res: Response) {
-    let body = res.json();
-    return body || {};
   }
 
   getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
@@ -174,11 +165,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     searchParams.set('page', offset.toString());
     searchParams.set('pageSize', pageSize.toString());
 
-    return this.http.get(AlertsComponent.ALERTS_URL, {
-      search: searchParams
-    }).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, { params: searchParams });
   }
 
   private createSearchParams() {
@@ -205,7 +192,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   private createStaticSearchParams() {
-    const searchParams: URLSearchParams = new URLSearchParams();
+    const searchParams: HttpParams = new HttpParams();
 
     searchParams.set('orderBy', this.orderBy);
     if (this.asc != null) {
@@ -291,10 +278,10 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     return false; // to prevent default navigation
   }
 
-  getAlertParameters(alertType: string): Observable<Array<string>> {
-    const searchParams: URLSearchParams = new URLSearchParams();
+  getAlertParameters(alertType: string): Observable<string[]> {
+    const searchParams: HttpParams = new HttpParams();
     searchParams.set('alertType', alertType);
-    return this.http.get(AlertsComponent.ALERTS_PARAMS_URL, {search: searchParams}).map(this.extractData);
+    return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams});
   }
 
   onAlertTypeChanged(alertType: string) {

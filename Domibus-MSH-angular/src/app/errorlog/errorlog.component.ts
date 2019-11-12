@@ -1,6 +1,6 @@
-﻿import {Component, TemplateRef, ViewChild, Renderer2, ElementRef, OnInit} from '@angular/core';
+﻿import {Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
@@ -9,7 +9,6 @@ import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
-import {Md2Datepicker} from 'md2';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -30,7 +29,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('bibi') bibi: Md2Datepicker;
 
   timestampFromMaxDate: Date = new Date();
   timestampToMinDate: Date = null;
@@ -45,15 +43,15 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   count: number = 0;
   offset: number = 0;
 
-  mshRoles: Array<String>;
-  errorCodes: Array<String>;
+  mshRoles: string[];
+  errorCodes: string[];
 
   advancedSearch: boolean;
 
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
-  constructor(private elementRef: ElementRef, private http: Http, private alertService: AlertService, public dialog: MdDialog, private renderer: Renderer2) {
+  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService, public dialog: MdDialog, private renderer: Renderer2) {
     super();
   }
 
@@ -105,8 +103,8 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     this.search();
   }
 
-  createSearchParams(): URLSearchParams {
-    const searchParams = new URLSearchParams();
+  createSearchParams(): HttpParams {
+    const searchParams = new HttpParams();
 
     if (this.orderBy) {
       searchParams.set('orderBy', this.orderBy);
@@ -152,11 +150,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     searchParams.set('page', offset.toString());
     searchParams.set('pageSize', pageSize.toString());
 
-    return this.http.get(ErrorLogComponent.ERROR_LOG_URL, {
-      search: searchParams
-    }).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams});
   }
 
   page(offset, pageSize) {
@@ -211,14 +205,14 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public reload () {
+  public reload() {
     this.page(0, this.rowLimiter.pageSize);
   }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public onBeforeSort () {
+  public onBeforeSort() {
     super.resetFilters();
   }
 

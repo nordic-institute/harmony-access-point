@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './messagelogresult';
 import {Observable} from 'rxjs';
 import {AlertService} from '../common/alert/alert.service';
@@ -63,7 +63,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   canSearchByConversationId: boolean;
   conversationIdValue: String;
 
-  constructor (private http: Http, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
+  constructor (private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
                public dialog: MdDialog, private elementRef: ElementRef) {
     super();
   }
@@ -201,8 +201,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   }
 
 
-  createSearchParams (): URLSearchParams {
-    const searchParams = new URLSearchParams();
+  createSearchParams (): HttpParams {
+    const searchParams = new HttpParams();
 
     if (this.orderBy) {
       searchParams.set('orderBy', this.orderBy);
@@ -276,10 +276,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     searchParams.set('page', offset.toString());
     searchParams.set('pageSize', pageSize.toString());
 
-    return this.http.get(MessageLogComponent.MESSAGE_LOG_URL, {search: searchParams})
-      .map((response: Response) =>
-        response.json()
-      );
+    return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams});
   }
 
   /**

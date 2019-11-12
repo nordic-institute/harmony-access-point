@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Http, URLSearchParams, Response} from '@angular/http';
+import {HttpClient, URLSearchParams, Response} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {PluginUserRO} from './pluginuser';
 import {UserState} from '../user/user';
@@ -25,7 +25,7 @@ export class PluginUserService {
 
   readonly ROLE_AP_ADMIN = SecurityService.ROLE_AP_ADMIN;
 
-  constructor (private http: Http, private userService: UserService, private alertService: AlertService) {
+  constructor (private http: HttpClient, private userService: UserService, private alertService: AlertService) {
   }
 
   getUsers (filter?: PluginUserSearchCriteria)

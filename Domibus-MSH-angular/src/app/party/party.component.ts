@@ -4,14 +4,12 @@ import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
-import {Observable} from 'rxjs/Observable';
 import {AlertService} from '../common/alert/alert.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -49,7 +47,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   pModeExists: boolean;
   isBusy: boolean;
 
-  constructor(public dialog: MdDialog, public partyService: PartyService, public alertService: AlertService, private http: Http) {
+  constructor(public dialog: MdDialog, public partyService: PartyService, public alertService: AlertService, private http: HttpClient) {
     super();
   }
 
@@ -71,8 +69,8 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
     this.initColumns();
 
-    const res = await this.http.get(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
-    if (res && res.text()) {
+    const res = await this.http.get<any>(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
+    if (res) {
       this.pModeExists = true;
       this.search();
     } else {
@@ -95,33 +93,34 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     this.listPartiesAndProcesses();
   }
 
-  listPartiesAndProcesses() {
+  async listPartiesAndProcesses() {
     this.offset = 0;
-    return Observable.forkJoin([
-      this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
-        this.activeFilter.process, this.activeFilter.process_role),
-      this.partyService.listProcesses()
-    ])
-      .subscribe((data: any[]) => {
-          const partiesRes: PartyFilteredResult = data[0];
-          const processes: ProcessRo[] = data[1];
+    var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
+      this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),
+      this.partyService.listProcesses().toPromise()
+    ];
 
-          this.allProcesses = processes.map(el => el.name);
+    try {
+      let data = await Promise.all(promises);
+      const partiesRes: PartyFilteredResult = data[0];
+      const processes: ProcessRo[] = data[1];
 
-          this.rows = partiesRes.data;
-          this.allRows = partiesRes.allData;
-          this.count = this.allRows.length;
-          this.selected.length = 0;
+      this.allProcesses = processes.map(el => el.name);
 
-          this.loading = false;
-          this.resetDirty();
-        },
-        error => {
-          this.alertService.error('Could not load parties due to: "' + error + '"');
-          this.loading = false;
-        }
-      );
+      this.rows = partiesRes.data;
+      this.allRows = partiesRes.allData;
+      this.count = this.allRows.length;
+      this.selected.length = 0;
+
+      this.loading = false;
+      this.resetDirty();
+
+    } catch (error) {
+      this.alertService.error('Could not load parties due to: "' + error + '"');
+      this.loading = false;
+    }
   }
+
 
   refresh() {
     // ugly but the grid does not feel the paging changes otherwise
@@ -315,12 +314,12 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
         this.partyService.getCertificate(party.name)
           .subscribe((cert: CertificateRo) => {
             party.certificate = cert;
-            resolve(party);
+            resolve(cert);
           }, err => {
-            resolve(party);
+            resolve(null);
           });
       } else {
-        resolve(party);
+        resolve(party.certificate);
       }
     });
   }

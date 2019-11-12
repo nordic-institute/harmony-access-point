@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Headers, Http, URLSearchParams} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogEntry} from '../messagelog/messagelogentry';
 import {isNullOrUndefined} from 'util';
 import {AlertService} from '../common/alert/alert.service';
@@ -34,7 +34,7 @@ export class TestServiceComponent implements OnInit {
 
   sender: string;
 
-  constructor(private http: Http, private alertService: AlertService) {
+  constructor(private http: HttpClient, private alertService: AlertService) {
   }
 
   ngOnInit() {
@@ -119,8 +119,8 @@ export class TestServiceComponent implements OnInit {
 
   getSenderParty() {
     this.sender = '';
-    this.http.get(TestServiceComponent.TEST_SERVICE_SENDER_URL).subscribe(res => {
-      this.sender = res.json();
+    this.http.get<string>(TestServiceComponent.TEST_SERVICE_SENDER_URL).subscribe(res => {
+      this.sender = res;
     }, error => {
       this.alertService.exception('The test service is not properly configured.', error, false);
     });
@@ -128,9 +128,9 @@ export class TestServiceComponent implements OnInit {
 
   getReceiverParties() {
     this.receiverParties = [];
-    this.http.get(TestServiceComponent.TEST_SERVICE_PARTIES_URL).subscribe(res => {
-      if (!isNullOrUndefined(res) && res.json() && res.json().length) {
-        this.receiverParties = res.json();
+    this.http.get<any[]>(TestServiceComponent.TEST_SERVICE_PARTIES_URL).subscribe(res => {
+      if (!isNullOrUndefined(res) && res.length) {
+        this.receiverParties = res;
       } else {
         this.alertService.error('The test service is not properly configured.', false);
       }
@@ -142,11 +142,10 @@ export class TestServiceComponent implements OnInit {
   }
 
   getLastSentRequest(partyId: string) {
-    let searchParams: URLSearchParams = new URLSearchParams();
+    let searchParams: HttpParams = new HttpParams();
     searchParams.set('partyId', partyId);
-    this.http.get(TestServiceComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {search: searchParams})
-      .subscribe(res => {
-        const result = res.json();
+    this.http.get<any>(TestServiceComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {params: searchParams})
+      .subscribe(result => {
         if (!isNullOrUndefined(result)) {
           this.alertService.clearAlert();
           this.messageInfoSent.toPartyId = result.partyId;
@@ -162,12 +161,11 @@ export class TestServiceComponent implements OnInit {
   }
 
   getLastReceivedRequest(partyId: string, userMessageId: string) {
-    let searchParams: URLSearchParams = new URLSearchParams();
+    let searchParams: HttpParams = new HttpParams();
     searchParams.set('partyId', partyId);
     searchParams.set('userMessageId', userMessageId);
-    this.http.get(TestServiceComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {search: searchParams})
-      .subscribe(res => {
-        const result = res.json();
+    this.http.get<any>(TestServiceComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {params: searchParams})
+      .subscribe(result => {
         if (!isNullOrUndefined(result)) {
           this.messageInfoReceived.fromPartyId = partyId;
           this.messageInfoReceived.originalSender = result.accessPoint;

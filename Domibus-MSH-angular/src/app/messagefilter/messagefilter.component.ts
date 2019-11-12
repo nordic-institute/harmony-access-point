@@ -1,12 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {MdDialog, MdDialogRef} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {MessageFilterResult} from './messagefilterresult';
 import {BackendFilterEntry} from './backendfilterentry';
 import {RoutingCriteriaEntry} from './routingcriteriaentry';
-import {isNullOrUndefined} from 'util';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
@@ -42,7 +41,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   dirty: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog) {
   }
 
   ngOnInit() {
@@ -72,10 +71,10 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
 
       let newRows = [];
       this.backendFilterNames = [];
-      if (!isNullOrUndefined(result.messageFilterEntries)) {
+      if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
           let currentFilter: BackendFilterEntry = result.messageFilterEntries[i];
-          if (isNullOrUndefined(currentFilter)) {
+          if (!(currentFilter)) {
             continue;
           }
           let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted);
@@ -102,9 +101,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   getMessageFilterEntries(): Observable<MessageFilterResult> {
-    return this.http.get(MessageFilterComponent.MESSAGE_FILTER_URL).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<MessageFilterResult>(MessageFilterComponent.MESSAGE_FILTER_URL);
   }
 
   createValueProperty(prop, newPropValue, row) {
@@ -224,7 +221,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   private updateSelectedProperty(prop: string, value: string) {
-    if (!isNullOrUndefined(this.rows[this.rowNumber][prop])) {
+    if ((this.rows[this.rowNumber][prop])) {
       if (value.length == 0) {
         // delete
         this.deleteRoutingCriteria(prop);
@@ -377,7 +374,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   onSelect({selected}) {
-    if (isNullOrUndefined(selected) || selected.length == 0) {
+    if (!(selected) || selected.length == 0) {
       // unselect
       this.enableMoveDown = false;
       this.enableMoveUp = false;

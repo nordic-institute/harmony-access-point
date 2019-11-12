@@ -79,7 +79,7 @@ export class PartyDetailsComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      var binaryData = reader.result;
+      var binaryData = <string>reader.result;
 
       this.party.certificateContent = btoa(binaryData); // base64
 

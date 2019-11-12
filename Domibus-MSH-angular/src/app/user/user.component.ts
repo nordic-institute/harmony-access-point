@@ -6,7 +6,7 @@ import {UserValidatorService} from 'app/user/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {isNullOrUndefined} from 'util';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
@@ -63,7 +63,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   isBusy = false;
 
-  constructor(private http: Http,
+  constructor(private http: HttpClient,
               private userService: UserService,
               public dialog: MdDialog,
               private userValidatorService: UserValidatorService,

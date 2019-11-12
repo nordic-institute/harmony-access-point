@@ -1,7 +1,6 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService} from './properties.service';
-import {Headers} from '@angular/http';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {SecurityService} from '../security/security.service';
 

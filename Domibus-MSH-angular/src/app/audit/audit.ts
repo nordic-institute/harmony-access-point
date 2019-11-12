@@ -1,4 +1,4 @@
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 
 /**
  * @author Thomas Dussart
@@ -33,8 +33,8 @@ export class AuditCriteria {
   start;
   max;
 
-  public toURLSearchParams(): URLSearchParams {
-    const searchParams = new URLSearchParams();
+  public toURLSearchParams(): HttpParams {
+    const searchParams = new HttpParams();
 
     if (this.auditTargetName) {
       this.auditTargetName.forEach(el => searchParams.append('auditTargetName', el));

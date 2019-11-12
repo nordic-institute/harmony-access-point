@@ -1,7 +1,7 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {MdDialog} from '@angular/material';
 import {isNullOrUndefined} from 'util';
@@ -77,7 +77,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
    * @param {MdDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private domainService: DomainService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog, private domainService: DomainService) {
   }
 
   /**
@@ -158,9 +158,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * Gets all the PMode
    * @returns {Observable<Response>}
    */
-  getResultObservable(): Observable<Response> {
-    return this.http.get(PModeArchiveComponent.PMODE_URL + '/list')
-      .publishReplay(1).refCount();
+  getResultObservable(): Observable<any[]> {
+    return this.http.get<any[]>(PModeArchiveComponent.PMODE_URL + '/list');
   }
 
   /**
@@ -170,13 +169,12 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.loading = true;
 
     try {
-      const response = await this.getResultObservable().toPromise();
+      this.allPModes =  await this.getResultObservable().toPromise();
 
       this.offset = 0;
       this.actualRow = 0;
       this.actualId = undefined;
 
-      this.allPModes = response.json();
       this.count = this.allPModes.length;
       if (this.count > 0) {
         this.allPModes[0].current = true;
@@ -458,9 +456,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param id The id of the selected entry on the DB
    */
   download(row) {
-    this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id).subscribe(res => {
+    this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id, {observe: 'response', responseType: 'text'}).subscribe(res => {
       const uploadDateStr = DateFormatService.format(new Date(row.configurationDate));
-      PModeArchiveComponent.downloadFile(res.text(), this.currentDomain.name, uploadDateStr);
+      PModeArchiveComponent.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
     }, err => {
       this.alertService.error(err);
     });
@@ -515,7 +513,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    */
   selectedIndexChange(value) {
     if (value === 1 && this.uploaded) { // Archive Tab
-      this.getResultObservable().map((response: Response) => response.json()).map((response) => response.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize))
+      this.getResultObservable().map((response) => response.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize))
         .subscribe((response) => {
             this.tableRows = response;
             if (this.offset === 0) {
@@ -542,10 +540,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   }
 
   private preview(row) {
-    this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true ').subscribe(res => {
+    this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true', {observe: 'response', responseType: 'text'}).subscribe(res => {
       const HTTP_OK = 200;
       if (res.status === HTTP_OK) {
-        const content = res.text();
+        const content = res.body;
         this.dialog.open(PmodeViewComponent, {
           data: {metadata: row, content: content}
         });

@@ -1,8 +1,7 @@
 import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
-import {isNullOrUndefined} from 'util';
 import {MdDialog, MdDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
@@ -45,8 +44,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
   currentSearchSelectedSource;
 
-  selectedMessages: Array<any>;
-  markedForDeletionMessages: Array<any>;
+  selectedMessages: any[];
+  markedForDeletionMessages: any[];
   loading: boolean;
 
   rows: Array<any>;
@@ -66,7 +65,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MdDialog) {
     super();
   }
 
@@ -158,15 +157,14 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     });
   }
 
-  private getDestinations(): Observable<Response> {
-    return this.http.get('rest/jms/destinations')
-      .map(response => response.json().jmsDestinations)
+  private getDestinations(): Observable<any> {
+    return this.http.get<any>('rest/jms/destinations')
+      .map(response => response.jmsDestinations)
       .catch((error: Response) => this.alertService.handleError('Could not load queues: ' + error));
   }
 
-  private loadDestinations(): Observable<Response> {
-    const result = this.getDestinations();
-    result.subscribe(
+  private loadDestinations() {
+    this.getDestinations().subscribe(
       (destinations) => {
         this.queues = [];
         for (const key in destinations) {
@@ -175,8 +173,6 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.queuesInfoGot.emit();
       }
     );
-
-    return result;
   }
 
   private refreshDestinations(): Observable<Response> {
@@ -264,15 +260,15 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.selectedMessages = [];
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
-    this.http.post('rest/jms/messages', {
+    this.http.post<any>('rest/jms/messages', {
       source: this.activeFilter.source,
       jmsType: this.activeFilter.jmsType,
       fromDate: this.activeFilter.fromDate,
       toDate: this.activeFilter.toDate,
       selector: this.activeFilter.selector,
     }).subscribe(
-      (response: Response) => {
-        this.rows = response.json().messages;
+      res => {
+        this.rows = res.messages;
         this.offset = 0;
         this.refresh();
         this.loading = false;
@@ -316,10 +312,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
             let originalQueue = message.customProperties.originalQueue;
             // EDELIVERY-2814
             let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-            if (!isNullOrUndefined(originalQueue)) {
+            if (originalQueue) {
               let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
               console.debug(queues);
-              if (!isNullOrUndefined(queues)) {
+              if (queues) {
                 dialogRef.componentInstance.queues = queues;
                 dialogRef.componentInstance.selectedSource = queues[0];
               }
@@ -345,7 +341,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!isNullOrUndefined(result) && !isNullOrUndefined(result.destination)) {
+      if (result && result.destination) {
         let messageIds = this.selectedMessages.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
@@ -362,7 +358,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
         let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
         console.debug(queues);
-        if (!isNullOrUndefined(queues)) {
+        if (queues) {
           dialogRef.componentInstance.queues = queues;
           dialogRef.componentInstance.selectedSource = queues[0];
         }
@@ -382,7 +378,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     }
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!isNullOrUndefined(result) && !isNullOrUndefined(result.destination)) {
+      if (result && result.destination) {
         let messageIds = this.selectedMessages.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
@@ -428,7 +424,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.alertService.success('The operation \'move messages\' completed successfully.');
 
         //refresh destinations
-        this.refreshDestinations().subscribe((response: Response) => {
+        this.refreshDestinations().subscribe(res => {
           this.setDefaultQueue(this.currentSearchSelectedSource.name);
         });
 
@@ -464,19 +460,19 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
   getFilterPath() {
     let result = '?';
-    if (!isNullOrUndefined(this.activeFilter.source)) {
+    if (this.activeFilter.source) {
       result += 'source=' + this.activeFilter.source + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.jmsType)) {
+    if (this.activeFilter.jmsType) {
       result += 'jmsType=' + this.activeFilter.jmsType + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.fromDate)) {
+    if (this.activeFilter.fromDate) {
       result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.toDate)) {
+    if (this.activeFilter.toDate) {
       result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.selector)) {
+    if (this.activeFilter.selector) {
       result += 'selector=' + this.activeFilter.selector + '&';
     }
     return result;
@@ -496,7 +492,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   isDirty(): boolean {
-    return !isNullOrUndefined(this.markedForDeletionMessages) && this.markedForDeletionMessages.length > 0;
+    return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
 
   onPage($event) {

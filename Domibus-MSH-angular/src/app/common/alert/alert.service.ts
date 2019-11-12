@@ -2,7 +2,7 @@
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs/Subject';
-import {Response} from '@angular/http';
+import {Response} from '@angular/common/http';
 
 @Injectable()
 export class AlertService {

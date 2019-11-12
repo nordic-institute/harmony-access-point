@@ -11,7 +11,7 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {AlertService} from '../common/alert/alert.service';
-import {Http, ResponseContentType} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-truststore',
@@ -36,7 +36,7 @@ export class TruststoreComponent implements OnInit {
   rows: Array<any> = [];
   offset: number;
 
-  constructor(private http: Http, private trustStoreService: TrustStoreService, public dialog: MdDialog, public alertService: AlertService) {
+  constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MdDialog, public alertService: AlertService) {
   }
 
   ngOnInit(): void {
@@ -125,9 +125,9 @@ export class TruststoreComponent implements OnInit {
    * Method called when Download button or icon is clicked
    */
   downloadCurrentTrustStore() {
-    this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL, {responseType: ResponseContentType.Blob})
+    this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
-        this.trustStoreService.saveTrustStoreFile(res.blob());
+        this.trustStoreService.saveTrustStoreFile(res.body);
       }, err => {
         this.alertService.exception('Error downloading TrustStore:', err);
       });
