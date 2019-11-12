@@ -6,10 +6,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.fs.BackendFSImpl;
-import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSTestHelper;
-import eu.domibus.plugin.fs.FSXMLHelper;
+import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -69,6 +66,9 @@ public class FSSendMessagesServiceTest {
 
     @Injectable
     protected FSXMLHelper fsxmlHelper;
+
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
 
     @Tested
     @Injectable
