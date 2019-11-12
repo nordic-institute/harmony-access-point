@@ -50,6 +50,6 @@ public class JMSQueuesCountSetTest {
 
         Assert.assertNotNull(metrics);
         Assert.assertTrue(metrics.size() == 1);
-        Assert.assertTrue(metrics.containsKey(queueName + ".count"));
+        Assert.assertTrue(metrics.containsKey(queueName));
     }
 }
