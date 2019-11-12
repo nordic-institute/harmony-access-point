@@ -8,7 +8,7 @@ import {AlertsResult} from './alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
-import {MatDialog} from '@angular/material';
+import {ErrorStateMatcher, MatDialog, ShowOnDirtyErrorStateMatcher} from '@angular/material';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
@@ -17,7 +17,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
 import {AlertsEntry} from './alertsentry';
-import {ShowOnDirtyErrorStateMatcher, ErrorStateMatcher} from '@angular/material';
+import 'rxjs-compat/add/operator/filter';
 
 @Component({
   moduleId: module.id,
@@ -165,7 +165,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     searchParams.set('page', offset.toString());
     searchParams.set('pageSize', pageSize.toString());
 
-    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, { params: searchParams });
+    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams});
   }
 
   private createSearchParams() {
@@ -289,16 +289,16 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.alertTypeWithDate = false;
     this.dynamicFilters = [];
     this.dynamicDatesFilter = [];
-    const alertParametersObservable = this.getAlertParameters(alertType).flatMap(value => value);
+    const alertParametersObservable = this.getAlertParameters(alertType);
     const TIME_SUFFIX = '_TIME';
     const DATE_SUFFIX = '_DATE';
-    let nonDateParamerters = alertParametersObservable.filter(value => {
+    let nonDateParamerters = alertParametersObservable.filter((value, index) => {
       console.log('Value:' + value);
-      return (value.search(TIME_SUFFIX) === -1 && value.search(DATE_SUFFIX) === -1)
+      return (value[index].search(TIME_SUFFIX) === -1 && value[index].search(DATE_SUFFIX) === -1)
     });
     nonDateParamerters.subscribe(item => this.nonDateParameters.push(item));
-    let dateParameters = alertParametersObservable.filter(value => {
-      return value.search(TIME_SUFFIX) > 0 || value.search(DATE_SUFFIX) > 1
+    let dateParameters = alertParametersObservable.filter((value, index) => {
+      return value[index].search(TIME_SUFFIX) > 0 || value[index].search(DATE_SUFFIX) > 1
     });
     dateParameters.subscribe(item => {
       this.dateFromName = item + ' FROM';
