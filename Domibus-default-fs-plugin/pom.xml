@@ -185,10 +185,18 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <extension>true</extension>
                     <packageName>eu.domibus.plugin.fs.ebms3</packageName>
                     <arguments>
                         <argument>-Xcommons-lang</argument>
                     </arguments>
+                    <sources>
+                        <source>src/main/xsd/fs-plugin.xsd</source>
+                    </sources>
+                    <xjbSources>
+                        <xjbSource>src/main/xjb/fs-plugin-jaxb-binding.xjb</xjbSource>
+                    </xjbSources>
+                    <verbose>false</verbose>
                 </configuration>
                 <dependencies>
                     <dependency>
