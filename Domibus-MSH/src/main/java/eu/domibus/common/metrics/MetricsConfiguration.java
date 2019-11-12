@@ -104,7 +104,7 @@ public class MetricsConfiguration {
             } catch (IllegalArgumentException e) {
                 LOG.warn("Invalid time unit property:[{}],setting default to MINUTE", timeUnitProperty, e);
             }
-            LOG.info("Sl4j metrics reporter enabled wit reporting time unit:[{}] and period:[{}]", timeUnit, periodProperty);
+            LOG.info("Sl4j metrics reporter enabled with reporting time unit:[{}] and period:[{}]", timeUnit, periodProperty);
             final Slf4jReporter reporter = Slf4jReporter.forRegistry(metricRegistry)
                     .outputTo(LoggerFactory.getLogger("eu.domibus.statistic"))
                     .convertRatesTo(TimeUnit.SECONDS)
