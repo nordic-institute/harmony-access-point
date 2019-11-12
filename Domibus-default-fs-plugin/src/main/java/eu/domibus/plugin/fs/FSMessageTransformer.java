@@ -49,6 +49,7 @@ public class FSMessageTransformer
     @Override
     public FSMessage transformFromSubmission(final Submission submission, final FSMessage messageOut) {
         UserMessage metadata = objectFactory.createUserMessage();
+        metadata.setMessageInfo(getMessageInfo(submission));
         metadata.setMpc(submission.getMpc());
         metadata.setPartyInfo(getPartyInfoFromSubmission(submission));
         metadata.setCollaborationInfo(getCollaborationInfoFromSubmission(submission));
@@ -56,6 +57,13 @@ public class FSMessageTransformer
         metadata.setPayloadInfo(getPayloadInfoFromSubmission(submission));
         Map<String, FSPayload> dataHandlers = getPayloadsFromSubmission(submission);
         return new FSMessage(dataHandlers, metadata);
+    }
+
+    protected MessageInfo getMessageInfo(Submission submission) {
+        MessageInfo result = new MessageInfo();
+        result.setMessageId(submission.getMessageId());
+        result.setRefToMessageId(submission.getRefToMessageId());
+        return result;
     }
 
     /**
