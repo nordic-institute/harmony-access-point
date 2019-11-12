@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * @since 4.1.1
  * @author Catalin Enache *
+ * @since 4.1.1
  */
 public class JMSQueuesCountSetTest {
 
@@ -50,6 +50,6 @@ public class JMSQueuesCountSetTest {
 
         Assert.assertNotNull(metrics);
         Assert.assertTrue(metrics.size() == 1);
-        Assert.assertTrue(metrics.containsKey(queueName));
+        Assert.assertTrue(metrics.containsKey(queueName + ".count"));
     }
 }
