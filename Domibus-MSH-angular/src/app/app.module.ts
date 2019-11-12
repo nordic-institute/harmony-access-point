@@ -19,7 +19,7 @@ import {
 import 'hammerjs';
 
 import {NgxDatatableModule} from '@swimlane/ngx-datatable';
-import {Md2Module, Md2SelectModule} from 'md2';
+import {Md2Module, Md2SelectModule} from 'angular-md2';
 
 import {AppComponent} from './app.component';
 import {LoginComponent} from './security/login/login.component';
