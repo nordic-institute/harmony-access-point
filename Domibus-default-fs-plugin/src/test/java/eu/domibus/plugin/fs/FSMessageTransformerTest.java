@@ -60,12 +60,14 @@ public class FSMessageTransformerTest {
     @Test
     public void testTransformFromSubmission_NormalFlow() throws Exception {
         String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
+        String refToMessageId = "123456-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
         String conversationId = "ae413adb-920c-4d9c-a5a7-b5b2596eaf1c@domibus.eu";
         String payloadContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
 
         // Submission
         Submission submission = new Submission();
         submission.setMessageId(messageId);
+        submission.setRefToMessageId(refToMessageId);
         submission.addFromParty(DOMIBUS_BLUE, UNREGISTERED_PARTY_TYPE);
         submission.setFromRole(INITIATOR_ROLE);
         submission.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);
@@ -97,6 +99,8 @@ public class FSMessageTransformerTest {
         // Expected results for FSMessage
         UserMessage userMessage = fsMessage.getMetadata();
         From from = userMessage.getPartyInfo().getFrom();
+        Assert.assertEquals(messageId, userMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(refToMessageId, userMessage.getMessageInfo().getRefToMessageId());
         Assert.assertEquals(UNREGISTERED_PARTY_TYPE, from.getPartyId().getType());
         Assert.assertEquals(DOMIBUS_BLUE, from.getPartyId().getValue());
         Assert.assertEquals(INITIATOR_ROLE, from.getRole());
