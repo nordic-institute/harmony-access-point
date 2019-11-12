@@ -40,13 +40,13 @@ tr:before,
 td:before,
 form:before,
 tbody:before,
-md-card:before,
-md-card-content:before,
+mat-card:before,
+mat-card-content:before,
 .panel:before,
 .selectionCriteria:before,
 table.buttonsRow:before,
 table.buttonsMoveRow,
-md-input-container:before,
+mat-input-container:before,
 ngx-datatable span:before:not([class^="datatable-icon-"]) {
   content: " " !important;
 }
@@ -85,7 +85,7 @@ ngx-datatable span:before:not([class^="datatable-icon-"]) {
 
 /* --- SIDEBAR --------- */
 /*---------------------- */
-md-sidenav[_ngcontent-c0] {
+mat-sidenav[_ngcontent-c0] {
   box-shadow: 0px 0px 2px #9B9B9B !important;
 }
 
@@ -235,7 +235,7 @@ a:hover {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);
 }
 
-md-card {
+mat-card {
   margin: 0;
 }
 
@@ -244,32 +244,32 @@ md-card {
 }
 
 /* --- INPUT ---*/
-.panel md-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-select, .panel md2-datepicker, .panel md2-select {
   padding-top: 10px;
   padding-bottom: 10px;
 }
 
-.panel md-select, .panel md-input-container, .panel md2-datepicker, .panel md2-select {
+.panel mat-select, .panel mat-input-container, .panel md2-datepicker, .panel md2-select {
   margin-right: 2%;
 }
 
-.panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel md2-select {
   width: 22%;
 }
 
 @media (max-width: 991px) {
-  .panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel md2-select {
     width: 46%;
   }
 }
 
 @media (max-width: 767px) {
-  .panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel md2-select {
     width: 100%;
   }
 }
 
-.md-select-menu-container,
+.mat-select-menu-container,
 .md2-select-panel {
   z-index: 99999 !important;
 }
