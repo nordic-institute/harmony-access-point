@@ -25,8 +25,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     ApplicationContext applicationContext;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
-    private boolean externalPropertiesLoaded = false;
-    private Object propertyMetadataMapLock = new Object();
+    private volatile boolean internalPropertiesLoaded = false;
+    private volatile boolean externalPropertiesLoaded = false;
+    private final Object propertyMetadataMapLock = new Object();
+
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new DomibusPropertyMetadata[]{
             //read-only properties
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED),
@@ -372,12 +374,13 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
      * later on, the properties from all managers will be added to the map.
      */
     protected void initializeIfNeeded(String propertyName) {
+        // add domibus-core properties directly first, to avoid infinite loop of bean creation (due to DB properties)
         if (propertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
-                if (propertyMetadataMap == null) {
-                    propertyMetadataMap = new HashMap<>();
-                    // add domibus-core properties directly now, to avoid infinite loop of bean creation(due to DB properties)
-                    propertyMetadataMap.putAll(this.getKnownProperties());
+                if (!internalPropertiesLoaded) { // double-check locking
+                    LOGGER.trace("Initializing core properties");
+                    propertyMetadataMap = new HashMap<>(this.getKnownProperties());
+                    internalPropertiesLoaded = true;
                 }
             }
         }
@@ -388,12 +391,11 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
         if (!externalPropertiesLoaded) {
             synchronized (propertyMetadataMapLock) {
-                // double-check locking
-                if (propertyMetadataMap.containsKey(propertyName)) {
-                    return;
+                if (!externalPropertiesLoaded) { // double-check locking
+                    LOGGER.trace("Initializing external properties");
+                    loadAllProperties();
+                    externalPropertiesLoaded = true;
                 }
-                loadAllProperties();
-                externalPropertiesLoaded = true;
             }
         }
     }
