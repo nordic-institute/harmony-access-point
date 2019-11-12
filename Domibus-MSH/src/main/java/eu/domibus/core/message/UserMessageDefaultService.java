@@ -249,6 +249,7 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessageLog);
     }
 
+    @Transactional
     @Override
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
