@@ -40,6 +40,9 @@ public class FSProcessFileServiceTest {
     @Injectable
     private FSPluginProperties fsPluginProperties;
 
+    @Injectable
+    protected FSXMLHelper fsxmlHelper;
+
 
     private String domain = null;
 
@@ -97,6 +100,9 @@ public class FSProcessFileServiceTest {
 
             fsFilesManager.resolveSibling(contentFile, "metadata.xml");
             result = metadataFile;
+
+            fsProcessFileService.parseMetadata((FileObject) any);
+            result = metadata;
 
             fsFilesManager.getDataHandler(contentFile);
             result = new DataHandler(new FileObjectDataSource(contentFile));
