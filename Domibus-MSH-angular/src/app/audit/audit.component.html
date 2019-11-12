@@ -1,17 +1,17 @@
 <page-header id="auditHeader_id">Audit</page-header>
 
 <div class="selectionCriteria">
-  <md-card>
+  <mat-card>
 
-    <md-card-content>
+    <mat-card-content>
       <div class="panel">
-        <md2-select mdInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTarget">
+        <md2-select matInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTarget">
           <md2-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</md2-option>
         </md2-select>
-        <md2-select mdInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.users">
+        <md2-select matInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.users">
           <md2-option *ngFor="let item of existingUsers" [value]="item">{{item}}</md2-option>
         </md2-select>
-        <md2-select mdInput placeholder="Action" id="user_id" multiple [(ngModel)]="filter.actions">
+        <md2-select matInput placeholder="Action" id="user_id" multiple [(ngModel)]="filter.actions">
           <md2-option *ngFor="let item of existingActions" [value]="item">{{item}}</md2-option>
         </md2-select>
         <md2-datepicker placeholder="Changed from:" appClearInvalid
@@ -31,15 +31,15 @@
 
         <div class="searchArea">
           <button md-raised-button color="primary" id="searchbutton_id" (click)="searchAndCount()" button-click-behaviour>
-            <md-icon>search</md-icon>
+            <mat-icon>search</mat-icon>
             <span>Search</span>
           </button>
           <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
           <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
         </div>
       </div>
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>
 
 <div class="panel">
