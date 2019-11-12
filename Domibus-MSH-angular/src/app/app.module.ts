@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {
   MatButtonModule,
-  MatButtonToggleModule,
+  MatButtonToggleModule, MatCardModule,
   MatCheckboxModule,
   MatDialogModule,
   MatExpansionModule,
@@ -19,7 +19,7 @@ import {
 import 'hammerjs';
 
 import {NgxDatatableModule} from '@swimlane/ngx-datatable';
-import {Md2Module, Md2SelectModule} from 'angular-md2';
+import {Md2DatepickerModule, MdNativeDateModule} from 'angular-md2';
 
 import {AppComponent} from './app.component';
 import {LoginComponent} from './security/login/login.component';
@@ -189,14 +189,15 @@ import {HttpClientModule} from '@angular/common/http';
     MatSelectModule,
     routing,
     ReactiveFormsModule,
-    Md2Module,
-    Md2SelectModule,
+    Md2DatepickerModule,
+    MdNativeDateModule,
     SharedModule,
     MatExpansionModule,
     MatCheckboxModule,
     MatButtonToggleModule,
     MatTooltipModule,
-    HttpClientModule
+    HttpClientModule,
+    MatCardModule,
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

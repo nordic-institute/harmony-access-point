@@ -244,33 +244,33 @@ mat-card {
 }
 
 /* --- INPUT ---*/
-.panel mat-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-select, .panel md2-datepicker, .panel mat-select {
   padding-top: 10px;
   padding-bottom: 10px;
 }
 
-.panel mat-select, .panel mat-input-container, .panel md2-datepicker, .panel md2-select {
+.panel mat-select, .panel mat-input-container, .panel md2-datepicker, .panel mat-select {
   margin-right: 2%;
 }
 
-.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
   width: 22%;
 }
 
 @media (max-width: 991px) {
-  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel md2-select {
+  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
     width: 46%;
   }
 }
 
 @media (max-width: 767px) {
-  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel md2-select {
+  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
     width: 100%;
   }
 }
 
 .mat-select-menu-container,
-.md2-select-panel {
+.mat-select-panel {
   z-index: 99999 !important;
 }
 

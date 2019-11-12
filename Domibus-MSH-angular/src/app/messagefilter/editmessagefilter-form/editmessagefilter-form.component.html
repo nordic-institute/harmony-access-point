@@ -3,11 +3,11 @@
   <form [formGroup]="messageFilterForm">
     <mat-card>
       <div>
-        <md2-select matInput placeholder="Plugin" id="backendfilter_id" floatPlaceholder="always" (change)="updatePlugin($event)" [(ngModel)]="plugin" [style.width]="'100%'" [formControl]="messageFilterForm.controls['plugin']">
-          <md2-option *ngFor="let bName of backendFilterNames" [value]="bName.toString()">
+        <mat-select matInput placeholder="Plugin" id="backendfilter_id" floatPlaceholder="always" (change)="updatePlugin($event)" [(ngModel)]="plugin" [style.width]="'100%'" [formControl]="messageFilterForm.controls['plugin']">
+          <mat-option *ngFor="let bName of backendFilterNames" [value]="bName.toString()">
             {{bName.toString()}}
-          </md2-option>
-        </md2-select>
+          </mat-option>
+        </mat-select>
       </div>
 
       <div>

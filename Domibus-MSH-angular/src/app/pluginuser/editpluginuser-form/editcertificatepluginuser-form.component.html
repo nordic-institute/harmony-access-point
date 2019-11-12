@@ -21,9 +21,9 @@
       </div>
 
       <div style="margin-top:10px;">
-        <md2-select matInput placeholder="Role" [style.width]="'100%'" [formControl]="userForm.controls['role']" [(ngModel)]="user.authRoles" required>
-          <md2-option *ngFor="let item of existingRoles" [value]="item">{{item}}</md2-option>
-        </md2-select>
+        <mat-select matInput placeholder="Role" [style.width]="'100%'" [formControl]="userForm.controls['role']" [(ngModel)]="user.authRoles" required>
+          <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
+        </mat-select>
         <div *ngIf="userForm.controls['role'].hasError('required')" style="color:red; font-size: 70%">You need to choose a role for this user</div>
       </div>
 
