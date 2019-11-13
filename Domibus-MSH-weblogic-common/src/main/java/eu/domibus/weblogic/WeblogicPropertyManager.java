@@ -1,4 +1,4 @@
-package eu.domibus.wildfly12.server;
+package eu.domibus.weblogic;
 
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
