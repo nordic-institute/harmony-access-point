@@ -109,13 +109,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_CACHED_THREADS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES),
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED),
-
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(WEBLOGIC_MANAGEMENT_SERVER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_PASSWORD),
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION),
 
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Module.MSH, false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, true),
 

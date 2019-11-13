@@ -13,4 +13,6 @@ public class Module {
     public static final String DSS= "DSS";
 
     public static final String WILDFLY_ARTEMIS= "WILDFLY_ARTEMIS";
+
+    public static final String WEBLOGIC_ECAS= "WEBLOGIC_ECAS";
 }
