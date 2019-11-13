@@ -53,7 +53,11 @@ public class BaseUXTest extends BaseTest {
 	}
 
 	@AfterMethod(alwaysRun = true)
-	public void refresh() {
+	public void refresh() throws Exception {
+		if (data.isIsMultiDomain()) {
+			log.info("going to default domain");
+			new DomibusPage(driver).getDomainSelector().selectOptionByText("Default");
+		}
 		log.info("-------- Refreshing -------");
 		driver.navigate().refresh();
 	}

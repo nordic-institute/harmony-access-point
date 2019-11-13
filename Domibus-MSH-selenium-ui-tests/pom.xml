@@ -160,7 +160,7 @@
 
 	<profiles>
 		<profile>
-			<id>local</id>
+			<id>selenium_local</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>

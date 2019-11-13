@@ -52,7 +52,7 @@ public class BaseTest {
 	public void afterClassSuite() {
 		log.info("-------- Quitting -------");
 		try {
-			driver.close();
+			driver.quit();
 		} catch (Exception e) {
 			log.warn("Closing the driver failed");
 			e.printStackTrace();

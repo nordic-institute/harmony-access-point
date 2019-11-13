@@ -3,7 +3,6 @@
 <suite name="TestAll">
 
 	<test name="UX">
-		<method-selectors></method-selectors>
 		<packages>
 			<package name="domibus.ui.ux.*" />
 		</packages>
