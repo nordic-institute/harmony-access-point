@@ -17,5 +17,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
-
+    public WeblogicECASPropertyManager() {
+        super(Module.WEBLOGIC_ECAS);
+    }
 }

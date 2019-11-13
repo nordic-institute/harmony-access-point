@@ -12,7 +12,12 @@ public class Module {
 
     public static final String DSS= "DSS";
 
+    public static final String TOMCAT= "TOMCAT";
+
     public static final String WILDFLY_ARTEMIS= "WILDFLY_ARTEMIS";
 
+    public static final String WEBLOGIC= "WEBLOGIC";
+
     public static final String WEBLOGIC_ECAS= "WEBLOGIC_ECAS";
+
 }
