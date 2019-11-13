@@ -36,7 +36,7 @@ export class PluginUserService {
   }
 
   createFilterParams(filter: PluginUserSearchCriteria) {
-    const searchParams: HttpParams = new HttpParams();
+    let searchParams = new HttpParams();
     searchParams = searchParams.append('page', '0');
     searchParams = searchParams.append('pageSize', '10000');
 

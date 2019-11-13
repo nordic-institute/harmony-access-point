@@ -304,7 +304,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
 
     // we need to use the old for loop approach to don't mess with the entries on the top before
     for (let i = items.length - 1; i >= 0; i--) {
-      this.rows.splice(items[i].$$index, 1);
+      this.rows.splice(items[i].index, 1);
     }
 
     this.selected = [];
@@ -331,9 +331,9 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonMoveUpAction(row) {
-    this.moveUpInternal(row.$$index);
+    this.moveUpInternal(row.index);
     setTimeout(() => {
-      document.getElementById('pluginRow' + (row.$$index) + '_id').click();
+      document.getElementById('pluginRow' + (row.index) + '_id').click();
     }, 50);
   }
 
@@ -363,9 +363,9 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonMoveDownAction(row) {
-    this.moveDownInternal(row.$$index);
+    this.moveDownInternal(row.index);
     setTimeout(() => {
-      document.getElementById('pluginRow' + (row.$$index) + '_id').click();
+      document.getElementById('pluginRow' + (row.index) + '_id').click();
     }, 50);
   }
 
@@ -385,7 +385,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     }
 
     // select
-    this.rowNumber = this.selected[0].$$index;
+    this.rowNumber = this.selected[0].index;
 
     this.selected.splice(0, this.selected.length);
     this.selected.push(...selected);

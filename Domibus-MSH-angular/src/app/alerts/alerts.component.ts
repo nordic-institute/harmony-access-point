@@ -192,7 +192,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   private createStaticSearchParams() {
-    const searchParams: HttpParams = new HttpParams();
+    let searchParams = new HttpParams();
 
     searchParams = searchParams.append('orderBy', this.orderBy);
     if (this.asc != null) {
@@ -279,7 +279,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   getAlertParameters(alertType: string): Observable<string[]> {
-    const searchParams: HttpParams = new HttpParams();
+    let searchParams = new HttpParams();
     searchParams = searchParams.append('alertType', alertType);
     return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams});
   }
@@ -394,7 +394,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   setProcessedValue(row) {
     this.isChanged = true;
     row.processed = !row.processed;
-    this.rows[row.$$index] = row;
+    this.rows[row.index] = row;
   }
 
   isDirty(): boolean {
