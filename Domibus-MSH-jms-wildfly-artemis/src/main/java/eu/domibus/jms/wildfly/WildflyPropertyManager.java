@@ -23,7 +23,7 @@ public class WildflyPropertyManager extends DomibusPropertyExtServiceDelegateAbs
     private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new String[]{
             DOMIBUS_JMS_ACTIVEMQ_ARTEMIS_BROKER
     })
-            .map(name -> new DomibusPropertyMetadataDTO(name, Module.DSS, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, true, true, false, true))
+            .map(name -> new DomibusPropertyMetadataDTO(name, Module.WILDFLY_ARTEMIS, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, true, false, false))
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override

@@ -11,4 +11,6 @@ public class Module {
     public static final String FS_PLUGIN= "FS_PLUGIN";
 
     public static final String DSS= "DSS";
+
+    public static final String WILDFLY_ARTEMIS= "WILDFLY_ARTEMIS";
 }
