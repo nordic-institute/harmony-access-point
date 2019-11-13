@@ -5,8 +5,11 @@ import eu.domibus.ext.domain.Module;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static eu.domibus.weblogic.security.ECASUserDetailsService.*;
 
 /**
  * @author Ion Perpegel
@@ -32,9 +35,9 @@ public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
     }
 
     @Override
-    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+    public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         if (allProperties == null) {
-            allProperties = new HashMap<String, DomibusPropertyMetadataDTO>();
+            allProperties = new HashMap<>();
             allProperties.putAll(super.getKnownProperties());
             allProperties.putAll(myProperties);
         }
