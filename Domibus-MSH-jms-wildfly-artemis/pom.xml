@@ -139,18 +139,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
-            <version>4.2-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
-            <version>4.2-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- End Test dependencies -->
     </dependencies>
