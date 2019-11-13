@@ -53,7 +53,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     static final String MBEAN_PREFIX_QUEUE_TOPIC = "org.apache.activemq.artemis:type=Broker,brokerName=\"";
 
     /** propery key for name of the JMS broker */
-    static final String JMS_BROKER_PROPERTY = "domibus.jms.activemq.artemis.broker";
+    static final String JMS_BROKER_PROPERTY = WildflyPropertyManager.DOMIBUS_JMS_ACTIVEMQ_ARTEMIS_BROKER;
 
     protected Map<String, ObjectName> queueMap;
 
