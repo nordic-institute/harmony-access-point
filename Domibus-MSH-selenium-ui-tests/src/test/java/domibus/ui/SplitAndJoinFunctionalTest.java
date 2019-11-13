@@ -2,7 +2,7 @@ package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
-import domibus.BaseTest;;
+import utils.BaseTest;;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.SplitAndJoin.SplitAndJoinPage;

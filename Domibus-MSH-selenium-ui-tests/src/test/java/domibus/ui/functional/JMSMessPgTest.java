@@ -4,7 +4,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import domibus.BaseTest;
+import utils.BaseTest;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;

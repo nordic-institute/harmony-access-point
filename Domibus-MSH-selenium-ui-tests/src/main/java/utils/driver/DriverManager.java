@@ -1,4 +1,4 @@
-package utils;
+package utils.driver;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import utils.TestRunData;
 
 
 /**
@@ -42,8 +43,8 @@ public class DriverManager {
 
 	private static WebDriver getFirefoxDriver() {
 		System.setProperty("webdriver.gecko.driver", data.getFirefoxDriverPath());
-		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
-		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true");
+		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "/dev/null");
 
 		FirefoxOptions options = new FirefoxOptions();
 		options.setHeadless(data.isHeadless());

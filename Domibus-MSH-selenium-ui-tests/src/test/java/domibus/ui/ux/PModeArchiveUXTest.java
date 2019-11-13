@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.PAGES;
-import domibus.BaseUXTest;
+import utils.BaseUXTest;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONObject;

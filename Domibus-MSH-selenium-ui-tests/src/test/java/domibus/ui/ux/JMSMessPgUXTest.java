@@ -1,11 +1,8 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.popups.Dialog;
-import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import domibus.BaseTest;
-import domibus.BaseUXTest;
+import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,8 +12,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMessModal;
 import pages.jms.JMSMonitoringPage;
-import pages.jms.JMSMoveMessageModal;
-import pages.messages.MessagesPage;
 import rest.RestServicePaths;
 import utils.TestUtils;
 

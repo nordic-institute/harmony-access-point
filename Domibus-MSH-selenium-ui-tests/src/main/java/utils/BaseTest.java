@@ -1,4 +1,4 @@
-package domibus;
+package utils;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
-import utils.DriverManager;
+import utils.driver.DriverManager;
 import utils.Generator;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @version 4.1
  */
-
+@Listeners(utils.customReporter.FailListener.class)
 public class BaseTest {
 
 	public static WebDriver driver;
@@ -47,14 +47,12 @@ public class BaseTest {
 	}
 
 
-	/**
-	 * After the test suite is done we close the browser
-	 */
+	/** After the test suite is done we close the browser */
 	@AfterSuite(alwaysRun = true)
 	public void afterClassSuite() {
 		log.info("-------- Quitting -------");
 		try {
-			driver.quit();
+			driver.close();
 		} catch (Exception e) {
 			log.warn("Closing the driver failed");
 			e.printStackTrace();

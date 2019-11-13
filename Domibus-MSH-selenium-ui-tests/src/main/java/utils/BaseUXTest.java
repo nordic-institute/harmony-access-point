@@ -1,4 +1,4 @@
-package domibus;
+package utils;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;

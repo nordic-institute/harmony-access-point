@@ -4,7 +4,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import domibus.BaseTest;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

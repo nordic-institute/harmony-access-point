@@ -2,16 +2,13 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import domibus.BaseUXTest;
+import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
-import pages.errorLog.ErrorLogPage;
-import pages.errorLog.ErrorModal;
 import rest.RestServicePaths;
 import utils.Generator;
 import utils.TestUtils;

@@ -1,7 +1,7 @@
 package domibus.ui.ux;
 
 import ddsl.enums.PAGES;
-import domibus.BaseUXTest;
+import utils.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.parties.PModePartiesPage;

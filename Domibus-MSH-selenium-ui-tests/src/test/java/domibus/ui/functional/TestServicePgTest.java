@@ -1,7 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.enums.PAGES;
-import domibus.BaseTest;
+import utils.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;

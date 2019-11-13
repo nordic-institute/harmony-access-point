@@ -2,7 +2,7 @@ package domibus.ui.functional;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import domibus.BaseTest;
+import utils.BaseTest;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
