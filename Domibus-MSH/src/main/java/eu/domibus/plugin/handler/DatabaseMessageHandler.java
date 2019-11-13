@@ -13,6 +13,8 @@ import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.exception.MessagingExceptionFactory;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
@@ -52,6 +54,9 @@ import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
+import static eu.domibus.common.metrics.MetricNames.SUBMITTED_MESSAGES;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -361,6 +366,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Timer(value = SUBMITTED_MESSAGES)
+    @Counter(SUBMITTED_MESSAGES)
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
 
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {

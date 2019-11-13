@@ -63,7 +63,7 @@ public class STIAs4MessConsumer implements MessageListener {
         try {
             ic = getInitialContext();
             initJmsReceiver(ic, OUT_QUEUE);
-            LOG.info("JMS Ready To Receive Messages on queue:[{}]", OUT_QUEUE);
+            LOG.info("JMS Ready To Receive Messages from provider:[{}] on queue:[{}]", providerUrl,OUT_QUEUE);
             connected = true;
         } catch (NamingException | JMSException e) {
             LOG.error("Error connecting to jms queue on:[{}]", providerUrl, e);
