@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Property manager for the Weblogic ECAS specific properties.
+ * Property manager for the Weblogic specific properties.
  */
 @Service
 public class WeblogicPropertyManager extends WeblogicCommonPropertyManager {
