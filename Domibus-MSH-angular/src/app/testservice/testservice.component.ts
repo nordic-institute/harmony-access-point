@@ -143,7 +143,7 @@ export class TestServiceComponent implements OnInit {
 
   getLastSentRequest(partyId: string) {
     let searchParams: HttpParams = new HttpParams();
-    searchParams.set('partyId', partyId);
+    searchParams = searchParams.append('partyId', partyId);
     this.http.get<any>(TestServiceComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {params: searchParams})
       .subscribe(result => {
         if (!isNullOrUndefined(result)) {
@@ -162,8 +162,8 @@ export class TestServiceComponent implements OnInit {
 
   getLastReceivedRequest(partyId: string, userMessageId: string) {
     let searchParams: HttpParams = new HttpParams();
-    searchParams.set('partyId', partyId);
-    searchParams.set('userMessageId', userMessageId);
+    searchParams = searchParams.append('partyId', partyId);
+    searchParams = searchParams.append('userMessageId', userMessageId);
     this.http.get<any>(TestServiceComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {params: searchParams})
       .subscribe(result => {
         if (!isNullOrUndefined(result)) {

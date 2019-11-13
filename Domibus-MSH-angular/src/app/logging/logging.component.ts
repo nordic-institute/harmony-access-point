@@ -65,30 +65,30 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   }
 
   createSearchParams(): HttpParams {
-    const searchParams = new HttpParams();
+    let searchParams = new HttpParams();
 
     if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
+      searchParams = searchParams.append('orderBy', this.orderBy);
     }
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     if (this.filter.loggerName) {
-      searchParams.set('loggerName', this.activeFilter.loggerName);
+      searchParams = searchParams.append('loggerName', this.activeFilter.loggerName);
     }
     if (this.filter.showClasses) {
-      searchParams.set('showClasses', this.activeFilter.showClasses);
+      searchParams = searchParams.append('showClasses', this.activeFilter.showClasses);
     }
 
     return searchParams;
   }
 
   getLoggingEntries(offset: number, pageSize: number): Observable<LoggingLevelResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
     return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, { params: searchParams });
   }
@@ -148,7 +148,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
         name: row.name,
         level: newLevel,
       }, {headers: this.headers}).subscribe(
-        (response: Response) => {
+        () => {
           this.page(this.offset, this.rowLimiter.pageSize);
         },
         error => {

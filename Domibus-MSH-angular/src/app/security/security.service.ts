@@ -68,7 +68,7 @@ export class SecurityService {
 
     this.clearSession();
 
-    this.http.delete('rest/security/authentication').subscribe((res: Response) => {
+    this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
       },
       (error: any) => {
@@ -78,8 +78,7 @@ export class SecurityService {
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.pluginPasswordPolicy) {
-      this.pluginPasswordPolicy = this.http.get('rest/application/pluginPasswordPolicy')
-        .map(this.extractData)
+      this.pluginPasswordPolicy = this.http.get<PasswordPolicyRO>('rest/application/pluginPasswordPolicy')
         .map(this.formatValidationMessage)
         .catch(err => this.alertService.handleError(err))
         .toPromise();
@@ -178,8 +177,7 @@ export class SecurityService {
 
   getPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.passwordPolicy) {
-      this.passwordPolicy = this.http.get('rest/application/passwordPolicy')
-        .map(this.extractData)
+      this.passwordPolicy = this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy')
         .map(this.formatValidationMessage)
         .catch(err => this.alertService.handleError(err))
         .toPromise();
@@ -219,11 +217,6 @@ export class SecurityService {
     }
     return {response: false};
 
-  }
-
-  private extractData(res: Response) {
-    const result = res.json() || {};
-    return result;
   }
 
   async changePassword(params): Promise<any> {

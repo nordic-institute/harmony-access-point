@@ -104,51 +104,51 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   }
 
   createSearchParams(): HttpParams {
-    const searchParams = new HttpParams();
+    let searchParams = new HttpParams();
 
     if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
+      searchParams = searchParams.append('orderBy', this.orderBy);
     }
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     if (this.activeFilter.errorSignalMessageId) {
-      searchParams.set('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
+      searchParams = searchParams.append('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
     }
     if (this.activeFilter.mshRole) {
-      searchParams.set('mshRole', this.activeFilter.mshRole);
+      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
     }
     if (this.activeFilter.messageInErrorId) {
-      searchParams.set('messageInErrorId', this.activeFilter.messageInErrorId);
+      searchParams = searchParams.append('messageInErrorId', this.activeFilter.messageInErrorId);
     }
     if (this.activeFilter.errorCode) {
-      searchParams.set('errorCode', this.activeFilter.errorCode);
+      searchParams = searchParams.append('errorCode', this.activeFilter.errorCode);
     }
     if (this.activeFilter.errorDetail) {
-      searchParams.set('errorDetail', this.activeFilter.errorDetail);
+      searchParams = searchParams.append('errorDetail', this.activeFilter.errorDetail);
     }
     if (this.activeFilter.timestampFrom != null) {
-      searchParams.set('timestampFrom', this.activeFilter.timestampFrom.getTime());
+      searchParams = searchParams.append('timestampFrom', this.activeFilter.timestampFrom.getTime());
     }
     if (this.filter.timestampTo != null) {
-      searchParams.set('timestampTo', this.activeFilter.timestampTo.getTime());
+      searchParams = searchParams.append('timestampTo', this.activeFilter.timestampTo.getTime());
     }
     if (this.activeFilter.notifiedFrom != null) {
-      searchParams.set('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
+      searchParams = searchParams.append('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
     }
     if (this.activeFilter.notifiedTo != null) {
-      searchParams.set('notifiedTo', this.activeFilter.notifiedTo.getTime());
+      searchParams = searchParams.append('notifiedTo', this.activeFilter.notifiedTo.getTime());
     }
 
     return searchParams;
   }
 
   getErrorLogEntries(offset: number, pageSize: number): Observable<ErrorLogResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
     return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams});
   }

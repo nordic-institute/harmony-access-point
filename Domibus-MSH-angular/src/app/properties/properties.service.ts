@@ -11,18 +11,18 @@ export class PropertiesService {
   }
 
   getProperties(searchString: string, showDomainProperties: boolean, pageSize: number, offset: number): Promise<PropertyListModel> {
-    const searchParams = new HttpParams();
+    let searchParams = new HttpParams();
     if (searchString && searchString.trim()) {
-      searchParams.set('name', searchString.trim());
+      searchParams = searchParams.append('name', searchString.trim());
     }
     if (showDomainProperties) {
-      searchParams.set('showDomain', showDomainProperties.toString());
+      searchParams = searchParams.append('showDomain', showDomainProperties.toString());
     }
     if (pageSize) {
-      searchParams.set('pageSize', pageSize.toString());
+      searchParams = searchParams.append('pageSize', pageSize.toString());
     }
     if (offset) {
-      searchParams.set('page', offset.toString());
+      searchParams = searchParams.append('page', offset.toString());
     }
 
     return this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams})

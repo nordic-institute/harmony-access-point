@@ -30,27 +30,27 @@ export class PluginUserService {
   getUsers(filter?: PluginUserSearchCriteria)
     : Observable<{ entries: PluginUserRO[], count: number }> {
 
-    const searchParams = this.createFilterParams(filter);
+    let searchParams = this.createFilterParams(filter);
 
     return this.http.get<{ entries: PluginUserRO[], count: number }>(PluginUserService.PLUGIN_USERS_URL, {params: searchParams});
   }
 
   createFilterParams(filter: PluginUserSearchCriteria) {
     const searchParams: HttpParams = new HttpParams();
-    searchParams.set('page', '0');
-    searchParams.set('pageSize', '10000');
+    searchParams = searchParams.append('page', '0');
+    searchParams = searchParams.append('pageSize', '10000');
 
     if (filter.authType) {
-      searchParams.set('authType', filter.authType);
+      searchParams = searchParams.append('authType', filter.authType);
     }
     if (filter.authRole) {
-      searchParams.set('authRole', filter.authRole);
+      searchParams = searchParams.append('authRole', filter.authRole);
     }
     if (filter.userName) {
-      searchParams.set('userName', filter.userName);
+      searchParams = searchParams.append('userName', filter.userName);
     }
     if (filter.originalUser) {
-      searchParams.set('originalUser', filter.originalUser);
+      searchParams = searchParams.append('originalUser', filter.originalUser);
     }
     return searchParams;
   }

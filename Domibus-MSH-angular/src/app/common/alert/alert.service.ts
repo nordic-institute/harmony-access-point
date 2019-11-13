@@ -48,10 +48,10 @@ export class AlertService {
     this.subject.next({type: 'success', text: message});
   }
 
-  public error(message: Response | string | any, keepAfterNavigationChange = false,
+  public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false,
                fadeTime: number = 0) {
     if (message.handled) return;
-    if (message instanceof Response && (message.status === 401 || message.status === 403)) return;
+    if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
     if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
 
     this.needsExplicitClosing = keepAfterNavigationChange;
@@ -103,7 +103,7 @@ export class AlertService {
     return result;
   }
 
-  private formatError(error: Response | string | any, message: string = null): string {
+  private formatError(error: HttpResponse<any> | string | any, message: string = null): string {
     let errMsg: string = typeof error === 'string' ? error : error.message;
 
     if (!errMsg) {

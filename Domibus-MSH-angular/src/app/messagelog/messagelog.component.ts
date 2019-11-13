@@ -202,79 +202,79 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
 
 
   createSearchParams (): HttpParams {
-    const searchParams = new HttpParams();
+    let searchParams = new HttpParams();
 
     if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
+      searchParams = searchParams.append('orderBy', this.orderBy);
     }
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     if (this.activeFilter.messageId) {
-      searchParams.set('messageId', this.activeFilter.messageId);
+      searchParams = searchParams.append('messageId', this.activeFilter.messageId);
     }
 
     if (this.activeFilter.mshRole) {
-      searchParams.set('mshRole', this.activeFilter.mshRole);
+      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
     }
 
     if (this.activeFilter.conversationId) {
-      searchParams.set('conversationId', this.activeFilter.conversationId);
+      searchParams = searchParams.append('conversationId', this.activeFilter.conversationId);
     }
 
     if (this.activeFilter.messageType) {
-      searchParams.set('messageType', this.activeFilter.messageType);
+      searchParams = searchParams.append('messageType', this.activeFilter.messageType);
     }
 
     if (this.activeFilter.messageStatus) {
-      searchParams.set('messageStatus', this.activeFilter.messageStatus);
+      searchParams = searchParams.append('messageStatus', this.activeFilter.messageStatus);
     }
 
     if (this.activeFilter.notificationStatus) {
-      searchParams.set('notificationStatus', this.activeFilter.notificationStatus);
+      searchParams = searchParams.append('notificationStatus', this.activeFilter.notificationStatus);
     }
 
     if (this.activeFilter.fromPartyId) {
-      searchParams.set('fromPartyId', this.activeFilter.fromPartyId);
+      searchParams = searchParams.append('fromPartyId', this.activeFilter.fromPartyId);
     }
 
     if (this.activeFilter.toPartyId) {
-      searchParams.set('toPartyId', this.activeFilter.toPartyId);
+      searchParams = searchParams.append('toPartyId', this.activeFilter.toPartyId);
     }
 
     if (this.activeFilter.originalSender) {
-      searchParams.set('originalSender', this.activeFilter.originalSender);
+      searchParams = searchParams.append('originalSender', this.activeFilter.originalSender);
     }
 
     if (this.activeFilter.finalRecipient) {
-      searchParams.set('finalRecipient', this.activeFilter.finalRecipient);
+      searchParams = searchParams.append('finalRecipient', this.activeFilter.finalRecipient);
     }
 
     if (this.activeFilter.refToMessageId) {
-      searchParams.set('refToMessageId', this.activeFilter.refToMessageId);
+      searchParams = searchParams.append('refToMessageId', this.activeFilter.refToMessageId);
     }
 
     if (this.activeFilter.receivedFrom) {
-      searchParams.set('receivedFrom', this.activeFilter.receivedFrom.getTime());
+      searchParams = searchParams.append('receivedFrom', this.activeFilter.receivedFrom.getTime());
     }
 
     if (this.activeFilter.receivedTo) {
-      searchParams.set('receivedTo', this.activeFilter.receivedTo.getTime());
+      searchParams = searchParams.append('receivedTo', this.activeFilter.receivedTo.getTime());
     }
 
     if (this.activeFilter.isTestMessage) {
-      searchParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
+      searchParams = searchParams.append('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
     }
 
     return searchParams;
   }
 
   getMessageLogEntries (offset: number, pageSize: number): Observable<MessageLogResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
     return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams});
   }

@@ -34,7 +34,7 @@ export class AuditCriteria {
   max;
 
   public toURLSearchParams(): HttpParams {
-    const searchParams = new HttpParams();
+    let searchParams = new HttpParams();
 
     if (this.auditTargetName) {
       this.auditTargetName.forEach(el => searchParams.append('auditTargetName', el));
@@ -46,10 +46,10 @@ export class AuditCriteria {
       this.user.forEach(el => searchParams.append('user', el));
     }
     if (this.from) {
-      searchParams.set('from', this.from.toISOString());
+      searchParams = searchParams.append('from', this.from.toISOString());
     }
     if (this.to) {
-      searchParams.set('to', this.to.toISOString());
+      searchParams = searchParams.append('to', this.to.toISOString());
     }
     return searchParams;
   }

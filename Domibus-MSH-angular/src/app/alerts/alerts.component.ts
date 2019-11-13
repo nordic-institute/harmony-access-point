@@ -160,16 +160,16 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
     return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams});
   }
 
   private createSearchParams() {
-    const searchParams = this.createStaticSearchParams();
+    let searchParams = this.createStaticSearchParams();
 
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
@@ -180,12 +180,12 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     if (this.alertTypeWithDate) {
       const from = this.dynamicDatesFilter.from;
       if (from) {
-        searchParams.set('dynamicFrom', from.getTime());
+        searchParams = searchParams.append('dynamicFrom', from.getTime());
       }
 
       const to = this.dynamicDatesFilter.to;
       if (to) {
-        searchParams.set('dynamicTo', to.getTime());
+        searchParams = searchParams.append('dynamicTo', to.getTime());
       }
     }
     return searchParams;
@@ -194,49 +194,49 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   private createStaticSearchParams() {
     const searchParams: HttpParams = new HttpParams();
 
-    searchParams.set('orderBy', this.orderBy);
+    searchParams = searchParams.append('orderBy', this.orderBy);
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     // filters
     if (this.activeFilter.processed) {
-      searchParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
+      searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
     }
 
     if (this.activeFilter.alertType) {
-      searchParams.set('alertType', this.activeFilter.alertType);
+      searchParams = searchParams.append('alertType', this.activeFilter.alertType);
     }
 
     if (this.activeFilter.alertStatus) {
-      searchParams.set('alertStatus', this.activeFilter.alertStatus);
+      searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
     }
 
     if (this.activeFilter.alertId) {
-      searchParams.set('alertId', this.activeFilter.alertId);
+      searchParams = searchParams.append('alertId', this.activeFilter.alertId);
     }
 
     if (this.activeFilter.alertLevel) {
-      searchParams.set('alertLevel', this.activeFilter.alertLevel);
+      searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
     }
 
     if (this.activeFilter.creationFrom) {
-      searchParams.set('creationFrom', this.activeFilter.creationFrom.getTime());
+      searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
     }
 
     if (this.activeFilter.creationTo) {
-      searchParams.set('creationTo', this.activeFilter.creationTo.getTime());
+      searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
     }
 
     if (this.activeFilter.reportingFrom) {
-      searchParams.set('reportingFrom', this.activeFilter.reportingFrom.getTime());
+      searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
     }
 
     if (this.activeFilter.reportingTo) {
-      searchParams.set('reportingTo', this.activeFilter.reportingTo.getTime());
+      searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
     }
 
-    searchParams.set('domainAlerts', this.activeFilter.domainAlerts);
+    searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
     return searchParams;
   }
 
@@ -280,7 +280,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   getAlertParameters(alertType: string): Observable<string[]> {
     const searchParams: HttpParams = new HttpParams();
-    searchParams.set('alertType', alertType);
+    searchParams = searchParams.append('alertType', alertType);
     return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams});
   }
 

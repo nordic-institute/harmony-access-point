@@ -156,7 +156,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
 
   /**
    * Gets all the PMode
-   * @returns {Observable<Response>}
+   * @returns {Observable<any>}
    */
   getResultObservable(): Observable<any[]> {
     return this.http.get<any[]>(PModeArchiveComponent.PMODE_URL + '/list');
