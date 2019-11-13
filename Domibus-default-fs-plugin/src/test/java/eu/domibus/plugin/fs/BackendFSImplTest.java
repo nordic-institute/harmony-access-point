@@ -447,28 +447,59 @@ public class BackendFSImplTest {
         }};
     }
 
-    @Ignore
     @Test
-    public void testMessageStatusChanged_SendSuccessArchive(@Injectable FileObject archivedFile) throws FileSystemException {
-        MessageStatusChangeEvent event = new MessageStatusChangeEvent();
-        event.setMessageId(messageId);
-        event.setFromStatus(MessageStatus.SEND_ENQUEUED);
-        event.setToStatus(MessageStatus.ACKNOWLEDGED);
-        event.setChangeTimestamp(new Timestamp(new Date().getTime()));
-
-        String fileName = "content_" + messageId + ".xml";
-        String acknowledgedStatus = fileName + ".ACKNOWLEDGED";
-        final FileObject contentFile = outgoingFolder.resolveFile(acknowledgedStatus);
+    public void testMessageStatusChanged_SendSuccessArchive(@Injectable MessageStatusChangeEvent event) throws FileSystemException {
+        String domain = "myDomain";
+        String service = "myService";
+        String action = "myAction";
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("service", service);
+        properties.put("action", action);
 
         new Expectations(1, backendFS) {{
-            fsFilesManager.setUpFileSystem(null);
-            result = rootDir;
+            event.getProperties();
+            result = properties;
 
-            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
+            fsDomainService.getFSPluginDomain(service, action);
+            result = domain;
+
+            event.getMessageId();
+            result = messageId;
+
+            backendFS.isSendingEvent(event);
+            result = false;
+
+            backendFS.isSendSuccessEvent(event);
+            result = true;
+        }};
+
+        backendFS.messageStatusChanged(event);
+
+        new Verifications() {{
+            backendFS.handleSentMessage(domain, messageId);
+        }};
+
+    }
+
+    @Test
+    public void testHandleSentMessage(@Injectable FileObject contentFile,
+                                      @Injectable FileObject rootDirectory,
+                                      @Injectable FileObject outgoingFolder,
+                                      @Injectable FileObject sentDirectory,
+                                      @Injectable FileObject archivedFile) throws FileSystemException {
+        String file = "content_" + messageId + ".xml";
+        String sentFile = file + ".SENT";
+
+
+        new Expectations(backendFS) {{
+            fsFilesManager.setUpFileSystem(null);
+            result = rootDirectory;
+
+            fsFilesManager.getEnsureChildFolder(rootDirectory, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
 
-            fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[]{contentFile};
+            backendFS.findMessageFile((FileObject)any, messageId);
+            result = contentFile;
 
             fsPluginProperties.isSentActionDelete(null);
             result = false;
@@ -476,30 +507,31 @@ public class BackendFSImplTest {
             fsPluginProperties.isSentActionArchive(null);
             result = true;
 
-            fsFilesManager.getEnsureChildFolder(rootDir, "/BackendFSImplTest/SENT/");
-            result = sentFolder;
+            contentFile.getParent().getName().getPath();
+            result = sentFile;
 
-            fsFileNameHelper.stripStatusSuffix(acknowledgedStatus);
-            result = fileName;
+            fsFileNameHelper.deriveSentDirectoryLocation(sentFile);
+            result = FSFilesManager.OUTGOING_FOLDER;
 
-            sentFolder.resolveFile(fileName);
+            fsFilesManager.getEnsureChildFolder(rootDirectory, FSFilesManager.OUTGOING_FOLDER);
+            result = sentDirectory;
+
+            contentFile.getName().getBaseName();
+            result = sentFile;
+
+            fsFileNameHelper.stripStatusSuffix(sentFile);
+            result = file;
+
+            sentDirectory.resolveFile(file);
             result = archivedFile;
         }};
 
-        backendFS.messageStatusChanged(event);
+        backendFS.handleSentMessage(null, messageId);
 
-        contentFile.close();
-
-        new VerificationsInOrder(1) {{
+        new Verifications() {{
             fsFilesManager.moveFile(contentFile, archivedFile);
-
-//            fsFilesManager.moveFile(contentFile, with(new Delegate<FileObject>() {
-//                void delegate(FileObject file) throws IOException {
-//                    Assert.assertNotNull(file);
-//                    Assert.assertEquals(location + "/SENT/content_" + messageId + ".xml", file.getName().getURI());
-//                }
-//            }));
         }};
+
     }
 
     @Test
