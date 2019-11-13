@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.common.validators.ObjectBlacklistValidator;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -12,9 +13,9 @@ import org.springframework.core.MethodParameter;
 import javax.validation.ValidationException;
 import java.lang.reflect.Type;
 
-public class RequestBodyValidationInterceptorTest {
+public class RestBodyValidationInterceptorTest {
     @Tested
-    RequestBodyValidationInterceptor requestBodyValidationInterceptor;
+    RestBodyValidationInterceptor restBodyValidationInterceptor;
 
     @Injectable
     ObjectBlacklistValidator blacklistValidator;
@@ -26,11 +27,11 @@ public class RequestBodyValidationInterceptorTest {
         ro.setEntityId(1);
         ro.setBackendName("jms");
 
-        new Expectations(requestBodyValidationInterceptor) {{
+        new Expectations(restBodyValidationInterceptor) {{
             blacklistValidator.validate(ro);
         }};
 
-        Object actualBody = requestBodyValidationInterceptor.handleRequestBody(ro);
+        Object actualBody = restBodyValidationInterceptor.handleRequestBody(ro);
 
         Assert.assertEquals(ro, actualBody);
     }
@@ -42,19 +43,19 @@ public class RequestBodyValidationInterceptorTest {
         ro.setEntityId(1);
         ro.setBackendName("jms;");
 
-        new Expectations(requestBodyValidationInterceptor) {{
+        new Expectations(restBodyValidationInterceptor) {{
             blacklistValidator.validate(ro);
             result = new ValidationException("Blacklist character detected");
         }};
 
-        requestBodyValidationInterceptor.handleRequestBody(ro);
+        restBodyValidationInterceptor.handleRequestBody(ro);
 
     }
 
     @Test
     public void handleSupports(@Mocked MethodParameter methodParameter, @Mocked Type type) {
 
-        boolean actual = requestBodyValidationInterceptor.supports(methodParameter, type, null);
+        boolean actual = restBodyValidationInterceptor.supports(methodParameter, type, null);
 
         Assert.assertEquals(true, actual);
     }

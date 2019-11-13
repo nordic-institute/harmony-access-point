@@ -275,7 +275,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found", null, null);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
         String partyIdType = "";
@@ -307,7 +306,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     protected String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {
@@ -557,13 +555,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean hasLeg(Process process, String legName) {
-        Set<LegConfiguration> legs = process.getLegs();
-        for (LegConfiguration leg : legs) {
-            if (StringUtils.equals(leg.getName(), legName)) {
-                return true;
-            }
-        }
-        return false;
+        return process.getLegs().stream().anyMatch(leg -> StringUtils.equals(leg.getName(), legName));
     }
 
     protected boolean hasInitiatorParty(Process process, String partyName) {
@@ -577,12 +569,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean matchesParty(Set<Party> parties, String partyName) {
-        for (Party initiatorParty : parties) {
-            if (StringUtils.equals(initiatorParty.getName(), partyName)) {
-                return true;
-            }
-        }
-        return false;
+        return parties.stream().anyMatch(initiatorParty -> StringUtils.equals(initiatorParty.getName(), partyName));
     }
 
     @Override

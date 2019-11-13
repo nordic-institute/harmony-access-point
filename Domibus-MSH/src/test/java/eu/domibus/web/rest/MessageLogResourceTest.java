@@ -26,7 +26,7 @@ import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.web.rest.ro.*;
-import eu.domibus.web.rest.validators.BlacklistValidator;
+import eu.domibus.common.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

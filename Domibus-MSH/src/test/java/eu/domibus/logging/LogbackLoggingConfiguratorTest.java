@@ -3,10 +3,10 @@ package eu.domibus.logging;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -30,7 +30,7 @@ public class LogbackLoggingConfiguratorTest {
     public void testConfigureLoggingWithCustomFile(@Mocked System mock) throws Exception {
         new Expectations(logbackLoggingConfigurator) {{
             logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
-            result = "/user/logback.xml";
+            result = "/user/logback-test.xml";
 
             System.getProperty(anyString);
             result = "/user/mylogback.xml";
@@ -51,7 +51,7 @@ public class LogbackLoggingConfiguratorTest {
     public void testConfigureLoggingWithTheDefaultLogbackConfigurationFile(@Mocked System mock) throws Exception {
         new Expectations(logbackLoggingConfigurator) {{
             logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
-            result = "/user/logback.xml";
+            result = "/user/logback-test.xml";
 
             System.getProperty(anyString);
             result = null;
@@ -64,7 +64,7 @@ public class LogbackLoggingConfiguratorTest {
             logbackLoggingConfigurator.configureLogging(fileLocation = withCapture());
             times = 1;
 
-            Assert.assertEquals("/user/logback.xml", fileLocation);
+            Assert.assertEquals("/user/logback-test.xml", fileLocation);
         }};
     }
 
@@ -85,7 +85,7 @@ public class LogbackLoggingConfiguratorTest {
             result = false;
         }};
 
-        logbackLoggingConfigurator.configureLogging("/user/logback.xml");
+        logbackLoggingConfigurator.configureLogging("/user/logback-test.xml");
 
         new Verifications() {{
             logbackLoggingConfigurator.configureLogback(anyString);
@@ -103,7 +103,7 @@ public class LogbackLoggingConfiguratorTest {
             result = null;
         }};
 
-        logbackLoggingConfigurator.configureLogging("/user/logback.xml");
+        logbackLoggingConfigurator.configureLogging("/user/logback-test.xml");
 
         new Verifications() {{
             logbackLoggingConfigurator.configureLogback(anyString);

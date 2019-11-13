@@ -22,7 +22,7 @@ import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.messaging.MessageListenerContainerInitializer;
 import eu.domibus.proxy.DomibusProxyService;
 import eu.domibus.quartz.DomibusQuartzStarter;
-import eu.domibus.web.rest.validators.BaseBlacklistValidator;
+import eu.domibus.common.validators.BaseBlacklistValidator;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
