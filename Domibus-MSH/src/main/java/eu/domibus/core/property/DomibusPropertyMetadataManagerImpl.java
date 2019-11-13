@@ -360,9 +360,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         }
 
         // if still not found, initialize metadata on-the-fly
-        LOGGER.warn("Creating on-the-fly metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
+        LOGGER.warn("Creating on-the-fly global metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
         synchronized (propertyMetadataMapLock) {
-            DomibusPropertyMetadata newProp = new DomibusPropertyMetadata(propertyName, "", false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, false);
+            DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, null);
             propertyMetadataMap.put(propertyName, newProp);
             return newProp;
         }

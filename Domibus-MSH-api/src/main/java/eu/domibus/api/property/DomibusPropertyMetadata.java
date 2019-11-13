@@ -80,6 +80,10 @@ public class DomibusPropertyMetadata {
         return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, encrypted, false);
     }
 
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, String module) {
+        return new DomibusPropertyMetadata(name, module, false, Usage.GLOBAL, false, false, false, false);
+    }
+
     public DomibusPropertyMetadata() {
     }
 
