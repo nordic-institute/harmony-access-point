@@ -394,7 +394,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   setProcessedValue(row) {
     this.isChanged = true;
     row.processed = !row.processed;
-    this.rows[row.index] = row;
+    this.rows[this.rows.indexOf(row)] = row;
   }
 
   isDirty(): boolean {

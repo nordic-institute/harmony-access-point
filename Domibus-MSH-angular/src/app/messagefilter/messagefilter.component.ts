@@ -302,11 +302,13 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
+    let copy = [...this.rows];
     // we need to use the old for loop approach to don't mess with the entries on the top before
     for (let i = items.length - 1; i >= 0; i--) {
-      this.rows.splice(items[i].index, 1);
+      let rowIndex = copy.indexOf(items[i]);
+      copy.splice(rowIndex, 1);
     }
-
+    this.rows = copy;
     this.selected = [];
   }
 
@@ -331,9 +333,11 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonMoveUpAction(row) {
-    this.moveUpInternal(row.index);
+    let rowIndex = this.rows.indexOf(row);
+    this.moveUpInternal(rowIndex);
     setTimeout(() => {
-      document.getElementById('pluginRow' + (row.index) + '_id').click();
+      let rowIndex = this.rows.indexOf(row);
+      document.getElementById('pluginRow' + (rowIndex) + '_id').click();
     }, 50);
   }
 
@@ -363,9 +367,12 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonMoveDownAction(row) {
-    this.moveDownInternal(row.index);
+    let rowIndex = this.rows.indexOf(row);
+    this.moveDownInternal(rowIndex);
     setTimeout(() => {
-      document.getElementById('pluginRow' + (row.index) + '_id').click();
+      let rowIndex = this.rows.indexOf(row);
+      let element = document.getElementById('pluginRow' + (rowIndex) + '_id');
+      element.click();
     }, 50);
   }
 
@@ -385,7 +392,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     }
 
     // select
-    this.rowNumber = this.selected[0].index;
+    this.rowNumber = this.rows.indexOf(this.selected[0]);
 
     this.selected.splice(0, this.selected.length);
     this.selected.push(...selected);
