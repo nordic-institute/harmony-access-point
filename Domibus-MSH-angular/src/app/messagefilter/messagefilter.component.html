@@ -1,14 +1,12 @@
 <page-header id="messagefilterheader_id">Message Filter</page-header>
-<div class="selectionCriteria">
-  <div class="panel">
-    <mat-card>
-      <mat-card-content>
-        <form name="messageFilterForm" #messageFilterForm="ngForm">
-          <button mat-icon-button color="primary" (click)="saveAsCSV()"
-                  id="saveascsvbutton_id" mat-tooltip="Export as CSV">
-            <img src="assets/images/exportCSV.svg" width="30" height="30">
-          </button>
-          <ngx-datatable
+  <mat-card style="padding-top: 0;">
+    <mat-card-content style="padding-top: 0;">
+      <form name="messageFilterForm" #messageFilterForm="ngForm">
+        <button mat-icon-button color="primary" (click)="saveAsCSV()" style="margin-bottom: 20px;"
+                id="saveascsvbutton_id" mat-tooltip="Export as CSV">
+          <img src="assets/images/exportCSV.svg" width="30" height="30">
+        </button>
+        <ngx-datatable
             #mydatatable
             class="material striped"
             [columnMode]="'force'"
@@ -21,120 +19,119 @@
             (select)='onSelect($event)'
             (activate)="onActivate($event)"
             id="messageFilterTable">
-            <ngx-datatable-column name="Plugin" prop="backendName" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-              <span class="justified, clickable" style="word-wrap: break-word"  id="pluginRow{{rows.indexOf(row)}}_id">
+          <ngx-datatable-column name="Plugin" prop="backendName" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <span class="justified, clickable" style="word-wrap: break-word" id="pluginRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="From" prop="from.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-              <span class="justified, clickable" style="word-wrap: break-word"  id="fromRow{{rows.indexOf(row)}}_id">
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="From" prop="from.expression" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <span class="justified, clickable" style="word-wrap: break-word" id="fromRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="To" prop="to.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-              <span class="justified, clickable" style="word-wrap: break-word"  id="toRow{{rows.indexOf(row)}}_id">
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="To" prop="to.expression" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <span class="justified, clickable" style="word-wrap: break-word" id="toRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Action" prop="action.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-              <span class="clickable" style="word-wrap: break-word"  id="actionRow{{rows.indexOf(row)}}_id">
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="Action" prop="action.expression" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <span class="clickable" style="word-wrap: break-word" id="actionRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Service" prop="service.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-              <span class="justified, clickable" style="word-wrap: break-word"  id="serviceRow{{rows.indexOf(row)}}_id">
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="Service" prop="service.expression" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <span class="justified, clickable" style="word-wrap: break-word" id="serviceRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Persisted" prop="persisted" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-                <input autofocus type="checkbox" [checked]="value" disabled  id="persistedRow{{rows.indexOf(row)}}_id"/>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
-                <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===0"
-                        (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{rows.indexOf(row)}}_id" tooltip="Move Up">
-                  <mat-icon>arrow_drop_up</mat-icon>
-                </button>
-                <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===rows.length - 1"
-                        (click)="buttonMoveDownAction(row)" id="moveDownButtonRow{{rows.indexOf(row)}}_id"
-                        tooltip="Move Down">
-                  <mat-icon>arrow_drop_down</mat-icon>
-                </button>
-                <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
-                        id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
-                        id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </ng-template>
-            </ngx-datatable-column>
-          </ngx-datatable>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="Persisted" prop="persisted" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <input autofocus type="checkbox" [checked]="value" disabled id="persistedRow{{rows.indexOf(row)}}_id"/>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===0"
+                      (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{rows.indexOf(row)}}_id" tooltip="Move Up">
+                <mat-icon>arrow_drop_up</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===rows.length - 1"
+                      (click)="buttonMoveDownAction(row)" id="moveDownButtonRow{{rows.indexOf(row)}}_id"
+                      tooltip="Move Down">
+                <mat-icon>arrow_drop_down</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
+                      id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
+                      id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
 
-          <table class="group-action-button">
-            <tr>
-              <td>
-                <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
-                        (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
-                  <mat-icon>arrow_drop_up</mat-icon>
-                  <span>Move Up</span>
-                </button>
-              </td>
-              <td>
-                <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
-                        (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
-                  <mat-icon>arrow_drop_down</mat-icon>
-                  <span>Move Down</span>
-                </button>
-              </td>
-            </tr>
-          </table>
-          <table class="group-action-button">
-            <tr>
-              <td>
-                <button mat-raised-button color="primary" type="button" [disabled]="!enableCancel"
-                        (click)="cancelDialog()" id="cancelbutton_id" button-click-behaviour>
-                  <mat-icon>cancel</mat-icon>
-                  <span>Cancel</span>
-                </button>
-                <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="saveDialog(false)"
-                        id="savebutton_id" button-click-behaviour>
-                  <mat-icon>save</mat-icon>
-                  <span>Save</span>
-                </button>
-                <button mat-raised-button color="primary" type="button" (click)="buttonNew()" id="newbutton_id"
-                        button-click-behaviour>
-                  <mat-icon>add</mat-icon>
-                  <span>New</span>
-                </button>
-                <button mat-raised-button color="primary" type="button" [disabled]="!enableEdit"
-                        (click)="buttonEditAction(this.selected[0])" id="editbutton_id" button-click-behaviour>
-                  <mat-icon>edit</mat-icon>
-                  <span>Edit</span>
-                </button>
-                <button mat-raised-button color="primary" type="button" [disabled]="!enableDelete"
-                        (click)="buttonDelete()" id="deletebutton_id" button-click-behaviour>
-                  <mat-icon>delete</mat-icon>
-                  <span>Delete</span>
-                </button>
-              </td>
-            </tr>
-          </table>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
+        <table class="group-action-button">
+          <tr>
+            <td>
+              <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
+                      (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
+                <mat-icon>arrow_drop_up</mat-icon>
+                <span>Move Up</span>
+              </button>
+            </td>
+            <td>
+              <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
+                      (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
+                <mat-icon>arrow_drop_down</mat-icon>
+                <span>Move Down</span>
+              </button>
+            </td>
+          </tr>
+        </table>
+        <table class="group-action-button">
+          <tr>
+            <td>
+              <button mat-raised-button color="primary" type="button" [disabled]="!enableCancel"
+                      (click)="cancelDialog()" id="cancelbutton_id" button-click-behaviour>
+                <mat-icon>cancel</mat-icon>
+                <span>Cancel</span>
+              </button>
+              <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="saveDialog(false)"
+                      id="savebutton_id" button-click-behaviour>
+                <mat-icon>save</mat-icon>
+                <span>Save</span>
+              </button>
+              <button mat-raised-button color="primary" type="button" (click)="buttonNew()" id="newbutton_id"
+                      button-click-behaviour>
+                <mat-icon>add</mat-icon>
+                <span>New</span>
+              </button>
+              <button mat-raised-button color="primary" type="button" [disabled]="!enableEdit"
+                      (click)="buttonEditAction(this.selected[0])" id="editbutton_id" button-click-behaviour>
+                <mat-icon>edit</mat-icon>
+                <span>Edit</span>
+              </button>
+              <button mat-raised-button color="primary" type="button" [disabled]="!enableDelete"
+                      (click)="buttonDelete()" id="deletebutton_id" button-click-behaviour>
+                <mat-icon>delete</mat-icon>
+                <span>Delete</span>
+              </button>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
