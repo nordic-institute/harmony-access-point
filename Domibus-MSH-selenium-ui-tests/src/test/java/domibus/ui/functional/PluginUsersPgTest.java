@@ -178,14 +178,17 @@ public class PluginUsersPgTest extends BaseTest {
 		pum.clickOK();
 
 		log.info("check grid for updated info");
-		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid");
+		HashMap<String, String> userInfo = grid.getRowInfo("User Name", username);
+		soft.assertEquals(userInfo.get("Original User"), toAdd, "Edited value is visible in the grid");
 
 		log.info("click cancel");
 		page.getCancelBtn().click();
 		new Dialog(driver).confirm();
 
+		grid.waitForRowsToLoad();
 		log.info("check grid for updated info");
-		soft.assertTrue(grid.scrollTo("Original User", toAdd) == -1, "Edited value is NOT visible in the grid after Cancel");
+		userInfo = grid.getRowInfo("User Name", username);
+		soft.assertNotEquals(userInfo.get("Original User"), toAdd, "Edited value is NOT visible in the grid after Cancel");
 
 		soft.assertAll();
 
