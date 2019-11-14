@@ -78,7 +78,7 @@
             >
             </ngx-datatable>
 
-            <div>
+            <div class="button-container">
               <button mat-raised-button (click)="addIdentifier()" color="primary">
                 <mat-icon>add</mat-icon>
                 <span>New</span>
@@ -144,14 +144,15 @@
       </mat-card>
     </div>
 
-
-    <button mat-raised-button (click)="ok()" color="primary"
-            [disabled]="party_name.invalid || party_endPoint.invalid || identifiers.length == 0">
-      <span>OK</span>
-    </button>
-    <button mat-raised-button (click)="cancel()" color="primary">
-      <span>Cancel</span>
-    </button>
+    <div class="button-container">
+      <button mat-raised-button (click)="ok()" color="primary"
+              [disabled]="party_name.invalid || party_endPoint.invalid || identifiers.length == 0">
+        <span>OK</span>
+      </button>
+      <button mat-raised-button (click)="cancel()" color="primary">
+        <span>Cancel</span>
+      </button>
+    </div>
   </form>
 </mat-dialog-content>
 

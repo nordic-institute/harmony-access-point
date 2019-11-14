@@ -28,11 +28,13 @@
       </mat-card>
     </div>
 
-    <button mat-raised-button (click)="ok()" color="primary" [disabled]="partyId.invalid || partyIdType_name.invalid || partyIdType_value.invalid">
-      <span>OK</span>
-    </button>
-    <button mat-raised-button (click)="cancel()" color="primary">
-      <span>Cancel</span>
-    </button>
+    <div class="button-container">
+      <button mat-raised-button (click)="ok()" color="primary" [disabled]="partyId.invalid || partyIdType_name.invalid || partyIdType_value.invalid">
+        <span>OK</span>
+      </button>
+      <button mat-raised-button (click)="cancel()" color="primary">
+        <span>Cancel</span>
+      </button>
+    </div>
   </form>
 </mat-dialog-content>
