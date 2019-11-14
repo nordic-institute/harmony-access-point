@@ -98,11 +98,11 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="jmsMoveButtonRow{{row.$$index}}_id" mat-icon-button color="primary" (click)="moveAction(row)"
+    <button id="jmsMoveButtonRow{{row.rows.indexOf(row)}}_id" mat-icon-button color="primary" (click)="moveAction(row)"
             tooltip="Move">
       <mat-icon>move_to_inbox</mat-icon>
     </button>
-    <button id="jmsDeleteButtonRow{{row.$$index}}_id" mat-icon-button color="primary" (click)="deleteAction(row)"
+    <button id="jmsDeleteButtonRow{{row.rows.indexOf(row)}}_id" mat-icon-button color="primary" (click)="deleteAction(row)"
             tooltip="Delete">
       <mat-icon>delete</mat-icon>
     </button>

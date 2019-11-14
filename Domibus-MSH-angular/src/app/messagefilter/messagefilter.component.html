@@ -22,62 +22,62 @@
             (activate)="onActivate($event)"
             id="messageFilterTable">
             <ngx-datatable-column name="Plugin" prop="backendName" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-              <span class="justified, clickable" style="word-wrap: break-word"  id="pluginRow{{row.$$index}}_id">
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+              <span class="justified, clickable" style="word-wrap: break-word"  id="pluginRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="From" prop="from.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-              <span class="justified, clickable" style="word-wrap: break-word"  id="fromRow{{row.$$index}}_id">
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+              <span class="justified, clickable" style="word-wrap: break-word"  id="fromRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="To" prop="to.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-              <span class="justified, clickable" style="word-wrap: break-word"  id="toRow{{row.$$index}}_id">
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+              <span class="justified, clickable" style="word-wrap: break-word"  id="toRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Action" prop="action.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-              <span class="clickable" style="word-wrap: break-word"  id="actionRow{{row.$$index}}_id">
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+              <span class="clickable" style="word-wrap: break-word"  id="actionRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Service" prop="service.expression" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-              <span class="justified, clickable" style="word-wrap: break-word"  id="serviceRow{{row.$$index}}_id">
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+              <span class="justified, clickable" style="word-wrap: break-word"  id="serviceRow{{rows.indexOf(row)}}_id">
                 {{value}}
               </span>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Persisted" prop="persisted" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-                <input autofocus type="checkbox" [checked]="value" disabled  id="persistedRow{{row.$$index}}_id"/>
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+                <input autofocus type="checkbox" [checked]="value" disabled  id="persistedRow{{rows.indexOf(row)}}_id"/>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
-              <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-                <button mat-icon-button color="primary" type="button" [disabled]="row.$$index===0"
-                        (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{row.$$index}}_id" tooltip="Move Up">
+              <ng-template ngx-datatable-cell-template let-value="value" let-row="row" >
+                <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===0"
+                        (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{rows.indexOf(row)}}_id" tooltip="Move Up">
                   <mat-icon>arrow_drop_up</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" type="button" [disabled]="row.$$index===rows.length - 1"
-                        (click)="buttonMoveDownAction(row)" id="moveDownButtonRow{{row.$$index}}_id"
+                <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===rows.length - 1"
+                        (click)="buttonMoveDownAction(row)" id="moveDownButtonRow{{rows.indexOf(row)}}_id"
                         tooltip="Move Down">
                   <mat-icon>arrow_drop_down</mat-icon>
                 </button>
                 <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
-                        id="editButtonRow{{row.$$index}}_id" tooltip="Edit">
+                        id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit">
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button mat-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
-                        id="deleteButtonRow{{row.$$index}}_id" tooltip="Delete">
+                        id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete">
                   <mat-icon>delete</mat-icon>
                 </button>
               </ng-template>

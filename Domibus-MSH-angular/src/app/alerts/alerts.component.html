@@ -136,7 +136,7 @@
   </mat-card>
 
   <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
-    <input autofocus type="checkbox" [checked]="value" id="processed{{row.$$index}}_id"
+    <input autofocus type="checkbox" [checked]="value" id="processed{{row.rows.indexOf(row)}}_id"
            (click)="setProcessedValue(row)"/>
   </ng-template>
 
