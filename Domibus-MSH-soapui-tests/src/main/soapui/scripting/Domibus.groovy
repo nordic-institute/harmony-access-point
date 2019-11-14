@@ -2506,7 +2506,34 @@ static def String pathToLogFiles(side, log, context) {
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------
+    static def setLogLevel(String side,context,log,packageName,logLevel,String domainValue = "Default", String outcome = "Success", String authUser = null, authPwd = null){
+        debugLog("  ====  Calling \"setLogLevel\".", log)
+        def commandString = null
+        def commandResult = null
+        def multitenancyOn = false
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
+		def json = null;
 
+        log.info "  setLogLevel  [][]  setting Log level of Package/Class \"$packageName\" for Domibus \"$side\".";
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+			json = ifWindowsEscapeJsonString('{\"name\":\"' + "${packageName}" + '\",\"level\":\"' + "${logLevel}" + '\"}')
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-H",  "Content-Type: application/json",
+							"--data-binary", json,							
+							"-v"]
+            commandResult = runCurlCommand(commandString, log)
+            assert(commandResult[0].contains(outcome)),"Error:setLogLevel: Error while trying to set the log level of Package/Class \"$packageName\" for Domibus \"$side\"";
+			log.info "  setLogLevel  [][]  Log level successfully set to \"$logLevel\" for Package/Class \"$packageName\" in Domibus \"$side\".";
+        } finally {
+            resetAuthTokens(log);
+        }
+    }
 
 } // Domibus class end
 
