@@ -110,10 +110,10 @@ export class AlertService {
       try {
         if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8') {
           if (error.json) {
-            if (error.json().hasOwnProperty('message')) {
-              errMsg = error.json().message;
+            if (error.hasOwnProperty('message')) {
+              errMsg = error.message;
             } else {
-              errMsg = error.json().toString();
+              errMsg = error.toString();
             }
           } else {
             errMsg = error._body;
