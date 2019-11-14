@@ -419,9 +419,7 @@ public class DomibusRestClient {
 
 		String payload = provider.createMessageFilterObj(actionName);
 
-
 		switchDomain(domain);
-
 
 		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
 		JSONArray currentMSGF = null;
@@ -431,7 +429,6 @@ public class DomibusRestClient {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-
 
 		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), currentMSGF.toString());
 		if (response.getStatus() != 200) {

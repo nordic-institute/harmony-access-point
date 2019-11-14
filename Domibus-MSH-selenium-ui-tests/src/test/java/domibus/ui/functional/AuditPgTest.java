@@ -127,20 +127,22 @@ public class AuditPgTest extends BaseTest {
 	/*  AU-15 - Check action on Create event on Message filter  */
 	@Test(description = "AU-15", groups = {"multiTenancy", "singleTenancy"})
 	public void msgFilterCreation() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
-		DomibusPage page = new DomibusPage(driver);
 		String actionName = Generator.randomAlphaNumeric(5);
 		log.info("Create one message filter with action field value as :" + actionName);
 		rest.createMessageFilter(actionName, null);
-		page.getSidebar().goToPage(PAGES.AUDIT);
+
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
+
 		AuditPage auditPage = new AuditPage(driver);
-		soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
-		log.info("Set all search filters");
-		auditPage.getFilters().setFilterData("table", "Message filter");
+
+		log.info("Set table filter as Message filter");
+		auditPage.filters().getTableFilter().selectOptionByText("Message filter");
+
 		log.info("Click on search button");
-		auditPage.getFilters().getSearchButton().click();
+		auditPage.filters().clickSearch();
 		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate log presence on Audit page");
 		soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Created"), "Message filter action is logged successfully");
 		soft.assertAll();
