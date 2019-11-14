@@ -157,11 +157,11 @@
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)"
-            (click)="downloadAction(row)" id="downloadButtonRow{{row.rows.indexOf(row)}}_id" tooltip="Download">
+            (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
       <mat-icon>file_download</mat-icon>
     </button>
     <button mat-icon-button color="primary" [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
-            id="resendButtonRow{{row.rows.indexOf(row)}}_id" tooltip="Resend">
+            id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend">
       <mat-icon>send</mat-icon>
     </button>
   </ng-template>
