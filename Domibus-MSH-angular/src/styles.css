@@ -186,7 +186,6 @@ mat-sidenav[_ngcontent-c0] {
 }
 
 
-
 /*--------------------------------------------------
     [HEADING]
 ----------------------------------------------------*/
@@ -321,4 +320,17 @@ mat-card {
 
 input {
   background-color: white !important;
+}
+
+.mat-select-trigger {
+  padding-bottom: 6px;
+  border-bottom: solid 0.5px lightgray;
+}
+
+mat-select .mat-select {
+  padding: 14px 0;
+}
+
+.mat-card:not([class*=mat-elevation-z]) {
+  box-shadow: none !important;
 }
