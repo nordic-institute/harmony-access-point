@@ -137,9 +137,14 @@ mat-sidenav[_ngcontent-c0] {
 }
 
 /* --- MAIN CONTENT --------- */
-/*--------------------------- */
+---------------------------
 .mat-sidenav-content {
   min-height: 100vh;
+}
+
+.mat-drawer-content {
+  overflow: hidden !important;
+  overflow-y: auto !important;
 }
 
 /* --- Hamburger Menu ---*/
@@ -324,3 +329,5 @@ mat-card {
 .mat-icon {
   margin-right: 10px;
 }
+
+
