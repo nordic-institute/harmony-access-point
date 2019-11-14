@@ -32,7 +32,7 @@ public class BaseTest {
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
 
-	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	public final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
 
 	/**

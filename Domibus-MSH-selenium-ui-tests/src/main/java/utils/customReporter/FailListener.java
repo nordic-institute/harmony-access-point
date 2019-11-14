@@ -26,8 +26,11 @@ public class FailListener implements ITestListener {
 		String className = result.getTestClass().getRealClass().getSimpleName();
 		String filename = String.format("%s_%s_%s.jpg", className, testMeth, time);
 
+
+
 		try {
 			WebDriver driver = ((BaseTest) result.getInstance()).driver;
+			((BaseTest) result.getInstance()).log.info("copying screenshot to " + filename);
 			TakesScreenshot scrShot = ((TakesScreenshot) driver);
 			File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
 			FileUtils.copyFile(srcFile, new File(filename));
