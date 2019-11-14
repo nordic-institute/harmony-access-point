@@ -4,7 +4,7 @@
     <mat-card-content>
       <div class="panel">
 
-        <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType" (change)="changeAuthType($event.value)" id="authType_id">
+        <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType" (selectionChange)="changeAuthType($event.value)" id="authType_id">
           <mat-option *ngFor="let t of authenticationTypes" [value]="t">
             {{t}}
           </mat-option>

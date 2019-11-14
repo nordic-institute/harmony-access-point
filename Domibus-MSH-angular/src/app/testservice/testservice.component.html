@@ -7,7 +7,8 @@
         <form name="filterForm" #filterForm="ngForm">
           <!-- Receiver Party -->
           <div *ngIf="!dynamicDiscoveryEnabled">
-            <mat-select placeholder="Receiver Party Id" name="receiverPartyId" [(ngModel)]="filter.receiverPartyId" #receiverPartyId="ngModel" id="receiverPartyId_id" (ngModelChange)="onChangeParties()">
+            <mat-select placeholder="Receiver Party Id" name="receiverPartyId" [(ngModel)]="filter.receiverPartyId" #receiverPartyId="ngModel" id="receiverPartyId_id"
+                        (ngModelChange)="onChangeParties()">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let receiverParty of receiverParties" [value]="receiverParty">

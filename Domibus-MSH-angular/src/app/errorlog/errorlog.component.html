@@ -37,8 +37,7 @@
                    #errorDetail="ngModel" id="errordetail_id">
           </mat-form-field>
           <mat-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
-                     id="aprole_id"
-                     *ngIf="advancedSearch">
+                     id="aprole_id" *ngIf="advancedSearch">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let role of mshRoles" [value]="role">

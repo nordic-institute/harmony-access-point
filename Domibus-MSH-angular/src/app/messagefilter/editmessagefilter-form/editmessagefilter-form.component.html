@@ -3,7 +3,8 @@
   <form [formGroup]="messageFilterForm">
     <mat-card>
       <div>
-        <mat-select matInput placeholder="Plugin" id="backendfilter_id" floatPlaceholder="always" (change)="updatePlugin($event)" [(ngModel)]="plugin" [style.width]="'100%'" [formControl]="messageFilterForm.controls['plugin']">
+        <mat-select matInput placeholder="Plugin" id="backendfilter_id" floatPlaceholder="always" (selectionChange)="updatePlugin($event)" [(ngModel)]="plugin" [style.width]="'100%'"
+                    [formControl]="messageFilterForm.controls['plugin']">
           <mat-option *ngFor="let bName of backendFilterNames" [value]="bName.toString()">
             {{bName.toString()}}
           </mat-option>

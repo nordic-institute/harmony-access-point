@@ -38,7 +38,7 @@
             </mat-option>
           </mat-select>
           <mat-select placeholder="Message Type" name="messageType" [(ngModel)]="filter.messageType" id="messagetype_id"
-                     *ngIf="advancedSearch" (change)="onMessageTypeChanged($event)">
+                     *ngIf="advancedSearch" (selectionChange)="onMessageTypeChanged($event)">
             <mat-option *ngFor="let type of msgTypes" [value]="type">
               {{type}}
             </mat-option>

@@ -14,7 +14,7 @@
           </mat-select>
           <!-- Alert Type (Basic) -->
           <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
-                     id="alerttype_id" (change)="onAlertTypeChanged(filter.alertType)">
+                     id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
             <mat-option [value]="''"></mat-option>
             <mat-option *ngFor="let atype of aTypes" [value]="atype">
               {{atype}}
