@@ -96,3 +96,7 @@ router-outlet {
   /*min-height: 100px;*/
   /*display: block;*/
 }
+
+.mat-raised-button:not([class*="mat-elevation-z"]) {
+  box-shadow: none;
+}
