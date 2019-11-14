@@ -151,7 +151,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Logout from application");
         logout();
         log.info("Login with admin credentials");
-        login(getUser(null, DRoles.ADMIN, true, false, false).getString("userName"), data.defaultPass())
+        login(getUser(null, DRoles.ADMIN, true, false, true).getString("userName"), data.defaultPass())
                 .getSidebar().goToPage(PAGES.ALERTS);
         log.info("Validate non availability of Show domain alert checkbox for Admin user");
         soft.assertFalse(filters.getShowDomainCheckbox().isPresent(), "CheckBox is not present in case of Admin User");

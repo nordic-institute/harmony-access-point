@@ -30,25 +30,25 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-6", groups = {"multiTenancy", "singleTenancy"})
 	public void searchWithNoData() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		LoginPage loginPage = new LoginPage(driver);
 
 		log.info("Generate Random string for Username");
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create user with rest service");
 		rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
+
 		log.info("Login with admin user");
-		loginPage.login(data.getAdminUser());
 		log.info("Navigate to Audit page");
-		loginPage.getSidebar().goToPage(PAGES.AUDIT);
-		AuditPage auditPage = new AuditPage(driver);
-		auditPage.getFilters().setFilterData("table", "User");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);;
+
+		AuditPage page = new AuditPage(driver);
+		page.getFilters().setFilterData("table", "User");
 		log.info("Select logged in user username in User input filter");
-		auditPage.getFilters().setFilterData("user", user);
+		page.getFilters().setFilterData("user", user);
 		log.info("Click on Search button");
-		auditPage.getFilters().getSearchButton().click();
-		log.info("Search result count:" + auditPage.getFilters().getPagination().getTotalItems());
+		page.getFilters().getSearchButton().click();
+		log.info("Search result count:" + page.getFilters().getPagination().getTotalItems());
 		log.info("Validate no data presence for this user on audit page");
-		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() == 0, "Search has no data");
+		soft.assertTrue(page.getFilters().getPagination().getTotalItems() == 0, "Search has no data");
 		soft.assertAll();
 	}
 
@@ -56,28 +56,35 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-7", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		log.info("Login into application with Admin credentials and navigate to Audit page");
-		login(data.getAdminUser());
+
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create user with rest service");
 		rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
-		DomibusPage page = new DomibusPage(driver);
-		log.info("Navigate to Audit page");
-		page.getSidebar().goToPage(PAGES.AUDIT);
-		AuditPage auditPage = new AuditPage(driver);
-		int prevCount = auditPage.grid().getPagination().getTotalItems();
+
+		log.info("Login into application with Admin credentials and navigate to Audit page");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
+
+		AuditPage page = new AuditPage(driver);
+		page.grid().waitForRowsToLoad();
+		int prevCount = page.grid().getPagination().getTotalItems();
+		log.info("started out with items " + prevCount);
+
 		log.info("Set Table filter data as User");
-		auditPage.getFilters().setFilterData("table", "User");
+		page.filters().getTableFilter().selectOptionByText("User");
+
 		log.info("Set User filter data as created user");
-		auditPage.getFilters().setFilterData("user", user);
+		page.filters().getUserFilter().selectOptionByText(user);
+
 		log.info("Click on search button");
-		auditPage.getFilters().getSearchButton().click();
-		auditPage.grid().waitForRowsToLoad();
-		log.info("Total search record is :" + auditPage.grid().getPagination().getTotalItems());
-		auditPage.refreshPage();
-		auditPage.wait.forElementToBeVisible(auditPage.auditPageHeader);
-		auditPage.grid().waitForRowsToLoad();
-		soft.assertTrue(auditPage.grid().getPagination().getTotalItems() == prevCount, "Page shows all records after deletion of all selected filter values");
+		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
+
+		log.info("Total search record is :" + page.grid().getPagination().getTotalItems());
+		page.refreshPage();
+		page.wait.forElementToBeVisible(page.auditPageHeader);
+		page.grid().waitForRowsToLoad();
+
+		soft.assertTrue(page.grid().getPagination().getTotalItems() == prevCount, "Page shows all records after deletion of all selected filter values");
 		soft.assertAll();
 	}
 
@@ -308,35 +315,43 @@ public class AuditPgTest extends BaseTest {
 		rest.uploadPMode("pmodes/multipleParties.xml", null);
 		String newPartyName = Generator.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
+
 		log.info("login into application and navigate to Pmode parties page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		PModePartiesPage pPage = new PModePartiesPage(driver);
+
 		log.info("Validate new button is enabled");
 		soft.assertTrue(pPage.getNewButton().isEnabled(), "New button is enabled");
+
 		log.info("Click on New button");
 		pPage.getNewButton().click();
 		PartyModal modal = new PartyModal(driver);
 		log.info("Fill new party info");
 		modal.fillNewPartyForm(newPartyName, "http://test.com", "pid");
+
 		log.info("Click ok button");
 		modal.clickOK();
-		pPage.wait.forXMillis(1000);
+
+
 		pPage.getSaveButton().click();
-		pPage.wait.forXMillis(5000);
 		log.info("validate presence of success message");
 		soft.assertTrue(!pPage.getAlertArea().isError(), "page shows success message");
-		DomibusPage page = new DomibusPage(driver);
-		page.getSidebar().goToPage(PAGES.AUDIT);
+
+		log.info("Go to Audit page");
+		pPage.getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Set all search filter data");
-		auditPage.getFilters().setFilterData("table", "Pmode");
+		auditPage.filters().getTableFilter().selectOptionByText("Pmode");
+
 		log.info("Click in search button");
 		auditPage.getFilters().getSearchButton().click();
 		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate data on Audit page");
 		soft.assertTrue(auditPage.grid().getRowInfo(0).get("Action") != null, "Proper action is logged");
 		soft.assertTrue(auditPage.grid().getRowInfo(1).get("Action") != null, "Proper action is logged");
+
 		soft.assertAll();
 	}
 

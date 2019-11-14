@@ -1,5 +1,6 @@
 package utils;
 
+import ddsl.dcomponents.DomainSelector;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dcomponents.grid.DGrid;
@@ -54,10 +55,16 @@ public class BaseUXTest extends BaseTest {
 
 	@AfterMethod(alwaysRun = true)
 	public void refresh() throws Exception {
-		if (data.isIsMultiDomain()) {
-			log.info("going to default domain");
-			new DomibusPage(driver).getDomainSelector().selectOptionByText("Default");
-		}
+		try {
+			if (data.isIsMultiDomain()) {
+				DomainSelector ds = new DomibusPage(driver).getDomainSelector();
+				log.info("reseting to default domain");
+				if(!StringUtils.equals(ds.getSelectedValue(), "Default")){
+					ds.selectOptionByText("Default");
+				}
+			}
+		} catch (Exception e) {	}
+
 		log.info("-------- Refreshing -------");
 		driver.navigate().refresh();
 	}
