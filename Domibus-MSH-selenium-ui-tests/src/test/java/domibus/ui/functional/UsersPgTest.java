@@ -123,7 +123,7 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		String adminUser = getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
-		String toEditUser = getUser(null, DRoles.ADMIN, true, false, false).getString("userName");
+		String toEditUser = getUser(null, DRoles.USER, true, false, false).getString("userName");
 
 		log.info("got user " + toEditUser);
 		log.info("got admin " + adminUser);
@@ -140,7 +140,8 @@ public class UsersPgTest extends BaseTest {
 		page.clickVoidSpace();
 
 		log.info("editing user " + toEditUser);
-		page.grid().scrollToAndDoubleClick("Username", toEditUser);
+		page.grid().scrollToAndSelect("Username", toEditUser);
+		page.getEditBtn().click();
 		soft.assertTrue(testRoleList(ADMIN_VISIBLE_ROLES, modal), "Roles available for ADMIN");
 
 		log.info("closing user modal");
@@ -159,19 +160,22 @@ public class UsersPgTest extends BaseTest {
 			page.clickVoidSpace();
 
 			log.info("editing user " + toEditUser);
-			page.grid().scrollToAndDoubleClick("Username", toEditUser);
+			page.grid().scrollToAndSelect("Username", toEditUser);
+			page.getEditBtn().click();
 			soft.assertTrue(testRoleList(SUPER_EDIT_USER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing a user");
 			log.info("closing modal");
 			page.clickVoidSpace();
 
 			log.info("editing admin " + adminUser);
-			page.grid().scrollToAndDoubleClick("Username", adminUser);
+			page.grid().scrollToAndSelect("Username", adminUser);
+			page.getEditBtn().click();
 			soft.assertTrue(testRoleList(SUPER_EDIT_ADMIN_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
 			log.info("closing modal");
 			page.clickVoidSpace();
 
 			log.info("editing super user " + superUser);
-			page.grid().scrollToAndDoubleClick("Username", superUser);
+			page.grid().scrollToAndSelect("Username", superUser);
+			page.getEditBtn().click();
 			soft.assertTrue(testRoleList(SUPER_EDIT_SUPER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
 			log.info("closing modal");
 			page.clickVoidSpace();
