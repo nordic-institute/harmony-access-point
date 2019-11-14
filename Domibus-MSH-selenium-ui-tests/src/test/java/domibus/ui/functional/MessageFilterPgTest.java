@@ -4,6 +4,9 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.testng.annotations.BeforeMethod;
@@ -681,7 +684,7 @@ public class MessageFilterPgTest extends BaseTest {
 		page.refreshPage();
 
 		List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
-		
+
 		log.info("Switch row 0 and row 1");
 		page.grid().selectRow(1);
 		page.getMoveUpBtn().click();
@@ -711,11 +714,34 @@ public class MessageFilterPgTest extends BaseTest {
 	@Test(description = "MSGF-26", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicateEmptyFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
+
+		log.info("checking if there are any empty message filters");
+		JSONArray msgfs = rest.getMessageFilters(null);
+		String pluginName = "";
+		for (int i = 0; i < msgfs.length(); i++) {
+			JSONObject msgf = msgfs.getJSONObject(i);
+			if(msgf.getJSONArray("routingCriterias").length() == 0){
+				pluginName = msgf.getString("backendName");
+				break;
+			}
+		}
+
 		MessageFilterPage page = new MessageFilterPage(driver);
+
+		if(StringUtils.isEmpty(pluginName)){
+			log.info("Try to create empty filter");
+			page.getNewBtn().click();
+			MessageFilterModal modal = new MessageFilterModal(driver);
+			pluginName = modal.getPluginSelect().getSelectedValue();
+			modal.clickOK();
+		}
+
 
 		log.info("Try to create empty filter");
 		page.getNewBtn().click();
-		new MessageFilterModal(driver).clickOK();
+		MessageFilterModal modal = new MessageFilterModal(driver);
+		modal.getPluginSelect().selectOptionByText(pluginName);
+		modal.clickOK();
 
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");

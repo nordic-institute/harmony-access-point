@@ -441,7 +441,6 @@ public class DomibusRestClient {
 
 	public void deleteMessageFilter(String actionName, String domain) {
 
-
 		switchDomain(domain);
 
 		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
@@ -466,6 +465,21 @@ public class DomibusRestClient {
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not message filter");
 		}
+	}
+
+	public JSONArray getMessageFilters(String domain) {
+
+		switchDomain(domain);
+
+		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
+		JSONArray currentMSGF = new JSONArray();
+
+		try {
+			currentMSGF = new JSONObject(sanitizeResponse(currentMSGFRaw)).getJSONArray("messageFilterEntries");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return currentMSGF;
 	}
 
 	// -------------------------------------------- PMode --------------------------------------------------------------
