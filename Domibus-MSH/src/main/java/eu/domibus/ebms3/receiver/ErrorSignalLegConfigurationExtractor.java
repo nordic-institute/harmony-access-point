@@ -6,6 +6,8 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 /**
@@ -14,6 +16,8 @@ import org.apache.cxf.binding.soap.SoapMessage;
  */
 
 public class ErrorSignalLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorSignalLegConfigurationExtractor.class);
 
     private PModeProvider pModeProvider;
 

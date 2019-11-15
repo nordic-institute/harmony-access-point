@@ -2,6 +2,7 @@ package eu.domibus.common.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
@@ -36,17 +37,17 @@ public class JMSQueuesCountSet implements MetricSet {
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
 
-        if(!authUtils.isUnsecureLoginAllowed()) {
+        if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
         }
 
         Map<String, JMSDestination> queues = jmsManager.getDestinations();
-        for (Map.Entry<String, JMSDestination> entry: queues.entrySet()) {
+        for (Map.Entry<String, JMSDestination> entry : queues.entrySet()) {
             final JMSDestination jmsDestination = entry.getValue();
             LOG.debug("Getting the count for [{}]", jmsDestination);
             final String queueName = jmsDestination.getName();
-            final long queueNbOfMessages = jmsDestination.getNumberOfMessages();
-            gauges.put(queueName, (Gauge<Long>) () -> queueNbOfMessages);
+            gauges.put(MetricRegistry.name(queueName),
+                    (Gauge<Long>) () -> jmsManager.getDestinationSize(queueName));
         }
         return gauges;
     }

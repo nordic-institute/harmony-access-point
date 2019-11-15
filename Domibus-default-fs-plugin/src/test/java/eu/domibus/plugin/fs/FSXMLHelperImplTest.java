@@ -12,17 +12,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * JUnit for {@link FSXMLHelper} class
+ * JUnit for {@link FSXMLHelperImpl} class
  *
  * @author Catalin Enache
  * @since 3.3.2
  */
-public class FSXMLHelperTest {
+public class FSXMLHelperImplTest {
 
     private FileObject testFolder;
 
@@ -46,7 +47,7 @@ public class FSXMLHelperTest {
         FileObject metadataFile;
         final String partyIdType = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
 
-        try (InputStream testMetadata = FSTestHelper.getTestResource(this.getClass(), "testParseXML_metadata.xml")) {
+        try (InputStream testMetadata = FSTestHelper.getTestResource(FSXMLHelper.class, "testParseXML_metadata.xml")) {
             metadataFile = testFolder.resolveFile("test_metadata.xml");
             metadataFile.createFile();
             FileContent metadataFileContent = metadataFile.getContent();
@@ -55,7 +56,8 @@ public class FSXMLHelperTest {
         }
 
         //tested method
-        UserMessage userMessage = FSXMLHelper.parseXML(metadataFile.getContent().getInputStream(), UserMessage.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
+        UserMessage userMessage = new FSXMLHelperImpl(jaxbContext).parseXML(metadataFile.getContent().getInputStream(), UserMessage.class);
         Assert.assertNotNull(userMessage);
         Assert.assertEquals(preparePartyId("domibus-blue", partyIdType), userMessage.getPartyInfo().getFrom().getPartyId());
         Assert.assertEquals(preparePartyId("domibus-red", partyIdType), userMessage.getPartyInfo().getTo().getPartyId());
@@ -68,7 +70,8 @@ public class FSXMLHelperTest {
              FileContent fileContent = file.getContent()) {
 
             //tested method
-            FSXMLHelper.writeXML(fileContent.getOutputStream(), UserMessage.class, prepareUserMessage());
+            JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
+            new FSXMLHelperImpl(jaxbContext).writeXML(fileContent.getOutputStream(), UserMessage.class, prepareUserMessage());
 
             Assert.assertNotNull(file);
             Assert.assertTrue(FSSendMessagesService.METADATA_FILE_NAME.equals(file.getName().getBaseName()));

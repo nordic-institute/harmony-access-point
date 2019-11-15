@@ -119,14 +119,14 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
         String messageId = (String) message.getExchange().get(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY);
         if (!isMessageSecured(message)) {
-            LOG.info("Message does not contain security info ==> skipping sender trust verification.");
+            LOG.debug("Message does not contain security info ==> skipping sender trust verification.");
             return;
         }
 
         boolean isPullMessage = false;
         MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
         if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
-            LOG.info("PULL Signal Message");
+            LOG.debug("PULL Signal Message");
             isPullMessage = true;
         }
 
@@ -142,7 +142,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
         LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
 
-        LOG.info("Validating sender certificate for party [{}]", senderPartyName);
+        LOG.debug("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
         if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
@@ -160,7 +160,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                     LOG.error("Cannot receive message: sender certificate is not valid or it has been revoked [" + sender + "]");
                     return false;
                 }
-                LOG.info("[Pull:{}] - Sender certificate exists and is valid [{}]", isPullMessage, sender);
+                LOG.debug("[Pull:{}] - Sender certificate exists and is valid [{}]", isPullMessage, sender);
             } catch (DomibusCertificateException dce) {
                 LOG.error("Could not verify if the certificate chain is valid for alias " + sender, dce);
                 return false;
