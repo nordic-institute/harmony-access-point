@@ -52,9 +52,10 @@
             <artifactId>spring-boot-starter-activemq</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-broker</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
         </dependency>
+
 
         <!--<dependency>
             <groupId>com.oracle.weblogic</groupId>
@@ -71,6 +72,11 @@
             <artifactId>wlthint3client</artifactId>
             <version>12.1.1</version>
         </dependency>
+        <!--<dependency>
+            <groupId>es.oracle</groupId>
+            <artifactId>wlfullclient</artifactId>
+            <version>1.0</version>
+        </dependency>-->
     </dependencies>
 <build>
 <plugins>
