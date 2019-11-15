@@ -28,7 +28,7 @@ export class PartyDetailsComponent implements OnInit {
   @ViewChild('fileInput')
   private fileInput;
 
-  endpointPattern = '^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:(\\.)?(?:[a-z\u00a1-\uffff]{2,})))(?::\\d{2,5})?(?:[/?#]\\S*)?$';
+  endpointPattern = '^(?:(?:(?:https?):)?\\/\\/)(?:\\S+)$';
 
   constructor(public dialogRef: MdDialogRef<PartyDetailsComponent>,
               @Inject(MD_DIALOG_DATA) public data: any,
