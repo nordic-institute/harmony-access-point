@@ -314,8 +314,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * Method called when Download button is clicked
    * @param row The selected row
    */
-  downloadArchive(rowIndex) {
-    this.download(this.tableRows[rowIndex]);
+  downloadArchive(row) {
+    this.download(row);
   }
 
   /**
@@ -323,13 +323,14 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param row Row where Delete icon is located
    */
   deleteArchiveAction(row) {
+    let rowIndex = this.tableRows.indexOf(row);
     // workaround to delete one entry from the array
-    // since "this.rows.splice(row, 1);" doesn't work...
+    // since "this.rows.splice(rowIndex, 1);" doesn't work...
     let array = this.tableRows.slice();
-    this.deleteList.push(array[row].id);
-    array.splice(row, 1);
+    this.deleteList.push(row.id);
+    array.splice(rowIndex, 1);
     array = array.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
-    this.allPModes.splice(this.offset * this.rowLimiter.pageSize + row, 1);
+    this.allPModes.splice(this.offset * this.rowLimiter.pageSize + rowIndex, 1);
     this.tableRows = array.slice();
     this.count--;
 

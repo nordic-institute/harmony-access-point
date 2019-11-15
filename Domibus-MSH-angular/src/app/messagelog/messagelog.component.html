@@ -111,10 +111,10 @@
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                          (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
+<!--    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour-->
+<!--            id="saveascsvbutton_id" mat-tooltip="Export as CSV">-->
+<!--      <img src="assets/images/exportCSV.svg" width="30" height="30">-->
+<!--    </button>-->
   </div>
 
   <ngx-datatable
@@ -165,6 +165,11 @@
       <mat-icon>send</mat-icon>
     </button>
   </ng-template>
+
+  <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
+          id="saveascsvbutton_id" mat-tooltip="Export as CSV">
+    <img src="assets/images/exportCSV.svg" width="30" height="30">
+  </button>
 
   <div class="group-action-button">
     <button mat-raised-button color="primary" [disabled]="!isDownloadButtonEnabled()" (click)="download()"

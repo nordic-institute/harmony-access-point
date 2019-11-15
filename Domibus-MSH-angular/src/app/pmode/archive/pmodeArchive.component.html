@@ -52,11 +52,11 @@
 
         <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
           <button mat-icon-button color="primary" id="deleteButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Delete"
-                  [disabled]="row.current" (click)="deleteArchiveAction(tableRows.indexOf(row))">
+                  [disabled]="row.current" (click)="deleteArchiveAction(row)">
             <mat-icon>delete</mat-icon>
           </button>
           <button mat-icon-button color="primary" id="downloadButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Download"
-                  (click)="downloadArchive(tableRows.indexOf(row))">
+                  (click)="downloadArchive(row)">
             <mat-icon>file_download</mat-icon>
           </button>
           <button mat-icon-button color="primary" id="restoreButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Restore"
@@ -83,7 +83,7 @@
                 <mat-icon>delete</mat-icon>
                 <span>Delete</span>
               </button>
-              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0].tableRows.indexOf(row))" id="downloadArchivebutton_id" [disabled]="disabledDownload"
+              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"
                       button-click-behaviour>
                 <mat-icon>file_download</mat-icon>
                 <span>Download</span>
