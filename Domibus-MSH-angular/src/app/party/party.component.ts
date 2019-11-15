@@ -67,8 +67,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     this.updatedParties = [];
     this.deletedParties = [];
 
-    this.initColumns();
-
     const res = await this.http.get<any>(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
     if (res) {
       this.pModeExists = true;
@@ -76,6 +74,10 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     } else {
       this.pModeExists = false;
     }
+  }
+
+  ngAfterViewInit() {
+    this.initColumns();
   }
 
   isDirty(): boolean {

@@ -35,8 +35,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   defaultQueueSet: EventEmitter<boolean>;
   queuesInfoGot: EventEmitter<boolean>;
 
-  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
+  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<Object>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   queues: any[];
@@ -85,6 +85,33 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.queues = [];
     this.orderedQueues = [];
 
+    // set toDate equals to now
+    this.filter.toDate = new Date();
+    this.filter.toDate.setHours(23, 59, 59, 999);
+
+    this.selectedMessages = [];
+    this.markedForDeletionMessages = [];
+    this.loading = false;
+
+    this.rows = [];
+
+    this.loadDestinations();
+
+    this.queuesInfoGot.subscribe(result => {
+      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
+    });
+
+    this.defaultQueueSet.subscribe(oldVal => {
+      super.trySearch().then(ok => {
+        if (!ok) {
+          //revert the drop-down value to the old oen
+          this._selectedSource = oldVal;
+        }
+      });
+    });
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'ID',
@@ -129,31 +156,6 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['ID', 'Time', 'Custom prop', 'JMS prop', 'Actions'].indexOf(col.name) != -1
-    });
-
-    // set toDate equals to now
-    this.filter.toDate = new Date();
-    this.filter.toDate.setHours(23, 59, 59, 999);
-
-    this.selectedMessages = [];
-    this.markedForDeletionMessages = [];
-    this.loading = false;
-
-    this.rows = [];
-
-    this.loadDestinations();
-
-    this.queuesInfoGot.subscribe(result => {
-      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
-    });
-
-    this.defaultQueueSet.subscribe(oldVal => {
-      super.trySearch().then(ok => {
-        if (!ok) {
-          //revert the drop-down value to the old oen
-          this._selectedSource = oldVal;
-        }
-      });
     });
   }
 
@@ -502,5 +504,9 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
   onSort() {
     super.resetFilters();
+  }
+
+  toJson(value) {
+    return JSON.stringify(value);
   }
 }

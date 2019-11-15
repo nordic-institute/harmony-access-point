@@ -58,6 +58,15 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   ngOnInit() {
     super.ngOnInit();
 
+    this.rowLimiter = new RowLimiterBase();
+
+    this['orderBy'] = 'timestamp';
+    this['asc'] = false;
+
+    this.search();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'Signal Message Id',
@@ -91,16 +100,10 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       }
 
     ];
-    this.rowLimiter = new RowLimiterBase();
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Message Id', 'Error Code', 'Timestamp'].indexOf(col.name) != -1
     });
-
-    this['orderBy'] = 'timestamp';
-    this['asc'] = false;
-
-    this.search();
   }
 
   createSearchParams(): HttpParams {

@@ -73,11 +73,13 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
 
-// --- lets init the table columns ---
-    this.initColumns();
-
 // --- lets count the records and fill the table.---
     this.searchAndCount();
+  }
+
+  ngAfterViewInit() {
+// --- lets init the table columns ---
+    this.initColumns();
   }
 
   searchAndCount() {

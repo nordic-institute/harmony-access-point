@@ -36,7 +36,9 @@ export class PropertiesComponent implements OnInit {
     this.rows = [];
 
     this.loadProperties(this.rowLimiter.pageSize);
+  }
 
+  ngAfterViewInit() {
     this.columns = [
       {
         name: 'Property Name',

@@ -45,6 +45,10 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   ngOnInit() {
     super.ngOnInit();
 
+    this.search();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'Logger Name',
@@ -55,13 +59,9 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
         name: 'Logger Level'
       }
     ];
-
-
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Logger Name', 'Logger Level'].indexOf(col.name) != -1
     });
-
-    this.search();
   }
 
   createSearchParams(): HttpParams {
@@ -90,7 +90,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
     searchParams = searchParams.append('page', offset.toString());
     searchParams = searchParams.append('pageSize', pageSize.toString());
 
-    return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, { params: searchParams });
+    return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams});
   }
 
   page(offset, pageSize) {
@@ -152,7 +152,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
           this.page(this.offset, this.rowLimiter.pageSize);
         },
         error => {
-          this.alertService.exception('An error occurred while setting logging level: ',  error);
+          this.alertService.exception('An error occurred while setting logging level: ', error);
           this.loading = false;
         }
       );

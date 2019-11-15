@@ -93,6 +93,17 @@ export class UserComponent implements OnInit, DirtyOperations {
 
     this.selected = [];
 
+    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
+
+    this.getUsers();
+
+    this.getUserRoles();
+
+    this.dirty = false;
+    this.areRowsDeleted = false;
+  }
+
+  async ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         cellTemplate: this.editableTpl,
@@ -153,18 +164,10 @@ export class UserComponent implements OnInit, DirtyOperations {
           canAutoResize: true
         });
     }
-    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Username', 'Role', 'Domain', 'Active', 'Deleted', 'Actions'].indexOf(col.name) !== -1
     });
-
-    this.getUsers();
-
-    this.getUserRoles();
-
-    this.dirty = false;
-    this.areRowsDeleted = false;
   }
 
   getUsers(): void {

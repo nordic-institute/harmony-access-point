@@ -105,15 +105,12 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
 
     this.uploaded = false;
 
-    this.initializeArchivePmodes();
+    this.getAllPModeEntries();
 
     this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
   }
 
-  /**
-   * Initialize columns and gets all PMode entries from database
-   */
-  initializeArchivePmodes() {
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         cellTemplate: this.rowWithDateFormatTpl,
@@ -140,8 +137,6 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Configuration Date', 'Username', 'Description', 'Actions'].indexOf(col.name) !== -1
     });
-
-    this.getAllPModeEntries();
   }
 
   /**
@@ -169,7 +164,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.loading = true;
 
     try {
-      this.allPModes =  await this.getResultObservable().toPromise();
+      this.allPModes = await this.getResultObservable().toPromise();
 
       this.offset = 0;
       this.actualRow = 0;
@@ -296,7 +291,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
       if (result) {
         this.deleteList = [];
-        this.initializeArchivePmodes();
+        this.getAllPModeEntries();
         this.disabledSave = true;
         this.disabledCancel = true;
       } else {
@@ -540,7 +535,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   }
 
   private preview(row) {
-    this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true', {observe: 'response', responseType: 'text'}).subscribe(res => {
+    this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true', {
+      observe: 'response',
+      responseType: 'text'
+    }).subscribe(res => {
       const HTTP_OK = 200;
       if (res.status === HTTP_OK) {
         const content = res.body;

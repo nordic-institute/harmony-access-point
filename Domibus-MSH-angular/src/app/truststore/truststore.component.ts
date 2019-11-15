@@ -40,6 +40,16 @@ export class TruststoreComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.trustStoreEntries = [];
+    this.selectedMessages = [];
+    this.rows = [];
+
+    this.offset = 0;
+
+    this.getTrustStoreEntries();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
 
@@ -71,14 +81,6 @@ export class TruststoreComponent implements OnInit {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Name', 'Subject', 'Issuer', 'Valid from', 'Valid until'].indexOf(col.name) !== -1
     });
-
-    this.trustStoreEntries = [];
-    this.selectedMessages = [];
-    this.rows = [];
-
-    this.offset = 0;
-
-    this.getTrustStoreEntries();
   }
 
   getTrustStoreEntries(): void {

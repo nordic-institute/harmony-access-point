@@ -115,6 +115,15 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
+    this.rowLimiter = new RowLimiterBase();
+
+    this['orderBy'] = 'creationTime';
+    this['asc'] = false;
+
+    this.search();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {name: 'Alert Id', width: 20, prop: 'entityId'},
       {name: 'Processed', cellTemplate: this.rowProcessed, width: 20},
@@ -129,16 +138,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155}
     ];
-    this.rowLimiter = new RowLimiterBase();
-
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
-
-    this['orderBy'] = 'creationTime';
-    this['asc'] = false;
-
-    this.search();
   }
 
   getAlertTypes(): void {

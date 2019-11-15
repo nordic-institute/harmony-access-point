@@ -39,7 +39,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
   authenticationTypes: string[] = ['BASIC', 'CERTIFICATE'];
   filter: PluginUserSearchCriteria;
-  columnPicker: ColumnPickerBase;
+  columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   userRoles: Array<String>;
 
@@ -52,8 +52,6 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
-    this.initColumns();
-
     this.offset = 0;
     this.selected = [];
     this.loading = false;
@@ -65,6 +63,10 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
     super.setActiveFilter();
     this.search();
+  }
+
+  ngAfterViewInit() {
+    this.initColumns();
   }
 
   get displayedUsers(): PluginUserRO[] {
@@ -120,7 +122,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
       this.setColumnPicker();
     } catch (err) {
-      this.alertService.exception("Error getting plugin users:", err);
+      this.alertService.exception('Error getting plugin users:', err);
       this.loading = false;
     }
   }
