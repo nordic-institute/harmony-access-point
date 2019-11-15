@@ -22,10 +22,10 @@ public class PartyResponseRo {
     protected String userName;
 
     /**
-     * Custom annotation to add some additional characters to be permited by black-list/white-list validation
+     * Custom annotation to add some additional characters to be permitted by black-list/white-list validation
      * The endpoint property can contain the specified characters so we must permit this
      */
-    @CustomWhiteListed(permitted = ":/=?&")
+    @CustomWhiteListed(permitted = ":/=?&-+%")
     protected String endpoint;
 
     private String joinedIdentifiers;
