@@ -57,13 +57,13 @@ public class Configuration {
 
     @Bean
     public JndiTemplate provider() {
+        LOG.info("Configuring provider to:[{}]",providerUrl);
         Properties env = new Properties();
         env.put("java.naming.factory.initial", "weblogic.jndi.WLInitialContextFactory");
         env.put("java.naming.provider.url", providerUrl);
         return new JndiTemplate(env);
     }
 
-    //@Autowired
     @Bean
     public JndiObjectFactoryBean connectionFactory(JndiTemplate provider) {
         JndiObjectFactoryBean factory = new JndiObjectFactoryBean();
