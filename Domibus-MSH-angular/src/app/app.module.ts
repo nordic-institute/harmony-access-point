@@ -92,6 +92,7 @@ import {RedirectHomeGuard} from './common/guards/redirect-home.guard';
 import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.components';
 import {PropertiesComponent} from './properties/properties.component';
 import {HttpClientModule} from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -198,6 +199,7 @@ import {HttpClientModule} from '@angular/common/http';
     MatTooltipModule,
     HttpClientModule,
     MatCardModule,
+    CommonModule
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

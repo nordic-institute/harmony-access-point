@@ -51,15 +51,15 @@
         </ng-template>
 
         <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-          <button mat-icon-button color="primary" id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete"
-                  [disabled]="row.current" (click)="deleteArchiveAction(rows.indexOf(row))">
+          <button mat-icon-button color="primary" id="deleteButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Delete"
+                  [disabled]="row.current" (click)="deleteArchiveAction(tableRows.indexOf(row))">
             <mat-icon>delete</mat-icon>
           </button>
-          <button mat-icon-button color="primary" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download"
-                  (click)="downloadArchive(rows.indexOf(row))">
+          <button mat-icon-button color="primary" id="downloadButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Download"
+                  (click)="downloadArchive(tableRows.indexOf(row))">
             <mat-icon>file_download</mat-icon>
           </button>
-          <button mat-icon-button color="primary" id="restoreButtonRow{{rows.indexOf(row)}}_id" tooltip="Restore"
+          <button mat-icon-button color="primary" id="restoreButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Restore"
                   [disabled]="row.current" (click)="restoreArchive(row)">
             <mat-icon>settings_backup_restore</mat-icon>
           </button>
@@ -83,7 +83,7 @@
                 <mat-icon>delete</mat-icon>
                 <span>Delete</span>
               </button>
-              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0].rows.indexOf(row))" id="downloadArchivebutton_id" [disabled]="disabledDownload"
+              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0].tableRows.indexOf(row))" id="downloadArchivebutton_id" [disabled]="disabledDownload"
                       button-click-behaviour>
                 <mat-icon>file_download</mat-icon>
                 <span>Download</span>

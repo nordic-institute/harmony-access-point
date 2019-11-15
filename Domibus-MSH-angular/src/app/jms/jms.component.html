@@ -5,9 +5,9 @@
       <div class="panel">
 
         <mat-select class="searchField" placeholder="Source" [(ngModel)]="selectedSource" name="jmsQueueSelector"
-                   id="jmsQueueSelector" style="width:40%;">
+                    id="jmsQueueSelector" style="width:40%;">
           <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
-            {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
+            {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
           </mat-option>
         </mat-select>
         <md2-datepicker id="jmsFromDatePicker" appClearInvalid
@@ -54,11 +54,11 @@
   <div class="group-filter-button">
     <span class="row-button">
       <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
+                       (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
     </span>
     <span class="column-filter-button">
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
+                         (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
     <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
             id="saveascsvbutton_id" mat-tooltip="Export as CSV">
@@ -90,7 +90,7 @@
   </ngx-datatable>
 
   <ng-template #rowWithJSONTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    {{value | json}}
+    {{value | json }}
   </ng-template>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
