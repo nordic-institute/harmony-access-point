@@ -446,6 +446,9 @@ public class UsersPgTest extends BaseTest {
 	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserRoleAndCheckPrivileges() throws Exception {
 		String username = getUser(null, DRoles.ADMIN, true, false, false).getString("userName");
+		if(rest.getNoOfAdmins(null)<=1){
+			rest.createUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), null);
+		}
 		log.info("changing role to User for Admin " + username);
 
 		SoftAssert soft = new SoftAssert();

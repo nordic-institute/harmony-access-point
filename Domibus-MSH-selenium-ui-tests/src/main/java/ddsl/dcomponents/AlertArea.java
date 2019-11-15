@@ -30,7 +30,9 @@ public class AlertArea extends DComponent {
 	public WebElement closeButton;
 
 	public String getAlertMessage(){
-		wait.forElementToBeVisible(alertMessage);
+		try {
+			wait.forElementToBeVisible(alertMessage);
+		} catch (Exception e) {		}
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (!alertObject.isPresent()) {
@@ -48,7 +50,9 @@ public class AlertArea extends DComponent {
 	}
 
 	public boolean isError() throws Exception {
-		wait.forElementToBeVisible(alertMessage);
+		try {
+			wait.forElementToBeVisible(alertMessage);
+		} catch (Exception e) {}
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (alertObject.isPresent()) {

@@ -52,6 +52,8 @@ public class SandwichMenu extends DComponent {
 	}
 
 	private void expandMenu() throws Exception {
+		clickVoidSpace();
+
 		if (isMenuExpanded()) return;
 		driver.findElement(expandButton).click();
 		try {

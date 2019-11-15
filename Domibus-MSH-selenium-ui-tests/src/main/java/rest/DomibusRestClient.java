@@ -7,6 +7,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
+import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -202,6 +203,17 @@ public class DomibusRestClient {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public int getNoOfAdmins(String domain) throws Exception {
+		JSONArray users = getUsers(domain);
+		int adminNo = 0;
+		for (int i = 0; i < users.length(); i++) {
+			if(DRoles.ADMIN.equalsIgnoreCase(users.getJSONObject(i).getJSONArray("authorities").getString(0))){
+				adminNo++;
+			}
+		}
+		return adminNo;
 	}
 
 	public void createUser(String username, String role, String pass, String domain) throws JSONException {
