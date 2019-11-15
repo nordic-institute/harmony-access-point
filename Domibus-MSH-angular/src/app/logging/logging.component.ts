@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {HttpClient, HttpParams} from '@angular/common/http';
@@ -38,7 +38,8 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   orderBy: string = 'loggerName';
   asc: boolean = false;
 
-  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService) {
+  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -62,6 +63,10 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Logger Name', 'Logger Level'].indexOf(col.name) != -1
     });
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   createSearchParams(): HttpParams {

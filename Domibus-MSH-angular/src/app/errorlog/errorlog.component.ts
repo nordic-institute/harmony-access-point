@@ -1,4 +1,4 @@
-﻿import {Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
+﻿import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
@@ -51,7 +51,8 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
-  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private renderer: Renderer2) {
+  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -104,6 +105,10 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Message Id', 'Error Code', 'Timestamp'].indexOf(col.name) != -1
     });
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   createSearchParams(): HttpParams {

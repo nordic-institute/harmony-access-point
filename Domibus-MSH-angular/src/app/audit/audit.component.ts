@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AuditService} from './audit.service';
 import {UserService} from '../user/user.service';
 import {AlertService} from '../common/alert/alert.service';
@@ -49,7 +49,8 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   offset: number = 0;
   count: number = 0;
 
-  constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService) {
+  constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -80,6 +81,10 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   ngAfterViewInit() {
 // --- lets init the table columns ---
     this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   searchAndCount() {

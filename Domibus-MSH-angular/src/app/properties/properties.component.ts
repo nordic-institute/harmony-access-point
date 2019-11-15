@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService} from './properties.service';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -26,7 +26,8 @@ export class PropertiesComponent implements OnInit {
 
   columns: any[] = [];
 
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService, private securityService: SecurityService) {
+  constructor(private propertiesService: PropertiesService, private alertService: AlertService,
+              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     this.filter = {propertyName: '', showDomainProperties: true};
   }
 
@@ -49,6 +50,10 @@ export class PropertiesComponent implements OnInit {
         name: 'Property Value'
       }
     ];
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   onPropertyNameChanged() {

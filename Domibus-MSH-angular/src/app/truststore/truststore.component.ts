@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {TrustStoreService} from './trustore.service';
@@ -36,7 +36,8 @@ export class TruststoreComponent implements OnInit {
   rows: Array<any> = [];
   offset: number;
 
-  constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog, public alertService: AlertService) {
+  constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog,
+              public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
@@ -81,6 +82,10 @@ export class TruststoreComponent implements OnInit {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Name', 'Subject', 'Issuer', 'Valid from', 'Valid until'].indexOf(col.name) !== -1
     });
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   getTrustStoreEntries(): void {

@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './messagelogresult';
 import {Observable} from 'rxjs';
@@ -64,7 +64,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   conversationIdValue: String;
 
   constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MatDialog, private elementRef: ElementRef) {
+              public dialog: MatDialog, private elementRef: ElementRef,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -98,6 +99,10 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
 
   ngAfterViewInit() {
     this.configureColumnPicker();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   private configureColumnPicker() {

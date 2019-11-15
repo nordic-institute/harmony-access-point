@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
@@ -47,7 +47,8 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   pModeExists: boolean;
   isBusy: boolean;
 
-  constructor(public dialog: MatDialog, public partyService: PartyService, public alertService: AlertService, private http: HttpClient) {
+  constructor(public dialog: MatDialog, public partyService: PartyService, public alertService: AlertService,
+              private http: HttpClient, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -78,6 +79,10 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
   ngAfterViewInit() {
     this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   isDirty(): boolean {

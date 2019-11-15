@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
@@ -76,7 +76,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   filter: any;
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private securityService: SecurityService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private securityService: SecurityService, private changeDetector : ChangeDetectorRef) {
     super();
 
     this.getAlertTypes();
@@ -138,9 +139,14 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155}
     ];
+
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
+  }
+
+  ngAfterViewChecked(){
+    this.changeDetector.detectChanges();
   }
 
   getAlertTypes(): void {

@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {HttpClient} from '@angular/common/http';
@@ -77,7 +77,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
    * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private domainService: DomainService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
   }
 
   /**
@@ -137,6 +138,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Configuration Date', 'Username', 'Description', 'Actions'].indexOf(col.name) !== -1
     });
+  }
+
+  ngAfterViewChecked(){
+    this.changeDetector.detectChanges();
   }
 
   /**

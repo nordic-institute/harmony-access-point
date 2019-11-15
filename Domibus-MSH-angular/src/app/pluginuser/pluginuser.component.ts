@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {AlertService} from '../common/alert/alert.service';
@@ -43,7 +43,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
   userRoles: Array<String>;
 
-  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog) {
+  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -67,6 +68,10 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
   ngAfterViewInit() {
     this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   get displayedUsers(): PluginUserRO[] {

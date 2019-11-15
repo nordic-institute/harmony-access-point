@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UserResponseRO, UserState} from './user';
 import {UserSearchCriteria, UserService} from './user.service';
 import {MatDialog, MatDialogRef} from '@angular/material';
@@ -69,7 +69,8 @@ export class UserComponent implements OnInit, DirtyOperations {
               private userValidatorService: UserValidatorService,
               private alertService: AlertService,
               private securityService: SecurityService,
-              private domainService: DomainService) {
+              private domainService: DomainService,
+              private changeDetector: ChangeDetectorRef) {
   }
 
   async ngOnInit() {
@@ -168,6 +169,10 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Username', 'Role', 'Domain', 'Active', 'Deleted', 'Actions'].indexOf(col.name) !== -1
     });
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   getUsers(): void {

@@ -74,11 +74,11 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.beforeDomainChange();
         } catch (e) {
-          console.log(e);
+          console.log('Exception raised in before domain change code', e);
         }
       }
 
-      const domain = this.domains.find(d => d.code == this.domainCode);
+      const domain = this.domains.find(d => d.code === this.domainCode);
       await this.domainService.setCurrentDomain(domain);
 
       this.alertService.clearAlert();
@@ -89,7 +89,15 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.ngOnInit();
         } catch (e) {
-          console.log(e);
+          this.alertService.exception('Error in init code', e);
+        }
+      }
+
+      if (this.currentComponent.ngAfterViewInit) {
+        try {
+          this.currentComponent.ngAfterViewInit();
+        } catch (e) {
+          this.alertService.exception('Error in after view init code', e);
         }
       }
 

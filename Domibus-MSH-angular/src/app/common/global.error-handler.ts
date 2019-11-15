@@ -12,6 +12,8 @@ export class GlobalErrorHandler implements ErrorHandler {
 
     console.error(error);
 
+    // if (error == 'ExpressionChangedAfterItHasBeenCheckedError') {}
+
     if (error instanceof HttpResponse) {
       const res = <HttpResponse<any>> error;
       if (res.status === 401 || res.status === 403) return;

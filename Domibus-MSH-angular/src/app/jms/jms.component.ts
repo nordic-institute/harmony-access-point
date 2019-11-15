@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
@@ -65,7 +65,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -157,6 +158,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['ID', 'Time', 'Custom prop', 'JMS prop', 'Actions'].indexOf(col.name) != -1
     });
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   private getDestinations(): Observable<any> {
