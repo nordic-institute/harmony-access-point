@@ -175,8 +175,10 @@ public class SenderService {
         responseFrom.setRole(toRole);
         partyInfo.setFrom(responseFrom);
         PartyId responseFromPartyId = new PartyId();
-        responseFromPartyId.setValue(received.getStringProperty("toPartyId"));
-        responseFromPartyId.setType(received.getStringProperty("toPartyIdType"));
+        final String toPartyId = received.getStringProperty("toPartyId");
+        final String toPartyIdType = received.getStringProperty("toPartyType");
+        responseFromPartyId.setValue(toPartyId);
+        responseFromPartyId.setType(toPartyIdType);
         responseFrom.setPartyId(responseFromPartyId);
 
         To responseTo = new To();
@@ -185,7 +187,7 @@ public class SenderService {
         PartyId responseToPartyId = new PartyId();
 
         responseToPartyId.setValue(received.getStringProperty("fromPartyId"));
-        responseToPartyId.setType(received.getStringProperty("fromPartyIdType"));
+        responseToPartyId.setType(received.getStringProperty("fromPartyType"));
         responseTo.setPartyId(responseToPartyId);
 
         CollaborationInfo collaborationInfo = new CollaborationInfo();
