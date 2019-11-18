@@ -17,7 +17,7 @@ import static eu.domibus.jms.wildfly.InternalJMSManagerWildFlyArtemis.JMS_BROKER
  * <p>
  * Property manager for the Wildfly Artemis specific properties.
  */
-@Service
+@Service("serverPropertyManager")
 public class WildflyPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new String[]{
