@@ -52,15 +52,15 @@
 
         <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
           <button mat-icon-button color="primary" id="deleteButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Delete"
-                  [disabled]="row.current" (click)="deleteArchiveAction(row)">
+                  [disabled]="row.current" (click)="deleteArchiveAction(row)" button-click-behaviour>
             <mat-icon>delete</mat-icon>
           </button>
           <button mat-icon-button color="primary" id="downloadButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Download"
-                  (click)="downloadArchive(row)">
+                  (click)="downloadArchive(row)" button-click-behaviour>
             <mat-icon>file_download</mat-icon>
           </button>
           <button mat-icon-button color="primary" id="restoreButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Restore"
-                  [disabled]="row.current" (click)="restoreArchive(row)">
+                  [disabled]="row.current" (click)="restoreArchive(row)" button-click-behaviour>
             <mat-icon>settings_backup_restore</mat-icon>
           </button>
         </ng-template>

@@ -3,7 +3,7 @@
   <mat-card-content style="padding-top: 0;">
     <form name="messageFilterForm" #messageFilterForm="ngForm">
       <button mat-icon-button color="primary" (click)="saveAsCSV()" style="margin-bottom: 20px;"
-              id="saveascsvbutton_id" mat-tooltip="Export as CSV">
+              id="saveascsvbutton_id" mat-tooltip="Export as CSV" button-click-behaviour>
         <img src="assets/images/exportCSV.svg" width="30" height="30">
       </button>
       <ngx-datatable
@@ -62,20 +62,21 @@
         <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
           <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
             <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===0"
-                    (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{rows.indexOf(row)}}_id" tooltip="Move Up">
+                    (click)="buttonMoveUpAction(row)" id="moveUpButtonRow{{rows.indexOf(row)}}_id"
+                    tooltip="Move Up" button-click-behaviour>
               <mat-icon>arrow_drop_up</mat-icon>
             </button>
             <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===rows.length - 1"
                     (click)="buttonMoveDownAction(row)" id="moveDownButtonRow{{rows.indexOf(row)}}_id"
-                    tooltip="Move Down">
+                    tooltip="Move Down" button-click-behaviour>
               <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
-                    id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit">
+                    id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit" button-click-behaviour>
               <mat-icon>edit</mat-icon>
             </button>
             <button mat-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
-                    id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete">
+                    id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete" button-click-behaviour>
               <mat-icon>delete</mat-icon>
             </button>
           </ng-template>

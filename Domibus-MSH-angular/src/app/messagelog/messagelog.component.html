@@ -156,12 +156,12 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)"
+    <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)" button-click-behaviour
             (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
       <mat-icon>file_download</mat-icon>
     </button>
     <button mat-icon-button color="primary" [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
-            id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend">
+            id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
       <mat-icon>send</mat-icon>
     </button>
   </ng-template>

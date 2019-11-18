@@ -99,11 +99,11 @@
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button id="jmsMoveButtonRow{{rows.indexOf(row)}}_id" mat-icon-button color="primary" (click)="moveAction(row)"
-            tooltip="Move">
+            tooltip="Move" button-click-behaviour>
       <mat-icon>move_to_inbox</mat-icon>
     </button>
     <button id="jmsDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button color="primary" (click)="deleteAction(row)"
-            tooltip="Delete">
+            tooltip="Delete" button-click-behaviour>
       <mat-icon>delete</mat-icon>
     </button>
   </ng-template>

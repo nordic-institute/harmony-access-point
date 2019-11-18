@@ -79,17 +79,17 @@
             </ngx-datatable>
 
             <div class="button-container">
-              <button mat-raised-button (click)="addIdentifier()" color="primary">
+              <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour>
                 <mat-icon>add</mat-icon>
                 <span>New</span>
               </button>
               <button mat-raised-button (click)="editIdentifier()" color="primary"
-                      [disabled]="selectedIdentifiers.length==0">
+                      [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                 <mat-icon>edit</mat-icon>
                 <span>Edit</span>
               </button>
               <button mat-raised-button (click)="removeIdentifier()" color="primary"
-                      [disabled]="selectedIdentifiers.length==0">
+                      [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                 <mat-icon>delete</mat-icon>
                 <span>Delete</span>
               </button>
@@ -145,11 +145,11 @@
     </div>
 
     <div class="button-container">
-      <button mat-raised-button (click)="ok()" color="primary"
+      <button mat-raised-button (click)="ok()" color="primary" button-click-behaviour
               [disabled]="party_name.invalid || party_endPoint.invalid || identifiers.length == 0">
         <span>OK</span>
       </button>
-      <button mat-raised-button (click)="cancel()" color="primary">
+      <button mat-raised-button (click)="cancel()" color="primary" button-click-behaviour>
         <span>Cancel</span>
       </button>
     </div>
