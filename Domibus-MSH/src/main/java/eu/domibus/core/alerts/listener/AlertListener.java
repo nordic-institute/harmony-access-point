@@ -3,9 +3,10 @@ package eu.domibus.core.alerts.listener;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
+import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -18,13 +19,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class AlertListener {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertListener.class);
 
     @Autowired
     private AlertDispatcherService alertDispatcherService;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
+
+    @Autowired
+    private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'alert'")
@@ -36,6 +40,7 @@ public class AlertListener {
             domainContextProvider.clearCurrentDomain();
             LOG.debug("Super alert received:[{}]", alert);
         }
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         alertDispatcherService.dispatch(alert);
     }
 

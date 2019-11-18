@@ -40,6 +40,8 @@ public class CertificateDaoImpl extends BasicDao<Certificate> implements Certifi
             certificate.setLastNotification(byAliasAndType.getLastNotification());
             certificate.setAlertImminentNotificationDate(byAliasAndType.getAlertImminentNotificationDate());
             certificate.setAlertExpiredNotificationDate(byAliasAndType.getAlertExpiredNotificationDate());
+            certificate.setCreatedBy(byAliasAndType.getCreatedBy());
+            certificate.setCreationTime(byAliasAndType.getCreationTime());
             em.merge(certificate);
             return;
         }

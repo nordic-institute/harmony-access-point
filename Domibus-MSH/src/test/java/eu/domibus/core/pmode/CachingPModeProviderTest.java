@@ -3,6 +3,7 @@ package eu.domibus.core.pmode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
@@ -439,7 +440,7 @@ public class CachingPModeProviderTest {
         String serviceType = cachingPModeProvider.getServiceType(serviceValue);
 
         // Then
-        Assert.assertEquals("tc2", serviceType);
+        Assert.assertTrue(Sets.newHashSet("tc1", "tc2", "tc3").contains(serviceType));
     }
 
     @Test

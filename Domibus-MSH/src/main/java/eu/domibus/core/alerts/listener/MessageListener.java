@@ -5,9 +5,9 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageListener {
 
-    private final static Logger LOG = DomibusLoggerFactory.getLogger(MessageListener.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListener.class);
 
     @Autowired
     private EventService eventService;
@@ -30,11 +30,15 @@ public class MessageListener {
     @Autowired
     private DomainContextProvider domainContextProvider;
 
+    @Autowired
+    private DatabaseUtil databaseUtil;
+
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'message'")
     public void onMessageEvent(final Event event,@Header(name = "DOMAIN") String domain) {
         LOG.debug("Message event received:[{}]", event);
         domainContextProvider.setCurrentDomain(domain);
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.enrichMessageEvent(event);
         eventService.persistEvent(event);
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
