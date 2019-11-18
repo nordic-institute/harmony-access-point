@@ -17,7 +17,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * <p>
  * Property manager for the Tomcat servers specific properties.
  */
-@Service
+@Service("serverPropertyManager")
 public class TomcatPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new String[]{

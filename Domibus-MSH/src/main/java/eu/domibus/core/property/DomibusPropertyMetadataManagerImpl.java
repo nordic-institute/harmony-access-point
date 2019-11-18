@@ -8,6 +8,7 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     @Autowired
     ApplicationContext applicationContext;
+
+    @Autowired(required = false)
+    @Qualifier("serverPropertyManager")
+    DomibusPropertyManagerExt serverPropertyManager;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
     private volatile boolean internalPropertiesLoaded = false;
@@ -347,6 +352,11 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
                 if (!internalPropertiesLoaded) { // double-check locking
                     LOGGER.trace("Initializing core properties");
                     propertyMetadataMap = new HashMap<>(this.getKnownProperties());
+
+                    if (serverPropertyManager != null) {
+                        loadProperties(serverPropertyManager);
+                    }
+
                     internalPropertiesLoaded = true;
                 }
             }
@@ -370,18 +380,20 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     private void loadAllProperties() {
         // we retrieve here all managers: one for each plugin/extension + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
         Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
-        propertyManagers.values().forEach(propertyManager -> {
-            for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
-                if (propertyMetadataMap.containsKey(entry.getKey())) {
-                    //avoid adding the properties of domibus property manager (added already at the beginning of the method)
-                    return;
-                }
-                DomibusPropertyMetadataDTO extProp = entry.getValue();
-                DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-                        extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
-                propertyMetadataMap.put(entry.getKey(), domibusProp);
+        propertyManagers.values().forEach(this::loadProperties);
+    }
+
+    private void loadProperties(DomibusPropertyManagerExt propertyManager) {
+        for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
+            if (propertyMetadataMap.containsKey(entry.getKey())) {
+                //avoid adding the properties of domibus property manager (added already at the beginning of the load)
+                return;
             }
-        });
+            DomibusPropertyMetadataDTO extProp = entry.getValue();
+            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
+                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
+            propertyMetadataMap.put(entry.getKey(), domibusProp);
+        }
     }
 
 }
