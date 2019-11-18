@@ -26,6 +26,7 @@
             <mvc:exclude-mapping path="/rest/security/authentication"/>
             <mvc:exclude-mapping path="/rest/security/user/domain"/>
             <mvc:exclude-mapping path="/rest/security/user/password"/>
+            <mvc:exclude-mapping path="/metrics/**"/>
             <mvc:exclude-mapping path="/rest/application/**"/>
             <bean class="eu.domibus.web.security.DefaultPasswordInterceptor" />
         </mvc:interceptor>

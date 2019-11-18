@@ -1,8 +1,15 @@
 package eu.domibus.sti;
 
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.servlets.AdminServlet;
+import eu.domibus.plugin.webService.generated.BackendInterface;
+import eu.domibus.plugin.webService.generated.BackendService11;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
@@ -15,8 +22,15 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.jms.ConnectionFactory;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.Handler;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @org.springframework.context.annotation.Configuration
 @EnableJms
@@ -43,6 +57,9 @@ public class Configuration {
     @Value("${jms.concurrentConsumers}")
     private String concurrentConsumers;
 
+    @Value("${ws.plugin.url}")
+    private String wsdlUrl;
+
 
     //@Autowired
     @Bean
@@ -57,7 +74,7 @@ public class Configuration {
 
     @Bean
     public JndiTemplate provider() {
-        LOG.info("Configuring provider to:[{}]",providerUrl);
+        LOG.info("Configuring provider to:[{}]", providerUrl);
         Properties env = new Properties();
         env.put("java.naming.factory.initial", "weblogic.jndi.WLInitialContextFactory");
         env.put("java.naming.provider.url", providerUrl);
@@ -92,7 +109,7 @@ public class Configuration {
 
     @Bean
     public JmsListener jmsListener(SenderService senderService) {
-        return new JmsListener(senderService);
+        return new JmsListener(senderService, metricRegistry());
     }
 
     @Bean
@@ -105,6 +122,27 @@ public class Configuration {
         return jmsTemplate;
     }
 
+    @Bean
+    public BackendInterface backendInterface() {
+        BackendService11 backendService = null;
+        try {
+            backendService = new BackendService11(new URL(wsdlUrl), new QName("http://org.ecodex.backend/1_1/", "BackendService_1_1"));
+        } catch (MalformedURLException e) {
+            LOG.error("Could not instantiate backendService, sending message with ws plugin won't work.", e);
+            return null;
+        }
+        BackendInterface backendPort = backendService.getBACKENDPORT();
+
+        //enable chunking
+        BindingProvider bindingProvider = (BindingProvider) backendPort;
+        //comment the following lines if sending large files
+        List<Handler> handlers = bindingProvider.getBinding().getHandlerChain();
+        bindingProvider.getBinding().setHandlerChain(handlers);
+
+        return backendPort;
+
+    }
+
     @Bean(name = "threadPoolTaskExecutor")
     public Executor threadPoolTaskExecutor() {
         return new ThreadPoolTaskExecutor();
@@ -112,6 +150,32 @@ public class Configuration {
 
     @Bean
     public SenderService senderService(JmsTemplate inQueueJmsTemplate) {
-        return new SenderService(inQueueJmsTemplate);
+
+        return new SenderService(inQueueJmsTemplate, backendInterface(), metricRegistry());
+    }
+
+    @Bean
+    public HealthCheckRegistry healthCheckRegistry() {
+        return new HealthCheckRegistry();
+    }
+
+    @Bean
+    public MetricRegistry metricRegistry() {
+        return new MetricRegistry();
+    }
+
+    @Bean
+    public ConsoleReporter consoleReporter() {
+        ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry())
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
+        reporter.start(30, TimeUnit.SECONDS);
+        return reporter;
+    }
+
+    @Bean
+    public ServletRegistrationBean servletRegistrationBean() {
+        return new ServletRegistrationBean(new AdminServlet(), "/metrics/*");
     }
 }

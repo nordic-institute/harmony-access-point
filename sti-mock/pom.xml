@@ -72,11 +72,36 @@
             <artifactId>wlthint3client</artifactId>
             <version>12.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+        </dependency>
         <!--<dependency>
             <groupId>es.oracle</groupId>
             <artifactId>wlfullclient</artifactId>
             <version>1.0</version>
         </dependency>-->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ws-stubs</artifactId>
+            <version>4.1.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-healthchecks</artifactId>
+            <version>4.0.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-servlets</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+        </dependency>
     </dependencies>
 <build>
 <plugins>

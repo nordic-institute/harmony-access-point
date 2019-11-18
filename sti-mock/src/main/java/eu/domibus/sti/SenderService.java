@@ -1,19 +1,39 @@
 package eu.domibus.sti;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.plugin.webService.generated.BackendInterface;
+import eu.domibus.plugin.webService.generated.LargePayloadType;
+import eu.domibus.plugin.webService.generated.SubmitMessageFault;
+import eu.domibus.plugin.webService.generated.SubmitRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Async;
 import sun.util.calendar.LocalGregorianCalendar;
 
+import javax.activation.DataHandler;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
+import javax.ws.rs.core.MediaType;
 import java.util.UUID;
 
 public class SenderService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SenderService.class);
+
+    private final static String ORIGINAL_SENDER = "originalSender";
+
+    private final static String FINAL_RECIPIENT = "finalRecipient";
+
+    private static final String CID_MESSAGE = "cid:message";
+
+    private static final String MIME_TYPE = "MimeType";
+
+    private static final String TEXT_XML = "text/xml";
 
     private final static String HAPPY_FLOW_MESSAGE_TEMPLATE = "<?xml version='1.0' encoding='UTF-8'?>\n" +
             "<response_to_message_id>\n" +
@@ -25,14 +45,44 @@ public class SenderService {
 
     private JmsTemplate jmsTemplate;
 
-    public SenderService(JmsTemplate jmsTemplate) {
+    private BackendInterface backendInterface;
+
+    private MetricRegistry metricRegistry;
+
+    @Value("${send.with.jms}")
+    private Boolean sendWithJms;
+
+    public SenderService(JmsTemplate jmsTemplate,
+                         BackendInterface backendInterface,
+                         MetricRegistry metricRegistry) {
         this.jmsTemplate = jmsTemplate;
+        this.backendInterface=backendInterface;
+        this.metricRegistry=metricRegistry;
     }
 
     @Async("threadPoolTaskExecutor")
     public void reverseAndSend(MapMessage mapMessage){
-        LOG.debug("Reverse and send message");
-        jmsTemplate.send(session -> prepareResponse(mapMessage,session));
+        Timer.Context send_message=null;
+        try {
+             send_message = metricRegistry.timer(MetricRegistry.name(SenderService.class,"send message")).time();
+            LOG.debug("Reverse and send message");
+            if (sendWithJms) {
+                jmsTemplate.send(session -> prepareResponse(mapMessage, session));
+            } else {
+                try {
+                    Submission submission = prepareSubmission(mapMessage);
+                    backendInterface.submitMessage(submission.getSubmitRequest(), submission.getMessaging());
+                } catch (JMSException e) {
+                    LOG.error("Error preparing response message", e);
+                } catch (SubmitMessageFault submitMessageFault) {
+                    LOG.error("Error submitting message", submitMessageFault);
+                }
+            }
+        }finally {
+            if(send_message!=null) {
+                send_message.stop();
+            }
+        }
     }
 
     private MapMessage prepareResponse(MapMessage received, Session session) throws JMSException {
@@ -84,5 +134,121 @@ public class SenderService {
         messageMap.setBytes("payload_1", payload);
         return messageMap;
 
+    }
+
+    private Submission prepareSubmission(MapMessage received) throws JMSException {
+        String finalRecipient = received.getStringProperty("finalRecipient");
+        String originalSender = received.getStringProperty("originalSender");
+
+        String toRole = received.getStringProperty("toRole");
+        String fromRole = received.getStringProperty("fromRole");
+
+
+        final String messageId = received.getStringProperty("messageId");
+        String response = HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId);
+
+
+        //create payload.
+        LargePayloadType payloadType = new LargePayloadType();
+        payloadType.setPayloadId(CID_MESSAGE);
+        payloadType.setContentType(MediaType.TEXT_XML);
+        payloadType.setValue(getPayload(response, MediaType.TEXT_XML));
+
+        //setup submit request.
+        SubmitRequest submitRequest = new SubmitRequest();
+        submitRequest.getPayload().add(payloadType);
+
+        //setup messaging.
+        Messaging messaging = new Messaging();
+        UserMessage userMessage = new UserMessage();
+        MessageInfo responseMessageInfo = new MessageInfo();
+        //responseMessageInfo.setMessageId(UUID.randomUUID() + "@domibus");
+        responseMessageInfo.setRefToMessageId(messageId);
+
+        userMessage.setMessageInfo(responseMessageInfo);
+        PartyInfo partyInfo = new PartyInfo();
+        userMessage.setPartyInfo(partyInfo);
+
+
+
+        From responseFrom = new From();
+        responseFrom.setRole(toRole);
+        partyInfo.setFrom(responseFrom);
+        PartyId responseFromPartyId = new PartyId();
+        responseFromPartyId.setValue(received.getStringProperty("toPartyId"));
+        responseFromPartyId.setType(received.getStringProperty("toPartyIdType"));
+        responseFrom.setPartyId(responseFromPartyId);
+
+        To responseTo = new To();
+        responseTo.setRole(fromRole);
+        partyInfo.setTo(responseTo);
+        PartyId responseToPartyId = new PartyId();
+
+        responseToPartyId.setValue(received.getStringProperty("fromPartyId"));
+        responseToPartyId.setType(received.getStringProperty("fromPartyIdType"));
+        responseTo.setPartyId(responseToPartyId);
+
+        CollaborationInfo collaborationInfo = new CollaborationInfo();
+        Service responseService = new Service();
+        responseService.setValue("eu_ics2_c2t");
+        AgreementRef agreementRef = new AgreementRef();
+        agreementRef.setValue("EU-ICS2-TI-V1.0");
+        collaborationInfo.setAgreementRef(agreementRef);
+        collaborationInfo.setService(responseService);
+        collaborationInfo.setAction("IE3R01");
+        userMessage.setCollaborationInfo(collaborationInfo);
+
+        MessageProperties responseMessageProperties = new MessageProperties();
+        userMessage.setMessageProperties(responseMessageProperties);
+
+        Property responseOriginalSender = new Property();
+        responseMessageProperties.getProperty().add(responseOriginalSender);
+        responseOriginalSender.setName(ORIGINAL_SENDER);
+        responseOriginalSender.setValue(finalRecipient);
+
+        Property responseFinalRecipient = new Property();
+        responseMessageProperties.getProperty().add(responseFinalRecipient);
+        responseFinalRecipient.setName(FINAL_RECIPIENT);
+        responseFinalRecipient.setValue(originalSender);
+
+        PayloadInfo responsePayloadInfo = new PayloadInfo();
+        userMessage.setPayloadInfo(responsePayloadInfo);
+
+        PartInfo responsePartInfo = new PartInfo();
+        responsePayloadInfo.getPartInfo().add(responsePartInfo);
+        responsePartInfo.setHref(CID_MESSAGE);
+        PartProperties responsePartProperty = new PartProperties();
+        Property responsePartInfoProperty = new Property();
+        responsePartProperty.getProperty().add(responsePartInfoProperty);
+        responsePartInfo.setPartProperties(responsePartProperty);
+        responsePartInfoProperty.setName(MIME_TYPE);
+        responsePartInfoProperty.setValue(TEXT_XML);
+        messaging.setUserMessage(userMessage);
+        return new Submission(submitRequest, messaging);
+    }
+
+    private DataHandler getPayload(final String payloadContent, final String mediaType) {
+        javax.mail.util.ByteArrayDataSource dataSource = null;
+        dataSource = new javax.mail.util.ByteArrayDataSource(org.apache.commons.codec.binary.Base64.encodeBase64(payloadContent.getBytes()), mediaType);
+        dataSource.setName("content.xml");
+        return new DataHandler(dataSource);
+    }
+
+    static class Submission {
+        private SubmitRequest submitRequest;
+        private Messaging messaging;
+
+        public Submission(SubmitRequest submitRequest, Messaging messaging) {
+            this.submitRequest = submitRequest;
+            this.messaging = messaging;
+        }
+
+        public SubmitRequest getSubmitRequest() {
+            return submitRequest;
+        }
+
+        public Messaging getMessaging() {
+            return messaging;
+        }
     }
 }
