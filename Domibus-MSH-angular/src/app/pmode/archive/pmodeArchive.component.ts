@@ -71,6 +71,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   // check: @selectedIndexChange(value)
   private uploaded: boolean;
 
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
   /**
    * Constructor
    * @param {Http} http Http object used for the requests

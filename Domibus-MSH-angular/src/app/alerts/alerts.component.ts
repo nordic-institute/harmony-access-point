@@ -76,6 +76,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   filter: any;
 
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
               private securityService: SecurityService, private changeDetector : ChangeDetectorRef) {
     super();

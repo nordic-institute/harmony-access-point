@@ -49,6 +49,8 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   offset: number = 0;
   count: number = 0;
 
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
   constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
               private changeDetector: ChangeDetectorRef) {
     super();

@@ -36,6 +36,8 @@ export class TruststoreComponent implements OnInit {
   rows: Array<any> = [];
   offset: number;
 
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
   constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog,
               public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
   }
