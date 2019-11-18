@@ -60,6 +60,9 @@ public class Configuration {
     @Value("${ws.plugin.url}")
     private String wsdlUrl;
 
+    @Value("${sending.thread.pool.size:50}")
+    private Integer sendingThreadPoolSize;
+
 
     //@Autowired
     @Bean
@@ -145,7 +148,11 @@ public class Configuration {
 
     @Bean(name = "threadPoolTaskExecutor")
     public Executor threadPoolTaskExecutor() {
-        return new ThreadPoolTaskExecutor();
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+        threadPoolTaskExecutor.setMaxPoolSize(sendingThreadPoolSize);
+        threadPoolTaskExecutor.setCorePoolSize(sendingThreadPoolSize);
+        threadPoolTaskExecutor.setQueueCapacity(sendingThreadPoolSize);
+        return threadPoolTaskExecutor;
     }
 
     @Bean

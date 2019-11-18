@@ -65,11 +65,12 @@ public class SenderService {
         Timer.Context send_message=null;
         try {
              send_message = metricRegistry.timer(MetricRegistry.name(SenderService.class,"send message")).time();
-            LOG.debug("Reverse and send message");
             if (sendWithJms) {
+                LOG.debug("Reverse and send message through jms in queue");
                 jmsTemplate.send(session -> prepareResponse(mapMessage, session));
             } else {
                 try {
+                    LOG.debug("Reverse and send message through webservice in queue");
                     Submission submission = prepareSubmission(mapMessage);
                     backendInterface.submitMessage(submission.getSubmitRequest(), submission.getMessaging());
                 } catch (JMSException e) {
