@@ -2,7 +2,7 @@
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs/Subject';
-import {HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 
 @Injectable()
 export class AlertService {
@@ -103,8 +103,15 @@ export class AlertService {
     return result;
   }
 
-  private formatError(error: HttpResponse<any> | string | any, message: string = null): string {
-    let errMsg: string = typeof error === 'string' ? error : error.message;
+  private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
+    let errMsg = null;
+    if (typeof error === 'string') {
+      errMsg = error;
+    } else if (error instanceof HttpErrorResponse) {
+      errMsg = error.error.message;
+    } else if (error instanceof HttpResponse) {
+      errMsg = error.body;
+    }
 
     if (!errMsg) {
       try {

@@ -35,7 +35,8 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Password" name="password" id="password_id" type="password" [value]="password" (blur)="updatePassword($event)" [formControl]="userForm.controls['password']" [pattern]=passwordPattern [required]="!editMode" >
+          <input matInput placeholder="Password" name="password" id="password_id" type="password" [value]="password" (blur)="updatePassword($event)" [formControl]="userForm.controls['password']" [pattern]=passwordPattern
+                 [required]="!editMode">
           <div *ngIf="!editMode && userForm.controls['password'].hasError('required')" style="color:red; font-size: 70%">You should type a password</div>
           <div *ngIf="userForm.controls['password'].dirty && userForm.controls['password'].hasError('pattern')" style="color:red; font-size: 70%">
             Password should follow all of these rules:<br>
@@ -46,7 +47,7 @@
 
       <div>
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Confirmation" name="confirmation" id="confirmation_id" type="password" [value]="confirmation" [formControl]="userForm.controls['confirmation']" [required]="!editMode" >
+          <input matInput placeholder="Confirmation" name="confirmation" id="confirmation_id" type="password" [value]="confirmation" [formControl]="userForm.controls['confirmation']" [required]="!editMode">
           <div *ngIf="!editMode && userForm.controls['confirmation'].hasError('required')" style="color:red; font-size: 70%">You should type a password</div>
           <div *ngIf="userForm.controls['confirmation'].hasError('confirmation')" style="color:red; font-size: 70%">Passwords do not match</div>
         </mat-form-field>
@@ -56,21 +57,17 @@
         Active<input type="checkbox" [checked]="active" (blur)="updateActive($event)" [formControl]="userForm.controls['active']">
       </div>
 
-      <table class="buttonsRow">
-        <tr>
-          <td>
-            <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id" [disabled]="!userForm.valid">
-              <mat-icon>check_circle</mat-icon>
-              <span>OK</span>
-            </button>
-            <button mat-raised-button color="primary" id="editbuttoncancel_id" mat-dialog-close>
-              <mat-icon>cancel</mat-icon>
-              <span>Cancel</span>
-            </button>
-          </td>
-        </tr>
-      </table>
-      <div  style="text-align: right; font-size: 70%">* required fields</div>
+      <div class="buttonsRow">
+        <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id" [disabled]="!userForm.valid">
+          <mat-icon>check_circle</mat-icon>
+          <span>OK</span>
+        </button>
+        <button mat-raised-button color="primary" id="editbuttoncancel_id" mat-dialog-close>
+          <mat-icon>cancel</mat-icon>
+          <span>Cancel</span>
+        </button>
+      </div>
+      <div style="text-align: right; font-size: 70%">* required fields</div>
     </mat-card>
   </form>
 </div>

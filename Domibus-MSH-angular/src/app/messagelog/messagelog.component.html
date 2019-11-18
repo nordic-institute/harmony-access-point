@@ -10,7 +10,7 @@
                    #messageId="ngModel" id="messageid_id">
           </mat-form-field>
           <mat-select placeholder="Message Status" [(ngModel)]="filter.messageStatus" name="messageStatus"
-                     id="messagestatus_id">
+                      id="messagestatus_id">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let mstatus of msgStatuses" [value]="mstatus">
@@ -27,10 +27,10 @@
           </mat-form-field>
           <mat-form-field *ngIf="advancedSearch">
             <input matInput [hidden]="!canSearchByConversationId" placeholder="Conversation Id" name="conversationId" [(ngModel)]="filter.conversationId"
-                   #conversationId="ngModel" id="conversationid_id" >
+                   #conversationId="ngModel" id="conversationid_id">
           </mat-form-field>
           <mat-select placeholder="AP Role" name="mshRole" [(ngModel)]="filter.mshRole" id="aprole_id"
-                     *ngIf="advancedSearch">
+                      *ngIf="advancedSearch">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let role of mshRoles" [value]="role">
@@ -38,13 +38,13 @@
             </mat-option>
           </mat-select>
           <mat-select placeholder="Message Type" name="messageType" [(ngModel)]="filter.messageType" id="messagetype_id"
-                     *ngIf="advancedSearch" (selectionChange)="onMessageTypeChanged($event)">
+                      *ngIf="advancedSearch" (selectionChange)="onMessageTypeChanged($event)">
             <mat-option *ngFor="let type of msgTypes" [value]="type">
               {{type}}
             </mat-option>
           </mat-select>
           <mat-select placeholder="Notification Status" [(ngModel)]="filter.notificationStatus" class="optionField"
-                     name="notificationStatus" id="notificationstatus_id" *ngIf="advancedSearch">
+                      name="notificationStatus" id="notificationstatus_id" *ngIf="advancedSearch">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let nstatus of notifStatus" [value]="nstatus">
@@ -111,35 +111,35 @@
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                          (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-<!--    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour-->
-<!--            id="saveascsvbutton_id" mat-tooltip="Export as CSV">-->
-<!--      <img src="assets/images/exportCSV.svg" width="30" height="30">-->
-<!--    </button>-->
+    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
+            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
+      <img src="assets/images/exportCSV.svg" width="30" height="30">
+    </button>
   </div>
 
   <ngx-datatable
-    #list
-    id="messageLogTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="loading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    [sorts]="[{prop: 'received', dir: 'desc'}]"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-    [selected]="selected"
-    [selectionType]="'multi'"
-    (activate)="onActivate($event)"
+      #list
+      id="messageLogTable"
+      class="material striped"
+      [rows]="rows"
+      [columns]="columnPicker.selectedColumns"
+      [columnMode]="'force'"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="'auto'"
+      [scrollbarH]="true"
+      [externalPaging]="true"
+      [externalSorting]="true"
+      [loadingIndicator]="loading"
+      [count]="count"
+      [offset]="offset"
+      [limit]="rowLimiter.pageSize"
+      [sorts]="[{prop: 'received', dir: 'desc'}]"
+      (page)='onPage($event)'
+      (sort)="onSort($event)"
+      [selected]="selected"
+      [selectionType]="'multi'"
+      (activate)="onActivate($event)"
   >
   </ngx-datatable>
 
@@ -166,10 +166,12 @@
     </button>
   </ng-template>
 
-  <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-          id="saveascsvbutton_id" mat-tooltip="Export as CSV">
-    <img src="assets/images/exportCSV.svg" width="30" height="30">
-  </button>
+  <!--  <div style="top: -50px;left: 150px;">-->
+  <!--    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour-->
+  <!--            id="saveascsvbutton_id" mat-tooltip="Export as CSV" >-->
+  <!--      <img src="assets/images/exportCSV.svg" width="30" height="30">-->
+  <!--    </button>-->
+  <!--  </div>-->
 
   <div class="group-action-button">
     <button mat-raised-button color="primary" [disabled]="!isDownloadButtonEnabled()" (click)="download()"

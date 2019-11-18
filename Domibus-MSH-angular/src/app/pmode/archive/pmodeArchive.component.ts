@@ -140,7 +140,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     });
   }
 
-  ngAfterViewChecked(){
+  ngAfterViewChecked() {
     this.changeDetector.detectChanges();
   }
 
@@ -323,16 +323,31 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param row Row where Delete icon is located
    */
   deleteArchiveAction(row) {
-    let rowIndex = this.tableRows.indexOf(row);
-    // workaround to delete one entry from the array
-    // since "this.rows.splice(rowIndex, 1);" doesn't work...
-    let array = this.tableRows.slice();
-    this.deleteList.push(row.id);
-    array.splice(rowIndex, 1);
-    array = array.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
-    this.allPModes.splice(this.offset * this.rowLimiter.pageSize + rowIndex, 1);
-    this.tableRows = array.slice();
-    this.count--;
+    this.deleteRows([row]);
+  }
+
+  /**
+   * Method called when Delete button is clicked
+   * All the selected rows will be deleted
+   */
+  deleteArchive() {
+    this.deleteRows(this.selected);
+  }
+
+  deleteRows(rows: any[]) {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const row = rows[i];
+      const rowIndex = this.tableRows.indexOf(row);
+      // workaround to delete one entry from the array
+      // since "this.rows.splice(rowIndex, 1);" doesn't work...
+      let copy = this.tableRows.slice();
+      copy.splice(rowIndex, 1);
+      copy = copy.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
+      this.allPModes.splice(this.offset * this.rowLimiter.pageSize + rowIndex, 1);
+      this.tableRows = copy.slice();
+      this.deleteList.push(row.id);
+      this.count--;
+    }
 
     if (this.offset > 0 && this.isPageEmpty()) {
       this.page(this.offset - 1, this.rowLimiter.pageSize);
@@ -342,31 +357,6 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
       this.selected = [];
       this.enableSaveAndCancelButtons();
     }, 100);
-  }
-
-  /**
-   * Method called when Delete button is clicked
-   * All the selected rows will be deleted
-   */
-  deleteArchive() {
-    for (let i = this.selected.length - 1; i >= 0; i--) {
-      let array = this.tableRows.slice();
-      // index is changed if selected items are not sorted recalculate new index
-      let idx = array.indexOf(this.selected[i]);
-      array.splice(idx, 1);
-      array = array.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
-      this.allPModes.splice(this.offset * this.rowLimiter.pageSize + idx, 1);
-      this.tableRows = array.slice();
-      this.deleteList.push(this.selected[i].id);
-      this.count--;
-    }
-
-    if (this.offset > 0 && this.isPageEmpty()) {
-      this.page(this.offset - 1, this.rowLimiter.pageSize);
-    }
-
-    this.enableSaveAndCancelButtons();
-    this.selected = [];
   }
 
   /**

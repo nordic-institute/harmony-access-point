@@ -45,6 +45,7 @@ mat-card-content:before,
 .panel:before,
 .selectionCriteria:before,
 table.buttonsRow:before,
+div.buttonsRow:before,
 table.buttonsMoveRow,
 mat-input-container:before,
 ngx-datatable span:before:not([class^="datatable-icon-"]) {
@@ -223,9 +224,10 @@ a:hover {
 ----------------------------------------------------*/
 .panel {
   margin-bottom: 20px;
-  padding: 20px;
+  padding: 0px 20px;
   background: #FFF;
   /*box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);*/
+  /*padding-top: 0 !important;*/
 }
 
 mat-card {
@@ -338,4 +340,11 @@ mat-select .mat-select {
 
 .ngx-datatable.material .datatable-header .datatable-header-cell {
   font-size: 16px;
+}
+
+.buttonsRow button{
+  margin-right:16px;
+}
+.buttonsRow button:last-child{
+  margin-right:0;
 }
