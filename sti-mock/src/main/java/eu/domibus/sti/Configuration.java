@@ -148,6 +148,7 @@ public class Configuration {
 
     @Bean(name = "threadPoolTaskExecutor")
     public Executor threadPoolTaskExecutor() {
+        LOG.info("ThreadPool executor used for sending messages configured with size:[{}]",sendingThreadPoolSize);
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setMaxPoolSize(sendingThreadPoolSize);
         threadPoolTaskExecutor.setCorePoolSize(sendingThreadPoolSize);
