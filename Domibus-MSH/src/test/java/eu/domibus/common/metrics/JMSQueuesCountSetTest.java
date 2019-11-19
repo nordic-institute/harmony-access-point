@@ -6,7 +6,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.security.AuthUtils;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,9 +18,6 @@ import java.util.TreeMap;
  */
 public class JMSQueuesCountSetTest {
 
-    @Tested
-    JMSQueuesCountSet jmsQueuesCountSet;
-
     @Injectable
     JMSManager jmsManager;
 
@@ -30,6 +26,10 @@ public class JMSQueuesCountSetTest {
 
     @Test
     public void test_GetMetrics() {
+
+        //tested class
+        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, 20);
+
         final Map<String, JMSDestination> jmsDestinationList = new TreeMap<>();
         final long nbMessages = 20;
         final String queueName = "domibus.DLQ";
