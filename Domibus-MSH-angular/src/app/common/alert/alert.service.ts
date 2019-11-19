@@ -48,24 +48,20 @@ export class AlertService {
     this.subject.next({type: 'success', text: message});
   }
 
+  public exception(message: string, error: any, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    const errMsg = this.formatError(error, message);
+    this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
+  }
+
   public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false,
                fadeTime: number = 0) {
     if (message.handled) return;
     if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
     if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
 
-    this.needsExplicitClosing = keepAfterNavigationChange;
     const errMsg = this.formatError(message);
-    this.subject.next({type: 'error', text: errMsg});
-    if (fadeTime) {
-      setTimeout(() => this.clearAlert(), fadeTime);
-    }
-  }
 
-  public exception(message: string, error: any, keepAfterNavigationChange = false,
-                   fadeTime: number = 0) {
-    const errMsg = this.formatError(error, message);
-    this.error(errMsg, keepAfterNavigationChange, fadeTime);
+    this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
   }
 
   public getMessage(): Observable<any> {
@@ -87,6 +83,14 @@ export class AlertService {
     return Promise.reject({reason: errMsg, handled: true});
   }
 
+  private displayMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
+    this.needsExplicitClosing = keepAfterNavigationChange;
+    this.subject.next({type: 'error', text: errMsg});
+    if (fadeTime) {
+      setTimeout(() => this.clearAlert(), fadeTime);
+    }
+  }
+
   private getPath(url: string): string {
     var parser = document.createElement('a');
     parser.href = url;
@@ -104,16 +108,21 @@ export class AlertService {
   }
 
   private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
-    let errMsg = null;
+    let errMsg: string = null;
     if (typeof error === 'string') {
       errMsg = error;
     } else if (error instanceof HttpErrorResponse) {
-      errMsg = error.error.message;
+      if (error.error.message) {
+        errMsg = error.error.message;
+      } else {
+        errMsg = error.error;
+      }
     } else if (error instanceof HttpResponse) {
       errMsg = error.body;
     }
 
     if (!errMsg) {
+      //TODO: check if it is dead code with the new Http library
       try {
         if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8') {
           if (error.json) {
@@ -126,16 +135,39 @@ export class AlertService {
             errMsg = error._body;
           }
         } else {
-          errMsg = error._body ? error._body.match(/<h1>(.+)<\/h1>/)[1] : error;
+          errMsg = error._body ? error._body : error;
         }
       } catch (e) {
       }
     }
+
+    errMsg = this.tryParseHtmlResponse(errMsg);
+
+    errMsg = this.tryClearMessage(errMsg);
+
+    return (message ? message + ' \n' : '') + (errMsg || '');
+  }
+
+  private tryParseHtmlResponse(errMsg: string) {
+    let res = '';
+    if (errMsg.indexOf('<!doctype html>') >= 0) {
+      let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
+      if (res1 && res1.length > 0) {
+        res = res1[1];
+      }
+      let res2 = errMsg.match(/<p>(.+)<\/p>/);
+      if (res2 && res2.length >= 0) {
+        res += res2[0];
+      }
+    }
+    return res;
+  }
+
+  private tryClearMessage(errMsg: string) {
     if (errMsg && errMsg.replace) {
       errMsg = errMsg.replace('Uncaught (in promise):', '');
       errMsg = errMsg.replace('[object ProgressEvent]', '');
     }
-    return (message ? message + ' \n' : '') + (errMsg || '');
+    return errMsg;
   }
-
 }

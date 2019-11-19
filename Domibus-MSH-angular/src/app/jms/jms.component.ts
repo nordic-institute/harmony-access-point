@@ -460,7 +460,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.markedForDeletionMessages = [];
       },
       error => {
-        this.alertService.error('The operation \'updates on message(s)\' could not be completed: ' + error);
+        this.alertService.exception('The operation \'updates on message(s)\' could not be completed: ', error);
       }
     )
   }

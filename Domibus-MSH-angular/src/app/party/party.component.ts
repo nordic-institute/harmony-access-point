@@ -123,7 +123,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
       this.resetDirty();
 
     } catch (error) {
-      this.alertService.error('Could not load parties due to: "' + error + '"');
+      this.alertService.exception('Could not load parties due to: ', error);
       this.loading = false;
     }
   }

@@ -453,7 +453,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
       const uploadDateStr = DateFormatService.format(new Date(row.configurationDate));
       PModeArchiveComponent.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
     }, err => {
-      this.alertService.error(err);
+      this.alertService.exception("Error downloading pMode from archive:", err);
     });
   }
 
