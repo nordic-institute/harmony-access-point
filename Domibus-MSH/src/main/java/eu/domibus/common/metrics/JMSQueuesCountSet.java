@@ -63,6 +63,7 @@ public class JMSQueuesCountSet implements MetricSet {
                         @Override
                         protected Long loadValue() {
                             // time consuming mostly on cluster config
+                            //TODO EDELIVERY-5557
                             return jmsManager.getDestinationSize(queueName);
                         }
                     });
