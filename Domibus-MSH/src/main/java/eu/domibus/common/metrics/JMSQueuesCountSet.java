@@ -1,6 +1,6 @@
 package eu.domibus.common.metrics;
 
-import com.codahale.metrics.Gauge;
+import com.codahale.metrics.CachedGauge;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implements {@code MetricSet} for JMSQueues counts
@@ -28,9 +29,19 @@ public class JMSQueuesCountSet implements MetricSet {
 
     private AuthUtils authUtils;
 
-    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils) {
+    /** seconds */
+    private long refreshPeriod;
+
+    /**
+     *
+     * @param jmsManager
+     * @param authUtils
+     * @param refreshPeriod how long (in seconds) the value will be cached
+     */
+    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod) {
         this.jmsManager = jmsManager;
         this.authUtils = authUtils;
+        this.refreshPeriod = refreshPeriod;
     }
 
     @Override
@@ -46,9 +57,18 @@ public class JMSQueuesCountSet implements MetricSet {
             final JMSDestination jmsDestination = entry.getValue();
             LOG.debug("Getting the count for [{}]", jmsDestination);
             final String queueName = jmsDestination.getName();
+
             gauges.put(MetricRegistry.name(queueName),
-                    (Gauge<Long>) () -> jmsManager.getDestinationSize(queueName));
+                    new CachedGauge<Long>(refreshPeriod, TimeUnit.SECONDS) {
+                        @Override
+                        protected Long loadValue() {
+                            // time consuming mostly on cluster config
+                            //TODO EDELIVERY-5557
+                            return jmsManager.getDestinationSize(queueName);
+                        }
+                    });
         }
         return gauges;
     }
+
 }
