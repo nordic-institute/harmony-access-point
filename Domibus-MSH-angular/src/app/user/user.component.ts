@@ -258,6 +258,7 @@ export class UserComponent implements OnInit, DirtyOperations {
       if (ok) {
         this.onSaveEditForm(formRef);
         this.users.push(this.editedUser);
+        this.users = [...this.users];
         this.currentUser = this.editedUser;
       } else {
         this.selected = [];

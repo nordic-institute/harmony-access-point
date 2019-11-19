@@ -56,14 +56,14 @@
     <div>
       <mat-card>
         <mat-card-header>
-          <mat-card-title [ngClass]="{ 'invalid': identifiers.length == 0}">Identifiers</mat-card-title>
+          <mat-card-title [ngClass]="{ 'invalid': party.identifiers.length == 0}">Identifiers</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="panel">
             <ngx-datatable
               id="identifierTable"
               class="material striped"
-              [rows]="identifiers"
+              [rows]="party.identifiers"
               [selected]="selectedIdentifiers"
               [selectionType]="'single'"
               [columnMode]="'force'"
@@ -73,7 +73,7 @@
               [rowHeight]="'auto'"
               [externalPaging]="false"
               [externalSorting]="false"
-              [count]="identifiers.length"
+              [count]="party.identifiers.length"
               (activate)="onActivate($event)"
             >
             </ngx-datatable>
@@ -146,7 +146,7 @@
 
     <div class="button-container">
       <button mat-raised-button (click)="ok()" color="primary" button-click-behaviour
-              [disabled]="party_name.invalid || party_endPoint.invalid || identifiers.length == 0">
+              [disabled]="party_name.invalid || party_endPoint.invalid || party.identifiers.length == 0">
         <span>OK</span>
       </button>
       <button mat-raised-button (click)="cancel()" color="primary" button-click-behaviour>

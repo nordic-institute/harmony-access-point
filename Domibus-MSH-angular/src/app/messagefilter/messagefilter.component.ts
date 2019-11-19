@@ -115,7 +115,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
         let backendEntry = this.createEntry(formRef);
         if (this.findRowsIndex(backendEntry) == -1) {
           this.rows.push(backendEntry);
-
+          this.rows = [...this.rows];
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');

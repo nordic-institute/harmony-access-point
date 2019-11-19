@@ -267,6 +267,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     if (!ok) {
       this.remove();
     }
+    this.rows = [...this.rows];
   }
 
   remove() {

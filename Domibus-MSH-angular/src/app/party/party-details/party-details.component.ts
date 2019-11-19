@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../party';
@@ -34,7 +34,7 @@ export class PartyDetailsComponent implements OnInit {
               @Inject(MAT_DIALOG_DATA) public data: any,
               private dialog: MatDialog,
               public partyService: PartyService,
-              public alertService: AlertService) {
+              public alertService: AlertService, private cdr: ChangeDetectorRef) {
     this.party = data.edit;
     this.identifiers = this.party.identifiers;
     this.allProcesses = data.allProcesses;
@@ -154,6 +154,7 @@ export class PartyDetailsComponent implements OnInit {
     const identifierRow = {entityId: 0, partyId: '', partyIdType: {name: '', value: ''}};
 
     this.party.identifiers.push(identifierRow);
+
     this.selectedIdentifiers.length = 0;
     this.selectedIdentifiers.push(identifierRow);
 
@@ -161,6 +162,7 @@ export class PartyDetailsComponent implements OnInit {
     if (!ok) {
       this.removeIdentifier();
     }
+    this.party.identifiers = [...this.party.identifiers];
   }
 
   ok() {
