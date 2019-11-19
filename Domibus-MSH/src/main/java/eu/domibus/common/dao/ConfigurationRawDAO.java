@@ -10,6 +10,8 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -51,6 +53,7 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
         }).collect(Collectors.toList());
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteById(int id) {
         final ConfigurationRaw configurationRaw = read(id);
         this.delete(configurationRaw);

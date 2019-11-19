@@ -8,6 +8,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -162,6 +164,7 @@ public class AuditDaoImpl implements AuditDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void savePModeAudit(final PModeAudit pmodeAudit) {
         entityManager.persist(pmodeAudit);
     }
