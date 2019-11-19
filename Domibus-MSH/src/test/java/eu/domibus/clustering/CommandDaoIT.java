@@ -1,10 +1,11 @@
 package eu.domibus.clustering;
 
 import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,11 +22,15 @@ import java.util.Date;
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class CommandDaoIT {
 
-    private final static Logger LOG = DomibusLoggerFactory.getLogger(CommandDaoIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandDaoIT.class);
 
     @Autowired
     private CommandDao commandDao;
 
+    @Before
+    public void setup() {
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+    }
 
     @Test
     public void createCommand() {

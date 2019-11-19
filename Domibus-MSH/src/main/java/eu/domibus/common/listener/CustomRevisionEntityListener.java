@@ -19,7 +19,7 @@ import java.util.Optional;
  * @author Thomas Dussart
  * @since 4.0
  * <p>
- * Custom listener that allows us to add custom information to the hiberante envers schema.
+ * Custom listener that allows us to add custom information to the hibernate envers schema.
  */
 public class CustomRevisionEntityListener implements EntityTrackingRevisionListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomRevisionEntityListener.class);

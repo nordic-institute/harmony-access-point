@@ -6,9 +6,12 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import mockit.*;
+import eu.domibus.core.util.DatabaseUtil;
+import mockit.Injectable;
+import mockit.Mocked;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,6 +31,9 @@ public class AuthenticatorListenerTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    private DatabaseUtil databaseUtil;
 
     @Tested
     private AuthenticatorListener authenticatorListener;

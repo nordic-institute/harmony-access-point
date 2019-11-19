@@ -42,11 +42,6 @@ public class Alert extends AbstractBaseEntity{
     @Temporal(TemporalType.TIMESTAMP)
     private Date reportingTime;
 
-    @Column(name = "CREATION_TIME")
-    @Temporal(TemporalType.TIMESTAMP)
-    @NotNull
-    private Date creationTime;
-
     @Column(name = "NEXT_ATTEMPT")
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
@@ -111,14 +106,6 @@ public class Alert extends AbstractBaseEntity{
 
     public void setReportingTime(Date reportingTime) {
         this.reportingTime = reportingTime;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
     }
 
     public Date getNextAttempt() {
@@ -207,7 +194,6 @@ public class Alert extends AbstractBaseEntity{
                 .append(processedTime, alert.processedTime)
                 .append(alertType, alert.alertType)
                 .append(reportingTime, alert.reportingTime)
-                .append(creationTime, alert.creationTime)
                 .append(nextAttempt, alert.nextAttempt)
                 .append(attempts, alert.attempts)
                 .append(maxAttempts, alert.maxAttempts)
@@ -225,7 +211,6 @@ public class Alert extends AbstractBaseEntity{
                 .append(processedTime)
                 .append(alertType)
                 .append(reportingTime)
-                .append(creationTime)
                 .append(nextAttempt)
                 .append(attempts)
                 .append(maxAttempts)

@@ -136,6 +136,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
 
             LOG.debug("TB_MESSAGE_UI will be updated for messageId=[{}]", uiMessageEntityFound.getMessageId());
             uiMessageEntity.setEntityId(uiMessageEntityFound.getEntityId());
+            uiMessageEntity.setCreatedBy(uiMessageEntityFound.getCreatedBy());
+            uiMessageEntity.setCreationTime(uiMessageEntityFound.getCreationTime());
             em.merge(uiMessageEntity);
             LOG.debug("uiMessageEntity having messageId=[{}] have been updated", uiMessageEntity.getMessageId());
             return;

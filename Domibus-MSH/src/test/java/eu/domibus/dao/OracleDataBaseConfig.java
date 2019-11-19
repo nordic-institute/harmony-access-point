@@ -1,7 +1,6 @@
 package eu.domibus.dao;
 
 import eu.domibus.audit.AuditIT;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -19,28 +18,23 @@ import java.util.Map;
  * H2 brower utility. When your test is working switch the profile to @ActiveProfiles("IN_MEMORY_DATABASE")
  * lik in {@link AuditIT}
  */
-
 @EnableTransactionManagement
 @Profile("ORACLE_DATABASE")
-public class OracleDataBaseConfig extends AbstractDatabaseConfig{
+public class OracleDataBaseConfig extends AbstractDatabaseConfig {
 
-
-    @Bean
     public DataSource dataSource() {
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
         driverManagerDataSource.setDriverClassName("oracle.jdbc.OracleDriver");
         driverManagerDataSource.setUrl("");
-        driverManagerDataSource.setUsername("");
+        driverManagerDataSource.setUsername("sa");
         driverManagerDataSource.setPassword("");
         return driverManagerDataSource;
     }
 
-
-    Map<Object, String> getProperties() {
-        Map<Object, String> properties = new HashMap<>();
+    public Map<Object, Object> getProperties() {
+        Map<Object, Object> properties = new HashMap<>();
         properties.put("hibernate.dialect","org.hibernate.dialect.Oracle10gDialect");
         return properties;
     }
-
 
 }

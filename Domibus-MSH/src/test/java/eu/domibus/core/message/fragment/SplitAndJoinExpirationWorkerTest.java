@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.dao.ConfigurationDAO;
+import eu.domibus.core.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -38,6 +39,9 @@ public class SplitAndJoinExpirationWorkerTest {
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    private DatabaseUtil databaseUtil;
 
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) {
