@@ -5,18 +5,18 @@
               xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd">
 
     <distributable/>
-
+<!--
     <ordering>
         <before>
             <others/>
         </before>
-    </ordering>
+    </ordering>-->
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
     <!-- Spring MVC -->
-    <servlet>
+ <!--   <servlet>
         <servlet-name>mvc-dispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
@@ -24,12 +24,12 @@
     <servlet-mapping>
         <servlet-name>mvc-dispatcher</servlet-name>
         <url-pattern>/</url-pattern>
-    </servlet-mapping>
-    <session-config>
+    </servlet-mapping>-->
+  <!--  <session-config>
         <tracking-mode>COOKIE</tracking-mode>
-    </session-config>
+    </session-config>-->
 
-    <context-param>
+<!--    <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
             classpath:META-INF/cxf/cxf.xml
@@ -37,19 +37,10 @@
             classpath:META-INF/cxf/cxf-servlet.xml
             classpath*:META-INF/resources/WEB-INF/spring-context.xml
         </param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>pluginsLocation</param-name>
-        <param-value>${domibus.config.location}/plugins/lib</param-value>
-    </context-param>
-    <context-param>
-        <param-name>extensionsLocation</param-name>
-        <param-value>${domibus.config.location}/extensions/lib</param-value>
-    </context-param>
+    </context-param>-->
 
     <!-- Spring Security -->
-    <filter>
+<!--    <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
@@ -57,31 +48,33 @@
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
         <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    </filter-mapping>-->
 
-    <listener>
+   <!-- <listener>
         <listener-class>eu.domibus.logging.DomibusLoggingConfiguratorListener</listener-class>
-    </listener>
+    </listener>-->
 
-    <listener>
+    <!--<listener>
         <listener-class>eu.domibus.spring.DomibusContextLoaderListener</listener-class>
     </listener>
-
-    <listener>
+-->
+ <!--   <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-    </listener>
+    </listener>-->
 
-    <listener>
+<!--    <listener>
         <listener-class>eu.domibus.common.metrics.MetricsServletContextListener</listener-class>
-    </listener>
+    </listener>-->
+<!--
 
     <listener>
         <listener-class>eu.domibus.common.metrics.HealthCheckServletContextListener</listener-class>
     </listener>
+-->
 
     <!-- Apache CXF Servlet and mapping -->
 
-    <servlet>
+<!--    <servlet>
         <servlet-name>CXF</servlet-name>
         <servlet-class>org.apache.cxf.transport.servlet.CXFServlet
         </servlet-class>
@@ -91,27 +84,27 @@
     <servlet-mapping>
         <servlet-name>CXF</servlet-name>
         <url-pattern>/services/*</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping>-->
 
     <!-- Metrics -->
 
-    <servlet>
+<!--    <servlet>
         <servlet-name>metrics</servlet-name>
         <servlet-class>com.codahale.metrics.servlets.AdminServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>metrics</servlet-name>
         <url-pattern>/metrics/*</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping>-->
 
     <!--Resources-->
 
-    <resource-ref>
+<!--    <resource-ref>
         <description>DB Connection</description>
         <res-ref-name>ds/DomibusDS</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>
-    </resource-ref>
+    </resource-ref>-->
 
     <error-page>
         <error-code>404</error-code>

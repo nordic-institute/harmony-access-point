@@ -37,7 +37,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public String getConfigLocation() {
-        return System.getProperty(DOMIBUS_CONFIG_LOCATION);
+        return domibusPropertyProvider.getProperty(DOMIBUS_CONFIG_LOCATION);
     }
 
     @Cacheable("multitenantCache")

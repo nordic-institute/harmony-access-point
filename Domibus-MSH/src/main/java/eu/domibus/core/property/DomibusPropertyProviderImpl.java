@@ -13,6 +13,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    @Autowired
+    protected Environment environment;
 
     /**
      * Retrieves the property value, taking into account the property usages and the current domain.
@@ -249,8 +253,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
     protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
-        String result = System.getenv(propertyName);
-        if (StringUtils.isEmpty(result)) {
+        String result = environment.getProperty(propertyName);
+        /*if (StringUtils.isEmpty(result)) {
             result = System.getProperty(propertyName);
         }
         if (StringUtils.isEmpty(result)) {
@@ -264,7 +268,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (StringUtils.contains(result, "${")) {
             LOGGER.debug("Resolving property [{}]", propertyName);
             result = propertyResolver.getResolvedValue(result, domibusProperties, true);
-        }
+        }*/
         if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
             LOGGER.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);

@@ -20,6 +20,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * @author Cosmin Baciu
  * @since 4.0
  */
+@DependsOn("domibusPropertyConfiguration")
 @Configuration
 public class DomibusDatasourceConfiguration {
 
@@ -27,22 +28,16 @@ public class DomibusDatasourceConfiguration {
 
     public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
-    @Autowired
-    @Qualifier("domibusProperties")
-    protected Properties domibusProperties;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     @Bean(name = "domibusJDBC-XADataSource", initMethod = "init", destroyMethod = "close")
     @DependsOn("userTransactionService")
-    public AtomikosDataSourceBean domibusXADatasource() {
+    public AtomikosDataSourceBean domibusXADatasource(DomibusPropertyProvider domibusPropertyProvider,
+                                                      @Qualifier("xaProperties") PrefixedProperties xaProperties) {
         AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
         dataSource.setUniqueResourceName("domibusJDBC-XA");
 
         final String xaDataSourceClassName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME);
         dataSource.setXaDataSourceClassName(xaDataSourceClassName);
-        dataSource.setXaProperties(xaProperties());
+        dataSource.setXaProperties(xaProperties);
         final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE);
         dataSource.setMinPoolSize(minPoolSize);
         final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE);
@@ -62,8 +57,9 @@ public class DomibusDatasourceConfiguration {
         return dataSource;
     }
 
-    @Bean
-    public PrefixedProperties xaProperties() {
+    @Bean("xaProperties")
+    public PrefixedProperties xaProperties(@Qualifier("domibusProperties") Properties domibusProperties,
+                                           DomibusPropertyProvider domibusPropertyProvider) {
         final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusProperties, DOMIBUS_DATASOURCE_XA_PROPERTY);
 
         LOGGER.debug("Decrypting the property [{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD);
@@ -73,7 +69,7 @@ public class DomibusDatasourceConfiguration {
 
 
     @Bean(name = "domibusJDBC-nonXADataSource", initMethod = "init", destroyMethod = "close")
-    public AtomikosNonXADataSourceBean domibusNonXADatasource() {
+    public AtomikosNonXADataSourceBean domibusNonXADatasource(DomibusPropertyProvider domibusPropertyProvider) {
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
         dataSource.setUniqueResourceName("domibusNonXADataSource");
 

@@ -23,11 +23,11 @@ public class LogbackLoggingConfigurator implements LoggingConfigurator {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogbackLoggingConfigurator.class);
 
-    private DomibusConfigurationService domibusConfigurationService;
+    protected String domibusConfigLocation;
 
 
-    public LogbackLoggingConfigurator(DomibusConfigurationService domibusConfigurationService) {
-        this.domibusConfigurationService = domibusConfigurationService;
+    public LogbackLoggingConfigurator(String domibusConfigLocation) {
+        this.domibusConfigLocation = domibusConfigLocation;
     }
 
     @Override
@@ -85,7 +85,6 @@ public class LogbackLoggingConfigurator implements LoggingConfigurator {
     }
 
     protected String getDefaultLogbackConfigurationFile() {
-        String domibusConfigLocation = domibusConfigurationService.getConfigLocation();
         if(StringUtils.isEmpty(domibusConfigLocation)) {
             LOG.error("The system property [" + DomibusConfigurationService.DOMIBUS_CONFIG_LOCATION + "] is not configured" );
             return null;
@@ -96,9 +95,5 @@ public class LogbackLoggingConfigurator implements LoggingConfigurator {
 
     protected String getLogFileLocation(String domibusConfigLocation, String logFileName) {
         return domibusConfigLocation + File.separator + logFileName;
-    }
-
-    public void setDomibusConfigurationService(DomibusConfigurationService domibusConfigurationService) {
-        this.domibusConfigurationService = domibusConfigurationService;
     }
 }

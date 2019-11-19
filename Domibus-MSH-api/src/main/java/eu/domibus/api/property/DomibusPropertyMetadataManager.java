@@ -205,6 +205,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
     String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
 
+    String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
     String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
