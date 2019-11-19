@@ -152,7 +152,7 @@ export class AlertService {
   }
 
   private tryParseHtmlResponse(errMsg: string) {
-    let res = '';
+    let res = errMsg;
     if (errMsg.indexOf('<!doctype html>') >= 0) {
       let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
       if (res1 && res1.length > 0) {
@@ -167,10 +167,11 @@ export class AlertService {
   }
 
   private tryClearMessage(errMsg: string) {
+    let res = errMsg;
     if (errMsg && errMsg.replace) {
-      errMsg = errMsg.replace('Uncaught (in promise):', '');
-      errMsg = errMsg.replace('[object ProgressEvent]', '');
+      res = errMsg.replace('Uncaught (in promise):', '');
+      res = res.replace('[object ProgressEvent]', '');
     }
-    return errMsg;
+    return res;
   }
 }
