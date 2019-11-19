@@ -30,25 +30,25 @@ public class TomcatPropertyManager extends DomibusPropertyExtServiceDelegateAbst
             DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME,
             DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL,
 
-            DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, //move the use=age from xml ?
+            DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, //move the usage from xml ?
 
-            COM_ATOMIKOS_ICATCH_OUTPUT_DIR, //move the use=age from xml ?
-            COM_ATOMIKOS_ICATCH_LOG_BASE_DIR, //move the use=age from xml ?
-            COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT, //move the use=age from xml ?
-            COM_ATOMIKOS_ICATCH_MAX_TIMEOUT, //move the use=age from xml ?
+            COM_ATOMIKOS_ICATCH_OUTPUT_DIR, //move the usage from xml ?
+            COM_ATOMIKOS_ICATCH_LOG_BASE_DIR, //move the usage from xml ?
+            COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT, //move the usage from xml ?
+            COM_ATOMIKOS_ICATCH_MAX_TIMEOUT, //move the usage from xml ?
 
             ACTIVE_MQ_BROKER_HOST, //cannot find the usage
-            ACTIVE_MQ_BROKER_NAME, //move the use=age from xml ?
+            ACTIVE_MQ_BROKER_NAME, //move the usage from xml ?
             ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE,
-            ACTIVE_MQ_JMXURL, //move the use=age from xml ?
-            ACTIVE_MQ_CONNECTOR_PORT, //move the use=age from xml ?
-            ACTIVE_MQ_RMI_SERVER_PORT, //move the use=age from xml ?
-            ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, //move the use=age from xml ?
-            ACTIVE_MQ_USERNAME, //move the use=age from xml ?
-            ACTIVE_MQ_PASSWORD, //move the use=age from xml ?
-            ACTIVE_MQ_PERSISTENT, //move the use=age from xml ?
-            ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT, //move the use=age from xml ?
-            ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT, //move the use=age from xml ?
+            ACTIVE_MQ_JMXURL, //move the usage from xml ?
+            ACTIVE_MQ_CONNECTOR_PORT, //move the usage from xml ?
+            ACTIVE_MQ_RMI_SERVER_PORT, //move the usage from xml ?
+            ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, //move the usage from xml ?
+            ACTIVE_MQ_USERNAME, //move the usage from xml ?
+            ACTIVE_MQ_PASSWORD, //move the usage from xml ?
+            ACTIVE_MQ_PERSISTENT, //move the usage from xml ?
+            ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT, //move the usage from xml ?
+            ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT, //move the usage from xml ?
 
     })
             .map(name -> DomibusPropertyMetadataDTO.getReadOnlyGlobalProperty(name, Module.TOMCAT))

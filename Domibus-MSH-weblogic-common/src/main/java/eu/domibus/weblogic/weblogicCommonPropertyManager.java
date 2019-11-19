@@ -16,11 +16,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Common property manager for the Weblogic servers/implementations specific properties.
  * Weblogic and ECAS managers derive from this
  */
-public class WeblogicCommonPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
+public class weblogicCommonPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
 
     String module;
 
-    public WeblogicCommonPropertyManager(String module) {
+    public weblogicCommonPropertyManager(String module) {
         this.module = module;
     }
 

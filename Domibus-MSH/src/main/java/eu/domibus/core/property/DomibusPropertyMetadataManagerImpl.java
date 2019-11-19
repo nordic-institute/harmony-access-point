@@ -362,6 +362,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             }
         }
         if (propertyMetadataMap.containsKey(propertyName)) {
+            LOGGER.trace("Found property metadata [{}] in core properties. Returning.", propertyName);
             return;
         }
 
@@ -377,13 +378,13 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         }
     }
 
-    private void loadAllProperties() {
+    protected void loadAllProperties() {
         // we retrieve here all managers: one for each plugin/extension + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
         Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
         propertyManagers.values().forEach(this::loadProperties);
     }
 
-    private void loadProperties(DomibusPropertyManagerExt propertyManager) {
+    protected void loadProperties(DomibusPropertyManagerExt propertyManager) {
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             if (propertyMetadataMap.containsKey(entry.getKey())) {
                 //avoid adding the properties of domibus property manager (added already at the beginning of the load)
