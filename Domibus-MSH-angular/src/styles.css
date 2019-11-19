@@ -284,7 +284,16 @@ mat-card {
 }
 
 .all-none-selection {
+  padding-top: 10px;
   padding-left: 10px;
+}
+
+.all-none-selection a {
+  margin-right: 10px;
+}
+
+.all-none-selection a:last-child {
+  margin-right: 0;
 }
 
 /* --- GROUP BUTTON ACTION ---*/
@@ -342,13 +351,19 @@ mat-select .mat-select {
   font-size: 16px;
 }
 
-.buttonsRow button{
-  margin-right:16px;
+.buttonsRow button {
+  margin-right: 16px;
 }
-.buttonsRow button:last-child{
-  margin-right:0;
+
+.buttonsRow button:last-child {
+  margin-right: 0;
 }
 
 .md2-datepicker-placeholder {
   z-index: 1;
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-underline {
+  height: 0.05em !important;
+  background-color: lightgray !important; padding-top: ;
 }

@@ -327,8 +327,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
       this.notifStatus = result.notifStatus;
 
       this.loading = false;
-    }, (error: any) => {
-      console.log('error getting the message log:' + error);
+    }, (error) => {
+      console.log('error getting the message log:', error);
       this.loading = false;
       this.alertService.exception('Error occurred: ', error);
     });
