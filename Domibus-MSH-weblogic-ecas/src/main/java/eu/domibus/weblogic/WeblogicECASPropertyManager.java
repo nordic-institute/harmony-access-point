@@ -18,7 +18,7 @@ import static eu.domibus.weblogic.security.ECASUserDetailsService.*;
  * Property manager for the Weblogic ECAS specific properties.
  */
 @Service("serverPropertyManager")
-public class weblogicECASPropertyManager extends weblogicCommonPropertyManager {
+public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
     private Map<String, DomibusPropertyMetadataDTO> allProperties;
 
     private Map<String, DomibusPropertyMetadataDTO> myProperties = Arrays.stream(new String[]{
@@ -30,7 +30,7 @@ public class weblogicECASPropertyManager extends weblogicCommonPropertyManager {
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
 
-    public weblogicECASPropertyManager() {
+    public WeblogicECASPropertyManager() {
         super(Module.WEBLOGIC_ECAS);
     }
 

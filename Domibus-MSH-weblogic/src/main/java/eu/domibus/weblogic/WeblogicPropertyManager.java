@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
  * Property manager for the Weblogic specific properties.
  */
 @Service("serverPropertyManager")
-public class weblogicPropertyManager extends weblogicCommonPropertyManager {
-    public weblogicPropertyManager() {
+public class WeblogicPropertyManager extends WeblogicCommonPropertyManager {
+    public WeblogicPropertyManager() {
         super(Module.WEBLOGIC);
     }
 }
