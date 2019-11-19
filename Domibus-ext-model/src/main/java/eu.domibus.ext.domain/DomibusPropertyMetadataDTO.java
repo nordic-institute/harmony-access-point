@@ -70,6 +70,10 @@ public class DomibusPropertyMetadataDTO {
 
     private boolean encrypted;
 
+    public static DomibusPropertyMetadataDTO getReadOnlyGlobalProperty(String name, String module) {
+        return new DomibusPropertyMetadataDTO(name, module, false, Usage.GLOBAL, false, false, false, false);
+    }
+
     public DomibusPropertyMetadataDTO() {
     }
 
