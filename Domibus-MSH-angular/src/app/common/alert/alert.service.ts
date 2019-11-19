@@ -108,11 +108,22 @@ export class AlertService {
   }
 
   private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
+    let errMsg = this.tryExtractErrorMessageFromResponse(error);
+
+    errMsg = this.tryParseHtmlResponse(errMsg);
+
+    errMsg = this.tryClearMessage(errMsg);
+
+    return (message ? message + ' \n' : '') + (errMsg || '');
+  }
+
+  private tryExtractErrorMessageFromResponse(error: HttpErrorResponse | HttpResponse<any> | string | any) {
     let errMsg: string = null;
+
     if (typeof error === 'string') {
       errMsg = error;
     } else if (error instanceof HttpErrorResponse) {
-      if (error.error.message) {
+      if (error.error && error.error.message) {
         errMsg = error.error.message;
       } else {
         errMsg = error.error;
@@ -121,31 +132,23 @@ export class AlertService {
       errMsg = error.body;
     }
 
+    //TODO: check if it is dead code with the new Http library
     if (!errMsg) {
-      //TODO: check if it is dead code with the new Http library
       try {
-        if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8') {
-          if (error.json) {
-            if (error.hasOwnProperty('message')) {
-              errMsg = error.message;
-            } else {
-              errMsg = error.toString();
-            }
+        if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' && error.json) {
+          if (error.hasOwnProperty('message')) {
+            errMsg = error.message;
           } else {
-            errMsg = error._body;
+            errMsg = error.toString();
           }
         } else {
-          errMsg = error._body ? error._body : error;
+          errMsg = error._body ? error._body : error.toString();
         }
       } catch (e) {
       }
     }
 
-    errMsg = this.tryParseHtmlResponse(errMsg);
-
-    errMsg = this.tryClearMessage(errMsg);
-
-    return (message ? message + ' \n' : '') + (errMsg || '');
+    return errMsg;
   }
 
   private tryParseHtmlResponse(errMsg: string) {
