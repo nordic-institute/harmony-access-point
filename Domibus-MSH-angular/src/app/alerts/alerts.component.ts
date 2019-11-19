@@ -183,7 +183,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
-        searchParams.append('parameters', filter);
+          searchParams = searchParams.append('parameters', filter||'');
       }
     }
 
@@ -288,29 +288,29 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     return false; // to prevent default navigation
   }
 
-  getAlertParameters(alertType: string): Observable<string[]> {
+  getAlertParameters(alertType: string): Promise<string[]> {
     let searchParams = new HttpParams();
     searchParams = searchParams.append('alertType', alertType);
-    return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams});
+    return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams}).toPromise();
   }
 
-  onAlertTypeChanged(alertType: string) {
+  async onAlertTypeChanged(alertType: string) {
     this.nonDateParameters = [];
     this.alertTypeWithDate = false;
     this.dynamicFilters = [];
     this.dynamicDatesFilter = [];
-    const alertParametersObservable = this.getAlertParameters(alertType);
+    const alertParameters = await this.getAlertParameters(alertType);
     const TIME_SUFFIX = '_TIME';
     const DATE_SUFFIX = '_DATE';
-    let nonDateParamerters = alertParametersObservable.filter((value, index) => {
+    let nonDateParameters = alertParameters.filter((value) => {
       console.log('Value:' + value);
-      return (value[index].search(TIME_SUFFIX) === -1 && value[index].search(DATE_SUFFIX) === -1)
+      return (value.search(TIME_SUFFIX) === -1 && value.search(DATE_SUFFIX) === -1)
     });
-    nonDateParamerters.subscribe(item => this.nonDateParameters.push(item));
-    let dateParameters = alertParametersObservable.filter((value, index) => {
-      return value[index].search(TIME_SUFFIX) > 0 || value[index].search(DATE_SUFFIX) > 1
+    this.nonDateParameters.push(...nonDateParameters);
+    let dateParameters = alertParameters.filter((value) => {
+      return value.search(TIME_SUFFIX) > 0 || value.search(DATE_SUFFIX) > 1
     });
-    dateParameters.subscribe(item => {
+    dateParameters.forEach(item => {
       this.dateFromName = item + ' FROM';
       this.dateToName = item + ' TO';
       this.alertTypeWithDate = true;

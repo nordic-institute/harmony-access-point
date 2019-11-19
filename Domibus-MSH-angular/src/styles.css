@@ -348,3 +348,7 @@ mat-select .mat-select {
 .buttonsRow button:last-child{
   margin-right:0;
 }
+
+.md2-datepicker-placeholder {
+  z-index: 1;
+}
