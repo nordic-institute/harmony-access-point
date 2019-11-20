@@ -10,7 +10,7 @@ import javax.servlet.ServletContextEvent;
 import java.io.IOException;
 
 /**
- * Created by Cosmin Baciu on 6/13/2016.
+ * @author Cosmin Baciu
  */
 public class DomibusContextLoaderListener extends ContextLoaderListener {
 

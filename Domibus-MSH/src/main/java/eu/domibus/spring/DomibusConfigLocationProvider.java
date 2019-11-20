@@ -7,6 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletContext;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 public class DomibusConfigLocationProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConfigLocationProvider.class);
