@@ -19,7 +19,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -146,7 +145,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         PropertiesFactoryBean propertiesFactoryBean = new DomibusPropertyConfiguration().domibusProperties(domibusConfigLocation);
         propertiesFactoryBean.setSingleton(false);
         Properties properties = propertiesFactoryBean.getObject();
-        PropertiesPropertySource propertySource = new PropertiesPropertySource("domibusProperties", properties);
+        DomibusPropertiesPropertySource propertySource = new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.NAME, properties);
         propertySources.addLast(propertySource);
     }
 

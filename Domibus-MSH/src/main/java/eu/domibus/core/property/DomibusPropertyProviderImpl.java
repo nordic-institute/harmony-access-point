@@ -8,12 +8,14 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.spring.DomibusPropertiesPropertySource;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -163,11 +165,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             propertyKey = propertyName;
         }
 
-        //TODO
-//        domibusProperties.setProperty(propertyKey, propertyValue);
+        setValueInDomibusPropertySource(propertyKey, propertyValue);
     }
 
-    private String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
+    protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
+        MutablePropertySources propertySources = environment.getPropertySources();
+        DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
+        domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+    }
+
+    protected String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
         String propertyKey = null;
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (domain != null) {
