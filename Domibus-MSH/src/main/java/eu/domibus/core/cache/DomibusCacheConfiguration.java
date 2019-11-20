@@ -25,11 +25,18 @@ public class DomibusCacheConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheConfiguration.class);
 
+    private static final String EHCACHE_IGNORE_SIZE_CONFIG_FILE = "classpath:config/ehcache/ehcache-ignore.properties";
+
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Value("${domibus.config.location}/internal/ehcache.xml")
     protected String externalEhCacheFile;
+
+    static {
+        System.setProperty(net.sf.ehcache.pool.impl.DefaultSizeOfEngine.USER_FILTER_RESOURCE, EHCACHE_IGNORE_SIZE_CONFIG_FILE);
+        LOG.debug("IgnoreSizeOf file to [{}]", EHCACHE_IGNORE_SIZE_CONFIG_FILE);
+    }
 
     @Bean(name = "cacheManager")
     public EhCacheCacheManager ehCacheManager(@Autowired CacheManager cacheManager) {
@@ -39,6 +46,8 @@ public class DomibusCacheConfiguration {
         if (externalCacheFileExists()) {
             mergeExternalCacheConfiguration(cacheManager);
         }
+
+        //addIgnoreSizeFile();
 
         return ehCacheManager;
     }
@@ -77,4 +86,7 @@ public class DomibusCacheConfiguration {
         return ehCacheManagerFactoryBean;
     }
 
+    protected void addIgnoreSizeFile() {
+        System.setProperty(net.sf.ehcache.pool.impl.DefaultSizeOfEngine.USER_FILTER_RESOURCE, EHCACHE_IGNORE_SIZE_CONFIG_FILE);
+    }
 }
