@@ -109,9 +109,9 @@ public class AuditPgTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
 		log.info("Set Table data as Message");
-		auditPage.getFilters().setFilterData("table", "Message");
+		auditPage.filters().getTableFilter().selectOptionByText("Message");
 		log.info("Select Created as Action Field data");
-		auditPage.getFilters().setFilterData("Action", "Downloaded");
+		auditPage.filters().getActionFilter().selectOptionByText("Downloaded");
 		auditPage.getFilters().getSearchButton().click();
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");

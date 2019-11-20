@@ -33,7 +33,7 @@ import java.util.zip.ZipInputStream;
 
  * @since 4.1
  */
-public class MessagesFunctionalTest extends BaseTest {
+public class MessagesPgTest extends BaseTest {
 
 
 	/*Doubleclik on one message*/
