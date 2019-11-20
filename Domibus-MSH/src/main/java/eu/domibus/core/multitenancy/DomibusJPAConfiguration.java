@@ -21,7 +21,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
 import java.util.Optional;
-import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
 
@@ -33,10 +32,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENT
 public class DomibusJPAConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
-
-    @Autowired
-    @Qualifier("domibusProperties")
-    protected Properties domibusProperties;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -82,7 +77,7 @@ public class DomibusJPAConfiguration {
 
     @Bean
     public PrefixedProperties jpaProperties() {
-        PrefixedProperties result = new PrefixedProperties(domibusProperties, "domibus.entityManagerFactory.jpaProperty.");
+        PrefixedProperties result = new PrefixedProperties(domibusPropertyProvider, "domibus.entityManagerFactory.jpaProperty.");
         return result;
     }
 }

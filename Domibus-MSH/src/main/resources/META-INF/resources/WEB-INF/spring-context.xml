@@ -21,24 +21,6 @@
     </context:component-scan>
     <context:annotation-config/>
 
-   <!-- <util:properties id="domibusDefaultProperties" ignore-resource-not-found="true"
-                     location="classpath:config/application.properties,
-                     classpath:config/domibus-default.properties,classpath:config/domibus.properties,
-                     classpath*:config/*-plugin-default.properties"/>
-
-
-    <util:properties id="domibusProperties" ignore-resource-not-found="true"
-                     location="classpath:config/application.properties,
-                     classpath:config/domibus-default.properties,
-                     classpath:config/domibus.properties,
-                     file:///${domibus.config.location}/domibus.properties,
-                     file:///${domibus.config.location}/*-domibus.properties,
-                     classpath*:config/*-plugin-default.properties,
-                     file:///${domibus.config.location}/plugins/config/*-plugin.properties,
-                     file:///${domibus.config.location}/extensions/config/*-extension.properties"/>
-
-    <context:property-placeholder properties-ref="domibusProperties" ignore-resource-not-found="true" ignore-unresolvable="true"/>-->
-
     <import resource="classpath*:config/*-domibusContext.xml"/>
 
     <jms:annotation-driven/>

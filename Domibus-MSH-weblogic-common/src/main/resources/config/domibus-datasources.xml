@@ -6,7 +6,7 @@
 
 
     <bean id="contextEnvironment" class="eu.domibus.spring.PrefixedProperties">
-        <constructor-arg name="props" ref="domibusProperties"/>
+        <constructor-arg name="domibusPropertyProvider" ref="domibusPropertyProvider"/>
         <constructor-arg name="prefix" value="domibus.environment.context."/>
     </bean>
 

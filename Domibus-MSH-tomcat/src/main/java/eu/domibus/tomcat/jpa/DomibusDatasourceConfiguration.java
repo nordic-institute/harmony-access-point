@@ -6,13 +6,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.spring.PrefixedProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-
-import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
@@ -58,9 +55,8 @@ public class DomibusDatasourceConfiguration {
     }
 
     @Bean("xaProperties")
-    public PrefixedProperties xaProperties(@Qualifier("domibusProperties") Properties domibusProperties,
-                                           DomibusPropertyProvider domibusPropertyProvider) {
-        final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusProperties, DOMIBUS_DATASOURCE_XA_PROPERTY);
+    public PrefixedProperties xaProperties(DomibusPropertyProvider domibusPropertyProvider) {
+        final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
 
         LOGGER.debug("Decrypting the property [{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD);
         prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD));

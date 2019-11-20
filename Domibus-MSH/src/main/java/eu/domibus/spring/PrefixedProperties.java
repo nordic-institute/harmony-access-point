@@ -1,28 +1,25 @@
 package eu.domibus.spring;
 
-import eu.domibus.core.property.PropertyResolver;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 
-import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Set;
 
 public class PrefixedProperties extends Properties {
 
-    public PrefixedProperties(Properties props, String prefix) {
-        if (props == null) {
-            return;
-        }
-        PropertyResolver propertyResolver = new PropertyResolver();
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrefixedProperties.class);
 
-        Enumeration<String> en = (Enumeration<String>) props.propertyNames();
-        while (en.hasMoreElements()) {
-            String propName = en.nextElement();
-            String propValue = props.getProperty(propName);
+    public PrefixedProperties(DomibusPropertyProvider domibusPropertyProvider, String prefix) {
+        Set<String> propertyNames = domibusPropertyProvider.filterPropertiesName(propName -> propName.startsWith(prefix));
+        LOG.debug("The following property names found with prefix [{}]: [{}]", prefix, propertyNames);
 
-            if (propName.startsWith(prefix)) {
-                String key = propName.substring(prefix.length());
-                String resolved = propertyResolver.getResolvedValue(propValue, props, false);
-                setProperty(key, resolved);
-            }
+        for (String propertyName : propertyNames) {
+            String key = propertyName.substring(prefix.length());
+            String resolved = domibusPropertyProvider.getProperty(propertyName);
+            LOG.trace("Adding property [{}]", key);
+            this.setProperty(key, (String) resolved);
         }
     }
 }
