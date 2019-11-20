@@ -24,7 +24,7 @@ import static eu.domibus.api.configuration.DomibusConfigurationService.PASSWORD_
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class DefaultDomibusConfigurationServiceTest {
+public class DefaultDomibusRootConfigurationServiceTest {
 
     @Injectable
     private DataBaseEngine dataBaseEngine;

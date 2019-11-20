@@ -5,6 +5,10 @@ import org.springframework.core.env.PropertiesPropertySource;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 public class DomibusPropertiesPropertySource extends PropertiesPropertySource {
 
     public static final String NAME = "domibusProperties";
