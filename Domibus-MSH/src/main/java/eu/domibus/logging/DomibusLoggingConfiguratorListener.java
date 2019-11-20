@@ -16,6 +16,7 @@ public class DomibusLoggingConfiguratorListener implements ServletContextListene
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingConfiguratorListener.class);
 
+    //TODO move this into DomibusApplicationInitializer
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();

@@ -2,7 +2,6 @@ package eu.domibus.tomcat;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.property.PropertyResolver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_OUTPUT_DIR;
 
@@ -44,13 +42,10 @@ public class TomcatApplicationPreInitializer implements BeanFactoryPostProcessor
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-//        final Properties domibusProperties = beanFactory.getBean("domibusProperties", Properties.class);
-        createAtomikosOutputDirectory(null);
+        createAtomikosOutputDirectory();
     }
 
-    protected void createAtomikosOutputDirectory(Properties domibusProperties) {
-        PropertyResolver propertyResolver = new PropertyResolver();
-//        final String outputDirectory = propertyResolver.getResolvedProperty(OUTPUT_DIR, domibusProperties, true);
+    protected void createAtomikosOutputDirectory() {
         final String outputDirectory = environment.getProperty(OUTPUT_DIR);
         LOGGER.debug("Creating directory [{}]", outputDirectory);
 

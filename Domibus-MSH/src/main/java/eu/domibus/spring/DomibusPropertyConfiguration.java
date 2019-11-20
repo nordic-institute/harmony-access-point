@@ -39,7 +39,7 @@ public class DomibusPropertyConfiguration {
         return result;
     }
 
-    public PropertiesFactoryBean domibusProperties() throws IOException {
+    public PropertiesFactoryBean domibusProperties(String domibusConfigLocation) throws IOException {
         PropertiesFactoryBean result = new PropertiesFactoryBean();
         result.setIgnoreResourceNotFound(true);
 
@@ -47,8 +47,6 @@ public class DomibusPropertyConfiguration {
         resources.add(new ClassPathResource("config/application.properties"));
         resources.add(new ClassPathResource("config/domibus-default.properties"));
         resources.add(new ClassPathResource("config/domibus.properties"));
-
-        String domibusConfigLocation = DomibusApplicationInitializer.domibusConfigLocation;
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource domibusProperties = resolver.getResource("file:///" + domibusConfigLocation + "/domibus.properties");

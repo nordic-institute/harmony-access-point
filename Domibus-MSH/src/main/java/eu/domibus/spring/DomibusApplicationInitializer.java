@@ -2,12 +2,11 @@ package eu.domibus.spring;
 
 import com.codahale.metrics.servlets.AdminServlet;
 import com.google.common.collect.Sets;
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.plugin.PluginException;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.common.metrics.HealthCheckServletContextListener;
 import eu.domibus.common.metrics.MetricsServletContextListener;
-import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.LogbackLoggingConfigurator;
@@ -42,17 +41,15 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextLoaderListener.class);
 
-    private static final String PLUGINS_LOCATION = "${domibus.config.location}/plugins/lib";
-    private static final String EXTENSIONS_LOCATION = "${domibus.config.location}/extensions/lib";
+    private static final String PLUGINS_LOCATION = "/plugins/lib";
+    private static final String EXTENSIONS_LOCATION = "/extensions/lib";
 
     protected PluginClassLoader pluginClassLoader = null;
 
-    public static String domibusConfigLocation;
-
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
-        LOG.debug("Using domibus.config.location [{}]", domibusConfigLocation);
+        String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
+        LOG.debug("Using [{}] with value [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
 
         try {
             //at this stage Spring is not yet initialized so we need to manually get the domibus.config.location
@@ -66,25 +63,22 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         Properties properties = new Properties();
         if (StringUtils.isNotEmpty(domibusConfigLocation)) {
-            properties.setProperty(DomibusConfigurationService.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+            properties.setProperty(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
         }
-        if (servletContext.getAttribute(DomibusConfigurationService.DOMIBUS_CONFIG_LOCATION) == null) {
-            LOG.debug("Setting servlet context attribute [{}}] to [{}]", DomibusConfigurationService.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
-            servletContext.setAttribute(DomibusConfigurationService.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        if (servletContext.getAttribute(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION) == null) {
+            LOG.debug("Setting servlet context attribute [{}}] to [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+            servletContext.setAttribute(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
         }
 
-        String pluginsLocation = PLUGINS_LOCATION;
-        String extensionsLocation = EXTENSIONS_LOCATION;
+        String pluginsLocation = domibusConfigLocation + PLUGINS_LOCATION;
+        String extensionsLocation = domibusConfigLocation + EXTENSIONS_LOCATION;
 
-        PropertyResolver propertyResolver = new PropertyResolver();
-        String resolvedPluginsLocation = propertyResolver.getResolvedValue(pluginsLocation, properties, true);
-        LOG.info("Resolved plugins location [{}] to [{}]", pluginsLocation, resolvedPluginsLocation);
+        LOG.info("Using plugins location [{}]", pluginsLocation);
 
-        Set<File> pluginsDirectories = Sets.newHashSet(new File(resolvedPluginsLocation));
+        Set<File> pluginsDirectories = Sets.newHashSet(new File(pluginsLocation));
         if (StringUtils.isNotEmpty(extensionsLocation)) {
-            String resolvedExtensionsLocation = propertyResolver.getResolvedValue(extensionsLocation, properties, true);
-            pluginsDirectories.add(new File(resolvedExtensionsLocation));
-            LOG.info("Resolved extension location [{}] to [{}]", extensionsLocation, resolvedExtensionsLocation);
+            LOG.info("Using extension location [{}]", extensionsLocation);
+            pluginsDirectories.add(new File(extensionsLocation));
         }
 
         try {
@@ -105,7 +99,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         rootContext.register(DomibusConfiguration.class);
 
         try {
-            configurePropertySources(rootContext);
+            configurePropertySources(rootContext, domibusConfigLocation);
         } catch (IOException e) {
             throw new ServletException("Error configuring property sources", e);
         }
@@ -142,14 +136,14 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         servlet.addMapping("/metrics/*");
     }
 
-    protected void configurePropertySources(AnnotationConfigWebApplicationContext rootContext) throws IOException {
+    protected void configurePropertySources(AnnotationConfigWebApplicationContext rootContext, String domibusConfigLocation) throws IOException {
         ConfigurableEnvironment environment = rootContext.getEnvironment();
         MutablePropertySources propertySources = environment.getPropertySources();
         Map domibusConfigLocationMap = new HashMap();
-        domibusConfigLocationMap.put(DomibusConfigurationService.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        domibusConfigLocationMap.put(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
         propertySources.addFirst(new MapPropertySource("domibusConfigLocationSource", domibusConfigLocationMap));
 
-        PropertiesFactoryBean propertiesFactoryBean = new DomibusPropertyConfiguration().domibusProperties();
+        PropertiesFactoryBean propertiesFactoryBean = new DomibusPropertyConfiguration().domibusProperties(domibusConfigLocation);
         propertiesFactoryBean.setSingleton(false);
         Properties properties = propertiesFactoryBean.getObject();
         PropertiesPropertySource propertySource = new PropertiesPropertySource("domibusProperties", properties);

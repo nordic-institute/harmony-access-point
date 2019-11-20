@@ -39,9 +39,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected Properties domibusDefaultProperties;
 
     @Autowired
-    protected PropertyResolver propertyResolver;
-
-    @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
@@ -266,21 +263,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
         String result = environment.getProperty(propertyName);
-        /*if (StringUtils.isEmpty(result)) {
-            result = System.getProperty(propertyName);
-        }
-        if (StringUtils.isEmpty(result)) {
-            result = domibusProperties.getProperty(propertyName);
 
-            // There is no need to retrieve the default Domibus property value here since the Domibus properties above will contain it, unless overwritten by users.
-            // For String property values, if users have overwritten their original default Domibus property values, it is their responsibility to ensure they are valid.
-            // For all the other Boolean and Integer property values, if users have overwritten their original default Domibus property values, they are defaulted back to their
-            // original default Domibus values when invalid (please check the #getInteger..(..) and #getBoolean..(..) methods below).
-        }
-        if (StringUtils.contains(result, "${")) {
-            LOGGER.debug("Resolving property [{}]", propertyName);
-            result = propertyResolver.getResolvedValue(result, domibusProperties, true);
-        }*/
         if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
             LOGGER.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
