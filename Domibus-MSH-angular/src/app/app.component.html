@@ -125,7 +125,7 @@
 
         <mat-menu x-position="before" #settingsMenu="matMenu">
 
-          <div *ngIf="currentUser">
+          <div *ngIf="currentUser" id="settingsmenu_expanded_id">
 
             <button mat-menu-item disabled="true" id="currentuser_id">
               <mat-icon>person</mat-icon>
@@ -146,7 +146,7 @@
 
           </div>
 
-          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle;margin: 2px;">
+          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;" id="settingsmenu_expanded_id">
             <button mat-menu-item disabled="true">
               <mat-icon>person_outline</mat-icon>
               <span>Not logged in</span>
