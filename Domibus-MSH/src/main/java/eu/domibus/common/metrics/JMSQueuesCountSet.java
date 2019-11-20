@@ -1,9 +1,6 @@
 package eu.domibus.common.metrics;
 
-import com.codahale.metrics.CachedGauge;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.MetricSet;
+import com.codahale.metrics.*;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.security.AuthRole;
@@ -54,6 +51,17 @@ public class JMSQueuesCountSet implements MetricSet {
 
         List<String> queueNames = getQueueNamesDLQ();
         for (String queueName : queueNames) {
+            addQueueCountToMetrics(gauges, queueName, refreshPeriod);
+        }
+        return gauges;
+    }
+
+    private void addQueueCountToMetrics(Map<String, Metric> gauges, final String queueName, final long refreshPeriod) {
+        if (refreshPeriod == 0) {
+            //no cached metrics
+            gauges.put(MetricRegistry.name(queueName),
+                    (Gauge<Long>) () -> getQueueSize(queueName));
+        } else {
             gauges.put(MetricRegistry.name(queueName),
                     new CachedGauge<Long>(refreshPeriod, TimeUnit.SECONDS) {
                         @Override
@@ -62,7 +70,6 @@ public class JMSQueuesCountSet implements MetricSet {
                         }
                     });
         }
-        return gauges;
     }
 
     private void assureSecurityRights() {
@@ -73,7 +80,7 @@ public class JMSQueuesCountSet implements MetricSet {
 
     private List<String> getQueueNames() {
         assureSecurityRights();
-        return jmsManager.getDestinations().entrySet().stream().map(Map.Entry::getValue).map(JMSDestination::getName).collect(Collectors.toList());
+        return jmsManager.getDestinations().values().stream().map(JMSDestination::getName).collect(Collectors.toList());
     }
 
     private List<String> getQueueNamesDLQ() {
