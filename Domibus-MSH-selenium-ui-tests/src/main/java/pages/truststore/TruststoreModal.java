@@ -57,7 +57,7 @@ public class TruststoreModal extends InfoModal {
 	}
 
 	public HashMap<String, String> getInfo() throws Exception {
-		List<WebElement> inputs = driver.findElements(By.cssSelector("md-dialog-container input"));
+		List<WebElement> inputs = driver.findElements(By.cssSelector("mat-dialog-container input"));
 		HashMap<String, String> info = new HashMap<>();
 
 		for (WebElement input : inputs) {

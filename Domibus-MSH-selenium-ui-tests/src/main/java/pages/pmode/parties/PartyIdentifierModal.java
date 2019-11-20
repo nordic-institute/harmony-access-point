@@ -22,10 +22,10 @@ public class PartyIdentifierModal extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "md-dialog-content > form > button:nth-child(2)")
+	@FindBy(css = "mat-dialog-content > form > button:nth-child(2)")
 	WebElement okBtn;
 
-	@FindBy(css = "md-dialog-content > form > button:nth-child(3)")
+	@FindBy(css = "mat-dialog-content > form > button:nth-child(3)")
 	WebElement cancelBtn;
 
 	public void clickOK() throws Exception {

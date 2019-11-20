@@ -27,7 +27,7 @@ public class SideNavigation extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, 1), this);
 	}
 
-	@FindBy(tagName = "md-sidenav")
+	@FindBy(tagName = "mat-sidenav")
 	private WebElement sideBar;
 
 	private WebElement topLogo;
@@ -52,7 +52,7 @@ public class SideNavigation extends DComponent {
 	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(3)")
 	private WebElement pmodePartiesLnk;
 
-	@FindBy(css = "md-sidenav > md-expansion-panel")
+	@FindBy(css = "mat-sidenav > mat-expansion-panel")
 	private WebElement pmodeExpandLnk;
 	//	----------------------------------------------------
 
@@ -66,7 +66,7 @@ public class SideNavigation extends DComponent {
 	@FindBy(id = "user_id")
 	private WebElement userLnk;
 
-	@FindBy(css = ".sideNavButton.mat-raised-button:nth-of-type(7)")
+	@FindBy(css = "#plugin_user_id")
 	private WebElement pluginUsersLnk;
 
 	@FindBy(css = "#audit_id")

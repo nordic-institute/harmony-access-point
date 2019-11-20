@@ -25,13 +25,13 @@ public class EditModal extends DComponent {
 	}
 
 
-	@FindBy(css = "md-dialog-container button:nth-of-type(1)")
+	@FindBy(css = "mat-dialog-container button:nth-of-type(1)")
 	protected WebElement okBtn;
 
-	@FindBy(css = "md-dialog-container button:nth-of-type(2)")
+	@FindBy(css = "mat-dialog-container button:nth-of-type(2)")
 	protected WebElement cancelBtn;
 
-	@FindBy(css = "md-dialog-container p")
+	@FindBy(css = "mat-dialog-container p")
 	protected WebElement title;
 
 	public DButton getOkBtn() {

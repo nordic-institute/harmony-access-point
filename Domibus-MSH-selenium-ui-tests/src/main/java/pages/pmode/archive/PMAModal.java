@@ -20,7 +20,7 @@ public class PMAModal extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "md-dialog-container h1#pmodeheader_id")
+	@FindBy(css = "mat-dialog-container h1#pmodeheader_id")
 	public WebElement title;
 
 	@FindBy(css = "md-card-content > div textarea")

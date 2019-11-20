@@ -28,10 +28,10 @@ public class PartyModal extends DomibusPage {
 		wait.forElementToBeEnabled(nameInput);
 	}
 
-	@FindBy(css = "app-party-details > md-dialog-content > form > button:nth-child(5)")
+	@FindBy(css = "app-party-details > mat-dialog-content > form > button:nth-child(5)")
 	protected WebElement okBtn;
 
-	@FindBy(css = "md-dialog-container button:nth-of-type(6)")
+	@FindBy(css = "mat-dialog-container button:nth-of-type(6)")
 	protected WebElement cancelBtn;
 
 	@FindBy(css = "#name_id_detail")
@@ -55,19 +55,19 @@ public class PartyModal extends DomibusPage {
 	@FindBy(css = "#fingerPrint_id")
 	protected WebElement certFingerPrintInput;
 
-	@FindBy(css = "md-dialog-container div:nth-child(2) > md-card > md-card-content > div > label")
+	@FindBy(css = "mat-dialog-container div:nth-child(2) > md-card > md-card-content > div > label")
 	protected WebElement importButton;
 
 	@FindBy(css = "#identifierTable")
 	protected WebElement identifierTable;
 
-	@FindBy(css = "md-dialog-content div:nth-child(3) button:nth-child(1)")
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(1)")
 	protected WebElement newIdentifierButton;
 
-	@FindBy(css = "md-dialog-content div:nth-child(3) button:nth-child(2)")
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(2)")
 	protected WebElement editIdentifierButton;
 
-	@FindBy(css = "md-dialog-content div:nth-child(3) button:nth-child(3)")
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(3)")
 	protected WebElement delIdentifierButton;
 
 	@FindBy(css = "#processTable")

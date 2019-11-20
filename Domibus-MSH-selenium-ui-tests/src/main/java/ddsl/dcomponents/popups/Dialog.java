@@ -32,7 +32,7 @@ public class Dialog extends DComponent {
 	@FindBy(id = "nobuttondialog_id")
 	private WebElement noBtn;
 
-	@FindBy(css = "md-dialog-container h1")
+	@FindBy(css = "mat-dialog-container h1")
 	private WebElement dialogMessage;
 
 	public boolean isLoaded() throws Exception{

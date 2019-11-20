@@ -23,7 +23,7 @@ public class MessageDetailsModal extends InfoModal {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "app-messagelog-details > md-dialog-content input")
+	@FindBy(css = "app-messagelog-details > mat-dialog-content input")
 	List<WebElement> inputs;
 
 	public String getValue(String fieldName){

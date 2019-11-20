@@ -26,7 +26,7 @@ public class AuditFilters extends FilterArea {
 	@FindBy(css = "#user_id:nth-of-type(2)")
 	public WebElement userFilterContainer;
 
-	@FindBy(css = "#user_id:nth-of-type(3)")
+	@FindBy(css = "#action_id:nth-of-type(3)")
 	public WebElement actionFilterContainer;
 
 	@FindBy(css = "#from_id")

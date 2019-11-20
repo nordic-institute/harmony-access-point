@@ -25,7 +25,7 @@ public class SandwichMenu extends DComponent {
 
 	By expandButton = By.id("settingsmenu_id");
 
-	By menuContainer = By.cssSelector("div > div.mat-menu-content.ng-trigger.ng-trigger-fadeInItems");
+	By menuContainer = By.id("settingsmenu_expanded_id");
 
 	By currentUserID = By.cssSelector("button[role=\"menuitem\"]:nth-of-type(1) span");
 

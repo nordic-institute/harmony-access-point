@@ -24,9 +24,8 @@ public class FailListener implements ITestListener {
 		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
-		String filename = String.format("%s_%s_%s.jpg", className, testMeth, time);
-
-
+		String outputPath = ((BaseTest) result.getInstance()).data.getReportsFolder();
+		String filename = String.format("%s/%s_%s_%s.jpg", outputPath, className, testMeth, time);
 
 		try {
 			WebDriver driver = ((BaseTest) result.getInstance()).driver;

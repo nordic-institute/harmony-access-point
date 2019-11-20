@@ -390,7 +390,7 @@ public class DGrid extends DComponent {
 		List<CSVRecord> records = csvParser.getRecords();
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
 
-		log.info("comapring number of items");
+		log.info("comparing number of items");
 		soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
 
 		log.info("checking listed data");
