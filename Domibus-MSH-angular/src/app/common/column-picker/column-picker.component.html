@@ -8,7 +8,7 @@
 </div>
 
 <div *ngIf="columnSelection" style="margin-bottom: 10px;">
-  <div *ngFor='let col of allColumns' style="display: inline-block;margin:5px;">
+  <div *ngFor='let col of allColumns' style="display: inline-block;margin:5px;" class="column-checkbox">
     <input
       type='checkbox'
       [id]="col.name"
