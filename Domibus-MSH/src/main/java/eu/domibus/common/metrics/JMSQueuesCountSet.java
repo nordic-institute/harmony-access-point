@@ -54,7 +54,8 @@ public class JMSQueuesCountSet implements MetricSet {
         final Map<String, Metric> gauges = new HashMap<>();
 
         List<String> queueNames = showDLQOnly ? getQueueNamesDLQ() : getQueueNames();
-        LOG.debug("Using queues [{}] for metrics", queueNames);
+        LOG.debug("Using queues [{}] for metrics with refreshPeriod=[{}]", queueNames, refreshPeriod);
+
         for (String queueName : queueNames) {
             addQueueCountToMetrics(gauges, queueName, refreshPeriod);
         }
