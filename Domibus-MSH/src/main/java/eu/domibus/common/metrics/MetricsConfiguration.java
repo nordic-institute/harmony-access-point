@@ -10,6 +10,7 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -46,6 +47,8 @@ public class MetricsConfiguration {
 
     protected static final String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
 
+    protected static final String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
+
     @Bean
     public HealthCheckRegistry healthCheckRegistry() {
         return new HealthCheckRegistry();
@@ -81,7 +84,9 @@ public class MetricsConfiguration {
 
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
         if (monitorJMSQueues) {
-            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils));
+            long refreshPeriod = NumberUtils.toLong(domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD), 10);
+            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils,
+                    refreshPeriod));
         }
 
         Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL4J_REPORTER_ENABLE);
