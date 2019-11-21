@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FSPurgeFailedWorker extends DomibusQuartzJobExtBean {
 
     @Autowired
-    private FSPurgeFailedService purgeFailedService;
+    protected FSPurgeFailedService purgeFailedService;
 
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) {

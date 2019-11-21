@@ -34,9 +34,17 @@ public class DomibusPropertyMetadata {
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
     }
 
+    /**
+     * The name of the property, corresponds to the value in the domibus.properties files
+     * ex: domibus.ui.replication.sync.cron, domibus.ui.replication.sync.cron.max.rows
+     */
     private String name;
 
-    private String type; // numeric, cronexp, regexp, string, concurrency
+    /**
+     *  The technical type of the property which dictates the way it is handled at runtime
+     *  ex:  numeric, cron expr, regexp, string, concurrency
+     */
+    private String type;
 
     /**
      * When GLOBAL, it means global property. When DOMAIN, it means domain property, when SUPER, it means for super-users
@@ -56,12 +64,25 @@ public class DomibusPropertyMetadata {
      */
     private boolean withFallback;
 
+    /**
+     * When true, the property must be changed across the cluster machines, so a notification is raised
+     */
     private boolean clusterAware;
 
+    /**
+     * Corresponds to the existing sections in domibus.properties files: Cluster, GUI, Keystore/Truststore
+     */
     private String section;
 
+    /**
+     * Corresponds to the existing descriptions of properties found in domibus.properties files
+     * ex: #The location of the keystore
+     */
     private String description;
 
+    /**
+     * One of Module class constants: MSH, WS_PLUGIN, JMS_PLUGIN, FS_PLUGIN but can take other values for new plugins or external modules
+     */
     private String module;
 
     private boolean writable;
