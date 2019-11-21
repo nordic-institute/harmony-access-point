@@ -38,25 +38,23 @@ public class UserModal extends EditModal {
 	@FindBy(id = "confirmation_id")
 	WebElement confirmationInput;
 
-
-	@FindBy(css = "mat-card > div:nth-child(4) > mat-select")
+	@FindBy(id = "domain_id")
 	WebElement domainSelectContainer;
 
-	@FindBy(css = "mat-select[placeholder=\"Role\"]")
+	@FindBy(id = "role_id")
 	WebElement rolesSelectContainer;
 
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(7) input")
+	@FindBy(id = "active_id")
 	WebElement activeChk;
 
-
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(1) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	@FindBy(css = "edituser-form form #username_id + div")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(2) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	@FindBy(css = "edituser-form form #email_id + div")
 	private WebElement emailErrMess;
 
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(5) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	@FindBy(css = "edituser-form form #password_id + div")
 	private WebElement passErrMess;
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(6) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	@FindBy(css = "edituser-form form #confirmation_id + div")
 	private WebElement confirmationErrMess;
 
 
