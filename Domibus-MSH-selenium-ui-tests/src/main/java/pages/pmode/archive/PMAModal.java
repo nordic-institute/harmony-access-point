@@ -23,10 +23,10 @@ public class PMAModal extends DComponent {
 	@FindBy(css = "mat-dialog-container h1#pmodeheader_id")
 	public WebElement title;
 
-	@FindBy(css = "md-card-content > div textarea")
+	@FindBy(css = "mat-card-content textarea")
 	public WebElement textarea;
 
-	@FindBy(css = "md-card-content button")
+	@FindBy(css = "mat-card-content button")
 	public WebElement okBtn;
 
 	public DObject getTitle() {

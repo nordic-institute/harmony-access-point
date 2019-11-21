@@ -55,7 +55,7 @@ public class PartyModal extends DomibusPage {
 	@FindBy(css = "#fingerPrint_id")
 	protected WebElement certFingerPrintInput;
 
-	@FindBy(css = "mat-dialog-container div:nth-child(2) > md-card > md-card-content > div > label")
+	@FindBy(css = "mat-dialog-container div:nth-child(2) > mat-card > mat-card-content > div > label")
 	protected WebElement importButton;
 
 	@FindBy(css = "#identifierTable")
@@ -76,7 +76,7 @@ public class PartyModal extends DomibusPage {
 	@FindBy(css = "input[type='checkbox']")
 	protected List<WebElement> inputCheckboxes;
 
-	@FindBy(xpath = ".//*[@class='mat-dialog-title'][starts-with(@id,\"md-dialog-title-\")]")
+	@FindBy(xpath = ".//*[@class='mat-dialog-title'][starts-with(@id,\"mat-dialog-title-\")]")
 	protected WebElement partyHeader;
 
 
@@ -156,7 +156,7 @@ public class PartyModal extends DomibusPage {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
 		js.executeScript("window.scrollBy(0,1000)");
-		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >md-checkbox"));
+		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >mat-checkbox"));
 		WebElement headerElement=driver.findElement(By.xpath(getXpathOfFieldHeader("Processes")));
 		wait.forElementToBeVisible(headerElement);
 
@@ -177,7 +177,7 @@ public class PartyModal extends DomibusPage {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
 		js.executeScript("window.scrollBy(0,1000)");
-		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >md-checkbox"));
+		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >mat-checkbox"));
 		if(fieldName.equals("Initiator")){
 		log.info("Initiator checkbox selection status : "+ checkboxes.get(0).isSelected());
 		return false;

@@ -69,6 +69,9 @@ public class MessagesPgUXTest extends BaseUXTest {
 		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
 
 		soft.assertAll();
+
+		//TODO: this test fails if the found message happen to be ACKNOWLEDGED or another non-downloadable state;
+		//      we should locate by status=SEND_FAILURE the message (and generate one if not found)
 	}
 
 	/*User clicks another grid row*/

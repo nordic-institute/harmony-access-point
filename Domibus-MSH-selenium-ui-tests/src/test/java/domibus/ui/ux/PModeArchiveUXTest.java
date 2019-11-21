@@ -194,6 +194,9 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		soft.assertTrue(index==-1, "Row doesn't appear in the grid anymore");
 
 		soft.assertAll();
+
+		//TODO: this test fails if the pmode archive contains more than 1 row with the same Configuration Date;
+		//      we should change the test to use pmode id instead of configDate
 	}
 
 	/*PMA-6 - User downloads content of the grid*/
