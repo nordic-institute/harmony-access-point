@@ -49,14 +49,14 @@ public class UserModal extends EditModal {
 	WebElement activeChk;
 
 
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(1) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(2) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	private WebElement emailErrMess;
 
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(5) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	private WebElement passErrMess;
-	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(6) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	private WebElement confirmationErrMess;
 
 

@@ -192,7 +192,7 @@ public class PartyModal extends DomibusPage {
 	}
 
 	public String getXpathOfFieldHeader(String fieldName) {
-		return ".//md-card-title[contains(text()," + fieldName + ")]";
+		return ".//mat-card-title[contains(text()," + fieldName + ")]";
 	}
 }
 

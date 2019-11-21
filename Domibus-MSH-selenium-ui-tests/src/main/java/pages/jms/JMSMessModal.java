@@ -34,7 +34,7 @@ public class JMSMessModal extends InfoModal {
 	@FindBy(css = "input[id^=md-input][placeholder=\"Timestamp\"]")
 	WebElement timestampInput;
 
-	@FindBy(css = ".mat-dialog-container md-card:nth-of-type(1) md-input-container:nth-of-type(4) input")
+	@FindBy(css = ".mat-dialog-container mat-card:nth-of-type(1) mat-form-field:nth-of-type(4) input")
 	WebElement jmsTypeInput;
 
 	@FindBy(css = "textarea[id^=md-input][placeholder^=\"Custom\"]")
@@ -52,11 +52,11 @@ public class JMSMessModal extends InfoModal {
 	WebElement deliveryModeInput;
 
 
-	@FindBy(css = ".mat-dialog-container md-card:nth-of-type(2) md-input-container:nth-of-type(4) input")
+	@FindBy(css = ".mat-dialog-container mat-card:nth-of-type(2) mat-form-field:nth-of-type(4) input")
 	WebElement jmsType2Input;
 
 
-	@FindBy(css = ".mat-dialog-container md-card:nth-of-type(3) md-input-container:nth-of-type(1) input")
+	@FindBy(css = ".mat-dialog-container mat-card:nth-of-type(3) mat-form-field:nth-of-type(1) input")
 	WebElement msgContentInput;
 
 	public DInput getSourceQueueInput() {

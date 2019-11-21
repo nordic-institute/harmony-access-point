@@ -207,7 +207,7 @@ public class BaseUXTest extends BaseTest {
 	}
 
 	protected <T extends DGrid> void testColumnControlsAvailableOptions(SoftAssert soft, T grid, JSONArray columns) throws Exception {
-		log.info("checking column controls and avaialable options");
+		log.info("checking column controls and available options");
 		List<String> controlOptions = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
 		for (int i = 0; i < columns.length(); i++) {
 			String currentColumn = columns.getJSONObject(i).getString("name");

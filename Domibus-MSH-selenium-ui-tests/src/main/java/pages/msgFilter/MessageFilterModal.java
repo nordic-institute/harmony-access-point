@@ -42,13 +42,13 @@ public class MessageFilterModal extends EditModal {
 	@FindBy(id = "service_id")
 	public WebElement serviceInput;
 
-	@FindBy(css = "md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(2) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement fromErrMess;
-	@FindBy(css = "md-card > div:nth-child(3) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(3) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement toErrMess;
-	@FindBy(css = "md-card > div:nth-child(4) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(4) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement actionErrMess;
-	@FindBy(css = "md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(5) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement serviceErrMess;
 
 
