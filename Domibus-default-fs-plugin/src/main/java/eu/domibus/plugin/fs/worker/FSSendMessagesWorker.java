@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FSSendMessagesWorker extends DomibusQuartzJobExtBean {
 
     @Autowired
-    private FSSendMessagesService sendMessagesService;
+    protected FSSendMessagesService sendMessagesService;
 
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) {

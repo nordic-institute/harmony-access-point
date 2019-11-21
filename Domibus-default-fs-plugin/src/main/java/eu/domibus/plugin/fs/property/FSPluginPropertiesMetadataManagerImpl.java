@@ -11,6 +11,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1.1
+ * <p>
+ * Property manager for the Default FS plugin properties.
+ */
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
@@ -106,6 +112,9 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
         return knownProperties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasKnownProperty(String name) {
         return this.getKnownProperties().containsKey(name);

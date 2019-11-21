@@ -1,7 +1,8 @@
 package eu.domibus.common.metrics;
 
-import com.codahale.metrics.Gauge;
+import com.codahale.metrics.CachedGauge;
 import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
@@ -12,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implements {@code MetricSet} for JMSQueues counts
@@ -27,27 +29,46 @@ public class JMSQueuesCountSet implements MetricSet {
 
     private AuthUtils authUtils;
 
-    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils) {
+    /** seconds */
+    private long refreshPeriod;
+
+    /**
+     *
+     * @param jmsManager
+     * @param authUtils
+     * @param refreshPeriod how long (in seconds) the value will be cached
+     */
+    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod) {
         this.jmsManager = jmsManager;
         this.authUtils = authUtils;
+        this.refreshPeriod = refreshPeriod;
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
 
-        if(!authUtils.isUnsecureLoginAllowed()) {
+        if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
         }
 
         Map<String, JMSDestination> queues = jmsManager.getDestinations();
-        for (Map.Entry<String, JMSDestination> entry: queues.entrySet()) {
+        for (Map.Entry<String, JMSDestination> entry : queues.entrySet()) {
             final JMSDestination jmsDestination = entry.getValue();
             LOG.debug("Getting the count for [{}]", jmsDestination);
             final String queueName = jmsDestination.getName();
-            final long queueNbOfMessages = jmsDestination.getNumberOfMessages();
-            gauges.put(queueName, (Gauge<Long>) () -> queueNbOfMessages);
+
+            gauges.put(MetricRegistry.name(queueName),
+                    new CachedGauge<Long>(refreshPeriod, TimeUnit.SECONDS) {
+                        @Override
+                        protected Long loadValue() {
+                            // time consuming mostly on cluster config
+                            //TODO EDELIVERY-5557
+                            return jmsManager.getDestinationSize(queueName);
+                        }
+                    });
         }
         return gauges;
     }
+
 }

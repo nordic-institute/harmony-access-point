@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
 import org.junit.Assert;
@@ -10,39 +11,46 @@ import org.junit.Test;
 import eu.domibus.common.MessageStatus;
 import org.junit.runner.RunWith;
 
+import java.util.List;
+
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
 @RunWith(JMockit.class)
 public class FSFileNameHelperTest {
-    
+
+    @Tested
+    FSFileNameHelper fsFileNameHelper;
+
     public FSFileNameHelperTest() {
+        List<String> stateSuffixes = new FSPluginConfiguration().getStateSuffixes();
+        fsFileNameHelper = new FSFileNameHelper(stateSuffixes);
     }
 
     @Test
     public void testIsAnyState() {
-        boolean result = FSFileNameHelper.isAnyState("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf.READY_TO_SEND");
+        boolean result = fsFileNameHelper.isAnyState("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf.READY_TO_SEND");
         
         Assert.assertTrue(result);
     }
     
     @Test
     public void testIsAnyState_Fail() {
-        boolean result = FSFileNameHelper.isAnyState("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
+        boolean result = fsFileNameHelper.isAnyState("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
         
         Assert.assertFalse(result);
     }
 
     @Test
     public void testIsProcessed() {
-        boolean result = FSFileNameHelper.isProcessed("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
+        boolean result = fsFileNameHelper.isProcessed("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
         
         Assert.assertTrue(result);
     }
     
     @Test
     public void testIsProcessed_NoExtension() {
-        boolean result = FSFileNameHelper.isProcessed("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        boolean result = fsFileNameHelper.isProcessed("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
         
         Assert.assertTrue(result);
     }
@@ -50,7 +58,7 @@ public class FSFileNameHelperTest {
     @Test
     public void testIsProcessed_Fail1() {
         // missing one character in UUID in message ID
-        boolean result = FSFileNameHelper.isProcessed("invoice_c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
+        boolean result = fsFileNameHelper.isProcessed("invoice_c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
         
         Assert.assertFalse(result);
     }
@@ -58,7 +66,7 @@ public class FSFileNameHelperTest {
     @Test
     public void testIsProcessed_Fail2() {
         // missing underscore before UUID
-        boolean result = FSFileNameHelper.isProcessed("invoice3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
+        boolean result = fsFileNameHelper.isProcessed("invoice3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf");
         
         Assert.assertFalse(result);
     }
@@ -66,7 +74,7 @@ public class FSFileNameHelperTest {
     @Test
     public void testIsProcessed_Fail3() {
         // missing message ID
-        boolean result = FSFileNameHelper.isProcessed("invoice.pdf");
+        boolean result = fsFileNameHelper.isProcessed("invoice.pdf");
         
         Assert.assertFalse(result);
     }
@@ -88,21 +96,21 @@ public class FSFileNameHelperTest {
 
     @Test
     public void testIsLockFile() {
-        boolean result = FSFileNameHelper.isLockFile("large_invoice.pdf.lock");
+        boolean result = fsFileNameHelper.isLockFile("large_invoice.pdf.lock");
 
         Assert.assertTrue(result);
     }
 
     @Test
     public void testIsLockFile_Fail() {
-        boolean result = FSFileNameHelper.isLockFile("large_invoice.pdf");
+        boolean result = fsFileNameHelper.isLockFile("large_invoice.pdf");
 
         Assert.assertFalse(result);
     }
 
     @Test
     public void testStripLockSuffix() {
-        String result = FSFileNameHelper.stripLockSuffix("large_invoice.pdf.lock");
+        String result = fsFileNameHelper.stripLockSuffix("large_invoice.pdf.lock");
 
         Assert.assertEquals("large_invoice.pdf", result);
     }
@@ -110,7 +118,7 @@ public class FSFileNameHelperTest {
     @Test
     public void testIsMessageRelated_Fail2() {
         // missing one character in UUID in message ID
-        boolean result = FSFileNameHelper.isMessageRelated("invoice_c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        boolean result = fsFileNameHelper.isMessageRelated("invoice_c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
         
         Assert.assertFalse(result);
     }
@@ -118,77 +126,77 @@ public class FSFileNameHelperTest {
     @Test
     public void testIsMessageRelated_Fail3() {
         // missing underscore before UUID
-        boolean result = FSFileNameHelper.isMessageRelated("invoice3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        boolean result = fsFileNameHelper.isMessageRelated("invoice3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
         
         Assert.assertFalse(result);
     }
 
     @Test
     public void testDeriveFileName() {
-        String result = FSFileNameHelper.deriveFileName("invoice.pdf","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        String result = fsFileNameHelper.deriveFileName("invoice.pdf","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
 
         Assert.assertEquals("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", result);
     }
 
     @Test
     public void testDeriveFileName_MultipleParts1() {
-        String result = FSFileNameHelper.deriveFileName("invoice.foo.pdf","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        String result = fsFileNameHelper.deriveFileName("invoice.foo.pdf","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
 
         Assert.assertEquals("invoice.foo_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", result);
     }
 
     @Test
     public void testDeriveFileName_MultipleParts2() {
-        String result = FSFileNameHelper.deriveFileName("invoice.foo.bar.pdf","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        String result = fsFileNameHelper.deriveFileName("invoice.foo.bar.pdf","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
 
         Assert.assertEquals("invoice.foo.bar_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", result);
     }
 
     @Test
     public void testDeriveFileName_NoExtension() {
-        String result = FSFileNameHelper.deriveFileName("invoice","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
+        String result = fsFileNameHelper.deriveFileName("invoice","3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu");
 
         Assert.assertEquals("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu", result);
     }
 
     @Test
     public void testDeriveFileName_NoStatus() {
-        String result = FSFileNameHelper.deriveFileName("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", MessageStatus.READY_TO_SEND);
+        String result = fsFileNameHelper.deriveFileName("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf", MessageStatus.READY_TO_SEND);
 
         Assert.assertEquals("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf.READY_TO_SEND", result);
     }
     
     @Test
     public void testDeriveFileName_ReplaceStatus() {
-        String result = FSFileNameHelper.deriveFileName("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf.READY_TO_SEND", MessageStatus.SEND_ENQUEUED);
+        String result = fsFileNameHelper.deriveFileName("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf.READY_TO_SEND", MessageStatus.SEND_ENQUEUED);
 
         Assert.assertEquals("invoice_3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu.pdf.SEND_ENQUEUED", result);
     }
 
     @Test
     public void testDeriveSentDirectoryLocation() {
-        String result = FSFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/OUT");
+        String result = fsFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/OUT");
 
         Assert.assertEquals("smb://example.org/fs_plugin_data/SENT/", result);
     }
 
     @Test
     public void testDeriveSentDirectoryLocation_Domain1() {
-        String result = FSFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/DOMAIN1/OUT/Invoice");
+        String result = fsFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/DOMAIN1/OUT/Invoice");
 
         Assert.assertEquals("smb://example.org/fs_plugin_data/DOMAIN1/SENT/Invoice", result);
     }
 
     @Test
     public void testDeriveSentDirectoryLocation_Domain1Out() {
-        String result = FSFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/DOMAIN1/OUT/OUTGOING");
+        String result = fsFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/DOMAIN1/OUT/OUTGOING");
 
         Assert.assertEquals("smb://example.org/fs_plugin_data/DOMAIN1/SENT/OUTGOING", result);
     }
 
     @Test
     public void testDeriveSentDirectoryLocation_OutDomain() {
-        String result = FSFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/OUTDOMAIN/OUT/OUTGOING");
+        String result = fsFileNameHelper.deriveSentDirectoryLocation("smb://example.org/fs_plugin_data/OUTDOMAIN/OUT/OUTGOING");
 
         Assert.assertEquals("smb://example.org/fs_plugin_data/OUTDOMAIN/SENT/OUTGOING", result);
     }
@@ -202,7 +210,7 @@ public class FSFileNameHelperTest {
             this.result = filename;
         }};
 
-        final String lockFilename = FSFileNameHelper.getLockFilename(file);
+        final String lockFilename = fsFileNameHelper.getLockFilename(file);
         Assert.assertEquals(lockFilename, filename + ".lock");
     }
 
