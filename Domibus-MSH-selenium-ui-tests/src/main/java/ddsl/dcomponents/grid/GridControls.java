@@ -36,7 +36,7 @@ public class GridControls extends DComponent {
 	@FindBy(css = "#none_id")
 	WebElement noneLnk;
 
-	@FindBy(css = "#routerHolder app-column-picker div > div:not([class])")
+	@FindBy(css = "#routerHolder app-column-picker .column-checkbox")
 	List<WebElement> chkContainer;
 
 	public DLink getShowHideCtrlLnk() {

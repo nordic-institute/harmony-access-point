@@ -81,6 +81,7 @@ public class SandwichMenu extends DComponent {
 	public void logout() throws Exception {
 
 		clickVoidSpace();
+		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
 
 		expandMenu();
 		log.debug("Logging out...");
