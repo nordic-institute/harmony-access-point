@@ -36,34 +36,22 @@ public class Select extends DComponent {
     protected List<String> optionIDs = new ArrayList<String>();
     protected WebElement selectContainer;
 
-
     @FindBy(css = "[class*=\"select-arrow\"]")
     protected WebElement expandBtn;
-
-    @FindBy(css = "span[class*=\"-select-value\"]")
-    protected WebElement selectedOptionValue;
-
-    @FindBy(css = "[class*=\"select-content ng-trigger ng-trigger-fadeInContent\"]")
-    protected WebElement optionContainer;
-
+    
     private By options = By.cssSelector(".mat-select-panel > mat-option");
 
-    private DObject getSelectContainer() {
-        return new DObject(driver, selectContainer);
-    }
+    private By selectedOption = By.cssSelector("[class*=\"-select-value\"]");
 
 	public DButton getExpandBtn() {
 		return new DButton(driver, expandBtn);
 	}
 
-    private DObject getSelectedOptionElement() {
-        return new DObject(driver, selectedOptionValue);
-    }
-
     public String getSelectedValue() throws Exception {
         try {
-            return getSelectedOptionElement().getText();
+            return this.selectContainer.findElement(selectedOption).getText();
         } catch (Exception e) {
+            log.debug("Could not read selected value ", e);
         }
         return null;
     }

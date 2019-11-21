@@ -31,7 +31,7 @@ public class PluginUserModal extends EditModal {
 	@FindBy(css = "#originalUser_id")
 	private WebElement originalUserInput;
 
-	@FindBy(css = "md2-select[placeholder=\"Role\"]")
+	@FindBy(css = "mat-select[placeholder=\"Role\"]")
 	private WebElement rolesSelectContainer;
 
 	@FindBy(css = "#password_id")

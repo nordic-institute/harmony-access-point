@@ -39,24 +39,24 @@ public class UserModal extends EditModal {
 	WebElement confirmationInput;
 
 
-	@FindBy(css = "md-card > div:nth-child(4) > md2-select")
+	@FindBy(css = "mat-card > div:nth-child(4) > mat-select")
 	WebElement domainSelectContainer;
 
-	@FindBy(css = "md2-select[placeholder=\"Role\"]")
+	@FindBy(css = "mat-select[placeholder=\"Role\"]")
 	WebElement rolesSelectContainer;
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(7) input")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(7) input")
 	WebElement activeChk;
 
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
 	private WebElement emailErrMess;
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
 	private WebElement passErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form > div > form > mat-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
 	private WebElement confirmationErrMess;
 
 

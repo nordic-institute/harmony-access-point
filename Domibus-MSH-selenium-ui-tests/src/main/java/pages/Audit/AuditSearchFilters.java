@@ -31,11 +31,11 @@ public class AuditSearchFilters extends DComponent {
     WebElement changedToContainer;
     @FindBy(id = "from_id")
     WebElement changedFromContainer;
-    @FindBy(css = "#table_id>div>span[class='md2-select-arrow']")
+    @FindBy(css = "#table_id>div [class='mat-select-arrow']")
     WebElement tableContainerArrow;
-    @FindBy(css = "#user_id[placeholder='Action']>div>span[class='md2-select-arrow']")
+    @FindBy(css = "#action_id[placeholder='Action']>div [class='mat-select-arrow']")
     WebElement actionContainerArrow;
-    @FindBy(css = "#user_id[placeholder='User']>div>span[class='md2-select-arrow']")
+    @FindBy(css = "#user_id[placeholder='User']>div [class='mat-select-arrow']")
     WebElement userContainerArrow;
 
     public DLink getAdvancedSearchExpandLnk() {

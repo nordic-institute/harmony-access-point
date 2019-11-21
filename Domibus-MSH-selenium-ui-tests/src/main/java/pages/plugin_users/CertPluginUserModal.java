@@ -26,7 +26,7 @@ public class CertPluginUserModal extends EditModal {
 	@FindBy(id = "originalUser_id")
 	private WebElement originalUserInput;
 
-	@FindBy(css = "editcertificatepluginuser-form md2-select")
+	@FindBy(css = "editcertificatepluginuser-form mat-select")
 	private WebElement roleSelect;
 
 	public DInput getUserInput() {
