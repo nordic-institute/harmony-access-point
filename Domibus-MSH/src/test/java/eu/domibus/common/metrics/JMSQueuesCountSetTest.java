@@ -28,7 +28,7 @@ public class JMSQueuesCountSetTest {
     public void test_GetMetrics() {
 
         //tested class
-        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, 20);
+        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, 20, true);
 
         final Map<String, JMSDestination> jmsDestinationList = new TreeMap<>();
         final long nbMessages = 20;
