@@ -127,7 +127,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		log.info("sorting after column Received");
 		page.grid().sortBy("Received");
 
-		log.info("se page size to 100");
+		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
 		log.info("checking info in grid against the file");
@@ -304,7 +304,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		log.info("sorting after column Received");
 		page.grid().sortBy("Received");
 
-		log.info("se page size to 100");
+		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
 		log.info("checking info in grid against the file");

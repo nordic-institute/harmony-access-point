@@ -84,6 +84,8 @@ public class SandwichMenu extends DComponent {
 		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
 
 		expandMenu();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+
 		log.debug("Logging out...");
 		driver.findElement(logoutLnk).click();
 		contractMenu();
@@ -95,8 +97,12 @@ public class SandwichMenu extends DComponent {
 	public void openchangePassword() throws Exception {
 
 		clickVoidSpace();
+		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
+
 		log.debug("Expand Sandwich menu");
 		expandMenu();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+
 		log.debug("click on Change password link");
 		driver.findElement(changePassId).click();
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
@@ -104,6 +110,8 @@ public class SandwichMenu extends DComponent {
 	/**This method is implemented to check presence of link in Sandwich menu*/
 	public boolean isChangePassLnkPresent() throws Exception {
 		expandMenu();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+
 		String changePasswordLnk = driver.findElement(changePassLnk).getText();
 		boolean toReturn = !StringUtils.equalsIgnoreCase(changePasswordLnk, "Change Password");
 		log.debug("Availability of Change Password link is : " + toReturn);

@@ -52,7 +52,7 @@ public class SideNavigation extends DComponent {
 	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(3)")
 	private WebElement pmodePartiesLnk;
 
-	@FindBy(css = "mat-sidenav > mat-expansion-panel")
+	@FindBy(css = "mat-sidenav mat-expansion-panel mat-expansion-panel-header")
 	private WebElement pmodeExpandLnk;
 	//	----------------------------------------------------
 
@@ -91,6 +91,7 @@ public class SideNavigation extends DComponent {
 		try {
 			new DButton(driver, pmodeExpandLnk).click();
 		} catch (Exception e) {
+			log.warn("Could not expand pmode: ", e);
 		}
 	}
 
@@ -155,6 +156,7 @@ public class SideNavigation extends DComponent {
 	public void goToPage(PAGES page) throws Exception {
 		log.info("Navigating to " + page.name());
 		getPageLnk(page).click();
+		log.debug("Navigated to " + page.name());
 	}
 
 	public boolean isUserState() throws Exception {
