@@ -51,6 +51,8 @@ public class MetricsConfiguration {
 
     protected static final String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
 
+    protected static final String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
+
     @Bean
     public HealthCheckRegistry healthCheckRegistry() {
         return new HealthCheckRegistry();
@@ -87,8 +89,9 @@ public class MetricsConfiguration {
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
         if (monitorJMSQueues) {
             long refreshPeriod = NumberUtils.toLong(domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD), 10);
+            boolean showDLQOnly = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
             metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils,
-                    refreshPeriod));
+                    refreshPeriod, showDLQOnly));
         }
 
         Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL4J_REPORTER_ENABLE);
