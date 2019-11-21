@@ -167,7 +167,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   private getDestinations(): Observable<any> {
     return this.http.get<any>('rest/jms/destinations')
       .map(response => response.jmsDestinations)
-      .catch((error) => this.alertService.handleError('Could not load queues: ' + error));
+      .catch((error) => this.alertService.exception('Could not load queues ', error));
   }
 
   private loadDestinations() {

@@ -99,7 +99,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.search();
   }
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
+    this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
     this.configureColumnPicker();
   }
 

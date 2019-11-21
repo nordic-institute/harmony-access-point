@@ -51,6 +51,7 @@ export class AlertService {
   public exception(message: string, error: any, keepAfterNavigationChange = false, fadeTime: number = 0) {
     const errMsg = this.formatError(error, message);
     this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
+    return Promise.reject({reason: message, handled: true});
   }
 
   public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false,
@@ -153,7 +154,7 @@ export class AlertService {
 
   private tryParseHtmlResponse(errMsg: string) {
     let res = errMsg;
-    if (errMsg.indexOf('<!doctype html>') >= 0) {
+    if (errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
       let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
       if (res1 && res1.length > 0) {
         res = res1[1];
@@ -171,6 +172,9 @@ export class AlertService {
     if (errMsg && errMsg.replace) {
       res = errMsg.replace('Uncaught (in promise):', '');
       res = res.replace('[object ProgressEvent]', '');
+    }
+    if (errMsg && errMsg.toString() == '[object Object]') {
+      return '';
     }
     return res;
   }
