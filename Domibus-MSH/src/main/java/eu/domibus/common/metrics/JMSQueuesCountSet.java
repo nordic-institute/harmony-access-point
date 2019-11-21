@@ -34,22 +34,26 @@ public class JMSQueuesCountSet implements MetricSet {
      */
     private long refreshPeriod;
 
+    private boolean showDLQOnly;
+
     /**
      * @param jmsManager
      * @param authUtils
      * @param refreshPeriod how long (in seconds) the value will be cached
+     * @param showDLQOnly
      */
-    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod) {
+    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod, boolean showDLQOnly) {
         this.jmsManager = jmsManager;
         this.authUtils = authUtils;
         this.refreshPeriod = refreshPeriod;
+        this.showDLQOnly = showDLQOnly;
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
 
-        List<String> queueNames = getQueueNamesDLQ();
+        List<String> queueNames = showDLQOnly ? getQueueNamesDLQ() : getQueueNames();
         for (String queueName : queueNames) {
             addQueueCountToMetrics(gauges, queueName, refreshPeriod);
         }
