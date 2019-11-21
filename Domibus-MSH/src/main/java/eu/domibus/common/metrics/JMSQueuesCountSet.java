@@ -54,6 +54,7 @@ public class JMSQueuesCountSet implements MetricSet {
         final Map<String, Metric> gauges = new HashMap<>();
 
         List<String> queueNames = showDLQOnly ? getQueueNamesDLQ() : getQueueNames();
+        LOG.debug("showOnlyDLQ=[{}]", showDLQOnly);
         for (String queueName : queueNames) {
             addQueueCountToMetrics(gauges, queueName, refreshPeriod);
         }
@@ -95,9 +96,11 @@ public class JMSQueuesCountSet implements MetricSet {
     private long getQueueSize(final String queueName) {
         assureSecurityRights();
 
-        // time consuming mostly on cluster config
+        // time consuming mostly on cluster configuration
         //TODO EDELIVERY-5557
-        return jmsManager.getDestinationSize(queueName);
+        final long queueSize = jmsManager.getDestinationSize(queueName);
+        LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", queueName, queueSize);
+        return queueSize;
     }
 
 }
