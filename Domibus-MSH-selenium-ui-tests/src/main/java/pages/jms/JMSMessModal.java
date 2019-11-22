@@ -25,38 +25,36 @@ public class JMSMessModal extends InfoModal {
 	}
 
 	//	HEADER
-	@FindBy(css = "input[id^=md-input][placeholder=\"Source\"]")
+	@FindBy(id = "source_id")
 	WebElement sourceQueueInput;
 
-	@FindBy(css = "input[id^=md-input][placeholder=\"Id\"]")
+	@FindBy(id = "id_id")
 	WebElement idInput;
 
-	@FindBy(css = "input[id^=md-input][placeholder=\"Timestamp\"]")
+	@FindBy(id = "timestamp_id")
 	WebElement timestampInput;
 
-	@FindBy(css = ".mat-dialog-container mat-card:nth-of-type(1) mat-form-field:nth-of-type(4) input")
+	@FindBy(id = "type_id")
 	WebElement jmsTypeInput;
 
-	@FindBy(css = "textarea[id^=md-input][placeholder^=\"Custom\"]")
+	@FindBy(id = "customProperties_id")
 	WebElement customPropertiesArea;
 
 //	Properties
 
-	@FindBy(css = "input[id^=md-input][placeholder=\"JMSMessageID\"]")
+	@FindBy(id = "propJmsMessageId_id")
 	WebElement jmsMessageIDInput;
 
-	@FindBy(css = "input[id^=md-input][placeholder=\"JMSDestination\"]")
+	@FindBy(id = "propDestination_id")
 	WebElement destinationQueueInput;
 
-	@FindBy(css = "input[id^=md-input][placeholder=\"JMSDeliveryMode\"]")
+	@FindBy(id = "propDeliveryMode_id")
 	WebElement deliveryModeInput;
 
-
-	@FindBy(css = ".mat-dialog-container mat-card:nth-of-type(2) mat-form-field:nth-of-type(4) input")
+	@FindBy(id = "propMessageId_id")
 	WebElement jmsType2Input;
 
-
-	@FindBy(css = ".mat-dialog-container mat-card:nth-of-type(3) mat-form-field:nth-of-type(1) input")
+	@FindBy(id = "content_id")
 	WebElement msgContentInput;
 
 	public DInput getSourceQueueInput() {

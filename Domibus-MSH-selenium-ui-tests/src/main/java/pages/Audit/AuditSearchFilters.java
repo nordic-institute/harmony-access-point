@@ -5,12 +5,14 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.Pagination;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
+import ddsl.dobjects.multi_select.MultiSelect;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+
 import static pages.Audit.AuditPage.*;
 
 
@@ -31,12 +33,24 @@ public class AuditSearchFilters extends DComponent {
     WebElement changedToContainer;
     @FindBy(id = "from_id")
     WebElement changedFromContainer;
-    @FindBy(css = "#table_id>div [class='mat-select-arrow']")
-    WebElement tableContainerArrow;
-    @FindBy(css = "#action_id[placeholder='Action']>div [class='mat-select-arrow']")
-    WebElement actionContainerArrow;
-    @FindBy(css = "#user_id[placeholder='User']>div [class='mat-select-arrow']")
-    WebElement userContainerArrow;
+    @FindBy(css = "#table_id")
+    public WebElement tableFilterContainer;
+    @FindBy(css = "#user_id:nth-of-type(2)")
+    public WebElement userFilterContainer;
+    @FindBy(css = "#action_id:nth-of-type(3)")
+    public WebElement actionFilterContainer;
+
+    public MultiSelect getTableFilter() {
+        return weToMultiSelect(tableFilterContainer);
+    }
+
+    public MultiSelect getUserFilter() {
+        return weToMultiSelect(userFilterContainer);
+    }
+
+    public MultiSelect getActionFilter() {
+        return weToMultiSelect(actionFilterContainer);
+    }
 
     public DLink getAdvancedSearchExpandLnk() {
         return new DLink(driver, advancedSearchExpandLnk);
@@ -82,45 +96,23 @@ public class AuditSearchFilters extends DComponent {
         );
     }
 
+    public void setFilterData(String fieldLabel, String data) throws Exception {
+        log.debug("Input field label is : " + fieldLabel + "; selecting " + data + " value...");
 
-    public void setFilterData(String fieldLabel, String data) {
+        MultiSelect multiSelect = null;
         if (fieldLabel.equalsIgnoreCase("table")) {
-            log.debug("Input field label is :" + fieldLabel);
-            wait.forElementToBeVisible(tableContainerArrow);
-            tableContainerArrow.click();
+            multiSelect = getTableFilter();
         } else if (fieldLabel.equalsIgnoreCase("action")) {
-            log.debug("Input field label is :" + fieldLabel);
-            wait.forElementToBeVisible(actionContainerArrow);
-            actionContainerArrow.click();
+            multiSelect = getActionFilter();
         } else if (fieldLabel.equalsIgnoreCase("user")) {
-            log.debug("Input field label is :" + fieldLabel);
-            wait.forElementToBeVisible(userContainerArrow);
-            userContainerArrow.click();
+            multiSelect = getUserFilter();
         } else {
             log.debug("Invalid Input field label is passed");
+            return;
         }
-        getInputFieldValue(data).click();
+        multiSelect.selectOptionByText(data);
         getPage().clickVoidSpace();
-
     }
 
-    public String getXpathOfInputCheckbox(String fieldName) {
-        if(fieldName.equals("Pmode") || fieldName.equals("PluginUser") || fieldName.equals("Message"))
-        {
-            return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')][1]";
-
-        }
-        else if(fieldName.equals("User")) {
-            return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')][2]";
-        }
-        else{
-            return ".//*[@class='md2-option md2-option-multiple'][contains(text(),'" + fieldName + "')]";
-
-        }
-    }
-    public WebElement getInputFieldValue(String fieldLabel) {
-        wait.forElementToBeVisible(driver.findElement(By.xpath(getXpathOfInputCheckbox(fieldLabel))));
-        return driver.findElement(By.xpath(getXpathOfInputCheckbox(fieldLabel)));
-    }
 
 }
