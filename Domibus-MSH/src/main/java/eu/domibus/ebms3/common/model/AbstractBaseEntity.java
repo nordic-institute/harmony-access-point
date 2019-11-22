@@ -105,19 +105,15 @@ public abstract class AbstractBaseEntity implements Serializable {
         this.modifiedBy = modifiedBy;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractBaseEntity)) return false;
-        AbstractBaseEntity that = (AbstractBaseEntity) o;
-        return Objects.equals(creationTime, that.creationTime) &&
-                Objects.equals(modificationTime, that.modificationTime) &&
-                Objects.equals(createdBy, that.createdBy) &&
-                Objects.equals(modifiedBy, that.modifiedBy);
+    public int hashCode() {
+        return 0;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(creationTime, modificationTime, createdBy, modifiedBy);
+    public boolean equals(final Object other) {
+        //noinspection NonFinalFieldReferenceInEquals
+        return ((other != null) &&
+                this.getClass().equals(other.getClass())
+        );
     }
 }
