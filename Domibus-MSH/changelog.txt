@@ -34,6 +34,7 @@ at least INFO in logback.xml
 - NotificationListener should be decoupled from the JMS broker
 - Message Filtering issue
 - Added Domibus property domibus.metrics.monitor.jms.queues.refresh.period in order to cache counting of JMS messages for Metrics page
+- Set default value for domibus.dispatcher.allowChunking to false
 Domibus 4.1.1
 - Alerts for password imminent expiration and expiration are not sent
 - Domibus does not work with Proxy
