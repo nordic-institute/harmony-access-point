@@ -1,4 +1,4 @@
-package eu.domibus.core.multitenancy;
+package eu.domibus.spring.jpa;
 
 import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;

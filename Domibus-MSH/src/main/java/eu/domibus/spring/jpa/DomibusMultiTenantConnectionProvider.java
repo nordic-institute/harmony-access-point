@@ -1,4 +1,4 @@
-package eu.domibus.core.multitenancy;
+package eu.domibus.spring.jpa;
 
 import eu.domibus.api.configuration.DataBaseEngine;
 import eu.domibus.api.configuration.DomibusConfigurationService;
