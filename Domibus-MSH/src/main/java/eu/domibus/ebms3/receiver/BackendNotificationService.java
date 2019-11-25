@@ -86,7 +86,7 @@ public class BackendNotificationService {
 
     protected List<NotificationListener> notificationListenerServices;
 
-    @Resource(name = "routingCriteriaFactories")
+    @Autowired
     protected List<CriteriaFactory> routingCriteriaFactories;
 
     @Autowired

@@ -15,18 +15,18 @@
                            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 <!--    Filter out the scanning of web and ext sub-packages, as their beans are scanner in the context of their mvc-dispatch applications-->
-    <context:component-scan base-package="eu.domibus">
-        <context:exclude-filter type="regex" expression="eu\.domibus\.web\..*"/>
+ <!--   <context:component-scan base-package="eu.domibus">
+        <context:exclude-filter type="regex" expression="eu\.domibus\.web\..*"/>EnableSpringConfigured
         <context:exclude-filter type="regex" expression="eu\.domibus\.ext\.rest\..*"/>
-    </context:component-scan>
-    <context:annotation-config/>
+    </context:component-scan>-->
+<!--    <context:annotation-config/>-->
 
     <import resource="classpath*:config/*-domibusContext.xml"/>
 
-    <jms:annotation-driven/>
-    <tx:annotation-driven proxy-target-class="true"/>
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
-    <cache:annotation-driven/>
+<!--    <jms:annotation-driven/>-->
+<!--    <tx:annotation-driven proxy-target-class="true"/>-->
+<!--    <aop:aspectj-autoproxy proxy-target-class="true"/>-->
+<!--    <cache:annotation-driven/>-->
 
     <import resource="classpath*:config/*-jms-context.xml"/>
     <import resource="classpath*:config/*-taskexecutor-context.xml"/>
@@ -34,10 +34,8 @@
     <import resource="classpath*:config/*-plugin.xml"/>
     <import resource="file:///${domibus.config.location}/plugins/config/*-plugin.xml"/>
 
-    <import resource="domibus-plugins.xml"/>
     <import resource="classpath*:config/domibus-transactions.xml"/>
     <import resource="classpath*:config/domibus-datasources.xml"/>
-    <import resource="jpa-config.xml"/>
     <import resource="cxf-endpoint.xml"/>
 
 
