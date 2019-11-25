@@ -22,10 +22,10 @@ public class PartyIdentifierModal extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "mat-dialog-content > form > button:nth-child(2)")
+	@FindBy(css = "app-party-identifier-details form button:nth-child(1)")
 	WebElement okBtn;
 
-	@FindBy(css = "mat-dialog-content > form > button:nth-child(3)")
+	@FindBy(css = "app-party-identifier-details form button:nth-child(2)")
 	WebElement cancelBtn;
 
 	public void clickOK() throws Exception {
@@ -54,7 +54,7 @@ public class PartyIdentifierModal extends DomibusPage {
 		return new DInput(driver, partyIdValueInput);
 	}
 
-	public void fillFileds(String partyId) throws Exception {
+	public void fillFields(String partyId) throws Exception {
 		getPartyIdInput().fill(partyId);
 		getPartyIdTypeInput().fill(Generator.randomAlphaNumeric(5));
 		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered");

@@ -425,6 +425,19 @@ public class DomibusRestClient {
 		return null;
 	}
 
+	public String getSecondDomainName() {
+		try {
+			JSONArray domainArray = getDomains();
+			for (int i = 0; i < domainArray.length(); i++) {
+				String name = domainArray.getJSONObject(i).getString("name");
+				if (StringUtils.equalsIgnoreCase(name, "default")) continue;
+				return name;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	// -------------------------------------------- Message Filters ----------------------------------------------------
 	public void createMessageFilter(String actionName, String domain) throws JSONException {

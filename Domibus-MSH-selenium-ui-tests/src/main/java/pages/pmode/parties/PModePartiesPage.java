@@ -79,17 +79,15 @@ public class PModePartiesPage extends DomibusPage {
 		return new PartiesFilters(driver);
 	}
 
-public PModeCurrentPage getPage(){ return new PModeCurrentPage(driver);}
-public PModeCofirmationModal getModal(){ return new PModeCofirmationModal(driver);}
+	public PModeCurrentPage getPage(){ return new PModeCurrentPage(driver);}
 
-
-public String printPmode( Document xml) throws Exception{
-	Transformer tf= TransformerFactory.newInstance().newTransformer();
-	tf.setOutputProperty(OutputKeys.ENCODING,"UTF-8");
-	tf.setOutputProperty(OutputKeys.INDENT,"yes");
-	Writer out=new StringWriter();
-	tf.transform(new DOMSource(xml),new StreamResult(out));
-	return out.toString();
-}
+	public String printPmode( Document xml) throws Exception{
+		Transformer tf= TransformerFactory.newInstance().newTransformer();
+		tf.setOutputProperty(OutputKeys.ENCODING,"UTF-8");
+		tf.setOutputProperty(OutputKeys.INDENT,"yes");
+		Writer out=new StringWriter();
+		tf.transform(new DOMSource(xml),new StreamResult(out));
+		return out.toString();
+	}
 
 }

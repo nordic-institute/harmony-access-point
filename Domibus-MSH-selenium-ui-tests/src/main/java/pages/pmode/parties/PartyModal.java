@@ -28,10 +28,10 @@ public class PartyModal extends DomibusPage {
 		wait.forElementToBeEnabled(nameInput);
 	}
 
-	@FindBy(css = "app-party-details > mat-dialog-content > form > button:nth-child(5)")
+	@FindBy(css = "mat-dialog-content > form #partydetails_okbutton_id")
 	protected WebElement okBtn;
 
-	@FindBy(css = "mat-dialog-container button:nth-of-type(6)")
+	@FindBy(css = "mat-dialog-content > form #partydetails_cancelbutton_id")
 	protected WebElement cancelBtn;
 
 	@FindBy(css = "#name_id_detail")
@@ -142,7 +142,7 @@ public class PartyModal extends DomibusPage {
 		getNewIdentifierButton().click();
 
 		PartyIdentifierModal pimodal = new PartyIdentifierModal(driver);
-		pimodal.fillFileds(partyId);
+		pimodal.fillFields(partyId);
 		pimodal.clickOK();
 	}
 

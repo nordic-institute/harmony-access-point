@@ -26,13 +26,13 @@ public class PModeCurrentPage extends DomibusPage {
 
 	@FindBy(id = "pmodetextarea_id")
 	WebElement textArea;
-	@FindBy(css = "table > tbody > tr > td > button:nth-child(1)")
+	@FindBy(css = "table.group-action-button td > button:nth-child(1)")
 	WebElement cancelBtn;
-	@FindBy(css = "table > tbody > tr > td > button:nth-child(2)")
+	@FindBy(css = "table.group-action-button td > button:nth-child(2)")
 	WebElement saveBtn;
-	@FindBy(css = "table > tbody > tr > td > button:nth-child(3)")
+	@FindBy(css = "table.group-action-button td > button:nth-child(3)")
 	WebElement uploadBtn;
-	@FindBy(css = "table > tbody > tr > td > button:nth-child(4)")
+	@FindBy(css = "table.group-action-button td > button:nth-child(4)")
 	WebElement downloadBtn;
 	@FindBy(css = ".pModeInfo >span")
 	WebElement infoTxt;
