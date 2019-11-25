@@ -3,7 +3,7 @@ package eu.domibus.spring.jpa;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.spring.PrefixedProperties;
+import eu.domibus.spring.properties.PrefixedProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;

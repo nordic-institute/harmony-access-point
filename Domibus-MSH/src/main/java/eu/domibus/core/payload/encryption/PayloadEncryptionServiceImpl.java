@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -25,6 +26,8 @@ import java.util.List;
  */
 @Service("EncryptionServiceImpl")
 public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
+
+    public static final String ENCRYPTION_LOCK = "encryption.lock";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadEncryptionServiceImpl.class);
 
@@ -120,4 +123,47 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
         return decryptCipher;
     }
+
+    @Override
+    public boolean useLockForEncryption() {
+        final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
+        LOG.debug("Cluster deployment? [{}]", clusterDeployment);
+
+        final boolean anyEncryptionActive = isAnyEncryptionActive();
+        LOG.debug("isAnyEncryptionActive? [{}]", anyEncryptionActive);
+
+        return clusterDeployment && isAnyEncryptionActive();
+    }
+
+    @Override
+    public File getLockFileLocation() {
+        return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
+    }
+
+
+    protected boolean isAnyEncryptionActive() {
+        final boolean generalPasswordEncryptionActive = domibusConfigurationService.isPasswordEncryptionActive();
+        if (generalPasswordEncryptionActive) {
+            LOG.debug("General password encryption is active");
+            return true;
+        }
+
+        final List<Domain> domains = domainService.getDomains();
+        for (Domain domain : domains) {
+            final Boolean payloadEncryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
+            if (payloadEncryptionActive) {
+                LOG.debug("Payload encryption is active for domain [{}]", domain);
+                return true;
+            }
+
+            final boolean passwordEncryptionActive = domibusConfigurationService.isPasswordEncryptionActive(domain);
+            if (passwordEncryptionActive) {
+                LOG.debug("Password encryption is active for domain [{}]", domain);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

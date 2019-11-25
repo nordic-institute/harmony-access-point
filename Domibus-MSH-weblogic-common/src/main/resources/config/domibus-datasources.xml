@@ -5,7 +5,7 @@
                            http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
 
-    <bean id="contextEnvironment" class="eu.domibus.spring.PrefixedProperties">
+    <bean id="contextEnvironment" class="eu.domibus.spring.properties.PrefixedProperties">
         <constructor-arg name="domibusPropertyProvider" ref="domibusPropertyProvider"/>
         <constructor-arg name="prefix" value="domibus.environment.context."/>
     </bean>
