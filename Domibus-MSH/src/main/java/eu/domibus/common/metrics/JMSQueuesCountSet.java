@@ -1,19 +1,19 @@
 package eu.domibus.common.metrics;
 
-import com.codahale.metrics.CachedGauge;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.MetricSet;
+import com.codahale.metrics.*;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Implements {@code MetricSet} for JMSQueues counts
@@ -29,46 +29,79 @@ public class JMSQueuesCountSet implements MetricSet {
 
     private AuthUtils authUtils;
 
-    /** seconds */
+    /**
+     * seconds
+     */
     private long refreshPeriod;
 
+    private boolean showDLQOnly;
+
     /**
-     *
      * @param jmsManager
      * @param authUtils
      * @param refreshPeriod how long (in seconds) the value will be cached
+     * @param showDLQOnly
      */
-    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod) {
+    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod, boolean showDLQOnly) {
         this.jmsManager = jmsManager;
         this.authUtils = authUtils;
         this.refreshPeriod = refreshPeriod;
+        this.showDLQOnly = showDLQOnly;
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
 
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
+        List<String> queueNames = showDLQOnly ? getQueueNamesDLQ() : getQueueNames();
+        LOG.debug("Using queues [{}] for metrics with refreshPeriod=[{}]", queueNames, refreshPeriod);
+
+        for (String queueName : queueNames) {
+            addQueueCountToMetrics(gauges, queueName, refreshPeriod);
         }
+        return gauges;
+    }
 
-        Map<String, JMSDestination> queues = jmsManager.getDestinations();
-        for (Map.Entry<String, JMSDestination> entry : queues.entrySet()) {
-            final JMSDestination jmsDestination = entry.getValue();
-            LOG.debug("Getting the count for [{}]", jmsDestination);
-            final String queueName = jmsDestination.getName();
-
+    private void addQueueCountToMetrics(Map<String, Metric> gauges, final String queueName, final long refreshPeriod) {
+        if (refreshPeriod == 0) {
+            //no cached metrics
+            gauges.put(MetricRegistry.name(queueName),
+                    (Gauge<Long>) () -> getQueueSize(queueName));
+        } else {
             gauges.put(MetricRegistry.name(queueName),
                     new CachedGauge<Long>(refreshPeriod, TimeUnit.SECONDS) {
                         @Override
                         protected Long loadValue() {
-                            // time consuming mostly on cluster config
-                            //TODO EDELIVERY-5557
-                            return jmsManager.getDestinationSize(queueName);
+                            return getQueueSize(queueName);
                         }
                     });
         }
-        return gauges;
+    }
+
+    private void assureSecurityRights() {
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
+        }
+    }
+
+    private List<String> getQueueNames() {
+        assureSecurityRights();
+        return jmsManager.getDestinations().values().stream().map(JMSDestination::getName).collect(Collectors.toList());
+    }
+
+    private List<String> getQueueNamesDLQ() {
+        return getQueueNames().stream().filter(s -> StringUtils.containsIgnoreCase(s, "domibus")
+                && StringUtils.containsIgnoreCase(s, "DLQ")).collect(Collectors.toList());
+    }
+
+    private long getQueueSize(final String queueName) {
+        assureSecurityRights();
+
+        // time consuming mostly on cluster configuration
+        //TODO EDELIVERY-5557
+        final long queueSize = jmsManager.getDestinationSize(queueName);
+        LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", queueName, queueSize);
+        return queueSize;
     }
 
 }
