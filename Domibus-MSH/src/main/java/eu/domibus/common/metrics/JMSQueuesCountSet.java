@@ -3,6 +3,7 @@ package eu.domibus.common.metrics;
 import com.codahale.metrics.*;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
@@ -29,6 +30,8 @@ public class JMSQueuesCountSet implements MetricSet {
 
     private AuthUtils authUtils;
 
+    private DomainTaskExecutor domainTaskExecutor;
+
     /**
      * seconds
      */
@@ -42,9 +45,10 @@ public class JMSQueuesCountSet implements MetricSet {
      * @param refreshPeriod how long (in seconds) the value will be cached
      * @param showDLQOnly
      */
-    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, long refreshPeriod, boolean showDLQOnly) {
+    public JMSQueuesCountSet(JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, long refreshPeriod, boolean showDLQOnly) {
         this.jmsManager = jmsManager;
         this.authUtils = authUtils;
+        this.domainTaskExecutor = domainTaskExecutor;
         this.refreshPeriod = refreshPeriod;
         this.showDLQOnly = showDLQOnly;
     }
@@ -95,13 +99,15 @@ public class JMSQueuesCountSet implements MetricSet {
     }
 
     private long getQueueSize(final String queueName) {
-        assureSecurityRights();
+        return domainTaskExecutor.submit(() -> {
+            assureSecurityRights();
 
-        // time consuming mostly on cluster configuration
-        //TODO EDELIVERY-5557
-        final long queueSize = jmsManager.getDestinationSize(queueName);
-        LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", queueName, queueSize);
-        return queueSize;
+            // time consuming mostly on cluster configuration
+            //TODO EDELIVERY-5557
+            final long queueSize = jmsManager.getDestinationSize(queueName);
+            LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", queueName, queueSize);
+            return queueSize;
+        });
     }
 
 }
