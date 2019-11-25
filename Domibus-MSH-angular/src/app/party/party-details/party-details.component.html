@@ -79,16 +79,16 @@
             </ngx-datatable>
 
             <div class="button-container">
-              <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour>
+              <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour id="partydetails_addbutton_id">
                 <mat-icon>add</mat-icon>
                 <span>New</span>
               </button>
-              <button mat-raised-button (click)="editIdentifier()" color="primary"
+              <button mat-raised-button (click)="editIdentifier()" color="primary" id="partydetails_editbutton_id"
                       [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                 <mat-icon>edit</mat-icon>
                 <span>Edit</span>
               </button>
-              <button mat-raised-button (click)="removeIdentifier()" color="primary"
+              <button mat-raised-button (click)="removeIdentifier()" color="primary" id="partydetails_removebutton_id"
                       [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                 <mat-icon>delete</mat-icon>
                 <span>Delete</span>
@@ -145,11 +145,11 @@
     </div>
 
     <div class="button-container">
-      <button mat-raised-button (click)="ok()" color="primary" button-click-behaviour
+      <button mat-raised-button (click)="ok()" color="primary" button-click-behaviour id="partydetails_okbutton_id"
               [disabled]="party_name.invalid || party_endPoint.invalid || party.identifiers.length == 0">
         <span>OK</span>
       </button>
-      <button mat-raised-button (click)="cancel()" color="primary" button-click-behaviour>
+      <button mat-raised-button (click)="cancel()" color="primary" button-click-behaviour id="partydetails_cancelbutton_id">
         <span>Cancel</span>
       </button>
     </div>

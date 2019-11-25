@@ -276,8 +276,11 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     const deletedParty = this.selected[0];
     if (!deletedParty) return;
 
+    console.log('removing ' , deletedParty)
+
     this.rows.splice(this.rows.indexOf(deletedParty), 1);
-    this.allRows.splice(this.rows.indexOf(deletedParty), 1);
+    this.allRows.splice(this.allRows.indexOf(deletedParty), 1);
+    this.rows = [...this.rows];
 
     this.selected.length = 0;
     this.count--;
@@ -293,7 +296,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
     await this.manageCertificate(row);
 
-    const rowCopy = JSON.parse(JSON.stringify(row));
+    const rowCopy = JSON.parse(JSON.stringify(row)); // clone
     const allProcessesCopy = JSON.parse(JSON.stringify(this.allProcesses));
 
     const dialogRef: MatDialogRef<PartyDetailsComponent> = this.dialog.open(PartyDetailsComponent, {
@@ -309,6 +312,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
         return; // nothing changed
 
       Object.assign(row, rowCopy);
+      row.name = rowCopy.name;// TODO temp
       if (this.updatedParties.indexOf(row) < 0)
         this.updatedParties.push(row);
     }
