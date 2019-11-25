@@ -33,11 +33,6 @@ public class CommandEntity extends AbstractBaseEntity {
     @NotNull
     protected String domain;
 
-    @Column(name = "CREATION_TIME")
-    @Temporal(TemporalType.TIMESTAMP)
-    @NotNull
-    protected Date creationTime;
-
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "TB_COMMAND_PROPERTY", joinColumns = @JoinColumn(name = "FK_COMMAND"))
     @MapKeyColumn(name = "PROPERTY_NAME", length = 50)
@@ -59,14 +54,6 @@ public class CommandEntity extends AbstractBaseEntity {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
     }
 
     public String getDomain() {

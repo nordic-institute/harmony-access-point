@@ -6,6 +6,9 @@ import eu.domibus.common.model.certificate.CertificateStatus;
 import eu.domibus.common.model.certificate.CertificateType;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,7 @@ import static org.junit.Assert.assertNull;
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class CertificateDaoImplIT {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImplIT.class);
 
     //needed because CertificateDaoImpl implements an interface, so spring tries to convert it to interface based
     //proxy. But one of the method tested is not declared in the interface.
@@ -62,6 +66,11 @@ public class CertificateDaoImplIT {
 
     @Autowired
     private DateUtil dateUtil;
+
+    @Before
+    public void setup() {
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+    }
 
     @Test(expected = javax.validation.ConstraintViolationException.class)
     @Transactional

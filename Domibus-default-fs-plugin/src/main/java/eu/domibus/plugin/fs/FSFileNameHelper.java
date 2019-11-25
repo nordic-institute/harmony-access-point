@@ -17,26 +17,18 @@ import java.util.regex.Pattern;
  */
 public class FSFileNameHelper {
 
-    private static final String NAME_SEPARATOR = "_";
-    private static final String EXTENSION_SEPARATOR = ".";
+    public static final String NAME_SEPARATOR = "_";
+    public static final String EXTENSION_SEPARATOR = ".";
     public static final Pattern OUT_DIRECTORY_PATTERN = Pattern.compile("/" + FSFilesManager.OUTGOING_FOLDER + "(/|$)");
-    private static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-    private static final Pattern PROCESSED_FILE_PATTERN = Pattern.compile(
+    protected static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+    protected static final Pattern PROCESSED_FILE_PATTERN = Pattern.compile(
             NAME_SEPARATOR + UUID_PATTERN + "@.", Pattern.CASE_INSENSITIVE);
-    private static final List<String> STATE_SUFFIXES;
-    private static final String LOCK_SUFFIX = ".lock";
+    protected static final String LOCK_SUFFIX = ".lock";
 
-    static {
-        List<String> tempStateSuffixes = new LinkedList<>();
-        for (MessageStatus status : MessageStatus.values()) {
-            tempStateSuffixes.add(EXTENSION_SEPARATOR + status.name());
-        }
+    protected List<String> stateSuffixes;
 
-        STATE_SUFFIXES = Collections.unmodifiableList(tempStateSuffixes);
-    }
-
-    private FSFileNameHelper() {
-        super();
+    public FSFileNameHelper(List<String> stateSuffixes) {
+        this.stateSuffixes = stateSuffixes;
     }
 
     /**
@@ -46,8 +38,8 @@ public class FSFileNameHelper {
      * @param fileName the file name to test
      * @return true, if the file name has been derived from a {@link eu.domibus.common.MessageStatus}
      */
-    public static boolean isAnyState(final String fileName) {
-        return StringUtils.endsWithAny(fileName, STATE_SUFFIXES.toArray(new String[0]));
+    public boolean isAnyState(final String fileName) {
+        return StringUtils.endsWithAny(fileName, stateSuffixes.toArray(new String[0]));
     }
 
     /**
@@ -57,7 +49,7 @@ public class FSFileNameHelper {
      * @param fileName the file name to test
      * @return true, if the file name has been derived from a message Id
      */
-    public static boolean isProcessed(final String fileName) {
+    public boolean isProcessed(final String fileName) {
         return PROCESSED_FILE_PATTERN.matcher(fileName).find();
     }
 
@@ -79,11 +71,11 @@ public class FSFileNameHelper {
      * @param fileName the file name to test
      * @return true, if the file name matches the lock pattern.
      */
-    public static boolean isLockFile(final String fileName) {
+    public boolean isLockFile(final String fileName) {
         return StringUtils.endsWith(fileName, LOCK_SUFFIX);
     }
 
-    public static String getLockFilename(FileObject file) {
+    public String getLockFilename(FileObject file) {
         return file.getName().getBaseName() + LOCK_SUFFIX;
     }
 
@@ -95,7 +87,7 @@ public class FSFileNameHelper {
      * @param messageId the message Id to use for the derivation
      * @return a new file name of the form {@code filename_messageId.ext}
      */
-    public static String deriveFileName(final String fileName, final String messageId) {
+    public String deriveFileName(final String fileName, final String messageId) {
         int extensionIdx = StringUtils.lastIndexOf(fileName, EXTENSION_SEPARATOR);
 
         if (extensionIdx != -1) {
@@ -116,11 +108,11 @@ public class FSFileNameHelper {
      * @param status the message status to use for the derivation
      * @return a new file name of the form {@code filename.ext.MESSAGE_STATUS}
      */
-    public static String deriveFileName(final String fileName, final MessageStatus status) {
+    public String deriveFileName(final String fileName, final MessageStatus status) {
         return stripStatusSuffix(fileName) + EXTENSION_SEPARATOR + status.name();
     }
 
-    public static String stripStatusSuffix(final String fileName) {
+    public String stripStatusSuffix(final String fileName) {
         String result = fileName;
         if (isAnyState(fileName)) {
             result = StringUtils.substringBeforeLast(fileName, EXTENSION_SEPARATOR);
@@ -134,7 +126,7 @@ public class FSFileNameHelper {
      * @param fileName the lock file name
      * @return the base file name
      */
-    public static String stripLockSuffix(final String fileName) {
+    public String stripLockSuffix(final String fileName) {
         String result = fileName;
         if (isLockFile(fileName)) {
             result = StringUtils.substringBeforeLast(fileName, LOCK_SUFFIX);
@@ -150,7 +142,7 @@ public class FSFileNameHelper {
      * @param fileURI the file URI
      * @return the derived sent directory location
      */
-    public static String deriveSentDirectoryLocation(String fileURI) {
+    public String deriveSentDirectoryLocation(String fileURI) {
         return deriveDirectoryLocation(fileURI, FSFilesManager.SENT_FOLDER);
     }
 
@@ -163,11 +155,11 @@ public class FSFileNameHelper {
      * @param fileURI the file URI
      * @return the derived failed directory location
      */
-    public static String deriveFailedDirectoryLocation(String fileURI) {
+    public String deriveFailedDirectoryLocation(String fileURI) {
         return deriveDirectoryLocation(fileURI, FSFilesManager.FAILED_FOLDER);
     }
 
-    private static String deriveDirectoryLocation(String fileURI, String destFolder) {
+    protected String deriveDirectoryLocation(String fileURI, String destFolder) {
         Matcher matcher = OUT_DIRECTORY_PATTERN.matcher(fileURI);
         return matcher.replaceFirst("/" + destFolder + "/");
     }
