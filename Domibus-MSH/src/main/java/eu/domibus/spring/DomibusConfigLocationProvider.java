@@ -16,16 +16,17 @@ public class DomibusConfigLocationProvider {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConfigLocationProvider.class);
 
     public String getDomibusConfigLocation(ServletContext servletContext) {
-        String domibusConfigLocation = System.getProperty(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
-        if (StringUtils.isNotBlank(domibusConfigLocation)) {
-            LOG.debug("Property [{}] is configured as a system property with [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
-        }
-
         String domibusConfigLocationInitParameter = servletContext.getInitParameter(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
         if (StringUtils.isNotBlank(domibusConfigLocationInitParameter)) {
             LOG.debug("Property [{}] is configured as a servlet init parameter with [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocationInitParameter);
-            domibusConfigLocation = domibusConfigLocationInitParameter;
+            return domibusConfigLocationInitParameter;
         }
-        return domibusConfigLocation;
+
+        String domibusConfigLocation = System.getProperty(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
+        if (StringUtils.isNotBlank(domibusConfigLocation)) {
+            LOG.debug("Property [{}] is configured as a system property with [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+            return domibusConfigLocation;
+        }
+        return null;
     }
 }

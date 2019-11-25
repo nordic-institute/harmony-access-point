@@ -491,7 +491,7 @@ public class DomainSchedulerFactoryConfiguration {
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
-        properties.setProperty("org.quartz.scheduler.jmx.export", "true");
+        properties.setProperty("org.quartz.scheduler.jmx.export", "false");
         properties.setProperty("org.quartz.threadExecutor.class", DomibusQuartzThreadExecutor.class.getCanonicalName());
 
         properties.setProperty("org.quartz.scheduler.instanceName", "general");

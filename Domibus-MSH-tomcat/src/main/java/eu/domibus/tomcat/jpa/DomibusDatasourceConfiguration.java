@@ -58,7 +58,6 @@ public class DomibusDatasourceConfiguration {
     public PrefixedProperties xaProperties(DomibusPropertyProvider domibusPropertyProvider) {
         final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
 
-        LOGGER.debug("Decrypting the property [{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD);
         prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD));
         return prefixedProperties;
     }
