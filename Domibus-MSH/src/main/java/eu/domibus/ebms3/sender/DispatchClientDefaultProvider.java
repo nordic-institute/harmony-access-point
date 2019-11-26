@@ -30,6 +30,8 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.soap.SOAPBinding;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -46,11 +48,10 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     public static final QName LOCAL_SERVICE_NAME = new QName("http://domibus.eu", "local-msh-dispatch-service");
     public static final QName PORT_NAME = new QName("http://domibus.eu", "msh-dispatch");
     public static final QName LOCAL_PORT_NAME = new QName("http://domibus.eu", "local-msh-dispatch");
-    public static final String DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT = "domibus.dispatcher.connectionTimeout";
-    public static final String DOMIBUS_DISPATCHER_RECEIVETIMEOUT = "domibus.dispatcher.receiveTimeout";
-    public static final String DOMIBUS_DISPATCHER_ALLOWCHUNKING = "domibus.dispatcher.allowChunking";
-    public static final String DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD = "domibus.dispatcher.chunkingThreshold";
-    public static final String DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE = "domibus.dispatcher.connection.keepAlive";
+    public static final String DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT = DOMIBUS_DISPATCHER_CONNECTION_TIMEOUT;
+    public static final String DOMIBUS_DISPATCHER_RECEIVETIMEOUT = DOMIBUS_DISPATCHER_RECEIVE_TIMEOUT;
+    public static final String DOMIBUS_DISPATCHER_ALLOWCHUNKING = DOMIBUS_DISPATCHER_ALLOW_CHUNKING;
+    public static final String DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD = DOMIBUS_DISPATCHER_CHUNKING_THRESHOLD;
 
 
     @Autowired

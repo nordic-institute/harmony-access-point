@@ -3,6 +3,9 @@ package eu.domibus.configuration.storage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageFactory;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProviderImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -26,7 +29,7 @@ import java.util.Map;
 public class StorageProviderImplTest {
 
     @Injectable
-    protected StorageFactory storageFactory;
+    protected PayloadFileStorageFactory storageFactory;
 
     @Injectable
     protected DomainService domainService;
@@ -35,13 +38,13 @@ public class StorageProviderImplTest {
     protected DomainContextProvider domainContextProvider;
 
     @Injectable
-    Map<Domain, Storage> instances = new HashMap<>();
+    Map<Domain, PayloadFileStorage> instances = new HashMap<>();
 
     @Tested
-    StorageProviderImpl storageProvider;
+    PayloadFileStorageProviderImpl storageProvider;
 
     @Test
-    public void init(@Injectable Storage storage) {
+    public void init(@Injectable PayloadFileStorage storage) {
         List<Domain> domains = new ArrayList<>();
         final Domain domain = DomainService.DEFAULT_DOMAIN;
         domains.add(domain);
@@ -76,7 +79,7 @@ public class StorageProviderImplTest {
     }
 
     @Test
-    public void getCurrentStorage(@Injectable Storage storage) {
+    public void getCurrentStorage(@Injectable PayloadFileStorage storage) {
         final Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations(storageProvider) {{
@@ -87,12 +90,12 @@ public class StorageProviderImplTest {
             result = storage;
         }};
 
-        final Storage currentStorage = storageProvider.getCurrentStorage();
+        final PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
         Assert.assertEquals(currentStorage, storage);
     }
 
     @Test
-    public void savePayloadsInDatabase(@Injectable Storage storage) {
+    public void savePayloadsInDatabase(@Injectable PayloadFileStorage storage) {
         new Expectations(storageProvider) {{
             storageProvider.getCurrentStorage();
             result = storage;
@@ -101,11 +104,11 @@ public class StorageProviderImplTest {
             result = null;
         }};
 
-        Assert.assertTrue(storageProvider.idPayloadsPersistenceInDatabaseConfigured());
+        Assert.assertTrue(storageProvider.isPayloadsPersistenceInDatabaseConfigured());
     }
 
     @Test
-    public void testSavePayloadsInDatabaseWithFileSystemStorage(@Injectable Storage storage,
+    public void testSavePayloadsInDatabaseWithFileSystemStorage(@Injectable PayloadFileStorage storage,
                                                                 @Injectable File file) {
         new Expectations(storageProvider) {{
             storageProvider.getCurrentStorage();
@@ -118,6 +121,6 @@ public class StorageProviderImplTest {
             result = "/home/storage";
         }};
 
-        Assert.assertFalse(storageProvider.idPayloadsPersistenceInDatabaseConfigured());
+        Assert.assertFalse(storageProvider.isPayloadsPersistenceInDatabaseConfigured());
     }
 }

@@ -82,6 +82,18 @@ public class SignalServiceImpl implements SignalService {
         sendMessage(commandProperties);
     }
 
+    @Override
+    public void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue) {
+
+        Map<String, Object> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DOMIBUS_PROPERTY_CHANGE);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+        commandProperties.put(CommandProperty.PROPERTY_NAME, propertyName);
+        commandProperties.put(CommandProperty.PROPERTY_VALUE, propertyValue);
+
+        sendMessage(commandProperties);
+    }
+
     protected void sendMessage(Map<String, Object> commandProperties){
         if (!domibusConfigurationService.isClusterDeployment()) {
             LOG.debug("not cluster deployment: no need to {}", commandProperties.get(Command.COMMAND));

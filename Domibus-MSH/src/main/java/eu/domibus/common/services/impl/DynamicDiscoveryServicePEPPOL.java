@@ -1,6 +1,5 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.services.DynamicDiscoveryService;
@@ -10,6 +9,7 @@ import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.common.util.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.api.pki.CertificateService;
 import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
 import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -26,13 +26,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+
 /**
  * Service to query the SMP to extract the required information about the unknown receiver AP.
  * The SMP Lookup is done using an SMP Client software, with the following input:
- *       The End Receiver Participant ID (C4)
- *       The Document ID
- *       The Process ID
- *
+ * The End Receiver Participant ID (C4)
+ * The Document ID
+ * The Process ID
+ * <p>
  * Upon a successful lookup, the result contains the endpoint address and also othe public certificate of the receiver.
  */
 @Service
@@ -54,7 +56,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
     @Autowired
     protected CertificateService certificateService;
 
-    @Cacheable(value = "lookupInfo", key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
+    @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
@@ -62,7 +64,11 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
         if (smlInfo == null) {
             throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
-        String mode = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_MODE, Mode.TEST);
+        String mode = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_MODE);
+        if (StringUtils.isEmpty(mode)) {
+            mode = Mode.TEST;
+        }
+
         try {
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
             lookupClientBuilder.locator(new BusdoxLocator(smlInfo));
@@ -91,7 +97,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     protected DocumentTypeIdentifier getDocumentTypeIdentifier(String documentId) throws PeppolParsingException {
         DocumentTypeIdentifier result = null;
-        if(StringUtils.contains(documentId, DocumentTypeIdentifier.DEFAULT_SCHEME.getIdentifier())) {
+        if (StringUtils.contains(documentId, DocumentTypeIdentifier.DEFAULT_SCHEME.getIdentifier())) {
             LOG.debug("Getting DocumentTypeIdentifier by parsing the document Id [{}]", documentId);
             result = DocumentTypeIdentifier.parse(documentId);
         } else {
@@ -103,7 +109,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     protected ProcessIdentifier getProcessIdentifier(String processId) throws PeppolParsingException {
         ProcessIdentifier result = null;
-        if(StringUtils.contains(processId, SCHEME_DELIMITER)) {
+        if (StringUtils.contains(processId, SCHEME_DELIMITER)) {
             LOG.debug("Getting ProcessIdentifier by parsing the process Id [{}]", processId);
             result = ProcessIdentifier.parse(processId);
         } else {
@@ -115,12 +121,20 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     @Override
     public String getPartyIdType() {
-        return domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE, PARTYID_TYPE);
+        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
+        if (StringUtils.isEmpty(propVal)) {
+            propVal = PARTYID_TYPE;
+        }
+        return propVal;
     }
 
     @Override
-    public String getResponderRole(){
-        return domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE, RESPONDER_ROLE);
+    public String getResponderRole() {
+        String propVal = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
+        if (StringUtils.isEmpty(propVal)) {
+            propVal = RESPONDER_ROLE;
+        }
+        return propVal;
     }
 
 }

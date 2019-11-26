@@ -38,6 +38,7 @@ import org.apache.wss4j.dom.str.STRParserResult;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -58,6 +59,9 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+
 /**
  * This interceptor is responsible of the trust of an incoming messages.
  * Useful info on this topic are here: http://tldp.org/HOWTO/SSL-Certificates-HOWTO/x64.html
@@ -66,10 +70,6 @@ import java.util.List;
  * @since 3.3
  */
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
-
-    public static final String DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING = "domibus.sender.trust.validation.onreceiving";
-
-    protected static final String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING = "domibus.sender.certificate.validation.onreceiving";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
 
@@ -111,6 +111,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      * @param message the incoming CXF soap message to handle
      */
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class)
     public void handleMessage(final SoapMessage message) throws Fault {
         if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.warn("No trust verification of sending certificate");
@@ -118,14 +119,14 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
         String messageId = (String) message.getExchange().get(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY);
         if (!isMessageSecured(message)) {
-            LOG.info("Message does not contain security info ==> skipping sender trust verification.");
+            LOG.debug("Message does not contain security info ==> skipping sender trust verification.");
             return;
         }
 
         boolean isPullMessage = false;
         MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
         if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
-            LOG.info("PULL Signal Message");
+            LOG.debug("PULL Signal Message");
             isPullMessage = true;
         }
 
@@ -141,7 +142,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
         LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
 
-        LOG.info("Validating sender certificate for party [{}]", senderPartyName);
+        LOG.debug("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
         if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
@@ -159,7 +160,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                     LOG.error("Cannot receive message: sender certificate is not valid or it has been revoked [" + sender + "]");
                     return false;
                 }
-                LOG.info("[Pull:{}] - Sender certificate exists and is valid [{}]", isPullMessage, sender);
+                LOG.debug("[Pull:{}] - Sender certificate exists and is valid [{}]", isPullMessage, sender);
             } catch (DomibusCertificateException dce) {
                 LOG.error("Could not verify if the certificate chain is valid for alias " + sender, dce);
                 return false;
@@ -205,8 +206,9 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     protected List<String> getPmodeKeyValues(SoapMessage message) {
         String pmodeKey = (String) message.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
-        if (StringUtils.isEmpty(pmodeKey))
+        if (StringUtils.isEmpty(pmodeKey)) {
             return null;
+        }
 
         return StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
     }

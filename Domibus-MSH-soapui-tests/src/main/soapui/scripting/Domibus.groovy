@@ -390,7 +390,9 @@ def findNumberOfDomain(String inputSite) {
         def sqlQueriesList = [
             "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_RAWENVELOPE_LOG where SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + "))",
+			"delete from TB_RAWENVELOPE_LOG where MESSAGE_ID ${messageIDCheck}",
             "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
+			"delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
             "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_PROPERTY where PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
             "delete from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
@@ -626,10 +628,10 @@ def findNumberOfDomain(String inputSite) {
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema="BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
-        def MAX_WAIT_TIME=10_000;
-        def STEP_WAIT_TIME=1000;
-        def sqlSender = null;
-        int total = 0;
+        def MAX_WAIT_TIME=50_000
+        def STEP_WAIT_TIME=2000
+        def sqlSender = null
+        int total = 0
         openAllDbConnections()
 
         sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
@@ -948,12 +950,12 @@ def findNumberOfDomain(String inputSite) {
     static def uploadPmode(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String message = null, String authUser = null, authPwd = null){
         debugLog("  ====  Calling \"uploadPmode\".", log)
         log.info "  uploadPmode  [][]  Start upload PMode for Domibus \"" + side + "\".";
-        def commandString = null;
-        def commandResult = null;
-        def pmDescription = "SoapUI sample test description for PMode upload. Used Pmode: " + extFilePath ;
-        def multitenancyOn = false;
-        def authenticationUser = authUser;
-        def authenticationPwd = authPwd;
+        def commandString = null
+        def commandResult = null
+        def pmDescription = "SoapUI sample test description for PMode upload."
+        def multitenancyOn = false
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
         def String pmodeFile = computePathRessources(baseFilePath, extFilePath, context, log)
 
         log.info "  uploadPmode  [][]  PMODE FILE PATH: " + pmodeFile;
@@ -1151,6 +1153,7 @@ def findNumberOfDomain(String inputSite) {
         def jsonSlurper = new JsonSlurper()
         def domainMap = jsonSlurper.parseText(domainInfo)
         assert(domainMap.name != null),"Error:getDomain: Domain informations are corrupted: $domainInfo.";
+		debugLog("  ====  End \"getDomainName\": returning domain name value "+domainMap.name+".", log)
         return domainMap.name;
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1252,7 +1255,13 @@ def findNumberOfDomain(String inputSite) {
                 curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
                 debugLog("  addAdminConsoleUser  [][]  Inserting user \"$userAC\" in list.", log)
                 debugLog("  addAdminConsoleUser  [][]  User \"$userAC\" parameters: $curlParams.", log)
-                commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+				commandString = ["curl ",urlToDomibus(side, log, context) + "/rest/user/users",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT", 
+								"--data-binary", formatJsonForCurl(curlParams, log), 
+								"-v"]
                 commandResult = runCurlCommand(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addAdminConsoleUser: Error while trying to add a user.";
                 log.info "  addAdminConsoleUser  [][]  Admin Console user \"$userAC\" added.";
@@ -1360,7 +1369,7 @@ def findNumberOfDomain(String inputSite) {
                 commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
 								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
 								"-H", "Content-Type: application/json",
-								"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
@@ -1533,7 +1542,7 @@ static def ifWindowsEscapeJsonString(json) {
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagefilters -b "+context.expand( '${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
         commandResult = runCurlCommand(commandString, log)
-        assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to connect to domibus."
+        assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to retrieve filters."
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1761,6 +1770,7 @@ static def ifWindowsEscapeJsonString(json) {
 
 // Return admin credentials for super user in multidomain configuration and admin user in single domaind situation with domain provided
         static def retriveAdminCredentialsForDomain(context, log, String side, String domainValue, String authUser, authPwd) {
+		debugLog("  ====  Calling \"retriveAdminCredentialsForDomain\".", log)
         def authenticationUser = authUser
         def authenticationPwd = authPwd
         def multitenancyOn =  null
@@ -1782,6 +1792,7 @@ static def ifWindowsEscapeJsonString(json) {
                 authenticationPwd = DEFAULT_ADMIN_USER_PWD;
             }
         }
+		debugLog("  ====  END \"retriveAdminCredentialsForDomain\": returning credentials: ["+authenticationUser+", "+authenticationPwd+"].", log)
         return [authenticationUser, authenticationPwd]
 }
 
@@ -2099,5 +2110,379 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
+    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+		def authenticationUser = authUser
+        def authenticationPwd = authPwd
+
+        debugLog("  ====  Calling \"changePropertyAtRuntime\".", log)
+        log.info "  changePropertyAtRuntime  [][]  Start procedure to change property at runtime for Domibus \"" + side + "\"."
+        log.info "  changePropertyAtRuntime  [][]  Property to change: " + propName + " new value: " + propNewValue
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/" + propName, 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+							"-H",  "Content-Type: text/xml", 							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"--data-binary", "\"" + propNewValue + "\"", 
+							"-X", "PUT",
+							"-v"]
+            def commandResult = runCurlCommand(commandString, log)
+			
+            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1] 														
+			log.info "  changePropertyAtRuntime  [][]  Property value was changed" 
+
+        } finally {
+            resetAuthTokens(log)
+        }
+        debugLog("  ====  Finished \"changePropertyAtRuntime\".", log)		
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+ //---------------------------------------------------------------------------------------------------------------------------------
+// Return path to domibus folder
+static def String pathToLogFiles(side, log, context) {
+    debugLog("  ====  Calling \"pathToDomibus\".", log)
+    // Return path to domibus folder base on the "color"
+    def propName = ""
+    switch (side.toLowerCase()) {
+   case "c2":
+   case "blue":
+   case "sender":
+   case "c2default":
+        propName =  "logsPathBlue"
+        break;
+   case "c3":
+   case "red":
+   case "receiver":
+   case "c3default":
+        propName = "logsPathRed"
+        break;
+   case "receivergreen":
+   case "green":
+   case "thirddefault":
+        propName  = "logsPathGreen"
+        break;
+    default:
+        assert(false), "Unknown side color. Supported values: BLUE, RED, GREEN"
+    }
+    def path = context.expand("\${#Project#${propName}}")
+    return (path[-1]=='/' || path[-1]=='\\') ? path : (path + '/')
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def void checkNumberOfLinesToSkipInLogFile(side, logFileToCheck, log, context, testRunner){
+        debugLog("  ====  Calling \"checkNumberOfLinesToSkipInL\".", log)
+        // Before checking that some action generate specific log entry method store information how many lines already in log to not search tested log entry in old logs
+
+ 		def pathToLogFile = pathToLogFiles(side, log, context) + logFileToCheck
+
+		def skipNumberOfLines = context.expand('${#TestCase#skipNumberOfLines}')
+		log.info "  checkNumberOfLinesToSkipInLogFile  [][]  skipNumberOfLines property set"
+
+		  // Check file exists
+		def testFile = new File(pathToLogFile)
+		if (!testFile.exists()) {
+					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
+					return null
+		} else debugLog("  checkLogFile  [][]  File [${pathToLogFile}] exists.", log)
+	
+		def lineCount = 0
+		testFile.eachLine { lineCount++}
+		debugLog("Line count = " + lineCount, log) 
+		
+		testRunner.testCase.setPropertyValue( "skipNumberOfLines", lineCount.toString() )
+		log.info "Test case level property skipNumberOfLine set to = " + lineCount
+    }
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Change Domibus configuration file
+    static def void checkLogFile(side, logFileToCheck, logValueList, log, context, testRunner,checkPresent=true){
+        debugLog("  ====  Calling \"checkLogFile\".", log)
+        // Check that logs file contains specific entries specified in list logValueList
+        // to set number of lines to skip configuration use method restoreDomibusPropertiesFromBackup(domibusPath,  log, context, testRunner)
+ 
+ 		def pathToLogFile = pathToLogFiles(side, log, context) + logFileToCheck
+
+		def skipNumberOfLines = context.expand('${#TestCase#skipNumberOfLines}')
+		if (skipNumberOfLines == "") {
+			log.info "  checkLogFile  [][]  skipNumberOfLines property not defined on the test case level would start to search on first line"
+			skipNumberOfLines = 0
+		} else 
+		   skipNumberOfLines = skipNumberOfLines.toInteger()
+
+			   // Check file exists
+				def testFile = new File(pathToLogFile)
+				if (!testFile.exists()) {
+					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
+					return null
+				} else log.debug "  checkLogFile  [][]  File [${pathToLogFile}] exists."
+
+			  //def skipNumberOfLines = 0 
+				def foundTotalNumber = 0
+				def fileContent = testFile.text
+			   log.info " checkLogFile  [][]  would skip ${skipNumberOfLines} lines"
+			   def logSizeInLines = fileContent.readLines().size()
+			   if (logSizeInLines < skipNumberOfLines) {
+				log.info "Incorrect number of line to skip - it is higher than numbert of lines in log file (" + logSizeInLines + "). Maybe it is new log file would reset skipNumberOfLines value."
+				skipNumberOfLines = 0
+			   }
+			   
+				for(logEntryToFind  in logValueList){
+					  def found = false
+					testFile.eachLine{
+						line, lineNumber ->
+						lineNumber++
+						if (lineNumber > skipNumberOfLines) {
+							if(line =~ logEntryToFind) {
+								log.info "  checkLogFile  [][]  In log line $lineNumber searched entry was found. Line value is: $line"
+								found = true
+							}
+						}
+					}
+					if (! found ){
+						if(checkPresent){
+							log.warn " checkLogFile  [][]  The search string [$logEntryToFind] was NOT in file [${pathToLogFile}]"
+						}
+					}
+					else{ 
+						foundTotalNumber++
+					}					
+				} //loop end
+				if(checkPresent){
+					if (foundTotalNumber != logValueList.size()) 
+						testRunner.fail(" checkLogFile  [][]  Searching log file failed: Only ${foundTotalNumber} from ${logValueList.size()} entries found.") 
+					else 
+						log.info " checkLogFile  [][]  All ${logValueList.size()} entries were found in log file."
+				}
+				else{
+					if (foundTotalNumber != 0) 
+						testRunner.fail(" checkLogFile  [][]  Searching log file failed: ${foundTotalNumber} from ${logValueList.size()} entries were found.") 
+					else 
+						log.info " checkLogFile  [][]  All ${logValueList.size()} entries were not found in log file."
+				}
+    }
+	
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+// REST PUT request to test blacklisted characters
+    static def curlBlackList_PUT(String side, context, log, String userAC, String domainValue="Default", String userRole="ROLE_ADMIN", String passwordAC="Domibus-123", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"curlBlackList_PUT\".", log)
+        def usersMap=null;
+        def mapElement=null;
+        def multitenancyOn=false;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+            usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
+            if (userExists(usersMap, userAC, log, false)) {
+                log.error "Error:curlBlackList_PUT: Admin Console user \"$userAC\" already exist: usernames must be unique.";
+            } else {
+                curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
+                debugLog("  curlBlackList_PUT  [][]  User \"$userAC\" parameters: $curlParams.", log)
+				commandString = ["curl ",urlToDomibus(side, log, context) + "/rest/user/users",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT", 
+								"--data-binary", formatJsonForCurl(curlParams, log), 
+								"-v"]
+                commandResult = runCurlCommand(commandString, log)
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
+                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in property value \"$userAC\".";
+            }
+        } finally {
+            resetAuthTokens(log)
+        }
+    }
+
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+// REST GET request to test blacklisted characters
+	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"curlBlackList_GET\".", log)
+        debugLog("  curlBlackList_GET  [][]  Get Admin Console users for Domibus \"$side\".", log)
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn=false;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+
+		try{
+			(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)	
+			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
+			commandResult = runCurlCommand(commandString, log)
+			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
+			log.info "  curlBlackList_GET  [][]  Forbidden character detected in property value \"$data\".";
+		} finally {
+            resetAuthTokens(log)
+        }
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+// REST POST request to test blacklisted characters
+	static def curlBlackList_POST(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD) {
+        debugLog("  ====  Calling \"curlBlackList_POST\".", log)
+        def commandString = null;
+        def commandResult = null;
+		def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}')
+		
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/authentication",
+						"-i",
+						"-H",  "Content-Type: application/json", 
+						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+						"--trace-ascii", "-"]
+		try{
+        commandResult = runCurlCommand(commandString, log)
+		} finally {
+            resetAuthTokens(log)
+        }
+        assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
+        log.info "  curlBlackList_POST  [][]  Forbidden character detected in property value \"$userLogin\".";
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+	static def retrieveQueueNameFromDomibus(String queuesList,queueName, context,log){
+		debugLog("  ====  Calling \"retrieveQueueNameFromDomibus\".", log);
+		debugLog("  retrieveQueueNameFromDomibus  [][]  Queue names list \"" + queuesList+"\".", log);
+		def jsonSlurper=new JsonSlurper();
+		def queuesMap=null;
+		def i=0;
+		def detailedName=null;
+		def found=false;
+		
+		queuesMap=jsonSlurper.parseText(queuesList);
+		assert(queuesMap.jmsDestinations != null),"Error:retrieveQueueNameFromDomibus: Not able to get the jms queue details.";
+		debugLog("  retrieveQueueNameFromDomibus  [][]  queuesMap.jmsDestinations map: \"" + queuesMap.jmsDestinations+"\".", log);
+		
+		queuesMap.jmsDestinations.find{ queues ->
+			queues.value.collect{ properties ->
+				if(properties.key.equals("name")){
+					if(properties.value.equals(queueName)){
+						detailedName=properties.value;
+					}
+				}
+				//debugLog("=="+properties.key+"=="+properties.value+"==",log);
+			}
+			if(detailedName!=null){
+				return true;
+			}
+			return false;
+		}
+		if(detailedName!=null){
+			log.info("  retrieveQueueNameFromDomibus  [][]  Retrieved queue name from domibus: \"$detailedName\"");
+			return(detailedName);
+		}
+		else{
+			log.error "  retrieveQueueNameFromDomibus  [][]  Verified queue name not found: will use input queue name."
+			return(queueName);
+		}
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+// Browse jms queue defined by queueName
+	static def browseJmsQueue(String side, context, log,queueName="domibus.backend.jms.errorNotifyConsumer", domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"browseJmsQueue\".", log);
+        debugLog("  browseJmsQueue  [][]  Browse jms queue \"$queueName\" for Domibus \"$side\" (Domain=\"$domainValue\").", log);
+		def detailedQueueName=null;
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn=false;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def json = null;
+		
+		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+		
+		try{
+			// Try to retrieve the queue name from domibus to avoid problems like in case of cluster
+			commandString="curl "+urlToDomibus(side, log, context)+"/rest/jms/destinations -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
+			commandResult = runCurlCommand(commandString, log);
+			detailedQueueName=retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log);
+			debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName+"\".", log);
+			
+			json = ifWindowsEscapeJsonString('{\"source\":\"' + "${detailedQueueName}" + '\"}');
+			commandString = null;
+			commandResult = null;
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages",
+						"-H",  "Content-Type: application/json", 
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"--data-binary", json, 
+						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
+
+			commandResult = runCurlCommand(commandString, log);
+			assert(commandResult[0].contains("{\"messages\"")),"Error:browseJmsQueue: Wrong response.";
+		} finally {
+            resetAuthTokens(log);
+        }
+		return commandResult[0].substring(5);
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+
+// Search for message in a jms queue identified by its ID
+	static def SearchMessageJmsQueue(String side, context, log,searchKey=null,pattern=null,queueName="domibus.backend.jms.errorNotifyConsumer", outcome=true,domainValue="Default",String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"SearchMessageJmsQueue\".", log)
+        debugLog("  SearchMessageJmsQueue  [][]  In Domibus \"$side\", search for message with key \"$searchKey\" and pattern \"$pattern\" in queue \"$queueName\" (Domain=\"$domainValue\").", log)
+		
+		def i=0;
+		def found=false;
+		def jmsMessagesMap=null;
+		def jsonSlurper=new JsonSlurper();
+				
+		jmsMessagesMap=jsonSlurper.parseText(browseJmsQueue(side,context,log,queueName,domainValue,authUser,authPwd));
+		debugLog("  SearchMessageJmsQueue  [][]  jmsMessagesMap:" + jmsMessagesMap, log);
+		assert(jmsMessagesMap != null),"Error:SearchMessageJmsQueue: Not able to get the jms queue details.";
+		log.info ("jmsMessagesMap size = "+jmsMessagesMap.size());
+		
+		switch(queueName.toLowerCase()){
+			case "domibus.backend.jms.errornotifyconsumer":
+				while ((i < jmsMessagesMap.messages.size())&&(!found)) {
+					assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details.";
+					if(jmsMessagesMap.messages[i].customProperties.messageId!=null){
+						if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
+							debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId+"\".", log);
+							if(jmsMessagesMap.messages[i].customProperties.errorDetail!=null){
+								if(jmsMessagesMap.messages[i].customProperties.errorDetail.contains(pattern)){
+									found=true;
+								}
+							}
+							else{
+								log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null errorDetail: not possible to use this entry ...";
+							}
+						}
+					}
+					else{
+						log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null message ID: not possible to use this entry ...";
+					}
+					i++;
+				}
+				break;
+			
+			// Put here other cases (queues ...)
+			// ...
+			
+			default:
+                log.error "Unknown queue \"queueName\"";
+        }
+		
+		if(outcome){
+			assert(found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" not found in queue \"$queueName\".";
+			log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was found in queue \"$queueName\".");
+		}else{
+			assert(!found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" found in queue \"$queueName\".";
+			log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was not found in queue \"$queueName\".");
+		}
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+
+
 } // Domibus class end
 

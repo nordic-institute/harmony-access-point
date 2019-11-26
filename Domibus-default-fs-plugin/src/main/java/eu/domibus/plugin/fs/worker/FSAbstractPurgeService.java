@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -37,7 +37,7 @@ public abstract class FSAbstractPurgeService {
         }
     }
 
-    private void purgeMessages(String domain) {
+    protected void purgeMessages(String domain) {
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
                 FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {
@@ -64,7 +64,7 @@ public abstract class FSAbstractPurgeService {
 
     protected abstract String getTargetFolderName();
 
-    private void checkAndPurge(FileObject file, Integer expirationLimit) {
+    protected void checkAndPurge(FileObject file, Integer expirationLimit) {
         try {
             if (expirationLimit != null && isFileOlder(file, expirationLimit)) {
                 if (file.isFile()) {
@@ -85,7 +85,7 @@ public abstract class FSAbstractPurgeService {
 
     protected abstract Integer getExpirationLimit(String domain);
 
-    private boolean isFileOlder(FileObject file, Integer expirationLimit) throws FileSystemException {
+    protected boolean isFileOlder(FileObject file, Integer expirationLimit) throws FileSystemException {
         long currentMillis = System.currentTimeMillis();
         long modifiedMillis = file.getContent().getLastModifiedTime();
         long fileAgeSeconds = (currentMillis - modifiedMillis) / 1000;

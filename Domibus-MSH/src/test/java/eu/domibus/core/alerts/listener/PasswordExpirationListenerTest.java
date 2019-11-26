@@ -5,7 +5,10 @@ import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.VerificationsInOrder;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +37,7 @@ public class PasswordExpirationListenerTest {
 
     void setExpectations() {
         new Expectations() {{
-            eventDao.read(anyInt);
+            eventDao.read(anyLong);
             result = new eu.domibus.core.alerts.model.persist.Event();
         }};
     }

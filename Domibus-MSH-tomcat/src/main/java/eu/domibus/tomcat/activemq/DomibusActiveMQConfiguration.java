@@ -50,7 +50,7 @@ public class DomibusActiveMQConfiguration {
     public ActiveMQXAConnectionFactory activeMQXAConnectionFactory() {
         ActiveMQXAConnectionFactory result = new ActiveMQXAConnectionFactory();
 
-        final String brokerURL = domibusPropertyProvider.getResolvedProperty("activeMQ.transportConnector.uri");
+        final String brokerURL = domibusPropertyProvider.getProperty("activeMQ.transportConnector.uri");
         result.setBrokerURL(brokerURL);
         LOGGER.debug("Using ActiveMQ brokerURL [{}]", brokerURL);
 

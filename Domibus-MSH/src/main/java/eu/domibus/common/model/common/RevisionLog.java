@@ -3,16 +3,14 @@ package eu.domibus.common.model.common;
 import eu.domibus.common.listener.CustomRevisionEntityListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +30,7 @@ public class RevisionLog {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @RevisionNumber
-    private int id;
+    private long id;
 
     @RevisionTimestamp
     private long timestamp;
@@ -71,11 +69,11 @@ public class RevisionLog {
         this.revisionDate = revisionDate;
     }
 
-    public int getId() {
+    public long getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -99,10 +97,12 @@ public class RevisionLog {
         }
     }
 
+    @Override
     public int hashCode() {
-        int result = this.id;
-        result = 31 * result + (int)(this.timestamp ^ this.timestamp >>> 32);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(timestamp)
+                .toHashCode();
     }
 
     /**

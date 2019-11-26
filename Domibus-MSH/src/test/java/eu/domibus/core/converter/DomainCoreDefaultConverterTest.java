@@ -13,6 +13,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.clustering.CommandEntity;
 import eu.domibus.common.model.audit.Audit;
 import eu.domibus.common.model.logging.ErrorLogEntry;
@@ -30,6 +31,7 @@ import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.PullRequest;
@@ -46,6 +48,7 @@ import mockit.Injectable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -73,6 +76,10 @@ public class DomainCoreDefaultConverterTest {
     })
     static class ContextConfiguration {
 
+        @Bean
+        public DateUtil dateUtil() {
+            return new DateUtilImpl();
+        }
     }
 
     @Autowired
@@ -297,7 +304,6 @@ public class DomainCoreDefaultConverterTest {
         final UIMessageDiffEntity converted = domainCoreConverter.convert(toConvert, UIMessageDiffEntity.class);
         final UIMessageEntity convertedBack = domainCoreConverter.convert(converted, UIMessageEntity.class);
         convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setLastModified2(toConvert.getLastModified2());
         convertedBack.setEntityId(toConvert.getEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
@@ -308,7 +314,6 @@ public class DomainCoreDefaultConverterTest {
         final MessageLogRO converted = domainCoreConverter.convert(toConvert, MessageLogRO.class);
         final UIMessageEntity convertedBack = domainCoreConverter.convert(converted, UIMessageEntity.class);
         convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setLastModified2(toConvert.getLastModified2());
         convertedBack.setEntityId(toConvert.getEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
@@ -319,7 +324,6 @@ public class DomainCoreDefaultConverterTest {
         final MessageLogInfo converted = domainCoreConverter.convert(toConvert, MessageLogInfo.class);
         final UIMessageEntity convertedBack = domainCoreConverter.convert(converted, UIMessageEntity.class);
         convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setLastModified2(toConvert.getLastModified2());
         convertedBack.setEntityId(toConvert.getEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
@@ -336,7 +340,6 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setLastModified2(toConvert.getLastModified2());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -351,7 +354,6 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setLastModified2(toConvert.getLastModified2());
         objectService.assertObjects(convertedBack, toConvert);
     }
 

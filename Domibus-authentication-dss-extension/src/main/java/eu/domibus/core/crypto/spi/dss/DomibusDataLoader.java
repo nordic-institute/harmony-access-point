@@ -1,12 +1,13 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.europa.esig.dss.DSSException;
-import eu.europa.esig.dss.DSSUtils;
-import eu.europa.esig.dss.client.http.DataLoader;
-import eu.europa.esig.dss.client.http.Protocol;
-import eu.europa.esig.dss.client.http.commons.CommonsDataLoader;
-import eu.europa.esig.dss.client.http.proxy.ProxyConfig;
-import eu.europa.esig.dss.client.http.proxy.ProxyProperties;
+
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
+import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
+import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.client.http.Protocol;
 import eu.europa.esig.dss.utils.Utils;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
@@ -136,6 +137,8 @@ public class DomibusDataLoader implements DataLoader {
 
     private TrustStrategy trustStrategy;
 
+    private KeyStore sslTrustStore;
+
     private String[] supportedSSLProtocols;
 
     private String[] supportedSSLCipherSuites;
@@ -220,7 +223,7 @@ public class DomibusDataLoader implements DataLoader {
     }
 
     protected KeyStore getSSLTrustStore() throws IOException, GeneralSecurityException {
-        return loadKeyStore(sslTruststorePath, sslTruststoreType, sslTruststorePassword);
+        return sslTrustStore;
     }
 
     private KeyStore loadKeyStore(String path, String type, String passwordStr) throws IOException, GeneralSecurityException {
@@ -257,6 +260,8 @@ public class DomibusDataLoader implements DataLoader {
         httpClientBuilder.setRetryHandler(retryHandler);
         httpClientBuilder.setServiceUnavailableRetryStrategy(serviceUnavailableRetryStrategy);
 
+
+        LOG.debug("Return http client for url:[{}] with timeoutSocket:[{}],timeoutConnection:[{}],redirectsEnabled:[{}] ", url, timeoutSocket, timeoutConnection, redirectsEnabled);
         return httpClientBuilder.build();
     }
 
@@ -502,11 +507,14 @@ public class DomibusDataLoader implements DataLoader {
             }
 
             client = getHttpClient(url);
+            LOG.debug("Calling:[{}]", url);
             httpResponse = getHttpResponse(client, httpRequest);
+            LOG.debug("Response:[{}]", httpResponse);
 
             return readHttpResponse(httpResponse);
 
         } catch (URISyntaxException | IOException e) {
+            LOG.error("Error while executing get request on url:[{}]", url);
             throw new DSSException("Unable to process GET call for url '" + url + "'", e);
         } finally {
             try {
@@ -860,5 +868,8 @@ public class DomibusDataLoader implements DataLoader {
         this.trustStrategy = trustStrategy;
     }
 
+    public void setSslTrustStore(KeyStore sslTrustStore) {
+        this.sslTrustStore = sslTrustStore;
+    }
 }
 

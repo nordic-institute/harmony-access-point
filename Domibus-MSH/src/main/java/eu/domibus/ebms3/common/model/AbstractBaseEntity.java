@@ -17,17 +17,17 @@ public abstract class AbstractBaseEntity implements Serializable {
     @XmlTransient
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_PK")
-    private int entityId;
+    private long entityId;
 
     /**
      * @return the primary key of the entity
      */
-    public int getEntityId() {
+    public long getEntityId() {
         return this.entityId;
     }
 
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(long entityId) {
         this.entityId = entityId;
     }
 

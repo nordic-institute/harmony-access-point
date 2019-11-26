@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
     </parent>
     <artifactId>domibus-default-fs-plugin</artifactId>
     <packaging>jar</packaging>
@@ -150,7 +150,16 @@
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -176,10 +185,18 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <extension>true</extension>
                     <packageName>eu.domibus.plugin.fs.ebms3</packageName>
                     <arguments>
                         <argument>-Xcommons-lang</argument>
                     </arguments>
+                    <sources>
+                        <source>src/main/xsd/fs-plugin.xsd</source>
+                    </sources>
+                    <xjbSources>
+                        <xjbSource>src/main/xjb/fs-plugin-jaxb-binding.xjb</xjbSource>
+                    </xjbSources>
+                    <verbose>false</verbose>
                 </configuration>
                 <dependencies>
                     <dependency>

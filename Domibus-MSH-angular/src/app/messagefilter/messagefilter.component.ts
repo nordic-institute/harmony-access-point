@@ -97,7 +97,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     }, (error: any) => {
       console.log('error getting the message filter: ' + error);
       this.loading = false;
-      this.alertService.error('Error occurred: ' + error);
+      this.alertService.exception('Error occurred: ', error);
     });
   }
 

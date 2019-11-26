@@ -31,9 +31,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
 public class PullMessageServiceImplTest {
@@ -98,7 +96,7 @@ public class PullMessageServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final int id = 99;
+        final long id = 99;
         new Expectations() {{
 
             messagingLockDao.findReadyToPull(mpc, initiator);
@@ -135,7 +133,7 @@ public class PullMessageServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final int id = 99;
+        final long id = 99;
         new Expectations() {{
 
             messagingLockDao.findReadyToPull(mpc, initiator);
@@ -172,7 +170,7 @@ public class PullMessageServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final int id = 99;
+        final long id = 99;
         new Expectations() {{
 
             messagingLockDao.findReadyToPull(mpc, initiator);
@@ -219,7 +217,7 @@ public class PullMessageServiceImplTest {
             result = messageId;
             messageLog.getMpc();
             result = mpc;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "", "", null);
         }};
 
@@ -243,7 +241,7 @@ public class PullMessageServiceImplTest {
             result = mpc;
             messageLog.getNextAttempt();
             result=null;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;

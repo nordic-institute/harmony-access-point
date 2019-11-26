@@ -49,7 +49,7 @@ public class UIMessageServiceImpl implements UIMessageService {
         List<UIMessageEntity> uiMessageEntityList = new ArrayList<>();
 
         //make the count
-        int numberOfMessages = uiMessageDao.countMessages(filters);
+        long numberOfMessages = uiMessageDao.countEntries(filters);
 
         if (numberOfMessages != 0) {
             //query for the page results
@@ -72,10 +72,9 @@ public class UIMessageServiceImpl implements UIMessageService {
             uiMessageDao.saveOrUpdate(uiMessageEntity);
         } catch (Exception e) {
             //we log here just in case an exception is thrown
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to insert/update into TB_MESSAGE_UI having messageId=[{}] ", uiMessageEntity.getMessageId(), e);
         }
     }
-
 
     /**
      * Converts {@link UIMessageEntity} object to {@link MessageLogRO} to be used on GUI

@@ -5,23 +5,26 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.security.cert.X509CRL;
-import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
+
 @Service
 public class CRLServiceImpl implements CRLService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImpl.class);
 
-    public static final String CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
+    public static final String CRL_EXCLUDED_PROTOCOLS = DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
 
     @Autowired
     protected CRLUtil crlUtil;
@@ -34,6 +37,7 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
+    @Transactional(noRollbackFor = DomibusCRLException.class)
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
@@ -45,7 +49,8 @@ public class CRLServiceImpl implements CRLService {
 
         List<String> supportedCrlDistributionPoints = getSupportedCrlDistributionPoints(crlDistributionPoints);
         if (supportedCrlDistributionPoints.isEmpty()) {
-            throw new DomibusCRLException("No supported CRL distribution point found for certificate " + getSubjectDN(cert));
+            LOG.debug("No supported CRL distribution point found for certificate " + getSubjectDN(cert));
+            return false;
         }
 
         for (String crlDistributionPointUrl : supportedCrlDistributionPoints) {
@@ -85,37 +90,15 @@ public class CRLServiceImpl implements CRLService {
         return result;
     }
 
-    protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
+    @Override
+    @Transactional(noRollbackFor = DomibusCRLException.class, propagation = Propagation.SUPPORTS)
+    @Cacheable(value = "crlByCert", key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
+    public boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
+        LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
         if (crl.isRevoked(cert)) {
             LOG.warn("The certificate is revoked by CRL: " + crlDistributionPointURL);
             return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks the pki revocation status against the provided distribution point.
-     * Supports HTTP, HTTPS, FTP, File based URLs.
-     * @param serialString the pki serial number
-     * @param crlDistributionPointURL the certificate revocation list url
-     * @return true if the pki is revoked
-     * @throws DomibusCRLException if an error occurs while downloading the certificate revocation list
-     */
-    boolean isCertificateRevoked(String serialString, String crlDistributionPointURL) throws DomibusCRLException {
-        X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
-
-        if (crl.getRevokedCertificates() == null) {
-            LOG.debug("The CRL is null for the given pki");
-            return false;
-        }
-
-        BigInteger certificateSerial = crlUtil.parseCertificateSerial(serialString);
-        for (X509CRLEntry entry : crl.getRevokedCertificates()) {
-            if (certificateSerial.equals(entry.getSerialNumber())) {
-                LOG.debug("The pki is revoked by CRL: " + crlDistributionPointURL);
-                return true;
-            }
         }
         return false;
     }

@@ -6,7 +6,7 @@ import eu.domibus.api.plugin.PluginException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.classloader.PluginClassLoader;
-import eu.domibus.property.PropertyResolver;
+import eu.domibus.core.property.PropertyResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.ContextLoaderListener;
 

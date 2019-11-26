@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -15,10 +14,11 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.api.validators.SkipWhiteListed;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,9 +35,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping(value = "/rest/truststore")
-public class TruststoreResource {
+public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
+
+    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty."; //NOSONAR
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
@@ -65,11 +67,14 @@ public class TruststoreResource {
         return errorHandlerService.createResponse(rootCause, HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @PostMapping(value = "/save")
     public ResponseEntity<String> uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststore,
-                                                       @RequestParam("password") String password) throws IOException {
+                                                       @SkipWhiteListed @RequestParam("password") String password) throws IOException {
         if (truststore.isEmpty()) {
             return ResponseEntity.badRequest().body("Failed to upload the truststore file since it was empty.");
+        }
+        if (StringUtils.isBlank(password)) {
+            return ResponseEntity.badRequest().body(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
         multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststore.getOriginalFilename(), truststore.getBytes(), password);
@@ -87,22 +92,19 @@ public class TruststoreResource {
      *
      * @return CSV file with the contents of Truststore table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
         final List<TrustStoreRO> trustStoreROS = trustStoreEntries();
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(trustStoreROS, TrustStoreRO.class,
-                    CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(), CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(trustStoreROS, TrustStoreRO.class,
+                CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems(),
+                "truststore");
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("truststore"))
-                .body(resultText);
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

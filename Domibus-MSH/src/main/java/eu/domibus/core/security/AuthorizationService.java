@@ -27,7 +27,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.ebms3.receiver.TrustSenderInterceptor.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
  * @author Thomas Dussart
@@ -41,7 +42,7 @@ public class AuthorizationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationService.class);
 
-    protected static final String IAM_AUTHORIZATION_IDENTIFIER = "domibus.extension.iam.authorization.identifier";
+    protected static final String IAM_AUTHORIZATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 
     @Autowired
     private List<AuthorizationServiceSpi> authorizationServiceSpis;

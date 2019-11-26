@@ -1,5 +1,7 @@
 package eu.domibus.core.mpc;
 
+import eu.domibus.ebms3.common.model.UserMessage;
+
 /**
  * User Messages submitted with the optional attribute mpc filled in
  * could be put in READY_TO_PULL state if the configuration property DOMIBUS_PULL_FORCE_BY_MPC is
@@ -25,6 +27,15 @@ public interface MpcService {
      * @return true when pull is enforced
      */
     boolean forcePullOnMpc(String mpc);
+
+    /**
+     * Verify the conditions for pull: DOMIBUS_PULL_FORCE_BY_MPC enabled and the
+     * mpc in the UserMessage contains the initiator party
+     *
+     * @param userMessage containing full qualified mpc
+     * @return true when pull is enforced
+     */
+    boolean forcePullOnMpc(UserMessage userMessage);
 
     /**
      * This method extracts the initiator name (e.g BE1234567890)

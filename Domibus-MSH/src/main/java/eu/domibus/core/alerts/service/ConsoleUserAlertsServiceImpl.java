@@ -1,20 +1,17 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.user.UserBase;
 import eu.domibus.common.dao.security.UserDao;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
-import eu.domibus.common.model.security.UserLoginErrorReason;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
 
 /**
  * @author Ion Perpegel
@@ -23,19 +20,14 @@ import java.util.Date;
 @Service
 public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAlertsServiceImpl.class);
-
-    public final static String MAXIMUM_PASSWORD_AGE = "domibus.passwordPolicy.expiration";
-    public final static String MAXIMUM_DEFAULT_PASSWORD_AGE = "domibus.passwordPolicy.defaultPasswordExpiration";
+    public static final String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_EXPIRATION; //NOSONAR
+    public static final String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION; //NOSONAR
 
     @Autowired
     protected UserDao userDao;
 
     @Autowired
     private MultiDomainAlertConfigurationService alertsConfiguration;
-
-    @Autowired
-    private EventService eventService;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {

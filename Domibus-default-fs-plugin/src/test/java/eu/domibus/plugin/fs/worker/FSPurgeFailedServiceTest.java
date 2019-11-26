@@ -2,7 +2,7 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

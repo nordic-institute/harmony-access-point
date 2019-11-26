@@ -55,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
@@ -290,7 +292,7 @@ public class BackendNotificationService {
         }
     }
 
-    protected NotificationListener getNotificationListener(String backendName) {
+    public NotificationListener getNotificationListener(String backendName) {
         for (final NotificationListener notificationListenerService : notificationListenerServices) {
             if (notificationListenerService.getBackendName().equalsIgnoreCase(backendName)) {
                 return notificationListenerService;
@@ -299,7 +301,7 @@ public class BackendNotificationService {
         return null;
     }
 
-    protected BackendConnector getBackendConnector(String backendName) {
+    public BackendConnector getBackendConnector(String backendName) {
         for (final BackendConnector backendConnector : backendConnectors) {
             if (backendConnector.getName().equalsIgnoreCase(backendName)) {
                 return backendConnector;
@@ -330,8 +332,9 @@ public class BackendNotificationService {
             return;
         }
 
-        LOG.debug("Required notifications [{}]", notificationListener.getRequiredNotificationTypeList());
-        if (!notificationListener.getRequiredNotificationTypeList().contains(notificationType)) {
+        List<NotificationType> requiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
+        LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
+        if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
             LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, notificationListener.getMode());
             return;
         }
@@ -343,7 +346,14 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), notificationListener.getBackendNotificationQueue());
+        Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
+        if (backendNotificationQueue != null) {
+            LOG.debug("Notifying plugin [{}] using queue", backendName);
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+        } else {
+            LOG.debug("Notifying plugin [{}] using callback", backendName);
+            notificationListener.notify(messageId, notificationType, properties);
+        }
     }
 
     public void notifyOfSendFailure(UserMessage userMessage) {
@@ -360,7 +370,7 @@ public class BackendNotificationService {
         notify(messageId, backendName, notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     public void notifyOfSendSuccess(final String messageId) {
@@ -376,7 +386,7 @@ public class BackendNotificationService {
         notify(messageId, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(messageId);
 
-        uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
+        uiReplicationSignalService.messageChange(messageId);
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
@@ -431,6 +441,6 @@ public class BackendNotificationService {
     }
 
     protected boolean isPluginNotificationDisabled() {
-        return !domibusPropertyProvider.getBooleanProperty("domibus.plugin.notification.active");
+        return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
     }
 }

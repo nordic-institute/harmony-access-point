@@ -17,10 +17,10 @@ public enum EventType {
     CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, "certificateImminentExpiration", CertificateEvent.class),
     CERT_EXPIRED(AlertType.CERT_EXPIRED, "certificateExpired", CertificateEvent.class),
 
-    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, "loginFailure", AuthenticationEvent.class, true),
-    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, "accountDisabled", AuthenticationEvent.class, true),
-    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, "loginFailure", AuthenticationEvent.class),
-    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, "accountDisabled", AuthenticationEvent.class),
+    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, "loginFailure", UserLoginFailedEventProperties.class, true),
+    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, "accountDisabled", UserAccountDisabledEventProperties.class, true),
+    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, "loginFailure", UserLoginFailedEventProperties.class),
+    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, "accountDisabled", UserAccountDisabledEventProperties.class),
 
     PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, "PASSWORD_EXPIRATION", PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),

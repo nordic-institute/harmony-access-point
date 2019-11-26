@@ -43,6 +43,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -55,7 +56,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateServiceImpl.class);
 
-    public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = "domibus.certificate.revocation.offset";
+    public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 
     @Autowired
     CRLService crlService;
@@ -82,6 +83,7 @@ public class CertificateServiceImpl implements CertificateService {
     private PModeProvider pModeProvider;
 
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class)
     public boolean isCertificateChainValid(List<? extends Certificate> certificateChain) {
         for (Certificate certificate : certificateChain) {
             boolean certificateValid = isCertificateValid((X509Certificate) certificate);
@@ -129,6 +131,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class)
     public boolean isCertificateValid(X509Certificate cert) throws DomibusCertificateException {
         boolean isValid = checkValidity(cert);
         if (!isValid) {
@@ -235,7 +238,7 @@ public class CertificateServiceImpl implements CertificateService {
         final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
         final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
 
-        LOG.debug("Searching for certificate about to expire with notification date smaller then:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
                 notificationDate, imminentExpirationDelay, maxDate);
         certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
             certificate.setAlertImminentNotificationDate(today);
@@ -261,7 +264,7 @@ public class CertificateServiceImpl implements CertificateService {
         Date endNotification = LocalDateTime.now().minusDays(revokedDuration).toDate();
         Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
 
-        LOG.debug("Searching for expired certificate with notification date smaller then:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
+        LOG.debug("Searching for expired certificate with notification date smaller than:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
         certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
             certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
             certificateDao.saveOrUpdate(certificate);
@@ -388,23 +391,34 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
 
-    public X509Certificate loadCertificateFromString(String content) throws CertificateException {
+    public X509Certificate loadCertificateFromString(String content) {
+        if (content == null) {
+            throw new DomibusCertificateException("Certificate content cannot be null.");
+        }
+
         CertificateFactory certFactory = null;
         X509Certificate cert = null;
         try {
             certFactory = CertificateFactory.getInstance("X.509");
         } catch (CertificateException e) {
-            LOG.warn("Error initializing certificate factory ", e);
             throw new DomibusCertificateException("Could not initialize certificate factory", e);
         }
+
         InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        if (!isPemFormat(content)) {
+            in = Base64.getMimeDecoder().wrap(in);
+        }
+
         try {
             cert = (X509Certificate) certFactory.generateCertificate(in);
         } catch (CertificateException e) {
-            LOG.warn("Error generating certificate ", e);
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
         return cert;
+    }
+
+    protected boolean isPemFormat(String content) {
+        return content.startsWith("-----BEGIN CERTIFICATE-----");
     }
 
     /**
@@ -492,18 +506,15 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
 
-    public TrustStoreEntry convertCertificateContent(String certificateContent) throws CertificateException {
+    public TrustStoreEntry convertCertificateContent(String certificateContent) {
         X509Certificate cert = loadCertificateFromString(certificateContent);
-        return createTrustStoreEntry(cert);
+        return createTrustStoreEntry(null, cert);
     }
 
     public TrustStoreEntry getPartyCertificateFromTruststore(String partyName) throws KeyStoreException {
         X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
         LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
-        TrustStoreEntry res = createTrustStoreEntry(cert);
-        if (res != null)
-            res.setFingerprints(extractFingerprints(cert));
-        return res;
+        return createTrustStoreEntry(partyName, cert);
     }
 
     public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
@@ -512,37 +523,33 @@ public class CertificateServiceImpl implements CertificateService {
         return cert;
     }
 
-    private TrustStoreEntry createTrustStoreEntry(X509Certificate certificate) {
-        return createTrustStoreEntry(null, certificate);
-    }
-
-    private TrustStoreEntry createTrustStoreEntry(String alias, X509Certificate certificate) {
+    private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
         if (certificate == null)
             return null;
-        return new TrustStoreEntry(
+        TrustStoreEntry entry = new TrustStoreEntry(
                 alias,
                 certificate.getSubjectDN().getName(),
                 certificate.getIssuerDN().getName(),
                 certificate.getNotBefore(),
                 certificate.getNotAfter());
+        entry.setFingerprints(extractFingerprints(certificate));
+        return entry;
     }
 
     private String extractFingerprints(final X509Certificate certificate) {
         if (certificate == null)
             return null;
 
-        MessageDigest md = null;
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
-            LOG.warn("Error initializing MessageDigest ", e);
             throw new DomibusCertificateException("Could not initialize MessageDigest", e);
         }
-        byte[] der = new byte[0];
+        byte[] der;
         try {
             der = certificate.getEncoded();
         } catch (CertificateEncodingException e) {
-            LOG.warn("Error encoding certificate ", e);
             throw new DomibusCertificateException("Could not encode certificate", e);
         }
         md.update(der);

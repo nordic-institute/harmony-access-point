@@ -27,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1
@@ -34,8 +37,8 @@ import java.util.Date;
 @Service
 public class UpdateRetryLoggingService {
 
-    public static final String DELETE_PAYLOAD_ON_SEND_FAILURE = "domibus.sendMessage.failure.delete.payload";
-    public static final String MESSAGE_EXPIRATION_DELAY = "domibus.msh.retry.messageExpirationDelay";
+    public static final String DELETE_PAYLOAD_ON_SEND_FAILURE = DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
+    public static final String MESSAGE_EXPIRATION_DELAY = DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UpdateRetryLoggingService.class);
 
@@ -167,7 +170,12 @@ public class UpdateRetryLoggingService {
      * @return true if the message can be sent again
      */
     public boolean hasAttemptsLeft(final MessageLog userMessageLog, final LegConfiguration legConfiguration) {
+        if (legConfiguration == null) {
+            LOG.debug("No more send attempts as leg configuration is not found.");
+            return false;
+        }
         if (legConfiguration.getReceptionAwareness() == null) {
+            LOG.debug("No more send attempts as reception awareness of the leg configuration is not null.");
             return false;
         }
         LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]",

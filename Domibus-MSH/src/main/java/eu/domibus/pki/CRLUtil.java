@@ -11,8 +11,9 @@ import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -26,6 +27,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -56,7 +59,7 @@ public class CRLUtil {
      * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    @Cacheable(value = "crlByCert", key = "#crlURL")
+    @Transactional(noRollbackFor = DomibusCRLException.class, propagation = Propagation.SUPPORTS)
     public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);
@@ -66,7 +69,7 @@ public class CRLUtil {
     }
 
     /**
-     * Downloads CRL from the given URL. Supports loading the crl using http, https, ftp based,  classpath
+     * Downloads CRL from the given URL. Supports loading the crl using http, https, ftp based, classpath
      */
     protected X509CRL downloadCRLFromWebOrClasspath(String crlURL) throws DomibusCRLException {
         LOG.debug("Downloading CRL from url [{}]", crlURL);
@@ -83,6 +86,7 @@ public class CRLUtil {
         }
 
         try (InputStream crlStream = getCrlInputStream(url)) {
+            LOG.debug("Downloaded [{}] [{}]", url, crlStream.available());
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return (X509CRL) cf.generateCRL(crlStream);
         } catch (final Exception exc) {
@@ -129,7 +133,7 @@ public class CRLUtil {
         return new BigInteger(serial.trim().replaceAll("\\s", ""), 16);
     }
 
-    protected InputStream getCrlInputStream(URL crlURL) throws IOException {
+    protected InputStream getCrlInputStream(URL crlURL) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         InputStream result;
         if (CRLUrlType.HTTP.canHandleURL(crlURL.toString()) || CRLUrlType.HTTPS.canHandleURL(crlURL.toString())) {
             result = httpUtil.downloadURL(crlURL.toString());
@@ -171,7 +175,7 @@ public class CRLUtil {
         byte[] crldpExtOctets = dosCrlDP.getOctets();
 
         ASN1Primitive derObj2 = null;
-        try(ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
+        try (ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
             derObj2 = oAsnInStream2.readObject();
         } catch (IOException e) {
             throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);

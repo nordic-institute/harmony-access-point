@@ -4,6 +4,9 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.domain.*;
 import org.mapstruct.Mapper;
@@ -33,4 +36,12 @@ public interface DomibusExtMapper {
     UserMessage userMessageDTOToUserMessage(UserMessageDTO userMessageDTO);
 
     UserMessageDTO userMessageToUserMessageDTO(UserMessage userMessage);
+
+    PModeArchiveInfoDTO pModeArchiveInfoToPModeArchiveInfoDto(PModeArchiveInfo pModeArchiveInfo);
+
+    PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
+
+    DomibusPropertyMetadataDTO domibusPropertyMetadataToDomibusPropertyMetadataDTO(DomibusPropertyMetadata domibusPropertyMetadata);
+
+    DomibusPropertyMetadata domibusPropertyMetadataDTOToDomibusPropertyMetadata(DomibusPropertyMetadataDTO domibusPropertyMetadata);
 }

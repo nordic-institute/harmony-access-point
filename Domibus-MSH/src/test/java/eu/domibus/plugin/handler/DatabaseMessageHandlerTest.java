@@ -23,8 +23,8 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
@@ -159,7 +159,7 @@ public class DatabaseMessageHandlerTest {
     SplitAndJoinService splitAndJoinService;
 
     @Injectable
-    StorageProvider storageProvider;
+    PayloadFileStorageProvider storageProvider;
 
     @Injectable
     protected PModeDefaultService pModeDefaultService;

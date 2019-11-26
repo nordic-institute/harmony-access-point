@@ -11,6 +11,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.CryptoSpiException;
+import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
@@ -31,6 +32,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -70,6 +73,9 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
     @Injectable
     private DomainCoreConverter coreConverter;
 
+    @Injectable
+    private BackupService backupService;
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -81,15 +87,15 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         };
 
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.type"); result = "keystoreType";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.keystore.password"); result = "keystorePassword";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.alias"); result = "privateKeyAlias";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password"); result = PRIVATE_KEY_PASSWORD;
-            domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.keystore.location"); result = "keystoreLocation";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE); result = "keystoreType";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD, true); result = "keystorePassword";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS); result = "privateKeyAlias";
+            domibusPropertyProvider.getProperty(domain, "domibus.security.key.private.password", true); result = PRIVATE_KEY_PASSWORD;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION); result = "keystoreLocation";
 
-            domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.truststore.location"); result = TRUST_STORE_LOCATION;
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.password"); result = "trustStorePassword";
-            domibusPropertyProvider.getProperty(domain, "domibus.security.truststore.type"); result = TRUST_STORE_TYPE;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION); result = TRUST_STORE_LOCATION;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, true); result = "trustStorePassword";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE); result = TRUST_STORE_TYPE;
         }};
     }
 
@@ -1095,7 +1101,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Could not load truststore, truststore location is empty");
 
         new Expectations() {{
-            domibusPropertyProvider.getResolvedProperty(domain, "domibus.security.truststore.location"); result = null;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION); result = null;
         }};
 
         // When

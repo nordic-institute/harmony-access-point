@@ -35,24 +35,15 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_DYNAMIC_INITIATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_MULTIPLE_LEGS;
+
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageServiceImpl.class);
 
     public static final String MPC = "mpc";
-
-    private static final String INITIATOR = "initiator";
-
-    public static final String MESSAGE_TYPE = "messageType";
-
-    private static final String CURRENT_TIME = "current_time";
-
-    protected static final String PULL_EXTRA_NUMBER_OF_ATTEMPT_TIME_FOR_EXPIRATION_DATE = "pull.extra.number.of.attempt.time.for.expiration.date";
-
-    protected static final String DOMIBUS_PULL_DYNAMIC_INITIATOR = "domibus.pull.dynamic.initiator";
-
-    protected static final String DOMIBUS_PULL_MULTIPLE_LEGS = "domibus.pull.multiple_legs";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -164,6 +155,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 messagingDao.clearPayloadData(messageId);
                 userMessageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
+                uiReplicationSignalService.messageChange(messageId);
                 return new PullRequestResult(userMessageLog);
             case PULL_FAILED:
                 return pullFailedOnReceipt(legConfiguration, userMessageLog);
@@ -230,7 +222,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                                    final MessageLog messageLog) {
         final String pmodeKey; // FIXME: This does not work for signalmessages
         try {
-            pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageLog.getMessageId() + "]", e);
         }
@@ -310,7 +302,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         userMessageLog.setMessageStatus(waitingForReceipt);
         messagingLockDao.save(lock);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageStatusChange(userMessageLog.getMessageId(), waitingForReceipt);
+        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, waitingForReceipt, new Timestamp(System.currentTimeMillis()));
     }
 

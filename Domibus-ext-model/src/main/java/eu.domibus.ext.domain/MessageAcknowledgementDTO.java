@@ -21,7 +21,7 @@ public class MessageAcknowledgementDTO implements Serializable {
     /**
      * The id of the message acknowledgement
      */
-    private Integer id;
+    private Long id;
 
     /**
      * The message id associated with the message acknowledgement
@@ -63,11 +63,11 @@ public class MessageAcknowledgementDTO implements Serializable {
         this.createUser = createUser;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

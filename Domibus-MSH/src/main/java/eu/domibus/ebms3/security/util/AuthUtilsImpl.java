@@ -20,12 +20,14 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.Collections;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
+
 @Component(value = "authUtils")
 public class AuthUtilsImpl implements AuthUtils {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthUtilsImpl.class);
 
-    private static final String UNSECURE_LOGIN_ALLOWED = "domibus.auth.unsecureLoginAllowed";
+    private static final String UNSECURE_LOGIN_ALLOWED = DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

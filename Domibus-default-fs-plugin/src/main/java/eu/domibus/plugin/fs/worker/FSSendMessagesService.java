@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -14,7 +15,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import org.apache.commons.lang3.StringUtils;
@@ -51,29 +52,35 @@ public class FSSendMessagesService {
     private static final String LS = System.lineSeparator();
 
     @Autowired
-    private FSPluginProperties fsPluginProperties;
+    protected FSPluginProperties fsPluginProperties;
 
     @Autowired
-    private FSFilesManager fsFilesManager;
+    protected FSFilesManager fsFilesManager;
 
     @Autowired
-    private FSProcessFileService fsProcessFileService;
+    protected FSProcessFileService fsProcessFileService;
 
     @Autowired
-    private AuthenticationExtService authenticationExtService;
+    protected AuthenticationExtService authenticationExtService;
 
     @Autowired
-    private DomibusConfigurationExtService domibusConfigurationExtService;
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
-    private FSDomainService fsDomainService;
+    protected DomainContextExtService domainContextExtService;
 
     @Autowired
-    private JMSExtService jmsExtService;
+    protected FSDomainService fsDomainService;
+
+    @Autowired
+    protected JMSExtService jmsExtService;
 
     @Autowired
     @Qualifier("fsPluginSendQueue")
-    private Queue fsPluginSendQueue;
+    protected Queue fsPluginSendQueue;
+
+    @Autowired
+    protected FSFileNameHelper fsFileNameHelper;
 
 
     protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
@@ -110,7 +117,7 @@ public class FSSendMessagesService {
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-             FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
+            FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
             LOG.trace("Found descendant files [{}] for output folder [{}]", contentFiles, outgoingFolder.getName().getPath());
@@ -130,8 +137,15 @@ public class FSSendMessagesService {
             if (contentFiles != null) {
                 fsFilesManager.closeAll(contentFiles);
             }
+
+            clearDomainContext();
             LOG.debug("Finished sending messages for domain [{}]", domain);
         }
+    }
+
+    protected void clearDomainContext() {
+        LOG.removeMDC(DomibusLogger.MDC_USER);
+        domainContextExtService.clearCurrentDomain();
     }
 
     /**
@@ -199,10 +213,10 @@ public class FSSendMessagesService {
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain)) {
             String baseName = processableFile.getName().getBaseName();
-            String errorFileName = FSFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
+            String errorFileName = fsFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
 
             String processableFileMessageURI = processableFile.getParent().getName().getPath();
-            String failedDirectoryLocation = FSFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
+            String failedDirectoryLocation = fsFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
             FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
 
             try {
@@ -212,7 +226,7 @@ public class FSSendMessagesService {
                     LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
                 } else if (fsPluginProperties.isFailedActionArchive(domain)) {
                     // Archive
-                    String archivedFileName = FSFileNameHelper.stripStatusSuffix(baseName);
+                    String archivedFileName = fsFileNameHelper.stripStatusSuffix(baseName);
                     FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
                     fsFilesManager.moveFile(processableFile, archivedFile);
                     LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
@@ -257,24 +271,24 @@ public class FSSendMessagesService {
     }
 
 
-    private List<FileObject> filterProcessableFiles(FileObject[] files, String domain) {
+    protected List<FileObject> filterProcessableFiles(FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
         // locked file names
         List<String> lockedFileNames = Arrays.stream(files)
                 .map(f -> f.getName().getBaseName())
-                .filter(fname -> FSFileNameHelper.isLockFile(fname))
-                .map(fname -> FSFileNameHelper.stripLockSuffix(fname))
+                .filter(fname -> fsFileNameHelper.isLockFile(fname))
+                .map(fname -> fsFileNameHelper.stripLockSuffix(fname))
                 .collect(Collectors.toList());
 
         for (FileObject file : files) {
             String baseName = file.getName().getBaseName();
 
             if (!StringUtils.equals(baseName, METADATA_FILE_NAME)
-                    && !FSFileNameHelper.isAnyState(baseName)
-                    && !FSFileNameHelper.isProcessed(baseName)
+                    && !fsFileNameHelper.isAnyState(baseName)
+                    && !fsFileNameHelper.isProcessed(baseName)
                     // exclude lock files:
-                    && !FSFileNameHelper.isLockFile(baseName)
+                    && !fsFileNameHelper.isLockFile(baseName)
                     // exclude locked files:
                     && !lockedFileNames.stream().anyMatch(fname -> fname.equals(baseName))
                     // exclude files that are (or could be) in use by other processes:
@@ -352,7 +366,7 @@ public class FSSendMessagesService {
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
             if (fileInfo.getDomain().equals(domain) && ((currentTime - fileInfo.getModified()) > delta)) {
-                LOG.debug("File [{}] is old and will be removed from the map", key);
+                LOG.debug("File [{}] is old and will not be observed anymore", key);
                 observedFilesInfo.remove(key);
             }
         }
@@ -400,7 +414,7 @@ public class FSSendMessagesService {
         return false;
     }
 
-    private void enqueueProcessableFileWithContext(final FileObject fileObject, final Map<String, String> context) {
+    protected void enqueueProcessableFileWithContext(final FileObject fileObject, final Map<String, String> context) {
         if (context != null) {
             LOG.setContextMap(context);
         }

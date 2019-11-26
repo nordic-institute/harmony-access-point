@@ -60,9 +60,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   set selectedSource(value: any) {
+    var oldVal = this._selectedSource;
     this._selectedSource = value;
     this.filter.source = value.name;
-    this.defaultQueueSet.emit();
+    this.defaultQueueSet.emit(oldVal);
   }
 
   constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
@@ -147,8 +148,13 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
     });
 
-    this.defaultQueueSet.subscribe(result => {
-      this.search();
+    this.defaultQueueSet.subscribe(oldVal => {
+      super.trySearch().then(ok => {
+        if (!ok) {
+          //revert the drop-down value to the old oen
+          this._selectedSource = oldVal;
+        }
+      });
     });
   }
 
@@ -261,8 +267,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.http.post('rest/jms/messages', {
       source: this.activeFilter.source,
       jmsType: this.activeFilter.jmsType,
-      fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
-      toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
+      fromDate: this.activeFilter.fromDate,
+      toDate: this.activeFilter.toDate,
       selector: this.activeFilter.selector,
     }).subscribe(
       (response: Response) => {
@@ -274,7 +280,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.refreshDestinations();
       },
       error => {
-        this.alertService.error('An error occured while loading the JMS messages. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide (Error Status: ' + error.status + ')');
+        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
         this.loading = false;
       }
     );
@@ -434,7 +440,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.rows = newRows;
       },
       error => {
-        this.alertService.error('The operation \'move messages\' could not be completed: ' + error);
+        this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
       }
     )
   }
@@ -465,10 +471,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       result += 'jmsType=' + this.activeFilter.jmsType + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.fromDate)) {
-      result += 'fromDate=' + this.activeFilter.fromDate.getTime() + '&';
+      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.toDate)) {
-      result += 'toDate=' + this.activeFilter.toDate.getTime() + '&';
+      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
     }
     if (!isNullOrUndefined(this.activeFilter.selector)) {
       result += 'selector=' + this.activeFilter.selector + '&';

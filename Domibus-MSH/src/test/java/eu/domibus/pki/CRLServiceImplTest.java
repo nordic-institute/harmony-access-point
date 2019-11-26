@@ -12,9 +12,10 @@ import java.io.File;
 import java.math.BigInteger;
 import java.security.Security;
 import java.security.cert.X509CRL;
-import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -88,8 +89,8 @@ public class CRLServiceImplTest {
         assertTrue(certificateRevoked);
     }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testIsCertificateRevokedWithNotSupportedCRLURLs(@Injectable final X509Certificate certificate) throws Exception {
+    @Test
+    public void testIsCertificateRevokedWithNotSupportedCRLURLs(@Injectable final X509Certificate certificate) {
         final String crlUrl1 = "ldap2://domain1.crl";
         final String crlUrl2 = "ldap2://domain2.crl";
         final List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
@@ -102,8 +103,8 @@ public class CRLServiceImplTest {
         assertFalse(certificateRevoked);
     }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testIsCertificateRevokedWithAllProtocolsExcluded(@Injectable final X509Certificate certificate) throws Exception {
+    @Test
+    public void testIsCertificateRevokedWithAllProtocolsExcluded(@Injectable final X509Certificate certificate) {
         final String crlUrl1 = "ftp://domain1.crl"; // excluded
         final String crlUrl2 = "ldap2://domain2.crl"; // unknown
         final List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
@@ -115,7 +116,25 @@ public class CRLServiceImplTest {
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
             returns("ftp,http");
         }};
-        crlService.isCertificateRevoked(certificate);
+        boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
+        assertFalse(certificateRevoked);
+    }
+
+    @Test
+    public void testIsCertificateRevokedWithEmptySupportedCrlDistributionPoints(@Injectable final X509Certificate certificate) {
+        new Expectations(crlService) {{
+            final String crlUrl1 = "http://domain1.crl"; // excluded
+            final String crlUrl2 = "ldap://domain2.crl"; // excluded
+            final List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
+            crlUtil.getCrlDistributionPoints(certificate);
+            result = crlUrlList;
+            crlService.getSupportedCrlDistributionPoints(crlUrlList);
+            result = new ArrayList<>();
+        }};
+        //when
+        boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
+        //then
+        assertFalse("No supported CRL distribution point found for certificate ", certificateRevoked);
     }
 
     @Test(expected = DomibusCRLException.class)
@@ -168,49 +187,6 @@ public class CRLServiceImplTest {
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
-    }
-
-    @Test
-    public void testIsCertificateRevokedBySerialNumber(@Injectable final X509CRLEntry x509CRLEntry) throws Exception {
-        final String crlUrlString = "file://test";
-        final String serialNumber = "0400000000011E44A5E405";
-        final BigInteger serialNumberInteger = new BigInteger(serialNumber, 16);
-//        final X509CRL x509CRL = pkiUtil.createCRL(Arrays.asList(new BigInteger[]{new BigInteger("0400000000011E44A5E405", 16), new BigInteger("0400000000011E44A5E404", 16)}));
-        new Expectations() {{
-            crlUtil.downloadCRL(crlUrlString);
-            result = x509CRL;
-
-            x509CRLEntry.getSerialNumber();
-            result = serialNumberInteger;
-
-            Set x509CRLEntries = new HashSet<>();
-            x509CRLEntries.add(x509CRLEntry);
-            x509CRL.getRevokedCertificates();
-            result = x509CRLEntries;
-
-            crlUtil.parseCertificateSerial(serialNumber);
-            result = new BigInteger(serialNumber, 16);
-
-            crlUtil.parseCertificateSerial("1400000000011E44A5E405");
-            result = new BigInteger("1400000000011E44A5E405", 16);
-        }};
-        boolean certificateRevoked = crlService.isCertificateRevoked("0400000000011E44A5E405", crlUrlString);
-        assertTrue(certificateRevoked);
-
-        certificateRevoked = crlService.isCertificateRevoked("1400000000011E44A5E405", crlUrlString);
-        assertFalse(certificateRevoked);
-    }
-
-    @Test
-    public void testIsCertificateRevokedWithEmptyCRLRevokedCertificateList() throws Exception {
-        final String crlUrlString = "file://test";
-        final X509CRL x509CRL = pkiUtil.createCRL(null);
-        new Expectations() {{
-            crlUtil.downloadCRL(crlUrlString);
-            result = x509CRL;
-        }};
-        boolean certificateRevokedStatus = crlService.isCertificateRevoked("0400000000011E44A5E405", crlUrlString);
-        assertFalse(certificateRevokedStatus);
     }
 
     @Test

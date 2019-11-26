@@ -191,16 +191,18 @@ public class MessageExchangeServiceImplTest {
     }
 
     @Test
-    public void testInitiatePullRequest() throws Exception {
+    public void testInitiatePullRequest() {
         when(pModeProvider.isConfigurationLoaded()).thenReturn(true);
         when(domainProvider.getCurrentDomain()).thenReturn(new Domain("default", "Default"));
-        when(pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle()).thenReturn(30);
-        when(pullFrequencyHelper.getPullRequestNumberForResponder("responder")).thenReturn(10);
+        when(pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle()).thenReturn(25);
+        when(pullFrequencyHelper.getPullRequestNumberForMpc("test1")).thenReturn(10);
+        when(pullFrequencyHelper.getPullRequestNumberForMpc("test2")).thenReturn(15);
+        when(jmsManager.getDestinationSize("pull")).thenReturn(20l);
 
         ArgumentCaptor<JmsMessage> mapArgumentCaptor = ArgumentCaptor.forClass(JmsMessage.class);
         messageExchangeService.initiatePullRequest();
         verify(pModeProvider, times(1)).getGatewayParty();
-        verify(jmsManager, times(20)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class));
+        verify(jmsManager, times(25)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class));
         String pModeKeyResult = "party1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "responder" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "service1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
@@ -369,6 +371,23 @@ public class MessageExchangeServiceImplTest {
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
 
     }
+
+    @Test
+    public void testRetrieveMessageRestoreStatusWithForcePull() throws EbMS3Exception {
+        MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
+                "sender",
+                "receiver",
+                "serv1",
+                "action1",
+                "leg1");
+        UserMessage userMessage = new UserMessage();
+        userMessage.setMpc("mpc123");
+        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
+        when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123");
+        assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
+    }
+
 
 
 }

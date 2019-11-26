@@ -10,6 +10,8 @@ import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 /**
@@ -18,6 +20,8 @@ import org.apache.cxf.binding.soap.SoapMessage;
  */
 
 public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReceiptLegConfigurationExtractor.class);
 
     private MessagingDao messagingDao;
 
@@ -44,7 +48,7 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
             throw new MessageAcknowledgeException(DomibusCoreErrorCode.DOM_001, "Message with ID [" + messageId + "] does not exist");
         }
         String pModeKey;
-        if (messageExchangeService.forcePullOnMpc(userMessage.getMpc())) {
+        if (messageExchangeService.forcePullOnMpc(userMessage)) {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
             LOG.debug("Exchange context (pull exchange), pModeKey [{}]", pModeKey);
         } else {

@@ -24,11 +24,11 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        LOG.debug("Intercepted request for " + request.getRequestURI());
+        LOG.debug("Intercepted request for {}", request.getRequestURI());
 
         try {
-            authenticationExtService.authenticate(request);
-            return  true;
+            authenticationExtService.enforceAuthentication(request);
+            return true;
         } catch (AuthenticationExtException e) {
             response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
             return false;

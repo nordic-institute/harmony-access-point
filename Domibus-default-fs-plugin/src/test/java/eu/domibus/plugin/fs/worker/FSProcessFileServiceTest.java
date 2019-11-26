@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -38,6 +39,12 @@ public class FSProcessFileServiceTest {
 
     @Injectable
     private FSPluginProperties fsPluginProperties;
+
+    @Injectable
+    protected FSXMLHelper fsxmlHelper;
+
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
 
 
     private String domain = null;
@@ -97,6 +104,9 @@ public class FSProcessFileServiceTest {
             fsFilesManager.resolveSibling(contentFile, "metadata.xml");
             result = metadataFile;
 
+            fsProcessFileService.parseMetadata((FileObject) any);
+            result = metadata;
+
             fsFilesManager.getDataHandler(contentFile);
             result = new DataHandler(new FileObjectDataSource(contentFile));
 
@@ -138,6 +148,8 @@ public class FSProcessFileServiceTest {
         final String newFileName = "content_" + messageId + ".xml";
 
         new Expectations() {{
+            fsFileNameHelper.deriveFileName("content.xml", messageId);
+            result = newFileName;
 
             fsFilesManager.renameFile(contentFile, newFileName);
             result = new FileSystemException("Unable to rename the file");

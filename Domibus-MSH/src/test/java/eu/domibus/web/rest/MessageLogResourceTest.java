@@ -25,9 +25,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.web.rest.ro.MessageLogRO;
-import eu.domibus.web.rest.ro.MessageLogResultRO;
-import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.rest.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -128,8 +126,6 @@ public class MessageLogResourceTest {
         new Expectations() {{
             messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = expectedMessageLogResult;
-            blacklistValidator.validate(anyString);
-            times = 7;
         }};
 
         // When
@@ -173,9 +169,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = messageLogResource.getCsv("received", true, null, null, null, messageType, null,
-                null, null, null, null, null,
-                null, null, null, messageSubtype);
+        final ResponseEntity<String> csv = messageLogResource.getCsv(new MessageLogFilterRequestRO() {{
+            setOrderBy("received");
+            setMessageType(messageType);
+            setMessageSubtype(messageSubtype);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
@@ -197,9 +195,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = messageLogResource.getCsv("received", true, null, null, null, messageType, null,
-                null, null, null, null, null,
-                null, null, null, messageSubtype);
+        final ResponseEntity<String> csv = messageLogResource.getCsv(new MessageLogFilterRequestRO() {{
+            setOrderBy("received");
+            setMessageType(messageType);
+            setMessageSubtype(messageSubtype);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
@@ -219,7 +219,10 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(partyId);
+        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+                new LatestOutgoingMessageRequestRO() {{
+                    setPartyId(partyId);
+                }});
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
@@ -236,7 +239,10 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent("test");
+        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+                new LatestOutgoingMessageRequestRO() {{
+                    setPartyId("test");
+                }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestSent.getStatusCode());
@@ -261,7 +267,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(partyId, userMessageId);
+        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
+                new LatestIncomingMessageRequestRO() {{
+                    setPartyId(partyId);
+                    setUserMessageId(userMessageId);
+                }});
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
@@ -280,7 +290,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived("test", "test");
+        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
+                new LatestIncomingMessageRequestRO() {{
+                    setPartyId("test");
+                    setUserMessageId("test");
+                }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestReceived.getStatusCode());
@@ -323,10 +337,12 @@ public class MessageLogResourceTest {
      * @return <code>MessageLogResultRO</code> object
      */
     private MessageLogResultRO getMessageLog(MessageType messageType, MessageSubtype messageSubtype) {
-        return messageLogResource.getMessageLog(1, 10, "MessageId", true,
-                null, null, null, messageType, null,
-                null, null, null, null, null, null,
-                null, null, messageSubtype);
+        return messageLogResource.getMessageLog(new MessageLogFilterRequestRO() {{
+            setPage(1);
+            setMessageId("MessageId");
+            setMessageType(messageType);
+            setMessageSubtype(messageSubtype);
+        }});
     }
 
     /**

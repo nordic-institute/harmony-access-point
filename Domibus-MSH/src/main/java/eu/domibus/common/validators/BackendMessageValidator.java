@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
+
 /**
  * @author Arun Raj
  * @author Federico Martini
@@ -45,7 +47,7 @@ public class BackendMessageValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);
 
-    protected static final String KEY_MESSAGEID_PATTERN = "domibus.sendMessage.messageIdPattern";
+    protected static final String KEY_MESSAGEID_PATTERN = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

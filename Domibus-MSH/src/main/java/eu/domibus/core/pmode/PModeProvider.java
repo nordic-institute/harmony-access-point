@@ -79,13 +79,6 @@ public abstract class PModeProvider {
     @Autowired
     private MpcService mpcService;
 
-//    @Autowired
-//    protected JMSManager jmsManager;
-//
-//    @Qualifier("clusterCommandTopic")
-//    @Autowired
-//    protected Topic clusterCommandTopic;
-
     @Autowired
     protected SignalService signalService;
 
@@ -119,7 +112,7 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
-    public ConfigurationRaw getRawConfiguration(int id) {
+    public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
@@ -275,7 +268,7 @@ public abstract class PModeProvider {
                 receiverParty = findPartyName(userMessage.getPartyInfo().getTo().getPartyId());
                 LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, receiverParty, userMessage.getPartyInfo().getTo().getPartyId());
             } catch (EbMS3Exception exc) {
-                if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
+                if (isPull && mpcService.forcePullOnMpc(userMessage)) {
                     LOG.info("Receiver party not found in pMode, extract from MPC");
                     receiverParty = mpcService.extractInitiator(userMessage.getMpc());
                 } else {
@@ -439,7 +432,7 @@ public abstract class PModeProvider {
 
     public abstract List<Party> findAllParties();
 
-    public abstract List<String> findPartyIdByServiceAndAction(final String service, final String action);
+    public abstract List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps);
 
     public abstract String getPartyIdType(String partyIdentifier);
 

@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.audit.AuditLog;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.common.ModificationType;
@@ -13,14 +12,18 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.criteria.AuditCriteria;
+import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +34,8 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(value = "/rest/audit")
-public class AuditResource {
+@Validated
+public class AuditResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditResource.class);
 
@@ -56,12 +60,13 @@ public class AuditResource {
      * @param auditCriteria the audit criteria used to filter the returned list.
      * @return an audit list.
      */
-    @RequestMapping(value = {"/list"}, method = RequestMethod.POST)
-    public List<AuditResponseRo> listAudits(@RequestBody AuditCriteria auditCriteria) {
+    @PostMapping(value = {"/list"})
+    public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Audit criteria received:");
             LOG.debug(auditCriteria.toString());
         }
+
         List<AuditLog> sourceList = auditService.listAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),
@@ -77,8 +82,8 @@ public class AuditResource {
     }
 
 
-    @RequestMapping(value = {"/count"}, method = RequestMethod.POST)
-    public Long countAudits(@RequestBody AuditCriteria auditCriteria) {
+    @PostMapping(value = {"/count"})
+    public Long countAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),
@@ -118,7 +123,7 @@ public class AuditResource {
                 findFirst().orElse(code);
     }
 
-    @RequestMapping(value = {"/targets"}, method = RequestMethod.GET)
+    @GetMapping(value = {"/targets"})
     public List<String> auditTargets() {
         return auditService.listAuditTarget();
     }
@@ -126,45 +131,24 @@ public class AuditResource {
     /**
      * This method returns a CSV file with the contents of Audit table
      *
-     * @param auditTargetName the type of audit.
-     * @param user            the user that performed the audited action.
-     * @param action          the type of action linked with audit.
-     * @param from            the date from which we want to retrieve audit logs.
-     * @param to              the date to which we want to retrieve audit logs.
+     * @param auditCriteria same filter criteria as in filter method
      * @return CSV file with the contents of Audit table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(
-            @RequestParam(value = "auditTargetName", required = false) Set<String> auditTargetName,
-            @RequestParam(value = "user", required = false) Set<String> user,
-            @RequestParam(value = "action", required = false) Set<String> action,
-            @RequestParam(value = "from", required = false) String from,
-            @RequestParam(value = "to", required = false) String to) {
-        String resultText;
-
-        // get list of audits
-        AuditCriteria auditCriteria = new AuditCriteria();
-        auditCriteria.setAuditTargetName(auditTargetName);
-        auditCriteria.setUser(user);
-        auditCriteria.setAction(action);
-        Date receivedFrom = dateUtil.fromString(from);
-        auditCriteria.setFrom(receivedFrom);
-        Date receivedTo = dateUtil.fromString(to);
-        auditCriteria.setTo(receivedTo);
+    @GetMapping(path = "/csv")
+    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
         auditCriteria.setStart(0);
         auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());
         final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(auditResponseRos, AuditResponseRo.class,
-                    CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(), CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(auditResponseRos,
+                AuditResponseRo.class,
+                CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems(),
+                "audit");
+    }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("audit"))
-                .body(resultText);
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 }

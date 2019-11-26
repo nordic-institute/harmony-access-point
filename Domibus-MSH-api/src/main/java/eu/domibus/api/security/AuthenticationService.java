@@ -12,5 +12,8 @@ public interface AuthenticationService {
 
     void authenticate(HttpServletRequest httpRequest) throws AuthenticationException;
 
+    void enforceAuthentication(HttpServletRequest httpRequest) throws AuthenticationException;
+
     Authentication basicAuthenticate(String user, String password) throws AuthenticationException;
+
 }

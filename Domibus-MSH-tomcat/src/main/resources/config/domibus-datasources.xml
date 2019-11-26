@@ -42,17 +42,6 @@
     <amq:topic id="clusterCommandTopic"
                physicalName="domibus.internal.command"/>
 
-    <bean id="domibusJDBC-nonXADataSource" class="com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean">
-        <property name="uniqueResourceName" value="domibusNonXADataSource"/>
-        <property name="driverClassName" value="${domibus.datasource.driverClassName}"/>
-        <property name="url" value="${domibus.datasource.url}"/>
-        <property name="user" value="${domibus.datasource.user}"/>
-        <property name="password" value="${domibus.datasource.password}"/>
-        <property name="minPoolSize" value="${domibus.datasource.minPoolSize}"/>
-        <property name="maxPoolSize" value=" ${domibus.datasource.maxPoolSize}"/>
-        <property name="maxLifetime" value="${domibus.datasource.maxLifetime}"/>
-    </bean>
-
     <bean id="internalJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
         <property name="connectionFactory"

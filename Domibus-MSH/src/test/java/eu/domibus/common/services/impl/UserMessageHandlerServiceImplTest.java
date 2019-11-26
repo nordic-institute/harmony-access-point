@@ -16,13 +16,15 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.configuration.storage.StorageProvider;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
@@ -32,8 +34,6 @@ import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.SubmissionValidationException;
-import eu.domibus.util.MessageUtil;
-import eu.domibus.util.SoapUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -177,7 +177,7 @@ public class UserMessageHandlerServiceImplTest {
     SplitAndJoinService splitAndJoinService;
 
     @Injectable
-    StorageProvider storageProvider;
+    PayloadFileStorageProvider storageProvider;
 
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
@@ -369,26 +369,25 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void test_HandlePayLoads_HappyFlowUsingEmptyCID(@Injectable final UserMessage userMessage, @Injectable final Node bodyContent) throws SOAPException, TransformerConfigurationException {
-        final PartInfo partInfo = new PartInfo();
-        partInfo.setHref("");
+    public void test_HandlePayLoads_HappyFlowUsingEmptyCID(@Injectable final UserMessage userMessage,
+                                                           @Injectable final Node bodyContent,
+                                                           @Injectable final PartInfo partInfo,
+                                                           @Injectable Property property1) throws SOAPException, TransformerConfigurationException {
 
         PartProperties partProperties = new PartProperties();
-        Property property1 = new Property();
-        property1.setName("MimeType");
-        property1.setValue("text/xml");
-
         partProperties.getProperties().add(property1);
         partInfo.setPartProperties(partProperties);
-
         List<Node> bodyContentNodeList = new ArrayList<>();
         bodyContentNodeList.add(bodyContent);
         final Iterator<Node> bodyContentNodeIterator = bodyContentNodeList.iterator();
 
         new Expectations() {{
+            partInfo.getHref();
+            result = "";
             userMessage.getPayloadInfo().getPartInfo();
             result = partInfo;
-
+            soapRequestMessage.getSOAPBody().hasChildNodes();
+            result = true;
             soapRequestMessage.getSOAPBody().getChildElements();
             result = bodyContentNodeIterator;
         }};
@@ -398,6 +397,27 @@ public class UserMessageHandlerServiceImplTest {
             Assert.assertNotNull(partInfo.getPayloadDatahandler());
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             fail("No Errors expected in happy flow!");
+        }
+    }
+
+    @Test
+    public void test_HandlePayLoads_EmptyCIDAndBodyContent(@Injectable final UserMessage userMessage,
+                                                           @Injectable final Node bodyContent,
+                                                           @Injectable final PartInfo partInfo) throws SOAPException, TransformerConfigurationException {
+
+        new Expectations() {{
+            partInfo.getHref();
+            result = "";
+            userMessage.getPayloadInfo().getPartInfo();
+            result = partInfo;
+            soapRequestMessage.getSOAPBody().getChildElements();
+            times = 0;
+        }};
+        try {
+            userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage);
+            Assert.assertNull(partInfo.getPayloadDatahandler().getContentType());
+        } catch (EbMS3Exception | SOAPException | TransformerException e) {
+            fail("No Errors expected in the flow EmptyCID And BodyContent!");
         }
     }
 
@@ -489,7 +509,8 @@ public class UserMessageHandlerServiceImplTest {
         new Expectations() {{
             userMessage.getPayloadInfo();
             result = payloadInfo;
-
+            soapRequestMessage.getSOAPBody().hasChildNodes();
+            result = true;
             soapRequestMessage.getSOAPBody().getChildElements();
             result = bodyContentNodeIterator;
         }};
@@ -1142,9 +1163,9 @@ public class UserMessageHandlerServiceImplTest {
 
     @Test
     public void testValidateUserMessageFragmentWithNoSplittingConfigured(@Injectable UserMessage userMessage,
-                                                                   @Injectable MessageFragmentType messageFragmentType,
-                                                                   @Injectable MessageGroupEntity messageGroupEntity,
-                                                                   @Injectable LegConfiguration legConfiguration) {
+                                                                         @Injectable MessageFragmentType messageFragmentType,
+                                                                         @Injectable MessageGroupEntity messageGroupEntity,
+                                                                         @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = null;
@@ -1164,7 +1185,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                    @Injectable MessageGroupEntity messageGroupEntity,
                                                                    @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = true;
         }};
 
@@ -1182,7 +1203,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                  @Injectable MessageGroupEntity messageGroupEntity,
                                                                  @Injectable LegConfiguration legConfiguration) {
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             messageGroupEntity.getRejected();
@@ -1204,7 +1225,7 @@ public class UserMessageHandlerServiceImplTest {
 
         long totalFragmentCount = 5;
         new Expectations() {{
-            storageProvider.idPayloadsPersistenceInDatabaseConfigured();
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
 
             messageGroupEntity.getRejected();

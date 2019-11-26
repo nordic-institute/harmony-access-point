@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -46,6 +48,6 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
     }
 
     protected boolean isMessageAttemptAuditDisabled() {
-        return !domibusPropertyProvider.getBooleanProperty("domibus.sendMessage.attempt.audit.active");
+        return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE);
     }
 }

@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -21,18 +20,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
 @RestController
 @RequestMapping(value = "/rest/jms")
 @Validated
-public class JmsResource {
+public class JmsResource extends BaseResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(JmsResource.class);
 
@@ -44,8 +39,7 @@ public class JmsResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
-
-    @RequestMapping(value = {"/destinations"}, method = GET)
+    @GetMapping(value = {"/destinations"})
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
         final DestinationsResponseRO destinationsResponseRO = new DestinationsResponseRO();
@@ -63,9 +57,8 @@ public class JmsResource {
         }
     }
 
-
-    @RequestMapping(value = {"/messages"}, method = POST)
-    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid MessagesRequestRO request) {
+    @PostMapping(value = {"/messages"})
+    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid JmsFilterRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
         try {
@@ -82,7 +75,7 @@ public class JmsResource {
         }
     }
 
-    @RequestMapping(value = {"/messages/action"}, method = POST)
+    @PostMapping(value = {"/messages/action"})
     public ResponseEntity<MessagesActionResponseRO> action(@RequestBody @Valid MessagesActionRequestRO request) {
 
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
@@ -119,45 +112,33 @@ public class JmsResource {
     /**
      * This method returns a CSV file with the contents of JMS Messages table
      *
-     * @param source   queue or topic
-     * @param jmsType  type of the JMS message
-     * @param fromDate starting date
-     * @param toDate   ending date
-     * @param selector jms selector (additional search criteria)
      * @return CSV file with the contents of JMS Messages table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
-    public ResponseEntity<String> getCsv(
-            @RequestParam(value = "source") String source,
-            @RequestParam(value = "jmsType", required = false) String jmsType,
-            @RequestParam(value = "fromDate", required = false) Long fromDate,
-            @RequestParam(value = "toDate", required = false) Long toDate,
-            @RequestParam(value = "selector", required = false) String selector) {
-        String resultText;
+    @GetMapping(path = "/csv")
+    public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request) {
 
         // get list of messages
         final List<JmsMessage> jmsMessageList = jmsManager.browseMessages(
-                source,
-                jmsType,
-                fromDate == null ? null : new Date(fromDate),
-                toDate == null ? null : new Date(toDate),
-                selector)
+                request.getSource(),
+                request.getJmsType(),
+                request.getFromDate(),
+                request.getToDate(),
+                request.getSelector())
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
 
         customizeJMSProperties(jmsMessageList);
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,
-                    CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(jmsMessageList, JmsMessage.class,
+                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.JMS_RESOURCE.getExcludedItems(),
+                "jmsmonitoring");
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("jmsmonitoring"))
-                .body(resultText);
+    }
+
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
     }
 
     private void customizeJMSProperties(List<JmsMessage> jmsMessageList) {
@@ -167,5 +148,5 @@ public class JmsResource {
         }
     }
 
-
 }
+

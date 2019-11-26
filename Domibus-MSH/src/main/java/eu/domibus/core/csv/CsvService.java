@@ -1,5 +1,7 @@
 package eu.domibus.core.csv;
 
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 import java.util.Map;
 
@@ -16,5 +18,7 @@ public interface CsvService {
                        final Map<String, String> customColumnNames, List<String> excludedColumns);
 
     int getMaxNumberRowsToExport();
+
+    String getCsvFilename(String module);
 
 }

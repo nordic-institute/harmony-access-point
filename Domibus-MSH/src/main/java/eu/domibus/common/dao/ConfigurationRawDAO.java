@@ -25,7 +25,7 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
         super(ConfigurationRaw.class);
     }
 
-    public ConfigurationRaw getConfigurationRaw(int id) {
+    public ConfigurationRaw getConfigurationRaw(long id) {
         final TypedQuery<ConfigurationRaw> query = this.em.createNamedQuery("ConfigurationRaw.getById", ConfigurationRaw.class);
         query.setParameter("CONF_ID", id);
         return query.getSingleResult();

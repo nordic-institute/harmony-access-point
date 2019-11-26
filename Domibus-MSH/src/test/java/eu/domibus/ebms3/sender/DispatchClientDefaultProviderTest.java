@@ -21,6 +21,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1
@@ -63,7 +65,7 @@ public class DispatchClientDefaultProviderTest {
             domibusPropertyProvider.getDomainProperty(DispatchClientDefaultProvider.DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD);
             result = chunkingThreshold;
 
-            domibusPropertyProvider.getDomainProperty(DispatchClientDefaultProvider.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE);
+            domibusPropertyProvider.getDomainProperty(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE);
             result = keepAlive;
         }};
     }

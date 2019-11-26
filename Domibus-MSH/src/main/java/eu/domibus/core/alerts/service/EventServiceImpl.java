@@ -181,6 +181,15 @@ public class EventServiceImpl implements EventService {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
+            StringBuilder errors = new StringBuilder();
+            errorLogDao.
+                    getErrorsForMessage(messageId).
+                    stream().
+                    map(ErrorLogEntry::getErrorDetail).forEach(errors::append);
+            if (!errors.toString().isEmpty()) {
+                event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors.toString(), MAX_DESCRIPTION_LENGTH));
+            }
+
             String receiverPartyName = null;
             if (mpcService.forcePullOnMpc(userMessage.getMpc())) {
                 LOG.debug("Find UserMessage exchange context (pull context)");
@@ -198,14 +207,6 @@ public class EventServiceImpl implements EventService {
             LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty);
             event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
             event.addStringKeyValue(TO_PARTY.name(), receiverPartyName);
-            StringBuilder errors = new StringBuilder();
-            errorLogDao.
-                    getErrorsForMessage(messageId).
-                    stream().
-                    map(ErrorLogEntry::getErrorDetail).forEach(errors::append);
-            if (!errors.toString().isEmpty()) {
-                event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors.toString(), MAX_DESCRIPTION_LENGTH));
-            }
         } catch (EbMS3Exception e) {
             LOG.error("Message:[{}] Errors while enriching message event", messageId, e);
         }

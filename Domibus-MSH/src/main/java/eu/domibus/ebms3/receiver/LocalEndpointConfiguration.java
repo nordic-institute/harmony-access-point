@@ -1,10 +1,11 @@
 package eu.domibus.ebms3.receiver;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.sender.MSHDispatcher;
-import eu.domibus.util.MessageUtil;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -41,21 +42,18 @@ public class LocalEndpointConfiguration {
     @Autowired
     protected MessageUtil messageUtil;
 
+    @Autowired
+    protected DomainService domainService;
+
     @Bean(name = "localMSH")
     public Endpoint createMSHEndpoint() {
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
         LocalTransportFactory localTransport = new LocalTransportFactory();
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
-        dfm.registerDestinationFactory("http://cxf.apache.org/bindings/xformat", localTransport);
         dfm.registerDestinationFactory("http://cxf.apache.org/transports/local", localTransport);
 
         ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
         extension.registerConduitInitiator("http://cxf.apache.org/transports/local", localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
-        extension.registerConduitInitiator("http://cxf.apache.org/bindings/xformat", localTransport);
 
         EndpointImpl endpoint = new EndpointImpl(bus, mshWebserviceSerializer);
         endpoint.setTransportId(LocalTransportFactory.TRANSPORT_ID);
@@ -73,6 +71,7 @@ public class LocalEndpointConfiguration {
         result.setDomibusPropertyProvider(domibusPropertyProvider);
         result.setMessageUtil(messageUtil);
         result.setSplitAndJoinService(splitAndJoinService);
+        result.setDomainService(domainService);
         return result;
     }
 }

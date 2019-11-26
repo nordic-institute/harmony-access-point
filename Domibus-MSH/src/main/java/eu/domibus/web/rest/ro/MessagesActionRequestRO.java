@@ -1,25 +1,24 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.web.rest.validators.NotBlacklisted;
+import eu.domibus.api.validators.CustomWhiteListed;
 
 import java.util.List;
 
 /**
  * Created by musatmi on 15/05/2017.
  */
+
 public class MessagesActionRequestRO {
 
-    @NotBlacklisted
+    @CustomWhiteListed(permitted = ".@!/")
     private String source;
-
     private String type;
     private String content;
-
-    @NotBlacklisted
+    @CustomWhiteListed(permitted = ".@!/")
     private String destination;
-
-    private Action action;
+    @CustomWhiteListed(permitted = "<>.:-")
     private List<String> selectedMessages;
+    private Action action;
 
     public String getSource() {
         return source;

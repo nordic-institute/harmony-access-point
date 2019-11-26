@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.*;
@@ -28,6 +29,9 @@ public class FSFilesManagerTest {
 
     @Injectable
     private FileObject mockedRootDir;
+
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
 
     @Before
     public void setUp() throws FileSystemException {
