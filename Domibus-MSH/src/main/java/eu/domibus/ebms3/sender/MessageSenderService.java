@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
@@ -50,13 +51,17 @@ public class MessageSenderService {
     protected ReliabilityService reliabilityService;
 
     @Autowired
+    private MetricRegistry metricRegistry;
+
+    @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
+        com.codahale.metrics.Timer.Context findByMessageIdSafely_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "findByMessageIdSafely_before_sending")).time();
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        findByMessageIdSafely_before_sending.stop();
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
-
         if (MessageStatus.NOT_FOUND == messageStatus) {
             if (retryCount < MAX_RETRY_COUNT) {
                 userMessageService.scheduleSending(messageId, retryCount + 1, isSplitAndJoin);
@@ -72,10 +77,12 @@ public class MessageSenderService {
             return;
         }
 
+        com.codahale.metrics.Timer.Context prepare_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "prepare_before_sending")).time();
         final Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         final UserMessage userMessage = messaging.getUserMessage();
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        prepare_before_sending.stop();
 
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,

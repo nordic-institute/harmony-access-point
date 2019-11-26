@@ -1,8 +1,10 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +21,28 @@ import javax.jms.Message;
  */
 @Service(value = "messageSenderListener")
 public class MessageSenderListener extends AbstractMessageSenderListener {
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
     public void onMessage(final Message message) {
-        LOG.debug("Processing message [{}]", message);
-        super.onMessage(message);
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(MessageSenderListener.class, "message_sender_consumer_counter"));
+        try {
+            methodCounter.inc();
+            com.codahale.metrics.Timer.Context before_on_message = metricRegistry.timer(MetricRegistry.name(MessageSenderListener.class, "before_on_message")).time();
+            LOG.debug("Processing message [{}]", message);
+            before_on_message.stop();
+            com.codahale.metrics.Timer.Context on_message = metricRegistry.timer(MetricRegistry.name(MessageSenderListener.class, "on_message")).time();
+            super.onMessage(message);
+            on_message.stop();
+        } finally {
+            methodCounter.dec();
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
@@ -67,6 +68,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected ReliabilityService reliabilityService;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
@@ -87,6 +91,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         LegConfiguration legConfiguration = null;
         final String pModeKey;
 
+        com.codahale.metrics.Timer.Context validate_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "validate_before_sending")).time();
         try {
             try {
                 validateBeforeSending(userMessage);
@@ -98,8 +103,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
                 return;
             }
+            validate_before_sending.stop();
 
-
+            com.codahale.metrics.Timer.Context getMessageInfo_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "getMessageInfo_before_sending")).time();
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
             getLog().debug("PMode key found : " + pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
@@ -119,6 +125,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             Validate.notNull(receiverParty, "Responder party was not found");
 
+            getMessageInfo_before_sending.stop();
+
+            com.codahale.metrics.Timer.Context verify_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "verify_before_sending")).time();
+
             try {
                 messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
                 messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
@@ -132,9 +142,17 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 return;
             }
 
+            verify_before_sending.stop();
+
             getLog().debug("PMode found : " + pModeKey);
+            com.codahale.metrics.Timer.Context createSOAPMessage_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "createSOAPMessage_before_sending")).time();
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
+            createSOAPMessage_before_sending.stop();
+
+            com.codahale.metrics.Timer.Context dispatch = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "around_dispatch")).time();
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            dispatch.stop();
+            com.codahale.metrics.Timer.Context handle_response = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "handle_response")).time();
             responseResult = responseHandler.verifyResponse(responseSoapMessage);
 
             if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
@@ -143,6 +161,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 throw e;
             }
             reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
+            handle_response.close();
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
@@ -162,6 +181,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
+            com.codahale.metrics.Timer.Context finally_block = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "finally_block")).time();
             try {
                 getLog().debug("Finally handle reliability");
                 reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
@@ -169,6 +189,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             }
+            finally_block.stop();
         }
     }
 

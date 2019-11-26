@@ -7,6 +7,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -38,6 +40,8 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
+import static eu.domibus.common.metrics.MetricNames.VERIFY_TRUST;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -143,6 +147,8 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
+    @Timer(VERIFY_TRUST)
+    @Counter(VERIFY_TRUST)
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
         try {
             iamProvider.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);

@@ -13,7 +13,12 @@ public enum MetricNames {
     INCOMING_PULL_REQUEST,
     INCOMING_PULL_REQUEST_RECEIPT,
     OUTGOING_PULL_REQUEST,
-    OUTGOING_PULL_RECEIPT;
+    OUTGOING_PULL_RECEIPT,
+    SUBMITTED_MESSAGES,
+    VERIFY_TRUST,
+    AUTHORIZE_MESSAGE,
+    SERVER_POLICY_IN,
+    TRUST_SENDER;
 
     public String getCounterName() {
         return this.name().toUpperCase() + "_counter";

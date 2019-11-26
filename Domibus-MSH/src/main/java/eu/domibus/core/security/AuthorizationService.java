@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+import static eu.domibus.common.metrics.MetricNames.VERIFY_TRUST;
 
 /**
  * @author Thomas Dussart
@@ -81,6 +84,8 @@ public class AuthorizationService {
         return authorizationServiceList.get(0);
     }
 
+    @Timer(VERIFY_TRUST)
+    @Counter(VERIFY_TRUST)
     public void authorizePullRequest(SOAPMessage request, PullRequest pullRequest) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
@@ -96,7 +101,10 @@ public class AuthorizationService {
                 domainCoreConverter.convert(pullRequest, PullRequestDTO.class), pullRequestPmodeData);
     }
 
+
     @Transactional(propagation = Propagation.SUPPORTS)
+    @Timer(VERIFY_TRUST)
+    @Counter(VERIFY_TRUST)
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;

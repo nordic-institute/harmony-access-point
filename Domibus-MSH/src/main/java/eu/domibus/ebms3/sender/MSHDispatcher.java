@@ -1,6 +1,7 @@
 
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -50,15 +51,22 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
+        com.codahale.metrics.Timer.Context get_client = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "get_client")).time();
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.getClient(domain.getCode(), endpoint, legConfiguration.getSecurity().getSignatureMethod().getAlgorithm(), policy, pModeKey, cacheable);
+        get_client.stop();
 
         final SOAPMessage result;
         try {
+            com.codahale.metrics.Timer.Context dispatchTimer = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "dispatch")).time();
             result = dispatch.invoke(soapMessage);
+            dispatchTimer.stop();
         } catch (final WebServiceException e) {
             Exception exception = e;
             if(e.getCause() instanceof ConnectException) {
