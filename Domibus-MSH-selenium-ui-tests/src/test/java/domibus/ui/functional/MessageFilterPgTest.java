@@ -553,7 +553,7 @@ public class MessageFilterPgTest extends BaseTest {
 		String actionName = Generator.randomAlphaNumeric(5);
 		String anotherActionName = Generator.randomAlphaNumeric(5);
 		rest.createMessageFilter(actionName, null);
-		String domainName = rest.getDomainNames().get(1);
+		String domainName = getNonDefaultDomain();
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);
@@ -605,7 +605,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("Press cancel in the dialog");
 		dialog.cancel();
-		log.info("check that the domain si not changed");
+		log.info("check that the domain is not changed");
 		soft.assertEquals(page.getDomainSelector().getSelectedValue(), "Default", "Domain was NOT changed");
 
 		log.info("check info for filter is still updated");
@@ -628,7 +628,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		MessageFilterPage page = new MessageFilterPage(driver);
 		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
-		log.info("downloaded file" + fileName);
+		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
@@ -873,7 +873,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		MessageFilterPage page = new MessageFilterPage(driver);
 		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
-		log.info("downloaded file" + fileName);
+		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
 		soft.assertAll();

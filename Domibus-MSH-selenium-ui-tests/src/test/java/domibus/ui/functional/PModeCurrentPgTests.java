@@ -118,7 +118,7 @@ public class PModeCurrentPgTests extends BaseTest {
 	@Test(description = "PMC-7", groups = {"multiTenancy"})
 	public void domainSegregationPMode() throws Exception{
 
-		String domainName = rest.getDomainNames().get(1);
+		String domainName = getNonDefaultDomain();
 		String domaincode = rest.getDomainCodeForName(domainName);
 
 		log.info("uploading different pmodes on 2 different domains");
@@ -129,7 +129,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
-		log.info("gettting pmodes listed for each domain");
+		log.info("getting pmodes listed for each domain");
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 
 		String defaultPmode = page.getTextArea().getText();

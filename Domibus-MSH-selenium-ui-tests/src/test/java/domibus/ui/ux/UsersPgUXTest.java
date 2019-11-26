@@ -361,13 +361,14 @@ public class UsersPgUXTest extends BaseUXTest {
 	@Test(description = "USR-18", groups = {"multiTenancy"})
 	public void csvFileDownloadDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String domain = rest.getDomainNames().get(1);
-		log.info("checking download for domain " + domain);
+		String domainName = getNonDefaultDomain();
+		String domainCode = rest.getDomainCodeForName(domainName);
+		log.info("checking download for domain " + domainName);
 
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 
-		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

@@ -368,11 +368,12 @@ public class PluginUsersPgTest extends BaseTest {
 	/*PU-18 - Admin tries to create users with the same username on multiple domains*/
 	@Test(description = "PU-18", groups = {"multiTenancy"})
 	public void duplicatePluginUsersDifferentDomain() throws Exception {
-		String domain1 = getNonDefaultDomain();
-		if (StringUtils.isEmpty(domain1)) {
+		String domainName = getNonDefaultDomain();
+		if (StringUtils.isEmpty(domainName)) {
 			throw new SkipException("could not get domains");
 		}
-		String username = getPluginUser(domain1, DRoles.USER, true, false).getString("userName");
+		String domainCode = rest.getDomainCodeForName(domainName);
+		String username = getPluginUser(domainCode, DRoles.USER, true, false).getString("userName");
 		log.info("testing for username " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -389,10 +390,10 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking for error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domain1),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
 				"Error message is shown");
 
-		rest.deletePluginUser(username, domain1);
+		rest.deletePluginUser(username, domainCode);
 		soft.assertAll();
 	}
 
@@ -426,11 +427,12 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-20 - Admin tries to create plugin user with the same name as a normal user from another domain	*/
 	@Test(description = "PU-20", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnDifferentDomain() throws Exception {
-		String domain1 = getNonDefaultDomain();
-		if (StringUtils.isEmpty(domain1)) {
+		String domainName = getNonDefaultDomain();
+		if (StringUtils.isEmpty(domainName)) {
 			throw new SkipException("could not get domains");
 		}
-		String username = getUser(domain1, DRoles.USER, true, false, false).getString("userName");
+		String domainCode = rest.getDomainCodeForName(domainName);
+		String username = getUser(domainCode, DRoles.USER, true, false, false).getString("userName");
 		log.info("testing for username " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -446,7 +448,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking page for errors");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domain1),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
 				"Error message is shown");
 
 		soft.assertAll();
@@ -525,15 +527,9 @@ public class PluginUsersPgTest extends BaseTest {
 	public void domainVisibility() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 
-		List<String> domains = rest.getDomainNames();
-		String domain1 = "";
-		for (String domain : domains) {
-			if (!StringUtils.equalsIgnoreCase(domain, "Default")) {
-				domain1 = domain;
-				break;
-			}
-		}
-		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), rest.getDomainCodeForName(domain1));
+		String domainName = getNonDefaultDomain();
+		String domainCode = rest.getDomainCodeForName(domainName);
+		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), rest.getDomainCodeForName(domainCode));
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
@@ -543,12 +539,12 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.grid().scrollTo("User Name", username) == -1, "Plugin user is not visible on default domain");
 
-		page.getDomainSelector().selectOptionByText(domain1);
+		page.getDomainSelector().selectOptionByText(domainCode);
 
 		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1");
 
 
-		rest.deletePluginUser(username, domain1);
+		rest.deletePluginUser(username, domainCode);
 		soft.assertAll();
 	}
 

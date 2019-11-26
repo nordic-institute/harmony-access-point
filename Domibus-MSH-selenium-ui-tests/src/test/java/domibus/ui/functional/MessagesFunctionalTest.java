@@ -303,7 +303,7 @@ public class MessagesFunctionalTest extends BaseTest {
 	public void messagesSegregatedByDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String domainName = rest.getDomainNames().get(1);
+		String domainName = getNonDefaultDomain();
 		String domain = rest.getDomainCodeForName(domainName);
 		log.info(String.format("Domain name = %s", domainName));
 
@@ -362,7 +362,7 @@ public class MessagesFunctionalTest extends BaseTest {
 	public void superSelectMessageChangeDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String domainName = rest.getDomainNames().get(1);
+		String domainName = getNonDefaultDomain();
 		String domain = rest.getDomainCodeForName(domainName);
 
 		String messageIDDomain =  getMessageIDs(domain, 1, false).get(0);

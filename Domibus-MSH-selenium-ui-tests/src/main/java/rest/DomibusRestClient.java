@@ -123,16 +123,16 @@ public class DomibusRestClient {
 		return null;
 	}
 
-	public void switchDomain(String domainName) {
-		if (StringUtils.isEmpty(domainName)) {
-			domainName = "default";
+	public void switchDomain(String domainCode) {
+		if (StringUtils.isEmpty(domainCode)) {
+			domainCode = "default";
 		}
 
-		if (getDomainCodes().contains(domainName)) {
+		if (getDomainCodes().contains(domainCode)) {
 			WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.SESSION_DOMAIN));
 
 			builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
-					.put(ClientResponse.class, domainName);
+					.put(ClientResponse.class, domainCode);
 		}
 
 	}
@@ -418,20 +418,6 @@ public class DomibusRestClient {
 				if (StringUtils.equalsIgnoreCase(currentName, name)) {
 					return domainArray.getJSONObject(i).getString("code");
 				}
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public String getSecondDomainName() {
-		try {
-			JSONArray domainArray = getDomains();
-			for (int i = 0; i < domainArray.length(); i++) {
-				String name = domainArray.getJSONObject(i).getString("name");
-				if (StringUtils.equalsIgnoreCase(name, "default")) continue;
-				return name;
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

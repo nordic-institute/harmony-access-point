@@ -152,16 +152,16 @@ public class BaseTest {
 		return messIDs;
 	}
 
-	public JSONObject getUser(String domain, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
+	public JSONObject getUser(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 
-		if (StringUtils.isEmpty(domain)) {
-			domain = "default";
+		if (StringUtils.isEmpty(domainCode)) {
+			domainCode = "default";
 		}
 
 		if (!forceNew) {
 			log.info("trying to find existing user with desired config");
-			JSONArray users = rest.getUsers(domain);
+			JSONArray users = rest.getUsers(domainCode);
 			for (int i = 0; i < users.length(); i++) {
 				JSONObject user = users.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
@@ -172,7 +172,7 @@ public class BaseTest {
 					continue;
 				}
 
-				if (StringUtils.equalsIgnoreCase(user.getString("domain"), domain)
+				if (StringUtils.equalsIgnoreCase(user.getString("domain"), domainCode)
 						&& StringUtils.equalsIgnoreCase(user.getString("roles"), role)
 						&& user.getBoolean("active") == active
 						&& user.getBoolean("deleted") == deleted) {
@@ -182,19 +182,19 @@ public class BaseTest {
 			}
 		}
 
-		rest.createUser(username, role, data.defaultPass(), domain);
+		rest.createUser(username, role, data.defaultPass(), domainCode);
 		log.info("created user " + username);
 
 		if (!active) {
-			rest.blockUser(username, domain);
+			rest.blockUser(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 		if (deleted) {
-			rest.deleteUser(username, domain);
+			rest.deleteUser(username, domainCode);
 			log.info("deleted user " + username);
 		}
 
-		JSONArray users = rest.getUsers(domain);
+		JSONArray users = rest.getUsers(domainCode);
 		log.info("searching for user in the system");
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);
@@ -207,16 +207,16 @@ public class BaseTest {
 		return null;
 	}
 
-	public JSONObject getPluginUser(String domain, String role, boolean active, boolean forceNew) throws Exception {
+	public JSONObject getPluginUser(String domainCode, String role, boolean active, boolean forceNew) throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 
-		if (StringUtils.isEmpty(domain)) {
-			domain = "default";
+		if (StringUtils.isEmpty(domainCode)) {
+			domainCode = "default";
 		}
 
 		if (!forceNew) {
 			log.info("trying to find existing user with desired config");
-			JSONArray users = rest.getPluginUsers(domain, "BASIC");
+			JSONArray users = rest.getPluginUsers(domainCode, "BASIC");
 			for (int i = 0; i < users.length(); i++) {
 				JSONObject user = users.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
@@ -236,15 +236,15 @@ public class BaseTest {
 			}
 		}
 
-		rest.createPluginUser(username, role, data.defaultPass(), domain);
+		rest.createPluginUser(username, role, data.defaultPass(), domainCode);
 		log.info("created user " + username);
 
 		if (!active) {
-			rest.blockUser(username, domain);
+			rest.blockUser(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 
-		JSONArray users = rest.getPluginUsers(domain, "BASIC");
+		JSONArray users = rest.getPluginUsers(domainCode, "BASIC");
 		log.info("searching for user in the system");
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);

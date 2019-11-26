@@ -135,9 +135,10 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-9", groups = {"multiTenancy"})
 	public void adminOpenJMSMessagesPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String domain = getNonDefaultDomain();
-		log.info("checking for domain " + domain);
-		JSONObject user = getUser(domain, DRoles.ADMIN, true, false, false);
+		String domainName = getNonDefaultDomain();
+		String domainCode = rest.getDomainCodeForName(domainName);
+		log.info("checking for domain " + domainCode);
+		JSONObject user = getUser(domainCode, DRoles.ADMIN, true, false, false);
 
 		login(user.getString("userName"), data.defaultPass());
 		log.info("logging in with admin " + user.getString("userName"));
@@ -146,7 +147,7 @@ public class JMSMessPgTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 
 		log.info("checking domain name in the title");
-		soft.assertEquals(page.getDomainFromTitle(), domain, "Page title shows correct domain");
+		soft.assertEquals(page.getDomainFromTitle(), domainName, "Page title shows correct domain");
 		soft.assertTrue(page.filters().isLoaded(), "Filters are loaded and visible");
 
 		List<String> sources = page.filters().getJmsQueueSelect().getOptionsTexts();
@@ -158,7 +159,7 @@ public class JMSMessPgTest extends BaseTest {
 		List<HashMap<String, String>> allInfo = page.grid().getAllRowInfo();
 		log.info("checking messages contain domain name in Custom prop field");
 		for (HashMap<String, String> info : allInfo) {
-			soft.assertTrue(info.get("Custom prop").contains(domain));
+			soft.assertTrue(info.get("Custom prop").contains(domainCode));
 		}
 
 		soft.assertAll();

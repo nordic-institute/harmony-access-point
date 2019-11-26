@@ -108,6 +108,7 @@ public class AuditPgTest extends BaseTest {
 		log.info("Navigate to Audit page");
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
+		auditPage.waitForTitle();
 		log.info("Set Table data as Message");
 		auditPage.getFilters().setFilterData("table", "Message");
 		log.info("Select Created as Action Field data");
@@ -438,7 +439,7 @@ public class AuditPgTest extends BaseTest {
 		Integer pmodeID = rest.getLatestPModeID(null);
 		log.info("downloading PMODE with id " + pmodeID);
 		String filename = rest.downloadPmode(null, pmodeID);
-		log.info("downloaded file with name" + filename);
+		log.info("downloaded file with name " + filename);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage page = new AuditPage(driver);
@@ -530,6 +531,7 @@ public class AuditPgTest extends BaseTest {
 		archivePage.getSidebar().goToPage(PAGES.AUDIT);
 
 		AuditPage auditPage = new AuditPage(driver);
+		auditPage.waitForTitle();
 		log.info("Set all search filters");
 		auditPage.getFilters().setFilterData("table", "Pmode Archive");
 

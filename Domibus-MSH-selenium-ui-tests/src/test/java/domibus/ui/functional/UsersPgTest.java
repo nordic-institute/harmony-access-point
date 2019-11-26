@@ -522,9 +522,10 @@ public class UsersPgTest extends BaseTest {
 	/*USR-20 - Admin tries to create a user with username that exists on another domain*/
 	@Test(description = "USR-20", groups = {"multiTenancy"})
 	public void duplicateUsernameOnAnotherDomain() throws Exception {
-		List<String> domains = rest.getDomainNames();
-		String username = getUser(domains.get(1), DRoles.USER, false, false, false).getString("userName");
-		String deleted_username = getUser(domains.get(1), DRoles.USER, false, true, false).getString("userName");
+		String domainName = getNonDefaultDomain();
+		String domainCode = rest.getDomainCodeForName(domainName);
+		String username = getUser(domainCode, DRoles.USER, false, false, false).getString("userName");
+		String deleted_username = getUser(domainCode, DRoles.USER, false, true, false).getString("userName");
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -542,7 +543,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username, domains.get(1)), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username, domainCode), "Correct message displayed");
 
 //		deleted user
 		log.info("creating new user with existing deleted username");
@@ -557,7 +558,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, deleted_username, domains.get(1)), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, deleted_username, domainCode), "Correct message displayed");
 
 
 		soft.assertAll();
@@ -593,9 +594,10 @@ public class UsersPgTest extends BaseTest {
 	/*USR-22 - Admin tries to create a user with username that exists on a Plugin user on another domain*/
 	@Test(description = "USR-22", groups = {"multiTenancy"})
 	public void duplicateUserVSPluginUserOtherDomain() throws Exception {
-		String domain = rest.getDomainNames().get(1);
-		String username = getPluginUser(domain, DRoles.ADMIN, true, false).getString("userName");
-		log.info("got plugin user " + username + "on domain " + domain);
+		String domainName = getNonDefaultDomain();
+		String domainCode = rest.getDomainCodeForName(domainName);
+		String username = getPluginUser(domainCode, DRoles.ADMIN, true, false).getString("userName");
+		log.info("got plugin user " + username + "on domain " + domainCode);
 
 		SoftAssert soft = new SoftAssert();
 		loginAndGoToUsersPage(data.getAdminUser());
@@ -611,7 +613,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domain);
+		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domainCode);
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		soft.assertAll();
