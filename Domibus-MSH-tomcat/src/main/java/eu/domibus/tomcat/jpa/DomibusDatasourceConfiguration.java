@@ -17,7 +17,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * @author Cosmin Baciu
  * @since 4.0
  */
-@DependsOn("domibusPropertyConfiguration")
 @Configuration
 public class DomibusDatasourceConfiguration {
 

@@ -1,6 +1,8 @@
-package eu.domibus.ebms3.common.model;
+package eu.domibus.core.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,11 +13,12 @@ import java.util.TimeZone;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@Service("dateFormatter")
 public class TimestampDateFormatter {
 
+    @Qualifier("xmlDateTimeFormat")
     @Autowired
-    private SimpleDateFormat xmlDateTimeFormat;
-
+    protected SimpleDateFormat xmlDateTimeFormat;
 
     public String generateTimestamp() {
         final Date dateWithTruncatedMilliseconds = new Date(1000 * (new Date().getTime() / 1000));
