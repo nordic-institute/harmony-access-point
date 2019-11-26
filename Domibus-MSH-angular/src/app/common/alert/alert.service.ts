@@ -51,7 +51,7 @@ export class AlertService {
   public exception(message: string, error: any, keepAfterNavigationChange = false, fadeTime: number = 0) {
     const errMsg = this.formatError(error, message);
     this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
-    return Promise.reject({reason: message, handled: true});
+    return Promise.resolve();
   }
 
   public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false,
