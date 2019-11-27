@@ -173,6 +173,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
             this.updateSelectedProperty(criteria, formRef.componentInstance[criteria]);
           }
 
+          this.rows = [...this.rows];
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
           if (backendEntryPos != this.rowNumber) {

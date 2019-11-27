@@ -313,6 +313,8 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
       Object.assign(row, rowCopy);
       row.name = rowCopy.name;// TODO temp
+      this.rows = [...this.rows];
+
       if (this.updatedParties.indexOf(row) < 0)
         this.updatedParties.push(row);
     }
