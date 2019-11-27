@@ -50,6 +50,16 @@ public class DWait {
 		}
 	}
 
+	public void forElementToBeDisabled(WebElement element) {
+		int maxTimeout = data.getTIMEOUT() * 1000;
+		int waitedSoFar = 0;
+
+		while ((null == element.getAttribute("disabled")) && (waitedSoFar < maxTimeout)) {
+			waitedSoFar += 300;
+			forXMillis(300);
+		}
+	}
+
 	public void forAttributeNotEmpty(WebElement element, String attributeName) {
 		defaultWait.until(ExpectedConditions.attributeToBeNotEmpty(element, attributeName));
 	}

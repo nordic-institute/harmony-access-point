@@ -43,6 +43,14 @@ public class DObject {
 		throw new DObjectNotPresentException();
 	}
 
+	public boolean isDisabled() throws Exception {
+		if (isPresent()) {
+			wait.forElementToBeDisabled(element);
+			return !element.isEnabled();
+		}
+		throw new DObjectNotPresentException();
+	}
+
 	public boolean isVisible() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);

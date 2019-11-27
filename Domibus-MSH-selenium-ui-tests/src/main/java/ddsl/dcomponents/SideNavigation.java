@@ -91,7 +91,7 @@ public class SideNavigation extends DComponent {
 		try {
 			new DButton(driver, pmodeExpandLnk).click();
 		} catch (Exception e) {
-			log.warn("Could not expand pmode: ", e);
+			// log.warn("Could not expand pmode: ", e);
 		}
 	}
 

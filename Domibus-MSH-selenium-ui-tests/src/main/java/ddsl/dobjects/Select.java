@@ -79,7 +79,7 @@ public class Select extends DComponent {
             wait.forElementToBeGone(expandBtn);
             if (this.optionIDs.size() == 0) extractOptionIDs();
         } catch (Exception e) {
-            log.warn("Could not expand : ", e);
+        //    log.warn("Could not expand : ", e);
         }
     }
 

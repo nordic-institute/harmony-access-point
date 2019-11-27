@@ -23,7 +23,7 @@ public class DomainSelector extends Select {
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "span.mat-select-value")
+	@FindBy(css = ".mat-select-value")
 	protected WebElement selectedOptionValue;
 
 	public String getSelectedValue() throws Exception {
