@@ -37,7 +37,7 @@ public class PluginUsersPage extends DomibusPage {
 	@FindBy(css = "#userNewButton")
 	private WebElement newBtn;
 
-	@FindBy(css = "table > tbody > tr > td > button:nth-child(4)")
+	@FindBy(css = "#userEditButton")
 	private WebElement editBtn;
 
 	@FindBy(css = "#userDeleteButton")

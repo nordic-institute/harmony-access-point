@@ -34,22 +34,20 @@ public class PModePartiesPage extends DomibusPage {
 	@FindBy(css = "#partyTable")
 	WebElement gridContainer;
 
-	@FindBy(css = "app-party > table button:nth-child(1)")
+	@FindBy(css = "#cancelPartyButton")
 	WebElement cancelButton;
 
-	@FindBy(css = "app-party > table button:nth-child(2)")
+	@FindBy(css = "#savePartyButton")
 	WebElement saveButton;
 
-	@FindBy(css = "app-party > table button:nth-child(3)")
+	@FindBy(css = "#addPartyButton")
 	WebElement newButton;
 
-	@FindBy(css = "app-party > table button:nth-child(4)")
+	@FindBy(css = "#editPartyButton")
 	WebElement editButton;
 
-	@FindBy(css = "app-party > table button:nth-child(5)")
+	@FindBy(css = "#deletePartyButton")
 	WebElement deleteButton;
-
-
 
 	public DButton getCancelButton() {
 		return new DButton(driver, cancelButton);

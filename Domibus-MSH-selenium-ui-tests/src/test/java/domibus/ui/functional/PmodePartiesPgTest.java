@@ -181,9 +181,9 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Validate presence of success message");
         soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
         page.wait.forXMillis(1000);
-        log.info("Validate visibility of new party");
-        soft.assertTrue(page.grid().scrollTo(partyName, newPartyName) >= 0, "New name is visible in grid");
-        soft.assertTrue(page.grid().scrollTo(endpoint, "http://" + newPartyName + ".com") >= 0, "New endpoint is visible in grid");
+        log.info("Validate visibility of new party: " + newPartyName);
+        soft.assertTrue(page.grid().scrollTo(partyName, newPartyName) >= 0, "New name is visible in grid.");
+        soft.assertTrue(page.grid().scrollTo(endpoint, "http://" + newPartyName + ".com") >= 0, "New endpoint is visible in grid.");
         soft.assertAll();
     }
 
