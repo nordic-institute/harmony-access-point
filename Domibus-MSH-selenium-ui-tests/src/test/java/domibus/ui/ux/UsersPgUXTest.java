@@ -90,12 +90,14 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		log.info("double clicking on user");
 		page.grid().scrollToAndDoubleClick("Username", username);
+        page.grid().scrollToAndSelect("Username", username);
+        // FIXME: the red alert area pushes the grid down, and, sometimes, changes the selected row. We're selecting again the double-clicked row.
 
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.USER_CANNOT_EDIT_DELETED, "Page shows error message");
 
-		soft.assertTrue(!page.getEditBtn().isEnabled(), "Edit button is not enabled for deleted users!");
-		soft.assertTrue(!page.getDeleteBtn().isEnabled(), "Delete button is not enabled for deleted users!");
+		soft.assertTrue(page.getEditBtn().isDisabled(), "Edit button is not enabled for deleted users!");
+		soft.assertTrue(page.getDeleteBtn().isDisabled(), "Delete button is not enabled for deleted users!");
 
 		soft.assertAll();
 	}
@@ -367,6 +369,7 @@ public class UsersPgUXTest extends BaseUXTest {
 
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
+		page.getDomainSelector().selectOptionByText(domainName);
 
 		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
 		log.info("downloaded file with name " + fileName);

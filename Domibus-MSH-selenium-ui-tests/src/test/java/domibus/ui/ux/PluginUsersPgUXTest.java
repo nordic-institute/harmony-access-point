@@ -101,7 +101,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		String errMess = pum.getPassErrMess().getText();
 
 		log.info("check error message");
-		soft.assertEquals(errMess, DMessages.PASS_POLICY_MESSAGE, "Password policy clearly displayed when wrong pass is entered");
+		soft.assertTrue(errMess.contains(DMessages.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
 
 		log.info("setting passord and confirmation not to match");
 		pum.getPasswordInput().fill(data.defaultPass());
@@ -204,7 +204,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		pum.getPasswordInput().fill("tst");
 
 		errMess = pum.getPassErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_POLICY_MESSAGE, "Password policy clearly displayed when wrong pass is entered");
+		soft.assertTrue(errMess.contains(DMessages.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
 
 		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");

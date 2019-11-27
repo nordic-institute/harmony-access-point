@@ -51,7 +51,7 @@ public class JMSMessPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
-	/*JMS-2 - Doubleclik on one message*/
+	/*JMS-2 - Double-click on one message*/
 	@Test(description = "JMS-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -61,8 +61,12 @@ public class JMSMessPgUXTest extends BaseUXTest {
 		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 
 		if (noOfMessages > 0) {
+
 			log.info("getting info for row 0");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
+
+			log.info("select row 0");
+			page.grid().selectRow(0);
 
 			log.info("double click row 0");
 			page.grid().doubleClickRow(0);
@@ -455,16 +459,20 @@ public class JMSMessPgUXTest extends BaseUXTest {
 
 
 	private String getSelector(HashMap<String, String> messInfo) throws JSONException {
-		String selectorTemplate = "MESSAGE_ID='%s' AND JMSMessageID='%s'";
 
-		String custProp = messInfo.get("Custom prop");
 		String jmsProp = messInfo.get("JMS prop");
-
-		String messageId = new JSONObject(custProp).getString("MESSAGE_ID");
 		String jmsMessageID = new JSONObject(jmsProp).getString("JMSMessageID");
 
-		return String.format(selectorTemplate, messageId, jmsMessageID);
-
+		String custProp = messInfo.get("Custom prop");
+		if (custProp.contains("MESSAGE_ID")) {
+			String selectorTemplate = "MESSAGE_ID='%s' AND JMSMessageID='%s'";
+			String messageId = new JSONObject(custProp).getString("MESSAGE_ID");
+			return String.format(selectorTemplate, messageId, jmsMessageID);
+		} else {
+			// some legit jms messages don't contain the MESSAGE_ID prop
+			String selectorTemplate = "JMSMessageID='%s'";
+			return String.format(selectorTemplate, jmsMessageID);
+		}
 	}
 
 

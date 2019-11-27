@@ -168,7 +168,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 
 		log.info("Validation message for password policy under New password ");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.newPasswordFieldLabel), "Message is displayed");
-		soft.assertEquals(cpage.getValidationMsg(cpage.newPasswordFieldLabel), DMessages.PASS_POLICY_MESSAGE, "Password policy is displayed");
+		soft.assertTrue(cpage.getValidationMsg(cpage.newPasswordFieldLabel).contains(DMessages.PASS_POLICY_MESSAGE), "Password policy is displayed");
 		soft.assertAll();
 	}
 
@@ -192,7 +192,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 
 		log.info("Validation message for password policy under new password field");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.newPasswordFieldLabel), "Message is displayed");
-		soft.assertEquals(cpage.getValidationMsg(cpage.newPasswordFieldLabel), DMessages.PASS_POLICY_MESSAGE,
+		soft.assertTrue(cpage.getValidationMsg(cpage.newPasswordFieldLabel).contains(DMessages.PASS_POLICY_MESSAGE),
 				"Password policy message is displayed");
 
 		log.info("Validation message for mismatch under confirmation field ");

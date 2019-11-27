@@ -19,12 +19,14 @@ public class JMSSelect extends Select {
 
 	public int selectQueueWithMessages() throws Exception{
 		String qName = getQueueNameWithMessages("");
+		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
 		return Integer.valueOf(qName.replaceAll("\\D", ""));
 	}
 
 	public int selectQueueWithMessagesNotDLQ() throws Exception{
 		String qName = getQueueNameWithMessages("DLQ");
+		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
 		return Integer.valueOf(qName.replaceAll("\\D", ""));
 	}
