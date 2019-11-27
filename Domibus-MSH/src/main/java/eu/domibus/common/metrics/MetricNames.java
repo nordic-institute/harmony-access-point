@@ -8,6 +8,7 @@ package eu.domibus.common.metrics;
  */
 public enum MetricNames {
     INCOMING_USER_MESSAGE,
+    SERVLET_INCOMING_USER_MESSAGE,
     INCOMING_USER_MESSAGE_RECEIPT,
     OUTGOING_USER_MESSAGE,
     INCOMING_PULL_REQUEST,
