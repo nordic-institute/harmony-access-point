@@ -79,7 +79,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
-              private securityService: SecurityService, private changeDetector : ChangeDetectorRef) {
+              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
 
     this.getAlertTypes();
@@ -147,7 +147,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     });
   }
 
-  ngAfterViewChecked(){
+  ngAfterViewChecked() {
     this.changeDetector.detectChanges();
   }
 
@@ -183,7 +183,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
-          searchParams = searchParams.append('parameters', filter||'');
+        searchParams = searchParams.append('parameters', filter || '');
       }
     }
 
