@@ -82,7 +82,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	}
 
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
-	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editPassErrMess() throws Exception {
 		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);

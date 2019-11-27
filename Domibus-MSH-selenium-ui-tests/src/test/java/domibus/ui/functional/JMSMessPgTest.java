@@ -58,7 +58,7 @@ public class JMSMessPgTest extends BaseTest {
 	}
 
 	/*JMS-8 - Move message*/
-	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void moveMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
