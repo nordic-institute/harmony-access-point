@@ -41,6 +41,7 @@ export class UserComponent implements OnInit, DirtyOperations {
   users: Array<UserResponseRO>;
   userRoles: Array<String>;
   domains: Domain[];
+  domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
   selected: any[];
@@ -175,17 +176,21 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.changeDetector.detectChanges();
   }
 
-  getUsers(): void {
+  async getUsers() {
     this.isBusy = true;
-    this.userService.getUsers(this.filter).subscribe(results => {
-      results.forEach(user => {
-        this.setDomainName(user);
-      });
+    try {
+      let results = await this.userService.getUsers(this.filter).toPromise();
+      const showDomain = await this.userService.isDomainVisible();
+      if (showDomain) {
+        await this.getUserDomains();
+        results.forEach(user => this.setDomainName(user));
+      }
       this.users = results;
-      this.isBusy = false;
-    }, err => {
-      this.isBusy = false;
-    });
+    } catch (err) {
+      this.alertService.exception('Could not load users ', err);
+    }
+
+    this.isBusy = false;
     this.dirty = false;
     this.areRowsDeleted = false;
   }
@@ -205,9 +210,10 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   async getUserDomains(): Promise<Domain[]> {
-    var res = await this.domainService.getDomains();
-    this.domains = res;
-    return res;
+    if (this.domainsPromise) return this.domainsPromise;
+    this.domainsPromise = this.domainService.getDomains();
+    this.domains = await this.domainsPromise;
+    return this.domains;
   }
 
   onSelect({selected}) {
@@ -271,7 +277,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   buttonEdit() {
     if (this.currentUser && this.currentUser.deleted) {
-      this.alertService.error('You cannot edit a deleted user.', false, 3000);
+      this.alertService.error('You cannot edit a deleted user.', false, 5000);
       return;
     }
     this.buttonEditAction(this.currentUser);
@@ -340,7 +346,7 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
     this.enableEdit = false;
 
-    for (const itemToDelete of  users) {
+    for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
         this.users.splice(this.users.indexOf(itemToDelete), 1);
       } else {
@@ -461,4 +467,12 @@ export class UserComponent implements OnInit, DirtyOperations {
       return 0;
     return Math.floor(this.users.length / this.rowLimiter.pageSize);
   }
+
+  onActivate(event) {
+    console.log('event  ', event.type)
+    if ('dblclick' === event.type) {
+      this.buttonEdit();
+    }
+  }
+
 }
