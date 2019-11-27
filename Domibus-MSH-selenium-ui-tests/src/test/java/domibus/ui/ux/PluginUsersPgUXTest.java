@@ -90,6 +90,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 
 		log.info("editing user");
 		page.grid().scrollToAndDoubleClick("User Name", username);

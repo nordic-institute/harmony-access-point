@@ -472,7 +472,9 @@ public class DomibusRestClient {
 
 		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), deletedL.toString());
 		if (response.getStatus() != 200) {
-			throw new RuntimeException("Could not message filter");
+			log.debug(String.valueOf(response.getStatus()));
+			log.debug(response.getEntity(String.class));
+			throw new RuntimeException("Could not delete message filter");
 		}
 	}
 
