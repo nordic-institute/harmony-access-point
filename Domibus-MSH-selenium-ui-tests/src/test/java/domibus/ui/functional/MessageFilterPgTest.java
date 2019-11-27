@@ -533,12 +533,13 @@ public class MessageFilterPgTest extends BaseTest {
 		page.saveAndConfirmChanges();
 		log.info("saved the changes");
 
+		log.info("check if filter is present");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > -1, "New filter is present in the grid");
 
-		log.info("changing domain");
-		page.getDomainSelector().selectOptionByIndex(1);
+		log.info("changing domain to 1");
+		page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
 
-		log.info("check if filter is present");
+		log.info("check if filter is NOT present");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == -1, "New filter is NOT present in the grid on other domains then default");
 
 		log.info("delete created filter");

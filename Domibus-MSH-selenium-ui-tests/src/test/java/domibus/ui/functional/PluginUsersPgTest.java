@@ -529,7 +529,8 @@ public class PluginUsersPgTest extends BaseTest {
 
 		String domainName = getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
-		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), rest.getDomainCodeForName(domainCode));
+		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
+		log.debug("Plugin user created: " + username);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
@@ -537,12 +538,10 @@ public class PluginUsersPgTest extends BaseTest {
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 
-		soft.assertTrue(page.grid().scrollTo("User Name", username) == -1, "Plugin user is not visible on default domain");
+		soft.assertTrue(page.grid().scrollTo("User Name", username) == -1, "Plugin user is not visible on default domain.");
 
-		page.getDomainSelector().selectOptionByText(domainCode);
-
-		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1");
-
+		page.getDomainSelector().selectOptionByText(domainName);
+		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1.");
 
 		rest.deletePluginUser(username, domainCode);
 		soft.assertAll();
@@ -562,8 +561,8 @@ public class PluginUsersPgTest extends BaseTest {
 
 		PluginUsersPage page = new PluginUsersPage(driver);
 		log.info("checking buttons state");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
-		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled on page load");
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled on page load");
 
 //		create new user
 		log.info("filling plugin user form");

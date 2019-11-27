@@ -10,7 +10,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class Select extends DComponent {
 
     public Select(WebDriver driver, WebElement container) {
         super(driver);
-		log.debug("initialize select");
+        log.debug("initialize select");
         PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 
         this.selectContainer = container;
@@ -38,14 +37,14 @@ public class Select extends DComponent {
 
     @FindBy(css = "[class*=\"select-arrow\"]")
     protected WebElement expandBtn;
-    
+
     private By options = By.cssSelector(".mat-select-panel > mat-option");
 
     private By selectedOption = By.cssSelector("[class*=\"-select-value\"]");
 
-	public DButton getExpandBtn() {
-		return new DButton(driver, expandBtn);
-	}
+    public DButton getExpandBtn() {
+        return new DButton(driver, expandBtn);
+    }
 
     public String getSelectedValue() throws Exception {
         try {
@@ -79,7 +78,7 @@ public class Select extends DComponent {
             wait.forElementToBeGone(expandBtn);
             if (this.optionIDs.size() == 0) extractOptionIDs();
         } catch (Exception e) {
-        //    log.warn("Could not expand : ", e);
+            //    log.warn("Could not expand : ", e);
         }
     }
 
@@ -111,7 +110,7 @@ public class Select extends DComponent {
 
         for (DObject dObject : optionObj) {
 
-        if (StringUtils.equalsIgnoreCase(dObject.getText(), text)) {
+            if (StringUtils.equalsIgnoreCase(dObject.getText(), text)) {
                 dObject.click();
                 return true;
             }
@@ -125,6 +124,7 @@ public class Select extends DComponent {
             return false;
         }
 
+        log.info("selectOptionByIndex:" + getOptionElements().get(index).getText());
         getOptionElements().get(index).click();
         return true;
     }
