@@ -58,6 +58,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() < 1) {
 			throw new SkipException("Not enough rows");
@@ -89,6 +90,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 		if (grid.getRowsNo() < 3) {
 			throw new SkipException("Not enough rows to test filtering");
 		}
@@ -118,6 +120,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+		page.grid().waitForRowsToLoad();
 
 		log.info("checking available filters in expanded state");
 		page.filters().expandArea();
@@ -133,6 +136,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 		if (grid.getRowsNo() < 3) {

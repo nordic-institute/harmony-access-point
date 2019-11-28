@@ -87,7 +87,7 @@ public class JMSMessPgUXTest extends BaseUXTest {
 	}
 
 	/*JMS-3 - Filter messages using the filters provided*/
-	@Test(description = "JMS-3", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "JMS-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessages() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
@@ -198,7 +198,7 @@ public class JMSMessPgUXTest extends BaseUXTest {
 	}
 
 	/*	JMS-27 - Check Valid expression for Selector field of Search filter */
-	@Test(description = "JMS-27", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "JMS-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessagesBySelector() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
@@ -453,11 +453,6 @@ public class JMSMessPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
-
-
-
-
-
 	private String getSelector(HashMap<String, String> messInfo) throws JSONException {
 
 		String jmsProp = messInfo.get("JMS prop");
@@ -474,39 +469,6 @@ public class JMSMessPgUXTest extends BaseUXTest {
 			return String.format(selectorTemplate, jmsMessageID);
 		}
 	}
-
-
-/*
-	- JMS-1 - Login as super admin and open JMS Monitoring page
-	- JMS-2 - Doubleclik on one message
-	- JMS-3 - Filter messages using the filters provided
-	- JMS-4 - Filter messages so that there are no results
-	- JMS-5 - Delete all criteria and press Search
-	- JMS-6 - Download list of messages
-	- JMS-7 - Delete message
-	- JMS-8 - Move message
-	JMS-9 - Domain admin logs in and views messages
-	JMS-10 - Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain
-	JMS-11 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain
-	JMS-12 - Super admin selects a message and chooses to delete it
-	- JMS-13 - Download list of messages
-	- JMS-14 - Click Show columns link
-	- JMS-15 - Check/Uncheck of fields on Show links
-	- JMS-16 - Click Hide link without any new selection
-	- JMS-17 - Click Hide link after selecting some new fields
-	- JMS-18 - Click All None link
-	- JMS-19 - Change Rows field data
-	JMS-21 - Max date for Received Up To field
-	JMS-22 - Click on single click
-	JMS-23 - Check queue message count against each JMS queue in Search filter Source field in case of Admin
-	JMS-24 - Check queue message count against each queue in destination on Move pop up in case of admin
-	JMS-25 - Check queue message count against each JMS queue in Search filter Source field in case of Super Admin
-	JMS-26 - Check queue message count against each queue in destination on Move pop up in case of Super admin
-	- JMS-27 - Check Valid expression for Selector field of Search filter
-	JMS-28 - Check sorting on the basis of Headers of Grid
-	- JMS-29 - Verify headers in downloaded CSV sheet
-
-	*/
 
 
 }

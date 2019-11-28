@@ -277,7 +277,7 @@ public class AlertPgTest extends BaseTest {
 
     }
 
-    @Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void pluginUserLoginFailure() throws Exception {
         SoftAssert soft = new SoftAssert();
         String user = Generator.randomAlphaNumeric(10);
@@ -321,7 +321,7 @@ public class AlertPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void pluginUserDisabled() throws Exception {
         SoftAssert soft = new SoftAssert();
 

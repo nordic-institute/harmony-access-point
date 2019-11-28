@@ -21,7 +21,14 @@ public class JMSSelect extends Select {
 		String qName = getQueueNameWithMessages("");
 		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
-		return Integer.valueOf(qName.replaceAll("\\D", ""));
+		return getListedNoOfMessInQName(qName);
+	}
+
+	private int getListedNoOfMessInQName(String qName){
+		int startIndex = qName.lastIndexOf("(");
+		int endIndex = qName.lastIndexOf(")");
+
+		return Integer.valueOf(qName.substring(startIndex+1, endIndex));
 	}
 
 	public int selectQueueWithMessagesNotDLQ() throws Exception{
@@ -54,12 +61,8 @@ public class JMSSelect extends Select {
 			filtered = queues;
 		}
 
-//		List<String> withMess = filtered.stream()
-//				.filter(queue -> !queue.contains("(0)"))
-//				.collect((Collectors.toList()));
-
 		for (String queue : filtered) {
-			int noOfmess = Integer.valueOf(queue.replaceAll("\\D", ""));
+			int noOfmess = getListedNoOfMessInQName(queue);
 			if(noOfmess>0){
 				return queue;
 			}

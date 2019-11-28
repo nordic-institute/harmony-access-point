@@ -116,7 +116,7 @@ public class MessageFilterPgTest extends BaseTest {
 	}
 
 	/*User shuffles filters using Move Up and Move Down buttons and presses Cancel*/
-	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void shuffleAndCancel() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -197,7 +197,7 @@ public class MessageFilterPgTest extends BaseTest {
 	}
 
 	/* User selects row other than first and last */
-	@Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void selectMiddleRow() throws Exception {
 
 		List<String> actionNames = new ArrayList<>();
@@ -232,7 +232,7 @@ public class MessageFilterPgTest extends BaseTest {
 	}
 
 	/* User click on Move up for any row other than first */
-	@Test(description = "MSGF-10", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void moveUpAndDown() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -311,7 +311,7 @@ public class MessageFilterPgTest extends BaseTest {
 	}
 
 	/* User reshuffles filters using Move Up and Move Down buttons and presses Save */
-	@Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void shuffleAndSave() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -669,7 +669,7 @@ public class MessageFilterPgTest extends BaseTest {
 	}
 
 	/* Perform two action and press cancel */
-	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void twoActionsAndCancel() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -809,7 +809,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 
 	/* Create a duplicate by editing another filter */
-	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editToDuplicate() throws Exception {
 		log.info("Create 2 filters to edit");
 

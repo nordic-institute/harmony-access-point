@@ -90,7 +90,7 @@ public class AuditPgTest extends BaseTest {
 
 
 	/*   AU-14 - Check Action On Audit page Grid data for Record created on Download action on Message page  */
-	@Test(description = "AU-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void messageDownloadedLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Login into application with Admin credentials and navigate to Audit page");
@@ -110,9 +110,9 @@ public class AuditPgTest extends BaseTest {
 		AuditPage auditPage = new AuditPage(driver);
 		auditPage.waitForTitle();
 		log.info("Set Table data as Message");
-		auditPage.getFilters().setFilterData("table", "Message");
+		auditPage.filters().getTableFilter().selectOptionByText("Message");
 		log.info("Select Created as Action Field data");
-		auditPage.getFilters().setFilterData("Action", "Downloaded");
+		auditPage.filters().getActionFilter().selectOptionByText("Downloaded");
 		auditPage.getFilters().getSearchButton().click();
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
@@ -186,7 +186,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/* AU-17 - Check action on Move up/Move Down on Message Filter */
-	@Test(description = "AU-17", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-17", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void msgFilterMoveAction() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
@@ -399,7 +399,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/*  AU-24 - Login as domain admin, go to page Parties and Delete parties    */
-	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteParty() throws Exception {
 		log.info("upload pmode");
 		rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -430,7 +430,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
-	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void pmodeDownload() throws Exception {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
@@ -497,7 +497,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/*  AU-27 - Login as domain admin, go to page PMode Archive and Delete old PModes   */
-	@Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deletePmodeFromArchive() throws Exception {
 		log.info("upload pmode");
 		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);

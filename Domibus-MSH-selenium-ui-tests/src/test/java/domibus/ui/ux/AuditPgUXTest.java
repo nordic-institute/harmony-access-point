@@ -55,6 +55,7 @@ public class AuditPgUXTest extends BaseUXTest {
 
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() < 1) {
 			throw new SkipException("Not enough rows");
@@ -77,6 +78,7 @@ public class AuditPgUXTest extends BaseUXTest {
 
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() < 1) {
 			throw new SkipException("Not enough rows");

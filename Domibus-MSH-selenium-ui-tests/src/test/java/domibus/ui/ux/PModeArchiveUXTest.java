@@ -89,7 +89,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 	}
 
 	/*PMA-3 - User tries to download current file*/
-	@Test(description = "PMA-3", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMA-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void doubleclickCurrentPMode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
@@ -176,7 +176,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 	}
 
 	/*PMA-5 - User tries to delete an older file*/
-	@Test(description = "PMA-5", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMA-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteOldFile() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);

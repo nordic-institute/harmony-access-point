@@ -3,6 +3,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import utils.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -15,9 +16,7 @@ import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
-import utils.BaseTest;
 import utils.Generator;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -32,14 +31,14 @@ public class PmodePartiesPgTest extends BaseTest {
     private static String partyID = "Party Id";
     private static String process = "Process (I=Initiator, R=Responder, IR=Both)";
     private static String partyElement = "party";
-    private static String oldPartyName = "red_gw";
-    private static String newPartyName = "black_gw";
-    private static String oldPartyId = "domibus-red";
-    private static String newPartyId = "domibus-black";
-    private static String defaultPartyId = "domibus-blue";
-    private static String defaultPartyName = "blue-gw";
+    private static String oldPartyName="red_gw";
+    private static String newPartyName="black_gw";
+    private static String oldPartyId="domibus-red";
+    private static String newPartyId="domibus-black";
+    private static String defaultPartyId="domibus-blue";
+    private static String defaultPartyName="blue-gw";
 
-    @Test(priority = 1, description = "PMP-2", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=1,description = "PMP-2", groups = {"multiTenancy", "singleTenancy"})
     public void filterParties() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -47,7 +46,7 @@ public class PmodePartiesPgTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
         log.info("Login with Admin credentials and navigate to Pmode parties page");
         login(data.getAdminUser());
-        DomibusPage Dpage = new DomibusPage(driver);
+        DomibusPage Dpage=new DomibusPage(driver);
         Dpage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage page = new PModePartiesPage(driver);
         log.info("Validate presence of filter party name");
@@ -68,7 +67,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 2, description = "PMP-3", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=2,description = "PMP-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void doubleClickRow() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -92,7 +91,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 3, description = "PMP-4", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=3,description = "PMP-4", groups = {"multiTenancy", "singleTenancy"})
     public void deleteParty() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -124,11 +123,10 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 4, description = "PMP-5", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=4,description = "PMP-5", groups = {"multiTenancy", "singleTenancy"})
     public void createParty() throws Exception {
         log.info("Upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
-
         String newPatyName = Generator.randomAlphaNumeric(5);
         SoftAssert soft = new SoftAssert();
         log.info("login into application and navigate to Pmode parties page");
@@ -154,7 +152,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 5, description = "PMP-6", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=5,description = "PMP-6", groups = {"multiTenancy", "singleTenancy"})
     public void editParty() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -180,21 +178,20 @@ public class PmodePartiesPgTest extends BaseTest {
         page.wait.forXMillis(5000);
         log.info("Validate presence of success message");
         soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
-        page.wait.forXMillis(1000);
         log.info("Validate visibility of new party: " + newPartyName);
         soft.assertTrue(page.grid().scrollTo(partyName, newPartyName) >= 0, "New name is visible in grid.");
         soft.assertTrue(page.grid().scrollTo(endpoint, "http://" + newPartyName + ".com") >= 0, "New endpoint is visible in grid.");
         soft.assertAll();
     }
 
-    @Test(priority = 6, description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=6,description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
     public void editPartyAndCancel() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
 
         String newPartyName = Generator.randomAlphaNumeric(5);
         SoftAssert soft = new SoftAssert();
-        log.info("login into application and navigate to pmode parties page");
+        log.info("login into application and navigate to pmode partie spage");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage page = new PModePartiesPage(driver);
         log.info("select row 0");
@@ -216,7 +213,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 7, description = "PMP-8", groups = {"multiTenancy"})
+    @Test(priority=7,description = "PMP-8", groups = {"multiTenancy"})
     public void domainSegregation() throws Exception {
         String domainName = getNonDefaultDomain();
         String domainCode = rest.getDomainCodeForName(domainName);
@@ -239,7 +236,7 @@ public class PmodePartiesPgTest extends BaseTest {
     }
 
 
-    @Test(priority = 8, description = "PMP-21", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=8,description = "PMP-21", groups = {"multiTenancy", "singleTenancy"})
     public void partyAdditionCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -306,7 +303,7 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
-    @Test(priority = 9, description = "PMP-22", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=9,description = "PMP-22", groups = {"multiTenancy", "singleTenancy"})
     public void partyRemovalCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -363,7 +360,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 10, description = "PMP-23", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=10,description = "PMP-23", groups = {"multiTenancy", "singleTenancy"})
     public void partyAdditionOnPartiesPage() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -408,7 +405,7 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
-    @Test(priority = 11, description = "PMP-24", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=11,description = "PMP-24", groups = {"multiTenancy", "singleTenancy"})
     public void partyRemovalFromPartiesPage() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -450,7 +447,7 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
-    @Test(priority = 12, description = "PMP-25", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=12,description = "PMP-25", groups = {"multiTenancy", "singleTenancy"})
     public void responderInitiatorRemovalFromPartiesPage() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -484,7 +481,7 @@ public class PmodePartiesPgTest extends BaseTest {
         String updatedPmode = Cpage.getTextArea().getText();
         log.info("Validate absence of red_gw as Initiator party");
         soft.assertFalse(updatedPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is not present in pmode");
-        log.info("Validate absence of red_gw as Responder party");
+       log.info("Validate absence of red_gw as Responder party");
         soft.assertFalse(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is not present in pmode");
         page.getSidebar().goToPage(PAGES.TEST_SERVICE);
         log.info("Navigating to Test Service page");
@@ -499,7 +496,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 13, description = "PMP-26", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=13,description = "PMP-26", groups = {"multiTenancy", "singleTenancy"})
     public void responderInitiatorAdditionOnPartiesPage() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/NoResponderInitiator.xml", null);
@@ -556,7 +553,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 14, description = "PMP-27", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=14,description = "PMP-27", groups = {"multiTenancy", "singleTenancy"})
     public void initiatorResponderRemovalCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -610,7 +607,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 15, description = "PMP-28", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=15,description = "PMP-28", groups = {"multiTenancy", "singleTenancy"})
     public void IRRemovalCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -652,7 +649,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 16, description = "PMP-29", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=16,description = "PMP-29", groups = {"multiTenancy", "singleTenancy"})
     public void initiatorResponderAdditionCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -711,7 +708,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority = 17, description = "PMP-30", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=17,description = "PMP-30", groups = {"multiTenancy", "singleTenancy"})
     public void IRAdditionCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);

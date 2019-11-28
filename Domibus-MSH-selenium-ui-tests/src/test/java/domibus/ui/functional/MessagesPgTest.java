@@ -33,7 +33,7 @@ import java.util.zip.ZipInputStream;
 
  * @since 4.1
  */
-public class MessagesFunctionalTest extends BaseTest {
+public class MessagesPgTest extends BaseTest {
 
 
 	/*Doubleclik on one message*/
@@ -202,7 +202,7 @@ public class MessagesFunctionalTest extends BaseTest {
 	}
 
 	/* Download message */
-	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void downloadMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
@@ -254,7 +254,7 @@ public class MessagesFunctionalTest extends BaseTest {
 	}
 
 	/* Resend message */
-	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void resendMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
