@@ -2535,5 +2535,48 @@ static def String pathToLogFiles(side, log, context) {
         }
     }
 
+//---------------------------------------------------------------------------------------------------------------------------------
+// Alerts in DB verification
+//---------------------------------------------------------------------------------------------------------------------------------
+	
+	 // Verification of user iminnent expiration
+    def verifyUserAlerts(domainId, userName, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
+        debugLog("  ====  Calling \"verifyUserAlerts\".", log)
+        def sqlHandler = null
+		
+        debugLog("  verifyUserAlerts  [][] Alert to be found userName=${userName} eventType=${eventType} alertStatus=${alertStatus} alertLevel=${alertLevel}", log)
+		
+        sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
+
+        openDbConnections([domainId])
+
+        // Query DB
+		def sqlQuery = """SELECT e.EVENT_TYPE, A.ALERT_STATUS, A.ALERT_LEVEL 
+		FROM TB_EVENT_PROPERTY P 
+		JOIN TB_EVENT E ON P.FK_EVENT = E.ID_PK 
+		JOIN TB_ALERT A ON P.FK_EVENT = A.ID_PK 
+		where P.PROPERTY_TYPE = 'USER' 
+		  and LOWER(P.STRING_VALUE) = LOWER('${userName}')  
+		  and E.EVENT_TYPE LIKE '${filterEventType}'
+		  ORDER BY CREATION_TIME DESC"""
+		List alerts = sqlHandler.rows(sqlQuery)
+				
+		assert alerts.size() == expectNumberOfAlerts, "Error:verifyUserAlerts: Incorrect number for alerts expected number was ${expectNumberOfAlerts} and got ${alerts.size()} for specific user: ${userName}. "
+		if (expectNumberOfAlerts == 0) 
+			return ;
+		
+		debugLog("Alert found for specific user: ${userName}. ", log) 
+		
+		// Check returned alert
+		assert alerts[0].EVENT_TYPE.toUpperCase() == eventType.toUpperCase(), "Incorrect event type returned. Expected ${eventType} returned value: ${alerts[0].EVENT_TYPE}"
+		assert alerts[0].ALERT_STATUS.toUpperCase() == alertStatus.toUpperCase(), "Incorrect alert status returned. Expected ${alertStatus} returned value: ${alerts[0].ALERT_STATUS}"
+		assert alerts[0].ALERT_LEVEL.toUpperCase() == alertLevel.toUpperCase(), "Incorrect alert level returned. Expected ${alertLevel} returned value: ${alerts[0].ALERT_LEVEL}"
+
+        closeDbConnections([domainId])
+		debugLog("  ====  Ending \"verifyUserAlerts\".", log)
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+
 } // Domibus class end
 
