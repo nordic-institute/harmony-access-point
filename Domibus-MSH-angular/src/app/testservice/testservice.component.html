@@ -27,9 +27,9 @@
             </mat-form-field>
           </div>
 
-          <div style="margin-top: 10px;">
+          <div class="buttonsRow" style="margin-top: 10px;">
             <button mat-raised-button color="primary" [disabled]="this.buttonDisabled || !messageInfoSent.messageId" id="updatebutton_id"
-                    (click)="update()" button-click-behaviour style="margin-right: 10px;">
+                    (click)="update()" button-click-behaviour>
               <mat-icon>refresh</mat-icon>
               <span>Update</span>
             </button>

@@ -138,7 +138,7 @@ mat-sidenav[_ngcontent-c0] {
 }
 
 /* --- MAIN CONTENT --------- */
----------------------------
+
 .mat-sidenav-content {
   min-height: 100vh;
 }
@@ -365,5 +365,5 @@ mat-select .mat-select {
 
 .mat-form-field-appearance-legacy .mat-form-field-underline {
   height: 0.05em !important;
-  background-color: lightgray !important; padding-top:
+  background-color: lightgray !important;
 }

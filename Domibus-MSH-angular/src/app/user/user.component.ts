@@ -210,7 +210,9 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   async getUserDomains(): Promise<Domain[]> {
-    if (this.domainsPromise) return this.domainsPromise;
+    if (this.domainsPromise) {
+      return this.domainsPromise;
+    }
     this.domainsPromise = this.domainService.getDomains();
     this.domains = await this.domainsPromise;
     return this.domains;

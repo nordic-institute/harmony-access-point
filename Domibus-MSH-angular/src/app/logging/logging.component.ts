@@ -17,7 +17,6 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   moduleId: module.id,
   templateUrl: 'logging.component.html',
   providers: [],
-  styleUrls: ['./logging.component.css']
 })
 
 export class LoggingComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {

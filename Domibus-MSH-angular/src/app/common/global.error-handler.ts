@@ -9,10 +9,7 @@ export class GlobalErrorHandler implements ErrorHandler {
   }
 
   handleError (error: HttpResponse<any> | any) {
-
     console.error(error);
-
-    // if (error == 'ExpressionChangedAfterItHasBeenCheckedError') {}
 
     if (error instanceof HttpResponse) {
       const res = <HttpResponse<any>> error;
