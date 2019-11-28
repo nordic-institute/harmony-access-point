@@ -118,7 +118,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	}
 
 	/*	PU-10 - Admin wants to edit username	*/
-	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editUsername() throws Exception {
 		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);

@@ -398,7 +398,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/*  AU-24 - Login as domain admin, go to page Parties and Delete parties    */
-	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteParty() throws Exception {
 		log.info("upload pmode");
 		rest.uploadPMode("pmodes/multipleParties.xml", null);

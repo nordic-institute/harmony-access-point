@@ -67,7 +67,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=2,description = "PMP-3", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=2,description = "PMP-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void doubleClickRow() throws Exception {
 
         log.info("uploade pmode");
