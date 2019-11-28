@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Http, Response, URLSearchParams} from '@angular/http';
-import {AlertService} from 'app/common/alert/alert.service';
+import {HttpClient} from '@angular/common/http';
 import {PartyResponseRo, PartyFilteredResult, ProcessRo, CertificateRo} from './party';
 import {Observable} from 'rxjs/Observable';
 import {DownloadService} from '../common/download.service';
@@ -18,30 +17,26 @@ export class PartyService {
   static readonly UPDATE_PARTIES: string = 'rest/party/update';
   static readonly CSV_PARTIES: string = 'rest/party/csv';
 
-  constructor (private http: Http, private alertService: AlertService) {
-
+  constructor (private http: HttpClient) {
   }
 
   uploadCertificate (payload, partyName: string): Observable<CertificateRo> {
-    return this.http.put(PartyService.CERTIFICATE.replace('{partyName}', partyName), payload)
-      .map(res => res.json());
+    return this.http.put<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName), payload);
   }
 
   getCertificate (partyName: string): Observable<CertificateRo> {
-    return this.http.get(PartyService.CERTIFICATE.replace('{partyName}', partyName))
-      .map(res => res.json());
+    return this.http.get<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName));
   }
 
-  listProcesses (): Observable<ProcessRo> {
-    return this.http.get(PartyService.LIST_PROCESSES)
-      .map(res => res.json()).catch(() => Observable.throw('No processes found'));
+  listProcesses (): Observable<ProcessRo[]> {
+    return this.http.get<ProcessRo[]>(PartyService.LIST_PROCESSES)
+      .catch(() => Observable.throw('No processes found'));
   }
 
   listParties (name: string, endPoint: string, partyId: string, process: string, process_role: string)
     : Observable<PartyFilteredResult> {
 
-    return this.http.get(PartyService.LIST_PARTIES).map(res => {
-      const allRecords = res.json() as PartyResponseRo[];
+    return this.http.get<PartyResponseRo[]>(PartyService.LIST_PARTIES).map(allRecords => {
       let records = allRecords.slice();
 
       if (name) {

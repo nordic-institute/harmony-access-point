@@ -1,11 +1,10 @@
 import {Injectable} from '@angular/core';
-import {Http, URLSearchParams, Response} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {PluginUserRO} from './pluginuser';
 import {UserState} from '../user/user';
 import {UserService} from '../user/user.service';
 import {SecurityService} from '../security/security.service';
-import {UserComponent} from '../user/user.component';
 import {AlertService} from '../common/alert/alert.service';
 
 @Injectable()
@@ -25,39 +24,38 @@ export class PluginUserService {
 
   readonly ROLE_AP_ADMIN = SecurityService.ROLE_AP_ADMIN;
 
-  constructor (private http: Http, private userService: UserService, private alertService: AlertService) {
+  constructor(private http: HttpClient, private userService: UserService, private alertService: AlertService) {
   }
 
-  getUsers (filter?: PluginUserSearchCriteria)
+  getUsers(filter?: PluginUserSearchCriteria)
     : Observable<{ entries: PluginUserRO[], count: number }> {
 
-    const searchParams = this.createFilterParams(filter);
+    let searchParams = this.createFilterParams(filter);
 
-    return this.http.get(PluginUserService.PLUGIN_USERS_URL, {search: searchParams})
-      .map(this.extractData)
+    return this.http.get<{ entries: PluginUserRO[], count: number }>(PluginUserService.PLUGIN_USERS_URL, {params: searchParams});
   }
 
-  createFilterParams (filter: PluginUserSearchCriteria) {
-    const searchParams: URLSearchParams = new URLSearchParams();
-    searchParams.set('page', '0');
-    searchParams.set('pageSize', '10000');
+  createFilterParams(filter: PluginUserSearchCriteria) {
+    let searchParams = new HttpParams();
+    searchParams = searchParams.append('page', '0');
+    searchParams = searchParams.append('pageSize', '10000');
 
     if (filter.authType) {
-      searchParams.set('authType', filter.authType);
+      searchParams = searchParams.append('authType', filter.authType);
     }
     if (filter.authRole) {
-      searchParams.set('authRole', filter.authRole);
+      searchParams = searchParams.append('authRole', filter.authRole);
     }
     if (filter.userName) {
-      searchParams.set('userName', filter.userName);
+      searchParams = searchParams.append('userName', filter.userName);
     }
     if (filter.originalUser) {
-      searchParams.set('originalUser', filter.originalUser);
+      searchParams = searchParams.append('originalUser', filter.originalUser);
     }
     return searchParams;
   }
 
-  createNew (): PluginUserRO {
+  createNew(): PluginUserRO {
     const item = new PluginUserRO();
     item.status = UserState[UserState.NEW];
     item.userName = '';
@@ -66,21 +64,14 @@ export class PluginUserService {
     return item;
   }
 
-  saveUsers (users: PluginUserRO[]): Promise<Response> {
+  saveUsers(users: PluginUserRO[]): Promise<any> {
     users = users.filter(el => el.status !== UserState[UserState.PERSISTED]);
     return this.http.put(PluginUserService.PLUGIN_USERS_URL, users).toPromise();
   }
 
 
-  getUserRoles (): Observable<String[]> {
+  getUserRoles(): Observable<String[]> {
     return this.userService.getUserRoles().map(items => items.filter(item => item !== this.ROLE_AP_ADMIN));
-  }
-
-  private extractData (res: Response) {
-    const body = res.json();
-    const r = body || {};
-    r.entries.forEach(el => el.hiddenPassword = '******');
-    return r;
   }
 
 }

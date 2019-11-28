@@ -1,12 +1,12 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UserResponseRO, UserState} from './user';
 import {UserSearchCriteria, UserService} from './user.service';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from 'app/user/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {isNullOrUndefined} from 'util';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
@@ -29,11 +29,11 @@ export class UserComponent implements OnInit, DirtyOperations {
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
 
-  @ViewChild('passwordTpl') passwordTpl: TemplateRef<any>;
-  @ViewChild('editableTpl') editableTpl: TemplateRef<any>;
-  @ViewChild('checkBoxTpl') checkBoxTpl: TemplateRef<any>;
-  @ViewChild('deletedTpl') deletedTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('passwordTpl', {static: false}) passwordTpl: TemplateRef<any>;
+  @ViewChild('editableTpl', {static: false}) editableTpl: TemplateRef<any>;
+  @ViewChild('checkBoxTpl', {static: false}) checkBoxTpl: TemplateRef<any>;
+  @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -41,6 +41,7 @@ export class UserComponent implements OnInit, DirtyOperations {
   users: Array<UserResponseRO>;
   userRoles: Array<String>;
   domains: Domain[];
+  domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
   selected: any[];
@@ -63,13 +64,14 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   isBusy = false;
 
-  constructor(private http: Http,
+  constructor(private http: HttpClient,
               private userService: UserService,
-              public dialog: MdDialog,
+              public dialog: MatDialog,
               private userValidatorService: UserValidatorService,
               private alertService: AlertService,
               private securityService: SecurityService,
-              private domainService: DomainService) {
+              private domainService: DomainService,
+              private changeDetector: ChangeDetectorRef) {
   }
 
   async ngOnInit() {
@@ -93,6 +95,17 @@ export class UserComponent implements OnInit, DirtyOperations {
 
     this.selected = [];
 
+    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
+
+    this.getUsers();
+
+    this.getUserRoles();
+
+    this.dirty = false;
+    this.areRowsDeleted = false;
+  }
+
+  async ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         cellTemplate: this.editableTpl,
@@ -153,31 +166,31 @@ export class UserComponent implements OnInit, DirtyOperations {
           canAutoResize: true
         });
     }
-    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Username', 'Role', 'Domain', 'Active', 'Deleted', 'Actions'].indexOf(col.name) !== -1
     });
-
-    this.getUsers();
-
-    this.getUserRoles();
-
-    this.dirty = false;
-    this.areRowsDeleted = false;
   }
 
-  getUsers(): void {
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
+  }
+
+  async getUsers() {
     this.isBusy = true;
-    this.userService.getUsers(this.filter).subscribe(results => {
-      results.forEach(user => {
-        this.setDomainName(user);
-      });
+    try {
+      let results = await this.userService.getUsers(this.filter).toPromise();
+      const showDomain = await this.userService.isDomainVisible();
+      if (showDomain) {
+        await this.getUserDomains();
+        results.forEach(user => this.setDomainName(user));
+      }
       this.users = results;
-      this.isBusy = false;
-    }, err => {
-      this.isBusy = false;
-    });
+    } catch (err) {
+      this.alertService.exception('Could not load users ', err);
+    }
+
+    this.isBusy = false;
     this.dirty = false;
     this.areRowsDeleted = false;
   }
@@ -197,9 +210,12 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   async getUserDomains(): Promise<Domain[]> {
-    var res = await this.domainService.getDomains();
-    this.domains = res;
-    return res;
+    if (this.domainsPromise) {
+      return this.domainsPromise;
+    }
+    this.domainsPromise = this.domainService.getDomains();
+    this.domains = await this.domainsPromise;
+    return this.domains;
   }
 
   onSelect({selected}) {
@@ -238,7 +254,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
     this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
     this.setIsDirty();
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
       data: {
         edit: false,
         user: this.editedUser,
@@ -250,6 +266,7 @@ export class UserComponent implements OnInit, DirtyOperations {
       if (ok) {
         this.onSaveEditForm(formRef);
         this.users.push(this.editedUser);
+        this.users = [...this.users];
         this.currentUser = this.editedUser;
       } else {
         this.selected = [];
@@ -262,7 +279,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   buttonEdit() {
     if (this.currentUser && this.currentUser.deleted) {
-      this.alertService.error('You cannot edit a deleted user.', false, 3000);
+      this.alertService.error('You cannot edit a deleted user.', false, 5000);
       return;
     }
     this.buttonEditAction(this.currentUser);
@@ -271,7 +288,7 @@ export class UserComponent implements OnInit, DirtyOperations {
   buttonEditAction(currentUser) {
     if (this.isBusy) return;
 
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
       data: {
         edit: true,
         user: currentUser,
@@ -287,7 +304,7 @@ export class UserComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private onSaveEditForm(formRef: MdDialogRef<EditUserComponent>) {
+  private onSaveEditForm(formRef: MatDialogRef<EditUserComponent>) {
     const editForm = formRef.componentInstance;
     const user = this.editedUser;
     if (!user) return;
@@ -331,7 +348,7 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
     this.enableEdit = false;
 
-    for (const itemToDelete of  users) {
+    for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
         this.users.splice(this.users.indexOf(itemToDelete), 1);
       } else {
@@ -452,4 +469,12 @@ export class UserComponent implements OnInit, DirtyOperations {
       return 0;
     return Math.floor(this.users.length / this.rowLimiter.pageSize);
   }
+
+  onActivate(event) {
+    console.log('event  ', event.type)
+    if ('dblclick' === event.type) {
+      this.buttonEdit();
+    }
+  }
+
 }

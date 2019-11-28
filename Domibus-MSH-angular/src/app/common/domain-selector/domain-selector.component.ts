@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
@@ -25,7 +25,7 @@ export class DomainSelectorComponent implements OnInit {
 
   constructor(private domainService: DomainService,
               private securityService: SecurityService,
-              private dialog: MdDialog,
+              private dialog: MatDialog,
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {
@@ -74,11 +74,11 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.beforeDomainChange();
         } catch (e) {
-          console.log(e);
+          console.log('Exception raised in before domain change code', e);
         }
       }
 
-      const domain = this.domains.find(d => d.code == this.domainCode);
+      const domain = this.domains.find(d => d.code === this.domainCode);
       await this.domainService.setCurrentDomain(domain);
 
       this.alertService.clearAlert();
@@ -89,7 +89,15 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.ngOnInit();
         } catch (e) {
-          console.log(e);
+          this.alertService.exception('Error in init code', e);
+        }
+      }
+
+      if (this.currentComponent.ngAfterViewInit) {
+        try {
+          this.currentComponent.ngAfterViewInit();
+        } catch (e) {
+          this.alertService.exception('Error in after view init code', e);
         }
       }
 

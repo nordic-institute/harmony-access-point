@@ -1,15 +1,14 @@
-﻿import {Component, TemplateRef, ViewChild, Renderer2, ElementRef, OnInit} from '@angular/core';
+﻿import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
-import {Md2Datepicker} from 'md2';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -29,8 +28,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('bibi') bibi: Md2Datepicker;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
   timestampFromMaxDate: Date = new Date();
   timestampToMinDate: Date = null;
@@ -45,21 +43,31 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   count: number = 0;
   offset: number = 0;
 
-  mshRoles: Array<String>;
-  errorCodes: Array<String>;
+  mshRoles: string[];
+  errorCodes: string[];
 
   advancedSearch: boolean;
 
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
-  constructor(private elementRef: ElementRef, private http: Http, private alertService: AlertService, public dialog: MdDialog, private renderer: Renderer2) {
+  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
     super.ngOnInit();
 
+    this.rowLimiter = new RowLimiterBase();
+
+    this['orderBy'] = 'timestamp';
+    this['asc'] = false;
+
+    this.search();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'Signal Message Id',
@@ -93,70 +101,64 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       }
 
     ];
-    this.rowLimiter = new RowLimiterBase();
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Message Id', 'Error Code', 'Timestamp'].indexOf(col.name) != -1
     });
-
-    this.orderBy = 'timestamp';
-    this.asc = false;
-
-    this.search();
   }
 
-  createSearchParams(): URLSearchParams {
-    const searchParams = new URLSearchParams();
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
+  }
+
+  createSearchParams(): HttpParams {
+    let searchParams = new HttpParams();
 
     if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
+      searchParams = searchParams.append('orderBy', this.orderBy);
     }
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     if (this.activeFilter.errorSignalMessageId) {
-      searchParams.set('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
+      searchParams = searchParams.append('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
     }
     if (this.activeFilter.mshRole) {
-      searchParams.set('mshRole', this.activeFilter.mshRole);
+      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
     }
     if (this.activeFilter.messageInErrorId) {
-      searchParams.set('messageInErrorId', this.activeFilter.messageInErrorId);
+      searchParams = searchParams.append('messageInErrorId', this.activeFilter.messageInErrorId);
     }
     if (this.activeFilter.errorCode) {
-      searchParams.set('errorCode', this.activeFilter.errorCode);
+      searchParams = searchParams.append('errorCode', this.activeFilter.errorCode);
     }
     if (this.activeFilter.errorDetail) {
-      searchParams.set('errorDetail', this.activeFilter.errorDetail);
+      searchParams = searchParams.append('errorDetail', this.activeFilter.errorDetail);
     }
     if (this.activeFilter.timestampFrom != null) {
-      searchParams.set('timestampFrom', this.activeFilter.timestampFrom.getTime());
+      searchParams = searchParams.append('timestampFrom', this.activeFilter.timestampFrom.getTime());
     }
     if (this.filter.timestampTo != null) {
-      searchParams.set('timestampTo', this.activeFilter.timestampTo.getTime());
+      searchParams = searchParams.append('timestampTo', this.activeFilter.timestampTo.getTime());
     }
     if (this.activeFilter.notifiedFrom != null) {
-      searchParams.set('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
+      searchParams = searchParams.append('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
     }
     if (this.activeFilter.notifiedTo != null) {
-      searchParams.set('notifiedTo', this.activeFilter.notifiedTo.getTime());
+      searchParams = searchParams.append('notifiedTo', this.activeFilter.notifiedTo.getTime());
     }
 
     return searchParams;
   }
 
   getErrorLogEntries(offset: number, pageSize: number): Observable<ErrorLogResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
-    return this.http.get(ErrorLogComponent.ERROR_LOG_URL, {
-      search: searchParams
-    }).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams});
   }
 
   page(offset, pageSize) {
@@ -190,7 +192,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
         result.filter.notifiedTo = new Date(result.filter.notifiedTo);
       }
 
-      this.filter = result.filter;
+      this['filter'] = result.filter;
       this.mshRoles = result.mshRoles;
       this.errorCodes = result.errorCodes;
 
@@ -211,14 +213,14 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public reload () {
+  public reload() {
     this.page(0, this.rowLimiter.pageSize);
   }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public onBeforeSort () {
+  public onBeforeSort() {
     super.resetFilters();
   }
 
@@ -228,7 +230,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   }
 
   search() {
-    console.log('Searching using filter:' + this.filter);
+    console.log('Searching using filter:', this.filter);
     this.setActiveFilter();
     this.page(0, this.rowLimiter.pageSize);
   }
@@ -261,7 +263,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   }
 
   details(selectedRow: any) {
-    let dialogRef: MdDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
+    let dialogRef: MatDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
     dialogRef.componentInstance.message = selectedRow;
     // dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
     dialogRef.afterClosed().subscribe(result => {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 
 @Component({
   selector: 'app-errorlog-details',
@@ -11,7 +11,7 @@ export class ErrorlogDetailsComponent implements OnInit {
   message;
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(public dialogRef: MdDialogRef<ErrorlogDetailsComponent>) { }
+  constructor(public dialogRef: MatDialogRef<ErrorlogDetailsComponent>) { }
 
   ngOnInit() {
   }

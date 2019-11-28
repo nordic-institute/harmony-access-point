@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-default-password-dialog',
@@ -10,7 +10,7 @@ export class DefaultPasswordDialogComponent implements OnInit {
 
   reason: string;
 
-  constructor (public dialogRef: MdDialogRef<DefaultPasswordDialogComponent>, @Inject(MD_DIALOG_DATA) public data: any) {
+  constructor (public dialogRef: MatDialogRef<DefaultPasswordDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.reason = data;
   }
 

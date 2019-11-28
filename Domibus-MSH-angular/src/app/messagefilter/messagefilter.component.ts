@@ -1,12 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {MessageFilterResult} from './messagefilterresult';
 import {BackendFilterEntry} from './backendfilterentry';
 import {RoutingCriteriaEntry} from './routingcriteriaentry';
-import {isNullOrUndefined} from 'util';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
@@ -42,7 +41,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   dirty: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -72,10 +71,10 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
 
       let newRows = [];
       this.backendFilterNames = [];
-      if (!isNullOrUndefined(result.messageFilterEntries)) {
+      if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
           let currentFilter: BackendFilterEntry = result.messageFilterEntries[i];
-          if (isNullOrUndefined(currentFilter)) {
+          if (!(currentFilter)) {
             continue;
           }
           let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted);
@@ -102,9 +101,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   getMessageFilterEntries(): Observable<MessageFilterResult> {
-    return this.http.get(MessageFilterComponent.MESSAGE_FILTER_URL).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<MessageFilterResult>(MessageFilterComponent.MESSAGE_FILTER_URL);
   }
 
   createValueProperty(prop, newPropValue, row) {
@@ -112,13 +109,13 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonNew() {
-    let formRef: MdDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
+    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
     formRef.afterClosed().subscribe(result => {
       if (result == true) {
         let backendEntry = this.createEntry(formRef);
         if (this.findRowsIndex(backendEntry) == -1) {
           this.rows.push(backendEntry);
-
+          this.rows = [...this.rows];
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
@@ -159,7 +156,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonEditAction(row) {
-    let formRef: MdDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
+    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
         edit: row
@@ -176,6 +173,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
             this.updateSelectedProperty(criteria, formRef.componentInstance[criteria]);
           }
 
+          this.rows = [...this.rows];
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
           if (backendEntryPos != this.rowNumber) {
@@ -186,7 +184,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private createEntry(formRef: MdDialogRef<EditMessageFilterComponent>) {
+  private createEntry(formRef: MatDialogRef<EditMessageFilterComponent>) {
     let routingCriterias: Array<RoutingCriteriaEntry> = [];
 
     for (var criteria of this.routingCriterias) {
@@ -224,7 +222,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   private updateSelectedProperty(prop: string, value: string) {
-    if (!isNullOrUndefined(this.rows[this.rowNumber][prop])) {
+    if ((this.rows[this.rowNumber][prop])) {
       if (value.length == 0) {
         // delete
         this.deleteRoutingCriteria(prop);
@@ -305,11 +303,13 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
+    let copy = [...this.rows];
     // we need to use the old for loop approach to don't mess with the entries on the top before
     for (let i = items.length - 1; i >= 0; i--) {
-      this.rows.splice(items[i].$$index, 1);
+      let rowIndex = copy.indexOf(items[i]);
+      copy.splice(rowIndex, 1);
     }
-
+    this.rows = copy;
     this.selected = [];
   }
 
@@ -334,9 +334,11 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonMoveUpAction(row) {
-    this.moveUpInternal(row.$$index);
+    let rowIndex = this.rows.indexOf(row);
+    this.moveUpInternal(rowIndex);
     setTimeout(() => {
-      document.getElementById('pluginRow' + (row.$$index) + '_id').click();
+      let rowIndex = this.rows.indexOf(row);
+      document.getElementById('pluginRow' + (rowIndex) + '_id').click();
     }, 50);
   }
 
@@ -366,9 +368,12 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   buttonMoveDownAction(row) {
-    this.moveDownInternal(row.$$index);
+    let rowIndex = this.rows.indexOf(row);
+    this.moveDownInternal(rowIndex);
     setTimeout(() => {
-      document.getElementById('pluginRow' + (row.$$index) + '_id').click();
+      let rowIndex = this.rows.indexOf(row);
+      let element = document.getElementById('pluginRow' + (rowIndex) + '_id');
+      element.click();
     }, 50);
   }
 
@@ -377,7 +382,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   onSelect({selected}) {
-    if (isNullOrUndefined(selected) || selected.length == 0) {
+    if (!(selected) || selected.length == 0) {
       // unselect
       this.enableMoveDown = false;
       this.enableMoveUp = false;
@@ -388,7 +393,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     }
 
     // select
-    this.rowNumber = this.selected[0].$$index;
+    this.rowNumber = this.rows.indexOf(this.selected[0]);
 
     this.selected.splice(0, this.selected.length);
     this.selected.push(...selected);

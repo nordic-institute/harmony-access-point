@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AuditService} from './audit.service';
 import {UserService} from '../user/user.service';
 import {AlertService} from '../common/alert/alert.service';
@@ -26,7 +26,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 })
 export class AuditComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
 // --- Search components binding ---
   existingAuditTargets = [];
@@ -49,7 +49,10 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   offset: number = 0;
   count: number = 0;
 
-  constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService) {
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
+  constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -59,7 +62,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
 // --- lets init the component's data ---
     this.existingUsers = [];
     const userObservable = this.userService.getUserNames();
-    userObservable.subscribe((userName: string) => this.existingUsers.push(userName));
+    userObservable.subscribe((userNames: string[]) => this.existingUsers.push(...userNames));
 
     this.existingActions = [];
     const actionObservable = this.auditService.listActions();
@@ -67,17 +70,23 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
 
     this.existingAuditTargets = [];
     const existingTargets = this.auditService.listTargetTypes();
-    existingTargets.subscribe((target: string) => this.existingAuditTargets.push(target));
+    existingTargets.subscribe((targets: string[]) => this.existingAuditTargets.push(...targets));
 
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
 
-// --- lets init the table columns ---
-    this.initColumns();
-
 // --- lets count the records and fill the table.---
     this.searchAndCount();
+  }
+
+  ngAfterViewInit() {
+// --- lets init the table columns ---
+    this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   searchAndCount() {

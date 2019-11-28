@@ -1,104 +1,107 @@
 <page-header id="testserviceheader_id">Test Service</page-header>
 
 <div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
+  <mat-card>
+    <mat-card-content>
       <div class="panel">
         <form name="filterForm" #filterForm="ngForm">
           <!-- Receiver Party -->
           <div *ngIf="!dynamicDiscoveryEnabled">
-            <md-select placeholder="Receiver Party Id" name="receiverPartyId" [(ngModel)]="filter.receiverPartyId" #receiverPartyId="ngModel" id="receiverPartyId_id" (ngModelChange)="onChangeParties()">
-            <md-option [value]="''">
-            </md-option>
-            <md-option *ngFor="let receiverParty of receiverParties" [value]="receiverParty">
-              {{receiverParty}}
-            </md-option>
-          </md-select>
+            <mat-select placeholder="Receiver Party Id" name="receiverPartyId" [(ngModel)]="filter.receiverPartyId"
+                        #receiverPartyId="ngModel" id="receiverPartyId_id" (ngModelChange)="onChangeParties()" style="width:80% !important;">
+              <mat-option [value]="''">
+              </mat-option>
+              <mat-option *ngFor="let receiverParty of receiverParties" [value]="receiverParty">
+                {{receiverParty}}
+              </mat-option>
+            </mat-select>
           </div>
 
           <div *ngIf="dynamicDiscoveryEnabled">
             <div>Dynamic Discovery</div>
-            <md-input-container>
-              <input mdInput placeholder="Final Recipient" name="finalRecipient" [(ngModel)]="filter.finalRecipient" #finalRecipient="ngModel" id="finalRecipient_id" (ngModelChange)="onChangeInfo()" disabled>
-            </md-input-container>
-            <md-input-container>
-              <input mdInput placeholder="Final Recipient Type" name="finalRecipientType" [(ngModel)]="filter.finalRecipientType" #finalRecipientType="ngModel" id="finalRecipientType_id" (ngModelChange)="onChangeInfo()" disabled>
-            </md-input-container>
+            <mat-form-field>
+              <input matInput placeholder="Final Recipient" name="finalRecipient" [(ngModel)]="filter.finalRecipient" #finalRecipient="ngModel" id="finalRecipient_id" (ngModelChange)="onChangeInfo()" disabled>
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Final Recipient Type" name="finalRecipientType" [(ngModel)]="filter.finalRecipientType" #finalRecipientType="ngModel" id="finalRecipientType_id" (ngModelChange)="onChangeInfo()" disabled>
+            </mat-form-field>
           </div>
 
-          <button md-raised-button color="primary" [disabled]="this.buttonDisabled || !messageInfoSent.messageId" id="updatebutton_id"
-                  (click)="update()" button-click-behaviour>
-            <md-icon>refresh</md-icon>
-            <span>Update</span>
-          </button>
-          <!-- Test Button -->
-          <button md-raised-button color="primary" [disabled]="this.buttonDisabled" id="testbutton_id" (click)="test()"
-                  button-click-behaviour>
-            <md-icon>import_export</md-icon>
-            <span>Test</span>
-          </button>
+          <div class="buttonsRow" style="margin-top: 10px;">
+            <button mat-raised-button color="primary" [disabled]="this.buttonDisabled || !messageInfoSent.messageId" id="updatebutton_id"
+                    (click)="update()" button-click-behaviour>
+              <mat-icon>refresh</mat-icon>
+              <span>Update</span>
+            </button>
+            <!-- Test Button -->
+            <button mat-raised-button color="primary" [disabled]="this.buttonDisabled" id="testbutton_id" (click)="test()"
+                    button-click-behaviour>
+              <mat-icon>import_export</mat-icon>
+              <span>Test</span>
+            </button>
+          </div>
         </form>
       </div>
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>
 <div>
-  <md-card>
-    <md-card-header>
-      <md-card-title>Last Sent Echo Request</md-card-title>
-    </md-card-header>
-    <md-card-content>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Last Sent Echo Request</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
       <div class="panel">
         <div>
-          <md-input-container>
-            <input mdInput placeholder="To Party Id" name="toPartyId" id="toPartyId_id" [(ngModel)]="messageInfoSent.toPartyId" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="To Party Id" name="toPartyId" id="toPartyId_id" [(ngModel)]="messageInfoSent.toPartyId" readonly>
+          </mat-form-field>
         </div>
         <!--<div>-->
-          <md-input-container>
-            <input mdInput placeholder="To Access Point" name="toAccessPoint" id="toAccessPoint_id" [(ngModel)]="messageInfoSent.finalRecipient" readonly>
-          </md-input-container>
+        <mat-form-field>
+          <input matInput placeholder="To Access Point" name="toAccessPoint" id="toAccessPoint_id" [(ngModel)]="messageInfoSent.finalRecipient" readonly>
+        </mat-form-field>
         <!--</div>-->
         <div>
-          <md-input-container>
-            <input mdInput placeholder="Time Sent" name="timeSent" id="timeSent_id" [(ngModel)]="messageInfoSent.receivedTo" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="Time Sent" name="timeSent" id="timeSent_id" [(ngModel)]="messageInfoSent.receivedTo" readonly>
+          </mat-form-field>
         </div>
         <div>
-          <md-input-container>
-            <input mdInput placeholder="Message Id" name="toMessageId" id="toMessageId_id" [(ngModel)]="messageInfoSent.messageId" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="Message Id" name="toMessageId" id="toMessageId_id" [(ngModel)]="messageInfoSent.messageId" readonly>
+          </mat-form-field>
         </div>
       </div>
-    </md-card-content>
-  </md-card>
-  <md-card>
-    <md-card-header>
-      <md-card-title>Last Received Echo Reply</md-card-title>
-    </md-card-header>
-    <md-card-content>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Last Received Echo Reply</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
       <div class="panel">
         <div>
-          <md-input-container>
-            <input mdInput placeholder="From Party Id" name="fromPartyId" id="fromPartyId_id" [(ngModel)]="messageInfoReceived.fromPartyId" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="From Party Id" name="fromPartyId" id="fromPartyId_id" [(ngModel)]="messageInfoReceived.fromPartyId" readonly>
+          </mat-form-field>
         </div>
         <div>
-          <md-input-container>
-            <input mdInput placeholder="From Access Point" name="fromAccessPoint" id="fromAccessPoint_id" [(ngModel)]="messageInfoReceived.originalSender" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="From Access Point" name="fromAccessPoint" id="fromAccessPoint_id" [(ngModel)]="messageInfoReceived.originalSender" readonly>
+          </mat-form-field>
         </div>
         <div>
-          <md-input-container>
-            <input mdInput placeholder="Time Received" name="timeReceived" id="timeReceived_id" [(ngModel)]="messageInfoReceived.receivedFrom" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="Time Received" name="timeReceived" id="timeReceived_id" [(ngModel)]="messageInfoReceived.receivedFrom" readonly>
+          </mat-form-field>
         </div>
         <div>
-          <md-input-container>
-            <input mdInput placeholder="Message Id" name="fromMessageId" id="fromMessageId_id" [(ngModel)]="messageInfoReceived.messageId" readonly>
-          </md-input-container>
+          <mat-form-field>
+            <input matInput placeholder="Message Id" name="fromMessageId" id="fromMessageId_id" [(ngModel)]="messageInfoReceived.messageId" readonly>
+          </mat-form-field>
         </div>
       </div>
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>

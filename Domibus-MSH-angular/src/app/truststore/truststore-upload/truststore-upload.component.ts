@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Output, ViewChild} from "@angular/core";
-import {MdDialogRef} from "@angular/material";
-import {TrustStoreService} from "../trustore.service";
-import {AlertService} from "../../common/alert/alert.service";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import {MatDialogRef} from '@angular/material';
+import {TrustStoreService} from '../trustore.service';
+import {AlertService} from '../../common/alert/alert.service';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-truststore-upload',
@@ -18,14 +18,14 @@ export class TrustStoreUploadComponent {
 
   @Output() onTruststoreUploaded: EventEmitter<any> = new EventEmitter();
 
-  @ViewChild('fileInput') fileInput;
+  @ViewChild('fileInput', {static: false}) fileInput;
 
-  constructor(public dialogRef: MdDialogRef<TrustStoreUploadComponent>,
+  constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>,
               private truststoreService: TrustStoreService,
               private alertService: AlertService,
               private fb: FormBuilder) {
     this.truststoreForm = fb.group({
-      'password': new FormControl("", Validators.required),
+      'password': new FormControl('', Validators.required),
     });
   }
 
@@ -38,16 +38,17 @@ export class TrustStoreUploadComponent {
   }
 
   public submit() {
-    if(this.isFormValid()) {
+    if (this.isFormValid()) {
       const fileToUpload = this.fileInput.nativeElement.files[0];
-      this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value).subscribe(res => {
-          this.alertService.success(res.text(), false);
-          this.onTruststoreUploaded.emit();
-        },
-        err => {
-          this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err, false);
-        }
-      );
+      this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
+        .subscribe(res => {
+            this.alertService.success(res, false);
+            this.onTruststoreUploaded.emit();
+          },
+          err => {
+            this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err, false);
+          }
+        );
       this.dialogRef.close();
     }
   }

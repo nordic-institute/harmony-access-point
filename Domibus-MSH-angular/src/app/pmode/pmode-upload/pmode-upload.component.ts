@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MdDialogRef, MD_DIALOG_DATA} from '@angular/material';
-import {Http} from '@angular/http';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
 
 @Component({
@@ -19,11 +19,11 @@ export class PmodeUploadComponent implements OnInit {
 
   useFileSelector: boolean = true;
 
-  @ViewChild('fileInput')
+  @ViewChild('fileInput', {static: false})
   private fileInput;
 
-  constructor(@Inject(MD_DIALOG_DATA) private data: { pModeContents: string },
-              public dialogRef: MdDialogRef<PmodeUploadComponent>, private http: Http, private alertService: AlertService) {
+  constructor(@Inject(MAT_DIALOG_DATA) private data: { pModeContents: string },
+              public dialogRef: MatDialogRef<PmodeUploadComponent>, private http: HttpClient, private alertService: AlertService) {
   }
 
   ngOnInit() {
@@ -48,26 +48,27 @@ export class PmodeUploadComponent implements OnInit {
   }
 
   public submit() {
-    if(this.submitInProgress) return;
-
+    if (this.submitInProgress) {
+      return;
+    }
     this.submitInProgress = true;
 
     try {
       let input = new FormData();
       input.append('file', this.getFile());
       input.append('description', this.description);
-      this.http.post(this.url, input).subscribe(res => {
-          this.alertService.success(res.text(), false);
+      this.http.post<string>(this.url, input).subscribe(res => {
+          this.alertService.success(res, false);
           this.dialogRef.close({done: true});
         }, err => {
-          this.alertService.exception("Error uploading the PMode:",err, false);
+          this.alertService.exception('Error uploading the PMode:', err, false);
           this.dialogRef.close({done: false});
         },
         () => {
           this.submitInProgress = false;
         }
       );
-    } catch(e) {
+    } catch (e) {
       this.submitInProgress = false;
     }
   }

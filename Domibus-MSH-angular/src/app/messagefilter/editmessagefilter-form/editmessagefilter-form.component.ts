@@ -1,8 +1,7 @@
 import {Component, Inject} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {BackendFilterEntry} from '../backendfilterentry';
-import {isNullOrUndefined} from 'util';
 
 let NEW_MODE = 'New Message Filter';
 let EDIT_MODE = 'Message Filter Edit';
@@ -26,10 +25,10 @@ export class EditMessageFilterComponent {
 
   messageFilterForm: FormGroup;
 
-  constructor(public dialogRef: MdDialogRef<EditMessageFilterComponent>,
-              @Inject(MD_DIALOG_DATA) public data: any,
+  constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any,
               fb: FormBuilder) {
-    if (isNullOrUndefined(data.edit)) {
+    if (!(data.edit)) {
       this.formTitle = NEW_MODE;
       this.backendFilterNames = data.backendFilterNames;
       this.plugin = this.backendFilterNames[0].toString();
@@ -45,10 +44,10 @@ export class EditMessageFilterComponent {
         this.data.edit.persisted);
       this.backendFilterNames = data.backendFilterNames;
       this.plugin = backEntry.backendName;
-      this.from = isNullOrUndefined(backEntry.from) ? '' : backEntry.from.expression;
-      this.to = isNullOrUndefined(backEntry.to) ? '' : backEntry.to.expression;
-      this.action = isNullOrUndefined(backEntry.action) ? '' : backEntry.action.expression;
-      this.service = isNullOrUndefined(backEntry.service) ? '' : backEntry.service.expression;
+      this.from = !(backEntry.from) ? '' : backEntry.from.expression;
+      this.to = !(backEntry.to) ? '' : backEntry.to.expression;
+      this.action = !(backEntry.action) ? '' : backEntry.action.expression;
+      this.service = !(backEntry.service) ? '' : backEntry.service.expression;
     }
     this.messageFilterForm = fb.group({
       'plugin': [null, Validators.required],

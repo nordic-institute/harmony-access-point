@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialogRef} from "@angular/material";
-import {isNullOrUndefined} from "util";
+import {MatDialogRef} from "@angular/material";
 
 @Component({
   selector: 'app-move-dialog',
@@ -11,16 +10,16 @@ export class MoveDialogComponent implements OnInit {
 
   selectedSource: any;
   destinationsChoiceDisabled: boolean = false;
-  queues: Array<any> = [];
+  queues: any[] = [];
 
-  constructor(public dialogRef: MdDialogRef<MoveDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<MoveDialogComponent>) {
   }
 
   ngOnInit() {
   }
 
   canOk(): boolean {
-    return !isNullOrUndefined(this.selectedSource);
+    return !!(this.selectedSource);
   }
 
 }

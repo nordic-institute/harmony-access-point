@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {AlertService} from '../common/alert/alert.service';
@@ -6,7 +6,7 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
 import {PluginUserRO} from './pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicpluginuser-form.component';
 import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
 import {UserService} from '../user/user.service';
@@ -24,7 +24,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   providers: [PluginUserService, UserService]
 })
 export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
-  @ViewChild('activeTpl') activeTpl: TemplateRef<any>;
+  @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
@@ -39,11 +39,12 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
   authenticationTypes: string[] = ['BASIC', 'CERTIFICATE'];
   filter: PluginUserSearchCriteria;
-  columnPicker: ColumnPickerBase;
+  columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   userRoles: Array<String>;
 
-  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MdDialog) {
+  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -51,8 +52,6 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     super.ngOnInit();
 
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
-
-    this.initColumns();
 
     this.offset = 0;
     this.selected = [];
@@ -65,6 +64,14 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
     super.setActiveFilter();
     this.search();
+  }
+
+  ngAfterViewInit() {
+    this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   get displayedUsers(): PluginUserRO[] {
@@ -120,7 +127,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
       this.setColumnPicker();
     } catch (err) {
-      this.alertService.exception("Error getting plugin users:", err);
+      this.alertService.exception('Error getting plugin users:', err);
       this.loading = false;
     }
   }

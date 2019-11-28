@@ -1,4 +1,4 @@
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 
 /**
  * @author Thomas Dussart
@@ -33,23 +33,23 @@ export class AuditCriteria {
   start;
   max;
 
-  public toURLSearchParams(): URLSearchParams {
-    const searchParams = new URLSearchParams();
+  public toURLSearchParams(): HttpParams {
+    let searchParams = new HttpParams();
 
     if (this.auditTargetName) {
-      this.auditTargetName.forEach(el => searchParams.append('auditTargetName', el));
+      this.auditTargetName.forEach(el => searchParams = searchParams.append('auditTargetName', el));
     }
     if (this.action) {
-      this.action.forEach(el => searchParams.append('action', el));
+      this.action.forEach(el => searchParams = searchParams.append('action', el));
     }
     if (this.user) {
-      this.user.forEach(el => searchParams.append('user', el));
+      this.user.forEach(el => searchParams = searchParams.append('user', el));
     }
     if (this.from) {
-      searchParams.set('from', this.from.toISOString());
+      searchParams = searchParams.append('from', this.from.toISOString());
     }
     if (this.to) {
-      searchParams.set('to', this.to.toISOString());
+      searchParams = searchParams.append('to', this.to.toISOString());
     }
     return searchParams;
   }

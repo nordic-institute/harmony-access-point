@@ -1,7 +1,6 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService} from './properties.service';
-import {Headers} from '@angular/http';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {SecurityService} from '../security/security.service';
 
@@ -23,11 +22,12 @@ export class PropertiesComponent implements OnInit {
   offset: number = 0;
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  @ViewChild('propertyValueTpl') propertyValueTpl: TemplateRef<any>;
+  @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
   columns: any[] = [];
 
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService, private securityService: SecurityService) {
+  constructor(private propertiesService: PropertiesService, private alertService: AlertService,
+              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     this.filter = {propertyName: '', showDomainProperties: true};
   }
 
@@ -37,7 +37,9 @@ export class PropertiesComponent implements OnInit {
     this.rows = [];
 
     this.loadProperties(this.rowLimiter.pageSize);
+  }
 
+  ngAfterViewInit() {
     this.columns = [
       {
         name: 'Property Name',
@@ -48,6 +50,10 @@ export class PropertiesComponent implements OnInit {
         name: 'Property Value'
       }
     ];
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   onPropertyNameChanged() {

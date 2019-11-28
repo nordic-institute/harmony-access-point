@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 
 @Component({
   selector: 'app-restore-dialog',
@@ -8,7 +8,7 @@ import {MdDialogRef} from "@angular/material";
 })
 export class RestoreDialogComponent implements OnInit {
 
-  constructor(public dialogRef: MdDialogRef<RestoreDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<RestoreDialogComponent>) {
   }
 
   ngOnInit() {

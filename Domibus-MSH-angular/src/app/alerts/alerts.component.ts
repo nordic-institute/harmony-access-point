@@ -1,14 +1,14 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
-import {MdDialog} from '@angular/material';
+import {ErrorStateMatcher, MatDialog, ShowOnDirtyErrorStateMatcher} from '@angular/material';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
@@ -16,9 +16,8 @@ import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
-import {isNullOrUndefined} from 'util';
 import {AlertsEntry} from './alertsentry';
-import {showOnDirtyErrorStateMatcher, ErrorStateMatcher} from '@angular/material';
+import 'rxjs-compat/add/operator/filter';
 
 @Component({
   moduleId: module.id,
@@ -34,9 +33,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   static readonly ALERTS_LEVELS_URL: string = AlertsComponent.ALERTS_URL + '/levels';
   static readonly ALERTS_PARAMS_URL: string = AlertsComponent.ALERTS_URL + '/params';
 
-  @ViewChild('rowProcessed') rowProcessed: TemplateRef<any>;
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithSpaceAfterCommaTpl') public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
+  @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   public rowLimiter: RowLimiterBase;
@@ -73,11 +72,14 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   dateToName: string;
   displayDomainCheckBox: boolean;
 
-  matcher: ErrorStateMatcher = showOnDirtyErrorStateMatcher;
+  matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
 
   filter: any;
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
 
     this.getAlertTypes();
@@ -116,6 +118,15 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
+    this.rowLimiter = new RowLimiterBase();
+
+    this['orderBy'] = 'creationTime';
+    this['asc'] = false;
+
+    this.search();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {name: 'Alert Id', width: 20, prop: 'entityId'},
       {name: 'Processed', cellTemplate: this.rowProcessed, width: 20},
@@ -130,126 +141,112 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155}
     ];
-    this.rowLimiter = new RowLimiterBase();
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
+  }
 
-    this.orderBy = 'creationTime';
-    this.asc = false;
-
-    this.search();
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   getAlertTypes(): void {
-    this.http.get(AlertsComponent.ALERTS_TYPES_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_TYPES_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aTypes => this.aTypes = aTypes);
   }
 
   getAlertStatuses(): void {
-    this.http.get(AlertsComponent.ALERTS_STATUS_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_STATUS_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aStatuses => this.aStatuses = aStatuses);
   }
 
   getAlertLevels(): void {
-    this.http.get(AlertsComponent.ALERTS_LEVELS_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_LEVELS_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aLevels => this.aLevels = aLevels);
   }
 
-  private extractData(res: Response) {
-    let body = res.json();
-    return body || {};
-  }
-
   getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
-    return this.http.get(AlertsComponent.ALERTS_URL, {
-      search: searchParams
-    }).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams});
   }
 
   private createSearchParams() {
-    const searchParams = this.createStaticSearchParams();
+    let searchParams = this.createStaticSearchParams();
 
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
-        searchParams.append('parameters', filter);
+        searchParams = searchParams.append('parameters', filter || '');
       }
     }
 
     if (this.alertTypeWithDate) {
       const from = this.dynamicDatesFilter.from;
       if (from) {
-        searchParams.set('dynamicFrom', from.getTime());
+        searchParams = searchParams.append('dynamicFrom', from.getTime());
       }
 
       const to = this.dynamicDatesFilter.to;
       if (to) {
-        searchParams.set('dynamicTo', to.getTime());
+        searchParams = searchParams.append('dynamicTo', to.getTime());
       }
     }
     return searchParams;
   }
 
   private createStaticSearchParams() {
-    const searchParams: URLSearchParams = new URLSearchParams();
+    let searchParams = new HttpParams();
 
-    searchParams.set('orderBy', this.orderBy);
+    searchParams = searchParams.append('orderBy', this.orderBy);
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     // filters
     if (this.activeFilter.processed) {
-      searchParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
+      searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
     }
 
     if (this.activeFilter.alertType) {
-      searchParams.set('alertType', this.activeFilter.alertType);
+      searchParams = searchParams.append('alertType', this.activeFilter.alertType);
     }
 
     if (this.activeFilter.alertStatus) {
-      searchParams.set('alertStatus', this.activeFilter.alertStatus);
+      searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
     }
 
     if (this.activeFilter.alertId) {
-      searchParams.set('alertId', this.activeFilter.alertId);
+      searchParams = searchParams.append('alertId', this.activeFilter.alertId);
     }
 
     if (this.activeFilter.alertLevel) {
-      searchParams.set('alertLevel', this.activeFilter.alertLevel);
+      searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
     }
 
     if (this.activeFilter.creationFrom) {
-      searchParams.set('creationFrom', this.activeFilter.creationFrom.getTime());
+      searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
     }
 
     if (this.activeFilter.creationTo) {
-      searchParams.set('creationTo', this.activeFilter.creationTo.getTime());
+      searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
     }
 
     if (this.activeFilter.reportingFrom) {
-      searchParams.set('reportingFrom', this.activeFilter.reportingFrom.getTime());
+      searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
     }
 
     if (this.activeFilter.reportingTo) {
-      searchParams.set('reportingTo', this.activeFilter.reportingTo.getTime());
+      searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
     }
 
-    searchParams.set('domainAlerts', this.activeFilter.domainAlerts);
+    searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
     return searchParams;
   }
 
@@ -291,29 +288,29 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     return false; // to prevent default navigation
   }
 
-  getAlertParameters(alertType: string): Observable<Array<string>> {
-    const searchParams: URLSearchParams = new URLSearchParams();
-    searchParams.set('alertType', alertType);
-    return this.http.get(AlertsComponent.ALERTS_PARAMS_URL, {search: searchParams}).map(this.extractData);
+  getAlertParameters(alertType: string): Promise<string[]> {
+    let searchParams = new HttpParams();
+    searchParams = searchParams.append('alertType', alertType);
+    return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams}).toPromise();
   }
 
-  onAlertTypeChanged(alertType: string) {
+  async onAlertTypeChanged(alertType: string) {
     this.nonDateParameters = [];
     this.alertTypeWithDate = false;
     this.dynamicFilters = [];
     this.dynamicDatesFilter = [];
-    const alertParametersObservable = this.getAlertParameters(alertType).flatMap(value => value);
+    const alertParameters = await this.getAlertParameters(alertType);
     const TIME_SUFFIX = '_TIME';
     const DATE_SUFFIX = '_DATE';
-    let nonDateParamerters = alertParametersObservable.filter(value => {
+    let nonDateParameters = alertParameters.filter((value) => {
       console.log('Value:' + value);
       return (value.search(TIME_SUFFIX) === -1 && value.search(DATE_SUFFIX) === -1)
     });
-    nonDateParamerters.subscribe(item => this.nonDateParameters.push(item));
-    let dateParameters = alertParametersObservable.filter(value => {
+    this.nonDateParameters.push(...nonDateParameters);
+    let dateParameters = alertParameters.filter((value) => {
       return value.search(TIME_SUFFIX) > 0 || value.search(DATE_SUFFIX) > 1
     });
-    dateParameters.subscribe(item => {
+    dateParameters.forEach(item => {
       this.dateFromName = item + ' FROM';
       this.dateToName = item + ' TO';
       this.alertTypeWithDate = true;
@@ -407,7 +404,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   setProcessedValue(row) {
     this.isChanged = true;
     row.processed = !row.processed;
-    this.rows[row.$$index] = row;
+    this.rows[this.rows.indexOf(row)] = row;
   }
 
   isDirty(): boolean {

@@ -1,6 +1,6 @@
 import {ErrorHandler, Injectable, Injector} from '@angular/core';
 import {AlertService} from './alert/alert.service';
-import {Response} from '@angular/http';
+import {HttpResponse} from '@angular/common/http';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
@@ -8,12 +8,11 @@ export class GlobalErrorHandler implements ErrorHandler {
   constructor (private injector: Injector) {
   }
 
-  handleError (error: Response | any) {
-
+  handleError (error: HttpResponse<any> | any) {
     console.error(error);
 
-    if (error instanceof Response) {
-      const res = <Response> error;
+    if (error instanceof HttpResponse) {
+      const res = <HttpResponse<any>> error;
       if (res.status === 401 || res.status === 403) return;
     }
 

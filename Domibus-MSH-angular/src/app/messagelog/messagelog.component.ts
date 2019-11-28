@@ -1,10 +1,10 @@
-import {Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './messagelogresult';
 import {Observable} from 'rxjs';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagelogDialogComponent} from 'app/messagelog/messagelog-dialog/messagelog-dialog.component';
-import {MdDialog, MdSelectChange} from '@angular/material';
+import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -30,11 +30,11 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoTpl') public nextAttemptInfoTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoWithDateFormatTpl') public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
-  @ViewChild('list') list: DatatableComponent;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('list', {static: false}) list: DatatableComponent;
 
   columnPicker: ColumnPickerBase;
   public rowLimiter: RowLimiterBase;
@@ -63,12 +63,15 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   canSearchByConversationId: boolean;
   conversationIdValue: String;
 
-  constructor (private http: Http, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-               public dialog: MdDialog, private elementRef: ElementRef) {
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
+  constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
+              public dialog: MatDialog, private elementRef: ElementRef,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
     super.ngOnInit();
 
     this.columnPicker = new ColumnPickerBase();
@@ -84,20 +87,28 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.rows = [];
     this.count = 0;
     this.offset = 0;
-    this.orderBy = 'received';
-    this.asc = false;
+    this['orderBy'] = 'received';
+    this['asc'] = false;
 
     this.messageResent = new EventEmitter(false);
 
     this.canSearchByConversationId = true;
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
-    this.configureColumnPicker();
 
     this.search();
   }
 
-  private configureColumnPicker () {
+  async ngAfterViewInit() {
+    this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
+    this.configureColumnPicker();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
+  }
+
+  private configureColumnPicker() {
     this.columnPicker.allColumns.push(
       {
         name: 'Message Id',
@@ -194,98 +205,95 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  public beforeDomainChange () {
+  public beforeDomainChange() {
     if (this.list.isHorScroll) {
       this.scrollLeft();
     }
   }
 
 
-  createSearchParams (): URLSearchParams {
-    const searchParams = new URLSearchParams();
+  createSearchParams(): HttpParams {
+    let searchParams = new HttpParams();
 
     if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
+      searchParams = searchParams.append('orderBy', this.orderBy);
     }
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     if (this.activeFilter.messageId) {
-      searchParams.set('messageId', this.activeFilter.messageId);
+      searchParams = searchParams.append('messageId', this.activeFilter.messageId);
     }
 
     if (this.activeFilter.mshRole) {
-      searchParams.set('mshRole', this.activeFilter.mshRole);
+      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
     }
 
     if (this.activeFilter.conversationId) {
-      searchParams.set('conversationId', this.activeFilter.conversationId);
+      searchParams = searchParams.append('conversationId', this.activeFilter.conversationId);
     }
 
     if (this.activeFilter.messageType) {
-      searchParams.set('messageType', this.activeFilter.messageType);
+      searchParams = searchParams.append('messageType', this.activeFilter.messageType);
     }
 
     if (this.activeFilter.messageStatus) {
-      searchParams.set('messageStatus', this.activeFilter.messageStatus);
+      searchParams = searchParams.append('messageStatus', this.activeFilter.messageStatus);
     }
 
     if (this.activeFilter.notificationStatus) {
-      searchParams.set('notificationStatus', this.activeFilter.notificationStatus);
+      searchParams = searchParams.append('notificationStatus', this.activeFilter.notificationStatus);
     }
 
     if (this.activeFilter.fromPartyId) {
-      searchParams.set('fromPartyId', this.activeFilter.fromPartyId);
+      searchParams = searchParams.append('fromPartyId', this.activeFilter.fromPartyId);
     }
 
     if (this.activeFilter.toPartyId) {
-      searchParams.set('toPartyId', this.activeFilter.toPartyId);
+      searchParams = searchParams.append('toPartyId', this.activeFilter.toPartyId);
     }
 
     if (this.activeFilter.originalSender) {
-      searchParams.set('originalSender', this.activeFilter.originalSender);
+      searchParams = searchParams.append('originalSender', this.activeFilter.originalSender);
     }
 
     if (this.activeFilter.finalRecipient) {
-      searchParams.set('finalRecipient', this.activeFilter.finalRecipient);
+      searchParams = searchParams.append('finalRecipient', this.activeFilter.finalRecipient);
     }
 
     if (this.activeFilter.refToMessageId) {
-      searchParams.set('refToMessageId', this.activeFilter.refToMessageId);
+      searchParams = searchParams.append('refToMessageId', this.activeFilter.refToMessageId);
     }
 
     if (this.activeFilter.receivedFrom) {
-      searchParams.set('receivedFrom', this.activeFilter.receivedFrom.getTime());
+      searchParams = searchParams.append('receivedFrom', this.activeFilter.receivedFrom.getTime());
     }
 
     if (this.activeFilter.receivedTo) {
-      searchParams.set('receivedTo', this.activeFilter.receivedTo.getTime());
+      searchParams = searchParams.append('receivedTo', this.activeFilter.receivedTo.getTime());
     }
 
     if (this.activeFilter.isTestMessage) {
-      searchParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
+      searchParams = searchParams.append('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
     }
 
     return searchParams;
   }
 
-  getMessageLogEntries (offset: number, pageSize: number): Observable<MessageLogResult> {
-    const searchParams = this.createSearchParams();
+  getMessageLogEntries(offset: number, pageSize: number): Observable<MessageLogResult> {
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
-    return this.http.get(MessageLogComponent.MESSAGE_LOG_URL, {search: searchParams})
-      .map((response: Response) =>
-        response.json()
-      );
+    return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams});
   }
 
   /**
    * The method is the actual implementation of the abstract method declared in the base abstract class
    */
-  page (offset, pageSize) {
+  page(offset, pageSize) {
     this.loading = true;
     super.resetFilters();
     this.getMessageLogEntries(offset, pageSize).subscribe((result: MessageLogResult) => {
@@ -312,7 +320,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
         result.filter.receivedTo = new Date(result.filter.receivedTo);
       }
       result.filter.isTestMessage = !isNullOrUndefined(result.filter.messageSubtype);
-      this.filter = result.filter;
+      this['filter'] = result.filter;
 
       this.mshRoles = result.mshRoles;
       this.msgTypes = result.msgTypes;
@@ -320,41 +328,41 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
       this.notifStatus = result.notifStatus;
 
       this.loading = false;
-    }, (error: any) => {
-      console.log('error getting the message log:' + error);
+    }, (error) => {
+      console.log('error getting the message log:', error);
       this.loading = false;
       this.alertService.exception('Error occurred: ', error);
     });
   }
 
-  onPage (event) {
+  onPage(event) {
     this.page(event.offset, event.pageSize);
   }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public reload () {
+  public reload() {
     this.page(0, this.rowLimiter.pageSize);
   }
 
-  onActivate (event) {
+  onActivate(event) {
     if ('dblclick' === event.type) {
       this.details(event.row);
     }
   }
 
-  changePageSize (newPageLimit: number) {
+  changePageSize(newPageLimit: number) {
     this.page(0, newPageLimit);
   }
 
-  search () {
+  search() {
     super.setActiveFilter();
     console.log('search by:', this.activeFilter);
     this.page(0, this.rowLimiter.pageSize);
   }
 
-  resendDialog () {
+  resendDialog() {
     this.dialog.open(MessagelogDialogComponent).afterClosed()
       .subscribe(result => {
         if (result == 'Resend') {
@@ -367,7 +375,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
       });
   }
 
-  resend (messageId: string) {
+  resend(messageId: string) {
     console.log('Resending message with id ', messageId);
 
     let url = MessageLogComponent.RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
@@ -382,56 +390,56 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  isResendButtonEnabledAction (row): boolean {
+  isResendButtonEnabledAction(row): boolean {
     return this.isRowResendButtonEnabled(row);
   }
 
-  isResendButtonEnabled () {
+  isResendButtonEnabled() {
     return this.isOneRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
-  private isRowResendButtonEnabled (row): boolean {
+  private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
       && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isSplitAndJoinMessage (row) {
+  private isSplitAndJoinMessage(row) {
     return row.messageFragment || row.sourceMessage;
   }
 
-  isDownloadButtonEnabledAction (row): boolean {
+  isDownloadButtonEnabledAction(row): boolean {
     return this.isRowDownloadButtonEnabled(row);
   }
 
-  isDownloadButtonEnabled (): boolean {
+  isDownloadButtonEnabled(): boolean {
     return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
   }
 
-  private isRowDownloadButtonEnabled (row): boolean {
+  private isRowDownloadButtonEnabled(row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isOneRowSelected () {
+  private isOneRowSelected() {
     return this.selected && this.selected.length == 1;
   }
 
-  private downloadMessage (messageId) {
+  private downloadMessage(messageId) {
     const url = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
     DownloadService.downloadNative(url);
   }
 
-  downloadAction (row) {
+  downloadAction(row) {
     this.downloadMessage(row.messageId);
   }
 
-  download () {
+  download() {
     this.downloadMessage(this.selected[0].messageId);
   }
 
-  saveAsCSV () {
+  saveAsCSV() {
     if (this.count > AlertComponent.MAX_COUNT_CSV) {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;
@@ -441,23 +449,23 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     DownloadService.downloadNative(MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString());
   }
 
-  details (selectedRow: any) {
+  details(selectedRow: any) {
     this.dialog.open(MessagelogDetailsComponent, {
       data: {message: selectedRow, fourCornerEnabled: this.fourCornerEnabled}
     });
   }
 
-  toggleAdvancedSearch () {
+  toggleAdvancedSearch() {
     this.advancedSearch = true;
   }
 
-  toggleBasicSearch () {
+  toggleBasicSearch() {
     this.advancedSearch = false;
 
     this.resetAdvancedSearchParams();
   }
 
-  resetAdvancedSearchParams () {
+  resetAdvancedSearchParams() {
     this.filter.mshRole = null;
     this.filter.conversationId = null;
     this.filter.messageType = this.msgTypes[1];
@@ -472,26 +480,26 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.conversationIdValue = null;
   }
 
-  onTimestampFromChange (event) {
+  onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
   }
 
-  onTimestampToChange (event) {
+  onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
   }
 
-  private showNextAttemptInfo (row: any): boolean {
+  private showNextAttemptInfo(row: any): boolean {
     if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING'))
       return false;
     return true;
   }
 
-  public scrollLeft () {
+  public scrollLeft() {
     const dataTableBodyDom = this.elementRef.nativeElement.querySelector('.datatable-body');
     dataTableBodyDom.scrollLeft = 0;
   }
 
-  onMessageTypeChanged ($event: MdSelectChange) {
+  onMessageTypeChanged($event: MatSelectChange) {
     this.canSearchByConversationId = (this.filter.messageType == 'USER_MESSAGE');
     if (this.canSearchByConversationId) {
       this.filter.conversationId = this.conversationIdValue;
