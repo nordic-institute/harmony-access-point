@@ -445,16 +445,16 @@ public class UsersPgTest extends BaseTest {
 	/*USR-17 - Admin changes a user role*/
 	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserRoleAndCheckPrivileges() throws Exception {
+		// we need to create a new user, because a random existing one may have a different password
 		String username = getUser(null, DRoles.ADMIN, true, false, false).getString("userName");
-		if(rest.getNoOfAdmins(null)<=1){
-			rest.createUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), null);
-		}
+		rest.createUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), null);
+
 		log.info("changing role to User for Admin " + username);
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		log.info("editing user");
+		log.info("editing user:" + username);
 		page.grid().scrollToAndDoubleClick("Username", username);
 
 		log.info("changing role");
@@ -476,6 +476,7 @@ public class UsersPgTest extends BaseTest {
 
 		// TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
 
+		rest.deleteUser(username, null);
 		soft.assertAll();
 	}
 
