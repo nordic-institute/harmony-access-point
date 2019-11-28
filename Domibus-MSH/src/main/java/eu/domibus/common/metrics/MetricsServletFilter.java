@@ -9,7 +9,7 @@ import java.io.IOException;
 import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
 import static eu.domibus.common.metrics.MetricNames.SERVLET_INCOMING_USER_MESSAGE;
 
-@Component
+//@Component
 public class MetricsServletFilter implements Filter {
 
     @PostConstruct
