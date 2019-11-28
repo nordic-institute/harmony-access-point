@@ -5,8 +5,9 @@ import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
+import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordExpirationListener {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(PasswordExpirationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordExpirationListener.class);
 
     @Autowired
     private AlertService alertService;
@@ -30,21 +31,24 @@ public class PasswordExpirationListener {
     @Autowired
     private EventDao eventDao;
 
+    @Autowired
+    private DatabaseUtil databaseUtil;
+
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'PASSWORD_EXPIRATION'")
     //TODO it would be nice to use here eventType.getQueueSelector() instead of hardcoded string
     // Intentionally used just one selector value for all 4 types of events
     public void onPasswordEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
-
         triggerAlert(event, domain);
-
     }
 
     private void triggerAlert(Event event, String domain) {
-        if (domain == null)
+        if (domain == null) {
             domainContextProvider.clearCurrentDomain();
-        else
+        } else {
             domainContextProvider.setCurrentDomain(domain);
+        }
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         //find the corresponding persisted event
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());

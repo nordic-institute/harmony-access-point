@@ -6,6 +6,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.util.DatabaseUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -32,6 +33,9 @@ public class CertificateListenerTest {
 
     @Injectable
     private AlertService alertService;
+
+    @Injectable
+    private DatabaseUtil databaseUtil;
 
     @Test
     public void onImminentRevocationCertificateEvent(@Mocked final Event event, @Mocked final Alert alert) {

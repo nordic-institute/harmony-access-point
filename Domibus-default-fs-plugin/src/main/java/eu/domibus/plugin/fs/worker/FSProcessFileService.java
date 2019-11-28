@@ -31,13 +31,19 @@ public class FSProcessFileService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
     @Resource(name = "backendFSPlugin")
-    private BackendFSImpl backendFSPlugin;
+    protected BackendFSImpl backendFSPlugin;
 
     @Autowired
-    private FSFilesManager fsFilesManager;
+    protected FSFilesManager fsFilesManager;
 
     @Autowired
-    private FSPluginProperties fsPluginProperties;
+    protected FSPluginProperties fsPluginProperties;
+
+    @Autowired
+    protected FSXMLHelper fsxmlHelper;
+
+    @Autowired
+    protected FSFileNameHelper fsFileNameHelper;
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -72,7 +78,7 @@ public class FSProcessFileService {
 
     public void renameProcessedFile(FileObject processableFile, String messageId) {
         final String baseName = processableFile.getName().getBaseName();
-        String newFileName = FSFileNameHelper.deriveFileName(baseName, messageId);
+        String newFileName = fsFileNameHelper.deriveFileName(baseName, messageId);
 
         LOG.debug("Renaming file [{}] to [{}]", baseName, newFileName);
 
@@ -83,8 +89,8 @@ public class FSProcessFileService {
         }
     }
 
-    private UserMessage parseMetadata(FileObject metadataFile) throws JAXBException, FileSystemException {
-        return FSXMLHelper.parseXML(metadataFile.getContent().getInputStream(), UserMessage.class);
+    protected UserMessage parseMetadata(FileObject metadataFile) throws JAXBException, FileSystemException {
+        return fsxmlHelper.parseXML(metadataFile.getContent().getInputStream(), UserMessage.class);
     }
 
 }

@@ -17,7 +17,7 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
 
     protected final Messaging messaging;
 
-    protected static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
 
 
     AbstractLegConfigurationExtractor(final SoapMessage message, final Messaging messaging) {

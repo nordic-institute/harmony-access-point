@@ -1,6 +1,5 @@
 package eu.domibus.common.dao;
 
-import eu.domibus.common.model.common.BasicAudit;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,6 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         return em.find(typeOfT, id);
     }
 
-    @BasicAudit
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(final T entity) {
         em.persist(entity);

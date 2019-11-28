@@ -1,8 +1,16 @@
-Domibus 4.1.2
+Domibus 4.2
 - Filtered out bean scanning of web and ext sub-packages to avoid multimple bean creation.
 - Deleted msh-config.xml and moved one bean to spring-context.xml
+Domibus 4.1.2
+- Possibility to encrypt passwords in the configuration files
+- Possibility to encrypt payloads at rest
+- Test Service improvements
+- JMS Queues statistics
+- FS Plugin fix to save the MessageInfo in metadata.xml
 - Merge cacerts and custom truststore for DSS extension data loader.
-- Added the possibility to download PMode file using REST services
+- More properties to configure the datasource on Tomcat
+- Optimize Domibus PULL for receiver with multiple legs
+- Added the possibility to upload and download PMode file using REST services
 - Removed the Domibus payload from being printed to logs if org.apache.cxf is set to INFO in logback.xml - domibus.logging.payload.print property (default to false)
 - JMS Plugin queues are available to remote clients for Wildfly 12
 - Added Domibus property domibus.logging.cxf.limit to establish the size limit at which messages are truncated in the logs when org.apache.cxf is set to INFO in logback.xml
@@ -12,6 +20,21 @@ Domibus 4.1.2
 at least INFO in logback.xml
 - Removed the XSSI characters from the beginning of the JSON response of the External REST API calls.
 - Remove parties in Pull processes from TestService UI (Test Service for Pull is not supported in the UI)
+- Downloading the CRL via HTTPs is not working
+- Backup the truststore before updating it
+- The primary key type should be long instead of integer
+- Receipt message truncated at the level of the signature
+- Issue parsing the Signal message under high concurrency
+- Double check the registration of the localConduit
+- Unnecessary truststore update
+- Cannot delete JMS messages
+- Error when sending a message without payload.
+- Domibus Logging - issue when stripping payload
+- Issue while migrating from 4.0.2 to 4.1.2.
+- NotificationListener should be decoupled from the JMS broker
+- Message Filtering issue
+- Added Domibus property domibus.metrics.monitor.jms.queues.refresh.period in order to cache counting of JMS messages for Metrics page
+- Set default value for domibus.dispatcher.allowChunking to false
 Domibus 4.1.1
 - Alerts for password imminent expiration and expiration are not sent
 - Domibus does not work with Proxy
