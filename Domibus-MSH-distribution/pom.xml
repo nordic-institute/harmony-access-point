@@ -122,6 +122,8 @@
                                             <url>
                                                 https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
                                             </url>
+                                            <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
+                                            <extractDir>${project.basedir}/cargo/installs</extractDir>
                                         </zipUrlInstaller>
                                     </container>
                                     <packager>
@@ -245,8 +247,10 @@
                                         <containerId>wildfly12x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/12.0.0.Final/wildfly-as-dist-12.0.0.Final.zip
+                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly12.version}/wildfly-as-dist-${wildfly12.version}.zip
                                             </url>
+                                            <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
+                                            <extractDir>${project.basedir}/cargo/installs</extractDir>
                                         </zipUrlInstaller>
                                     </container>
                                 </configuration>
