@@ -1,6 +1,6 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.ext.domain.DomibusMonitoringInfoDTO;
+import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
 import mockit.Expectations;
@@ -20,7 +20,9 @@ import java.util.List;
  * @since 4.2
  */
 
-
+/**
+ *
+ */
 @RunWith(JMockit.class)
 public class DomibusMonitoringResourceTest {
 
@@ -32,16 +34,16 @@ public class DomibusMonitoringResourceTest {
 
     @Test
     public void getDomibusStatusTest() throws DomibusMonitoringExtException {
-        DomibusMonitoringInfoDTO domibusMonitoringInfoDTO = new DomibusMonitoringInfoDTO();
+        MonitoringInfoDTO monitoringInfoDTO = new MonitoringInfoDTO();
         List<String> filter = new ArrayList<>();
         filter.add("db");
 
         new Expectations() {{
-            domibusMonitoringExtService.getDomibusStatus(filter);
-            result = domibusMonitoringInfoDTO;
+            domibusMonitoringExtService.getMonitoringDetails(filter);
+            result = monitoringInfoDTO;
         }};
 
-        final DomibusMonitoringInfoDTO responseList = domibusMonitoringResource.getDomibusStatus(filter);
+        final MonitoringInfoDTO responseList = domibusMonitoringResource.getMonitoringDetails(filter);
 
         Assert.assertNotNull(responseList);
     }

@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.mapper;
 
-import eu.domibus.api.monitoring.*;
-import eu.domibus.ext.domain.*;
+import eu.domibus.api.monitoring.domain.*;
+import eu.domibus.ext.domain.monitoring.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
+ * Specifies a decorator to be applied to a generated mapper, which can be used to amend mappings performed by generated mapping methods.
+ *
  * @author Soumya Chandran
  * @since 4.2
  */
@@ -25,25 +28,25 @@ public abstract class MonitoringMapperDecorator implements MonitoringMapper {
     }
 
     @Override
-    public DomibusMonitoringInfoDTO domibusMonitoringInfoToDomibusMonitoringInfoDTO(DomibusMonitoringInfo domibusMonitoringInfo) {
-        DomibusMonitoringInfoDTO domibusMonitoringInfoDTO = delegate.domibusMonitoringInfoToDomibusMonitoringInfoDTO(domibusMonitoringInfo);
+    public MonitoringInfoDTO monitoringInfoToMonitoringInfoDTO(MonitoringInfo monitoringInfo) {
+        MonitoringInfoDTO monitoringInfoDTO = delegate.monitoringInfoToMonitoringInfoDTO(monitoringInfo);
         List<ServiceInfoDTO> servicesList = new ArrayList<>();
-        for (ServiceInfo serviceInfo : domibusMonitoringInfo.getServices()) {
+        for (ServiceInfo serviceInfo : monitoringInfo.getServices()) {
             servicesList.add(convert(serviceInfo));
         }
-        domibusMonitoringInfoDTO.setServices(servicesList);
-        return domibusMonitoringInfoDTO;
+        monitoringInfoDTO.setServices(servicesList);
+        return monitoringInfoDTO;
     }
 
     @Override
-    public DomibusMonitoringInfo domibusMonitoringInfoDTOToDomibusMonitoringInfo(DomibusMonitoringInfoDTO domibusMonitoringInfoDTO) {
-        DomibusMonitoringInfo domibusMonitoringInfo = delegate.domibusMonitoringInfoDTOToDomibusMonitoringInfo(domibusMonitoringInfoDTO);
+    public MonitoringInfo monitoringInfoDTOToMonitoringInfo(MonitoringInfoDTO monitoringInfoDTO) {
+        MonitoringInfo monitoringInfo = delegate.monitoringInfoDTOToMonitoringInfo(monitoringInfoDTO);
         List<ServiceInfo> servicesList = new ArrayList<>();
-        for (ServiceInfoDTO serviceInfo : domibusMonitoringInfoDTO.getServices()) {
+        for (ServiceInfoDTO serviceInfo : monitoringInfoDTO.getServices()) {
             servicesList.add(convert(serviceInfo));
         }
-        domibusMonitoringInfo.setServices(servicesList);
-        return domibusMonitoringInfo;
+        monitoringInfo.setServices(servicesList);
+        return monitoringInfo;
     }
 
     protected ServiceInfoDTO convert(ServiceInfo serviceInfo) {
@@ -70,7 +73,6 @@ public abstract class MonitoringMapperDecorator implements MonitoringMapper {
             return delegate.jmsBrokerInfoDTOToJmsBrokerInfo((JmsBrokerInfoDTO) serviceInfoDTO);
         }
         if (serviceInfoDTO instanceof QuartzInfoDTO) {
-            // delegate.quartzInfoDetailsDTOToQuartzInfoDetails()
             return delegate.quartzInfoDTOToQuartzInfo((QuartzInfoDTO) serviceInfoDTO);
         }
         LOG.warn("Invalid type for ServiceInfoDTO: [{}]", serviceInfoDTO.getClass());

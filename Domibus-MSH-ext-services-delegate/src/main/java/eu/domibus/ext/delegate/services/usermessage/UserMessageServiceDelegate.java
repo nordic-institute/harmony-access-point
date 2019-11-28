@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @since 3.3.1
  */
 @Service
-public class UserMessageServiceDelegate implements UserMessageExtService{
+public class UserMessageServiceDelegate implements UserMessageExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageServiceDelegate.class);
 
@@ -35,7 +35,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService{
         securityService.checkMessageAuthorization(messageId);
 
         final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
-        if(userMessage == null) {
+        if (userMessage == null) {
             return null;
         }
         return domainConverter.convert(userMessage, UserMessageDTO.class);

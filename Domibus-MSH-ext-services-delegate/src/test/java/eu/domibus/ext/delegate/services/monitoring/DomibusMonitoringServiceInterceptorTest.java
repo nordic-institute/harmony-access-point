@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.monitoring;
 
 import eu.domibus.api.monitoring.DomibusMonitoringService;
 import eu.domibus.api.util.AOPUtil;
-import eu.domibus.ext.domain.DomibusMonitoringInfoDTO;
+import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import mockit.Expectations;
@@ -29,18 +29,18 @@ public class DomibusMonitoringServiceInterceptorTest {
     @Test
     public void testIntercept(@Injectable final ProceedingJoinPoint joinPoint) throws Throwable {
         // Given
-        final DomibusMonitoringInfoDTO domibusMonitoringInfoDTO = new DomibusMonitoringInfoDTO();
+        final MonitoringInfoDTO monitoringInfoDTO = new MonitoringInfoDTO();
 
         new Expectations() {{
             joinPoint.proceed();
-            result = domibusMonitoringInfoDTO;
+            result = monitoringInfoDTO;
         }};
 
         // When
         final Object interceptedResult = domibusMonitoringServiceInterceptor.intercept(joinPoint);
 
         // Then
-        Assert.assertEquals(domibusMonitoringInfoDTO, interceptedResult);
+        Assert.assertEquals(monitoringInfoDTO, interceptedResult);
     }
 
     @Test

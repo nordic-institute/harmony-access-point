@@ -1,9 +1,8 @@
 package eu.domibus.core.monitoring;
 
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.monitoring.*;
+import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.api.user.User;
 import eu.domibus.common.services.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import mockit.Expectations;
@@ -56,9 +55,9 @@ public class DomibusMonitoringDefaultServiceTest {
             userService.findUsers();
             times =1;
         }};
-       DomibusMonitoringInfo domibusMonitoringInfo = domibusMonitoringDefaultService.getDomibusStatus(filter);
+       MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(domibusMonitoringInfo);
+        Assert.assertNotNull(monitoringInfo);
     }
 
     @Test
@@ -73,20 +72,20 @@ public class DomibusMonitoringDefaultServiceTest {
             result = 5;
         }};
 
-        DomibusMonitoringInfo domibusMonitoringInfo = domibusMonitoringDefaultService.getDomibusStatus(filter);
+        MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(domibusMonitoringInfo);
+        Assert.assertNotNull(monitoringInfo);
     }
 
     @Test
     public void getDomibusStatusQuartzTriggerTest() throws Exception {
         final String QUARTZ_STATUS_FILTER = "quartzTrigger";
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         List<String> filter = new ArrayList<>();
         filter.add(QUARTZ_STATUS_FILTER);
         new Expectations() {{
@@ -94,21 +93,21 @@ public class DomibusMonitoringDefaultServiceTest {
             result = quartzInfo;
         }};
 
-        DomibusMonitoringInfo domibusMonitoringInfo = domibusMonitoringDefaultService.getDomibusStatus(filter);
+        MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(domibusMonitoringInfo);
+        Assert.assertNotNull(monitoringInfo);
     }
 
     @Test
     public void getDomibusStatusAllTest() throws Exception {
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         quartzInfo.setName(QUARTZ_STATUS_FILTER);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         List<String> filter = new ArrayList<>();
         filter.add(ALL_STATUS_FILTER);
         new Expectations() {{
@@ -120,9 +119,9 @@ public class DomibusMonitoringDefaultServiceTest {
             result = quartzInfo;
         }};
 
-        DomibusMonitoringInfo domibusMonitoringInfo = domibusMonitoringDefaultService.getDomibusStatus(filter);
+        MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(domibusMonitoringInfo);
+        Assert.assertNotNull(monitoringInfo);
     }
     @Test
     public void getDataBaseDetailsTest() {
@@ -152,11 +151,11 @@ public class DomibusMonitoringDefaultServiceTest {
     @Test
     public void getQuartzDetailsTest() throws Exception {
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         quartzInfo.setName("Quartz Trigger");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         new Expectations() {{
             domibusQuartzScheduler.getTriggerInfo();
             result = quartzInfo;

@@ -5,8 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
-import eu.domibus.api.monitoring.DomibusMonitoringInfo;
-import eu.domibus.api.monitoring.ServiceInfo;
+import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -16,6 +15,7 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.delegate.mapper.MonitoringMapper;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
+import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author migueti, Cosmin Baciu, idragusa
+ * @author migueti, Cosmin Baciu, idragusa, azhikso
  * @since 3.3
  */
 @Component
@@ -37,6 +37,7 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Autowired
     DomibusExtMapper domibusExtMapper;
+
     @Autowired
     MonitoringMapper monitoringMapper;
 
@@ -101,13 +102,13 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.domibusPropertyMetadataToDomibusPropertyMetadataDTO((DomibusPropertyMetadata) source);
         }
-        if (typeOfT == DomibusMonitoringInfo.class) {
+        if (typeOfT == MonitoringInfo.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
-            return (T) monitoringMapper.domibusMonitoringInfoDTOToDomibusMonitoringInfo((DomibusMonitoringInfoDTO) source);
+            return (T) monitoringMapper.monitoringInfoDTOToMonitoringInfo((MonitoringInfoDTO) source);
         }
-        if (typeOfT == DomibusMonitoringInfoDTO.class) {
+        if (typeOfT == MonitoringInfoDTO.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
-            return (T) monitoringMapper.domibusMonitoringInfoToDomibusMonitoringInfoDTO((DomibusMonitoringInfo) source);
+            return (T) monitoringMapper.monitoringInfoToMonitoringInfoDTO((MonitoringInfo) source);
         }
 
 

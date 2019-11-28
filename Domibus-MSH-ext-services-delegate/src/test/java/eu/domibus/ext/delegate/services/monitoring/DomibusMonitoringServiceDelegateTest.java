@@ -1,8 +1,12 @@
 package eu.domibus.ext.delegate.services.monitoring;
 
 import eu.domibus.api.monitoring.*;
+import eu.domibus.api.monitoring.domain.DataBaseInfo;
+import eu.domibus.api.monitoring.domain.JmsBrokerInfo;
+import eu.domibus.api.monitoring.domain.MonitoringInfo;
+import eu.domibus.api.monitoring.domain.MonitoringStatus;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.domain.DomibusMonitoringInfoDTO;
+import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import mockit.Expectations;
@@ -11,7 +15,6 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,22 +42,22 @@ public class DomibusMonitoringServiceDelegateTest {
         JmsBrokerInfo jmsBrokerInfo = new JmsBrokerInfo();
         jmsBrokerInfo.setName("JMS Broker");
         jmsBrokerInfo.setStatus(MonitoringStatus.NORMAL);
-        DomibusMonitoringInfo domibusMonitoringInfo = new DomibusMonitoringInfo();
+        MonitoringInfo monitoringInfo = new MonitoringInfo();
         List<String> filter = new ArrayList<>();
         filter.add("db");
 
         new Expectations() {{
-            domibusMonitoringService.getDomibusStatus(filter);
-            result = domibusMonitoringInfo;
+            domibusMonitoringService.getMonitoringDetails(filter);
+            result = monitoringInfo;
         }};
 
         // When
-        domibusMonitoringServiceDelegate.getDomibusStatus(filter);
+        domibusMonitoringServiceDelegate.getMonitoringDetails(filter);
 
         // Then
         new Verifications() {{
-            domibusMonitoringService.getDomibusStatus(filter);
-            domainConverter.convert(domibusMonitoringInfo, DomibusMonitoringInfoDTO.class);
+            domibusMonitoringService.getMonitoringDetails(filter);
+            domainConverter.convert(monitoringInfo, MonitoringInfoDTO.class);
         }};
 
     }
@@ -66,13 +69,13 @@ public class DomibusMonitoringServiceDelegateTest {
         List<String> filter = new ArrayList<>();
         filter.add("db");
         new Expectations() {{
-            domibusMonitoringService.getDomibusStatus(filter);
+            domibusMonitoringService.getMonitoringDetails(filter);
             result = domibusMonitoringExtException;
         }};
 
         // When
         try {
-            domibusMonitoringServiceDelegate.getDomibusStatus(filter);
+            domibusMonitoringServiceDelegate.getMonitoringDetails(filter);
         } catch (DomibusMonitoringExtException e) {
             // Then
             Assert.assertTrue(domibusMonitoringExtException == e);

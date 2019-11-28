@@ -1,8 +1,8 @@
 package eu.domibus.quartz;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.monitoring.QuartzInfo;
-import eu.domibus.api.monitoring.QuartzInfoDetails;
+import eu.domibus.api.monitoring.domain.QuartzInfo;
+import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import mockit.*;
@@ -128,11 +128,11 @@ public class DomibusQuartzStarterTest {
     public void getTriggerInfoMultiTenantAwareTest() throws Exception {
         generalSchedulers.add(scheduler);
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result=true;
@@ -154,11 +154,11 @@ public class DomibusQuartzStarterTest {
 
         generalSchedulers.add(scheduler);
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result=false;
@@ -179,11 +179,11 @@ public class DomibusQuartzStarterTest {
     public void getGeneralSchedulersInfoTest() throws Exception {
         generalSchedulers.add(scheduler);
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         new Expectations() {{
 
             scheduler.getJobGroupNames();
@@ -200,11 +200,11 @@ public class DomibusQuartzStarterTest {
     public void getSchedulersInfoTest() throws Exception {
         schedulers.put(new Domain(), scheduler);
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
         new Expectations() {{
 
             scheduler.getJobGroupNames();
@@ -227,11 +227,11 @@ public class DomibusQuartzStarterTest {
         final List<Trigger> list = new ArrayList<>();
         list.add(trigger);
         QuartzInfo quartzInfo = new QuartzInfo();
-        List<QuartzInfoDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfoDetails triggerInfo = new QuartzInfoDetails();
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
         triggerInfo.setJobName("Retry Worker");
         triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzInfoDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
 
         new Expectations() {{
 

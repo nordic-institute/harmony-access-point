@@ -1,13 +1,14 @@
 package eu.domibus.ext.delegate.mapper;
 
-import eu.domibus.api.monitoring.*;
-import eu.domibus.ext.domain.*;
+import eu.domibus.api.monitoring.domain.*;
+import eu.domibus.ext.domain.monitoring.*;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
+ * Mapper to generate Monitoring Service abstract class conversion methods
  * @author Soumya Chandran
  * @since 4.2
  */
@@ -16,10 +17,10 @@ import org.mapstruct.Mapping;
 public interface MonitoringMapper {
 
     @Mapping(target = "services", ignore = true)
-    DomibusMonitoringInfoDTO domibusMonitoringInfoToDomibusMonitoringInfoDTO(DomibusMonitoringInfo domibusMonitoringInfo);
+    MonitoringInfoDTO monitoringInfoToMonitoringInfoDTO(MonitoringInfo monitoringInfo);
 
     @Mapping(target = "services", ignore = true)
-    DomibusMonitoringInfo domibusMonitoringInfoDTOToDomibusMonitoringInfo(DomibusMonitoringInfoDTO domibusMonitoringInfoDTO);
+    MonitoringInfo monitoringInfoDTOToMonitoringInfo(MonitoringInfoDTO monitoringInfoDTO);
 
     DataBaseInfo dataBaseInfoDTOToDataBaseInfo(DataBaseInfoDTO dataBaseInfoDTO);
 
@@ -29,13 +30,13 @@ public interface MonitoringMapper {
 
     JmsBrokerInfoDTO jmsBrokerInfoToJmsBrokerInfoDTO(JmsBrokerInfo jmsBrokerInfo);
 
-    @Mapping(source = "quartzTriggerDetails", target = "quartzInfoDetails")
+    @Mapping(source = "quartzTriggerInfos", target = "quartzTriggerDetails")
     QuartzInfo quartzInfoDTOToQuartzInfo(QuartzInfoDTO quartzInfoDTO);
 
     @InheritInverseConfiguration
     QuartzInfoDTO quartzInfoToQuartzInfoDTO(QuartzInfo quartzInfo);
 
-    QuartzInfoDetails quartzInfoDetailsDTOToQuartzInfoDetails(QuartzInfoDetailsDTO quartzInfoDetailsDTO);
+    QuartzTriggerDetails quartzTriggerDetailsDTOToQuartzTriggerDetails(QuartzTriggerDetailsDTO quartzTriggerDetailsDTO);
 
-    QuartzInfoDetailsDTO quartzInfoDetailsToQuartzInfoDetailsDTO(QuartzInfoDetails quartzInfoDetails);
+    QuartzTriggerDetailsDTO quartzTriggerDetailsToQuartzTriggerDetailsDTO(QuartzTriggerDetails quartzTriggerDetails);
 }

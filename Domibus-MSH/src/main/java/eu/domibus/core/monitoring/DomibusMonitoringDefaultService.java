@@ -1,10 +1,9 @@
 package eu.domibus.core.monitoring;
 
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.monitoring.*;
+import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.monitoring.DomibusMonitoringService;
-import eu.domibus.api.user.User;
 import eu.domibus.common.services.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
@@ -14,7 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
+ * Get Monitoring Details by checking the DB, JMS Broker and Quarter Trigger based on the filters
+ *
  * @author Soumya Chandran (azhikso)
  * @since 4.2
  */
@@ -36,10 +38,10 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
     DomainCoreConverter domainCoreConverter;
 
     @Override
-    public DomibusMonitoringInfo getDomibusStatus(List<String> filters) {
-        DomibusMonitoringInfo domibusMonitoringInfo = new DomibusMonitoringInfo();
+    public MonitoringInfo getMonitoringDetails(List<String> filters) {
+        MonitoringInfo monitoringInfo = new MonitoringInfo();
         List<ServiceInfo> services = new ArrayList<>();
-        domibusMonitoringInfo.setServices(services);
+        monitoringInfo.setServices(services);
         for (String filter : filters) {
             if (filter.equals(DB_STATUS_FILTER)) {
                 DataBaseInfo dataBaseInfo = getDataBaseDetails();
@@ -62,16 +64,16 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
                 services.add(quartzInfo);
             }
         }
-        return domibusMonitoringInfo;
+        return monitoringInfo;
     }
 
     protected DataBaseInfo getDataBaseDetails() {
         DataBaseInfo monitoringInfo = new DataBaseInfo();
         try {
-                userService.findUsers();
-                monitoringInfo.setName(dbAccess);
-                monitoringInfo.setStatus(MonitoringStatus.NORMAL);
-                LOG.debug("Domibus Database in  Normal Status");
+            userService.findUsers();
+            monitoringInfo.setName(dbAccess);
+            monitoringInfo.setStatus(MonitoringStatus.NORMAL);
+            LOG.debug("Domibus Database in  Normal Status");
 
         } catch (Exception ex) {
             LOG.error("Error trying to Access Database", ex);
