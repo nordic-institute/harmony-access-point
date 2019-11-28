@@ -1,5 +1,6 @@
 package eu.domibus.api.scheduler;
 
+import eu.domibus.api.monitoring.QuartzInfo;
 import eu.domibus.api.multitenancy.Domain;
 
 /**
@@ -26,4 +27,5 @@ public interface DomibusScheduler {
      */
     void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException;
 
+    QuartzInfo getTriggerInfo() throws Exception;
 }

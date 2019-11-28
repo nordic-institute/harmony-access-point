@@ -5,12 +5,15 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.monitoring.DomibusMonitoringInfo;
+import eu.domibus.api.monitoring.ServiceInfo;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
+import eu.domibus.ext.delegate.mapper.MonitoringMapper;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.logging.DomibusLogger;
@@ -34,6 +37,8 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Autowired
     DomibusExtMapper domibusExtMapper;
+    @Autowired
+    MonitoringMapper monitoringMapper;
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
@@ -96,6 +101,16 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.domibusPropertyMetadataToDomibusPropertyMetadataDTO((DomibusPropertyMetadata) source);
         }
+        if (typeOfT == DomibusMonitoringInfo.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) monitoringMapper.domibusMonitoringInfoDTOToDomibusMonitoringInfo((DomibusMonitoringInfoDTO) source);
+        }
+        if (typeOfT == DomibusMonitoringInfoDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) monitoringMapper.domibusMonitoringInfoToDomibusMonitoringInfoDTO((DomibusMonitoringInfo) source);
+        }
+
+
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
         throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
