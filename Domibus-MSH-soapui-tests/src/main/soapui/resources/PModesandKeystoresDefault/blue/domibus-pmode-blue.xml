@@ -14,8 +14,8 @@
 		<mpc name="defaultMpcFive" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCFive" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="600"/>
 		<mpc name="defaultMpcSeven" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
 		<mpc name="defaultMpcEight" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcEight" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
-
-  	</mpcs>
+		<mpc name="defaultMpcRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcRetention" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="10"/>
+	</mpcs>
 	<businessProcesses>
 		<roles>
 			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
@@ -139,7 +139,8 @@
 			<service name="testService26" value="bdx:noprocess" type="tc26"/>
 			<service name="connectivityservice" value="http://ec.europa.eu/e-delivery/services/connectivity-service" type="edelivery"/>			
 			<service name="InboxBundleTransmissionService" value="InboxBundleTransmissionService" type="eDeliverySecond"/>
-			<service name="testService27" value="bdx:noprocess" type="tc27"/>			
+			<service name="testService27" value="bdx:noprocess" type="tc27"/>	
+			<service name="testService28" value="bdx:noprocess" type="tc28"/>
 			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
 		</services>
 		<actions>
@@ -172,6 +173,7 @@
 			<action name="submitMessage" value="submitMessage"/>			
             <action name="ackInboxBundleNotification" value="AckInboxBundleNotification"/>			
 			<action name="tc27Action" value="TC27Leg1"/>
+			<action name="tc28Action" value="TC28Leg1"/>
 			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
@@ -211,6 +213,7 @@
 			<legConfiguration name="backendToNodeAckBundleTxResponse" service="InboxBundleTransmissionService" action="ackInboxBundleNotification" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet"               errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>	
 			<legConfiguration name="pushTestcase27tc27Action" service="testService27" action="tc27Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadOptionalAttachment" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="testServiceCase" service="testService" action="testAction" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase28tc28Action" service="testService28" action="tc28Action" defaultMpc="defaultMpcRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			</legConfigurations>
 
 			
@@ -602,6 +605,17 @@
 			</responderParties>
 			<legs>
 				<leg name="testServiceCase"/>
+			</legs>
+		</process>
+		<process name="tc28Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase28tc28Action"/>
 			</legs>
 		</process>
 	</businessProcesses>
