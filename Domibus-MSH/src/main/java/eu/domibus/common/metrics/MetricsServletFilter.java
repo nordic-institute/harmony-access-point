@@ -6,13 +6,12 @@ import javax.annotation.PostConstruct;
 import javax.servlet.*;
 import java.io.IOException;
 
-import static eu.domibus.common.metrics.MetricNames.INCOMING_USER_MESSAGE;
 import static eu.domibus.common.metrics.MetricNames.SERVLET_INCOMING_USER_MESSAGE;
 
-//@Component
+@Component
 public class MetricsServletFilter implements Filter {
 
-    //@PostConstruct
+    @PostConstruct
     public void init(){
         System.out.println("MetricsServletFilter");
     }
@@ -23,8 +22,8 @@ public class MetricsServletFilter implements Filter {
     }
 
     @Override
-    //@Timer(value = SERVLET_INCOMING_USER_MESSAGE)
-    //@Counter(SERVLET_INCOMING_USER_MESSAGE)
+    @Timer(value = SERVLET_INCOMING_USER_MESSAGE)
+    @Counter(SERVLET_INCOMING_USER_MESSAGE)
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         filterChain.doFilter(servletRequest,servletResponse);
     }

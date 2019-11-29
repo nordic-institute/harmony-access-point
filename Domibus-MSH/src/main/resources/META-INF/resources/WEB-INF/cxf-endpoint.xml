@@ -110,7 +110,6 @@
 
         <jaxws:features>
             <ref bean="loggingFeature"/>
-            <bean class="org.apache.cxf.metrics.MetricsFeature"/>
         </jaxws:features>
     </jaxws:endpoint>
 

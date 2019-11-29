@@ -28,7 +28,6 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -143,11 +142,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
-        com.codahale.metrics.Timer.Context handle_incoming_message = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "handle_incoming_message")).time();
+        com.codahale.metrics.Timer.Context handle_incoming_message = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "handle_incoming_message")).time();
         handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
         handle_incoming_message.stop();
 
-        com.codahale.metrics.Timer.Context generate_receipt = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "generate_receipt")).time();
+        com.codahale.metrics.Timer.Context generate_receipt = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "generate_receipt")).time();
         SOAPMessage soapMessage = as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
         generate_receipt.stop();
         return soapMessage;
