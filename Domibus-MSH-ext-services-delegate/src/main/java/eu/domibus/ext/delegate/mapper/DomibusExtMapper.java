@@ -44,5 +44,4 @@ public interface DomibusExtMapper {
     DomibusPropertyMetadataDTO domibusPropertyMetadataToDomibusPropertyMetadataDTO(DomibusPropertyMetadata domibusPropertyMetadata);
 
     DomibusPropertyMetadata domibusPropertyMetadataDTOToDomibusPropertyMetadata(DomibusPropertyMetadataDTO domibusPropertyMetadata);
-
 }

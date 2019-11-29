@@ -2,6 +2,12 @@ package eu.domibus.ext.domain.monitoring;
 
 import java.io.Serializable;
 
+/**
+ * Enum that stores Monitoring Status
+ *
+ * @author Soumya Chandran (azhikso)
+ * @since 4.2
+ */
 public enum MonitoringStatus implements Serializable {
 
     /**

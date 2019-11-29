@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 /**
- * DTO abstract class that Monitoring Service Info
+ * DTO abstract class that stores Monitoring Service Info
  *
  * @author Soumya Chandran (azhikso)
  * @since 4.2
