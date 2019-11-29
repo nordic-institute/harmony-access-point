@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Specifies a decorator to be applied to a generated mapper, which can be used to amend mappings performed by generated mapping methods.
+ * Monitoring Mapper Decorator is for the abstract class and override the methods of the monitoring mapper which it decorates.
  *
  * @author Soumya Chandran
  * @since 4.2
