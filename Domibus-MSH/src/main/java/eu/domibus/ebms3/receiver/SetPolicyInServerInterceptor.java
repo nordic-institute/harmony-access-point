@@ -3,8 +3,6 @@ package eu.domibus.ebms3.receiver;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
-import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
@@ -25,9 +23,6 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
-import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
-import static eu.domibus.common.metrics.MetricNames.SERVER_POLICY_IN;
-
 /**
  * @author Thomas Dussart
  * @author Cosmin Baciu
@@ -37,8 +32,6 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
-    @Timer(SERVER_POLICY_IN)
-    @Counter(SERVER_POLICY_IN)
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
         final String httpMethod = (String) message.get("org.apache.cxf.request.method");

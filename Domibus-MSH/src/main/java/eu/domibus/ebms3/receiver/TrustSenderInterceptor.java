@@ -7,8 +7,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
-import eu.domibus.common.metrics.Timer;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -63,8 +61,6 @@ import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
-import static eu.domibus.common.metrics.MetricNames.SERVER_POLICY_IN;
-import static eu.domibus.common.metrics.MetricNames.TRUST_SENDER;
 
 /**
  * This interceptor is responsible of the trust of an incoming messages.
@@ -112,8 +108,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      */
     @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
-    @Timer(TRUST_SENDER)
-    @Counter(TRUST_SENDER)
     public void handleMessage(final SoapMessage message) throws Fault {
         if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.warn("No trust verification of sending certificate");
