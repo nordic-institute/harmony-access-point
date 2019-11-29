@@ -13,6 +13,7 @@ public class RestServicePaths {
 	public static final String LOGIN = "/rest/security/authentication";
 	public static final String USERNAME = "/rest/security/username";
 	public static final String PMODE = "/rest/pmode";
+	public static final String TRUSTSTORE = "/rest/truststore/save";
 	public static final String PMODE_LIST = "/rest/pmode/list";
 	public static final String USERS = "/rest/user/users";
 	public static final String PLUGIN_USERS = "/rest/plugin/users";
@@ -23,6 +24,7 @@ public class RestServicePaths {
 
 	public static final String MESSAGE_LOG_CSV = "/rest/messagelog/csv";
 	public static final String MESSAGE_LOG_MESSAGE = "/rest/message/download";
+	public static final String MESSAGE_LOG_MESSAGES = "rest/messagelog";
 	public static final String MESSAGE_FILTERS_CSV = "/rest/messagefilters/csv";
 	public static final String ERROR_LOG_CSV = "/rest/errorlogs/csv";
 	public static final String PMODE_CURRENT_DOWNLOAD = "/rest/pmode/";
@@ -34,7 +36,8 @@ public class RestServicePaths {
 	public static final String PLUGIN_USERS_CSV = "/rest/plugin/csv";
 	public static final String AUDIT_CSV = "/rest/audit/csv";
 	public static final String ALERTS_CSV = "/rest/alerts/csv";
-
+	public static final String UI_REPLICATION_SYNC= "/rest/uireplication/sync";
+	public static final String DOMIBUS_PROPERTIES="rest/configuration/properties";
 
 
 }

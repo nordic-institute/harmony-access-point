@@ -1,8 +1,7 @@
 package pages.jms;
 
-import ddsl.dcomponents.DatePicker;
+import ddsl.dobjects.DatePicker;
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
@@ -10,13 +9,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
-
-import java.util.List;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSFilters extends DomibusPage {
@@ -42,6 +38,10 @@ public class JMSFilters extends DomibusPage {
 	@FindBy(css = "#jmsSearchButton")
 	WebElement jmsSearchButton;
 
+	public void clickSearch() throws Exception {
+		log.info("clicking search");
+		weToDButton(jmsSearchButton).click();
+	}
 
 	public JMSSelect getJmsQueueSelect() {
 		return new JMSSelect(driver ,jmsQueueSelect);

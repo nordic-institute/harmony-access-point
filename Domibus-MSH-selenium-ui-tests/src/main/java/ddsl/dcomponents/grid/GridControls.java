@@ -12,12 +12,13 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class GridControls extends DComponent {
@@ -35,7 +36,7 @@ public class GridControls extends DComponent {
 	@FindBy(css = "#none_id")
 	WebElement noneLnk;
 
-	@FindBy(css = "#routerHolder app-column-picker div > div:not([class])")
+	@FindBy(css = "#routerHolder app-column-picker .column-checkbox")
 	List<WebElement> chkContainer;
 
 	public DLink getShowHideCtrlLnk() {
@@ -61,7 +62,7 @@ public class GridControls extends DComponent {
 		return null;
 	}
 
-	public void checkBoxWithLabel(String name) throws Exception{
+	public void  checkBoxWithLabel(String name) throws Exception{
 		boolean found = false;
 		for (WebElement chk : chkContainer) {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
@@ -103,6 +104,16 @@ public class GridControls extends DComponent {
 
 		return statuses;
 	}
+	public List<String> getAllCheckboxLabels() throws Exception{
+		showCtrls();
+		List<String> labels = new ArrayList<>();
+
+		for (WebElement chk : chkContainer) {
+			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
+			labels.add(labelFor.getText());
+		}
+		return labels;
+	}
 
 	public void showCtrls() throws Exception{
 		DLink link = getShowHideCtrlLnk();
@@ -121,14 +132,19 @@ public class GridControls extends DComponent {
 		}
 	}
 
-	public boolean areCheckboxesVisible() throws Exception{
+	public boolean areCheckboxesVisible(){
 		try {
-			return getAllLnk().isPresent();
+			return getAllLnk().isVisible();
 		}catch (Exception e){
 			return false;
 		}
 	}
 
+	public void showAllColumns() throws Exception {
+		showCtrls();
+		weToDLink(allLnk).click();
+		hideCtrls();
+	}
 
 
 
