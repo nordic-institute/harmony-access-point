@@ -43,25 +43,27 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
         List<ServiceInfo> services = new ArrayList<>();
         monitoringInfo.setServices(services);
         for (String filter : filters) {
-            if (filter.equals(DB_STATUS_FILTER)) {
-                DataBaseInfo dataBaseInfo = getDataBaseDetails();
-                services.add(dataBaseInfo);
-            }
-            if (filter.equals(JMS_STATUS_FILTER)) {
-                JmsBrokerInfo jmsBrokerInfo = getJMSBrokerDetails();
-                services.add(jmsBrokerInfo);
-            }
-            if (filter.equals(QUARTZ_STATUS_FILTER)) {
-                QuartzInfo quartzInfo = getQuartzTriggerDetails();
-                services.add(quartzInfo);
-            }
-            if (filter.equals(ALL_STATUS_FILTER)) {
-                DataBaseInfo dataBaseInfo = getDataBaseDetails();
-                services.add(dataBaseInfo);
-                JmsBrokerInfo jmsBrokerInfo = getJMSBrokerDetails();
-                services.add(jmsBrokerInfo);
-                QuartzInfo quartzInfo = getQuartzTriggerDetails();
-                services.add(quartzInfo);
+            switch (filter) {
+                case DB_STATUS_FILTER:
+                    DataBaseInfo dataBaseInfo = getDataBaseDetails();
+                    services.add(dataBaseInfo);
+                    break;
+                case JMS_STATUS_FILTER:
+                    JmsBrokerInfo jmsBrokerInfo = getJMSBrokerDetails();
+                    services.add(jmsBrokerInfo);
+                    break;
+                case QUARTZ_STATUS_FILTER:
+                    QuartzInfo quartzInfo = getQuartzTriggerDetails();
+                    services.add(quartzInfo);
+                    break;
+                default:
+                    dataBaseInfo = getDataBaseDetails();
+                    services.add(dataBaseInfo);
+                    jmsBrokerInfo = getJMSBrokerDetails();
+                    services.add(jmsBrokerInfo);
+                    quartzInfo = getQuartzTriggerDetails();
+                    services.add(quartzInfo);
+                    break;
             }
         }
         return monitoringInfo;

@@ -17,8 +17,6 @@ public interface DomibusMonitoringService {
 
     String QUARTZ_STATUS_FILTER = "quartzTrigger";
 
-    String ALL_STATUS_FILTER = "all";
-
     String dbAccess = "Database";
 
     String jmsAccess = "JMSBroker";
