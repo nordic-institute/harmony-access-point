@@ -17,6 +17,7 @@ import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -66,7 +67,7 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   constructor(private http: HttpClient,
               private userService: UserService,
-              public dialog: MatDialog,
+              public dialog: MatDialog, private dialogsService: DialogsService,
               private userValidatorService: UserValidatorService,
               private alertService: AlertService,
               private securityService: SecurityService,
@@ -371,7 +372,8 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   cancel() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
+    // this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
+    this.dialogsService.openCancelDialog().then(yes => {
       if (yes) {
         this.disableSelectionAndButtons();
         this.users = [];

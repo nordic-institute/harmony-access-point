@@ -56,6 +56,7 @@ import {MessagelogDetailsComponent} from './messagelog/messagelog-details/messag
 import {ErrorlogDetailsComponent} from './errorlog/errorlog-details/errorlog-details.component';
 import {EditMessageFilterComponent} from './messagefilter/editmessagefilter-form/editmessagefilter-form.component';
 import {CancelDialogComponent} from './common/cancel-dialog/cancel-dialog.component';
+import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
 import {DirtyGuard} from './common/guards/dirty.guard';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {SaveDialogComponent} from './common/save-dialog/save-dialog.component';
@@ -93,6 +94,7 @@ import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.c
 import {PropertiesComponent} from './properties/properties.component';
 import {HttpClientModule} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import {DialogsService} from './common/dialogs/dialogs.service';
 
 @NgModule({
   declarations: [
@@ -112,6 +114,7 @@ import { CommonModule } from '@angular/common';
     SaveDialogComponent,
     MessagelogDialogComponent,
     CancelDialogComponent,
+    YesNoDialogComponent,
     JmsComponent,
     RowLimiterComponent,
     MoveDialogComponent,
@@ -158,6 +161,7 @@ import { CommonModule } from '@angular/common';
     MessageDialogComponent,
     MessagelogDetailsComponent,
     CancelDialogComponent,
+    YesNoDialogComponent,
     SaveDialogComponent,
     DefaultPasswordDialogComponent,
     EditMessageFilterComponent,
@@ -220,6 +224,7 @@ import { CommonModule } from '@angular/common';
     },
     UserService,
     UserValidatorService,
+    DialogsService
   ],
   bootstrap: [AppComponent]
 })
