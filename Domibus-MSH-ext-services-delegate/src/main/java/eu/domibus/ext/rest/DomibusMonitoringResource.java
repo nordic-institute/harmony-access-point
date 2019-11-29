@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Monitoring Domibus.
  * Checking status of DB, JMS Broker and Quartz Triggers)
- * Created by Soumya Chandran
+ * @author Soumya Chandran
  */
 @RestController
 @RequestMapping(value = "/ext/monitoring/application")

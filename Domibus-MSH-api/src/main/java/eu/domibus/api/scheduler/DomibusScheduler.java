@@ -4,7 +4,7 @@ import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.multitenancy.Domain;
 
 /**
- * @author Ion Perpegel
+ * @author Ion Perpegel , soumya chandran
  * @since 4.1.1
  *
  * Interface for access to the reschedule feature of the Quartz scheduler.
