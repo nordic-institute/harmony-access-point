@@ -8,7 +8,6 @@ import {AlertsResult} from './alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorStateMatcher, MatDialog, ShowOnDirtyErrorStateMatcher} from '@angular/material';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
@@ -379,9 +378,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   save(withDownloadCSV: boolean) {
-    const dialogRef = this.dialog.open(SaveDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+    this.dialogsService.openSaveDialog().then(save => {
+      if (save) {
         this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
           this.alertService.success('The operation \'update alerts\' completed successfully.', false);
           this.page(this.offset, this.rowLimiter.pageSize);

@@ -1,12 +1,21 @@
-﻿import {ChangeDetectorRef, Injectable, TemplateRef} from '@angular/core';
+﻿import {Injectable, TemplateRef} from '@angular/core';
 import {ComponentType} from '@angular/cdk/overlay';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 import {YesNoDialogComponent} from './yes-no-dialog/yes-no-dialog.component';
+
 
 @Injectable()
 export class DialogsService {
 
   constructor(public dialog: MatDialog) {
+  }
+
+  public openSaveDialog(): Promise<boolean> {
+    return this.openAndThen(YesNoDialogComponent, {
+      data: {
+        title: 'Do you want to save your changes?',
+      }
+    });
   }
 
   public openCancelDialog(): Promise<boolean> {

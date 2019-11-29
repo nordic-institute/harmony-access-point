@@ -8,7 +8,6 @@ import {BackendFilterEntry} from './backendfilterentry';
 import {RoutingCriteriaEntry} from './routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {DownloadService} from '../common/download.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 
@@ -265,8 +264,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   saveDialog(withDownloadCSV: boolean) {
-    this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
+    this.dialogsService.openSaveDialog().then(save => {
+      if (save) {
         this.disableSelectionAndButtons();
         this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).subscribe(res => {
           this.alertService.success('The operation \'update message filters\' completed successfully.', false);

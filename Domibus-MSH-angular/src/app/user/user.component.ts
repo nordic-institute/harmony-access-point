@@ -8,7 +8,6 @@ import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component'
 import {isNullOrUndefined} from 'util';
 import {HttpClient} from '@angular/common/http';
 import {DirtyOperations} from '../common/dirty-operations';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {SecurityService} from '../security/security.service';
@@ -386,8 +385,8 @@ export class UserComponent implements OnInit, DirtyOperations {
       const isValid = this.userValidatorService.validateUsers(this.users);
       if (!isValid) return;
 
-      const proceed = await this.dialog.open(SaveDialogComponent).afterClosed().toPromise();
-      if (proceed) {
+      const save = await this.dialogsService.openSaveDialog();
+      if (save) {
         this.disableSelectionAndButtons();
         const modifiedUsers = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]);
         this.isBusy = true;

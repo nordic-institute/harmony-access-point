@@ -8,7 +8,6 @@ import {isNullOrUndefined} from 'util';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
 import {ActionDirtyDialogComponent} from 'app/pmode/action-dirty-dialog/action-dirty-dialog.component';
-import {SaveDialogComponent} from 'app/common/save-dialog/save-dialog.component';
 import {DirtyOperations} from 'app/common/dirty-operations';
 import {Observable} from 'rxjs/Observable';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
@@ -262,8 +261,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * Method used when button save is clicked
    */
   saveButton(withDownloadCSV: boolean) {
-    this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
+    this.dialogsService.openSaveDialog().then(save => {
+      if (save) {
         const queryParams = {ids: this.deleteList};
         this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams})
           .subscribe(() => {

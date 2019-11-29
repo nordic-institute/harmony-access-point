@@ -12,7 +12,6 @@ import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/edit
 import {UserService} from '../user/user.service';
 import {UserState} from '../user/user';
 import {DownloadService} from '../common/download.service';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -218,8 +217,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
   async save() {
     try {
-      const proceed = await this.dialog.open(SaveDialogComponent).afterClosed().toPromise();
-      if (proceed) {
+      const save = await this.dialogsService.openSaveDialog();
+      if (save) {
         await this.pluginUserService.saveUsers(this.users);
         this.alertService.success('The operation \'update plugin users\' completed successfully.');
         super.resetFilters();

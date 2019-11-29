@@ -58,7 +58,6 @@ import {EditMessageFilterComponent} from './messagefilter/editmessagefilter-form
 import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
 import {DirtyGuard} from './common/guards/dirty.guard';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
-import {SaveDialogComponent} from './common/save-dialog/save-dialog.component';
 import {TruststoreDialogComponent} from './truststore/truststore-dialog/truststore-dialog.component';
 import {TrustStoreUploadComponent} from './truststore/truststore-upload/truststore-upload.component';
 import {ColumnPickerComponent} from './common/column-picker/column-picker.component';
@@ -110,7 +109,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     TruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
-    SaveDialogComponent,
     MessagelogDialogComponent,
     YesNoDialogComponent,
     JmsComponent,
@@ -159,7 +157,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     MessageDialogComponent,
     MessagelogDetailsComponent,
     YesNoDialogComponent,
-    SaveDialogComponent,
     DefaultPasswordDialogComponent,
     EditMessageFilterComponent,
     ErrorlogDetailsComponent,
