@@ -17,6 +17,7 @@ import org.mapstruct.Mapper;
  */
 @Mapper(uses = MonitoringMapper.class, componentModel = "spring")
 public interface DomibusExtMapper {
+
     DomainDTO domainToDomainDTO(Domain domain);
 
     Domain domainDTOToDomain(DomainDTO domain);
