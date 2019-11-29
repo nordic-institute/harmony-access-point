@@ -131,10 +131,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         QuartzInfo quartzInfo = new QuartzInfo();
         if (domibusConfigurationService.isMultiTenantAware()) {
             getGeneralSchedulersInfo(generalSchedulers, triggerInfoList);
-            getSchedulersInfo(schedulers, triggerInfoList);
-        } else {
-            getSchedulersInfo(schedulers, triggerInfoList);
         }
+        getSchedulersInfo(schedulers, triggerInfoList);
         MonitoringStatus state = (triggerInfoList.size() > 0) ? MonitoringStatus.ERROR : MonitoringStatus.NORMAL;
         quartzInfo.setStatus(state);
         quartzInfo.setName("Quartz Trigger");
@@ -142,6 +140,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         LOG.debug(" Quartz Scheduler trigger Info [{}]", quartzInfo);
         return quartzInfo;
     }
+
     /**
      * Get General Schedulers Info and trigger details
      *
@@ -154,6 +153,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             }
         }
     }
+
     /**
      * Get Quartz Schedulers Info for all the domains, for both single and  multi tenant scenario
      *
@@ -164,12 +164,13 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             final Domain domain = domainSchedulerEntry.getKey();
             String domainName = domain.getName();
             Scheduler quartzScheduler = domainSchedulerEntry.getValue();
-            LOG.debug("Quartz Scheduler  [{}] for domain [{}]",quartzScheduler,  domain);
+            LOG.debug("Quartz Scheduler  [{}] for domain [{}]", quartzScheduler, domain);
             for (String groupName : quartzScheduler.getJobGroupNames()) {
                 getTriggerDetails(quartzScheduler, triggerInfoList, groupName, domainName);
             }
         }
     }
+
     /**
      * Get Quartz Trigger Details with Job Name and Trigger State, for both single and  multi tenant scenario
      *
