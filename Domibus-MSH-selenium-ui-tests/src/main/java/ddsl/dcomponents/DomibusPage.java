@@ -1,13 +1,12 @@
 package ddsl.dcomponents;
 
-import ddsl.dobjects.DObject;
+import ddsl.dobjects.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -29,6 +28,9 @@ public class DomibusPage extends DComponent {
 
 	@FindBy(css = ".helpMenu")
 	protected WebElement helpLnk;
+
+	@FindBy(tagName = "mat-dialog-container")
+	protected WebElement dialogContainer;
 
 
 	public AlertArea getAlertArea() {
@@ -70,7 +72,7 @@ public class DomibusPage extends DComponent {
 	}
 
 	public DomainSelector getDomainSelector() throws Exception {
-		By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > md-select");
+		By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > mat-select");
 		WebElement element = driver.findElement(domainSelectSelector);
 		return new DomainSelector(driver, element);
 	}
@@ -78,4 +80,17 @@ public class DomibusPage extends DComponent {
 	public void waitForTitle(){
 		wait.forElementToBe(pageTitle);
 	}
+
+	public boolean hasOpenDialog(){
+		log.info("checking for any opened dialogs");
+		try{
+			wait.forElementToBeVisible(dialogContainer);
+			if(weToDobject(dialogContainer).isVisible()){
+				return true;
+			}
+		}
+		catch (Exception e){}
+		return false;
+	}
+
 }

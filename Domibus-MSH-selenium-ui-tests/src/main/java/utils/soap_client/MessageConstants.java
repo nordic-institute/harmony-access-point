@@ -2,7 +2,7 @@ package utils.soap_client;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessageConstants {
