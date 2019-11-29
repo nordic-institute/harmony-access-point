@@ -71,6 +71,9 @@
 
     <!--MSH Webservice endpoint-->
     <jaxws:endpoint id="msh" address="/msh">
+        <jaxws:executor>
+            <ref bean="taskExecutor"/>
+        </jaxws:executor>
         <jaxws:implementor>
             <bean parent="mshWebservice"/>
         </jaxws:implementor>
