@@ -10,6 +10,14 @@ export class DialogsService {
   constructor(public dialog: MatDialog) {
   }
 
+  public openRestoreDialog(): Promise<boolean> {
+    return this.openAndThen(YesNoDialogComponent, {
+      data: {
+        title: 'Do you want to restore for the selected version? Changes will be applied immediately.',
+      }
+    });
+  }
+
   public openSaveDialog(): Promise<boolean> {
     return this.openAndThen(YesNoDialogComponent, {
       data: {

@@ -13,7 +13,6 @@ import {Observable} from 'rxjs/Observable';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
 import {DownloadService} from 'app/common/download.service';
 import {AlertComponent} from 'app/common/alert/alert.component';
-import {RestoreDialogComponent} from '../restore-dialog/restore-dialog.component';
 import {PmodeViewComponent} from './pmode-view/pmode-view.component';
 import {CurrentPModeComponent} from '../current/currentPMode.component';
 import {DomainService} from '../../security/domain.service';
@@ -386,8 +385,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    */
   restoreArchive(selectedRow) {
     if (!this.isDirty()) {
-      this.dialog.open(RestoreDialogComponent).afterClosed().subscribe(ok => {
-        if (ok) {
+      this.dialogsService.openRestoreDialog().then(restore => {
+        if (restore) {
           this.restore(selectedRow);
         }
       });

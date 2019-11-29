@@ -63,7 +63,6 @@ import {TrustStoreUploadComponent} from './truststore/truststore-upload/truststo
 import {ColumnPickerComponent} from './common/column-picker/column-picker.component';
 import {PageHelperComponent} from './common/page-helper/page-helper.component';
 import {SharedModule} from './common/module/SharedModule';
-import {RestoreDialogComponent} from './pmode/restore-dialog/restore-dialog.component';
 import {ActionDirtyDialogComponent} from './pmode/action-dirty-dialog/action-dirty-dialog.component';
 import {AuditComponent} from './audit/audit.component';
 import {PartyComponent} from './party/party.component';
@@ -128,7 +127,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     ColumnPickerComponent,
     TrustStoreUploadComponent,
     PageHelperComponent,
-    RestoreDialogComponent,
     ActionDirtyDialogComponent,
     AuditComponent,
     PartyComponent,
@@ -163,7 +161,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     EditUserComponent,
     TruststoreDialogComponent,
     TrustStoreUploadComponent,
-    RestoreDialogComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
     EditbasicpluginuserFormComponent,
