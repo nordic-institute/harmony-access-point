@@ -1,12 +1,6 @@
 ﻿import {ChangeDetectorRef, Injectable, TemplateRef} from '@angular/core';
-import {NavigationEnd, NavigationStart, Router} from '@angular/router';
-import {Observable} from 'rxjs';
-import {Subject} from 'rxjs/Subject';
-import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {ComponentType} from '@angular/cdk/overlay';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
-import {AlertService} from '../alert/alert.service';
 import {YesNoDialogComponent} from './yes-no-dialog/yes-no-dialog.component';
 
 @Injectable()

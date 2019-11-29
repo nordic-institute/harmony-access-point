@@ -7,7 +7,6 @@ import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {ErrorStateMatcher, MatDialog, ShowOnDirtyErrorStateMatcher} from '@angular/material';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
@@ -18,6 +17,7 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
 import {AlertsEntry} from './alertsentry';
 import 'rxjs-compat/add/operator/filter';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -79,6 +79,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private dialogsService: DialogsService,
               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
 
@@ -369,9 +370,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   }
 
   cancel() {
-    this.dialog.open(CancelDialogComponent)
-      .afterClosed().subscribe(result => {
-      if (result) {
+    this.dialogsService.openCancelDialog().then(cancel => {
+      if (cancel) {
         this.isChanged = false;
         this.page(this.offset, this.rowLimiter.pageSize);
       }

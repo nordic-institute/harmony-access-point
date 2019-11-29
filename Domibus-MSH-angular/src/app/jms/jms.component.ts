@@ -5,7 +5,6 @@ import {MessagesRequestRO} from './ro/messages-request-ro';
 import {MatDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {DirtyOperations} from '../common/dirty-operations';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -15,6 +14,7 @@ import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-jms',
@@ -66,7 +66,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
-              private changeDetector: ChangeDetectorRef) {
+              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -290,8 +290,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   cancel() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
+    this.dialogsService.openCancelDialog().then(cancel => {
+      if (cancel) {
         super.resetFilters();
         this.doSearch();
       }

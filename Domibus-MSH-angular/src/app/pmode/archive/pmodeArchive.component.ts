@@ -7,7 +7,6 @@ import {MatDialog} from '@angular/material';
 import {isNullOrUndefined} from 'util';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
-import {CancelDialogComponent} from 'app/common/cancel-dialog/cancel-dialog.component';
 import {ActionDirtyDialogComponent} from 'app/pmode/action-dirty-dialog/action-dirty-dialog.component';
 import {SaveDialogComponent} from 'app/common/save-dialog/save-dialog.component';
 import {DirtyOperations} from 'app/common/dirty-operations';
@@ -20,6 +19,7 @@ import {PmodeViewComponent} from './pmode-view/pmode-view.component';
 import {CurrentPModeComponent} from '../current/currentPMode.component';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
+import {DialogsService} from '../../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -79,7 +79,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
    * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService,
               private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
   }
 
@@ -295,7 +295,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * Method used when Cancel button is clicked
    */
   cancelButton() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
+    this.dialogsService.openCancelDialog().then(result => {
       if (result) {
         this.deleteList = [];
         this.getAllPModeEntries();

@@ -11,12 +11,12 @@ import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicp
 import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
 import {UserService} from '../user/user.service';
 import {UserState} from '../user/user';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {DownloadService} from '../common/download.service';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -44,7 +44,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   userRoles: Array<String>;
 
   constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog,
-              private changeDetector: ChangeDetectorRef) {
+              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -239,7 +239,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   async cancel() {
-    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
+    const ok = await this.dialogsService.openCancelDialog();
     if (ok) {
       super.resetFilters();
       this.search();

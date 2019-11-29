@@ -6,7 +6,6 @@
  */
 import {Constructable} from '../base-list.component';
 import {OnInit} from '@angular/core';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
 
 let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit {
   public filter: any;
@@ -65,7 +64,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
       return Promise.resolve(true);
     }
 
-    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
+    const ok = await this.dialogsService.openCancelDialog();
     return Promise.resolve(ok);
   }
 

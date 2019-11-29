@@ -8,7 +8,6 @@ import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component'
 import {isNullOrUndefined} from 'util';
 import {HttpClient} from '@angular/common/http';
 import {DirtyOperations} from '../common/dirty-operations';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -67,7 +66,8 @@ export class UserComponent implements OnInit, DirtyOperations {
 
   constructor(private http: HttpClient,
               private userService: UserService,
-              public dialog: MatDialog, private dialogsService: DialogsService,
+              public dialog: MatDialog,
+              private dialogsService: DialogsService,
               private userValidatorService: UserValidatorService,
               private alertService: AlertService,
               private securityService: SecurityService,
@@ -372,7 +372,6 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   cancel() {
-    // this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
     this.dialogsService.openCancelDialog().then(yes => {
       if (yes) {
         this.disableSelectionAndButtons();
@@ -440,7 +439,7 @@ export class UserComponent implements OnInit, DirtyOperations {
       return Promise.resolve(true);
     }
 
-    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
+    const ok = await this.dialogsService.openCancelDialog();
     return Promise.resolve(ok);
   }
 
@@ -473,7 +472,6 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   onActivate(event) {
-    console.log('event  ', event.type)
     if ('dblclick' === event.type) {
       this.buttonEdit();
     }

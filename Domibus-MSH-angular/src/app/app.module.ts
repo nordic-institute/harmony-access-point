@@ -55,7 +55,6 @@ import {DefaultPasswordDialogComponent} from './security/default-password-dialog
 import {MessagelogDetailsComponent} from './messagelog/messagelog-details/messagelog-details.component';
 import {ErrorlogDetailsComponent} from './errorlog/errorlog-details/errorlog-details.component';
 import {EditMessageFilterComponent} from './messagefilter/editmessagefilter-form/editmessagefilter-form.component';
-import {CancelDialogComponent} from './common/cancel-dialog/cancel-dialog.component';
 import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
 import {DirtyGuard} from './common/guards/dirty.guard';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
@@ -113,7 +112,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     PmodeViewComponent,
     SaveDialogComponent,
     MessagelogDialogComponent,
-    CancelDialogComponent,
     YesNoDialogComponent,
     JmsComponent,
     RowLimiterComponent,
@@ -160,7 +158,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     MoveDialogComponent,
     MessageDialogComponent,
     MessagelogDetailsComponent,
-    CancelDialogComponent,
     YesNoDialogComponent,
     SaveDialogComponent,
     DefaultPasswordDialogComponent,

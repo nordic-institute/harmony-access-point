@@ -3,9 +3,9 @@ import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
 import {MatDialog} from '@angular/material';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
+import {DialogsService} from '../dialogs/dialogs.service';
 
 @Component({
   selector: 'domain-selector',
@@ -26,6 +26,7 @@ export class DomainSelectorComponent implements OnInit {
   constructor(private domainService: DomainService,
               private securityService: SecurityService,
               private dialog: MatDialog,
+              private dialogsService: DialogsService,
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {
@@ -63,7 +64,7 @@ export class DomainSelectorComponent implements OnInit {
   async changeDomain() {
     let canChangeDomain = Promise.resolve(true);
     if (this.supportsDirtyOperations() && this.currentComponent.isDirty()) {
-      canChangeDomain = this.dialog.open(CancelDialogComponent).afterClosed().toPromise<boolean>();
+      canChangeDomain = this.dialogsService.openCancelDialog();
     }
 
     try {

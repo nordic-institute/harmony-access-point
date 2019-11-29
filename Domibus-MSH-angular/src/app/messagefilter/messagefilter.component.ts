@@ -8,9 +8,9 @@ import {BackendFilterEntry} from './backendfilterentry';
 import {RoutingCriteriaEntry} from './routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {DownloadService} from '../common/download.service';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -41,7 +41,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   dirty: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
   }
 
   ngOnInit() {
@@ -256,9 +256,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   cancelDialog() {
-    let dialogRef = this.dialog.open(CancelDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+    this.dialogsService.openCancelDialog().then(cancel => {
+      if (cancel) {
         this.disableSelectionAndButtons();
         this.getBackendFiltersInfo();
       }
