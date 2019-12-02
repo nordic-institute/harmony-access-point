@@ -13,6 +13,8 @@ import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 /**
  * @author Thomas Dussart
@@ -26,7 +28,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   styleUrls: ['./party.component.css']
 })
 
-export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
+export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin) implements OnInit, DirtyOperations {
   rows: PartyResponseRo[];
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
@@ -47,8 +49,8 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   pModeExists: boolean;
   isBusy: boolean;
 
-  constructor(public dialog: MatDialog, public partyService: PartyService, public alertService: AlertService,
-              private http: HttpClient, private changeDetector: ChangeDetectorRef) {
+  constructor(public dialog: MatDialog, private dialogsService: DialogsService, public partyService: PartyService,
+              public alertService: AlertService, private http: HttpClient, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -56,12 +58,12 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     super.ngOnInit();
 
     this.isBusy = false;
-    this.rows = [];
+    // this.rows = [];
     this.allRows = [];
     this.selected = [];
 
     this.offset = 0;
-    this.count = 0;
+    // this.count = 0;
     this.loading = false;
 
     this.newParties = [];
@@ -114,9 +116,9 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
       this.allProcesses = processes.map(el => el.name);
 
-      this.rows = partiesRes.data;
+      super.rows = partiesRes.data;
       this.allRows = partiesRes.allData;
-      this.count = this.allRows.length;
+      super.count = this.allRows.length;
       this.selected.length = 0;
 
       this.loading = false;
@@ -167,17 +169,23 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     this.offset = event.offset;
   }
 
-  saveAsCSV() {
-    // TODO: await saveIfNeeded
+  // saveAsCSV() {
+  //   // TODO: await saveIfNeeded
+  //
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   super.resetFilters();
+  //
+  //   this.partyService.saveAsCsv(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
+  //     this.activeFilter.process, this.activeFilter.process_role);
+  // }
 
-    if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-
-    super.resetFilters();
-    this.partyService.saveAsCsv(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
-      this.activeFilter.process, this.activeFilter.process_role);
+  public get csvUrl(): string {
+    return PartyService.CSV_PARTIES
+      + this.partyService.getFilterPath(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process);
   }
 
   onActivate(event) {
@@ -206,34 +214,40 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     return !!this.pModeExists && this.selected.length === 1 && !this.isBusy;
   }
 
-  cancel() {
+  async cancel() {
     if (this.isBusy) return;
-
-    super.resetFilters();
-    this.listPartiesAndProcesses();
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      super.resetFilters();
+      this.listPartiesAndProcesses();
+    }
   }
 
-  save() {
+  async save(): Promise<boolean> {
     if (this.isBusy) return;
+    const save = await this.dialogsService.openSaveDialog();
+    if (save) {
+      try {
+        this.partyService.validateParties(this.rows)
+      } catch (err) {
+        this.alertService.exception('Party validation error:', err, false);
+        return false;
+      }
 
-    try {
-      this.partyService.validateParties(this.rows)
-    } catch (err) {
-      this.alertService.exception('Party validation error:', err, false);
-      return;
-    }
-
-    this.isBusy = true;
-    this.partyService.updateParties(this.rows)
-      .then(() => {
+      this.isBusy = true;
+      return await this.partyService.updateParties(this.rows).then(() => {
         this.resetDirty();
         this.isBusy = false;
         this.alertService.success('Parties saved successfully.', false);
-      })
-      .catch(err => {
+        return true;
+      }).catch(err => {
         this.isBusy = false;
         this.alertService.exception('Party update error:', err, false);
-      })
+        return false;
+      });
+    } else {
+      return false;
+    }
   }
 
   async add() {
@@ -252,7 +266,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     if (!ok) {
       this.remove();
     }
-    this.rows = [...this.rows];
+    super.rows = [...this.rows];
   }
 
   remove() {
@@ -261,14 +275,14 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     const deletedParty = this.selected[0];
     if (!deletedParty) return;
 
-    console.log('removing ' , deletedParty)
+    console.log('removing ', deletedParty)
 
     this.rows.splice(this.rows.indexOf(deletedParty), 1);
     this.allRows.splice(this.allRows.indexOf(deletedParty), 1);
-    this.rows = [...this.rows];
+    super.rows = [...this.rows];
 
     this.selected.length = 0;
-    this.count--;
+    super.count--;
 
     if (this.newParties.indexOf(deletedParty) < 0)
       this.deletedParties.push(deletedParty);
@@ -298,7 +312,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
       Object.assign(row, rowCopy);
       row.name = rowCopy.name;// TODO temp
-      this.rows = [...this.rows];
+      super.rows = [...this.rows];
 
       if (this.updatedParties.indexOf(row) < 0)
         this.updatedParties.push(row);

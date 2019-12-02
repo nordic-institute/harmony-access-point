@@ -81,9 +81,9 @@ export class PartyService {
     return result;
   }
 
-  saveAsCsv (name: string, endPoint: string, partyId: string, process: string, process_role: string) {
-    DownloadService.downloadNative(PartyService.CSV_PARTIES + this.getFilterPath(name, endPoint, partyId, process));
-  }
+  // saveAsCsv (name: string, endPoint: string, partyId: string, process: string, process_role: string) {
+  //   DownloadService.downloadNative(PartyService.CSV_PARTIES + this.getFilterPath(name, endPoint, partyId, process));
+  // }
 
   initParty () {
     const newParty = new PartyResponseRo();

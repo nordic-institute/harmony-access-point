@@ -46,8 +46,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   timestampToMaxDate: Date;
 
   loading: boolean;
-  rows: any[];
-  count: number;
+  // rows: any[];
+  // count: number;
   offset: number;
 
   mshRoles: Array<String>;
@@ -84,8 +84,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.timestampToMaxDate = new Date();
 
     this.loading = false;
-    this.rows = [];
-    this.count = 0;
+    super.rows = [];
+    super.count = 0;
     this.offset = 0;
     this['orderBy'] = 'received';
     this['asc'] = false;
@@ -295,8 +295,8 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.loading = true;
     super.resetFilters();
     this.getMessageLogEntries().then((result: MessageLogResult) => {
-      this.count = result.count;
-      this.rows = result.messageLogEntries;
+      super.count = result.count;
+      super.rows = result.messageLogEntries;
       this.selected = [];
 
       if (result.filter.receivedFrom) {
@@ -427,14 +427,18 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.downloadMessage(this.selected[0].messageId);
   }
 
-  saveAsCSV() {
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
+  // saveAsCSV() {
+  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   super.resetFilters();
+  //   DownloadService.downloadNative(MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString());
+  // }
 
-    super.resetFilters();
-    DownloadService.downloadNative(MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString());
+  public get csvUrl(): string {
+    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString();
   }
 
   details(selectedRow: any) {

@@ -2,6 +2,7 @@ import {AlertComponent} from './alert/alert.component';
 import {AlertService} from './alert/alert.service';
 import {IBaseList} from './ibase-list';
 import {DownloadService} from './download.service';
+import {OnInit} from '@angular/core';
 
 /**
  * Base class for list components;
@@ -17,7 +18,7 @@ export function ConstructableDecorator(constructor: Constructable) {
 }
 
 @ConstructableDecorator
-export default class BaseListComponent<T> implements IBaseList<T> {
+export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
 
   public rows: T[];
   public count: number;
@@ -51,6 +52,11 @@ export default class BaseListComponent<T> implements IBaseList<T> {
 
   private hasMethod(name: string) {
     return this[name] && this[name] instanceof Function;
+  }
+
+  ngOnInit(): void {
+    this.rows = [];
+    this.count = 0;
   }
 
 };

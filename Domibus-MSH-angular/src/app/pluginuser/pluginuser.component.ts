@@ -16,13 +16,14 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
   templateUrl: './pluginuser.component.html',
   styleUrls: ['./pluginuser.component.css'],
   providers: [PluginUserService, UserService]
 })
-export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin)
+export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
 
@@ -31,7 +32,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   offset: number;
-  users: PluginUserRO[];
+  // rows: PluginUserRO[];
 
   selected: PluginUserRO[];
   loading: boolean;
@@ -57,7 +58,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     this.selected = [];
     this.loading = false;
     this.userRoles = [];
-    this.users = [];
+    super.rows = [];
+    super.count = 0;
     this.dirty = false;
 
     this.getUserRoles();
@@ -75,7 +77,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   get displayedUsers(): PluginUserRO[] {
-    return this.users.filter(el => el.status !== UserState[UserState.REMOVED]);
+    return this.rows.filter(el => el.status !== UserState[UserState.REMOVED]);
   }
 
   private initColumns() {
@@ -122,7 +124,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     try {
       this.loading = true;
       const result = await this.pluginUserService.getUsers(this.activeFilter).toPromise();
-      this.users = result.entries;
+      super.rows = result.entries;
+      super.count = result.entries.length;
       this.loading = false;
 
       this.setColumnPicker();
@@ -164,7 +167,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   async add() {
     const newItem = this.pluginUserService.createNew();
     newItem.authenticationType = this.filter.authType;
-    this.users.push(newItem);
+    super.rows.push(newItem);
+    super.count++;
 
     this.selected.length = 0;
     this.selected.push(newItem);
@@ -173,7 +177,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
     const ok = await this.openItemInEditForm(newItem, false);
     if (!ok) {
-      this.users.pop();
+      super.rows.pop();
+      super.count--;
       this.selected = [];
       this.setIsDirty();
     }
@@ -216,23 +221,25 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   async save(): Promise<boolean> {
-    try {
-      const save = await this.dialogsService.openSaveDialog();
-      if (save) {
-        await this.pluginUserService.saveUsers(this.users);
+    const save = await this.dialogsService.openSaveDialog();
+    if (save) {
+      try {
+        await this.pluginUserService.saveUsers(this.rows);
         this.alertService.success('The operation \'update plugin users\' completed successfully.');
         super.resetFilters();
         this.search();
         return true;
+      } catch (err) {
+        this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
+        return false;
       }
-    } catch (err) {
-      this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
+    } else {
+      return false;
     }
-    return false;
   }
 
   setIsDirty() {
-    this.dirty = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
+    this.dirty = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
   canCancel() {
@@ -250,7 +257,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   delete() {
     const itemToDelete = this.selected[0];
     if (itemToDelete.status === UserState[UserState.NEW]) {
-      this.users.splice(this.users.indexOf(itemToDelete), 1);
+      this.rows.splice(this.rows.indexOf(itemToDelete), 1);
     } else {
       itemToDelete.status = UserState[UserState.REMOVED];
     }
@@ -258,29 +265,29 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     this.selected.length = 0;
   }
 
-  /**
-   * Saves the content of the datatable into a CSV file
-   */
-  async saveAsCSV() {
-    await this.saveIfNeeded();
+  // async saveAsCSV() {
+  //   await this.saveIfNeeded();
+  //
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   super.resetFilters();
+  //   DownloadService.downloadNative(PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString());
+  // }
 
-    if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-
-    super.resetFilters();
-    DownloadService.downloadNative(PluginUserService.CSV_URL + '?'
-      + this.pluginUserService.createFilterParams(this.filter).toString());
+  public get csvUrl(): string {
+    return PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString();
   }
 
-  async saveIfNeeded(): Promise<boolean> {
-    if (this.isDirty()) {
-      return this.save();
-    } else {
-      return Promise.resolve(false);
-    }
-  }
+  // async saveIfNeeded(): Promise<boolean> {
+  //   if (this.isDirty()) {
+  //     return this.save();
+  //   } else {
+  //     return Promise.resolve(false);
+  //   }
+  // }
 
   onPageChanged($event) {
     this.offset = $event.offset;
