@@ -209,21 +209,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
   changePageSize(newPageSize: number) {
     super.resetFilters();
+    this.offset = 0;
     this.rowLimiter.pageSize = newPageSize;
-    this.refresh();
-  }
-
-  refresh() {
-    // ugly but the grid does not feel the paging changes otherwise
-    this.loading = true;
-    const rows = this.rows;
-    this.rows = [];
-
-    setTimeout(() => {
-      this.rows = rows;
-      this.selectedMessages.length = 0;
-      this.loading = false;
-    }, 50);
   }
 
   onSelect({selected}) {

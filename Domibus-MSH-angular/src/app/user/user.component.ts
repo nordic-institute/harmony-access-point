@@ -16,6 +16,10 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -23,7 +27,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   styleUrls: ['./user.component.css']
 })
 
-export class UserComponent implements OnInit, DirtyOperations {
+export class UserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
@@ -72,6 +76,7 @@ export class UserComponent implements OnInit, DirtyOperations {
               private securityService: SecurityService,
               private domainService: DomainService,
               private changeDetector: ChangeDetectorRef) {
+    super();
   }
 
   async ngOnInit() {
@@ -370,84 +375,64 @@ export class UserComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
   }
 
-  cancel() {
-    this.dialogsService.openCancelDialog().then(yes => {
-      if (yes) {
-        this.disableSelectionAndButtons();
-        this.users = [];
-        this.getUsers();
-      }
-    });
+  async cancel() {
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      this.disableSelectionAndButtons();
+      this.users = [];
+      this.getUsers();
+    }
   }
 
-  async save(withDownloadCSV: boolean) {
+  async save(): Promise<boolean> {
     try {
       const isValid = this.userValidatorService.validateUsers(this.users);
-      if (!isValid) return;
+      if (!isValid) return false;
 
       const save = await this.dialogsService.openSaveDialog();
       if (save) {
         this.disableSelectionAndButtons();
         const modifiedUsers = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]);
         this.isBusy = true;
-        this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).subscribe(res => {
-          this.isBusy = false;
-          this.getUsers();
-          this.alertService.success('The operation \'update users\' completed successfully.', false);
-          if (withDownloadCSV) {
-            DownloadService.downloadNative(UserComponent.USER_CSV_URL);
-          }
-        }, err => {
-          this.isBusy = false;
-          this.getUsers();
-          this.alertService.exception('The operation \'update users\' not completed successfully.', err, false);
-        });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(UserComponent.USER_CSV_URL);
-        }
+        await this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise();
+        this.isBusy = false;
+        this.getUsers();
+        this.alertService.success('The operation \'update users\' completed successfully.', false);
+        return true;
       }
     } catch (err) {
       this.isBusy = false;
+      this.getUsers();
       this.alertService.exception('The operation \'update users\' completed with errors.', err);
     }
+    return false;
   }
 
   /**
    * Saves the content of the datatable into a CSV file
    */
-  saveAsCSV() {
-    if (this.isDirty()) {
-      this.save(true);
-    } else {
-      if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
-        this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-        return;
-      }
+  async saveAsCSV() {
+    await this.saveIfNeeded();
 
-      DownloadService.downloadNative(UserComponent.USER_CSV_URL);
+    if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
+      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+      return;
+    }
+
+    DownloadService.downloadNative(UserComponent.USER_CSV_URL);
+  }
+
+  async saveIfNeeded(): Promise<boolean> {
+    if (this.isDirty()) {
+      return this.save();
+    } else {
+      return Promise.resolve(false);
     }
   }
 
   isDirty(): boolean {
     return this.enableCancel;
   }
-
-  async checkIsDirty(): Promise<boolean> {
-    if (!this.isDirty()) {
-      return Promise.resolve(true);
-    }
-
-    const ok = await this.dialogsService.openCancelDialog();
-    return Promise.resolve(ok);
-  }
-
-  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
-  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
-    const isDirty = await this.checkIsDirty();
-    const canChangePage = !isDirty;
-    return canChangePage;
-  };
 
   changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;

@@ -128,22 +128,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     }
   }
 
-
-  refresh() {
-    // ugly but the grid does not feel the paging changes otherwise
-    this.loading = true;
-    const rows = this.rows;
-    this.rows = [];
-
-    setTimeout(() => {
-      this.rows = rows;
-      this.selected.length = 0;
-
-      this.loading = false;
-      this.resetDirty();
-    }, 50);
-  }
-
   initColumns() {
     this.columnPicker.allColumns = [
       {
@@ -176,7 +160,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     super.resetFilters();
     this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
-    this.refresh();
   }
 
   onPageChange(event: any) {

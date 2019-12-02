@@ -22,7 +22,8 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   styleUrls: ['./pluginuser.component.css'],
   providers: [PluginUserService, UserService]
 })
-export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
+export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin)
+  implements OnInit, DirtyOperations {
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
@@ -135,7 +136,6 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     super.resetFilters();
     this.offset = 0;
     this.rowLimiter.pageSize = newPageSize;
-    this.refresh();
   }
 
   inBasicMode(): boolean {
@@ -256,22 +256,6 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     }
     this.setIsDirty();
     this.selected.length = 0;
-  }
-
-  refresh() {
-    // ugly but the grid does not feel the paging changes otherwise
-    this.loading = true;
-    const rows = this.users;
-    this.users = [];
-
-    setTimeout(() => {
-      this.users = rows;
-
-      this.selected.length = 0;
-
-      this.loading = false;
-      this.setIsDirty();
-    }, 50);
   }
 
   /**

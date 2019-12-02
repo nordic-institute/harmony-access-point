@@ -105,11 +105,11 @@
         <tr>
           <td>
             <button mat-raised-button color="primary" type="button" [disabled]="!enableCancel"
-                    (click)="cancelDialog()" id="cancelbutton_id" button-click-behaviour>
+                    (click)="cancel()" id="cancelbutton_id" button-click-behaviour>
               <mat-icon>cancel</mat-icon>
               <span>Cancel</span>
             </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="saveDialog(false)"
+            <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="save()"
                     id="savebutton_id" button-click-behaviour>
               <mat-icon>save</mat-icon>
               <span>Save</span>
