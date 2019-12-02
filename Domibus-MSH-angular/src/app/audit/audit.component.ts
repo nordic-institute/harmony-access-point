@@ -203,15 +203,18 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     })
   }
 
-  saveAsCSV() {
-    if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-    super.resetFilters();
-    const auditCriteria: AuditCriteria = this.buildCriteria();
-    this.auditService.saveAsCsv(auditCriteria);
-  }
+  // saveAsCSV() {
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //   super.resetFilters();
+  //
+  //   // const auditCriteria = this.buildCriteria();
+  //   // this.auditService.saveAsCsv(auditCriteria);
+  //   const url = 'rest/audit/csv?' + this.buildCriteria().toURLSearchParams().toString();
+  //   DownloadService.downloadNative(url);
+  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
@@ -219,5 +222,9 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
 
   onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
+  }
+
+  public get csvUrl(): string {
+    return 'rest/audit/csv?' + this.buildCriteria().toURLSearchParams().toString();
   }
 }

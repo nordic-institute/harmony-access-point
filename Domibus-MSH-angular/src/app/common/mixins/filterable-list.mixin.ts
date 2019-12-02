@@ -2,8 +2,7 @@
  * @author Ion Perpegel
  * @since 4.1
  * A mixin for components that display a list of items that can be filtered
- * More common functionality will be added in time
- */
+  */
 import {Constructable} from '../base-list.component';
 import {OnInit} from '@angular/core';
 

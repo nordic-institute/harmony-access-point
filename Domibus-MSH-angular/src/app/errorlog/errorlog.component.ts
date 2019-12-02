@@ -271,17 +271,16 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     });
   }
 
-  saveAsCSV() {
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-    super.resetFilters();
-    DownloadService.downloadNative(ErrorLogComponent.ERROR_LOG_CSV_URL + this.createSearchParams().toString());
-  }
+  // saveAsCSV() {
+  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //   super.resetFilters();
+  //   DownloadService.downloadNative(ErrorLogComponent.ERROR_LOG_CSV_URL + this.createSearchParams().toString());
+  // }
 
-  onClick(event) {
-    console.log(event);
+  public get csvUrl(): string {
+    return ErrorLogComponent.ERROR_LOG_CSV_URL + this.createSearchParams().toString();
   }
-
 }

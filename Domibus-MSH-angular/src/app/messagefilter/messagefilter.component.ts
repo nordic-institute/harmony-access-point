@@ -246,42 +246,43 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
   }
 
-  saveAsCSV() {
-    if (this.isDirty()) {
-      this.saveDialog(true);
-    } else {
-      DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
-    }
+  // async saveAsCSV() {
+  //   await this.saveIfNeeded();
+  //
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
+  // }
+
+  public get csvUrl(): string {
+    return MessageFilterComponent.MESSAGE_FILTER_URL + '/csv';
   }
 
-  cancelDialog() {
-    this.dialogsService.openCancelDialog().then(cancel => {
+  async cancel() {
+    const cancel = await this.dialogsService.openCancelDialog();
       if (cancel) {
         this.disableSelectionAndButtons();
         this.getBackendFiltersInfo();
       }
-    });
   }
 
-  saveDialog(withDownloadCSV: boolean) {
-    this.dialogsService.openSaveDialog().then(save => {
+  async save(): Promise<boolean> {
+    const save = await this.dialogsService.openSaveDialog();
       if (save) {
         this.disableSelectionAndButtons();
-        this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).subscribe(res => {
+      return await this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
           this.alertService.success('The operation \'update message filters\' completed successfully.', false);
           this.getBackendFiltersInfo();
-          if (withDownloadCSV) {
-            DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
-          }
+        return true;
         }, err => {
           this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
+        return false;
         });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
         }
-      }
-    });
+    return false;
   }
 
   buttonDeleteAction(row) {

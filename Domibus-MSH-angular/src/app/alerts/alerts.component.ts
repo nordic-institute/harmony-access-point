@@ -338,61 +338,65 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   // datatable methods
 
   onPage(event) {
-    this.page(event.offset, event.pageSize);
+    this.offset = event.offset;
+
+    this.page();
   }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
   public reload() {
-    this.page(0, this.rowLimiter.pageSize);
+    this.offset = 0;
+    this.page();
   }
 
   changePageSize(newPageLimit: number) {
+    this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
-    this.page(0, newPageLimit);
+    this.page();
   }
 
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
       this.isChanged = false;
-      this.page(this.offset, this.rowLimiter.pageSize);
+      this.page();
     }
   }
 
-  async saveAsCSV() {
-    await this.saveIfNeeded();
+  // async saveAsCSV() {
+  //   await this.saveIfNeeded();
+  //
+  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   super.resetFilters();
+  //
+  //   // todo: add dynamic params for csv filtering, if requested
+  //   DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createSearchParams().toString());
+  // }
 
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-
-    super.resetFilters();
-    // todo: add dynamic params for csv filtering, if requested
-    DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createSearchParams().toString());
-  }
-
-  async saveIfNeeded(): Promise<boolean> {
-    if (this.isDirty()) {
-      return this.save();
-    } else {
-      return false;
-    }
-  }
+  // async saveIfNeeded(): Promise<boolean> {
+  //   if (this.isDirty()) {
+  //     return this.save();
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   async save(): Promise<boolean> {
     const save = await this.dialogsService.openSaveDialog();
     if (save) {
       return await this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => {
         this.alertService.success('The operation \'update alerts\' completed successfully.');
-        this.page(this.offset, this.rowLimiter.pageSize);
-        this.isChanged = false;
+        this.page();
         return true;
       }, err => {
         this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
-        this.page(this.offset, this.rowLimiter.pageSize);
+        this.page();
         return false;
       });
     } else {
@@ -408,5 +412,10 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   isDirty(): boolean {
     return this.isChanged;
+  }
+
+  public get csvUrl(): string {
+    // todo: add dynamic params for csv filtering, if requested
+    return AlertsComponent.ALERTS_CSV_URL + '?' + this.createSearchParams().toString();
   }
 }

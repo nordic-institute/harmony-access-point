@@ -471,19 +471,35 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     return result;
   }
 
-  saveAsCSV() {
-    // TODO: await saveIfNeeded ??
+  // saveAsCSV() {
+  //   // TODO: await saveIfNeeded ??
+  //
+  //   if (!this.activeFilter.source) {
+  //     this.alertService.error('Source should be set');
+  //     return;
+  //   }
+  //
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   super.resetFilters();
+  //
+  //   DownloadService.downloadNative('rest/jms/csv' + this.getFilterPath());
+  // }
 
+  public saveAsCSV() {
     if (!this.activeFilter.source) {
       this.alertService.error('Source should be set');
       return;
     }
-    if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
+
+    super.saveAsCSV();
     }
-    super.resetFilters();
-    DownloadService.downloadNative('rest/jms/csv' + this.getFilterPath());
+
+  public get csvUrl(): string {
+    return 'rest/jms/csv' + this.getFilterPath();
   }
 
   isDirty(): boolean {

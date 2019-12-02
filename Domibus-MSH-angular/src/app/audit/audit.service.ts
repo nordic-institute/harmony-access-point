@@ -35,9 +35,9 @@ export class AuditService {
     return Observable.from(['Created', 'Modified', 'Deleted', 'Downloaded', 'Resent', 'Moved']);
   }
 
-  saveAsCsv(auditCriteria: AuditCriteria) {
-    const url = 'rest/audit/csv?' + auditCriteria.toURLSearchParams().toString();
-    DownloadService.downloadNative(url);
-  }
+  // saveAsCsv(auditCriteria: AuditCriteria) {
+  //   const url = 'rest/audit/csv?' + auditCriteria.toURLSearchParams().toString();
+  //   DownloadService.downloadNative(url);
+  // }
 
 }
