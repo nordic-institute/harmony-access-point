@@ -103,9 +103,9 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
-      super.trySearch().then(ok => {
-        if (!ok) {
-          //revert the drop-down value to the old oen
+      super.trySearch().then(done => {
+        if (!done) {
+          //revert the drop-down value to the old one
           this._selectedSource = oldVal;
         }
       });
@@ -289,13 +289,12 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     );
   }
 
-  cancel() {
-    this.dialogsService.openCancelDialog().then(cancel => {
-      if (cancel) {
-        super.resetFilters();
-        this.doSearch();
-      }
-    });
+  async cancel() {
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      super.resetFilters();
+      this.doSearch();
+    }
   }
 
   save() {
@@ -486,6 +485,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   saveAsCSV() {
+    // TODO: await saveIfNeeded ??
+
     if (!this.activeFilter.source) {
       this.alertService.error('Source should be set');
       return;

@@ -50,27 +50,33 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
-  async trySearch(): Promise<boolean> {
-    const ok = await this.checkIfNotDirty();
-    if (ok) {
+  public async trySearch(): Promise<boolean> {
+    const canSearch = await this.canProceed();
+    if (canSearch) {
       this.setActiveFilter();
       this.search();
     }
-    return ok;
+    return canSearch;
   }
 
-  async checkIfNotDirty(): Promise<boolean> {
+  protected canProceed(): Promise<boolean> {
     if (!this.supportsDirtyOperations() || !this.isDirty()) {
       return Promise.resolve(true);
     }
 
-    const ok = await this.dialogsService.openCancelDialog();
-    return Promise.resolve(ok);
+    return this.dialogsService.openCancelDialog();
   }
 
   private supportsDirtyOperations() {
     return this.isDirty && this.isDirty instanceof Function;
   }
+
+
+  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
+  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
+    const canChangePage = await this.canProceed();
+    return !canChangePage;
+  };
 };
 
 export default FilterableListMixin;

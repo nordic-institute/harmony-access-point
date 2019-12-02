@@ -70,7 +70,10 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   getActivePMode() {
     if (this.current && this.current.id) {
       this.pModeContentsDirty = false;
-      this.http.get(CurrentPModeComponent.PMODE_URL + '/' + this.current.id + '?noAudit=true', {observe: 'response', responseType: 'text'}).subscribe(res => {
+      this.http.get(CurrentPModeComponent.PMODE_URL + '/' + this.current.id + '?noAudit=true', {
+        observe: 'response',
+        responseType: 'text'
+      }).subscribe(res => {
         const HTTP_OK = 200;
         if (res.status === HTTP_OK) {
           this.pModeExists = true;
@@ -133,12 +136,11 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Method called when 'Cancel' button is clicked
    */
-  cancel() {
-    this.dialogsService.openCancelDialog().then(cancel => {
-      if (cancel) {
-        this.getCurrentEntry();
-      }
-    });
+  async cancel() {
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      this.getCurrentEntry();
+    }
   }
 
   /**

@@ -3,7 +3,6 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './messagelogresult';
 import {Observable} from 'rxjs';
 import {AlertService} from '../common/alert/alert.service';
-import {MessagelogDialogComponent} from 'app/messagelog/messagelog-dialog/messagelog-dialog.component';
 import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
@@ -17,6 +16,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import BaseListComponent from '../common/base-list.component';
 import mix from '../common/mixins/mixin.utils';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -66,7 +66,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MatDialog, private elementRef: ElementRef,
+              public dialog: MatDialog, public dialogsService: DialogsService, private elementRef: ElementRef,
               private changeDetector: ChangeDetectorRef) {
     super();
   }
@@ -363,16 +363,15 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   resendDialog() {
-    this.dialog.open(MessagelogDialogComponent).afterClosed()
-      .subscribe(result => {
-        if (result == 'Resend') {
-          this.resend(this.selected[0].messageId);
-          this.selected = [];
-          this.messageResent.subscribe(() => {
-            this.page(0, this.rowLimiter.pageSize);
-          });
-        }
-      });
+    this.dialogsService.openResendDialog().then(resend => {
+      if (resend) {
+        this.resend(this.selected[0].messageId);
+        this.selected = [];
+        this.messageResent.subscribe(() => {
+          this.page(0, this.rowLimiter.pageSize);
+        });
+      }
+    });
   }
 
   resend(messageId: string) {

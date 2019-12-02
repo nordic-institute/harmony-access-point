@@ -27,7 +27,7 @@ import {DialogsService} from '../../common/dialogs/dialogs.service';
 })
 
 /**
- * PMode Component Typescript
+ * PMode Archive Component Typescript
  */
 export class PModeArchiveComponent implements OnInit, DirtyOperations {
   static readonly PMODE_URL: string = 'rest/pmode';
@@ -259,55 +259,50 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   /**
    * Method used when button save is clicked
    */
-  saveButton(withDownloadCSV: boolean) {
-    this.dialogsService.openSaveDialog().then(save => {
-      if (save) {
-        const queryParams = {ids: this.deleteList};
-        this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams})
-          .subscribe(() => {
-              this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
+  async save(): Promise<boolean> {
+    const save = await this.dialogsService.openSaveDialog();
+    if (save) {
+      const queryParams = {ids: this.deleteList};
+      return await this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams})
+        .toPromise().then(() => {
+            this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
 
-              this.disableAllButtons();
-              this.selected = [];
-              this.deleteList = [];
-
-              if (withDownloadCSV) {
-                DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
-              }
-            },
-            (error) => {
-              this.alertService.exception('The operation \'update pmodes\' not completed successfully.', error);
-              this.getAllPModeEntries();
-              this.disableAllButtons();
-              this.selected = [];
-            });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
-        }
-      }
-    });
+            this.disableAllButtons();
+            this.selected = [];
+            this.deleteList = [];
+            return true;
+          },
+          (error) => {
+            this.alertService.exception('The operation \'update pmodes\' not completed successfully.', error);
+            this.getAllPModeEntries();
+            this.disableAllButtons();
+            this.selected = [];
+            return false;
+          });
+    }
+    return false;
   }
 
   /**
    * Method used when Cancel button is clicked
    */
-  cancelButton() {
-    this.dialogsService.openCancelDialog().then(result => {
-      if (result) {
-        this.deleteList = [];
-        this.getAllPModeEntries();
-        this.disabledSave = true;
-        this.disabledCancel = true;
-      } else {
-        this.disabledSave = false;
-        this.disabledCancel = false;
-      }
-    });
+  async cancel() {
     this.disabledDownload = true;
     this.disabledDelete = true;
     this.disabledRestore = true;
     this.selected = [];
+
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      this.deleteList = [];
+      this.getAllPModeEntries();
+      this.disabledSave = true;
+      this.disabledCancel = true;
+    } else {
+      this.disabledSave = false;
+      this.disabledCancel = false;
+    }
+
   }
 
   /**
@@ -451,23 +446,29 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
       const uploadDateStr = DateFormatService.format(new Date(row.configurationDate));
       PModeArchiveComponent.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
     }, err => {
-      this.alertService.exception("Error downloading pMode from archive:", err);
+      this.alertService.exception('Error downloading pMode from archive:', err);
     });
   }
 
   /**
    * Saves the content of the datatable into a CSV file
    */
-  saveAsCSV() {
-    if (this.isDirty()) {
-      this.saveButton(true);
-    } else {
-      if (this.count > AlertComponent.MAX_COUNT_CSV) {
-        this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-        return;
-      }
+  async saveAsCSV() {
+    await this.saveIfNeeded();
 
-      DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
+    if (this.count > AlertComponent.MAX_COUNT_CSV) {
+      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+      return;
+    }
+
+    DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
+  }
+
+  async saveIfNeeded(): Promise<boolean> {
+    if (this.isDirty()) {
+      return this.save();
+    } else {
+      return false;
     }
   }
 

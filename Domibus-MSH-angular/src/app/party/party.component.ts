@@ -185,6 +185,8 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   }
 
   saveAsCSV() {
+    // TODO: await saveIfNeeded
+
     if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;

@@ -68,12 +68,12 @@
         <table class="group-action-button">
           <tr>
             <td>
-              <button mat-raised-button color="primary" (click)="cancelButton()" id="cancelbutton_id" [disabled]="disabledCancel"
+              <button mat-raised-button color="primary" (click)="cancel()" id="cancelbutton_id" [disabled]="disabledCancel"
                       button-click-behaviour>
                 <mat-icon>cancel</mat-icon>
                 <span>Cancel</span>
               </button>
-              <button mat-raised-button color="primary" (click)="saveButton(false)" id="savebutton_id" [disabled]="disabledSave"
+              <button mat-raised-button color="primary" (click)="save()" id="savebutton_id" [disabled]="disabledSave"
                       button-click-behaviour>
                 <mat-icon>save</mat-icon>
                 <span>Save</span>

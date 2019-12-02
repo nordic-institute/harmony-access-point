@@ -215,7 +215,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     return this.isDirty();
   }
 
-  async save() {
+  async save(): Promise<boolean> {
     try {
       const save = await this.dialogsService.openSaveDialog();
       if (save) {
@@ -223,10 +223,12 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
         this.alertService.success('The operation \'update plugin users\' completed successfully.');
         super.resetFilters();
         this.search();
+        return true;
       }
     } catch (err) {
       this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
     }
+    return false;
   }
 
   setIsDirty() {
@@ -276,16 +278,23 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
    * Saves the content of the datatable into a CSV file
    */
   async saveAsCSV() {
-    const ok = await super.checkIfNotDirty();
-    if (ok) {
-      if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
-        this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-        return;
-      }
+    await this.saveIfNeeded();
 
-      super.resetFilters();
-      DownloadService.downloadNative(PluginUserService.CSV_URL + '?'
-        + this.pluginUserService.createFilterParams(this.filter).toString());
+    if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
+      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+      return;
+    }
+
+    super.resetFilters();
+    DownloadService.downloadNative(PluginUserService.CSV_URL + '?'
+      + this.pluginUserService.createFilterParams(this.filter).toString());
+  }
+
+  async saveIfNeeded(): Promise<boolean> {
+    if (this.isDirty()) {
+      return this.save();
+    } else {
+      return Promise.resolve(false);
     }
   }
 

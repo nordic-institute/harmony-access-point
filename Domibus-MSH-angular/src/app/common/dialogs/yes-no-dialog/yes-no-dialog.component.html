@@ -8,15 +8,15 @@
 
         <div class="divTableCell">
           <button mat-raised-button color="primary" (click)="dialogRef.close(true)" id="yesbuttondialog_id">
-            <mat-icon>check_circle</mat-icon>
-            <span>Yes</span>
+            <mat-icon>{{data.yesIcon}}</mat-icon>
+            <span>{{data.yesText}}</span>
           </button>
         </div>
 
         <div class="divTableCell">
           <button mat-raised-button color="primary" (click)="dialogRef.close(false)" id="nobuttondialog_id">
-            <mat-icon>cancel</mat-icon>
-            <span>No</span>
+            <mat-icon>{{data.noIcon}}</mat-icon>
+            <span>{{data.noText}}</span>
           </button>
         </div>
 

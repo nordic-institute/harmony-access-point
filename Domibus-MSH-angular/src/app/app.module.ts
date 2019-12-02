@@ -44,7 +44,6 @@ import {UserComponent} from './user/user.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {PmodeUploadComponent} from './pmode/pmode-upload/pmode-upload.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MessagelogDialogComponent} from './messagelog/messagelog-dialog/messagelog-dialog.component';
 import {JmsComponent} from './jms/jms.component';
 import {RowLimiterComponent} from './common/row-limiter/row-limiter.component';
 import {MoveDialogComponent} from './jms/move-dialog/move-dialog.component';
@@ -108,7 +107,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     TruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
-    MessagelogDialogComponent,
     YesNoDialogComponent,
     JmsComponent,
     RowLimiterComponent,
@@ -150,7 +148,6 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     AppComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
-    MessagelogDialogComponent,
     MoveDialogComponent,
     MessageDialogComponent,
     MessagelogDetailsComponent,

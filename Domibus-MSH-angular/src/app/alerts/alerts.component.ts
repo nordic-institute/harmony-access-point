@@ -24,7 +24,8 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   providers: []
 })
 
-export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit, DirtyOperations {
+export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin)
+  implements OnInit, DirtyOperations {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';
@@ -254,7 +255,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.loading = true;
     this.resetFilters();
     this.getAlertsEntries(offset, pageSize).subscribe((result: AlertsResult) => {
-      console.log('alerts response: ' + result);
       this.offset = offset;
       this.rowLimiter.pageSize = pageSize;
       this.count = result.count;
@@ -270,6 +270,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       this.rows = newRows;
 
       this.loading = false;
+      this.isChanged = false;
     }, (error: any) => {
       console.log('error getting the alerts:' + error);
       this.loading = false;
@@ -352,51 +353,51 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.page(0, newPageLimit);
   }
 
-  saveAsCSV() {
-    if (this.isChanged) {
-      this.save(true);
-    } else {
-      if (this.count > AlertComponent.MAX_COUNT_CSV) {
-        this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-        return;
-      }
-
-      super.resetFilters();
-      // todo: add dynamic params for csv filtering, if requested
-      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?'
-        + this.createSearchParams().toString());
+  async cancel() {
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      this.isChanged = false;
+      this.page(this.offset, this.rowLimiter.pageSize);
     }
   }
 
-  cancel() {
-    this.dialogsService.openCancelDialog().then(cancel => {
-      if (cancel) {
-        this.isChanged = false;
-        this.page(this.offset, this.rowLimiter.pageSize);
-      }
-    });
+  async saveAsCSV() {
+    await this.saveIfNeeded();
+
+    if (this.count > AlertComponent.MAX_COUNT_CSV) {
+      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+      return;
+    }
+
+    super.resetFilters();
+    // todo: add dynamic params for csv filtering, if requested
+    DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createSearchParams().toString());
   }
 
-  save(withDownloadCSV: boolean) {
-    this.dialogsService.openSaveDialog().then(save => {
-      if (save) {
-        this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
-          this.alertService.success('The operation \'update alerts\' completed successfully.', false);
-          this.page(this.offset, this.rowLimiter.pageSize);
-          this.isChanged = false;
-          if (withDownloadCSV) {
-            DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
-          }
-        }, err => {
-          this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
-          this.page(this.offset, this.rowLimiter.pageSize);
-        });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
-        }
-      }
-    });
+  async saveIfNeeded(): Promise<boolean> {
+    if (this.isDirty()) {
+      return this.save();
+    } else {
+      return false;
+    }
+  }
+
+  async save(): Promise<boolean> {
+    const save = await this.dialogsService.openSaveDialog();
+    if (save) {
+      return await this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => {
+        this.alertService.success('The operation \'update alerts\' completed successfully.');
+        this.page(this.offset, this.rowLimiter.pageSize);
+        this.isChanged = false;
+        return true;
+      }, err => {
+        this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
+        this.page(this.offset, this.rowLimiter.pageSize);
+        return false;
+      });
+    } else {
+      return false;
+    }
   }
 
   setProcessedValue(row) {

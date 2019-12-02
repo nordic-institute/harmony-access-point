@@ -145,7 +145,7 @@
 <div class="panel">
   <div class="group-filter-button">
     <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
+      <app-row-limiter [pageSizes]="rowLimiter.pageSizes" [onPageSizeChanging]="onPageSizeChanging"
                        (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
     </span>
     <span class="column-filter-button">
@@ -194,7 +194,7 @@
       <mat-icon>cancel</mat-icon>
       <span>Cancel</span>
     </button>
-    <button id="alertsSaveButton" mat-raised-button color="primary" (click)="save(false)"
+    <button id="alertsSaveButton" mat-raised-button color="primary" (click)="saveIfNeeded()"
             [disabled]="!isDirty()" button-click-behaviour>
       <mat-icon>save</mat-icon>
       <span>Save</span>
