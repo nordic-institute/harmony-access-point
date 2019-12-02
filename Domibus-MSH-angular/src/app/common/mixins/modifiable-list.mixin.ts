@@ -35,7 +35,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   protected canProceed(): Promise<boolean> {
-    if (!this.supportsDirtyOperations() || !this.isDirty()) {
+    if (!this.isDirty()) {
       return Promise.resolve(true);
     }
 
