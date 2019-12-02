@@ -160,7 +160,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
-            reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
+            // PERF - IOANA
+            //reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
+            reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.OK;
             handle_response.close();
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
@@ -171,9 +173,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setError(soapFEx.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (final EbMS3Exception e) {
-            reliabilityChecker.handleEbms3Exception(e, messageId);
-            attempt.setError(e.getMessage());
-            attempt.setStatus(MessageAttemptStatus.ERROR);
+//            reliabilityChecker.handleEbms3Exception(e, messageId);
+//            attempt.setError(e.getMessage());
+//            attempt.setStatus(MessageAttemptStatus.ERROR);
+            reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.OK;
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             getLog().error("Error sending message [{}]", messageId, t);

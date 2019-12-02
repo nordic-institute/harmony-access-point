@@ -49,27 +49,28 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
-
-        Messaging messaging = getMessaging();
-        if (messaging == null) {
-            LOG.error("Error getting Messaging");
-            throw new WebServiceException("Error getting Messaging");
-        }
-
-        final IncomingMessageHandler messageHandler = incomingMessageHandlerFactory.getMessageHandler(request, messaging);
-        if (messageHandler == null) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Unrecognized message", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw new WebServiceException(ex);
-        }
-        SOAPMessage soapMessage;
-        try {
-            soapMessage = messageHandler.processMessage(request, messaging);
-        } catch (EbMS3Exception e) {
-            LOG.warn("Error processing message!");
-            throw new WebServiceException(e);
-        }
-        return soapMessage;
+        throw new WebServiceException("PERF TEST");
+//
+//        Messaging messaging = getMessaging();
+//        if (messaging == null) {
+//            LOG.error("Error getting Messaging");
+//            throw new WebServiceException("Error getting Messaging");
+//        }
+//
+//        final IncomingMessageHandler messageHandler = incomingMessageHandlerFactory.getMessageHandler(request, messaging);
+//        if (messageHandler == null) {
+//            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Unrecognized message", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
+//            ex.setMshRole(MSHRole.RECEIVING);
+//            throw new WebServiceException(ex);
+//        }
+//        SOAPMessage soapMessage;
+//        try {
+//            soapMessage = messageHandler.processMessage(request, messaging);
+//        } catch (EbMS3Exception e) {
+//            LOG.warn("Error processing message!");
+//            throw new WebServiceException(e);
+//        }
+//        return soapMessage;
 
     }
 
