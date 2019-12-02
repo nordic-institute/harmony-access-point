@@ -10,6 +10,7 @@ import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.quartz.*;
@@ -127,16 +128,16 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      */
 
     public QuartzInfo getTriggerInfo() throws Exception {
-        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
-        QuartzInfo quartzInfo = new QuartzInfo();
+        List<QuartzTriggerDetails> schedulerTriggers= getSchedulersInfo(schedulers);
         if (domibusConfigurationService.isMultiTenantAware()) {
-            getGeneralSchedulersInfo(generalSchedulers, triggerInfoList);
+            List<QuartzTriggerDetails> generalSchedulerTriggers= getGeneralSchedulersInfo(generalSchedulers);
+            schedulerTriggers.addAll(generalSchedulerTriggers);
         }
-        getSchedulersInfo(schedulers, triggerInfoList);
-        MonitoringStatus state = (triggerInfoList.size() > 0) ? MonitoringStatus.ERROR : MonitoringStatus.NORMAL;
+        MonitoringStatus state = (schedulerTriggers.size() > 0) ? MonitoringStatus.ERROR : MonitoringStatus.NORMAL;
+        QuartzInfo quartzInfo = new QuartzInfo();
         quartzInfo.setStatus(state);
         quartzInfo.setName("Quartz Trigger");
-        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
+        quartzInfo.setQuartzTriggerDetails(schedulerTriggers);
         LOG.debug(" Quartz Scheduler trigger Info [{}]", quartzInfo);
         return quartzInfo;
     }
@@ -146,12 +147,15 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      *
      * @throws SchedulerException Quartz scheduler exception
      */
-    protected void getGeneralSchedulersInfo(List<Scheduler> generalSchedulers, List<QuartzTriggerDetails> triggerInfoList) throws SchedulerException {
+    protected List<QuartzTriggerDetails> getGeneralSchedulersInfo(List<Scheduler> generalSchedulers) throws SchedulerException {
+        List<QuartzTriggerDetails> triggers = new ArrayList<>();
         for (Scheduler scheduler : generalSchedulers) {
             for (String groupName : scheduler.getJobGroupNames()) {
-                getTriggerDetails(scheduler, triggerInfoList, groupName, null);
+                List<QuartzTriggerDetails>   triggerInfoList= getTriggerDetails(scheduler, groupName, null);
+                triggers.addAll(triggerInfoList);
             }
         }
+        return triggers;
     }
 
     /**
@@ -159,16 +163,21 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      *
      * @throws SchedulerException Quartz scheduler exception
      */
-    protected void getSchedulersInfo(Map<Domain, Scheduler> schedulers, List<QuartzTriggerDetails> triggerInfoList) throws SchedulerException {
+    protected List<QuartzTriggerDetails> getSchedulersInfo(Map<Domain, Scheduler> schedulers) throws SchedulerException {
+        List<QuartzTriggerDetails> triggers = new ArrayList<>();
         for (Map.Entry<Domain, Scheduler> domainSchedulerEntry : schedulers.entrySet()) {
             final Domain domain = domainSchedulerEntry.getKey();
             String domainName = domain.getName();
             Scheduler quartzScheduler = domainSchedulerEntry.getValue();
             LOG.debug("Quartz Scheduler  [{}] for domain [{}]", quartzScheduler, domain);
             for (String groupName : quartzScheduler.getJobGroupNames()) {
-                getTriggerDetails(quartzScheduler, triggerInfoList, groupName, domainName);
+                List<QuartzTriggerDetails>  triggerInfoList=  getTriggerDetails(quartzScheduler, groupName, domainName);
+                triggers.addAll(triggerInfoList);
             }
+
         }
+
+        return triggers;
     }
 
     /**
@@ -176,25 +185,27 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      *
      * @throws SchedulerException Quartz scheduler exception
      */
-    protected void getTriggerDetails(Scheduler quartzScheduler, List<QuartzTriggerDetails> triggerInfoList, String groupName, String domainName) throws SchedulerException {
-        QuartzTriggerDetails quartzTriggerDetails;
-        List<Trigger> triggers;
-        String triggerState = "";
+    protected List<QuartzTriggerDetails> getTriggerDetails(Scheduler quartzScheduler, String groupName, String domainName) throws SchedulerException {
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
         for (JobKey jobKey : quartzScheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
-            quartzTriggerDetails = new QuartzTriggerDetails();
             String jobName = jobKey.getName();
-            triggers = (List<Trigger>) quartzScheduler.getTriggersOfJob(jobKey);
-            if (triggers != null)
-                triggerState = String.valueOf(quartzScheduler.getTriggerState(triggers.get(0).getKey()));
-            if (triggerState.equals("ERROR") || triggerState.equals("BLOCKED")) {
-                MonitoringStatus state = triggerState.equals("ERROR") ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
-                quartzTriggerDetails.setDomainName(domainName);
-                quartzTriggerDetails.setTriggerStatus(state);
-                quartzTriggerDetails.setJobName(jobName);
-                LOG.debug("Quartz jobName [{}] trigger state [{}]", jobName, state);
-                triggerInfoList.add(quartzTriggerDetails);
+            List<Trigger> triggers = (List<Trigger>) quartzScheduler.getTriggersOfJob(jobKey);
+            if (CollectionUtils.isNotEmpty(triggers)) {
+                for (Trigger trigger : triggers) {
+                    Trigger.TriggerState triggerState = quartzScheduler.getTriggerState(trigger.getKey());
+                    if (triggerState.equals(Trigger.TriggerState.ERROR) || triggerState.equals(Trigger.TriggerState.BLOCKED)) {
+                        MonitoringStatus state = triggerState.equals(Trigger.TriggerState.ERROR) ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
+                        QuartzTriggerDetails quartzTriggerDetails = new QuartzTriggerDetails();
+                        quartzTriggerDetails.setDomainName(domainName);
+                        quartzTriggerDetails.setTriggerStatus(state);
+                        quartzTriggerDetails.setJobName(jobName);
+                        LOG.debug("Quartz jobName [{}] trigger state [{}]", jobName, state);
+                        triggerInfoList.add(quartzTriggerDetails);
+                    }
+                }
             }
         }
+        return triggerInfoList;
     }
 
     /**
