@@ -2,7 +2,7 @@
  * @author Ion Perpegel
  * @since 4.1
  * A mixin for components that display a list of items that can be filtered
-  */
+ */
 import {Constructable} from '../base-list.component';
 import {OnInit} from '@angular/core';
 
@@ -50,7 +50,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
   public async trySearch(): Promise<boolean> {
-    const canSearch = await this.canProceed();
+    const canSearch = super.hasMethod('canProceed') ? await this.canProceed() : true;
     if (canSearch) {
       this.setActiveFilter();
       this.search();
@@ -58,24 +58,24 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return canSearch;
   }
 
-  protected canProceed(): Promise<boolean> {
-    if (!this.supportsDirtyOperations() || !this.isDirty()) {
-      return Promise.resolve(true);
-    }
+  // protected canProceed(): Promise<boolean> {
+  //   if (!this.supportsDirtyOperations() || !this.isDirty()) {
+  //     return Promise.resolve(true);
+  //   }
+  //
+  //   return this.dialogsService.openCancelDialog();
+  // }
 
-    return this.dialogsService.openCancelDialog();
-  }
-
-  private supportsDirtyOperations() {
-    return this.isDirty && this.isDirty instanceof Function;
-  }
+  // private supportsDirtyOperations() {
+  //   return this.isDirty && this.isDirty instanceof Function;
+  // }
 
 
-  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
-  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
-    const canChangePage = await this.canProceed();
-    return !canChangePage;
-  };
+  // //we create this function like so to preserve the correct "this" when called from the row-limiter component context
+  // onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
+  //   const canChangePage = await this.canProceed();
+  //   return !canChangePage;
+  // };
 };
 
 export default FilterableListMixin;

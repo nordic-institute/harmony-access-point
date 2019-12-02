@@ -20,6 +20,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -27,7 +28,8 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
   styleUrls: ['./user.component.css']
 })
 
-export class UserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
+export class UserComponent extends mix(BaseListComponent).with(ModifiableListMixin)
+  implements OnInit, DirtyOperations {
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
@@ -41,7 +43,7 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  users: Array<UserResponseRO>;
+  // rows: Array<UserResponseRO>;
   userRoles: Array<String>;
   domains: Domain[];
   domainsPromise: Promise<Domain[]>;
@@ -88,7 +90,8 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
     this.columnPicker = new ColumnPickerBase();
     this.rowLimiter = new RowLimiterBase();
 
-    this.users = [];
+    super.rows = [];
+    super.count = 0;
     this.userRoles = [];
 
     this.enableCancel = false;
@@ -190,7 +193,8 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
         await this.getUserDomains();
         results.forEach(user => this.setDomainName(user));
       }
-      this.users = results;
+      super.rows = results;
+      super.count = results.length;
     } catch (err) {
       this.alertService.exception('Could not load users ', err);
     }
@@ -270,8 +274,8 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
     formRef.afterClosed().subscribe(ok => {
       if (ok) {
         this.onSaveEditForm(formRef);
-        this.users.push(this.editedUser);
-        this.users = [...this.users];
+        super.rows = [...this.rows, this.editedUser];
+        super.count = this.count + 1;
         this.currentUser = this.editedUser;
       } else {
         this.selected = [];
@@ -330,7 +334,7 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   }
 
   setIsDirty() {
-    this.dirty = this.areRowsDeleted || this.users.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
+    this.dirty = this.areRowsDeleted || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
 
     this.enableSave = this.dirty;
     this.enableCancel = this.dirty;
@@ -355,7 +359,7 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
 
     for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
-        this.users.splice(this.users.indexOf(itemToDelete), 1);
+        this.rows.splice(this.rows.indexOf(itemToDelete), 1);
       } else {
         itemToDelete.status = UserState[UserState.REMOVED];
         itemToDelete.deleted = true;
@@ -379,20 +383,21 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
       this.disableSelectionAndButtons();
-      this.users = [];
+      super.rows = [];
+      super.count = 0;
       this.getUsers();
     }
   }
 
   async save(): Promise<boolean> {
     try {
-      const isValid = this.userValidatorService.validateUsers(this.users);
+      const isValid = this.userValidatorService.validateUsers(this.rows);
       if (!isValid) return false;
 
       const save = await this.dialogsService.openSaveDialog();
       if (save) {
         this.disableSelectionAndButtons();
-        const modifiedUsers = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]);
+        const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
         this.isBusy = true;
         await this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise();
         this.isBusy = false;
@@ -411,24 +416,28 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   /**
    * Saves the content of the datatable into a CSV file
    */
-  async saveAsCSV() {
-    await this.saveIfNeeded();
+  // async saveAsCSV() {
+  //   await this.saveIfNeeded();
+  //
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   DownloadService.downloadNative(UserComponent.USER_CSV_URL);
+  // }
 
-    if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-
-    DownloadService.downloadNative(UserComponent.USER_CSV_URL);
+  public get csvUrl(): string {
+    return UserComponent.USER_CSV_URL;
   }
 
-  async saveIfNeeded(): Promise<boolean> {
-    if (this.isDirty()) {
-      return this.save();
-    } else {
-      return Promise.resolve(false);
-    }
-  }
+  // async saveIfNeeded(): Promise<boolean> {
+  //   if (this.isDirty()) {
+  //     return this.save();
+  //   } else {
+  //     return Promise.resolve(false);
+  //   }
+  // }
 
   isDirty(): boolean {
     return this.enableCancel;
@@ -437,7 +446,8 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;
     this.disableSelectionAndButtons();
-    this.users = [];
+    super.rows = [];
+    super.count = 0;
     this.getUsers();
   }
 
@@ -450,9 +460,9 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   }
 
   getLastPage(): number {
-    if (!this.users || !this.rowLimiter || !this.rowLimiter.pageSize)
+    if (!this.rows || !this.rowLimiter || !this.rowLimiter.pageSize)
       return 0;
-    return Math.floor(this.users.length / this.rowLimiter.pageSize);
+    return Math.floor(this.rows.length / this.rowLimiter.pageSize);
   }
 
   onActivate(event) {

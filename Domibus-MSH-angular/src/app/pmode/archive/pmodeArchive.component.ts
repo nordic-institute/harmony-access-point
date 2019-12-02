@@ -18,6 +18,10 @@ import {CurrentPModeComponent} from '../current/currentPMode.component';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
 import {DialogsService} from '../../common/dialogs/dialogs.service';
+import mix from '../../common/mixins/mixin.utils';
+import BaseListComponent from '../../common/base-list.component';
+import FilterableListMixin from '../../common/mixins/filterable-list.mixin';
+import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -29,7 +33,8 @@ import {DialogsService} from '../../common/dialogs/dialogs.service';
 /**
  * PMode Archive Component Typescript
  */
-export class PModeArchiveComponent implements OnInit, DirtyOperations {
+export class PModeArchiveComponent extends mix(BaseListComponent).with(ModifiableListMixin)
+  implements OnInit, DirtyOperations {
   static readonly PMODE_URL: string = 'rest/pmode';
   static readonly PMODE_CSV_URL: string = PModeArchiveComponent.PMODE_URL + '/csv';
 
@@ -45,9 +50,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   loading: boolean;
 
   allPModes: any[];
-  tableRows: any[];
+  // rows: any[];
   selected: any[];
-  count: number;
+  // count: number;
   offset: number;
 
   disabledSave: boolean;
@@ -79,6 +84,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    */
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService,
               private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
+    super();
   }
 
   /**
@@ -88,9 +94,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.loading = false;
 
     this.allPModes = [];
-    this.tableRows = [];
+    super.rows = [];
     this.selected = [];
-    this.count = 0;
+    super.count = 0;
     this.offset = 0;
 
     this.disabledSave = true;
@@ -175,15 +181,15 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
       this.actualRow = 0;
       this.actualId = undefined;
 
-      this.count = this.allPModes.length;
+      super.count = this.allPModes.length;
       if (this.count > 0) {
         this.allPModes[0].current = true;
         this.actualId = this.allPModes[0].id;
       }
-      this.tableRows = this.allPModes.slice(0, this.rowLimiter.pageSize);
-      if (this.tableRows.length > 0) {
-        this.tableRows[0].current = true;
-        this.tableRows[0].description = '[CURRENT]: ' + this.allPModes[0].description;
+      super.rows = this.allPModes.slice(0, this.rowLimiter.pageSize);
+      if (this.rows.length > 0) {
+        this.rows[0].current = true;
+        this.rows[0].description = '[CURRENT]: ' + this.allPModes[0].description;
       }
       this.loading = false;
     } catch (e) {
@@ -195,8 +201,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   page() {
     this.loading = true;
 
-    this.tableRows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
-
+    super.rows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
+    //this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
     this.loading = false;
   }
 
@@ -324,22 +330,16 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   deleteRows(rows: any[]) {
     for (let i = rows.length - 1; i >= 0; i--) {
       const row = rows[i];
-      const rowIndex = this.tableRows.indexOf(row);
-      // workaround to delete one entry from the array
-      // since "this.rows.splice(rowIndex, 1);" doesn't work...
-      let copy = this.tableRows.slice();
-      copy.splice(rowIndex, 1);
-      copy = copy.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
+      const rowIndex = this.rows.indexOf(row);
       this.allPModes.splice(this.offset * this.rowLimiter.pageSize + rowIndex, 1);
-      this.tableRows = copy.slice();
       this.deleteList.push(row.id);
-      this.count--;
+      super.count = this.count - 1;
     }
 
     if (this.offset > 0 && this.isPageEmpty()) {
       this.offset--;
-      this.page();
     }
+    this.page();
 
     setTimeout(() => {
       this.selected = [];
@@ -353,9 +353,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    *
    */
   isPageEmpty(): boolean {
-    if (this.tableRows || this.tableRows.length) {
-      for (let i = 0; i < this.tableRows.length; i++) {
-        if (this.tableRows[i]) {
+    if (this.rows || this.rows.length) {
+      for (let i = 0; i < this.rows.length; i++) {
+        if (this.rows[i]) {
           return false;
         }
       }
@@ -442,27 +442,28 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     });
   }
 
-  /**
-   * Saves the content of the datatable into a CSV file
-   */
-  async saveAsCSV() {
-    await this.saveIfNeeded();
+  // async saveAsCSV() {
+  //   await this.saveIfNeeded();
+  //
+  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
+  // }
 
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-
-    DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
+  public get csvUrl(): string {
+    return PModeArchiveComponent.PMODE_CSV_URL;
   }
 
-  async saveIfNeeded(): Promise<boolean> {
-    if (this.isDirty()) {
-      return this.save();
-    } else {
-      return false;
-    }
-  }
+  // async saveIfNeeded(): Promise<boolean> {
+  //   if (this.isDirty()) {
+  //     return this.save();
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   /**
    * Downloader for the XML file
@@ -499,10 +500,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     if (value === 1 && this.uploaded) { // Archive Tab
       this.getResultObservable().map((response) => response.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize))
         .subscribe((response) => {
-            this.tableRows = response;
+            super.rows = response;
             if (this.offset === 0) {
-              this.tableRows[0].current = true;
-              this.tableRows[0].description = '[CURRENT]: ' + response[0].description;
+              this.rows[0].current = true;
+              this.rows[0].description = '[CURRENT]: ' + response[0].description;
             }
             this.uploaded = false;
           }, () => {
@@ -511,7 +512,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
             this.allPModes[0].current = true;
             this.actualId = this.allPModes[0].id;
             this.actualRow = 0;
-            this.count = this.allPModes.length;
+            super.count = this.allPModes.length;
           });
     }
   }

@@ -50,7 +50,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     DownloadService.downloadNative(this.csvUrl);
   }
 
-  private hasMethod(name: string) {
+  protected hasMethod(name: string) {
     return this[name] && this[name] instanceof Function;
   }
 

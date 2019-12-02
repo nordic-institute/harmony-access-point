@@ -53,7 +53,7 @@
   <ngx-datatable
     id="userTable"
     class="material striped"
-    [rows]="users"
+    [rows]="rows"
     [columns]="columnPicker.selectedColumns"
     [columnMode]="'force'"
     [headerHeight]="50"
@@ -95,11 +95,11 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="userEditButtonRow{{users.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row)"
+    <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row)"
             color="primary" tooltip="Edit" button-click-behaviour>
       <mat-icon>edit</mat-icon>
     </button>
-    <button id="userDeleteButtonRow{{users.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonDeleteAction(row)" color="primary"
+    <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonDeleteAction(row)" color="primary"
             tooltip="Delete" button-click-behaviour>
       <mat-icon>delete</mat-icon>
     </button>

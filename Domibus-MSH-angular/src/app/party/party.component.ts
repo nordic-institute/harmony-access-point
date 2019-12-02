@@ -29,7 +29,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 })
 
 export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin) implements OnInit, DirtyOperations {
-  rows: PartyResponseRo[];
+  // rows: PartyResponseRo[];
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
 
@@ -37,7 +37,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   offset: number;
-  count: number;
+  // count: number;
   loading: boolean;
 
   newParties: PartyResponseRo[];
@@ -259,7 +259,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
 
     this.selected.length = 0;
     this.selected.push(newParty);
-    this.count++;
+    super.count++;
 
     this.newParties.push(newParty);
     const ok = await this.edit(newParty);
