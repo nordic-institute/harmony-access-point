@@ -39,23 +39,23 @@
 </div>
 
 <div class="panel">
+  <grid-header [parent]="this"></grid-header>
+<!--  <div class="group-filter-button">-->
+<!--    <span class="row-button">-->
+<!--    <app-row-limiter [pageSizes]="rowLimiter.pageSizes"-->
+<!--                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>-->
+<!--    </span>-->
+<!--    <span class="column-filter-button">-->
+<!--    <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"-->
+<!--                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)">-->
 
-  <div class="group-filter-button">
-    <span class="row-button">
-    <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-    <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)">
-
-    </app-column-picker>
-    </span>
-    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
-  </div>
+<!--    </app-column-picker>-->
+<!--    </span>-->
+<!--    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour-->
+<!--            id="saveascsvbutton_id" mat-tooltip="Export as CSV">-->
+<!--      <img src="assets/images/exportCSV.svg" width="30" height="30">-->
+<!--    </button>-->
+<!--  </div>-->
 
   <ngx-datatable
     id="userTable"

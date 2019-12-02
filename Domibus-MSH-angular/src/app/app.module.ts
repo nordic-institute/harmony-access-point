@@ -91,6 +91,7 @@ import {PropertiesComponent} from './properties/properties.component';
 import {HttpClientModule} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import {DialogsService} from './common/dialogs/dialogs.service';
+import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 
 @NgModule({
   declarations: [
@@ -143,6 +144,7 @@ import {DialogsService} from './common/dialogs/dialogs.service';
     LogoutAuthExtProviderComponent,
     NotAuthorizedComponent,
     PropertiesComponent,
+    GridHeaderComponent
   ],
   entryComponents: [
     AppComponent,
