@@ -17,6 +17,7 @@ import {DirtyOperations} from '../common/dirty-operations';
 import {AlertsEntry} from './alertsentry';
 import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -24,7 +25,8 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   providers: []
 })
 
-export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin)
+export class AlertsComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, SortableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
@@ -44,8 +46,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   loading: boolean;
 
   // data table
-  rows: Array<AlertsEntry>;
-  count: number;
+  // rows: Array<AlertsEntry>;
+  // count: number;
   offset: number;
 
   isChanged: boolean;
@@ -92,8 +94,8 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     super.ngOnInit();
 
     this.loading = false;
-    this.rows = [];
-    this.count = 0;
+    super.rows = [];
+    super.count = 0;
     this.offset = 0;
     this.isChanged = false;
 
@@ -144,7 +146,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     ];
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
+      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time'].indexOf(col.name) != -1
     });
   }
 
@@ -170,13 +172,13 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       .subscribe(aLevels => this.aLevels = aLevels);
   }
 
-  getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
+  getAlertsEntries(): Promise<AlertsResult> {
     let searchParams = this.createSearchParams();
 
-    searchParams = searchParams.append('page', offset.toString());
-    searchParams = searchParams.append('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', this.offset.toString());
+    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
 
-    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams});
+    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
   }
 
   private createSearchParams() {
@@ -251,37 +253,27 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     return searchParams;
   }
 
-  page(offset, pageSize) {
+  page() {
     this.loading = true;
     this.resetFilters();
-    this.getAlertsEntries(offset, pageSize).subscribe((result: AlertsResult) => {
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
-      this.count = result.count;
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.alertsEntries];
-
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.alertsEntries[index++];
-      }
-
-      this.rows = newRows;
+    this.getAlertsEntries().then((result: AlertsResult) => {
+      super.count = result.count;
+      super.rows = result.alertsEntries;
 
       this.loading = false;
       this.isChanged = false;
     }, (error: any) => {
-      console.log('error getting the alerts:' + error);
       this.loading = false;
       this.alertService.exception('Error occurred:', error);
     });
   }
 
   search() {
-    this.isChanged = false;
+    // this.isChanged = false;
     this.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize);
+    this.offset = 0;
+
+    this.page();
   }
 
   toggleAdvancedSearch() {

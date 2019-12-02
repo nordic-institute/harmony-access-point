@@ -39,8 +39,8 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   notifiedToMaxDate: Date = new Date();
 
   loading: boolean = false;
-  rows = [];
-  count: number = 0;
+  // rows = [];
+  // count: number = 0;
   offset: number = 0;
 
   mshRoles: string[];
@@ -152,43 +152,32 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     return searchParams;
   }
 
-  getErrorLogEntries(offset: number, pageSize: number): Observable<ErrorLogResult> {
+  getErrorLogEntries(): Promise<ErrorLogResult> {
     let searchParams = this.createSearchParams();
 
-    searchParams = searchParams.append('page', offset.toString());
-    searchParams = searchParams.append('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', this.offset.toString());
+    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
 
-    return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams});
+    return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams})
+      .toPromise();
   }
 
-  page(offset, pageSize) {
+  page() {
     this.loading = true;
-    this.getErrorLogEntries(offset, pageSize).subscribe((result: ErrorLogResult) => {
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
-      this.count = result.count;
+    this.getErrorLogEntries().then((result: ErrorLogResult) => {
+      super.count = result.count;
+      super.rows = result.errorLogEntries;
 
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.errorLogEntries];
-
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.errorLogEntries[index++];
-      }
-
-      this.rows = newRows;
-
-      if (result.filter.timestampFrom != null) {
+      if (result.filter.timestampFrom) {
         result.filter.timestampFrom = new Date(result.filter.timestampFrom);
       }
-      if (result.filter.timestampTo != null) {
+      if (result.filter.timestampTo) {
         result.filter.timestampTo = new Date(result.filter.timestampTo);
       }
-      if (result.filter.notifiedFrom != null) {
+      if (result.filter.notifiedFrom) {
         result.filter.notifiedFrom = new Date(result.filter.notifiedFrom);
       }
-      if (result.filter.notifiedTo != null) {
+      if (result.filter.notifiedTo) {
         result.filter.notifiedTo = new Date(result.filter.notifiedTo);
       }
 
@@ -198,7 +187,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
       this.loading = false;
     }, (error: any) => {
-      console.log('error getting the error log:' + error);
       this.loading = false;
       this.alertService.exception('Error occured:', error);
     });
@@ -207,14 +195,16 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
   onPage(event) {
     super.resetFilters();
-    this.page(event.offset, event.pageSize);
+    this.offset = event.offset;
+    this.page();
   }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
   public reload() {
-    this.page(0, this.rowLimiter.pageSize);
+    this.offset = 0;
+    this.page();
   }
 
   /**
@@ -226,13 +216,15 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
   changePageSize(newPageLimit: number) {
     super.resetFilters();
-    this.page(0, newPageLimit);
+    this.offset = 0;
+    this.rowLimiter.pageSize = newPageLimit;
+    this.page();
   }
 
   search() {
-    console.log('Searching using filter:', this.filter);
     this.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize);
+    this.offset = 0;
+    this.page();
   }
 
   onTimestampFromChange(event) {

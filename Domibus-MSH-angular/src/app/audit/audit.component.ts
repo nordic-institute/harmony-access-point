@@ -10,6 +10,7 @@ import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {DownloadService} from '../common/download.service';
 
 /**
  * @author Thomas Dussart
@@ -43,11 +44,11 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   advancedSearch: boolean;
 
 // --- Table binding ---
-  rows = [];
+//   rows = [];
   rowLimiter: RowLimiterBase = new RowLimiterBase();
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   offset: number = 0;
-  count: number = 0;
+  // count: number = 0;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -98,7 +99,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-        this.rows = response;
+        super.rows = response;
         this.loading = false;
       },
       error => {
@@ -107,7 +108,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
       },
       // on complete of auditLogsObservable Observable, we load the count
       // TODO: load this in parallel and merge the stream at the end.
-      () => auditCountObservable.subscribe(auditCount => this.count = auditCount,
+      () => auditCountObservable.subscribe(auditCount => super.count = auditCount,
         error => {
           this.alertService.exception('Could not count audits: ', error);
           this.loading = false;
@@ -125,7 +126,7 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-        this.rows = response;
+        super.rows = response;
         this.loading = false;
       },
       error => {

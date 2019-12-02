@@ -10,6 +10,11 @@ import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefi
 import {DirtyOperations} from '../common/dirty-operations';
 import {DownloadService} from '../common/download.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import {AlertComponent} from '../common/alert/alert.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -18,10 +23,11 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   styleUrls: ['./messagefilter.component.css']
 })
 
-export class MessageFilterComponent implements OnInit, DirtyOperations {
+export class MessageFilterComponent extends mix(BaseListComponent).with(ModifiableListMixin)
+  implements OnInit, DirtyOperations {
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  rows: any [];
+  // rows: any [];
   selected: any[];
 
   backendFilterNames: any[];
@@ -41,10 +47,12 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   routingCriterias = ['from', 'to', 'action', 'service'];
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
+    super();
   }
 
   ngOnInit() {
-    this.rows = [];
+    super.rows = [];
+    super.count = 0;
     this.selected = [];
 
     this.backendFilterNames = [];
@@ -84,7 +92,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
         }
         this.areFiltersPersisted = result.areFiltersPersisted;
 
-        this.rows = newRows;
+        super.rows = newRows;
+        super.count = newRows.length;
 
         if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
           this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
@@ -113,8 +122,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
       if (result == true) {
         let backendEntry = this.createEntry(formRef);
         if (this.findRowsIndex(backendEntry) == -1) {
-          this.rows.push(backendEntry);
-          this.rows = [...this.rows];
+          super.rows = [...this.rows, backendEntry];
+          super.count = super.rows.length;
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
@@ -172,7 +181,9 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
             this.updateSelectedProperty(criteria, formRef.componentInstance[criteria]);
           }
 
-          this.rows = [...this.rows];
+          super.rows = [...this.rows];
+          super.count = super.rows.length;
+
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
           if (backendEntryPos != this.rowNumber) {
@@ -263,25 +274,25 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
 
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();
-      if (cancel) {
-        this.disableSelectionAndButtons();
-        this.getBackendFiltersInfo();
-      }
+    if (cancel) {
+      this.disableSelectionAndButtons();
+      this.getBackendFiltersInfo();
+    }
   }
 
   async save(): Promise<boolean> {
     const save = await this.dialogsService.openSaveDialog();
-      if (save) {
-        this.disableSelectionAndButtons();
+    if (save) {
+      this.disableSelectionAndButtons();
       return await this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
-          this.alertService.success('The operation \'update message filters\' completed successfully.', false);
-          this.getBackendFiltersInfo();
+        this.alertService.success('The operation \'update message filters\' completed successfully.', false);
+        this.getBackendFiltersInfo();
         return true;
-        }, err => {
-          this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
+      }, err => {
+        this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
         return false;
-        });
-        }
+      });
+    }
     return false;
   }
 
@@ -308,7 +319,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
       let rowIndex = copy.indexOf(items[i]);
       copy.splice(rowIndex, 1);
     }
-    this.rows = copy;
+    super.rows = copy;
+    super.count = copy.length;
     this.selected = [];
   }
 
@@ -321,7 +333,9 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     array[rowNumber] = array[rowNumber - 1];
     array[rowNumber - 1] = move;
 
-    this.rows = array.slice();
+    super.rows = array.slice();
+    super.count = this.rows.length;
+
     this.rowNumber--;
 
     if (rowNumber == 0) {
@@ -355,7 +369,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     array[rowNumber] = array[rowNumber + 1];
     array[rowNumber + 1] = move;
 
-    this.rows = array.slice();
+    super.rows = array.slice();
+    super.count = this.rows.length;
     this.rowNumber++;
 
     if (rowNumber == this.rows.length - 1) {

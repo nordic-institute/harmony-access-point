@@ -36,7 +36,7 @@ export class PropertiesComponent implements OnInit {
 
     this.rows = [];
 
-    this.loadProperties(this.rowLimiter.pageSize);
+    this.page();
   }
 
   ngAfterViewInit() {
@@ -57,15 +57,18 @@ export class PropertiesComponent implements OnInit {
   }
 
   onPropertyNameChanged() {
-    this.loadProperties(this.rowLimiter.pageSize);
+    this.page();
   }
 
   onPage(event) {
-    this.loadProperties(event.pageSize, event.offset);
+    this.offset = event.offset;
+    this.page();
   }
 
   onChangePageSize(newPageLimit: number) {
-    this.loadProperties(newPageLimit, 0);
+    this.offset = 0;
+    this.rowLimiter.pageSize = newPageLimit;
+    this.page();
   }
 
   onPropertyValueFocus(row) {
@@ -80,14 +83,13 @@ export class PropertiesComponent implements OnInit {
     return row && row.currentValue && row.currentValue != row.value;
   }
 
-  private async loadProperties(pageSize: number = this.rowLimiter.pageSize, offset: number = 0) {
+  private async page() {
     this.loading = true;
     try {
-      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties, pageSize, offset);
+      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties,
+        this.rowLimiter.pageSize, this.offset);
       this.count = result.count;
       this.rows = result.items;
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
     } catch (ex) {
       this.alertService.exception('Could not load properties ', ex, false);
     }
@@ -95,7 +97,8 @@ export class PropertiesComponent implements OnInit {
   }
 
   refresh() {
-    this.loadProperties();
+    this.offset = 0;
+    this.page();
   }
 
   private async updateProperty(row) {

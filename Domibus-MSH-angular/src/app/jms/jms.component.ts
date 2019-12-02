@@ -15,13 +15,15 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
-export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
+export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
+  implements OnInit, DirtyOperations {
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -48,7 +50,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   markedForDeletionMessages: any[];
   loading: boolean;
 
-  rows: Array<any>;
+  // rows: Array<any>;
   request: MessagesRequestRO;
 
   private _selectedSource: any;
@@ -94,7 +96,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.markedForDeletionMessages = [];
     this.loading = false;
 
-    this.rows = [];
+    super.rows = [];
+    super.count = 0;
 
     this.loadDestinations();
 
@@ -262,9 +265,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       selector: this.activeFilter.selector,
     }).subscribe(
       res => {
-        this.rows = res.messages;
+        super.rows = res.messages;
+        super.count = res.messages.length;
+
         this.offset = 0;
-        this.refresh();
         this.loading = false;
 
         this.refreshDestinations();
@@ -284,11 +288,17 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     }
   }
 
-  save() {
-    let messageIds = this.markedForDeletionMessages.map((message) => message.id);
-    //because the user can change the source after pressing search and then select the messages and press delete
-    //in this case I need to use currentSearchSelectedSource
-    this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+  async save(): Promise<boolean> {
+    const save = await this.dialogsService.openSaveDialog();
+    if (save) {
+      let messageIds = this.markedForDeletionMessages.map((message) => message.id);
+      //because the user can change the source after pressing search and then select the messages and press delete
+      //in this case I need to use currentSearchSelectedSource
+      this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   move() {
@@ -393,7 +403,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       return row !== element;
     });
     this.selectedMessages = [];
-    this.rows = newRows;
+    super.rows = newRows;
+    super.count = newRows.length;
   }
 
   delete() {
@@ -402,11 +413,11 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       return !this.selectedMessages.includes(element);
     });
     this.selectedMessages = [];
-    this.rows = newRows;
+    super.rows = newRows;
+    super.count = newRows.length;
   }
 
   serverMove(source: string, destination: string, messageIds: Array<any>) {
-    console.log('serverMove');
     this.http.post('rest/jms/messages/action', {
       source: source,
       destination: destination,
@@ -426,7 +437,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
           return !this.selectedMessages.includes(element);
         });
         this.selectedMessages = [];
-        this.rows = newRows;
+        super.rows = newRows;
+        super.count = newRows.length;
       },
       error => {
         this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
@@ -496,7 +508,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     }
 
     super.saveAsCSV();
-    }
+  }
 
   public get csvUrl(): string {
     return 'rest/jms/csv' + this.getFilterPath();
@@ -515,7 +527,4 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     super.resetFilters();
   }
 
-  toJson(value) {
-    return JSON.stringify(value);
-  }
 }

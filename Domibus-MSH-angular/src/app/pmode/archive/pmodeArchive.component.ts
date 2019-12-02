@@ -149,9 +149,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param {number} newPageLimit New value for page limit
    */
   changePageSize(newPageLimit: number) {
-    console.log('New page limit:', newPageLimit);
+    this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
-    this.page(0, newPageLimit);
+    this.page();
   }
 
   /**
@@ -192,16 +192,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     }
   }
 
-  /**
-   *
-   * @param offset
-   * @param pageSize
-   */
-  page(offset, pageSize) {
+  page() {
     this.loading = true;
-
-    this.offset = offset;
-    this.rowLimiter.pageSize = pageSize;
 
     this.tableRows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
 
@@ -213,8 +205,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param event
    */
   onPage(event) {
-    console.log('Page Event', event);
-    this.page(event.offset, event.pageSize);
+    this.offset = event.offset;
+    this.page();
   }
 
   /**
@@ -345,7 +337,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     }
 
     if (this.offset > 0 && this.isPageEmpty()) {
-      this.page(this.offset - 1, this.rowLimiter.pageSize);
+      this.offset--;
+      this.page();
     }
 
     setTimeout(() => {
@@ -420,9 +413,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
       this.selected = [];
       this.actualRow = 0;
 
-      const offset = this.offset;
       await this.getAllPModeEntries();
-      this.page(offset, this.rowLimiter.pageSize);
+      this.page();
 
     } catch (e) {
       this.alertService.exception('The operation \'restore pmode\' not completed successfully.', e);

@@ -281,45 +281,31 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     return searchParams;
   }
 
-  getMessageLogEntries(offset: number, pageSize: number): Observable<MessageLogResult> {
+  getMessageLogEntries(): Promise<MessageLogResult> {
     let searchParams = this.createSearchParams();
 
-    searchParams = searchParams.append('page', offset.toString());
-    searchParams = searchParams.append('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', this.offset.toString());
+    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
 
-    return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams});
+    return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams})
+      .toPromise();
   }
 
-  /**
-   * The method is the actual implementation of the abstract method declared in the base abstract class
-   */
-  page(offset, pageSize) {
+  page() {
     this.loading = true;
     super.resetFilters();
-    this.getMessageLogEntries(offset, pageSize).subscribe((result: MessageLogResult) => {
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
+    this.getMessageLogEntries().then((result: MessageLogResult) => {
       this.count = result.count;
+      this.rows = result.messageLogEntries;
       this.selected = [];
 
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.messageLogEntries];
-
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.messageLogEntries[index++];
-      }
-
-      this.rows = newRows;
-
-      if (result.filter.receivedFrom != null) {
+      if (result.filter.receivedFrom) {
         result.filter.receivedFrom = new Date(result.filter.receivedFrom);
       }
-      if (result.filter.receivedTo != null) {
+      if (result.filter.receivedTo) {
         result.filter.receivedTo = new Date(result.filter.receivedTo);
       }
-      result.filter.isTestMessage = !isNullOrUndefined(result.filter.messageSubtype);
+      result.filter.isTestMessage = !!result.filter.messageSubtype;
       this['filter'] = result.filter;
 
       this.mshRoles = result.mshRoles;
@@ -329,21 +315,22 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
 
       this.loading = false;
     }, (error) => {
-      console.log('error getting the message log:', error);
       this.loading = false;
       this.alertService.exception('Error occurred: ', error);
     });
   }
 
   onPage(event) {
-    this.page(event.offset, event.pageSize);
+    this.offset = event.offset;
+    this.page();
   }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
   public reload() {
-    this.page(0, this.rowLimiter.pageSize);
+    this.offset = 0;
+    this.page();
   }
 
   onActivate(event) {
@@ -353,13 +340,15 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   changePageSize(newPageLimit: number) {
-    this.page(0, newPageLimit);
+    this.offset = 0;
+    this.rowLimiter.pageSize = newPageLimit;
+    this.page();
   }
 
   search() {
     super.setActiveFilter();
-    console.log('search by:', this.activeFilter);
-    this.page(0, this.rowLimiter.pageSize);
+    this.offset = 0;
+    this.page();
   }
 
   resendDialog() {
@@ -368,7 +357,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
         this.resend(this.selected[0].messageId);
         this.selected = [];
         this.messageResent.subscribe(() => {
-          this.page(0, this.rowLimiter.pageSize);
+          this.page();
         });
       }
     });
