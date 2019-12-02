@@ -87,6 +87,17 @@
     </ng-container>
   </ng-template>
 
+  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+    <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="!canEdit()" (click)="edit(row)"
+            color="primary" tooltip="Edit" button-click-behaviour>
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="!canEdit()" (click)="delete(row)" color="primary"
+            tooltip="Delete" button-click-behaviour>
+      <mat-icon>delete</mat-icon>
+    </button>
+  </ng-template>
+
   <table class="group-action-button">
     <tr>
       <td>

@@ -26,6 +26,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
@@ -87,11 +88,25 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
       {name: 'Role', prop: 'authRoles', width: 10},
       {name: 'Active', prop: 'active', cellTemplate: this.activeTpl, width: 25},
       {name: 'Original User', prop: 'originalUser', width: 240},
+      {
+        cellTemplate: this.rowActions,
+        name: 'Actions',
+        width: 60,
+        canAutoResize: true,
+        sortable: false
+      }
     ];
     this.columnPickerCert.allColumns = [
       {name: 'Certificate Id', prop: 'certificateId', width: 240},
       {name: 'Role', prop: 'authRoles', width: 10},
       {name: 'Original User', prop: 'originalUser', width: 240},
+      {
+        cellTemplate: this.rowActions,
+        name: 'Actions',
+        width: 60,
+        canAutoResize: true,
+        sortable: false
+      }
     ];
 
     this.columnPickerBasic.selectedColumns = this.columnPickerBasic.allColumns.filter(col => true);
@@ -167,8 +182,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   async add() {
     const newItem = this.pluginUserService.createNew();
     newItem.authenticationType = this.filter.authType;
-    super.rows.push(newItem);
-    super.count++;
+    this.rows.push(newItem);
+    super.count = this.count + 1;
 
     this.selected.length = 0;
     this.selected.push(newItem);
@@ -177,8 +192,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
 
     const ok = await this.openItemInEditForm(newItem, false);
     if (!ok) {
-      super.rows.pop();
-      super.count--;
+      this.rows.pop();
+      super.count = this.count -1;
       this.selected = [];
       this.setIsDirty();
     }
@@ -254,8 +269,8 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     }
   }
 
-  delete() {
-    const itemToDelete = this.selected[0];
+  delete(row: any) {
+    const itemToDelete = row || this.selected[0];
     if (itemToDelete.status === UserState[UserState.NEW]) {
       this.rows.splice(this.rows.indexOf(itemToDelete), 1);
     } else {
