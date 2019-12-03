@@ -398,8 +398,8 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   setProcessedValue(row) {
     this.isChanged = true;
-    row.processed = !row.processed;
-    this.rows[this.rows.indexOf(row)] = row;
+    // row.processed = !row.processed;
+    // this.rows[this.rows.indexOf(row)] = row;
   }
 
   isDirty(): boolean {

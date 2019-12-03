@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UserResponseRO, UserState} from './user';
 import {UserSearchCriteria, UserService} from './user.service';
-import {MatDialog, MatDialogRef} from '@angular/material';
+import {MAT_CHECKBOX_CLICK_ACTION, MatDialog, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from 'app/user/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
@@ -25,10 +25,13 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 @Component({
   moduleId: module.id,
   templateUrl: 'user.component.html',
-  styleUrls: ['./user.component.css']
+  styleUrls: ['./user.component.css'],
+  providers: [
+    {provide: MAT_CHECKBOX_CLICK_ACTION, useValue: 'check'}
+  ]
 })
 
-export class UserComponent extends mix(BaseListComponent).with(ModifiableListMixin)
+export class UserComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
@@ -63,7 +66,7 @@ export class UserComponent extends mix(BaseListComponent).with(ModifiableListMix
   dirty: boolean;
   areRowsDeleted: boolean;
 
-  filter: UserSearchCriteria;
+  // filter: UserSearchCriteria;
   deletedStatuses: any[];
   offset: number;
 
@@ -84,7 +87,7 @@ export class UserComponent extends mix(BaseListComponent).with(ModifiableListMix
   async ngOnInit() {
     this.isBusy = true;
     this.offset = 0;
-    this.filter = new UserSearchCriteria();
+    super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
 
     this.columnPicker = new ColumnPickerBase();
@@ -185,9 +188,10 @@ export class UserComponent extends mix(BaseListComponent).with(ModifiableListMix
   }
 
   async getUsers() {
+    this.setActiveFilter();
     this.isBusy = true;
     try {
-      let results = await this.userService.getUsers(this.filter).toPromise();
+      let results = await this.userService.getUsers(this.activeFilter).toPromise();
       const showDomain = await this.userService.isDomainVisible();
       if (showDomain) {
         await this.getUserDomains();
@@ -379,6 +383,10 @@ export class UserComponent extends mix(BaseListComponent).with(ModifiableListMix
     this.enableDelete = false;
   }
 
+  public search() {
+    this.getUsers();
+  }
+
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
@@ -413,31 +421,9 @@ export class UserComponent extends mix(BaseListComponent).with(ModifiableListMix
     return false;
   }
 
-  /**
-   * Saves the content of the datatable into a CSV file
-   */
-  // async saveAsCSV() {
-  //   await this.saveIfNeeded();
-  //
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   DownloadService.downloadNative(UserComponent.USER_CSV_URL);
-  // }
-
   public get csvUrl(): string {
     return UserComponent.USER_CSV_URL;
   }
-
-  // async saveIfNeeded(): Promise<boolean> {
-  //   if (this.isDirty()) {
-  //     return this.save();
-  //   } else {
-  //     return Promise.resolve(false);
-  //   }
-  // }
 
   isDirty(): boolean {
     return this.enableCancel;
@@ -471,4 +457,10 @@ export class UserComponent extends mix(BaseListComponent).with(ModifiableListMix
     }
   }
 
+  setState() {
+    this.filter.deleted_notSet = this.filter.i++ % 3 === 1;
+    if (this.filter.deleted_notSet) {
+      this.filter.deleted = true;
+    }
+  }
 }

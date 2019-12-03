@@ -63,9 +63,9 @@
                           #timestampControl="ngModel" id="creationto_id">
           </md2-datepicker>
           <ng-container *ngIf="displayDomainCheckBox">
-            <input type="checkbox" name="showDomainAlerts" [(ngModel)]="filter.domainAlerts"
-                   id="showDomainAlerts_id">
-            <span>Show domain alerts</span>
+            <mat-checkbox name="showDomainAlerts" [(ngModel)]="filter.domainAlerts" id="showDomainAlerts_id">
+              Show domain alerts
+            </mat-checkbox>
           </ng-container>
           <!-- Reporting From -->
           <md2-datepicker placeholder="Reporting From:" appClearInvalid
@@ -135,11 +135,6 @@
     </mat-card-content>
   </mat-card>
 
-  <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
-    <input autofocus type="checkbox" [checked]="value" id="processed{{rows.indexOf(row)}}_id"
-           (click)="setProcessedValue(row)"/>
-  </ng-template>
-
 </div>
 
 <div class="panel">
@@ -181,6 +176,11 @@
     (sort)="onSort($event)"
   >
   </ngx-datatable>
+
+  <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
+    <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed" (click)="setProcessedValue(row)">
+    </mat-checkbox>
+  </ng-template>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value| domibusDate: dateFormat}}</span>
