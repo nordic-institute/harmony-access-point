@@ -52,7 +52,7 @@ export class UserService {
       if (filter.userName) {
         results = results.filter(el => el.userName.indexOf(filter.userName) >= 0);
       }
-      if (filter.deleted != null) {
+      if (!filter.deleted_notSet) {
         results = results.filter(el => el.deleted === filter.deleted);
       }
       if (filter.authRole) {

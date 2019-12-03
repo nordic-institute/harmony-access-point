@@ -31,8 +31,8 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   levels: Array<String>;
 
   loading: boolean = false;
-  rows = [];
-  count: number = 0;
+  // rows = [];
+  // count: number = 0;
   offset: number = 0;
   orderBy: string = 'loggerName';
   asc: boolean = false;
@@ -97,32 +97,20 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
     return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams});
   }
 
-  page(offset, pageSize) {
+  page() {
     this.loading = true;
     super.resetFilters();
-    this.getLoggingEntries(offset, pageSize).subscribe((result: LoggingLevelResult) => {
-      console.log('errorLog response:' + result);
+    this.getLoggingEntries(this.offset, this.rowLimiter.pageSize).subscribe((result: LoggingLevelResult) => {
 
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
-      this.count = result.count;
+      this.rowLimiter.pageSize = this.rowLimiter.pageSize;
+      super.count = result.count;
+      super.rows = result.loggingEntries;
 
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.loggingEntries];
-
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.loggingEntries[index++];
-      }
-
-      this.rows = newRows;
       this['filter'] = result.filter;
       this.levels = result.levels;
 
       this.loading = false;
     }, (error: any) => {
-      console.log('error getting the error log:' + error);
       this.loading = false;
       this.alertService.exception('Error occurred:', error);
     });
@@ -130,19 +118,22 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   }
 
   onPage(event) {
-    this.page(event.offset, event.pageSize);
+    this.offset = event.offset;
+    this.page();
   }
 
   onSort(event) {
     this.orderBy = event.column.prop;
     this.asc = (event.newValue === 'desc') ? false : true;
 
-    this.page(this.offset, this.rowLimiter.pageSize);
+    this.page();
   }
 
   changePageSize(newPageLimit: number) {
     super.resetFilters();
-    this.page(0, newPageLimit);
+    this.offset = 0;
+    this.rowLimiter.pageSize = newPageLimit;
+    this.page();
   }
 
   onLevelChange(newLevel: string, row: any) {
@@ -153,7 +144,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
         level: newLevel,
       }, {headers: this.headers}).subscribe(
         () => {
-          this.page(this.offset, this.rowLimiter.pageSize);
+          this.page();
         },
         error => {
           this.alertService.exception('An error occurred while setting logging level: ', error);
@@ -168,7 +159,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
     this.http.post(LoggingComponent.RESET_LOGGING_URL, {}).subscribe(
       res => {
         this.alertService.success('Logging configuration was successfully reset.', false);
-        this.page(this.offset, this.rowLimiter.pageSize);
+        this.page();
       },
       error => {
         this.alertService.exception('An error occurred while resetting logging: ', error);
@@ -179,8 +170,9 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
 
   search() {
     console.log('Searching using filter:', this.filter);
-    super.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize);
+    // super.setActiveFilter();
+    this.offset = 0;
+    this.page();
   }
 
 }

@@ -367,3 +367,13 @@ mat-select .mat-select {
   height: 0.05em !important;
   background-color: lightgray !important;
 }
+
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-icon-button{
+  height: 30px !important;
+  margin-top: -10px !important;
+}

@@ -270,7 +270,7 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   search() {
     // this.isChanged = false;
-    this.setActiveFilter();
+    // this.setActiveFilter();
     this.offset = 0;
 
     this.page();

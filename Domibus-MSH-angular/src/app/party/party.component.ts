@@ -98,7 +98,7 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   }
 
   private search() {
-    super.setActiveFilter();
+    // super.setActiveFilter();
     this.listPartiesAndProcesses();
   }
 

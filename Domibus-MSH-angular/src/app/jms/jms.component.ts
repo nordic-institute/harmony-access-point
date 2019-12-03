@@ -240,7 +240,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   search() {
-    super.setActiveFilter();
+    // super.setActiveFilter();
     this.doSearch();
   }
 

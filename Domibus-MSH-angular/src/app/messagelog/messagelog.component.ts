@@ -346,7 +346,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   search() {
-    super.setActiveFilter();
+    // super.setActiveFilter();
     this.offset = 0;
     this.page();
   }

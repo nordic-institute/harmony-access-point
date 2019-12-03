@@ -222,7 +222,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   }
 
   search() {
-    this.setActiveFilter();
+    // this.setActiveFilter();
     this.offset = 0;
     this.page();
   }
