@@ -194,6 +194,8 @@ mat-sidenav[_ngcontent-c0] {
 h1 {
   font-size: 48px;
   margin-top: 0;
+  margin-bottom: 0;
+  font-size: xx-large;
 }
 
 h2 {
@@ -373,7 +375,7 @@ mat-select .mat-select {
   padding-bottom: 10px !important;
 }
 
-.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-icon-button{
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-icon-button {
   height: 30px !important;
   margin-top: -10px !important;
 }
