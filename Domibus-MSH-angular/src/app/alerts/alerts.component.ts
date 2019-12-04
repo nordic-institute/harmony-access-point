@@ -40,12 +40,12 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
+
+  offset: number;
   public rowLimiter: RowLimiterBase;
 
   advancedSearch: boolean;
   loading: boolean;
-
-  offset: number;
 
   isChanged: boolean;
 
@@ -72,8 +72,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   displayDomainCheckBox: boolean;
 
   matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
-
-  filter: any;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -116,7 +114,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.dateToName = '';
     this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
 
-    this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
+    super.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
     this.rowLimiter = new RowLimiterBase();
 
