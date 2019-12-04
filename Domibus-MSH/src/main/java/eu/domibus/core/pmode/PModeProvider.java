@@ -128,6 +128,7 @@ public abstract class PModeProvider {
         return null;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void removePMode(int id) {
         LOG.debug("Removing PMode with id: [{}]", id);
         configurationRawDAO.deleteById(id);

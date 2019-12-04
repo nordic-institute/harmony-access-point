@@ -1,6 +1,6 @@
 package pages.users;
 
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DInput;
@@ -10,7 +10,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -39,25 +38,23 @@ public class UserModal extends EditModal {
 	@FindBy(id = "confirmation_id")
 	WebElement confirmationInput;
 
-
-	@FindBy(css = "md-card > div:nth-child(4) > md2-select")
+	@FindBy(id = "domain_id")
 	WebElement domainSelectContainer;
 
-	@FindBy(css = "md2-select[placeholder=\"Role\"]")
+	@FindBy(id = "role_id")
 	WebElement rolesSelectContainer;
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(7) input")
+	@FindBy(id = "active_id")
 	WebElement activeChk;
 
-
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #username_id + div")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #email_id + div")
 	private WebElement emailErrMess;
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #password_id + div")
 	private WebElement passErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #confirmation_id + div")
 	private WebElement confirmationErrMess;
 
 

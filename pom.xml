@@ -82,7 +82,8 @@
             **/web.xml,
             **/common/model/configuration/**,
             **/ebms3/model/configuration/**,
-            **/api/usermessage/domain/**
+            **/api/usermessage/domain/**,
+            **/api/monitoring/domain/**
         </sonar.exclusions>
         <sonar.coverage.exclusions>
             **/*DTO.java,

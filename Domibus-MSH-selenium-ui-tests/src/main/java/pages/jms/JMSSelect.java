@@ -1,16 +1,15 @@
 package pages.jms;
 
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSSelect extends Select {
@@ -20,12 +19,21 @@ public class JMSSelect extends Select {
 
 	public int selectQueueWithMessages() throws Exception{
 		String qName = getQueueNameWithMessages("");
+		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
-		return Integer.valueOf(qName.replaceAll("\\D", ""));
+		return getListedNoOfMessInQName(qName);
+	}
+
+	private int getListedNoOfMessInQName(String qName){
+		int startIndex = qName.lastIndexOf("(");
+		int endIndex = qName.lastIndexOf(")");
+
+		return Integer.valueOf(qName.substring(startIndex+1, endIndex));
 	}
 
 	public int selectQueueWithMessagesNotDLQ() throws Exception{
 		String qName = getQueueNameWithMessages("DLQ");
+		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
 		return Integer.valueOf(qName.replaceAll("\\D", ""));
 	}
@@ -53,12 +61,8 @@ public class JMSSelect extends Select {
 			filtered = queues;
 		}
 
-//		List<String> withMess = filtered.stream()
-//				.filter(queue -> !queue.contains("(0)"))
-//				.collect((Collectors.toList()));
-
 		for (String queue : filtered) {
-			int noOfmess = Integer.valueOf(queue.replaceAll("\\D", ""));
+			int noOfmess = getListedNoOfMessInQName(queue);
 			if(noOfmess>0){
 				return queue;
 			}

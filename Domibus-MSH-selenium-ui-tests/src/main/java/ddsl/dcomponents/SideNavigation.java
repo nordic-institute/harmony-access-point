@@ -27,7 +27,7 @@ public class SideNavigation extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, 1), this);
 	}
 
-	@FindBy(tagName = "md-sidenav")
+	@FindBy(tagName = "mat-sidenav")
 	private WebElement sideBar;
 
 	private WebElement topLogo;
@@ -52,7 +52,7 @@ public class SideNavigation extends DComponent {
 	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(3)")
 	private WebElement pmodePartiesLnk;
 
-	@FindBy(css = "md-sidenav > md-expansion-panel")
+	@FindBy(css = "mat-sidenav mat-expansion-panel mat-expansion-panel-header")
 	private WebElement pmodeExpandLnk;
 	//	----------------------------------------------------
 
@@ -66,7 +66,7 @@ public class SideNavigation extends DComponent {
 	@FindBy(id = "user_id")
 	private WebElement userLnk;
 
-	@FindBy(css = ".sideNavButton.mat-raised-button:nth-of-type(7)")
+	@FindBy(css = "#plugin_user_id")
 	private WebElement pluginUsersLnk;
 
 	@FindBy(css = "#audit_id")
@@ -91,14 +91,15 @@ public class SideNavigation extends DComponent {
 		try {
 			new DButton(driver, pmodeExpandLnk).click();
 		} catch (Exception e) {
+			// log.warn("Could not expand pmode: ", e);
 		}
 	}
 
-	public DLink getPageLnk(PAGES page) throws Exception {
+	public DLink getPageLnk(PAGES page){
 
 		wait.forElementToHaveText(sideBar);
 
-		log.info("Get link to " + page.name());
+		log.debug("Get link to " + page.name());
 		switch (page) {
 			case MESSAGES:
 				return new DLink(driver, messagesLnk);
@@ -152,9 +153,10 @@ public class SideNavigation extends DComponent {
 
 	}
 
-	public void gGoToPage(PAGES page) throws Exception {
+	public void goToPage(PAGES page) throws Exception {
 		log.info("Navigating to " + page.name());
 		getPageLnk(page).click();
+		log.debug("Navigated to " + page.name());
 	}
 
 	public boolean isUserState() throws Exception {

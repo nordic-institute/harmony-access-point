@@ -32,18 +32,18 @@ public class PluginUsersPage extends DomibusPage {
 	private WebElement cancelBtn;
 
 	@FindBy(css = "#userSaveButton")
-	private WebElement saveBtn;
+	public WebElement saveBtn;
 
 	@FindBy(css = "#userNewButton")
 	private WebElement newBtn;
 
-	@FindBy(css = "table > tbody > tr > td > button:nth-child(4)")
+	@FindBy(css = "#userEditButton")
 	private WebElement editBtn;
 
 	@FindBy(css = "#userDeleteButton")
 	private WebElement deleteBtn;
 
-	public PluginUsersFilterArea getFilters() {
+	public PluginUsersFilterArea filters() {
 		return new PluginUsersFilterArea(driver);
 	}
 
@@ -102,9 +102,9 @@ public class PluginUsersPage extends DomibusPage {
 		if (!userGridContainer.isDisplayed()) {
 			return false;
 		}
-		if (!filters.isLoaded()) {
-			return false;
-		}
+//		if (!filters.isLoaded()) {
+//			return false;
+//		}
 
 		return true;
 	}

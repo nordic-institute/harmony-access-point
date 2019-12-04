@@ -23,7 +23,7 @@ public class MessageFilterPage extends DomibusPage {
 	public MessageFilterPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-		log.info("Message filter grid initializing");
+		log.debug("Message filter grid initializing");
 	}
 
 
@@ -83,6 +83,9 @@ public class MessageFilterPage extends DomibusPage {
 		return new DButton(driver, deleteBtn);
 	}
 
+	public Dialog getConfirmation() { return new Dialog(driver);}
+
+
 
 	public boolean isLoaded() throws Exception {
 		return (grid().getRowsNo() > 0
@@ -99,16 +102,16 @@ public class MessageFilterPage extends DomibusPage {
 	public void saveAndConfirmChanges() throws Exception {
 		wait.forElementToBeEnabled(saveBtn);
 		getSaveBtn().click();
-		log.info("saving");
+		log.debug("saving");
 		new Dialog(driver).confirm();
-		log.info("confirming");
+		log.debug("confirming");
 	}
 
 	public void cancelChangesAndConfirm() throws Exception {
-		log.info("cancelling");
+		log.debug("cancelling");
 		getCancelBtn().click();
 		new Dialog(driver).confirm();
-		log.info("cancel confirmed");
+		log.debug("cancel confirmed");
 	}
 
 }

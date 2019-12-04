@@ -271,10 +271,10 @@
                                 <configuration>
                                     <includes>
                                         <include>
-                                            ${project.build.directory}/cargo/installs/wildfly-as-dist-${wildfly12.version}/wildfly-${wildfly12.version}/bin/standalone.conf.bat
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly12.version}/wildfly-${wildfly12.version}/bin/standalone.conf.bat
                                         </include>
                                         <include>
-                                            ${project.build.directory}/cargo/installs/wildfly-as-dist-${wildfly12.version}/wildfly-${wildfly12.version}/bin/standalone.conf
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly12.version}/wildfly-${wildfly12.version}/bin/standalone.conf
                                         </include>
                                     </includes>
                                     <replacements>
