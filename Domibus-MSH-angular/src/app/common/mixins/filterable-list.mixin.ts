@@ -16,6 +16,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   ngOnInit() {
+    if (super.ngOnInit) super.ngOnInit();
+
     this.filter = {};
     this.activeFilter = {};
   }
