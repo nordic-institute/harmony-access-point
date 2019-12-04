@@ -13,8 +13,11 @@
           </div>
 
           <ng-container *ngIf="showGlobalPropertiesControl">
-            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id" (ngModelChange)="refresh()">
-            <span>Show Domain Properties</span>
+            <mat-checkbox name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id" (ngModelChange)="refresh()">
+              Show Domain Properties
+            </mat-checkbox>
+<!--            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id" (ngModelChange)="refresh()">-->
+<!--            <span>Show Domain Properties</span>-->
           </ng-container>
 
         </form>

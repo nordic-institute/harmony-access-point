@@ -58,7 +58,8 @@
       </div>
 
       <div style="margin-bottom: 20px;margin-top: 10px;">
-        Active<input type="checkbox" [checked]="active" (blur)="updateActive($event)" [formControl]="userForm.controls['active']" id="active_id">
+        <mat-checkbox [(ngModel)]="active" [formControl]="userForm.controls['active']" id="active_id">Active</mat-checkbox>
+<!--        Active<input type="checkbox" [checked]="active" (blur)="updateActive($event)" [formControl]="userForm.controls['active']" id="active_id">-->
       </div>
 
       <div class="buttonsRow">

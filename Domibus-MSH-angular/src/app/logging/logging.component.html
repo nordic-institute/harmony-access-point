@@ -4,16 +4,19 @@
     <mat-card-content>
 
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="search()">
+        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="trySearch()">
 
           <mat-form-field>
             <input matInput placeholder="Package or class name" name="packageClassName"
                    [(ngModel)]="filter.loggerName" #loggerName="ngModel" id="loggerName_id"
                    width="40px" tooltip="Enter here the package name e.g. 'eu.domibus' or 'ROOT' or part of the name">
           </mat-form-field>
-          <input type="checkbox" name="showClasses" [(ngModel)]="filter.showClasses"
-                 #showClasses="ngModel" id="showClasses_id">
-          <span>Show Classes</span>
+          <mat-checkbox name="showClasses" [(ngModel)]="filter.showClasses" #showClasses="ngModel" id="showClasses_id">
+            Show Classes
+          </mat-checkbox>
+<!--          <input type="checkbox" name="showClasses" [(ngModel)]="filter.showClasses"-->
+<!--                 #showClasses="ngModel" id="showClasses_id">-->
+<!--          <span>Show Classes</span>-->
 
           <div class="searchArea">
             <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
