@@ -59,25 +59,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     }
     return canSearch;
   }
-
-  // protected canProceed(): Promise<boolean> {
-  //   if (!this.supportsDirtyOperations() || !this.isDirty()) {
-  //     return Promise.resolve(true);
-  //   }
-  //
-  //   return this.dialogsService.openCancelDialog();
-  // }
-
-  // private supportsDirtyOperations() {
-  //   return this.isDirty && this.isDirty instanceof Function;
-  // }
-
-
-  // //we create this function like so to preserve the correct "this" when called from the row-limiter component context
-  // onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
-  //   const canChangePage = await this.canProceed();
-  //   return !canChangePage;
-  // };
 };
 
 export default FilterableListMixin;

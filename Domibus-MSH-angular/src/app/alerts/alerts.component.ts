@@ -45,9 +45,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   advancedSearch: boolean;
   loading: boolean;
 
-  // data table
-  // rows: Array<AlertsEntry>;
-  // count: number;
   offset: number;
 
   isChanged: boolean;
@@ -270,8 +267,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   search() {
-    // this.isChanged = false;
-    // this.setActiveFilter();
     this.offset = 0;
 
     this.page();
@@ -357,28 +352,6 @@ export class AlertsComponent extends mix(BaseListComponent)
       this.page();
     }
   }
-
-  // async saveAsCSV() {
-  //   await this.saveIfNeeded();
-  //
-  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   super.resetFilters();
-  //
-  //   // todo: add dynamic params for csv filtering, if requested
-  //   DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createSearchParams().toString());
-  // }
-
-  // async saveIfNeeded(): Promise<boolean> {
-  //   if (this.isDirty()) {
-  //     return this.save();
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
   async save(): Promise<boolean> {
     const save = await this.dialogsService.openSaveDialog();

@@ -46,8 +46,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   timestampToMaxDate: Date;
 
   loading: boolean;
-  // rows: any[];
-  // count: number;
   offset: number;
 
   mshRoles: Array<String>;
@@ -346,7 +344,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   }
 
   search() {
-    // super.setActiveFilter();
     this.offset = 0;
     this.page();
   }
@@ -426,16 +423,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   download() {
     this.downloadMessage(this.selected[0].messageId);
   }
-
-  // saveAsCSV() {
-  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   super.resetFilters();
-  //   DownloadService.downloadNative(MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString());
-  // }
 
   public get csvUrl(): string {
     return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString();

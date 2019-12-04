@@ -44,11 +44,9 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   advancedSearch: boolean;
 
 // --- Table binding ---
-//   rows = [];
   rowLimiter: RowLimiterBase = new RowLimiterBase();
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   offset: number = 0;
-  // count: number = 0;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -203,19 +201,6 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
       return ['Table', 'User', 'Action', 'Changed', 'Id'].indexOf(col.name) != -1
     })
   }
-
-  // saveAsCSV() {
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //   super.resetFilters();
-  //
-  //   // const auditCriteria = this.buildCriteria();
-  //   // this.auditService.saveAsCsv(auditCriteria);
-  //   const url = 'rest/audit/csv?' + this.buildCriteria().toURLSearchParams().toString();
-  //   DownloadService.downloadNative(url);
-  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;

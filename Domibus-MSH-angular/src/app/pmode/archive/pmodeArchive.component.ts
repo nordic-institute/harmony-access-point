@@ -50,9 +50,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
   loading: boolean;
 
   allPModes: any[];
-  // rows: any[];
   selected: any[];
-  // count: number;
   offset: number;
 
   disabledSave: boolean;
@@ -442,28 +440,9 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
     });
   }
 
-  // async saveAsCSV() {
-  //   await this.saveIfNeeded();
-  //
-  //   if (this.count > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
-  // }
-
   public get csvUrl(): string {
     return PModeArchiveComponent.PMODE_CSV_URL;
   }
-
-  // async saveIfNeeded(): Promise<boolean> {
-  //   if (this.isDirty()) {
-  //     return this.save();
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
   /**
    * Downloader for the XML file
