@@ -7,6 +7,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.common.dao.BasicDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -27,10 +28,8 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.AttachmentCleanupService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
@@ -40,10 +39,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
 import org.apache.neethi.Policy;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
@@ -906,6 +902,13 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
+    // Note for running this test on Mac OS with JDK 8: before trying to fix this test or marking it as @Ignored,
+    // ensure that you have the ".mime.types" file in your user home folder (please check the JDK implementation
+    // for Mac OS sun.nio.fs.MacOSXFileSystemProvider); this file is used to determine the MIME type of files from
+    // their extensions when the call to Files#probeContentType(Path) is made below.
+    //
+    // You can also append the mapping for the ZIP extension used below with the following command:
+    // $ echo "application/zip					zip" >> ~/.mime.types
     public void compressAndDecompressSourceMessage() throws IOException {
         File sourceFile = testFolder.newFile("file.txt");
         FileUtils.writeStringToFile(sourceFile, "mycontent", Charset.defaultCharset());
