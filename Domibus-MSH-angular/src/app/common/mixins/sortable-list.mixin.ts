@@ -1,9 +1,9 @@
-import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 import {Constructable} from '../base-list.component';
 
 /**
  * @author Ion Perpegel
  * @since 4.1
+ *
  * A mixin for components that display a list of items that can be ordered
  * */
 

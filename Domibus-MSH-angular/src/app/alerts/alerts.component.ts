@@ -1,9 +1,4 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
-import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
@@ -14,11 +9,10 @@ import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {DirtyOperations} from '../common/dirty-operations';
-import {AlertsEntry} from './alertsentry';
 import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
-import PageableListMixin from '../common/mixins/pageable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -27,8 +21,9 @@ import PageableListMixin from '../common/mixins/pageable-list.mixin';
 })
 
 export class AlertsComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, SortableListMixin, ModifiableListMixin, PageableListMixin)
+  .with(FilterableListMixin, SortableListMixin, ModifiableListMixin, ServerPageableListMixin)
   implements OnInit, DirtyOperations {
+
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';
@@ -39,10 +34,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
-
-  // columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  // offset: number;
-  // public rowLimiter: RowLimiterBase;
 
   advancedSearch: boolean;
   loading: boolean;
@@ -91,7 +82,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.loading = false;
     super.rows = [];
     super.count = 0;
-    // this.offset = 0;
     this.isChanged = false;
 
     this.aTypes = [];
@@ -115,8 +105,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
 
     super.filter = {processed: 'UNPROCESSED', domainAlerts: false};
-
-    // this.rowLimiter = new RowLimiterBase();
 
     this['orderBy'] = 'creationTime';
     this['asc'] = false;
@@ -319,12 +307,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.timestampReportingFromMaxDate = event.value;
   }
 
-  // onPage(event) {
-  //   super.offset = event.offset;
-  //
-  //   this.page();
-  // }
-
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
@@ -332,12 +314,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     super.offset = 0;
     this.page();
   }
-
-  // changePageSize(newPageLimit: number) {
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageLimit;
-  //   this.page();
-  // }
 
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();
@@ -347,6 +323,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     }
   }
 
+  //todo: parts of this can me moved up in the hierarchy
   async save(): Promise<boolean> {
     const save = await this.dialogsService.openSaveDialog();
     if (save) {
@@ -366,8 +343,6 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   setProcessedValue(row) {
     this.isChanged = true;
-    // row.processed = !row.processed;
-    // this.rows[this.rows.indexOf(row)] = row;
   }
 
   isDirty(): boolean {

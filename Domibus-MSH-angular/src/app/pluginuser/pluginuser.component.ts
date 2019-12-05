@@ -15,7 +15,7 @@ import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
-import PageableListMixin from '../common/mixins/pageable-list.mixin';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -23,7 +23,7 @@ import PageableListMixin from '../common/mixins/pageable-list.mixin';
   providers: [PluginUserService, UserService]
 })
 export class PluginUserComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, PageableListMixin, ModifiableListMixin)
+  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;

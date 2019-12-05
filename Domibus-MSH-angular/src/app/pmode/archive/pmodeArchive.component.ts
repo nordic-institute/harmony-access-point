@@ -1,6 +1,4 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
-import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {MatDialog} from '@angular/material';
@@ -11,8 +9,6 @@ import {ActionDirtyDialogComponent} from 'app/pmode/action-dirty-dialog/action-d
 import {DirtyOperations} from 'app/common/dirty-operations';
 import {Observable} from 'rxjs/Observable';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
-import {DownloadService} from 'app/common/download.service';
-import {AlertComponent} from 'app/common/alert/alert.component';
 import {PmodeViewComponent} from './pmode-view/pmode-view.component';
 import {CurrentPModeComponent} from '../current/currentPMode.component';
 import {DomainService} from '../../security/domain.service';
@@ -20,8 +16,8 @@ import {Domain} from '../../security/domain';
 import {DialogsService} from '../../common/dialogs/dialogs.service';
 import mix from '../../common/mixins/mixin.utils';
 import BaseListComponent from '../../common/base-list.component';
-import FilterableListMixin from '../../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
+import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -33,8 +29,10 @@ import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
 /**
  * PMode Archive Component Typescript
  */
-export class PModeArchiveComponent extends mix(BaseListComponent).with(ModifiableListMixin)
+export class PModeArchiveComponent extends mix(BaseListComponent)
+  .with(ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations {
+
   static readonly PMODE_URL: string = 'rest/pmode';
   static readonly PMODE_CSV_URL: string = PModeArchiveComponent.PMODE_URL + '/csv';
 
@@ -44,14 +42,10 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-
   loading: boolean;
 
   allPModes: any[];
   selected: any[];
-  offset: number;
 
   disabledSave: boolean;
   disabledCancel: boolean;
@@ -89,13 +83,12 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
    * NgOnInit method
    */
   ngOnInit() {
+    super.ngOnInit();
+
     this.loading = false;
 
     this.allPModes = [];
-    super.rows = [];
     this.selected = [];
-    super.count = 0;
-    this.offset = 0;
 
     this.disabledSave = true;
     this.disabledCancel = true;
@@ -112,7 +105,8 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
 
     this.getAllPModeEntries();
 
-    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
+    this.domainService.getCurrentDomain()
+      .subscribe((domain: Domain) => this.currentDomain = domain);
   }
 
   ngAfterViewInit() {
@@ -149,16 +143,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
   }
 
   /**
-   * Change Page size for a @newPageLimit value
-   * @param {number} newPageLimit New value for page limit
-   */
-  changePageSize(newPageLimit: number) {
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page();
-  }
-
-  /**
    * Gets all the PMode
    * @returns {Observable<any>}
    */
@@ -175,7 +159,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
     try {
       this.allPModes = await this.getResultObservable().toPromise();
 
-      this.offset = 0;
+      super.offset = 0;
       this.actualRow = 0;
       this.actualId = undefined;
 
@@ -198,19 +182,8 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
 
   page() {
     this.loading = true;
-
     super.rows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
-    //this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
     this.loading = false;
-  }
-
-  /**
-   *
-   * @param event
-   */
-  onPage(event) {
-    this.offset = event.offset;
-    this.page();
   }
 
   /**
@@ -335,7 +308,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent).with(Modifiabl
     }
 
     if (this.offset > 0 && this.isPageEmpty()) {
-      this.offset--;
+      super.offset--;
     }
     this.page();
 

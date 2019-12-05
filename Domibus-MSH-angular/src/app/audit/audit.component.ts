@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Observable';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import PageableListMixin from '../common/mixins/pageable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -25,7 +25,7 @@ import PageableListMixin from '../common/mixins/pageable-list.mixin';
   styleUrls: ['./audit.component.css']
 })
 export class AuditComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, PageableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin) implements OnInit {
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 

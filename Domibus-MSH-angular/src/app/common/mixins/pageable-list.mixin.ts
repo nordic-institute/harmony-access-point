@@ -2,22 +2,40 @@
  * @author Ion Perpegel
  * @since 4.2
  *
- * A mixin for components that display a list of items that can be modified and saved
+ * A mixin for components that display a list of items that are paged on server or client
  */
 import {Constructable} from '../base-list.component';
-import {OnInit} from '@angular/core';
+import {ChangeDetectorRef, OnInit} from '@angular/core';
 import {DirtyOperations} from '../dirty-operations';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
-import {IPageableList} from './Ipageable-list';
+import {IPageableList, PaginationType} from './Ipageable-list';
 
-let PageableListMixin = (superclass: Constructable) => class extends superclass
+export let ServerPageableListMixin = (superclass: Constructable) => class extends PageableListMixin(superclass) {
+  constructor(...args) {
+    super(...args);
+    super.type = PaginationType.Server;
+  }
+}
+
+export let ClientPageableListMixin = (superclass: Constructable) => class extends PageableListMixin(superclass) {
+  constructor(...args) {
+    super(...args);
+    super.type = PaginationType.Client;
+  }
+}
+
+export let PageableListMixin = (superclass: Constructable) => class extends superclass
   implements IPageableList, OnInit {
 
+  public type: PaginationType;
   public offset: number;
   public rowLimiter: RowLimiterBase;
 
   constructor(...args) {
     super(...args);
+
+    this.offset = 0;
+    this.rowLimiter = new RowLimiterBase();
   }
 
   public page() {
@@ -28,8 +46,8 @@ let PageableListMixin = (superclass: Constructable) => class extends superclass
       super.ngOnInit();
     }
 
-    this.offset = 0;
-    this.rowLimiter = new RowLimiterBase();
+    // this.offset = 0;
+    // this.rowLimiter = new RowLimiterBase();
   }
 
   public changePageSize(newPageLimit: number) {
@@ -38,15 +56,22 @@ let PageableListMixin = (superclass: Constructable) => class extends superclass
     this.page();
   }
 
-  onPage(event) {
-    this.offset = event.offset;
-    this.page();
+  async onPage(event) {
+    const canChangePage = await this.canProceed();
+    if (canChangePage) {
+      this.offset = event.offset;
+      this.page();
+    } else {
+      //how to make grid show the correct page??
+    }
   }
 
   public canProceed(): Promise<boolean> {
-    console.log('canProceed');
-    if (super.hasMethod('isDirty') && this.isDirty()) {
-      return this.dialogsService.openCancelDialog();
+    // console.log('canProceed');
+    if(this.type == PaginationType.Server) {
+      if (super.hasMethod('isDirty') && this.isDirty()) {
+        return this.dialogsService.openCancelDialog();
+      }
     }
     return Promise.resolve(true);
   }
@@ -59,4 +84,4 @@ let PageableListMixin = (superclass: Constructable) => class extends superclass
 
 };
 
-export default PageableListMixin;
+// export default PageableListMixin;

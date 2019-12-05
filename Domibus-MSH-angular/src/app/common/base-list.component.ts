@@ -29,6 +29,11 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     this.columnPicker = new ColumnPickerBase();
   }
 
+  ngOnInit(): void {
+    this.rows = [];
+    this.count = 0;
+  }
+
   public get csvUrl(): string {
     return undefined;
   }
@@ -54,11 +59,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
 
   protected hasMethod(name: string) {
     return this[name] && this[name] instanceof Function;
-  }
-
-  ngOnInit(): void {
-    this.rows = [];
-    this.count = 0;
   }
 
 };

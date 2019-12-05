@@ -47,6 +47,8 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   }
 
   ngOnInit() {
+    super.ngOnInit();
+
     super.rows = [];
     super.count = 0;
     this.selected = [];

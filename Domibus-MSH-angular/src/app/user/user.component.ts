@@ -80,6 +80,8 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   }
 
   async ngOnInit() {
+    super.ngOnInit();
+
     this.isBusy = true;
     this.offset = 0;
     super.filter = new UserSearchCriteria();
