@@ -203,7 +203,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return this.selected.length === 1;
   }
 
-  async edit(row: PluginUserRO) {
+  async edit(row?: PluginUserRO) {
     row = row || this.selected[0];
     const rowCopy = Object.assign({}, row);
 
@@ -269,7 +269,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  delete(row: any) {
+  delete(row?: any) {
     const itemToDelete = row || this.selected[0];
     if (itemToDelete.status === UserState[UserState.NEW]) {
       this.rows.splice(this.rows.indexOf(itemToDelete), 1);
