@@ -206,7 +206,7 @@ public class MessageLogResourceTest {
     }
 
     @Test
-    public void testGetLastTestSent() {
+    public void testGetLastTestSent() throws Exception {
         // Given
         String partyId = "test";
         String userMessageId = "testmessageid";
@@ -230,8 +230,8 @@ public class MessageLogResourceTest {
         Assert.assertEquals(userMessageId, testServiceMessageInfoRO.getMessageId());
     }
 
-    @Test
-    public void testGetLastTestSent_NotFound() {
+    @Test(expected = Exception.class)
+    public void testGetLastTestSent_NotFound() throws Exception {
         // Given
         new Expectations() {{
             userMessageLogDao.findLastUserTestMessageId(anyString);
@@ -239,17 +239,14 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+      messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId("test");
                 }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestSent.getStatusCode());
     }
 
     @Test
-    public void testGetLastTestReceived(@Injectable Messaging messaging) {
+    public void testGetLastTestReceived(@Injectable Messaging messaging) throws Exception {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
@@ -281,23 +278,19 @@ public class MessageLogResourceTest {
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 
-    @Test
-    public void testGetLastTestReceived_NotFound() {
+    @Test(expected = Exception.class)
+    public void testGetLastTestReceived_NotFound() throws Exception {
         // Given
         new Expectations() {{
             messagingDao.findMessageByMessageId(anyString);
             result = null;
         }};
 
-        // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
+       messageLogResource.getLastTestReceived(
                 new LatestIncomingMessageRequestRO() {{
                     setPartyId("test");
                     setUserMessageId("test");
                 }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestReceived.getStatusCode());
     }
 
     /**

@@ -174,14 +174,14 @@ public class MessageLogResource extends BaseResource {
     }
 
     @GetMapping(value = "test/outgoing/latest")
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) {
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) throws Exception {
         String partyId = request.getPartyId();
         LOG.debug("Getting last sent test message for partyId='{}'", partyId);
 
         String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
             LOG.debug("Could not find last user message id for party [{}]", partyId);
-            return ResponseEntity.noContent().build();
+            throw new Exception("Could not find last user message id for the sending party"+ partyId);
         }
 
         UserMessageLog userMessageLog = null;
@@ -203,11 +203,11 @@ public class MessageLogResource extends BaseResource {
             return ResponseEntity.ok().body(testServiceMessageInfoRO);
         }
 
-        return ResponseEntity.noContent().build();
+        throw new Exception("No UserMessageLog found for message");
     }
 
     @GetMapping(value = "test/incoming/latest")
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) {
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) throws Exception {
         String partyId = request.getPartyId();
         String userMessageId = request.getUserMessageId();
         LOG.debug("Getting last received test message from partyId='{}'", partyId);
@@ -215,7 +215,7 @@ public class MessageLogResource extends BaseResource {
         Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
         if (messaging == null) {
             LOG.debug("Could not find messaging for message ID[{}]", userMessageId);
-            return ResponseEntity.noContent().build();
+            throw new Exception("Could not find User Message for message Id"+userMessageId);
         }
 
         SignalMessage signalMessage = messaging.getSignalMessage();
@@ -229,9 +229,8 @@ public class MessageLogResource extends BaseResource {
 
             return ResponseEntity.ok().body(testServiceMessageInfoRO);
         }
-
-        return ResponseEntity.noContent().build();
-    }
+        throw new Exception("Could not find Signal Message!");
+}
 
     private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = new HashMap<>();
