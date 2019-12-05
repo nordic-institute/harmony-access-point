@@ -1,5 +1,7 @@
 package eu.domibus.ebms3.receiver;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Lists;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -7,6 +9,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -109,43 +112,55 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
     public void handleMessage(final SoapMessage message) throws Fault {
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
-            LOG.warn("No trust verification of sending certificate");
-            return;
-        }
-        String messageId = (String) message.getExchange().get(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY);
-        if (!isMessageSecured(message)) {
-            LOG.info("Message does not contain security info ==> skipping sender trust verification.");
-            return;
-        }
+       /* Timer.Context time=null;
+        try {
+            final MetricRegistry metricRegistry = MetricsHelper.getMetricRegistry();
+            if (metricRegistry != null) {
+                Timer trustSenderInterceptor = metricRegistry.timer("TrustSenderInterceptor");
+                time = trustSenderInterceptor.time();
+            }*/
+            if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
+                LOG.warn("No trust verification of sending certificate");
+                return;
+            }
+            String messageId = (String) message.getExchange().get(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY);
+            if (!isMessageSecured(message)) {
+                LOG.info("Message does not contain security info ==> skipping sender trust verification.");
+                return;
+            }
 
-        boolean isPullMessage = false;
-        MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
-        if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
-            LOG.info("PULL Signal Message");
-            isPullMessage = true;
-        }
+            boolean isPullMessage = false;
+            MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
+            if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
+                LOG.info("PULL Signal Message");
+                isPullMessage = true;
+            }
 
-        String senderPartyName;
-        String receiverPartyName;
-        if (isPullMessage) {
-            senderPartyName = getReceiverPartyName(message);
-            receiverPartyName = getSenderPartyName(message);
-        } else {
-            senderPartyName = getSenderPartyName(message);
-            receiverPartyName = getReceiverPartyName(message);
-        }
-        LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
-        LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
+            String senderPartyName;
+            String receiverPartyName;
+            if (isPullMessage) {
+                senderPartyName = getReceiverPartyName(message);
+                receiverPartyName = getSenderPartyName(message);
+            } else {
+                senderPartyName = getSenderPartyName(message);
+                receiverPartyName = getReceiverPartyName(message);
+            }
+            LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
+            LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
 
-        LOG.info("Validating sender certificate for party [{}]", senderPartyName);
-        List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
+            LOG.info("Validating sender certificate for party [{}]", senderPartyName);
+            List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
-        if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
-            EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender [" + senderPartyName + "] certificate is not valid or has been revoked", messageId, null);
-            ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-            throw new Fault(ebMS3Ex);
-        }
+            if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
+                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender [" + senderPartyName + "] certificate is not valid or has been revoked", messageId, null);
+                ebMS3Ex.setMshRole(MSHRole.RECEIVING);
+                throw new Fault(ebMS3Ex);
+            }
+      /*  }finally {
+            if(time!=null){
+                time.stop();
+            }
+        }*/
     }
 
     protected Boolean checkCertificateValidity(List<? extends Certificate> certificateChain, String sender, boolean isPullMessage) {
