@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
@@ -56,7 +57,7 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = EbMS3Exception.class)
     public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
         com.codahale.metrics.Timer.Context findByMessageIdSafely_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "findByMessageIdSafely_before_sending")).time();
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);

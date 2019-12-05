@@ -45,10 +45,10 @@ public class FaultOutHandler extends AbstractFaultHandler {
     @Override
     public boolean handleFault(final SOAPMessageContext context) {
 
-        final Messaging messaging = this.extractMessaging(context.getMessage());
-
-        FaultOutHandler.LOG.debug("An ebMS3 error was received for message with ebMS3 messageId:" + messaging.getSignalMessage().getMessageInfo().getMessageId() + ". Please check the database for more detailed information.");
-        this.errorLogDao.create(ErrorLogEntry.parse(messaging, MSHRole.SENDING));
+//        final Messaging messaging = this.extractMessaging(context.getMessage());
+//
+//        FaultOutHandler.LOG.debug("An ebMS3 error was received for message with ebMS3 messageId:" + messaging.getSignalMessage().getMessageInfo().getMessageId() + ". Please check the database for more detailed information.");
+//        this.errorLogDao.create(ErrorLogEntry.parse(messaging, MSHRole.SENDING));
 
         return true;
     }

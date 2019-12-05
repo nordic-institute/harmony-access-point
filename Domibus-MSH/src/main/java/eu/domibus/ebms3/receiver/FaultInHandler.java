@@ -64,58 +64,59 @@ public class FaultInHandler extends AbstractFaultHandler {
     @Override
     public boolean handleFault(final SOAPMessageContext context) {
 
-        if (context == null) {
-            LOG.error("Context is null and shouldn't be");
-            throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
-        }
-
-        final Exception exception = (Exception) context.get(Exception.class.getName());
-        final Throwable cause = exception.getCause();
-        EbMS3Exception ebMS3Exception = null;
-        if (cause != null) {
-
-            if (!(cause instanceof EbMS3Exception)) {
-                //do Mapping of non ebms exceptions
-                if (cause instanceof NoMatchingPModeFoundException) {
-                    ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, cause.getMessage(), ((NoMatchingPModeFoundException) cause).getMessageId(), cause);
-                    ebMS3Exception.setMshRole(MSHRole.RECEIVING);
-                } else {
-
-                    if (cause instanceof WebServiceException) {
-                        if (cause.getCause() instanceof EbMS3Exception) {
-                            ebMS3Exception = (EbMS3Exception) cause.getCause();
-                        }
-                    } else {
-                        //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
-                        final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
-                        ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", messageId, cause);
-                        ebMS3Exception.setMshRole(MSHRole.RECEIVING);
-                    }
-                }
-
-            } else {
-                ebMS3Exception = (EbMS3Exception) cause;
-            }
-
-            this.processEbMSError(context, ebMS3Exception);
-
-        } else {
-            if (exception instanceof PolicyException) {
-                //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
-                final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
-
-                ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0103, exception.getMessage(), messageId, exception);
-                ebMS3Exception.setMshRole(MSHRole.RECEIVING);
-            } else {
-                ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", null, null);
-                ebMS3Exception.setMshRole(MSHRole.RECEIVING);
-            }
-
-            this.processEbMSError(context, ebMS3Exception);
-        }
-
-
         return true;
+//        if (context == null) {
+//            LOG.error("Context is null and shouldn't be");
+//            throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
+//        }
+//
+//        final Exception exception = (Exception) context.get(Exception.class.getName());
+//        final Throwable cause = exception.getCause();
+//        EbMS3Exception ebMS3Exception = null;
+//        if (cause != null) {
+//
+//            if (!(cause instanceof EbMS3Exception)) {
+//                //do Mapping of non ebms exceptions
+//                if (cause instanceof NoMatchingPModeFoundException) {
+//                    ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, cause.getMessage(), ((NoMatchingPModeFoundException) cause).getMessageId(), cause);
+//                    ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+//                } else {
+//
+//                    if (cause instanceof WebServiceException) {
+//                        if (cause.getCause() instanceof EbMS3Exception) {
+//                            ebMS3Exception = (EbMS3Exception) cause.getCause();
+//                        }
+//                    } else {
+//                        //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
+//                        final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
+//                        ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", messageId, cause);
+//                        ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+//                    }
+//                }
+//
+//            } else {
+//                ebMS3Exception = (EbMS3Exception) cause;
+//            }
+//
+//            this.processEbMSError(context, ebMS3Exception);
+//
+//        } else {
+//            if (exception instanceof PolicyException) {
+//                //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
+//                final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
+//
+//                ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0103, exception.getMessage(), messageId, exception);
+//                ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+//            } else {
+//                ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", null, null);
+//                ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+//            }
+//
+//            this.processEbMSError(context, ebMS3Exception);
+//        }
+//
+//
+//        return true;
     }
 
     private void processEbMSError(final SOAPMessageContext context, final EbMS3Exception ebMS3Exception) {

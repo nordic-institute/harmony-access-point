@@ -25,7 +25,7 @@ public class MetricsServletFilter implements Filter {
     @Timer(value = SERVLET_INCOMING_USER_MESSAGE)
     @Counter(SERVLET_INCOMING_USER_MESSAGE)
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        filterChain.doFilter(servletRequest,servletResponse);
+        //filterChain.doFilter(servletRequest,servletResponse);
     }
 
     @Override

@@ -71,7 +71,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     private MetricRegistry metricRegistry;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = EbMS3Exception.class)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)
