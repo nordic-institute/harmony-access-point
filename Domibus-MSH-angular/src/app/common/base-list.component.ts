@@ -3,6 +3,7 @@ import {AlertService} from './alert/alert.service';
 import {IBaseList} from './ibase-list';
 import {DownloadService} from './download.service';
 import {OnInit} from '@angular/core';
+import {ColumnPickerBase} from './column-picker/column-picker-base';
 
 /**
  * Base class for list components;
@@ -22,8 +23,10 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
 
   public rows: T[];
   public count: number;
+  public columnPicker: ColumnPickerBase;
 
   constructor(private alertService: AlertService) {
+    this.columnPicker = new ColumnPickerBase();
   }
 
   public get csvUrl(): string {
@@ -36,7 +39,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       await this.saveIfNeeded();
     }
 
-    // if (this.getTotalCount() > AlertComponent.MAX_COUNT_CSV) {
     if (this.count > AlertComponent.MAX_COUNT_CSV) {
       this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
       return;

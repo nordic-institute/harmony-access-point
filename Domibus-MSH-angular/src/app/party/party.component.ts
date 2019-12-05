@@ -5,7 +5,6 @@ import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
 import {AlertService} from '../common/alert/alert.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
 import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
@@ -168,20 +167,6 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     super.resetFilters();
     this.offset = event.offset;
   }
-
-  // saveAsCSV() {
-  //   // TODO: await saveIfNeeded
-  //
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   super.resetFilters();
-  //
-  //   this.partyService.saveAsCsv(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
-  //     this.activeFilter.process, this.activeFilter.process_role);
-  // }
 
   public get csvUrl(): string {
     return PartyService.CSV_PARTIES

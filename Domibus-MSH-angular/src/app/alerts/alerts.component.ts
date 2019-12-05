@@ -18,6 +18,7 @@ import {AlertsEntry} from './alertsentry';
 import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import PageableListMixin from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -26,7 +27,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 })
 
 export class AlertsComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, SortableListMixin, ModifiableListMixin)
+  .with(FilterableListMixin, SortableListMixin, ModifiableListMixin, PageableListMixin)
   implements OnInit, DirtyOperations {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
@@ -39,10 +40,9 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-
-  offset: number;
-  public rowLimiter: RowLimiterBase;
+  // columnPicker: ColumnPickerBase = new ColumnPickerBase();
+  // offset: number;
+  // public rowLimiter: RowLimiterBase;
 
   advancedSearch: boolean;
   loading: boolean;
@@ -91,7 +91,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.loading = false;
     super.rows = [];
     super.count = 0;
-    this.offset = 0;
+    // this.offset = 0;
     this.isChanged = false;
 
     this.aTypes = [];
@@ -116,7 +116,7 @@ export class AlertsComponent extends mix(BaseListComponent)
 
     super.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
-    this.rowLimiter = new RowLimiterBase();
+    // this.rowLimiter = new RowLimiterBase();
 
     this['orderBy'] = 'creationTime';
     this['asc'] = false;
@@ -265,8 +265,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   search() {
-    this.offset = 0;
-
+    super.offset = 0;
     this.page();
   }
 
@@ -320,28 +319,25 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.timestampReportingFromMaxDate = event.value;
   }
 
-
-  // datatable methods
-
-  onPage(event) {
-    this.offset = event.offset;
-
-    this.page();
-  }
+  // onPage(event) {
+  //   super.offset = event.offset;
+  //
+  //   this.page();
+  // }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
   public reload() {
-    this.offset = 0;
+    super.offset = 0;
     this.page();
   }
 
-  changePageSize(newPageLimit: number) {
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page();
-  }
+  // changePageSize(newPageLimit: number) {
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageLimit;
+  //   this.page();
+  // }
 
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();

@@ -8,12 +8,9 @@ import {BackendFilterEntry} from './backendfilterentry';
 import {RoutingCriteriaEntry} from './routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {DownloadService} from '../common/download.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
-import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
@@ -27,7 +24,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   implements OnInit, DirtyOperations {
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  // rows: any [];
   selected: any[];
 
   backendFilterNames: any[];
@@ -256,17 +252,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     this.enableEdit = false;
     this.enableDelete = false;
   }
-
-  // async saveAsCSV() {
-  //   await this.saveIfNeeded();
-  //
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
-  // }
 
   public get csvUrl(): string {
     return MessageFilterComponent.MESSAGE_FILTER_URL + '/csv';

@@ -31,8 +31,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   levels: Array<String>;
 
   loading: boolean = false;
-  // rows = [];
-  // count: number = 0;
+
   offset: number = 0;
   orderBy: string = 'loggerName';
   asc: boolean = false;

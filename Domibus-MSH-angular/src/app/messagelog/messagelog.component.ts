@@ -1,15 +1,12 @@
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './messagelogresult';
-import {Observable} from 'rxjs';
 import {AlertService} from '../common/alert/alert.service';
 import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
-import {isNullOrUndefined} from 'util';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';

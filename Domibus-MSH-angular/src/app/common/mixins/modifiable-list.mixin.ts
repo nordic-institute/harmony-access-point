@@ -31,22 +31,6 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     }
   }
 
-  protected canProceed(): Promise<boolean> {
-    //todo: we also need to check if the pagination is done on the server
-    if (!this.isDirty()) {
-      return Promise.resolve(true);
-    }
-
-    return this.dialogsService.openCancelDialog();
-  }
-
-  //todo:even better: this code to be moved on the future paginableList mixin and check for dirty to decide if can proceed
-  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
-  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
-    const canChangePage = await this.canProceed();
-    return !canChangePage;
-  };
-
 };
 
 export default ModifiableListMixin;

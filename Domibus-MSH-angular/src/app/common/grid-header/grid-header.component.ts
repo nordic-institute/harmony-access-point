@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnInit} from '@angular/core';
-import {DomainService} from '../../security/domain.service';
-import {Domain} from '../../security/domain';
+import {IPageableList} from '../mixins/Ipageable-list';
 import BaseListComponent from '../base-list.component';
 
 @Component({
@@ -14,7 +13,7 @@ export class GridHeaderComponent implements OnInit {
   }
 
   @Input()
-  parent: BaseListComponent<any>;
+  parent: BaseListComponent<any> & IPageableList;
 
   ngOnInit() {
   }

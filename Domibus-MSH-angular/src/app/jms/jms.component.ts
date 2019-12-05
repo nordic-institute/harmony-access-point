@@ -9,8 +9,6 @@ import {DirtyOperations} from '../common/dirty-operations';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {Observable} from 'rxjs/Observable';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -482,24 +480,6 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     }
     return result;
   }
-
-  // saveAsCSV() {
-  //   // TODO: await saveIfNeeded ??
-  //
-  //   if (!this.activeFilter.source) {
-  //     this.alertService.error('Source should be set');
-  //     return;
-  //   }
-  //
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   super.resetFilters();
-  //
-  //   DownloadService.downloadNative('rest/jms/csv' + this.getFilterPath());
-  // }
 
   public saveAsCSV() {
     if (!this.activeFilter.source) {

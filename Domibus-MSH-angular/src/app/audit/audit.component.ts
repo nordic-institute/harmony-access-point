@@ -6,11 +6,10 @@ import {AuditCriteria, AuditResponseRo} from './audit';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {Observable} from 'rxjs/Observable';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import {DownloadService} from '../common/download.service';
+import PageableListMixin from '../common/mixins/pageable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -25,7 +24,8 @@ import {DownloadService} from '../common/download.service';
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
-export class AuditComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
+export class AuditComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, PageableListMixin) implements OnInit {
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 

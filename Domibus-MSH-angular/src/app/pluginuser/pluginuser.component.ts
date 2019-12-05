@@ -2,7 +2,6 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@ang
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {AlertService} from '../common/alert/alert.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
 import {PluginUserRO} from './pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
@@ -11,20 +10,22 @@ import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicp
 import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
 import {UserService} from '../user/user.service';
 import {UserState} from '../user/user';
-import {DownloadService} from '../common/download.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import PageableListMixin from '../common/mixins/pageable-list.mixin';
 
 @Component({
   templateUrl: './pluginuser.component.html',
   styleUrls: ['./pluginuser.component.css'],
   providers: [PluginUserService, UserService]
 })
-export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
+export class PluginUserComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, PageableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
+
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
@@ -33,7 +34,6 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   offset: number;
-  // rows: PluginUserRO[];
 
   selected: PluginUserRO[];
   loading: boolean;
@@ -193,7 +193,7 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     const ok = await this.openItemInEditForm(newItem, false);
     if (!ok) {
       this.rows.pop();
-      super.count = this.count -1;
+      super.count = this.count - 1;
       this.selected = [];
       this.setIsDirty();
     }
@@ -280,29 +280,9 @@ export class PluginUserComponent extends mix(BaseListComponent).with(FilterableL
     this.selected.length = 0;
   }
 
-  // async saveAsCSV() {
-  //   await this.saveIfNeeded();
-  //
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   super.resetFilters();
-  //   DownloadService.downloadNative(PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString());
-  // }
-
   public get csvUrl(): string {
     return PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString();
   }
-
-  // async saveIfNeeded(): Promise<boolean> {
-  //   if (this.isDirty()) {
-  //     return this.save();
-  //   } else {
-  //     return Promise.resolve(false);
-  //   }
-  // }
 
   onPageChanged($event) {
     this.offset = $event.offset;

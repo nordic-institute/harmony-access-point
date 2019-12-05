@@ -11,15 +11,12 @@ import {DirtyOperations} from '../common/dirty-operations';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {SecurityService} from '../security/security.service';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
@@ -46,7 +43,6 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  // rows: Array<UserResponseRO>;
   userRoles: Array<String>;
   domains: Domain[];
   domainsPromise: Promise<Domain[]>;
@@ -66,7 +62,6 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   dirty: boolean;
   areRowsDeleted: boolean;
 
-  // filter: UserSearchCriteria;
   deletedStatuses: any[];
   offset: number;
 
