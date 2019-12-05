@@ -2,16 +2,14 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@ang
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {TrustStoreService} from './trustore.service';
-import {TrustStoreEntry} from './trustore.model';
 import {TruststoreDialogComponent} from './truststore-dialog/truststore-dialog.component';
 import {MatDialog} from '@angular/material';
 import {TrustStoreUploadComponent} from './truststore-upload/truststore-upload.component';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   selector: 'app-truststore',
@@ -19,35 +17,32 @@ import {HttpClient} from '@angular/common/http';
   styleUrls: ['./truststore.component.css'],
   providers: [TrustStoreService]
 })
-export class TruststoreComponent implements OnInit {
+export class TruststoreComponent extends mix(BaseListComponent)
+  .with(ClientPageableListMixin)
+  implements OnInit {
+
   static readonly TRUSTSTORE_URL: string = 'rest/truststore';
   static readonly TRUSTSTORE_CSV_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/csv';
   static readonly TRUSTSTORE_DOWNLOAD_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/download';
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  trustStoreEntries: Array<TrustStoreEntry>;
+  // rows: Array<TrustStoreEntry>;
   selectedMessages: Array<any>;
   loading: boolean;
-
-  rows: Array<any> = [];
-  offset: number;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog,
               public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
+    super();
   }
 
   ngOnInit(): void {
-    this.trustStoreEntries = [];
-    this.selectedMessages = [];
-    this.rows = [];
+    super.ngOnInit();
 
-    this.offset = 0;
+    // this.rows = [];
+    this.selectedMessages = [];
 
     this.getTrustStoreEntries();
   }
@@ -92,8 +87,9 @@ export class TruststoreComponent implements OnInit {
 
   getTrustStoreEntries(): void {
     this.trustStoreService.getEntries().subscribe(trustStoreEntries => {
-      this.trustStoreEntries = trustStoreEntries;
-      this.offset = 0;
+      super.rows = trustStoreEntries;
+      super.count = trustStoreEntries ? trustStoreEntries.length : 0;
+      super.offset = 0;
     });
   }
 
@@ -114,9 +110,9 @@ export class TruststoreComponent implements OnInit {
     });
   }
 
-  onChangePage(event: any): void {
-    this.offset = event.offset;
-  }
+  // onChangePage(event: any): void {
+  //   this.offset = event.offset;
+  // }
 
   changePageSize(newPageSize: number) {
     this.rowLimiter.pageSize = newPageSize;
@@ -147,22 +143,26 @@ export class TruststoreComponent implements OnInit {
    * @returns {boolean} true, if button can be enabled; and false, otherwise
    */
   canDownload(): boolean {
-    if (this.trustStoreEntries.length > 0) {
+    if (this.rows.length > 0) {
       return true;
     } else
       return false;
   }
 
+  public get csvUrl(): string {
+    return TruststoreComponent.TRUSTSTORE_CSV_URL;
+  }
+
   /**
    * Saves the content of the datatable into a CSV file
    */
-  saveAsCSV() {
-    if (this.trustStoreEntries.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-
-    DownloadService.downloadNative(TruststoreComponent.TRUSTSTORE_CSV_URL);
-  }
+  // saveAsCSV() {
+  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
+  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+  //     return;
+  //   }
+  //
+  //   DownloadService.downloadNative(TruststoreComponent.TRUSTSTORE_CSV_URL);
+  // }
 
 }

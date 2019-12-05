@@ -18,6 +18,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -28,8 +29,10 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
   ]
 })
 
-export class UserComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
+export class UserComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations {
+
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
@@ -40,8 +43,8 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
+  // columnPicker: ColumnPickerBase = new ColumnPickerBase();
+  // rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   userRoles: Array<String>;
   domains: Domain[];
@@ -63,7 +66,7 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
   areRowsDeleted: boolean;
 
   deletedStatuses: any[];
-  offset: number;
+  // offset: number;
 
   isBusy = false;
 
@@ -83,12 +86,11 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
     super.ngOnInit();
 
     this.isBusy = true;
-    this.offset = 0;
     super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
 
-    this.columnPicker = new ColumnPickerBase();
-    this.rowLimiter = new RowLimiterBase();
+    // this.columnPicker = new ColumnPickerBase();
+    // this.rowLimiter = new RowLimiterBase();
 
     super.rows = [];
     super.count = 0;
@@ -426,20 +428,24 @@ export class UserComponent extends mix(BaseListComponent).with(FilterableListMix
     return this.enableCancel;
   }
 
-  changePageSize(newPageLimit: number) {
-    this.rowLimiter.pageSize = newPageLimit;
-    this.disableSelectionAndButtons();
-    super.rows = [];
-    super.count = 0;
-    this.getUsers();
+  page() {
+
   }
 
-  onChangePage(event: any): void {
-    this.setPage(event.offset);
-  }
+  // changePageSize(newPageLimit: number) {
+  //   this.rowLimiter.pageSize = newPageLimit;
+  //   this.disableSelectionAndButtons();
+  //   super.rows = [];
+  //   super.count = 0;
+  //   this.getUsers();
+  // }
+
+  // onChangePage(event: any): void {
+  //   this.setPage(event.offset);
+  // }
 
   setPage(offset: number): void {
-    this.offset = offset;
+    super.offset = offset;
   }
 
   getLastPage(): number {

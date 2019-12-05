@@ -8,7 +8,7 @@
       <ngx-datatable
         id="errorLogTable"
         class="material striped"
-        [rows]="trustStoreEntries"
+        [rows]="rows"
         [columnMode]="'force'"
         [columns]="columnPicker.selectedColumns"
         [headerHeight]="50"
@@ -20,7 +20,7 @@
         [selected]="selectedMessages"
         [limit]="rowLimiter.pageSize"
         [offset]="offset"
-        (page)="onChangePage($event)"
+        (page)="onPage($event)"
         [sorts]="[{prop: 'alias', dir: 'desc'}]"
         (activate)="onActivate($event)"
         (select)="onSelect($event)">

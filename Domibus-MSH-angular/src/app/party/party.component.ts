@@ -1,7 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material';
-import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
-import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
 import {AlertService} from '../common/alert/alert.service';
@@ -14,6 +12,7 @@ import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -27,16 +26,13 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   styleUrls: ['./party.component.css']
 })
 
-export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin) implements OnInit, DirtyOperations {
-  // rows: PartyResponseRo[];
+export class PartyComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
+  implements OnInit, DirtyOperations {
+
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
 
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-
-  offset: number;
-  // count: number;
   loading: boolean;
 
   newParties: PartyResponseRo[];
@@ -57,12 +53,9 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     super.ngOnInit();
 
     this.isBusy = false;
-    // this.rows = [];
     this.allRows = [];
     this.selected = [];
 
-    this.offset = 0;
-    // this.count = 0;
     this.loading = false;
 
     this.newParties = [];
@@ -97,12 +90,11 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
   }
 
   private search() {
-    // super.setActiveFilter();
     this.listPartiesAndProcesses();
   }
 
   async listPartiesAndProcesses() {
-    this.offset = 0;
+    super.offset = 0;
     var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
       this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),
       this.partyService.listProcesses().toPromise()
@@ -157,15 +149,19 @@ export class PartyComponent extends mix(BaseListComponent).with(FilterableListMi
     })
   }
 
-  changePageSize(newPageLimit: number) {
-    super.resetFilters();
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-  }
+  // changePageSize(newPageLimit: number) {
+  //   super.resetFilters();
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageLimit;
+  // }
 
-  onPageChange(event: any) {
-    super.resetFilters();
-    this.offset = event.offset;
+  // onPageChange(event: any) {
+  //   super.resetFilters();
+  //   this.offset = event.offset;
+  // }
+
+  page() {
+    //intentionally empty since the pagination is done by the grid
   }
 
   public get csvUrl(): string {

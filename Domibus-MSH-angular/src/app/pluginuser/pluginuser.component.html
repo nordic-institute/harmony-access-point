@@ -57,10 +57,10 @@
     [selected]="selected"
     [selectionType]="'single'"
     [limit]="rowLimiter.pageSize"
-    [count]="displayedUsers.length"
+    [count]="count"
     [offset]="offset"
     (activate)="onActivate($event)"
-    (page)="onPageChanged($event)"
+    (page)="onPage($event)"
     (sort)="onSort()"
     ></ngx-datatable>
 

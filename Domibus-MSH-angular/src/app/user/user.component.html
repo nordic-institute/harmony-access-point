@@ -53,7 +53,7 @@
     (select)="onSelect($event)"
     (activate)="onActivate($event)"
     [offset]="offset"
-    (page)="onChangePage($event)">
+    (page)="onPage($event)">
   </ngx-datatable>
 
   <ng-template #editableTpl let-value="value" let-row="row" ngx-datatable-cell-template>

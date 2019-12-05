@@ -31,9 +31,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-
-  offset: number;
 
   selected: PluginUserRO[];
   loading: boolean;
@@ -55,7 +52,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
-    this.offset = 0;
     this.selected = [];
     this.loading = false;
     this.userRoles = [];
@@ -132,7 +128,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async search() {
-    this.offset = 0;
+    super.offset = 0;
     this.selected = [];
     this.dirty = false;
 
@@ -150,11 +146,11 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  changePageSize(newPageSize: number) {
-    super.resetFilters();
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageSize;
-  }
+  // changePageSize(newPageSize: number) {
+  //   super.resetFilters();
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageSize;
+  // }
 
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
@@ -284,10 +280,14 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString();
   }
 
-  onPageChanged($event) {
-    this.offset = $event.offset;
-    super.resetFilters();
+  page() {
+    //intentionally empty since pagination is done by the grid
   }
+
+  // onPageChanged($event) {
+  //   this.offset = $event.offset;
+  //   super.resetFilters();
+  // }
 
   onSort() {
     super.resetFilters();
