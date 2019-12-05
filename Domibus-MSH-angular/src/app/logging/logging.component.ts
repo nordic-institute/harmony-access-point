@@ -1,6 +1,4 @@
 import {ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {LoggingLevelResult} from './logginglevelresult';
@@ -8,6 +6,8 @@ import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
 
 /**
  * @author Catalin Enache
@@ -19,22 +19,20 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   providers: [],
 })
 
-export class LoggingComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
+export class LoggingComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerPageableListMixin, SortableListMixin) implements OnInit {
+
   static readonly LOGGING_URL: string = 'rest/logging/loglevel';
   static readonly RESET_LOGGING_URL: string = 'rest/logging/reset';
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase()
-  rowLimiter: RowLimiterBase = new RowLimiterBase()
 
   @ViewChild('rowWithToggleTpl', {static: false}) rowWithToggleTpl: TemplateRef<any>;
 
   levels: Array<String>;
-
   loading: boolean = false;
 
-  offset: number = 0;
-  orderBy: string = 'loggerName';
-  asc: boolean = false;
+  //???
+  // orderBy: string = 'loggerName';
+  // asc: boolean = false;
 
   constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
               private changeDetector: ChangeDetectorRef) {
@@ -116,24 +114,24 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
 
   }
 
-  onPage(event) {
-    this.offset = event.offset;
-    this.page();
-  }
+  // onPage(event) {
+  //   this.offset = event.offset;
+  //   this.page();
+  // }
 
-  onSort(event) {
-    this.orderBy = event.column.prop;
-    this.asc = (event.newValue === 'desc') ? false : true;
+  // onSort(event) {
+  //   this.orderBy = event.column.prop;
+  //   this.asc = (event.newValue === 'desc') ? false : true;
+  //
+  //   this.page();
+  // }
 
-    this.page();
-  }
-
-  changePageSize(newPageLimit: number) {
-    super.resetFilters();
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page();
-  }
+  // changePageSize(newPageLimit: number) {
+  //   super.resetFilters();
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageLimit;
+  //   this.page();
+  // }
 
   onLevelChange(newLevel: string, row: any) {
     if (newLevel !== row.level) {
@@ -168,9 +166,7 @@ export class LoggingComponent extends mix(BaseListComponent).with(FilterableList
   }
 
   search() {
-    console.log('Searching using filter:', this.filter);
-    // super.setActiveFilter();
-    this.offset = 0;
+    super.offset = 0;
     this.page();
   }
 

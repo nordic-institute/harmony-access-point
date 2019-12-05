@@ -13,6 +13,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -21,10 +22,9 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
   styleUrls: ['./errorlog.component.css']
 })
 
-export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  public rowLimiter: RowLimiterBase;
+export class ErrorLogComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, SortableListMixin, ServerPageableListMixin)
+  implements OnInit {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -39,9 +39,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   notifiedToMaxDate: Date = new Date();
 
   loading: boolean = false;
-  // rows = [];
-  // count: number = 0;
-  offset: number = 0;
 
   mshRoles: string[];
   errorCodes: string[];
@@ -58,8 +55,6 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
   ngOnInit() {
     super.ngOnInit();
-
-    this.rowLimiter = new RowLimiterBase();
 
     this['orderBy'] = 'timestamp';
     this['asc'] = false;
@@ -193,19 +188,19 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
 
   }
 
-  onPage(event) {
-    super.resetFilters();
-    this.offset = event.offset;
-    this.page();
-  }
+  // onPage(event) {
+  //   super.resetFilters();
+  //   super.offset = event.offset;
+  //   this.page();
+  // }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public reload() {
-    this.offset = 0;
-    this.page();
-  }
+  // public reload() {
+  //   super.offset = 0;
+  //   this.page();
+  // }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
@@ -214,16 +209,15 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     super.resetFilters();
   }
 
-  changePageSize(newPageLimit: number) {
-    super.resetFilters();
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page();
-  }
+  // changePageSize(newPageLimit: number) {
+  //   super.resetFilters();
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageLimit;
+  //   this.page();
+  // }
 
   search() {
-    // this.setActiveFilter();
-    this.offset = 0;
+    super.offset = 0;
     this.page();
   }
 

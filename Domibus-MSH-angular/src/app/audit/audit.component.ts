@@ -3,8 +3,6 @@ import {AuditService} from './audit.service';
 import {UserService} from '../user/user.service';
 import {AlertService} from '../common/alert/alert.service';
 import {AuditCriteria, AuditResponseRo} from './audit';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {Observable} from 'rxjs/Observable';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
@@ -44,10 +42,6 @@ export class AuditComponent extends mix(BaseListComponent)
   advancedSearch: boolean;
 
 // --- Table binding ---
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  offset: number = 0;
-
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
@@ -92,7 +86,7 @@ export class AuditComponent extends mix(BaseListComponent)
     this.setActiveFilter();
 
     this.loading = true;
-    this.offset = 0;
+    super.offset = 0;
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
@@ -133,12 +127,16 @@ export class AuditComponent extends mix(BaseListComponent)
       });
   }
 
-  onPage(event) {
-    this.resetFilters();
-
-    this.offset = event.offset;
+  page() {
     this.searchAuditLog();
   }
+
+  // onPage(event) {
+  //   this.resetFilters();
+  //
+  //   this.offset = event.offset;
+  //   this.searchAuditLog();
+  // }
 
   buildCriteria(): AuditCriteria {
     const auditCriteria: AuditCriteria = new AuditCriteria();
@@ -155,13 +153,13 @@ export class AuditComponent extends mix(BaseListComponent)
     return auditCriteria;
   }
 
-  changePageSize(newPageLimit: number) {
-    this.resetFilters();
-
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.searchAuditLog();
-  }
+  // changePageSize(newPageLimit: number) {
+  //   this.resetFilters();
+  //
+  //   super.offset = 0;
+  //   this.rowLimiter.pageSize = newPageLimit;
+  //   this.searchAuditLog();
+  // }
 
   initColumns() {
     this.columnPicker.allColumns = [

@@ -310,10 +310,10 @@ export class AlertsComponent extends mix(BaseListComponent)
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public reload() {
-    super.offset = 0;
-    this.page();
-  }
+  // public reload() {
+  //   super.offset = 0;
+  //   this.page();
+  // }
 
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();

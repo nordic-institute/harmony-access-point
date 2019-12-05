@@ -4,8 +4,6 @@ import {MessageLogResult} from './messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
@@ -14,6 +12,7 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import BaseListComponent from '../common/base-list.component';
 import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -22,7 +21,9 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
   styleUrls: ['./messagelog.component.css']
 })
 
-export class MessageLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
+export class MessageLogComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerPageableListMixin, SortableListMixin) implements OnInit {
+
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
@@ -33,9 +34,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('list', {static: false}) list: DatatableComponent;
 
-  columnPicker: ColumnPickerBase;
-  public rowLimiter: RowLimiterBase;
-
   selected: any[];
 
   timestampFromMaxDate: Date;
@@ -43,7 +41,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   timestampToMaxDate: Date;
 
   loading: boolean;
-  offset: number;
 
   mshRoles: Array<String>;
   msgTypes: Array<String>;
@@ -69,9 +66,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   async ngOnInit() {
     super.ngOnInit();
 
-    this.columnPicker = new ColumnPickerBase();
-    this.rowLimiter = new RowLimiterBase();
-
     this.selected = [];
 
     this.timestampFromMaxDate = new Date();
@@ -81,7 +75,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     this.loading = false;
     super.rows = [];
     super.count = 0;
-    this.offset = 0;
+
     this['orderBy'] = 'received';
     this['asc'] = false;
 
@@ -206,7 +200,6 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     }
   }
 
-
   createSearchParams(): HttpParams {
     let searchParams = new HttpParams();
 
@@ -315,18 +308,18 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  onPage(event) {
-    this.offset = event.offset;
-    this.page();
-  }
+  // onPage(event) {
+  //   this.offset = event.offset;
+  //   this.page();
+  // }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
    */
-  public reload() {
-    this.offset = 0;
-    this.page();
-  }
+  // public reload() {
+  //   this.offset = 0;
+  //   this.page();
+  // }
 
   onActivate(event) {
     if ('dblclick' === event.type) {
@@ -334,14 +327,14 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     }
   }
 
-  changePageSize(newPageLimit: number) {
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page();
-  }
+  // changePageSize(newPageLimit: number) {
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageLimit;
+  //   this.page();
+  // }
 
   search() {
-    this.offset = 0;
+    super.offset = 0;
     this.page();
   }
 

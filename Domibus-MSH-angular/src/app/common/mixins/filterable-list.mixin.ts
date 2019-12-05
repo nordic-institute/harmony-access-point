@@ -5,6 +5,7 @@
  */
 import {Constructable} from '../base-list.component';
 import {OnInit} from '@angular/core';
+import {PaginationType} from './Ipageable-list';
 
 let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit {
   public filter: any;
@@ -54,13 +55,21 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
   public async trySearch(): Promise<boolean> {
-    const canSearch = super.hasMethod('canProceed') ? await this.canProceed() : true;
+    const canSearch = await this.canProceedToSearch();
     if (canSearch) {
       this.setActiveFilter();
       this.search();
     }
     return canSearch;
   }
+
+  private canProceedToSearch(): Promise<boolean> {
+    if (super.hasMethod('isDirty') && this.isDirty()) {
+      return this.dialogsService.openCancelDialog();
+    }
+    return Promise.resolve(true);
+  }
+
 };
 
 export default FilterableListMixin;

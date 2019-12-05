@@ -14,17 +14,16 @@ import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
-export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin, ModifiableListMixin)
+export class JmsComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin)
   implements OnInit, DirtyOperations {
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -48,11 +47,9 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   markedForDeletionMessages: any[];
   loading: boolean;
 
-  // rows: Array<any>;
   request: MessagesRequestRO;
 
   private _selectedSource: any;
-  offset: any;
 
   get selectedSource(): any {
     return this._selectedSource;
@@ -75,7 +72,6 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
     this['filter'] = new MessagesRequestRO();
 
-    this.offset = 0;
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
@@ -208,11 +204,11 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.selectedSource = toSelect;
   }
 
-  changePageSize(newPageSize: number) {
-    super.resetFilters();
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageSize;
-  }
+  // changePageSize(newPageSize: number) {
+  //   super.resetFilters();
+  //   this.offset = 0;
+  //   this.rowLimiter.pageSize = newPageSize;
+  // }
 
   onSelect({selected}) {
     this.selectedMessages.splice(0, this.selectedMessages.length);
@@ -238,7 +234,6 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   search() {
-    // super.setActiveFilter();
     this.doSearch();
   }
 
@@ -266,7 +261,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         super.rows = res.messages;
         super.count = res.messages.length;
 
-        this.offset = 0;
+        super.offset = 0;
         this.loading = false;
 
         this.refreshDestinations();
@@ -498,9 +493,13 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
 
-  onPage($event) {
-    this.offset = $event.offset;
-    super.resetFilters();
+  // onPage($event) {
+  //   this.offset = $event.offset;
+  //   super.resetFilters();
+  // }
+
+  page() {
+    //nothing on purpose since it is grid paging, not server
   }
 
   onSort() {

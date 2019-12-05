@@ -45,30 +45,42 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
     if (super.ngOnInit) {
       super.ngOnInit();
     }
-
-    // this.offset = 0;
-    // this.rowLimiter = new RowLimiterBase();
   }
 
   public changePageSize(newPageLimit: number) {
     this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
+
+    if (super.hasMethod('resetFilters')) {
+      super.resetFilters();
+    }
     this.page();
   }
 
-  async onPage(event) {
-    const canChangePage = await this.canProceed();
+  public async onPage(event) {
+    this.loadPage(event.offset);
+  }
+
+  public async resetPage() {
+    return this.loadPage(0);
+  }
+
+  public async loadPage(offset: number) {
+    const canChangePage = await this.canProceedToPageChange();
     if (canChangePage) {
-      this.offset = event.offset;
+      if (super.hasMethod('resetFilters')) {
+        super.resetFilters();
+      }
+      this.offset = offset;
       this.page();
     } else {
       //how to make grid show the correct page??
     }
+    return canChangePage;
   }
 
-  public canProceed(): Promise<boolean> {
-    // console.log('canProceed');
-    if(this.type == PaginationType.Server) {
+  private canProceedToPageChange(): Promise<boolean> {
+    if (this.type == PaginationType.Server) {
       if (super.hasMethod('isDirty') && this.isDirty()) {
         return this.dialogsService.openCancelDialog();
       }
@@ -78,10 +90,9 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
 
   //we create this function like so to preserve the correct "this" when called from the row-limiter component context
   onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
-    const canChangePage = await this.canProceed();
+    const canChangePage = await this.canProceedToPageChange();
     return !canChangePage;
   };
 
 };
 
-// export default PageableListMixin;

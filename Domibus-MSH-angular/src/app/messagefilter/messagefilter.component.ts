@@ -20,8 +20,10 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
   styleUrls: ['./messagefilter.component.css']
 })
 
-export class MessageFilterComponent extends mix(BaseListComponent).with(ModifiableListMixin)
+export class MessageFilterComponent extends mix(BaseListComponent)
+  .with(ModifiableListMixin)
   implements OnInit, DirtyOperations {
+
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
   selected: any[];
