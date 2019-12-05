@@ -12,11 +12,12 @@ import eu.domibus.ext.domain.*;
 import org.mapstruct.Mapper;
 
 /**
- * @author Ioana Dragusanu (idragusa)
+ * @author Ioana Dragusanu (idragusa), azhikso
  * @since 4.1
  */
-@Mapper(componentModel = "spring")
+@Mapper(uses = MonitoringMapper.class, componentModel = "spring")
 public interface DomibusExtMapper {
+
     DomainDTO domainToDomainDTO(Domain domain);
 
     Domain domainDTOToDomain(DomainDTO domain);

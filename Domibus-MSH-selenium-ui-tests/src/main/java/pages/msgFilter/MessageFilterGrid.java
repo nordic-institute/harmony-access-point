@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessageFilterGrid extends DGrid {

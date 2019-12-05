@@ -1,0 +1,73 @@
+{
+  "title": "PMode - Archive",
+  "filters": [],
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "",
+	"columns": [
+	  {
+		"name": "Configuration Date",
+		"type": "datetime",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Username",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Description",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Actions",
+		"type": "action",
+		"sortable": false,
+		"visibleByDefault": true
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": true,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  },
+  "buttons": [
+	{
+	  "name": "cancelBtn",
+	  "label": "Cancel",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "saveBtn",
+	  "label": "Save",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "deleteBtn",
+	  "label": "Delete",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "downloadBtn",
+	  "label": "Download",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "restoreBtn",
+	  "label": "Restore",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	}
+  ]
+}

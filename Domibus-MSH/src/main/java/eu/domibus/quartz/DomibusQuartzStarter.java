@@ -1,12 +1,16 @@
 package eu.domibus.quartz;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.monitoring.domain.MonitoringStatus;
+import eu.domibus.api.monitoring.domain.QuartzInfo;
+import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.quartz.*;
@@ -17,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Quartz scheduler starter class which:
@@ -30,7 +31,7 @@ import java.util.Map;
  * <p>
  * 2. starts manually the Quartz scheduler
  *
- * @author Catalin Enache
+ * @author Catalin Enache, Soumya Chandran
  * @version 1.0
  * @see org.springframework.scheduling.quartz.SchedulerFactoryBean
  * @since 3.3.2
@@ -55,6 +56,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
+
 
     @PostConstruct
     public void initQuartzSchedulers() {
@@ -117,6 +119,93 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
+    }
+
+    /**
+     * Get Quartz Trigger Details with jobName, domainName and trigger status.
+     *
+     * @throws SchedulerException Quartz scheduler exception
+     */
+
+    public QuartzInfo getTriggerInfo() throws Exception {
+        List<QuartzTriggerDetails> schedulerTriggers= getSchedulersInfo(schedulers);
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            List<QuartzTriggerDetails> generalSchedulerTriggers= getGeneralSchedulersInfo(generalSchedulers);
+            schedulerTriggers.addAll(generalSchedulerTriggers);
+        }
+        MonitoringStatus state = (schedulerTriggers.size() > 0) ? MonitoringStatus.ERROR : MonitoringStatus.NORMAL;
+        QuartzInfo quartzInfo = new QuartzInfo();
+        quartzInfo.setStatus(state);
+        quartzInfo.setName("Quartz Trigger");
+        quartzInfo.setQuartzTriggerDetails(schedulerTriggers);
+        LOG.debug(" Quartz Scheduler trigger Info [{}]", quartzInfo);
+        return quartzInfo;
+    }
+
+    /**
+     * Get General Schedulers Info and trigger details
+     *
+     * @throws SchedulerException Quartz scheduler exception
+     */
+    protected List<QuartzTriggerDetails> getGeneralSchedulersInfo(List<Scheduler> generalSchedulers) throws SchedulerException {
+        List<QuartzTriggerDetails> triggers = new ArrayList<>();
+        for (Scheduler scheduler : generalSchedulers) {
+            for (String groupName : scheduler.getJobGroupNames()) {
+                List<QuartzTriggerDetails>   triggerInfoList= getTriggerDetails(scheduler, groupName, null);
+                triggers.addAll(triggerInfoList);
+            }
+        }
+        return triggers;
+    }
+
+    /**
+     * Get Quartz Schedulers Info for all the domains, for both single and  multi tenant scenario
+     *
+     * @throws SchedulerException Quartz scheduler exception
+     */
+    protected List<QuartzTriggerDetails> getSchedulersInfo(Map<Domain, Scheduler> schedulers) throws SchedulerException {
+        List<QuartzTriggerDetails> triggers = new ArrayList<>();
+        for (Map.Entry<Domain, Scheduler> domainSchedulerEntry : schedulers.entrySet()) {
+            final Domain domain = domainSchedulerEntry.getKey();
+            String domainName = domain.getName();
+            Scheduler quartzScheduler = domainSchedulerEntry.getValue();
+            LOG.debug("Quartz Scheduler  [{}] for domain [{}]", quartzScheduler, domain);
+            for (String groupName : quartzScheduler.getJobGroupNames()) {
+                List<QuartzTriggerDetails>  triggerInfoList=  getTriggerDetails(quartzScheduler, groupName, domainName);
+                triggers.addAll(triggerInfoList);
+            }
+
+        }
+
+        return triggers;
+    }
+
+    /**
+     * Get Quartz Trigger Details with Job Name and Trigger State, for both single and  multi tenant scenario
+     *
+     * @throws SchedulerException Quartz scheduler exception
+     */
+    protected List<QuartzTriggerDetails> getTriggerDetails(Scheduler quartzScheduler, String groupName, String domainName) throws SchedulerException {
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        for (JobKey jobKey : quartzScheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+            String jobName = jobKey.getName();
+            List<Trigger> triggers = (List<Trigger>) quartzScheduler.getTriggersOfJob(jobKey);
+            if (CollectionUtils.isNotEmpty(triggers)) {
+                for (Trigger trigger : triggers) {
+                    Trigger.TriggerState triggerState = quartzScheduler.getTriggerState(trigger.getKey());
+                    if (triggerState.equals(Trigger.TriggerState.ERROR) || triggerState.equals(Trigger.TriggerState.BLOCKED)) {
+                        MonitoringStatus state = triggerState.equals(Trigger.TriggerState.ERROR) ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
+                        QuartzTriggerDetails quartzTriggerDetails = new QuartzTriggerDetails();
+                        quartzTriggerDetails.setDomainName(domainName);
+                        quartzTriggerDetails.setTriggerStatus(state);
+                        quartzTriggerDetails.setJobName(jobName);
+                        LOG.debug("Quartz jobName [{}] trigger state [{}]", jobName, state);
+                        triggerInfoList.add(quartzTriggerDetails);
+                    }
+                }
+            }
+        }
+        return triggerInfoList;
     }
 
     /**
@@ -314,5 +403,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(repeatInterval).repeatForever())
                 .build();
     }
+
 
 }

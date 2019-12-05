@@ -12,7 +12,6 @@ import java.awt.event.InputEvent;
 
 /**
  * @author Catalin Comanici
- * @description:
  * @since 4.1
  */
 public class PluginUserGrid extends DGrid {
@@ -28,7 +27,7 @@ public class PluginUserGrid extends DGrid {
 	@Override
 	public void doubleClickRow(int rowNumber) throws Exception {
 
-		log.info("double clicking row ... " + rowNumber);
+		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}
@@ -44,7 +43,7 @@ public class PluginUserGrid extends DGrid {
 
 	@Override
 	public void selectRow(int rowNumber) throws Exception {
-		log.info("clicking row ... " + rowNumber);
+		log.debug("clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}

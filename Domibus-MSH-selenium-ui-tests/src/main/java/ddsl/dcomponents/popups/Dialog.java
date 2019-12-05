@@ -27,12 +27,12 @@ public class Dialog extends DComponent {
 	}
 
 	@FindBy(id = "yesbuttondialog_id")
-	private WebElement yesBtn;
+	public WebElement yesBtn;
 
 	@FindBy(id = "nobuttondialog_id")
 	private WebElement noBtn;
 
-	@FindBy(css = "md-dialog-container h1")
+	@FindBy(css = "mat-dialog-container h1")
 	private WebElement dialogMessage;
 
 	public boolean isLoaded() throws Exception{
@@ -43,13 +43,13 @@ public class Dialog extends DComponent {
 	}
 
 	public void confirm() throws Exception {
-		log.info("dialog .. confirm");
+		log.debug("dialog .. confirm");
 		new DButton(driver, yesBtn).click();
 		wait.forElementToBeGone(yesBtn);
 	}
 
 	public void cancel() throws Exception {
-		log.info("dialog .. cancel");
+		log.debug("dialog .. cancel");
 		new DButton(driver, noBtn).click();
 		wait.forElementToBeGone(noBtn);
 	}
