@@ -222,7 +222,7 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.filter.source && !this.isLoading;
   }
 
-  search() {
+  page() {
     this.doSearch();
   }
 

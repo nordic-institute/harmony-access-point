@@ -141,9 +141,9 @@ export class LoggingComponent extends mix(BaseListComponent)
     );
   }
 
-  search() {
-    super.offset = 0;
-    this.page();
-  }
+  // search() {
+  //   super.offset = 0;
+  //   this.page();
+  // }
 
 }

@@ -89,11 +89,11 @@ export class PartyComponent extends mix(BaseListComponent)
     this.deletedParties.length = 0;
   }
 
-  private search() {
+  page() {
     this.listPartiesAndProcesses();
   }
 
-  async listPartiesAndProcesses() {
+  private async listPartiesAndProcesses() {
     super.offset = 0;
     var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
       this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),

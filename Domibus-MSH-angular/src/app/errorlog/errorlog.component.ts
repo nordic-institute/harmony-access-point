@@ -190,10 +190,10 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     super.resetFilters();
   }
 
-  search() {
-    super.offset = 0;
-    this.page();
-  }
+  // search() {
+  //   super.offset = 0;
+  //   this.page();
+  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;

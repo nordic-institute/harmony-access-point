@@ -125,8 +125,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter.userName = null;
   }
 
-  async search() {
-    super.offset = 0;
+  async page() {
     this.selected = [];
     this.isChanged = false;
 
@@ -143,6 +142,11 @@ export class PluginUserComponent extends mix(BaseListComponent)
       this.isLoading = false;
     }
   }
+
+  // async search() {
+  //   super.offset = 0;
+  //   this.page();
+  // }
 
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';

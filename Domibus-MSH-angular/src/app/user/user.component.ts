@@ -375,7 +375,11 @@ export class UserComponent extends mix(BaseListComponent)
     this.enableDelete = false;
   }
 
-  public search() {
+  // public search() {
+  //   this.getUsers();
+  // }
+
+  page() {
     this.getUsers();
   }
 
