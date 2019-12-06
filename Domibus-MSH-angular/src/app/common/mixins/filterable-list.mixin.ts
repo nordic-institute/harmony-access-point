@@ -6,8 +6,12 @@
  */
 import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
+import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
+import {IFilterableList} from './ifilterable-list';
 
-let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit {
+let FilterableListMixin = (superclass: Constructable) => class extends superclass
+  implements IFilterableList, OnInit {
+
   public filter: any;
   public activeFilter: any;
 
@@ -29,7 +33,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method takes the filter params set through widgets and copies them to the active params
    * active params are the ones that are used for actual filtering of data and can be different from the ones set by the user in the UI
    */
-  protected setActiveFilter() {
+  public setActiveFilter() {
     //just in case ngOnInit wasn't called from corresponding component class
     if (!this.activeFilter) {
       this.activeFilter = {};
@@ -40,7 +44,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method takes the actual filter params and copies them to the UI bound params thus synchronizing the pair so what you see it is what you get
    */
-  protected resetFilters() {
+  public resetFilters() {
     this.filter = {};
     Object.assign(this.filter, this.activeFilter);
   }
@@ -49,8 +53,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is supposed to be overridden in derived classes to implement actual search
    */
   public search() {
-    if (super.hasMethod('page')) {
-      super.offset = 0;
+    if (instanceOfPageableList(this)) {
+      this.offset = 0;
       this.page();
     }
   }
@@ -68,7 +72,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   private canProceedToSearch(): Promise<boolean> {
-    if (super.hasMethod('isDirty') && this.isDirty()) {
+    if (instanceOfModifiableList(this) && this.isDirty()) {
       return this.dialogsService.openCancelDialog();
     }
     return Promise.resolve(true);

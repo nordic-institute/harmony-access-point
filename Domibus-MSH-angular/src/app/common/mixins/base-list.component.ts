@@ -4,13 +4,14 @@ import {DownloadService} from '../download.service';
 import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
+import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  *
  * Base class for list components;
-  */
+ */
 export interface Constructable {
   new(...args);
 }
@@ -39,8 +40,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public async saveAsCSV() {
-    if (this.hasMethod('saveIfNeeded')) {
-      // @ts-ignore
+    if (instanceOfModifiableList(this)) {
       await this.saveIfNeeded();
     }
 
@@ -49,8 +49,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       return;
     }
 
-    if (this.hasMethod('resetFilters')) {
-      // @ts-ignore
+    if (instanceOfFilterableList(this)) {
       this.resetFilters();
     }
 

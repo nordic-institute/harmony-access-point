@@ -3,6 +3,7 @@ import {ChangeDetectorRef, OnInit} from '@angular/core';
 import {DirtyOperations} from '../dirty-operations';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 import {IPageableList, PaginationType} from './Ipageable-list';
+import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 
 /**
  * @author Ion Perpegel
@@ -63,8 +64,8 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
     this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
 
-    if (super.hasMethod('resetFilters')) {
-      super.resetFilters();
+    if (instanceOfFilterableList(this)) {
+      this.resetFilters();
     }
     this.page();
   }
@@ -80,8 +81,8 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   public async loadPage(offset: number) {
     const canChangePage = await this.canProceedToPageChange();
     if (canChangePage) {
-      if (super.hasMethod('resetFilters')) {
-        super.resetFilters();
+      if (instanceOfFilterableList(this)) {
+        this.resetFilters();
       }
       this.offset = offset;
       this.page();
@@ -93,7 +94,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
 
   private canProceedToPageChange(): Promise<boolean> {
     if (this.type == PaginationType.Server) {
-      if (super.hasMethod('isDirty') && this.isDirty()) {
+      if (instanceOfModifiableList(this) && this.isDirty()) {
         return this.dialogsService.openCancelDialog();
       }
     }

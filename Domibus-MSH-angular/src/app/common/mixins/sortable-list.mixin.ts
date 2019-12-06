@@ -1,4 +1,5 @@
 import {Constructable} from './base-list.component';
+import {instanceOfPageableList} from './type.utils';
 
 /**
  * @author Ion Perpegel
@@ -44,12 +45,11 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass 
   }
 
   public async reload() {
-    if (super.hasMethod('resetPage')) {
-      return super.resetPage();
+    if (instanceOfPageableList(this)) {
+      return this.resetPage();
     }
     return true;
   }
-
 };
 
 export default SortableListMixin;

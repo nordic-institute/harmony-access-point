@@ -13,6 +13,12 @@ export interface IPageableList {
   onPageSizeChanging: CallbackFunction;
 
   changePageSize(newPageLimit: number);
+
+  resetPage();
+
+  loadPage(offset: number);
+
+  page();
 }
 
 type CallbackFunction = (newPageLimit: number) => Promise<boolean>;
