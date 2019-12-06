@@ -44,7 +44,7 @@ export class PartyComponent extends mix(BaseListComponent)
   allProcesses: string[];
 
   pModeExists: boolean;
-  isBusy: boolean;
+  // isSaving: boolean;
 
   constructor(public dialog: MatDialog, private dialogsService: DialogsService, public partyService: PartyService,
               public alertService: AlertService, private http: HttpClient, private changeDetector: ChangeDetectorRef) {
@@ -54,7 +54,7 @@ export class PartyComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    this.isBusy = false;
+    // this.isSaving = false;
     this.allRows = [];
     this.selected = [];
 
@@ -92,6 +92,7 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   async page() {
+    this.resetFilters();
     this.listPartiesAndProcesses();
   }
 
@@ -172,63 +173,65 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    return !!this.pModeExists && !this.isBusy;
+    return !!this.pModeExists && !this.isSaving;
   }
 
   canSave() {
-    return this.isDirty() && !this.isBusy;
+    return this.isDirty() && !this.isSaving;
   }
 
   canEdit() {
-    return !!this.pModeExists && this.selected.length === 1 && !this.isBusy;
+    return !!this.pModeExists && this.selected.length === 1 && !this.isSaving;
   }
 
   canCancel() {
-    return this.isDirty() && !this.isBusy;
+    return this.isDirty() && !this.isSaving;
   }
 
   canDelete() {
-    return !!this.pModeExists && this.selected.length === 1 && !this.isBusy;
+    return !!this.pModeExists && this.selected.length === 1 && !this.isSaving;
   }
 
-  async cancel() {
-    if (this.isBusy) return;
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      super.resetFilters();
-      this.listPartiesAndProcesses();
-    }
-  }
+  // async cancel() {
+  //   if (this.isSaving) return;
+  //
+  //   const cancel = await this.dialogsService.openCancelDialog();
+  //   if (cancel) {
+  //     super.resetFilters();
+  //     this.listPartiesAndProcesses();
+  //   }
+  // }
 
-  async save(): Promise<boolean> {
-    if (this.isBusy) return;
-    const save = await this.dialogsService.openSaveDialog();
-    if (save) {
-      try {
-        this.partyService.validateParties(this.rows)
-      } catch (err) {
-        this.alertService.exception('Party validation error:', err, false);
-        return false;
-      }
-
-      this.isBusy = true;
-      return await this.partyService.updateParties(this.rows).then(() => {
-        this.resetDirty();
-        this.isBusy = false;
-        this.alertService.success('Parties saved successfully.', false);
-        return true;
-      }).catch(err => {
-        this.isBusy = false;
-        this.alertService.exception('Party update error:', err, false);
-        return false;
-      });
-    } else {
-      return false;
-    }
-  }
+  // async save(): Promise<boolean> {
+  //   if (this.isSaving) return;
+  //
+  //   const save = await this.dialogsService.openSaveDialog();
+  //   if (save) {
+  //     try {
+  //       this.partyService.validateParties(this.rows)
+  //     } catch (err) {
+  //       this.alertService.exception('Party validation error:', err, false);
+  //       return false;
+  //     }
+  //
+  //     this.isSaving = true;
+  //     return await this.partyService.updateParties(this.rows).then(() => {
+  //       this.resetDirty();
+  //       this.isSaving = false;
+  //       this.alertService.success('Parties saved successfully.', false);
+  //       return true;
+  //     }).catch(err => {
+  //       this.isSaving = false;
+  //       this.alertService.exception('Party update error:', err, false);
+  //       return false;
+  //     });
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   async add() {
-    if (this.isBusy) return;
+    if (this.isSaving) return;
 
     const newParty = this.partyService.initParty();
     this.rows.push(newParty);
@@ -247,7 +250,7 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   remove() {
-    if (this.isBusy) return;
+    if (this.isSaving) return;
 
     this.delete(this.selected[0])
   }

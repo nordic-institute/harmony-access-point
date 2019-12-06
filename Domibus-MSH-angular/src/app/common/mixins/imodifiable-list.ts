@@ -6,6 +6,7 @@
  * */
 export interface IModifiableList {
   isChanged: boolean;
+  isSaving: boolean;
 
   isDirty(): boolean;
 

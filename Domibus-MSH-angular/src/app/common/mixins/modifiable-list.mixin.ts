@@ -14,6 +14,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   implements IModifiableList, DirtyOperations, OnInit {
 
   public isChanged: boolean;
+  public isSaving: boolean;
 
   constructor(...args) {
     super(...args);
@@ -25,10 +26,11 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     }
 
     this.isChanged = false;
+    this.isSaving = false;
   }
 
   public isDirty(): boolean {
-    return undefined;
+    return this.isChanged;
   }
 
   public doSave(): Promise<any> {
@@ -36,14 +38,19 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   async save(): Promise<boolean> {
+    if (this.isSaving) return;
+
     const save = await this.dialogsService.openSaveDialog();
     if (save) {
+      this.isSaving = true;
       return await this.doSave().then(() => {
-        this.alertService.success('The operation \'update\' completed successfully.');
+        this.isSaving = false;
+        this.alertService.success(`The operation 'update ${this.name}' completed successfully.`);
         this.page();
         return true;
       }, err => {
-        this.alertService.exception('The operation \'update\' not completed successfully', err);
+        this.isSaving = false;
+        this.alertService.exception(`The operation 'update ${this.name}' did not complet successfully!`, err);
         this.page();
         return false;
       });
@@ -61,6 +68,8 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   public async cancel() {
+    if (this.isSaving) return;
+
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
       this.isChanged = false;
@@ -68,6 +77,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
         this.page();
       }
     }
+
   }
 
 };

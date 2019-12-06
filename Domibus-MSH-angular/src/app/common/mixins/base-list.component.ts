@@ -21,7 +21,6 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
-
   public rows: T[];
   public count: number;
   public columnPicker: ColumnPickerBase;
@@ -33,6 +32,10 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   ngOnInit(): void {
     this.rows = [];
     this.count = 0;
+  }
+
+  public get name(): string {
+    return undefined;
   }
 
   public get csvUrl(): string {
