@@ -50,9 +50,6 @@ public class MessageLogResource extends BaseResource {
     @Autowired
     protected TestService testService;
 
-   /* @Autowired
-    private PModeProvider pModeProvider;*/
-
     @Autowired
     private DateUtil dateUtil;
 
