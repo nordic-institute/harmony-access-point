@@ -13,6 +13,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {AlertsResult} from '../alerts/alertsresult';
 
 /**
  * @author Thomas Dussart
@@ -35,7 +36,7 @@ export class PartyComponent extends mix(BaseListComponent)
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
 
-  isLoading: boolean;
+  // isLoading: boolean;
 
   newParties: PartyResponseRo[];
   updatedParties: PartyResponseRo[];
@@ -44,7 +45,6 @@ export class PartyComponent extends mix(BaseListComponent)
   allProcesses: string[];
 
   pModeExists: boolean;
-  // isSaving: boolean;
 
   constructor(public dialog: MatDialog, private dialogsService: DialogsService, public partyService: PartyService,
               public alertService: AlertService, private http: HttpClient, private changeDetector: ChangeDetectorRef) {
@@ -54,11 +54,10 @@ export class PartyComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    // this.isSaving = false;
     this.allRows = [];
     this.selected = [];
 
-    this.isLoading = false;
+    // this.isLoading = false;
 
     this.newParties = [];
     this.updatedParties = [];
@@ -71,6 +70,10 @@ export class PartyComponent extends mix(BaseListComponent)
     } else {
       this.pModeExists = false;
     }
+  }
+
+  public get name(): string {
+    return 'Parties';
   }
 
   ngAfterViewInit() {
@@ -91,38 +94,57 @@ export class PartyComponent extends mix(BaseListComponent)
     this.deletedParties.length = 0;
   }
 
-  async page() {
-    this.resetFilters();
-    this.listPartiesAndProcesses();
-  }
-
-  private async listPartiesAndProcesses() {
+  async doLoadPage(): Promise<any> {
     super.offset = 0;
-    var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
-      this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),
-      this.partyService.listProcesses().toPromise()
-    ];
 
-    try {
-      let data = await Promise.all(promises);
+    return this.partyService.getData(this.activeFilter).then(data => {
       const partiesRes: PartyFilteredResult = data[0];
       const processes: ProcessRo[] = data[1];
 
       this.allProcesses = processes.map(el => el.name);
 
-      super.rows = partiesRes.data;
       this.allRows = partiesRes.allData;
+      super.rows = partiesRes.data;
       super.count = this.allRows.length;
+
       this.selected.length = 0;
 
-      this.isLoading = false;
       this.resetDirty();
-
-    } catch (error) {
-      this.alertService.exception('Could not load parties due to: ', error);
-      this.isLoading = false;
-    }
+    });
   }
+
+  // async page() {
+  //   this.resetFilters();
+  //   this.listPartiesAndProcesses();
+  // }
+
+  // private async listPartiesAndProcesses() {
+  //   super.offset = 0;
+  //   var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
+  //     this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),
+  //     this.partyService.listProcesses().toPromise()
+  //   ];
+  //
+  //   try {
+  //     let data = await Promise.all(promises);
+  //     const partiesRes: PartyFilteredResult = data[0];
+  //     const processes: ProcessRo[] = data[1];
+  //
+  //     this.allProcesses = processes.map(el => el.name);
+  //
+  //     super.rows = partiesRes.data;
+  //     this.allRows = partiesRes.allData;
+  //     super.count = this.allRows.length;
+  //     this.selected.length = 0;
+  //
+  //     this.isLoading = false;
+  //     this.resetDirty();
+  //
+  //   } catch (error) {
+  //     this.alertService.exception('Could not load parties due to: ', error);
+  //     this.isLoading = false;
+  //   }
+  // }
 
   initColumns() {
     this.columnPicker.allColumns = [
@@ -192,15 +214,16 @@ export class PartyComponent extends mix(BaseListComponent)
     return !!this.pModeExists && this.selected.length === 1 && !this.isSaving;
   }
 
-  // async cancel() {
-  //   if (this.isSaving) return;
-  //
-  //   const cancel = await this.dialogsService.openCancelDialog();
-  //   if (cancel) {
-  //     super.resetFilters();
-  //     this.listPartiesAndProcesses();
-  //   }
-  // }
+  async doSave(): Promise<any> {
+    try {
+      this.partyService.validateParties(this.rows)
+    } catch (err) {
+      this.alertService.exception('Party validation error:', err);
+      return false;
+    }
+
+    return this.partyService.updateParties(this.rows);
+  }
 
   // async save(): Promise<boolean> {
   //   if (this.isSaving) return;

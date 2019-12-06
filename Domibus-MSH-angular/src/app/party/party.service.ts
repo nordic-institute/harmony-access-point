@@ -28,6 +28,15 @@ export class PartyService {
     return this.http.get<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName));
   }
 
+  async getData(activeFilter): Promise<any> {
+    var serverCalls: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
+      this.listParties(activeFilter.name, activeFilter.endPoint,
+        activeFilter.partyID, activeFilter.process, activeFilter.process_role).toPromise(),
+      this.listProcesses().toPromise()
+    ];
+    return Promise.all(serverCalls);
+  }
+
   listProcesses (): Observable<ProcessRo[]> {
     return this.http.get<ProcessRo[]>(PartyService.LIST_PROCESSES)
       .catch(() => Observable.throw('No processes found'));
@@ -80,10 +89,6 @@ export class PartyService {
     }
     return result;
   }
-
-  // saveAsCsv (name: string, endPoint: string, partyId: string, process: string, process_role: string) {
-  //   DownloadService.downloadNative(PartyService.CSV_PARTIES + this.getFilterPath(name, endPoint, partyId, process));
-  // }
 
   initParty () {
     const newParty = new PartyResponseRo();
