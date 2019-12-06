@@ -81,11 +81,11 @@ export class LoggingComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  getLoggingEntries(offset: number, pageSize: number): Observable<LoggingLevelResult> {
+  getLoggingEntries(): Observable<LoggingLevelResult> {
     let searchParams = this.createSearchParams();
 
-    searchParams = searchParams.append('page', offset.toString());
-    searchParams = searchParams.append('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', this.offset.toString());
+    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
 
     return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams});
   }
@@ -93,9 +93,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   page() {
     this.isLoading = true;
     super.resetFilters();
-    this.getLoggingEntries(this.offset, this.rowLimiter.pageSize).subscribe((result: LoggingLevelResult) => {
-
-      this.rowLimiter.pageSize = this.rowLimiter.pageSize;
+    this.getLoggingEntries().subscribe((result: LoggingLevelResult) => {
       super.count = result.count;
       super.rows = result.loggingEntries;
 

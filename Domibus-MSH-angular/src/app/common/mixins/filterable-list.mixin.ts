@@ -48,7 +48,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is supposed to be overridden in derived classes to implement actual search
    */
-  protected search() {
+  public search() {
     if (super.hasMethod('page')) {
       super.offset = 0;
       this.page();

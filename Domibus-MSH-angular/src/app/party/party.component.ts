@@ -89,7 +89,7 @@ export class PartyComponent extends mix(BaseListComponent)
     this.deletedParties.length = 0;
   }
 
-  page() {
+  async page() {
     this.listPartiesAndProcesses();
   }
 

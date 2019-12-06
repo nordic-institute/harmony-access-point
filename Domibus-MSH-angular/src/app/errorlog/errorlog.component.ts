@@ -171,7 +171,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
         result.filter.notifiedTo = new Date(result.filter.notifiedTo);
       }
 
-      this['filter'] = result.filter;
+      super.filter = result.filter;
       this.mshRoles = result.mshRoles;
       this.errorCodes = result.errorCodes;
 
