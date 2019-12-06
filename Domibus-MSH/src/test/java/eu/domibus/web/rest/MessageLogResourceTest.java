@@ -8,9 +8,8 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.PartyDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.exception.TestServiceException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.MessageLogInfo;
@@ -18,7 +17,7 @@ import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagesLogService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -54,14 +53,7 @@ public class MessageLogResourceTest {
     MessageLogResource messageLogResource;
 
     @Injectable
-    UserMessageLogDao userMessageLogDao;
-
-    @Injectable
-    PModeProvider pModeProvider;
-
-    // needed Injectable
-    @Injectable
-    MessagingDao messagingDao;
+    TestService testService;
 
     @Injectable
     PartyDao partyDao;
@@ -206,16 +198,17 @@ public class MessageLogResourceTest {
     }
 
     @Test
-    public void testGetLastTestSent() throws Exception {
+    public void testGetLastTestSent() throws TestServiceException {
         // Given
         String partyId = "test";
-        String userMessageId = "testmessageid";
-        UserMessageLog userMessageLog = new UserMessageLog();
+        Party party = new Party();
+        party.setEndpoint("testEndpoint");
+        TestServiceMessageInfoRO testServiceMessageInfoResult = new TestServiceMessageInfoRO();
+        testServiceMessageInfoResult.setPartyId(partyId);
+        testServiceMessageInfoResult.setAccessPoint(party.getEndpoint());
         new Expectations() {{
-            userMessageLogDao.findLastUserTestMessageId(partyId);
-            result = userMessageId;
-            userMessageLogDao.findByMessageId(userMessageId);
-            result = userMessageLog;
+            testService.getLastTestSent(partyId);
+            result = testServiceMessageInfoResult;
         }};
 
         // When
@@ -227,40 +220,39 @@ public class MessageLogResourceTest {
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
         Assert.assertEquals(partyId, testServiceMessageInfoRO.getPartyId());
-        Assert.assertEquals(userMessageId, testServiceMessageInfoRO.getMessageId());
     }
 
-    @Test(expected = Exception.class)
-    public void testGetLastTestSent_NotFound() throws Exception {
+    @Test(expected = TestServiceException.class)
+    public void testGetLastTestSent_NotFound() throws TestServiceException {
         // Given
+        String partyId = "partyId";
         new Expectations() {{
-            userMessageLogDao.findLastUserTestMessageId(anyString);
-            result = null;
+
+            testService.getLastTestSent(partyId);
+            result = new TestServiceException();
         }};
 
         // When
-      messageLogResource.getLastTestSent(
+        messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
-                    setPartyId("test");
+                    setPartyId(partyId);
                 }});
     }
 
     @Test
-    public void testGetLastTestReceived(@Injectable Messaging messaging) throws Exception {
+    public void testGetLastTestReceived(@Injectable Messaging messaging) throws TestServiceException {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
 
         Party party = new Party();
         party.setEndpoint("testEndpoint");
-
+        TestServiceMessageInfoRO testServiceMessageInfoResult = new TestServiceMessageInfoRO();
+        testServiceMessageInfoResult.setPartyId(partyId);
+        testServiceMessageInfoResult.setAccessPoint(party.getEndpoint());
         new Expectations() {{
-            messagingDao.findMessageByMessageId(anyString);
-            result = messaging;
-            messaging.getSignalMessage();
-            result = signalMessage;
-            pModeProvider.getPartyByIdentifier(partyId);
-            result = party;
+            testService.getLastTestReceived(partyId, userMessageId);
+            result = testServiceMessageInfoResult;
         }};
 
         // When
@@ -272,24 +264,24 @@ public class MessageLogResourceTest {
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
-        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
         Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
-        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 
-    @Test(expected = Exception.class)
-    public void testGetLastTestReceived_NotFound() throws Exception {
+    @Test(expected = TestServiceException.class)
+    public void testGetLastTestReceived_NotFound() throws TestServiceException {
         // Given
+        String partyId = "partyId";
+        String userMessageId = "userMessageId";
         new Expectations() {{
-            messagingDao.findMessageByMessageId(anyString);
-            result = null;
+            testService.getLastTestReceived(partyId, userMessageId);
+            result = new TestServiceException();
         }};
 
-       messageLogResource.getLastTestReceived(
+        messageLogResource.getLastTestReceived(
                 new LatestIncomingMessageRequestRO() {{
-                    setPartyId("test");
-                    setUserMessageId("test");
+                    setPartyId(partyId);
+                    setUserMessageId(userMessageId);
                 }});
     }
 
