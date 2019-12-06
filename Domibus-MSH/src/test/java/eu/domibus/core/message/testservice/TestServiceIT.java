@@ -1,5 +1,7 @@
 package eu.domibus.core.message.testservice;
 
+import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.plugin.Submission;
@@ -28,6 +30,13 @@ public class TestServiceIT {
 
     @Injectable
     private DatabaseMessageHandler databaseMessageHandler;
+
+    @Injectable
+    private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private MessagingDao messagingDao;
+
 
     @Test
     public void createSubmission() throws IOException {
