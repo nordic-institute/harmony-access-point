@@ -10,6 +10,8 @@ export interface IPageableList {
   type: PaginationType;
   offset: number;
   rowLimiter: RowLimiterBase;
+  isLoading: boolean;
+
   onPageSizeChanging: CallbackFunction;
 
   changePageSize(newPageLimit: number);
@@ -19,6 +21,8 @@ export interface IPageableList {
   loadPage(offset: number);
 
   page();
+
+  doLoadPage();
 }
 
 type CallbackFunction = (newPageLimit: number) => Promise<boolean>;

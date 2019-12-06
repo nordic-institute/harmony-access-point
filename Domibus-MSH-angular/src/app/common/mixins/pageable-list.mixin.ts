@@ -4,6 +4,7 @@ import {DirtyOperations} from '../dirty-operations';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 import {IPageableList, PaginationType} from './Ipageable-list';
 import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList} from './type.utils';
+import {AlertsResult} from '../../alerts/alertsresult';
 
 /**
  * @author Ion Perpegel
@@ -43,6 +44,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   public type: PaginationType;
   public offset: number;
   public rowLimiter: RowLimiterBase;
+  public isLoading: boolean;
 
   constructor(...args) {
     super(...args);
@@ -51,13 +53,28 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
     this.rowLimiter = new RowLimiterBase();
   }
 
-  public page() {
+  async doLoadPage(): Promise<any> {
   }
 
   public ngOnInit(): void {
     if (super.ngOnInit) {
       super.ngOnInit();
     }
+    this.isLoading = false;
+  }
+
+  public page() {
+    this.isLoading = true;
+    this.resetFilters();
+    this.doLoadPage().then((result: AlertsResult) => {
+      this.isLoading = false;
+      if(instanceOfModifiableList(this)) {
+        this.isChanged = false;
+      }
+    }, (error: any) => {
+      this.isLoading = false;
+      this.alertService.exception('Error occurred:', error);
+    });
   }
 
   public changePageSize(newPageLimit: number) {

@@ -36,9 +36,9 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   advancedSearch: boolean;
-  isLoading: boolean;
+  // isLoading: boolean;
 
-  isChanged: boolean;
+  // isChanged: boolean;
 
   aTypes: Array<any>;
   aStatuses: Array<any>;
@@ -79,8 +79,8 @@ export class AlertsComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.isLoading = false;
-    this.isChanged = false;
+    // this.isLoading = false;
+    // this.isChanged = false;
 
     this.aTypes = [];
     this.aStatuses = [];
@@ -235,21 +235,28 @@ export class AlertsComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  page() {
-    this.isLoading = true;
-    this.resetFilters();
-    this.getAlertsEntries().then((result: AlertsResult) => {
+  // page() {
+  //   this.isLoading = true;
+  //   this.resetFilters();
+  //   this.getAlertsEntries().then((result: AlertsResult) => {
+  //     super.count = result.count;
+  //     super.rows = result.alertsEntries;
+  //
+  //     this.isLoading = false;
+  //     this.isChanged = false;
+  //   }, (error: any) => {
+  //     this.isLoading = false;
+  //     this.alertService.exception('Error occurred:', error);
+  //   });
+  // }
+
+  async doLoadPage(): Promise<any> {
+    return this.getAlertsEntries().then((result: AlertsResult) => {
       super.count = result.count;
       super.rows = result.alertsEntries;
-
-      this.isLoading = false;
-      this.isChanged = false;
-    }, (error: any) => {
-      this.isLoading = false;
-      this.alertService.exception('Error occurred:', error);
     });
   }
-
+  
   toggleAdvancedSearch() {
     this.advancedSearch = !this.advancedSearch;
     return false; // to prevent default navigation
@@ -300,34 +307,37 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.timestampReportingFromMaxDate = event.value;
   }
 
-  async cancel() {
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      this.isChanged = false;
-      this.page();
-    }
-  }
+  // async cancel() {
+  //   const cancel = await this.dialogsService.openCancelDialog();
+  //   if (cancel) {
+  //     super.isChanged = false;
+  //     this.page();
+  //   }
+  // }
 
-  //todo: parts of this can me moved up in the hierarchy
-  async save(): Promise<boolean> {
-    const save = await this.dialogsService.openSaveDialog();
-    if (save) {
-      return await this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => {
-        this.alertService.success('The operation \'update alerts\' completed successfully.');
-        this.page();
-        return true;
-      }, err => {
-        this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
-        this.page();
-        return false;
-      });
-    } else {
-      return false;
-    }
+  // async save(): Promise<boolean> {
+  //   const save = await this.dialogsService.openSaveDialog();
+  //   if (save) {
+  //     return await this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => {
+  //       this.alertService.success('The operation \'update alerts\' completed successfully.');
+  //       this.page();
+  //       return true;
+  //     }, err => {
+  //       this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
+  //       this.page();
+  //       return false;
+  //     });
+  //   } else {
+  //     return false;
+  //   }
+  // }
+
+  async doSave(): Promise<any> {
+    return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise();
   }
 
   setProcessedValue(row) {
-    this.isChanged = true;
+    super.isChanged = true;
   }
 
   isDirty(): boolean {
