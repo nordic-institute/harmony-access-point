@@ -65,7 +65,7 @@
 
     <filter-mapping>
         <filter-name>metricsServletFilter</filter-name>
-        <servlet-name>CXF</servlet-name>
+        <url-pattern>/services/msh</url-pattern>
     </filter-mapping>
 
     <listener>
