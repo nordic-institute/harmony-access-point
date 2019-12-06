@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material';
 import {PartyService} from './party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
@@ -29,6 +29,8 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 export class PartyComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations {
+
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
@@ -142,10 +144,19 @@ export class PartyComponent extends mix(BaseListComponent)
         name: 'Process (I=Initiator, R=Responder, IR=Both)',
         prop: 'joinedProcesses',
         width: 200
+      },
+      {
+        cellTemplate: this.rowActions,
+        name: 'Actions',
+        prop: 'actions',
+        width: 60,
+        canAutoResize: true,
+        sortable: false
       }
     ];
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['name', 'endpoint', 'joinedIdentifiers', 'joinedProcesses'].indexOf(col.prop) !== -1
+      return ['name', 'endpoint', 'joinedIdentifiers', 'joinedProcesses', 'actions']
+        .indexOf(col.prop) !== -1
     })
   }
 
@@ -238,22 +249,23 @@ export class PartyComponent extends mix(BaseListComponent)
   remove() {
     if (this.isBusy) return;
 
-    const deletedParty = this.selected[0];
-    if (!deletedParty) return;
+    this.delete(this.selected[0])
+  }
 
-    console.log('removing ', deletedParty);
+  delete(row) {
+    if (!row) return;
 
-    this.rows.splice(this.rows.indexOf(deletedParty), 1);
-    this.allRows.splice(this.allRows.indexOf(deletedParty), 1);
+    this.rows.splice(this.rows.indexOf(row), 1);
+    this.allRows.splice(this.allRows.indexOf(row), 1);
     super.rows = [...this.rows];
 
     this.selected.length = 0;
     super.count--;
 
-    if (this.newParties.indexOf(deletedParty) < 0)
-      this.deletedParties.push(deletedParty);
+    if (this.newParties.indexOf(row) < 0)
+      this.deletedParties.push(row);
     else
-      this.newParties.splice(this.newParties.indexOf(deletedParty), 1);
+      this.newParties.splice(this.newParties.indexOf(row), 1);
   }
 
   async edit(row): Promise<boolean> {
@@ -306,4 +318,6 @@ export class PartyComponent extends mix(BaseListComponent)
   OnSort() {
     super.resetFilters();
   }
+
+
 }
