@@ -240,18 +240,6 @@ public class TestServiceTest {
         thenTheMessageIdentifierIsCorrectlyReturned();
     }
 
-    @Test
-    public void testGetLastTestSent() throws Exception {
-        getUserMessageLog(partyId, userMessageId);
-        getLastSentMessage();
-        matchLastTestSent();
-    }
-
-    private void getLastSentMessage() throws TestServiceException {
-        lastTestSent = testService.getLastTestSent(partyId);
-    }
-
-
     private void givenSender(String sender) {
         this.sender = sender;
     }
@@ -400,6 +388,16 @@ public class TestServiceTest {
                 "according to section 4.3 of the [ebMS3CORE] specification", "1", returnedSubmission.getConversationId());
     }
 
+    @Test
+    public void testGetLastTestSent() throws Exception {
+        getUserMessageLog(partyId, userMessageId);
+        getLastSentMessage();
+        matchLastTestSent();
+    }
+
+    private void getLastSentMessage() throws TestServiceException {
+        lastTestSent = testService.getLastTestSent(partyId);
+    }
 
     private void matchLastTestSent() {
         Assert.assertEquals(partyId, lastTestSent.getPartyId());
@@ -422,8 +420,6 @@ public class TestServiceTest {
     @Test(expected = TestServiceException.class)
     public void testGetLastTestSent_NotFound() throws TestServiceException {
         // Given
-        String partyId = "test";
-        String userMessageId = "userMessageId";
         new Expectations() {{
             new XStream();
             times = 0;
@@ -442,9 +438,6 @@ public class TestServiceTest {
     @Test
     public void testGetLastTestReceived(@Injectable Messaging messaging) throws TestServiceException {
         // Given
-        String partyId = "partyId";
-        String userMessageId = "userMessageId";
-
         Party party = new Party();
         party.setEndpoint("testEndpoint");
 
@@ -474,8 +467,6 @@ public class TestServiceTest {
 
     @Test(expected = Exception.class)
     public void testGetLastTestReceived_NotFound() throws Exception {
-        String partyId = "partyId";
-        String userMessageId = "userMessageId";
         // Given
         new Expectations() {{
             new XStream();
