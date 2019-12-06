@@ -1,15 +1,15 @@
-/**
- * @author Ion Perpegel
- * @since 4.2
- *
- * A mixin for components that display a list of items that are paged on server or client
- */
 import {Constructable} from './base-list.component';
 import {ChangeDetectorRef, OnInit} from '@angular/core';
 import {DirtyOperations} from '../dirty-operations';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 import {IPageableList, PaginationType} from './Ipageable-list';
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * A mixin for components that display a list of items that are paged on server
+ */
 export let ServerPageableListMixin = (superclass: Constructable) => class extends PageableListMixin(superclass) {
   constructor(...args) {
     super(...args);
@@ -17,6 +17,12 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
   }
 }
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * A mixin for components that display a list of items that are paged on client
+ */
 export let ClientPageableListMixin = (superclass: Constructable) => class extends PageableListMixin(superclass) {
   constructor(...args) {
     super(...args);
@@ -24,6 +30,12 @@ export let ClientPageableListMixin = (superclass: Constructable) => class extend
   }
 }
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * A mixin for components that display a list of items that are paged on server or client
+ */
 export let PageableListMixin = (superclass: Constructable) => class extends superclass
   implements IPageableList, OnInit {
 

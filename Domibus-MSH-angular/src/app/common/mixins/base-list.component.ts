@@ -6,11 +6,11 @@ import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 
 /**
- * Base class for list components;
- * empty now but common functionality will be added in time
- *
+ * @author Ion Perpegel
  * @since 4.1
- */
+ *
+ * Base class for list components;
+  */
 export interface Constructable {
   new(...args);
 }

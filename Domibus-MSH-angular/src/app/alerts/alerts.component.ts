@@ -250,11 +250,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     });
   }
 
-  // search() {
-  //   super.offset = 0;
-  //   this.page();
-  // }
-
   toggleAdvancedSearch() {
     this.advancedSearch = !this.advancedSearch;
     return false; // to prevent default navigation
@@ -304,14 +299,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   onTimestampReportingToChange(event) {
     this.timestampReportingFromMaxDate = event.value;
   }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  // public reload() {
-  //   super.offset = 0;
-  //   this.page();
-  // }
 
   async cancel() {
     const cancel = await this.dialogsService.openCancelDialog();

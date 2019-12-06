@@ -1,11 +1,11 @@
 /**
  * @author Ion Perpegel
  * @since 4.1
+ *
  * A mixin for components that display a list of items that can be filtered
  */
 import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
-import {PaginationType} from './Ipageable-list';
 
 let FilterableListMixin = (superclass: Constructable) => class extends superclass implements OnInit {
   public filter: any;

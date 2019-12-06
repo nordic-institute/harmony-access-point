@@ -312,11 +312,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  // search() {
-  //   super.offset = 0;
-  //   this.page();
-  // }
-
   resendDialog() {
     this.dialogsService.openResendDialog().then(resend => {
       if (resend) {

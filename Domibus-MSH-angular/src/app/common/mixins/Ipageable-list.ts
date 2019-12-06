@@ -1,12 +1,11 @@
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 
-type CallbackFunction = (newPageLimit: number) => Promise<boolean>;
-
-export enum PaginationType {
-  Server,
-  Client,
-}
-
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * An interface for the list with pagination ( client or server)
+ * */
 export interface IPageableList {
   type: PaginationType;
   offset: number;
@@ -14,4 +13,11 @@ export interface IPageableList {
   onPageSizeChanging: CallbackFunction;
 
   changePageSize(newPageLimit: number);
+}
+
+type CallbackFunction = (newPageLimit: number) => Promise<boolean>;
+
+export enum PaginationType {
+  Server,
+  Client,
 }

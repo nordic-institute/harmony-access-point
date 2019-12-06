@@ -143,11 +143,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  // async search() {
-  //   super.offset = 0;
-  //   this.page();
-  // }
-
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
   }
@@ -254,8 +249,8 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async cancel() {
-    const ok = await this.dialogsService.openCancelDialog();
-    if (ok) {
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
       super.resetFilters();
       this.search();
     }
