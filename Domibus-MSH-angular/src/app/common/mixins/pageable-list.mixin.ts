@@ -4,7 +4,7 @@
  *
  * A mixin for components that display a list of items that are paged on server or client
  */
-import {Constructable} from '../base-list.component';
+import {Constructable} from './base-list.component';
 import {ChangeDetectorRef, OnInit} from '@angular/core';
 import {DirtyOperations} from '../dirty-operations';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';

@@ -8,7 +8,7 @@ import {DirtyOperations} from '../common/dirty-operations';
 import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
 import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';

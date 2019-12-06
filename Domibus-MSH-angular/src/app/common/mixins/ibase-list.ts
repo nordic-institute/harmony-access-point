@@ -1,4 +1,4 @@
-import {ColumnPickerBase} from './column-picker/column-picker-base';
+import {ColumnPickerBase} from '../column-picker/column-picker-base';
 
 export interface IBaseList<T> {
   rows: Array<T>;

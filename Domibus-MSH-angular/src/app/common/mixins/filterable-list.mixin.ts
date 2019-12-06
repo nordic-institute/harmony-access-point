@@ -3,7 +3,7 @@
  * @since 4.1
  * A mixin for components that display a list of items that can be filtered
  */
-import {Constructable} from '../base-list.component';
+import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
 import {PaginationType} from './Ipageable-list';
 

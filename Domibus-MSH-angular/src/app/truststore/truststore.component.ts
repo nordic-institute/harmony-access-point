@@ -8,7 +8,7 @@ import {TrustStoreUploadComponent} from './truststore-upload/truststore-upload.c
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({

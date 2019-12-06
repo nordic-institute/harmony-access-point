@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit} from '@angular/core';
 import {IPageableList} from '../mixins/Ipageable-list';
-import BaseListComponent from '../base-list.component';
+import BaseListComponent from '../mixins/base-list.component';
 
 @Component({
   selector: 'grid-header',

@@ -4,7 +4,7 @@
  *
  * A mixin for components that display a list of items that can be modified and saved
  */
-import {Constructable} from '../base-list.component';
+import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
 import {DirtyOperations} from '../dirty-operations';
 

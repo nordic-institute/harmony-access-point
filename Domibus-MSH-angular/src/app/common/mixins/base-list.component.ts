@@ -1,9 +1,9 @@
-import {AlertComponent} from './alert/alert.component';
-import {AlertService} from './alert/alert.service';
-import {IBaseList} from './ibase-list';
-import {DownloadService} from './download.service';
+import {AlertComponent} from '../alert/alert.component';
+import {AlertService} from '../alert/alert.service';
+import {DownloadService} from '../download.service';
 import {OnInit} from '@angular/core';
-import {ColumnPickerBase} from './column-picker/column-picker-base';
+import {ColumnPickerBase} from '../column-picker/column-picker-base';
+import {IBaseList} from './ibase-list';
 
 /**
  * Base class for list components;

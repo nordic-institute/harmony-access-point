@@ -1,4 +1,4 @@
-import {Constructable} from '../base-list.component';
+import {Constructable} from './base-list.component';
 
 /**
  * @author Ion Perpegel

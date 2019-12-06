@@ -8,7 +8,7 @@ import {MessageDialogComponent} from './message-dialog/message-dialog.component'
 import {DirtyOperations} from '../common/dirty-operations';
 import {Observable} from 'rxjs/Observable';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';

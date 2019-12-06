@@ -15,7 +15,7 @@ import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
 import {DialogsService} from '../../common/dialogs/dialogs.service';
 import mix from '../../common/mixins/mixin.utils';
-import BaseListComponent from '../../common/base-list.component';
+import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
 

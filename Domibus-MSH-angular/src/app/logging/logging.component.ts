@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {LoggingLevelResult} from './logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';

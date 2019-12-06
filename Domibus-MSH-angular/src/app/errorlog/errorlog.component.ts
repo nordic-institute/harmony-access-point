@@ -5,7 +5,7 @@ import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
 import {MatDialog, MatDialogRef} from '@angular/material';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';

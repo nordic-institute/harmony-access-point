@@ -5,7 +5,7 @@ import {AlertService} from '../common/alert/alert.service';
 import {AuditCriteria, AuditResponseRo} from './audit';
 import {Observable} from 'rxjs/Observable';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
