@@ -42,8 +42,10 @@ public class TestServiceIT {
     public void createSubmission() throws IOException {
         // GIVEN
         new Expectations() {{
-            pModeProvider.getRole("INITIATOR", Ebms3Constants.TEST_SERVICE); result = "initiator";
-            pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE); result = "responder";
+            pModeProvider.getRole("INITIATOR", Ebms3Constants.TEST_SERVICE);
+            result = "initiator";
+            pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE);
+            result = "responder";
         }};
 
         // WHEN

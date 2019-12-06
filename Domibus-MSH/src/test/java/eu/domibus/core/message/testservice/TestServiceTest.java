@@ -408,8 +408,10 @@ public class TestServiceTest {
     private void getUserMessageLog(String partyId, String userMessageId) {
         UserMessageLog userMessageLog = new UserMessageLog();
         new Expectations() {{
-            new XStream(); times = 0;
-            xStream.fromXML((InputStream) any); times = 0;
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
             userMessageLogDao.findLastUserTestMessageId(partyId);
             result = userMessageId;
             userMessageLogDao.findByMessageId(userMessageId);
@@ -423,12 +425,14 @@ public class TestServiceTest {
         String partyId = "test";
         String userMessageId = "userMessageId";
         new Expectations() {{
-            new XStream(); times = 0;
-            xStream.fromXML((InputStream) any); times = 0;
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
             userMessageLogDao.findLastUserTestMessageId(anyString);
             result = userMessageId;
             userMessageLogDao.findByMessageId(userMessageId);
-            result =  null;
+            result = null;
         }};
 
         // When
@@ -445,8 +449,10 @@ public class TestServiceTest {
         party.setEndpoint("testEndpoint");
 
         new Expectations() {{
-            new XStream(); times = 0;
-            xStream.fromXML((InputStream) any); times = 0;
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
             messagingDao.findMessageByMessageId(anyString);
             result = messaging;
             messaging.getSignalMessage();
@@ -472,8 +478,10 @@ public class TestServiceTest {
         String userMessageId = "userMessageId";
         // Given
         new Expectations() {{
-            new XStream(); times = 0;
-            xStream.fromXML((InputStream) any); times = 0;
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
             messagingDao.findMessageByMessageId(anyString);
             result = null;
         }};
