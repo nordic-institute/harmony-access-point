@@ -36,7 +36,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   advancedSearch: boolean;
-  loading: boolean;
+  isLoading: boolean;
 
   isChanged: boolean;
 
@@ -79,9 +79,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.loading = false;
-    super.rows = [];
-    super.count = 0;
+    this.isLoading = false;
     this.isChanged = false;
 
     this.aTypes = [];
@@ -106,8 +104,8 @@ export class AlertsComponent extends mix(BaseListComponent)
 
     super.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
-    this['orderBy'] = 'creationTime';
-    this['asc'] = false;
+    super.orderBy = 'creationTime';
+    super.asc = false;
 
     super.setActiveFilter();
     this.search();
@@ -238,16 +236,16 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   page() {
-    this.loading = true;
+    this.isLoading = true;
     this.resetFilters();
     this.getAlertsEntries().then((result: AlertsResult) => {
       super.count = result.count;
       super.rows = result.alertsEntries;
 
-      this.loading = false;
+      this.isLoading = false;
       this.isChanged = false;
     }, (error: any) => {
-      this.loading = false;
+      this.isLoading = false;
       this.alertService.exception('Error occurred:', error);
     });
   }

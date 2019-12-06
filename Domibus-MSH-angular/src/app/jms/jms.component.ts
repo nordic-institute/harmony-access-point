@@ -6,8 +6,6 @@ import {MatDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {Observable} from 'rxjs/Observable';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
@@ -45,7 +43,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
   selectedMessages: any[];
   markedForDeletionMessages: any[];
-  loading: boolean;
+  isLoading: boolean;
 
   request: MessagesRequestRO;
 
@@ -70,7 +68,7 @@ export class JmsComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this['filter'] = new MessagesRequestRO();
+    super.filter = new MessagesRequestRO();
 
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
@@ -88,10 +86,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
     this.selectedMessages = [];
     this.markedForDeletionMessages = [];
-    this.loading = false;
-
-    super.rows = [];
-    super.count = 0;
+    this.isLoading = false;
 
     this.loadDestinations();
 
@@ -204,12 +199,6 @@ export class JmsComponent extends mix(BaseListComponent)
     this.selectedSource = toSelect;
   }
 
-  // changePageSize(newPageSize: number) {
-  //   super.resetFilters();
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageSize;
-  // }
-
   onSelect({selected}) {
     this.selectedMessages.splice(0, this.selectedMessages.length);
     this.selectedMessages.push(...selected);
@@ -230,7 +219,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canSearch() {
-    return this.filter.source && !this.loading;
+    return this.filter.source && !this.isLoading;
   }
 
   search() {
@@ -242,11 +231,11 @@ export class JmsComponent extends mix(BaseListComponent)
       this.alertService.error('Source should be set');
       return;
     }
-    if (this.loading) {
+    if (this.isLoading) {
       return;
     }
 
-    this.loading = true;
+    this.isLoading = true;
     this.selectedMessages = [];
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
@@ -262,13 +251,13 @@ export class JmsComponent extends mix(BaseListComponent)
         super.count = res.messages.length;
 
         super.offset = 0;
-        this.loading = false;
+        this.isLoading = false;
 
         this.refreshDestinations();
       },
       error => {
         this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
-        this.loading = false;
+        this.isLoading = false;
       }
     );
   }
@@ -491,15 +480,6 @@ export class JmsComponent extends mix(BaseListComponent)
 
   isDirty(): boolean {
     return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
-  }
-
-  // onPage($event) {
-  //   this.offset = $event.offset;
-  //   super.resetFilters();
-  // }
-
-  page() {
-    //nothing on purpose since it is grid paging, not server
   }
 
   onSort() {

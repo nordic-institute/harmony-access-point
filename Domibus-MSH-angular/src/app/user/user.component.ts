@@ -43,9 +43,6 @@ export class UserComponent extends mix(BaseListComponent)
   @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
-  // columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  // rowLimiter: RowLimiterBase = new RowLimiterBase();
-
   userRoles: Array<String>;
   domains: Domain[];
   domainsPromise: Promise<Domain[]>;
@@ -66,7 +63,6 @@ export class UserComponent extends mix(BaseListComponent)
   areRowsDeleted: boolean;
 
   deletedStatuses: any[];
-  // offset: number;
 
   isBusy = false;
 
@@ -88,9 +84,6 @@ export class UserComponent extends mix(BaseListComponent)
     this.isBusy = true;
     super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
-
-    // this.columnPicker = new ColumnPickerBase();
-    // this.rowLimiter = new RowLimiterBase();
 
     super.rows = [];
     super.count = 0;
@@ -427,22 +420,6 @@ export class UserComponent extends mix(BaseListComponent)
   isDirty(): boolean {
     return this.enableCancel;
   }
-
-  page() {
-
-  }
-
-  // changePageSize(newPageLimit: number) {
-  //   this.rowLimiter.pageSize = newPageLimit;
-  //   this.disableSelectionAndButtons();
-  //   super.rows = [];
-  //   super.count = 0;
-  //   this.getUsers();
-  // }
-
-  // onChangePage(event: any): void {
-  //   this.setPage(event.offset);
-  // }
 
   setPage(offset: number): void {
     super.offset = offset;

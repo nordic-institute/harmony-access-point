@@ -42,7 +42,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
-  loading: boolean;
+  isLoading: boolean;
 
   allPModes: any[];
   selected: any[];
@@ -85,7 +85,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.loading = false;
+    this.isLoading = false;
 
     this.allPModes = [];
     this.selected = [];
@@ -154,7 +154,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    * Gets all the PModes Entries
    */
   async getAllPModeEntries() {
-    this.loading = true;
+    this.isLoading = true;
 
     try {
       this.allPModes = await this.getResultObservable().toPromise();
@@ -173,17 +173,17 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
         this.rows[0].current = true;
         this.rows[0].description = '[CURRENT]: ' + this.allPModes[0].description;
       }
-      this.loading = false;
+      this.isLoading = false;
     } catch (e) {
-      this.loading = false;
+      this.isLoading = false;
       this.alertService.exception('Error while fetching all pmode entries.', e);
     }
   }
 
   page() {
-    this.loading = true;
+    this.isLoading = true;
     super.rows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
-    this.loading = false;
+    this.isLoading = false;
   }
 
   /**

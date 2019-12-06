@@ -28,11 +28,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   @ViewChild('rowWithToggleTpl', {static: false}) rowWithToggleTpl: TemplateRef<any>;
 
   levels: Array<String>;
-  loading: boolean = false;
-
-  //???
-  // orderBy: string = 'loggerName';
-  // asc: boolean = false;
+  isLoading: boolean = false;
 
   constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
               private changeDetector: ChangeDetectorRef) {
@@ -95,7 +91,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   }
 
   page() {
-    this.loading = true;
+    this.isLoading = true;
     super.resetFilters();
     this.getLoggingEntries(this.offset, this.rowLimiter.pageSize).subscribe((result: LoggingLevelResult) => {
 
@@ -103,35 +99,16 @@ export class LoggingComponent extends mix(BaseListComponent)
       super.count = result.count;
       super.rows = result.loggingEntries;
 
-      this['filter'] = result.filter;
+      super.filter = result.filter;
       this.levels = result.levels;
 
-      this.loading = false;
+      this.isLoading = false;
     }, (error: any) => {
-      this.loading = false;
+      this.isLoading = false;
       this.alertService.exception('Error occurred:', error);
     });
 
   }
-
-  // onPage(event) {
-  //   this.offset = event.offset;
-  //   this.page();
-  // }
-
-  // onSort(event) {
-  //   this.orderBy = event.column.prop;
-  //   this.asc = (event.newValue === 'desc') ? false : true;
-  //
-  //   this.page();
-  // }
-
-  // changePageSize(newPageLimit: number) {
-  //   super.resetFilters();
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageLimit;
-  //   this.page();
-  // }
 
   onLevelChange(newLevel: string, row: any) {
     if (newLevel !== row.level) {
@@ -145,14 +122,13 @@ export class LoggingComponent extends mix(BaseListComponent)
         },
         error => {
           this.alertService.exception('An error occurred while setting logging level: ', error);
-          this.loading = false;
+          this.isLoading = false;
         }
       );
     }
   }
 
   resetLogging() {
-    console.log('Reset button clicked!');
     this.http.post(LoggingComponent.RESET_LOGGING_URL, {}).subscribe(
       res => {
         this.alertService.success('Logging configuration was successfully reset.', false);
@@ -160,7 +136,7 @@ export class LoggingComponent extends mix(BaseListComponent)
       },
       error => {
         this.alertService.exception('An error occurred while resetting logging: ', error);
-        this.loading = false;
+        this.isLoading = false;
       }
     );
   }

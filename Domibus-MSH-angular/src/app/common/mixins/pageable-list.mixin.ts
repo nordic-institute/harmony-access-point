@@ -38,9 +38,6 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
     this.rowLimiter = new RowLimiterBase();
   }
 
-  public page() {
-  }
-
   public ngOnInit(): void {
     if (super.ngOnInit) {
       super.ngOnInit();

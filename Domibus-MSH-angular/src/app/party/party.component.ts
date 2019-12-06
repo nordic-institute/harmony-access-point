@@ -33,7 +33,7 @@ export class PartyComponent extends mix(BaseListComponent)
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
 
-  loading: boolean;
+  isLoading: boolean;
 
   newParties: PartyResponseRo[];
   updatedParties: PartyResponseRo[];
@@ -56,7 +56,7 @@ export class PartyComponent extends mix(BaseListComponent)
     this.allRows = [];
     this.selected = [];
 
-    this.loading = false;
+    this.isLoading = false;
 
     this.newParties = [];
     this.updatedParties = [];
@@ -112,12 +112,12 @@ export class PartyComponent extends mix(BaseListComponent)
       super.count = this.allRows.length;
       this.selected.length = 0;
 
-      this.loading = false;
+      this.isLoading = false;
       this.resetDirty();
 
     } catch (error) {
       this.alertService.exception('Could not load parties due to: ', error);
-      this.loading = false;
+      this.isLoading = false;
     }
   }
 
@@ -147,21 +147,6 @@ export class PartyComponent extends mix(BaseListComponent)
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['name', 'endpoint', 'joinedIdentifiers', 'joinedProcesses'].indexOf(col.prop) !== -1
     })
-  }
-
-  // changePageSize(newPageLimit: number) {
-  //   super.resetFilters();
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageLimit;
-  // }
-
-  // onPageChange(event: any) {
-  //   super.resetFilters();
-  //   this.offset = event.offset;
-  // }
-
-  page() {
-    //intentionally empty since the pagination is done by the grid
   }
 
   public get csvUrl(): string {
@@ -256,7 +241,7 @@ export class PartyComponent extends mix(BaseListComponent)
     const deletedParty = this.selected[0];
     if (!deletedParty) return;
 
-    console.log('removing ', deletedParty)
+    console.log('removing ', deletedParty);
 
     this.rows.splice(this.rows.indexOf(deletedParty), 1);
     this.allRows.splice(this.allRows.indexOf(deletedParty), 1);

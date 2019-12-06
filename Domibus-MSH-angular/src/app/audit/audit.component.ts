@@ -36,7 +36,7 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-  loading: boolean = false;
+  isLoading: boolean = false;
 
 // --- hide/show binding ---
   advancedSearch: boolean;
@@ -85,25 +85,25 @@ export class AuditComponent extends mix(BaseListComponent)
   searchAndCount() {
     this.setActiveFilter();
 
-    this.loading = true;
+    this.isLoading = true;
     super.offset = 0;
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
         super.rows = response;
-        this.loading = false;
+        this.isLoading = false;
       },
       error => {
         this.alertService.exception('Could not load audits: ', error);
-        this.loading = false;
+        this.isLoading = false;
       },
       // on complete of auditLogsObservable Observable, we load the count
       // TODO: load this in parallel and merge the stream at the end.
       () => auditCountObservable.subscribe(auditCount => super.count = auditCount,
         error => {
           this.alertService.exception('Could not count audits: ', error);
-          this.loading = false;
+          this.isLoading = false;
         })
     );
   }
@@ -114,29 +114,22 @@ export class AuditComponent extends mix(BaseListComponent)
   }
 
   searchAuditLog() {
-    this.loading = true;
+    this.isLoading = true;
     const auditCriteria: AuditCriteria = this.buildCriteria();
     const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
     auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
         super.rows = response;
-        this.loading = false;
+        this.isLoading = false;
       },
       error => {
         this.alertService.exception('Could not load audits: ', error);
-        this.loading = false;
+        this.isLoading = false;
       });
   }
 
   page() {
     this.searchAuditLog();
   }
-
-  // onPage(event) {
-  //   this.resetFilters();
-  //
-  //   this.offset = event.offset;
-  //   this.searchAuditLog();
-  // }
 
   buildCriteria(): AuditCriteria {
     const auditCriteria: AuditCriteria = new AuditCriteria();
@@ -152,14 +145,6 @@ export class AuditComponent extends mix(BaseListComponent)
 
     return auditCriteria;
   }
-
-  // changePageSize(newPageLimit: number) {
-  //   this.resetFilters();
-  //
-  //   super.offset = 0;
-  //   this.rowLimiter.pageSize = newPageLimit;
-  //   this.searchAuditLog();
-  // }
 
   initColumns() {
     this.columnPicker.allColumns = [

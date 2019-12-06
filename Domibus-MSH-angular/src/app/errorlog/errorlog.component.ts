@@ -1,14 +1,9 @@
 ﻿import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
 import {MatDialog, MatDialogRef} from '@angular/material';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -38,7 +33,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   notifiedToMinDate: Date = null;
   notifiedToMaxDate: Date = new Date();
 
-  loading: boolean = false;
+  isLoading: boolean = false;
 
   mshRoles: string[];
   errorCodes: string[];
@@ -56,8 +51,8 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this['orderBy'] = 'timestamp';
-    this['asc'] = false;
+    super.orderBy = 'timestamp';
+    super.asc = false;
 
     this.search();
   }
@@ -158,7 +153,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   }
 
   page() {
-    this.loading = true;
+    this.isLoading = true;
     this.getErrorLogEntries().then((result: ErrorLogResult) => {
       super.count = result.count;
       super.rows = result.errorLogEntries;
@@ -180,27 +175,13 @@ export class ErrorLogComponent extends mix(BaseListComponent)
       this.mshRoles = result.mshRoles;
       this.errorCodes = result.errorCodes;
 
-      this.loading = false;
+      this.isLoading = false;
     }, (error: any) => {
-      this.loading = false;
+      this.isLoading = false;
       this.alertService.exception('Error occured:', error);
     });
 
   }
-
-  // onPage(event) {
-  //   super.resetFilters();
-  //   super.offset = event.offset;
-  //   this.page();
-  // }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  // public reload() {
-  //   super.offset = 0;
-  //   this.page();
-  // }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin
@@ -208,13 +189,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   public onBeforeSort() {
     super.resetFilters();
   }
-
-  // changePageSize(newPageLimit: number) {
-  //   super.resetFilters();
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageLimit;
-  //   this.page();
-  // }
 
   search() {
     super.offset = 0;

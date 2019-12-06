@@ -39,9 +39,10 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
-  loading: boolean;
+  isLoading: boolean;
+  isChanged: boolean;
+
   areFiltersPersisted: boolean;
-  dirty: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
@@ -51,8 +52,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    super.rows = [];
-    super.count = 0;
     this.selected = [];
 
     this.backendFilterNames = [];
@@ -67,13 +66,13 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
-    this.loading = true;
+    this.isLoading = true;
 
     this.getBackendFiltersInfo();
   }
 
   getBackendFiltersInfo() {
-    this.dirty = false;
+    this.isChanged = false;
     this.getMessageFilterEntries().subscribe((result: MessageFilterResult) => {
 
       let newRows = [];
@@ -103,7 +102,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
       }
     }, (error: any) => {
       console.log('error getting the message filter: ' + error);
-      this.loading = false;
+      this.isLoading = false;
       this.alertService.exception('Error occurred: ', error);
     });
   }
@@ -411,9 +410,9 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   setDirty(itemValue: boolean) {
-    this.dirty = this.dirty || itemValue;
-    this.enableSave = this.dirty;
-    this.enableCancel = this.dirty;
+    this.isChanged = this.isChanged || itemValue;
+    this.enableSave = this.isChanged;
+    this.enableCancel = this.isChanged;
   }
 
   onActivate(event) {

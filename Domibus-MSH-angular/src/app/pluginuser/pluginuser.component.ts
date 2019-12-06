@@ -1,6 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
-import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {AlertService} from '../common/alert/alert.service';
 import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
 import {PluginUserRO} from './pluginuser';
@@ -33,8 +32,8 @@ export class PluginUserComponent extends mix(BaseListComponent)
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
 
   selected: PluginUserRO[];
-  loading: boolean;
-  dirty: boolean;
+  isLoading: boolean;
+  isChanged: boolean;
 
   authenticationTypes: string[] = ['BASIC', 'CERTIFICATE'];
   filter: PluginUserSearchCriteria;
@@ -53,11 +52,10 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
     this.selected = [];
-    this.loading = false;
+    this.isLoading = false;
     this.userRoles = [];
-    super.rows = [];
-    super.count = 0;
-    this.dirty = false;
+
+    this.isChanged = false;
 
     this.getUserRoles();
 
@@ -130,27 +128,21 @@ export class PluginUserComponent extends mix(BaseListComponent)
   async search() {
     super.offset = 0;
     this.selected = [];
-    this.dirty = false;
+    this.isChanged = false;
 
     try {
-      this.loading = true;
+      this.isLoading = true;
       const result = await this.pluginUserService.getUsers(this.activeFilter).toPromise();
       super.rows = result.entries;
       super.count = result.entries.length;
-      this.loading = false;
+      this.isLoading = false;
 
       this.setColumnPicker();
     } catch (err) {
       this.alertService.exception('Error getting plugin users:', err);
-      this.loading = false;
+      this.isLoading = false;
     }
   }
-
-  // changePageSize(newPageSize: number) {
-  //   super.resetFilters();
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageSize;
-  // }
 
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
@@ -161,7 +153,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   isDirty(): boolean {
-    return this.dirty;
+    return this.isChanged;
   }
 
   async getUserRoles() {
@@ -250,7 +242,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   setIsDirty() {
-    this.dirty = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
+    this.isChanged = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
   canCancel() {
@@ -279,15 +271,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
   public get csvUrl(): string {
     return PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString();
   }
-
-  page() {
-    //intentionally empty since pagination is done by the grid
-  }
-
-  // onPageChanged($event) {
-  //   this.offset = $event.offset;
-  //   super.resetFilters();
-  // }
 
   onSort() {
     super.resetFilters();

@@ -40,7 +40,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-  loading: boolean;
+  isLoading: boolean;
 
   mshRoles: Array<String>;
   msgTypes: Array<String>;
@@ -72,12 +72,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
 
-    this.loading = false;
-    super.rows = [];
-    super.count = 0;
+    this.isLoading = false;
 
-    this['orderBy'] = 'received';
-    this['asc'] = false;
+    super.orderBy = 'received';
+    super.asc = false;
 
     this.messageResent = new EventEmitter(false);
 
@@ -280,7 +278,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   page() {
-    this.loading = true;
+    this.isLoading = true;
     super.resetFilters();
     this.getMessageLogEntries().then((result: MessageLogResult) => {
       super.count = result.count;
@@ -294,44 +292,25 @@ export class MessageLogComponent extends mix(BaseListComponent)
         result.filter.receivedTo = new Date(result.filter.receivedTo);
       }
       result.filter.isTestMessage = !!result.filter.messageSubtype;
-      this['filter'] = result.filter;
+      super.filter = result.filter;
 
       this.mshRoles = result.mshRoles;
       this.msgTypes = result.msgTypes;
       this.msgStatuses = result.msgStatus.sort();
       this.notifStatus = result.notifStatus;
 
-      this.loading = false;
+      this.isLoading = false;
     }, (error) => {
-      this.loading = false;
+      this.isLoading = false;
       this.alertService.exception('Error occurred: ', error);
     });
   }
-
-  // onPage(event) {
-  //   this.offset = event.offset;
-  //   this.page();
-  // }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  // public reload() {
-  //   this.offset = 0;
-  //   this.page();
-  // }
 
   onActivate(event) {
     if ('dblclick' === event.type) {
       this.details(event.row);
     }
   }
-
-  // changePageSize(newPageLimit: number) {
-  //   this.offset = 0;
-  //   this.rowLimiter.pageSize = newPageLimit;
-  //   this.page();
-  // }
 
   search() {
     super.offset = 0;
