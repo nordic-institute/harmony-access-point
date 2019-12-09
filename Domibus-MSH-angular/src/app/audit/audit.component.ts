@@ -71,7 +71,7 @@ export class AuditComponent extends mix(BaseListComponent)
 
 // --- lets count the records and fill the table.---
 //     this.searchAndCount();
-    this.search().then(() => this.countRecords());
+    this.filterData().then(() => this.countRecords());
   }
 
   ngAfterViewInit() {

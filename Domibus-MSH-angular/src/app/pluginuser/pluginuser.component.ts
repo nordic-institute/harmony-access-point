@@ -60,7 +60,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.getUserRoles();
 
     // super.setActiveFilter();
-    this.search();
+    this.filterData();
   }
 
   public get name(): string {
@@ -120,7 +120,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   changeAuthType(x) {
     this.clearSearchParams();
 
-    super.trySearch();
+    super.tryFilter();
   }
 
   clearSearchParams() {
@@ -247,7 +247,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   //       await this.pluginUserService.saveUsers(this.rows);
   //       this.alertService.success('The operation \'update plugin users\' completed successfully.');
   //       super.resetFilters();
-  //       this.search();
+  //       this.filterData();
   //       return true;
   //     } catch (err) {
   //       this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
@@ -270,7 +270,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   //   const cancel = await this.dialogsService.openCancelDialog();
   //   if (cancel) {
   //     super.resetFilters();
-  //     this.search();
+  //     this.filterData();
   //   }
   // }
 

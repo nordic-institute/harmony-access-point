@@ -54,7 +54,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     super.orderBy = 'timestamp';
     super.asc = false;
 
-    this.search();
+    this.filterData();
   }
 
   ngAfterViewInit() {

@@ -83,7 +83,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
 
-    this.search();
+    this.filterData();
   }
 
   public get name(): string {

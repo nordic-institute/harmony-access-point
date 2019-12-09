@@ -10,9 +10,9 @@ export interface IFilterableList {
   filter: any;
   activeFilter: any;
 
-  search();
+  filterData();
 
-  trySearch(): Promise<boolean>;
+  tryFilter(): Promise<boolean>;
 
   setActiveFilter();
 

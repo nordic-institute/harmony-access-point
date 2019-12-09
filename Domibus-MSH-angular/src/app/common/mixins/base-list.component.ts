@@ -52,10 +52,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     }
 
     this.isLoading = true;
-
     this.selected.length = 0;
-    // this.rows = [];
-    // this.count = 0;
 
     if (instanceOfFilterableList(this)) {
       this.resetFilters();

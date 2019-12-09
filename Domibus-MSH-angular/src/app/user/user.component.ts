@@ -107,7 +107,7 @@ export class UserComponent extends mix(BaseListComponent)
     // this.isChanged = false;
     this.areRowsDeleted = false;
 
-    this.search();
+    this.filterData();
   }
 
   public get name(): string {

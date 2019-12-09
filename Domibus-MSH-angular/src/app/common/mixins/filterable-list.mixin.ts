@@ -53,7 +53,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is supposed to be overridden in derived classes to implement actual search
    */
   //todo:try to get rid of it??
-  public search() {
+  public filterData() {
     this.setActiveFilter();
     return this.getData();
   }
@@ -61,16 +61,16 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
-  public async trySearch(): Promise<boolean> {
-    const canSearch = await this.canProceedToSearch();
+  public async tryFilter(): Promise<boolean> {
+    const canSearch = await this.canProceedToFilter();
     if (canSearch) {
       this.setActiveFilter();
-      this.search();
+      this.filterData();
     }
     return canSearch;
   }
 
-  private canProceedToSearch(): Promise<boolean> {
+  private canProceedToFilter(): Promise<boolean> {
     if (instanceOfModifiableList(this) && this.isDirty()) {
       return this.dialogsService.openCancelDialog();
     }

@@ -101,8 +101,8 @@ export class AlertsComponent extends mix(BaseListComponent)
     super.orderBy = 'creationTime';
     super.asc = false;
 
-    super.setActiveFilter();
-    this.search();
+    // super.setActiveFilter();
+    this.filterData();
   }
 
   public get name(): string {

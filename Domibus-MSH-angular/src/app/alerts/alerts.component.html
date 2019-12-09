@@ -4,7 +4,7 @@
   <mat-card>
     <mat-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="trySearch()">
+        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="tryFilter()">
           <!-- Processed -->
           <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
             <mat-option [value]="''"></mat-option>

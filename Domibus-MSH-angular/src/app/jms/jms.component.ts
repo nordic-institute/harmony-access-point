@@ -96,7 +96,7 @@ export class JmsComponent extends mix(BaseListComponent)
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
-      super.trySearch().then(done => {
+      super.tryFilter().then(done => {
         if (!done) {
           //revert the drop-down value to the old one
           this._selectedSource = oldVal;
@@ -227,7 +227,7 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.filter.source && !this.isLoading;
   }
 
-  // search() {
+  // filterData() {
   //   super.setActiveFilter();
   //   this.getData();
   // }

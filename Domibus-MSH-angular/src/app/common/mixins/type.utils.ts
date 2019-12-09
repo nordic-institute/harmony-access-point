@@ -19,7 +19,7 @@ export function instanceOfPageableList(object: any): object is IPageableList {
 }
 
 export function instanceOfFilterableList(object: any): object is IFilterableList {
-  return 'search' in object && 'trySearch' in object && 'activeFilter' in object;
+  return 'search' in object && 'tryFilter' in object && 'activeFilter' in object;
 }
 
 export function instanceOfModifiableList(object: any): object is IModifiableList {

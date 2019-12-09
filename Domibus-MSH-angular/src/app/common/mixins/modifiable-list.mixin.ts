@@ -34,9 +34,9 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     return this.isChanged;
   }
 
-  // onAfterSave() {
-  //   // this.getData(); //makes sense in alerts but not everywhere
-  // }
+  onAfterSave() {
+    // this.getData(); //makes sense in alerts but not everywhere
+  }
 
   public doSave(): Promise<any> {
     return undefined;
@@ -60,7 +60,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
         saved = false;
       }
       this.isSaving = false;
-      // this.onAfterSave();
+      this.onAfterSave();
       return saved;
     } else {
       return false;

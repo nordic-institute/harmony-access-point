@@ -60,7 +60,7 @@ export class PartyComponent extends mix(BaseListComponent)
     const res = await this.http.get<any>(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
     if (res) {
       this.pModeExists = true;
-      this.search();
+      this.filterData();
     } else {
       this.pModeExists = false;
     }
