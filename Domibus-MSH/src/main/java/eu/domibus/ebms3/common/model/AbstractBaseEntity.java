@@ -4,12 +4,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * Base type for entity
@@ -31,7 +29,6 @@ public abstract class AbstractBaseEntity implements Serializable {
     @Column(name = "CREATION_TIME", updatable = false, nullable = false)
     @XmlTransient
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull
     private Date creationTime;
 
     @Column(name = "MODIFICATION_TIME")
@@ -41,7 +38,6 @@ public abstract class AbstractBaseEntity implements Serializable {
 
     @Column(name = "CREATED_BY", nullable = false, updatable = false)
     @XmlTransient
-    @NotNull
     private String createdBy;
 
     @Column(name = "MODIFIED_BY")
