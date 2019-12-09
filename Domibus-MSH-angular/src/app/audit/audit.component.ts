@@ -36,7 +36,7 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-  isLoading: boolean = false;
+  // isLoading: boolean = false;
 
 // --- hide/show binding ---
   advancedSearch: boolean;
@@ -70,7 +70,8 @@ export class AuditComponent extends mix(BaseListComponent)
     this.timestampToMaxDate = new Date();
 
 // --- lets count the records and fill the table.---
-    this.searchAndCount();
+//     this.searchAndCount();
+    this.search().then(() => this.countRecords());
   }
 
   ngAfterViewInit() {
@@ -82,54 +83,65 @@ export class AuditComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  searchAndCount() {
-    this.setActiveFilter();
-
-    this.isLoading = true;
-    super.offset = 0;
-    const auditCriteria: AuditCriteria = this.buildCriteria();
-    const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
-    const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
-    auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-        super.rows = response;
-        this.isLoading = false;
-      },
-      error => {
-        this.alertService.exception('Could not load audits: ', error);
-        this.isLoading = false;
-      },
-      // on complete of auditLogsObservable Observable, we load the count
-      // TODO: load this in parallel and merge the stream at the end.
-      () => auditCountObservable.subscribe(auditCount => super.count = auditCount,
-        error => {
-          this.alertService.exception('Could not count audits: ', error);
-          this.isLoading = false;
-        })
-    );
+  public async doGetData(): Promise<any> {
+    // this.countRecords();
+    return this.searchAuditLog();
   }
+
+  countRecords() {
+    this.auditService.countAuditLogs(this.buildCriteria()).toPromise()
+      .then(auditCount => {
+        super.count = auditCount;
+      });
+  }
+
+  // searchAndCount() {
+  //   this.setActiveFilter();
+  //   this.isLoading = true;
+  //   super.offset = 0;
+  //   const auditCriteria: AuditCriteria = this.buildCriteria();
+  //   const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
+  //   const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
+  //   auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
+  //       super.rows = response;
+  //       this.isLoading = false;
+  //     },
+  //     error => {
+  //       this.alertService.exception('Could not load audits: ', error);
+  //       this.isLoading = false;
+  //     },
+  //     // on complete of auditLogsObservable Observable, we load the count
+  //     // TODO: load this in parallel and merge the stream at the end.
+  //     () => auditCountObservable.subscribe(auditCount => super.count = auditCount,
+  //       error => {
+  //         this.alertService.exception('Could not count audits: ', error);
+  //         this.isLoading = false;
+  //       })
+  //   );
+  // }
 
   toggleAdvancedSearch() {
     this.advancedSearch = !this.advancedSearch;
     return false; // to prevent default navigation
   }
 
-  searchAuditLog() {
-    this.isLoading = true;
+  searchAuditLog(): Promise<any> {
+    // this.isLoading = true;
     const auditCriteria: AuditCriteria = this.buildCriteria();
-    const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
-    auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
+    return this.auditService.listAuditLogs(auditCriteria).toPromise()
+      .then((response: AuditResponseRo[]) => {
         super.rows = response;
-        this.isLoading = false;
-      },
-      error => {
-        this.alertService.exception('Could not load audits: ', error);
-        this.isLoading = false;
+        // this.isLoading = false;
       });
+    // , error => {
+    //   this.alertService.exception('Could not load audits: ', error);
+    //   this.isLoading = false;
+    // });
   }
 
-  page() {
-    this.searchAuditLog();
-  }
+  // page() {
+  //   this.searchAuditLog();
+  // }
 
   buildCriteria(): AuditCriteria {
     const auditCriteria: AuditCriteria = new AuditCriteria();

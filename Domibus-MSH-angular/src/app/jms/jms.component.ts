@@ -13,6 +13,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {AlertsResult} from '../alerts/alertsresult';
 
 @Component({
   selector: 'app-jms',
@@ -41,9 +42,9 @@ export class JmsComponent extends mix(BaseListComponent)
 
   currentSearchSelectedSource;
 
-  selectedMessages: any[];
+  // selected: any[];
   markedForDeletionMessages: any[];
-  isLoading: boolean;
+  // isLoading: boolean;
 
   request: MessagesRequestRO;
 
@@ -84,9 +85,9 @@ export class JmsComponent extends mix(BaseListComponent)
     this.filter.toDate = new Date();
     this.filter.toDate.setHours(23, 59, 59, 999);
 
-    this.selectedMessages = [];
+    // this.selected = [];
     this.markedForDeletionMessages = [];
-    this.isLoading = false;
+    // this.isLoading = false;
 
     this.loadDestinations();
 
@@ -102,6 +103,10 @@ export class JmsComponent extends mix(BaseListComponent)
         }
       });
     });
+  }
+
+  public get name(): string {
+    return 'JMS Messages';
   }
 
   ngAfterViewInit() {
@@ -200,8 +205,8 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   onSelect({selected}) {
-    this.selectedMessages.splice(0, this.selectedMessages.length);
-    this.selectedMessages.push(...selected);
+    this.selected.splice(0, this.selected.length);
+    this.selected.push(...selected);
   }
 
   onActivate(event) {
@@ -222,76 +227,106 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.filter.source && !this.isLoading;
   }
 
-  page() {
-    this.doSearch();
-  }
+  // search() {
+  //   super.setActiveFilter();
+  //   this.getData();
+  // }
 
-  private doSearch() {
+  async doGetData(): Promise<any> {
     if (!this.filter.source) {
-      this.alertService.error('Source should be set');
-      return;
-    }
-    if (this.isLoading) {
-      return;
+      return Promise.reject('Source should be set');
     }
 
-    this.isLoading = true;
-    this.selectedMessages = [];
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
-    this.http.post<any>('rest/jms/messages', {
+
+    return this.http.post<any>('rest/jms/messages', {
       source: this.activeFilter.source,
       jmsType: this.activeFilter.jmsType,
       fromDate: this.activeFilter.fromDate,
       toDate: this.activeFilter.toDate,
       selector: this.activeFilter.selector,
-    }).subscribe(
-      res => {
-        super.rows = res.messages;
-        super.count = res.messages.length;
-
-        super.offset = 0;
-        this.isLoading = false;
-
-        this.refreshDestinations();
-      },
-      error => {
-        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
-        this.isLoading = false;
-      }
-    );
+    }).toPromise().then(res => {
+      super.rows = res.messages;
+      super.count = res.messages.length;
+      this.refreshDestinations();
+    });
   }
 
-  async cancel() {
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      super.resetFilters();
-      this.doSearch();
-    }
+  // private doSearch() {
+  //   if (!this.filter.source) {
+  //     this.alertService.error('Source should be set');
+  //     return;
+  //   }
+  //   if (this.isLoading) {
+  //     return;
+  //   }
+  //
+  //   this.isLoading = true;
+  //   this.selected = [];
+  //   this.markedForDeletionMessages = [];
+  //   this.currentSearchSelectedSource = this.selectedSource;
+  //
+  //   this.http.post<any>('rest/jms/messages', {
+  //     source: this.activeFilter.source,
+  //     jmsType: this.activeFilter.jmsType,
+  //     fromDate: this.activeFilter.fromDate,
+  //     toDate: this.activeFilter.toDate,
+  //     selector: this.activeFilter.selector,
+  //   }).subscribe(
+  //     res => {
+  //       super.rows = res.messages;
+  //       super.count = res.messages.length;
+  //
+  //       super.offset = 0;
+  //       this.isLoading = false;
+  //
+  //       this.refreshDestinations();
+  //     },
+  //     error => {
+  //       this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
+  //       this.isLoading = false;
+  //     }
+  //   );
+  // }
+
+  // async cancel() {
+  //   const cancel = await this.dialogsService.openCancelDialog();
+  //   if (cancel) {
+  //     super.resetFilters();
+  //     this.doSearch();
+  //   }
+  // }
+
+  async doSave(): Promise<any> {
+    let messageIds = this.markedForDeletionMessages.map((message) => message.id);
+    //because the user can change the source after pressing search and then select the messages and press delete
+    //in this case I need to use currentSearchSelectedSource
+    return this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
   }
 
-  async save(): Promise<boolean> {
-    const save = await this.dialogsService.openSaveDialog();
-    if (save) {
-      let messageIds = this.markedForDeletionMessages.map((message) => message.id);
-      //because the user can change the source after pressing search and then select the messages and press delete
-      //in this case I need to use currentSearchSelectedSource
-      this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // async save(): Promise<boolean> {
+  //   const save = await this.dialogsService.openSaveDialog();
+  //   if (save) {
+  //     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
+  //     //because the user can change the source after pressing search and then select the messages and press delete
+  //     //in this case I need to use currentSearchSelectedSource
+  //     this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   move() {
     const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
 
-      if (this.selectedMessages.length > 1) {
+      if (this.selected.length > 1) {
         dialogRef.componentInstance.queues.push(...this.queues);
       } else {
-        for (let message of this.selectedMessages) {
+        for (let message of this.selected) {
 
           try {
             let originalQueue = message.customProperties.originalQueue;
@@ -327,7 +362,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.destination) {
-        let messageIds = this.selectedMessages.map((message) => message.id);
+        let messageIds = this.selected.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
@@ -364,7 +399,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.destination) {
-        let messageIds = this.selectedMessages.map((message) => message.id);
+        let messageIds = this.selected.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
@@ -384,17 +419,17 @@ export class JmsComponent extends mix(BaseListComponent)
     let newRows = this.rows.filter((element) => {
       return row !== element;
     });
-    this.selectedMessages = [];
+    super.selected = [];
     super.rows = newRows;
     super.count = newRows.length;
   }
 
   delete() {
-    this.markedForDeletionMessages.push(...this.selectedMessages);
+    this.markedForDeletionMessages.push(...this.selected);
     let newRows = this.rows.filter((element) => {
-      return !this.selectedMessages.includes(element);
+      return !this.selected.includes(element);
     });
-    this.selectedMessages = [];
+    super.selected = [];
     super.rows = newRows;
     super.count = newRows.length;
   }
@@ -416,9 +451,9 @@ export class JmsComponent extends mix(BaseListComponent)
 
         //remove the selected rows
         let newRows = this.rows.filter((element) => {
-          return !this.selectedMessages.includes(element);
+          return !this.selected.includes(element);
         });
-        this.selectedMessages = [];
+        super.selected = [];
         super.rows = newRows;
         super.count = newRows.length;
       },
@@ -428,20 +463,19 @@ export class JmsComponent extends mix(BaseListComponent)
     )
   }
 
-  serverRemove(source: string, messageIds: Array<any>) {
-    this.http.post('rest/jms/messages/action', {
+  serverRemove(source: string, messageIds: Array<any>): Promise<any> {
+    return this.http.post('rest/jms/messages/action', {
       source: source,
       selectedMessages: messageIds,
       action: 'REMOVE'
-    }).subscribe(
-      () => {
-        this.alertService.success('The operation \'updates on message(s)\' completed successfully.');
+    }).toPromise().then(() => {
+        // this.alertService.success('The operation \'updates on message(s)\' completed successfully.');
         this.refreshDestinations();
         this.markedForDeletionMessages = [];
-      },
-      error => {
-        this.alertService.exception('The operation \'updates on message(s)\' could not be completed: ', error);
       }
+      // , error => {
+      //   this.alertService.exception('The operation \'updates on message(s)\' could not be completed: ', error);
+      // }
     )
   }
 

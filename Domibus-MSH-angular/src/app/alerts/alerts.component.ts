@@ -233,7 +233,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  async doLoadPage(): Promise<any> {
+  async doGetData(): Promise<any> {
     return this.getAlertsEntries().then((result: AlertsResult) => {
       super.count = result.count;
       super.rows = result.alertsEntries;
@@ -291,8 +291,12 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   async doSave(): Promise<any> {
-    return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise();
+    return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => this.getData());
   }
+
+  // onAfterSave() {
+  //   this.getData();
+  // }
 
   setProcessedValue(row) {
     super.isChanged = true;
