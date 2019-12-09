@@ -42,10 +42,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
-  isLoading: boolean;
-
   allPModes: any[];
-  selected: any[];
 
   disabledSave: boolean;
   disabledCancel: boolean;
@@ -85,16 +82,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.isLoading = false;
-
     this.allPModes = [];
-    this.selected = [];
-
-    this.disabledSave = true;
-    this.disabledCancel = true;
-    this.disabledDownload = true;
-    this.disabledDelete = true;
-    this.disabledRestore = true;
 
     this.actualId = 0;
     this.actualRow = 0;
@@ -103,7 +91,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
 
     this.uploaded = false;
 
-    this.getAllPModeEntries();
+    this.getData();
 
     this.domainService.getCurrentDomain()
       .subscribe((domain: Domain) => this.currentDomain = domain);
@@ -150,16 +138,17 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     return this.http.get<any[]>(PModeArchiveComponent.PMODE_URL + '/list');
   }
 
+  public async doGetData(): Promise<any> {
+    this.disableAllButtons();
+    return this.getAllPModeEntries();
+  }
+
   /**
    * Gets all the PModes Entries
    */
   async getAllPModeEntries() {
-    this.isLoading = true;
-
-    try {
-      this.allPModes = await this.getResultObservable().toPromise();
-
-      super.offset = 0;
+    return this.getResultObservable().toPromise().then((results) => {
+      this.allPModes = results;
       this.actualRow = 0;
       this.actualId = undefined;
 
@@ -173,17 +162,11 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
         this.rows[0].current = true;
         this.rows[0].description = '[CURRENT]: ' + this.allPModes[0].description;
       }
-      this.isLoading = false;
-    } catch (e) {
-      this.isLoading = false;
-      this.alertService.exception('Error while fetching all pmode entries.', e);
-    }
+    });
   }
 
   page() {
-    this.isLoading = true;
     super.rows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
-    this.isLoading = false;
   }
 
   /**
@@ -225,53 +208,14 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     this.disabledRestore = !(this.selected[0] != null && this.selected.length === 1 && this.selected[0].id !== this.actualId);
   }
 
-  /**
-   * Method used when button save is clicked
-   */
-  async save(): Promise<boolean> {
-    const save = await this.dialogsService.openSaveDialog();
-    if (save) {
-      const queryParams = {ids: this.deleteList};
-      return await this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams})
-        .toPromise().then(() => {
-            this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
-
-            this.disableAllButtons();
-            this.selected = [];
-            this.deleteList = [];
-            return true;
-          },
-          (error) => {
-            this.alertService.exception('The operation \'update pmodes\' not completed successfully.', error);
-            this.getAllPModeEntries();
-            this.disableAllButtons();
-            this.selected = [];
-            return false;
-          });
-    }
-    return false;
-  }
-
-  /**
-   * Method used when Cancel button is clicked
-   */
-  async cancel() {
-    this.disabledDownload = true;
-    this.disabledDelete = true;
-    this.disabledRestore = true;
-    this.selected = [];
-
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      this.deleteList = [];
-      this.getAllPModeEntries();
-      this.disabledSave = true;
-      this.disabledCancel = true;
-    } else {
-      this.disabledSave = false;
-      this.disabledCancel = false;
-    }
-
+  public doSave(): Promise<any> {
+    const queryParams = {ids: this.deleteList};
+    return this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams}).toPromise()
+      .then(() => {
+          this.disableAllButtons();
+          this.deleteList = [];
+        }
+      );
   }
 
   /**
@@ -313,7 +257,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     this.page();
 
     setTimeout(() => {
-      this.selected = [];
+      super.selected = [];
       this.enableSaveAndCancelButtons();
     }, 100);
   }
@@ -364,7 +308,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
             error => {
               this.alertService.exception('The operation \'delete pmodes\' not completed successfully.', error);
               this.enableSaveAndCancelButtons();
-              this.selected = [];
+              super.selected = [];
             });
         } else if (result === 'restore') {
           this.restore(selectedRow);
@@ -381,7 +325,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
 
       this.deleteList = [];
       this.disableAllButtons();
-      this.selected = [];
+      super.selected = [];
       this.actualRow = 0;
 
       await this.getAllPModeEntries();
