@@ -8,6 +8,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {AlertsResult} from '../alerts/alertsresult';
 
 /**
  * @author Catalin Enache
@@ -28,7 +29,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   @ViewChild('rowWithToggleTpl', {static: false}) rowWithToggleTpl: TemplateRef<any>;
 
   levels: Array<String>;
-  isLoading: boolean = false;
+  // isLoading: boolean = false;
 
   constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
               private changeDetector: ChangeDetectorRef) {
@@ -38,7 +39,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.search();
+    this.getData();
   }
 
   ngAfterViewInit() {
@@ -81,32 +82,41 @@ export class LoggingComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  getLoggingEntries(): Observable<LoggingLevelResult> {
+  getLoggingEntries(): Promise<LoggingLevelResult> {
     let searchParams = this.createSearchParams();
 
     searchParams = searchParams.append('page', this.offset.toString());
     searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
 
-    return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams});
+    return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams}).toPromise();
   }
 
-  page() {
-    this.isLoading = true;
-    super.resetFilters();
-    this.getLoggingEntries().subscribe((result: LoggingLevelResult) => {
+  async doGetData(): Promise<any> {
+    return this.getLoggingEntries().then((result: LoggingLevelResult) => {
       super.count = result.count;
       super.rows = result.loggingEntries;
 
       super.filter = result.filter;
       this.levels = result.levels;
-
-      this.isLoading = false;
-    }, (error: any) => {
-      this.isLoading = false;
-      this.alertService.exception('Error occurred:', error);
     });
-
   }
+
+  // page() {
+  //   this.isLoading = true;
+  //   super.resetFilters();
+  //   this.getLoggingEntries().then((result: LoggingLevelResult) => {
+  //     super.count = result.count;
+  //     super.rows = result.loggingEntries;
+  //
+  //     super.filter = result.filter;
+  //     this.levels = result.levels;
+  //
+  //     this.isLoading = false;
+  //   }, (error: any) => {
+  //     this.isLoading = false;
+  //     this.alertService.exception('Error occurred:', error);
+  //   });
+  // }
 
   onLevelChange(newLevel: string, row: any) {
     if (newLevel !== row.level) {
@@ -120,7 +130,7 @@ export class LoggingComponent extends mix(BaseListComponent)
         },
         error => {
           this.alertService.exception('An error occurred while setting logging level: ', error);
-          this.isLoading = false;
+          super.isLoading = false;
         }
       );
     }
@@ -134,7 +144,7 @@ export class LoggingComponent extends mix(BaseListComponent)
       },
       error => {
         this.alertService.exception('An error occurred while resetting logging: ', error);
-        this.isLoading = false;
+        super.isLoading = false;
       }
     );
   }

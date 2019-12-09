@@ -34,9 +34,6 @@ export class PartyComponent extends mix(BaseListComponent)
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   allRows: PartyResponseRo[];
-  selected: PartyResponseRo[];
-
-  // isLoading: boolean;
 
   newParties: PartyResponseRo[];
   updatedParties: PartyResponseRo[];
@@ -55,9 +52,6 @@ export class PartyComponent extends mix(BaseListComponent)
     super.ngOnInit();
 
     this.allRows = [];
-    this.selected = [];
-
-    // this.isLoading = false;
 
     this.newParties = [];
     this.updatedParties = [];
@@ -94,8 +88,8 @@ export class PartyComponent extends mix(BaseListComponent)
     this.deletedParties.length = 0;
   }
 
-  async doLoadPage(): Promise<any> {
-    super.offset = 0;
+  async doGetData(): Promise<any> {
+    // super.offset = 0;
 
     return this.partyService.getData(this.activeFilter).then(data => {
       const partiesRes: PartyFilteredResult = data[0];
@@ -107,44 +101,9 @@ export class PartyComponent extends mix(BaseListComponent)
       super.rows = partiesRes.data;
       super.count = this.allRows.length;
 
-      this.selected.length = 0;
-
       this.resetDirty();
     });
   }
-
-  // async page() {
-  //   this.resetFilters();
-  //   this.listPartiesAndProcesses();
-  // }
-
-  // private async listPartiesAndProcesses() {
-  //   super.offset = 0;
-  //   var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
-  //     this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),
-  //     this.partyService.listProcesses().toPromise()
-  //   ];
-  //
-  //   try {
-  //     let data = await Promise.all(promises);
-  //     const partiesRes: PartyFilteredResult = data[0];
-  //     const processes: ProcessRo[] = data[1];
-  //
-  //     this.allProcesses = processes.map(el => el.name);
-  //
-  //     super.rows = partiesRes.data;
-  //     this.allRows = partiesRes.allData;
-  //     super.count = this.allRows.length;
-  //     this.selected.length = 0;
-  //
-  //     this.isLoading = false;
-  //     this.resetDirty();
-  //
-  //   } catch (error) {
-  //     this.alertService.exception('Could not load parties due to: ', error);
-  //     this.isLoading = false;
-  //   }
-  // }
 
   initColumns() {
     this.columnPicker.allColumns = [
@@ -222,36 +181,9 @@ export class PartyComponent extends mix(BaseListComponent)
       return false;
     }
 
-    return this.partyService.updateParties(this.rows);
+    return this.partyService.updateParties(this.rows)
+      .then(() => this.resetDirty());
   }
-
-  // async save(): Promise<boolean> {
-  //   if (this.isSaving) return;
-  //
-  //   const save = await this.dialogsService.openSaveDialog();
-  //   if (save) {
-  //     try {
-  //       this.partyService.validateParties(this.rows)
-  //     } catch (err) {
-  //       this.alertService.exception('Party validation error:', err, false);
-  //       return false;
-  //     }
-  //
-  //     this.isSaving = true;
-  //     return await this.partyService.updateParties(this.rows).then(() => {
-  //       this.resetDirty();
-  //       this.isSaving = false;
-  //       this.alertService.success('Parties saved successfully.', false);
-  //       return true;
-  //     }).catch(err => {
-  //       this.isSaving = false;
-  //       this.alertService.exception('Party update error:', err, false);
-  //       return false;
-  //     });
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
   async add() {
     if (this.isSaving) return;
@@ -274,6 +206,7 @@ export class PartyComponent extends mix(BaseListComponent)
 
   remove() {
     if (this.isSaving) return;
+    if (!this.selected || this.selected.length == 0) return;
 
     this.delete(this.selected[0])
   }

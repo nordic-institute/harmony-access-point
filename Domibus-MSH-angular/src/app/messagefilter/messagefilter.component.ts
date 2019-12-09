@@ -26,7 +26,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  selected: any[];
+  // selected: any[];
 
   backendFilterNames: any[];
 
@@ -39,8 +39,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
-  isLoading: boolean;
-  isChanged: boolean;
+  // isLoading: boolean;
+  // isChanged: boolean;
 
   areFiltersPersisted: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
@@ -52,7 +52,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.selected = [];
+    // this.selected = [];
 
     this.backendFilterNames = [];
 
@@ -66,15 +66,22 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
-    this.isLoading = true;
+    // this.isLoading = true;
 
+    // this.getBackendFiltersInfo();
+    this.getData();
+  }
+
+  public get name(): string {
+    return 'Message Filters';
+  }
+
+  async doGetData(): Promise<any> {
     this.getBackendFiltersInfo();
   }
 
   getBackendFiltersInfo() {
-    this.isChanged = false;
-    this.getMessageFilterEntries().subscribe((result: MessageFilterResult) => {
-
+    return this.getMessageFilterEntries().toPromise().then((result: MessageFilterResult) => {
       let newRows = [];
       this.backendFilterNames = [];
       if (result.messageFilterEntries) {
@@ -100,12 +107,43 @@ export class MessageFilterComponent extends mix(BaseListComponent)
           this.enableSave = true;
         }
       }
-    }, (error: any) => {
-      console.log('error getting the message filter: ' + error);
-      this.isLoading = false;
-      this.alertService.exception('Error occurred: ', error);
     });
   }
+
+  // getBackendFiltersInfo() {
+  //   this.isChanged = false;
+  //   this.getMessageFilterEntries().subscribe((result: MessageFilterResult) => {
+  //     let newRows = [];
+  //     this.backendFilterNames = [];
+  //     if (result.messageFilterEntries) {
+  //       for (let i = 0; i < result.messageFilterEntries.length; i++) {
+  //         let currentFilter: BackendFilterEntry = result.messageFilterEntries[i];
+  //         if (!(currentFilter)) {
+  //           continue;
+  //         }
+  //         let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted);
+  //         newRows.push(backendEntry);
+  //         if (this.backendFilterNames.indexOf(backendEntry.backendName) == -1) {
+  //           this.backendFilterNames.push(backendEntry.backendName);
+  //         }
+  //       }
+  //       this.areFiltersPersisted = result.areFiltersPersisted;
+  //
+  //       super.rows = newRows;
+  //       super.count = newRows.length;
+  //
+  //       if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
+  //         this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
+  //           'It is strongly recommended to double check the filters configuration and afterwards save it.');
+  //         this.enableSave = true;
+  //       }
+  //     }
+  //   }, (error: any) => {
+  //     console.log('error getting the message filter: ' + error);
+  //     this.isLoading = false;
+  //     this.alertService.exception('Error occurred: ', error);
+  //   });
+  // }
 
   getMessageFilterEntries(): Observable<MessageFilterResult> {
     return this.http.get<MessageFilterResult>(MessageFilterComponent.MESSAGE_FILTER_URL);
@@ -181,7 +219,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
           }
 
           super.rows = [...this.rows];
-          super.count = super.rows.length;
+          super.count = this.rows.length;
 
           this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
         } else {
@@ -247,7 +285,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   private disableSelectionAndButtons() {
-    this.selected = [];
+    super.selected = [];
     this.enableMoveDown = false;
     this.enableMoveUp = false;
     this.enableCancel = false;
@@ -260,29 +298,36 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     return MessageFilterComponent.MESSAGE_FILTER_URL + '/csv';
   }
 
-  async cancel() {
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      this.disableSelectionAndButtons();
+  // async cancel() {
+  //   const cancel = await this.dialogsService.openCancelDialog();
+  //   if (cancel) {
+  //     this.disableSelectionAndButtons();
+  //     this.getBackendFiltersInfo();
+  //   }
+  // }
+
+  async doSave(): Promise<any> {
+    this.disableSelectionAndButtons();
+    return this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
       this.getBackendFiltersInfo();
-    }
+    });
   }
 
-  async save(): Promise<boolean> {
-    const save = await this.dialogsService.openSaveDialog();
-    if (save) {
-      this.disableSelectionAndButtons();
-      return await this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
-        this.alertService.success('The operation \'update message filters\' completed successfully.', false);
-        this.getBackendFiltersInfo();
-        return true;
-      }, err => {
-        this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
-        return false;
-      });
-    }
-    return false;
-  }
+  // async save(): Promise<boolean> {
+  //   const save = await this.dialogsService.openSaveDialog();
+  //   if (save) {
+  //     this.disableSelectionAndButtons();
+  //     return await this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
+  //       this.alertService.success('The operation \'update message filters\' completed successfully.', false);
+  //       this.getBackendFiltersInfo();
+  //       return true;
+  //     }, err => {
+  //       this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
+  //       return false;
+  //     });
+  //   }
+  //   return false;
+  // }
 
   buttonDeleteAction(row) {
     this.deleteItems([row]);
@@ -309,7 +354,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     }
     super.rows = copy;
     super.count = copy.length;
-    this.selected = [];
+    super.selected = [];
   }
 
   private moveUpInternal(rowNumber) {
@@ -406,11 +451,12 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   isDirty(): boolean {
+    // return this.isChanged;
     return this.enableCancel;
   }
 
   setDirty(itemValue: boolean) {
-    this.isChanged = this.isChanged || itemValue;
+    super.isChanged = this.isChanged || itemValue;
     this.enableSave = this.isChanged;
     this.enableCancel = this.isChanged;
   }
