@@ -28,8 +28,8 @@ export class TruststoreComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
   // rows: Array<TrustStoreEntry>;
-  selectedMessages: Array<any>;
-  loading: boolean;
+  // selected: Array<any>;
+  // isLoading: boolean;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -42,9 +42,10 @@ export class TruststoreComponent extends mix(BaseListComponent)
     super.ngOnInit();
 
     // this.rows = [];
-    this.selectedMessages = [];
+    // this.selected = [];
 
-    this.getTrustStoreEntries();
+    // this.getTrustStoreEntries();
+    this.getData();
   }
 
   ngAfterViewInit() {
@@ -85,17 +86,21 @@ export class TruststoreComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
+  public async doGetData(): Promise<any> {
+    return this.getTrustStoreEntries();
+  }
+
   getTrustStoreEntries(): void {
-    this.trustStoreService.getEntries().subscribe(trustStoreEntries => {
+    this.trustStoreService.getEntries().toPromise().then(trustStoreEntries => {
       super.rows = trustStoreEntries;
       super.count = trustStoreEntries ? trustStoreEntries.length : 0;
-      super.offset = 0;
+      // super.offset = 0;
     });
   }
 
   onSelect({selected}) {
-    this.selectedMessages.splice(0, this.selectedMessages.length);
-    this.selectedMessages.push(...selected);
+    this.selected.splice(0, this.selected.length);
+    this.selected.push(...selected);
   }
 
   onActivate(event) {
@@ -114,10 +119,10 @@ export class TruststoreComponent extends mix(BaseListComponent)
   //   this.offset = event.offset;
   // }
 
-  changePageSize(newPageSize: number) {
-    this.rowLimiter.pageSize = newPageSize;
-    this.getTrustStoreEntries();
-  }
+  // changePageSize(newPageSize: number) {
+  //   this.rowLimiter.pageSize = newPageSize;
+  //   this.getTrustStoreEntries();
+  // }
 
   openEditTrustStore() {
     this.dialog.open(TrustStoreUploadComponent).componentInstance.onTruststoreUploaded
@@ -152,17 +157,5 @@ export class TruststoreComponent extends mix(BaseListComponent)
   public get csvUrl(): string {
     return TruststoreComponent.TRUSTSTORE_CSV_URL;
   }
-
-  /**
-   * Saves the content of the datatable into a CSV file
-   */
-  // saveAsCSV() {
-  //   if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-  //     this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-  //     return;
-  //   }
-  //
-  //   DownloadService.downloadNative(TruststoreComponent.TRUSTSTORE_CSV_URL);
-  // }
 
 }

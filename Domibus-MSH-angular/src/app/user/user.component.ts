@@ -48,7 +48,7 @@ export class UserComponent extends mix(BaseListComponent)
   domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
-  selected: any[];
+  // selected: any[];
 
   enableCancel: boolean;
   enableSave: boolean;
@@ -59,12 +59,12 @@ export class UserComponent extends mix(BaseListComponent)
 
   editedUser: UserResponseRO;
 
-  dirty: boolean;
+  // isChanged: boolean;
   areRowsDeleted: boolean;
 
   deletedStatuses: any[];
 
-  isBusy = false;
+  // isLoading = false;
 
   constructor(private http: HttpClient,
               private userService: UserService,
@@ -81,12 +81,12 @@ export class UserComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    this.isBusy = true;
+    // this.isLoading = true;
     super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
 
-    super.rows = [];
-    super.count = 0;
+    // super.rows = [];
+    // super.count = 0;
     this.userRoles = [];
 
     this.enableCancel = false;
@@ -96,16 +96,22 @@ export class UserComponent extends mix(BaseListComponent)
     this.currentUser = null;
     this.editedUser = null;
 
-    this.selected = [];
+    // this.selected = [];
 
     this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
 
-    this.getUsers();
+    // this.getUsers();
 
     this.getUserRoles();
 
-    this.dirty = false;
+    // this.isChanged = false;
     this.areRowsDeleted = false;
+
+    this.search();
+  }
+
+  public get name(): string {
+    return 'Users';
   }
 
   async ngAfterViewInit() {
@@ -179,11 +185,15 @@ export class UserComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  async getUsers() {
-    this.setActiveFilter();
-    this.isBusy = true;
-    try {
-      let results = await this.userService.getUsers(this.activeFilter).toPromise();
+  public async doGetData(): Promise<any> {
+    return this.getUsers();
+  }
+
+  async getUsers(): Promise<any> {
+    // this.setActiveFilter();
+    // this.isLoading = true;
+    // try {
+    return this.userService.getUsers(this.activeFilter).toPromise().then(async results => {
       const showDomain = await this.userService.isDomainVisible();
       if (showDomain) {
         await this.getUserDomains();
@@ -191,13 +201,17 @@ export class UserComponent extends mix(BaseListComponent)
       }
       super.rows = results;
       super.count = results.length;
-    } catch (err) {
-      this.alertService.exception('Could not load users ', err);
-    }
+      this.areRowsDeleted = false;
+      this.disableSelectionAndButtons();
+    });
+    // } catch (err) {
+    //   this.alertService.exception('Could not load users ', err);
+    // }
 
-    this.isBusy = false;
-    this.dirty = false;
-    this.areRowsDeleted = false;
+    // this.isLoading = false;
+    // this.isChanged = false;
+    // this.areRowsDeleted = false;
+
   }
 
   private setDomainName(user) {
@@ -253,7 +267,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   buttonNew(): void {
-    if (this.isBusy) return;
+    if (this.isLoading) return;
 
     this.setPage(this.getLastPage());
 
@@ -274,7 +288,7 @@ export class UserComponent extends mix(BaseListComponent)
         super.count = this.count + 1;
         this.currentUser = this.editedUser;
       } else {
-        this.selected = [];
+        super.selected = [];
         this.enableEdit = false;
         this.enableDelete = false;
       }
@@ -291,7 +305,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   buttonEditAction(currentUser) {
-    if (this.isBusy) return;
+    if (this.isLoading) return;
 
     const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
       data: {
@@ -330,10 +344,11 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   setIsDirty() {
-    this.dirty = this.areRowsDeleted || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
+    super.isChanged = this.areRowsDeleted
+      || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
 
-    this.enableSave = this.dirty;
-    this.enableCancel = this.dirty;
+    this.enableSave = this.isChanged;
+    this.enableCancel = this.isChanged;
   }
 
   buttonDelete() {
@@ -362,56 +377,67 @@ export class UserComponent extends mix(BaseListComponent)
       }
     }
 
-    this.selected = [];
+    super.selected = [];
     this.areRowsDeleted = true;
     this.setIsDirty();
   }
 
   private disableSelectionAndButtons() {
-    this.selected = [];
+    super.selected = [];
     this.enableCancel = false;
     this.enableSave = false;
     this.enableEdit = false;
     this.enableDelete = false;
   }
 
-  async page() {
-    this.getUsers();
+  // async page() {
+  //   this.getUsers();
+  // }
+
+  // async cancel() {
+  //   const cancel = await this.dialogsService.openCancelDialog();
+  //   if (cancel) {
+  //     this.disableSelectionAndButtons();
+  //     super.rows = [];
+  //     super.count = 0;
+  //     this.getUsers();
+  //   }
+  // }
+
+  public async doSave(): Promise<any> {
+    const isValid = this.userValidatorService.validateUsers(this.rows);
+    if (!isValid) return false;
+
+    const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
+    this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
+      this.getData();
+      // this.disableSelectionAndButtons();
+    });
   }
 
-  async cancel() {
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      this.disableSelectionAndButtons();
-      super.rows = [];
-      super.count = 0;
-      this.getUsers();
-    }
-  }
-
-  async save(): Promise<boolean> {
-    try {
-      const isValid = this.userValidatorService.validateUsers(this.rows);
-      if (!isValid) return false;
-
-      const save = await this.dialogsService.openSaveDialog();
-      if (save) {
-        this.disableSelectionAndButtons();
-        const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
-        this.isBusy = true;
-        await this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise();
-        this.isBusy = false;
-        this.getUsers();
-        this.alertService.success('The operation \'update users\' completed successfully.', false);
-        return true;
-      }
-    } catch (err) {
-      this.isBusy = false;
-      this.getUsers();
-      this.alertService.exception('The operation \'update users\' completed with errors.', err);
-    }
-    return false;
-  }
+  // async save(): Promise<boolean> {
+  //   try {
+  //     const isValid = this.userValidatorService.validateUsers(this.rows);
+  //     if (!isValid) return false;
+  //
+  //     const save = await this.dialogsService.openSaveDialog();
+  //     if (save) {
+  //       this.disableSelectionAndButtons();
+  //       const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
+  //       this.isLoading = true;
+  //       await this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise();
+  //       this.isLoading = false;
+  //       this.getUsers();
+  //       this.alertService.success('The operation \'update users\' completed successfully.', false);
+  //       return true;
+  //     }
+  //   } catch (err) {
+  //     this.isLoading = false;
+  //     this.getUsers();
+  //     this.alertService.exception('The operation \'update users\' completed with errors.', err);
+  //   }
+  //   return false;
+  // }
 
   public get csvUrl(): string {
     return UserComponent.USER_CSV_URL;

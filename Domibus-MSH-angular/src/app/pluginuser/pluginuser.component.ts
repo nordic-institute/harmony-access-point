@@ -31,9 +31,9 @@ export class PluginUserComponent extends mix(BaseListComponent)
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
 
-  selected: PluginUserRO[];
-  isLoading: boolean;
-  isChanged: boolean;
+  // selected: PluginUserRO[];
+  // isLoading: boolean;
+  // isChanged: boolean;
 
   authenticationTypes: string[] = ['BASIC', 'CERTIFICATE'];
   filter: PluginUserSearchCriteria;
@@ -51,16 +51,20 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
-    this.selected = [];
-    this.isLoading = false;
+    // this.selected = [];
+    // this.isLoading = false;
     this.userRoles = [];
 
-    this.isChanged = false;
+    // this.isChanged = false;
 
     this.getUserRoles();
 
-    super.setActiveFilter();
+    // super.setActiveFilter();
     this.search();
+  }
+
+  public get name(): string {
+    return 'Plugin Users';
   }
 
   ngAfterViewInit() {
@@ -125,23 +129,33 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter.userName = null;
   }
 
-  async page() {
-    this.selected = [];
-    this.isChanged = false;
+  async doGetData() {
+    return this.pluginUserService.getUsers(this.activeFilter).toPromise()
+      .then(result => {
+        super.rows = result.entries;
+        super.count = result.entries.length;
 
-    try {
-      this.isLoading = true;
-      const result = await this.pluginUserService.getUsers(this.activeFilter).toPromise();
-      super.rows = result.entries;
-      super.count = result.entries.length;
-      this.isLoading = false;
-
-      this.setColumnPicker();
-    } catch (err) {
-      this.alertService.exception('Error getting plugin users:', err);
-      this.isLoading = false;
-    }
+        this.setColumnPicker();
+      });
   }
+
+  // async page() {
+  //   this.selected = [];
+  //   this.isChanged = false;
+  //
+  //   try {
+  //     this.isLoading = true;
+  //     const result = await this.pluginUserService.getUsers(this.activeFilter).toPromise();
+  //     super.rows = result.entries;
+  //     super.count = result.entries.length;
+  //     this.isLoading = false;
+  //
+  //     this.setColumnPicker();
+  //   } catch (err) {
+  //     this.alertService.exception('Error getting plugin users:', err);
+  //     this.isLoading = false;
+  //   }
+  // }
 
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
@@ -181,7 +195,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     if (!ok) {
       this.rows.pop();
       super.count = this.count - 1;
-      this.selected = [];
+      super.selected = [];
       this.setIsDirty();
     }
   }
@@ -222,39 +236,43 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return this.isDirty();
   }
 
-  async save(): Promise<boolean> {
-    const save = await this.dialogsService.openSaveDialog();
-    if (save) {
-      try {
-        await this.pluginUserService.saveUsers(this.rows);
-        this.alertService.success('The operation \'update plugin users\' completed successfully.');
-        super.resetFilters();
-        this.search();
-        return true;
-      } catch (err) {
-        this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
-        return false;
-      }
-    } else {
-      return false;
-    }
+  async doSave(): Promise<any> {
+    return this.pluginUserService.saveUsers(this.rows).then(() => this.getData());
   }
 
+  // async save(): Promise<boolean> {
+  //   const save = await this.dialogsService.openSaveDialog();
+  //   if (save) {
+  //     try {
+  //       await this.pluginUserService.saveUsers(this.rows);
+  //       this.alertService.success('The operation \'update plugin users\' completed successfully.');
+  //       super.resetFilters();
+  //       this.search();
+  //       return true;
+  //     } catch (err) {
+  //       this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
+  //       return false;
+  //     }
+  //   } else {
+  //     return false;
+  //   }
+  // }
+
   setIsDirty() {
-    this.isChanged = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
+    super.isChanged = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
   canCancel() {
     return this.isDirty();
   }
 
-  async cancel() {
-    const cancel = await this.dialogsService.openCancelDialog();
-    if (cancel) {
-      super.resetFilters();
-      this.search();
-    }
-  }
+  // async cancel() {
+  //   const cancel = await this.dialogsService.openCancelDialog();
+  //   if (cancel) {
+  //     super.resetFilters();
+  //     this.search();
+  //   }
+  // }
 
   delete(row?: any) {
     const itemToDelete = row || this.selected[0];

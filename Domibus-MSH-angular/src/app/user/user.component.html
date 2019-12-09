@@ -81,11 +81,11 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row)"
+    <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading" (click)="buttonEditAction(row)"
             color="primary" tooltip="Edit" button-click-behaviour>
       <mat-icon>edit</mat-icon>
     </button>
-    <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonDeleteAction(row)" color="primary"
+    <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading" (click)="buttonDeleteAction(row)" color="primary"
             tooltip="Delete" button-click-behaviour>
       <mat-icon>delete</mat-icon>
     </button>
@@ -99,22 +99,22 @@
           <mat-icon>cancel</mat-icon>
           <span>Cancel</span>
         </button>
-        <button id="userSaveButton" mat-raised-button (click)="save()" color="primary" [disabled]="!enableSave || isBusy"
+        <button id="userSaveButton" mat-raised-button (click)="save()" color="primary" [disabled]="!enableSave || isLoading"
                 button-click-behaviour>
           <mat-icon>save</mat-icon>
           <span>Save</span>
         </button>
-        <button id="userNewButton" mat-raised-button (click)="buttonNew()" [disabled]="isBusy" color="primary"
+        <button id="userNewButton" mat-raised-button (click)="buttonNew()" [disabled]="isLoading" color="primary"
                 button-click-behaviour>
           <mat-icon>add</mat-icon>
           <span>New</span>
         </button>
-        <button id="userEditButton" mat-raised-button (click)="buttonEdit()" [disabled]="!enableEdit || isBusy" color="primary"
+        <button id="userEditButton" mat-raised-button (click)="buttonEdit()" [disabled]="!enableEdit || isLoading" color="primary"
                 button-click-behaviour>
           <mat-icon>edit</mat-icon>
           <span>Edit</span>
         </button>
-        <button id="userDeleteButton" mat-raised-button (click)="buttonDelete()" [disabled]="!enableDelete || isBusy" color="primary"
+        <button id="userDeleteButton" mat-raised-button (click)="buttonDelete()" [disabled]="!enableDelete || isLoading" color="primary"
                 button-click-behaviour>
           <mat-icon>delete</mat-icon>
           <span>Delete</span>
