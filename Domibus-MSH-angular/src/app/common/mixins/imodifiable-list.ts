@@ -17,5 +17,7 @@ export interface IModifiableList {
   saveIfNeeded(): Promise<boolean>;
 
   cancel();
+
+  // onAfterSave();
 }
 

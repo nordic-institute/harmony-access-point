@@ -52,11 +52,10 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is supposed to be overridden in derived classes to implement actual search
    */
+  //todo:try to get rid of it??
   public search() {
-    if (instanceOfPageableList(this)) {
-      this.offset = 0;
-      this.page();
-    }
+    this.setActiveFilter();
+    return this.getData();
   }
 
   /**

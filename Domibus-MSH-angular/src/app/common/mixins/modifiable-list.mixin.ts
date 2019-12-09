@@ -3,6 +3,7 @@ import {DirtyOperations} from '../dirty-operations';
 import {IModifiableList} from './imodifiable-list';
 import {OnInit} from '@angular/core';
 import {instanceOfPageableList} from './type.utils';
+import {PaginationType} from './Ipageable-list';
 
 /**
  * @author Ion Perpegel
@@ -33,27 +34,34 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     return this.isChanged;
   }
 
+  // onAfterSave() {
+  //   // this.getData(); //makes sense in alerts but not everywhere
+  // }
+
   public doSave(): Promise<any> {
     return undefined;
   }
 
   async save(): Promise<boolean> {
-    if (this.isSaving) return;
+    if (this.isSaving) {
+      return false;
+    }
 
     const save = await this.dialogsService.openSaveDialog();
     if (save) {
       this.isSaving = true;
-      return await this.doSave().then(() => {
-        this.isSaving = false;
+      let saved: boolean;
+      try {
+        await this.doSave();
         this.alertService.success(`The operation 'update ${this.name}' completed successfully.`);
-        this.page();
-        return true;
-      }, err => {
-        this.isSaving = false;
+        saved = true;
+      } catch (err) {
         this.alertService.exception(`The operation 'update ${this.name}' did not complet successfully!`, err);
-        this.page();
-        return false;
-      });
+        saved = false;
+      }
+      this.isSaving = false;
+      // this.onAfterSave();
+      return saved;
     } else {
       return false;
     }
@@ -73,11 +81,8 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
       this.isChanged = false;
-      if (instanceOfPageableList(this)) {
-        this.page();
-      }
+      this.getData();
     }
-
   }
 
 };
