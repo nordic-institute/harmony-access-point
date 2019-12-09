@@ -1308,7 +1308,7 @@ def findNumberOfDomain(String inputSite) {
                 assert(userDeleted != null),"Error:removeAdminConsoleUser: Error while fetching the \"deleted\" status of user \"$userAC\".";
                 if (userDeleted == false) {
                     curlParams = "[ { \"userName\": \"$userAC\", \"roles\": \"$roleAC\", \"active\": true, \"authorities\": [ \"$roleAC\" ], \"status\": \"REMOVED\", \"suspended\": false, \"deleted\": true } ]"
-                    commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/user/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"", "-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log)]
+                    commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/user/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"", "-v","-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log)]
                     commandResult = runCurlCommand(commandString, log)
                     assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:removeAdminConsoleUser: Error while trying to remove user $userAC.";
                     log.info "  removeAdminConsoleUser  [][]  User \"$userAC\" Removed."
@@ -1527,6 +1527,39 @@ static def ifWindowsEscapeJsonString(json) {
         } finally {
             resetAuthTokens(log)
         }
+    }
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Get Admin Console user Status (suspended or active)
+    static def adminConsoleUserSuspended(String side, context, log, String username, String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"adminConsoleUserSuspended\".", log)
+        def usersMap=null;
+        def multitenancyOn=false;
+        def jsonSlurper = new JsonSlurper()
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def userStatus = null;
+		def i = 0;
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
+            usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))		
+            debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
+            assert(usersMap != null),"Error:adminConsoleUserSuspended: Error while parsing the list of admin console users.";
+            while ( (i < usersMap.size()) && (userStatus == null) ) {
+                assert(usersMap[i] != null),"Error:adminConsoleUserSuspended: Error while parsing the list of admin console users.";
+                if (usersMap[i].userName == username) {
+					userStatus=usersMap[i].suspended;
+                }
+                i++;
+            }
+        } finally {
+            resetAuthTokens(log)
+        }
+		
+		assert(userStatus!=null),"Error:adminConsoleUserSuspended: Error user $username was not found."; 
+		return userStatus;	
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  Message filter Functions
@@ -2235,13 +2268,14 @@ static def String pathToLogFiles(side, log, context) {
 					  def found = false
 					testFile.eachLine{
 						line, lineNumber ->
-						lineNumber++
+						//lineNumber++
 						if (lineNumber > skipNumberOfLines) {
 							if(line =~ logEntryToFind) {
 								log.info "  checkLogFile  [][]  In log line $lineNumber searched entry was found. Line value is: $line"
 								found = true
 							}
 						}
+						lineNumber++
 					}
 					if (! found ){
 						if(checkPresent){
@@ -2308,7 +2342,7 @@ static def String pathToLogFiles(side, log, context) {
 	
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST GET request to test blacklisted characters
-	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", String authUser=null, String authPwd=null){
+	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", domainValue="Default", String authUser=null, String authPwd=null){
         debugLog("  ====  Calling \"curlBlackList_GET\".", log)
         debugLog("  curlBlackList_GET  [][]  Get Admin Console users for Domibus \"$side\".", log)
         def commandString = null;
@@ -2318,7 +2352,8 @@ static def String pathToLogFiles(side, log, context) {
         def authenticationPwd=authPwd;
 
 		try{
-			(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)	
+			//(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
 			commandResult = runCurlCommand(commandString, log)
 			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
@@ -2330,7 +2365,7 @@ static def String pathToLogFiles(side, log, context) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST POST request to test blacklisted characters
-	static def curlBlackList_POST(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD) {
+	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_USER, passwordLogin = DEFAULT_USER_PWD) {
         debugLog("  ====  Calling \"curlBlackList_POST\".", log)
         def commandString = null;
         def commandResult = null;
@@ -2576,6 +2611,186 @@ static def String pathToLogFiles(side, log, context) {
 		debugLog("  ====  Ending \"verifyUserAlerts\".", log)
     }
 
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def uireplicationCount(String side, context, log, enabled=true, String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"uireplicationCount\".", log)
+        def usersMap=null;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def countValue="";
+		def i=0;
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/count", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-H",  "Content-Type: application/json",							
+							"-v"]
+            commandResult = runCurlCommand(commandString, log);
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:uireplicationCount: UIreplication count command returned an error.";
+			if(enabled){
+				assert(commandResult[0].substring(7)[0].isNumber()),"Error:uireplicationCount: UIreplication count command response has an unusual format: "+commandResult[0].substring(6);
+				while(commandResult[0].substring(7)[i].isNumber()){
+					countValue=countValue+commandResult[0].substring(7)[i];
+					i=i+1;
+				}
+			}
+			else{
+				assert(!(commandResult[0]==~ /(?s).*[Uu][Ii][Rr]eplication.*disabled.*/)||(commandResult[0].substring(7)[0].isNumber())),"Error:uireplicationCount: UIreplication is disabled and must not process any request.";
+			}
+        } finally {
+            resetAuthTokens(log)
+        }
+		debugLog("  ====  Ending \"uireplicationCount\".", log);
+		return countValue;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------	
+	static def uireplicationCount_Check(String side, context, log, expectedValue="0", String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"uireplicationCount_Check\".", log)
+		def returnedValue="0";	
+		returnedValue=uireplicationCount(side,context,log,true,domainValue,authUser,authPwd);
+		assert(expectedValue==returnedValue),"Error:uireplicationCount_Check: UIreplication count returned $returnedValue instead of $expectedValue.";
+		log.info "Number of records to be synched = $returnedValue"; 
+		debugLog("  ====  Ending \"uireplicationCount_Check\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def uireplicationSync(String side, context, log, enabled=true,String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"uireplicationSync\".", log);
+        def usersMap=null;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def retCountValue="0";
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/sync", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-H",  "Content-Type: application/json",							
+							"-v"]
+            commandResult = runCurlCommand(commandString, log);
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:uireplicationSync: UIreplication sync command returned an error.";
+			if(enabled){
+				retCountValue=uireplicationCount(side,context,log,true,domainValue,authUser,authPwd);
+				if(retCountValue=="0"){
+					assert((commandResult[0]==~ /(?s).*[Nn]o records were.*/)&&(!commandResult[0].substring(7)[0].isNumber())),"Error:uireplicationSync: UIreplication sync must not be done because the number of records to be synched is equal to 0.";
+				}
+				else{
+					assert(commandResult[0].substring(7)[0].isNumber()),"Error:uireplicationSync: UIreplication Sync command response has an unusual format: "+commandResult[0].substring(6);
+				}
+				log.info commandResult[0].substring(6);
+			}
+			else{
+				assert(commandResult[0]==~ /(?s).*[Uu][Ii][Rr]eplication.*disabled.*/),"Error:uireplicationSync: UIreplication is disabled and must not process any request.";
+				log.info "  uireplicationSync  [][] UIreplication is disabled."
+			}
+        } finally {
+            resetAuthTokens(log)
+        }
+		debugLog("  ====  Ending \"uireplicationSync\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+        // Wait until all messages are submitted/received (to be used for load tests ...)
+        def waitMessagesExchangedNumber(countToReachStrC2="0", countToReachStrC3="0",C2Status="acknowledged", C3Status="received", duration=20 ,String senderDomainId=blueDomainID, String receiverDomanId=redDomainID){
+        debugLog("  ====  Calling \"waitMessagesExchangedNumber\".", log)
+        def MAX_WAIT_TIME=(duration*60000); // Maximum time to wait to check that all messages are received.		
+        def STEP_WAIT_TIME=60000; // Time to wait before re-checking the message status.	
+		def sqlSender = null; def sqlReceiver = null;
+		def countToReachC2=countToReachStrC2.toInteger();def countToReachC3=countToReachStrC3.toInteger();
+		def currentCount=0;
+		
+		sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
+        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
+        def usedDomains = [senderDomainId, receiverDomanId]
+		openDbConnections(usedDomains);
+
+		if(countToReachC2>0){
+			log.info "  waitMessagesExchangedNumber  [][]  Start checking C2 for $countToReachC2 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+			while ( (currentCount < countToReachC2) && (MAX_WAIT_TIME > 0) ) {
+				sleep(STEP_WAIT_TIME)
+				MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+				sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C2Status})") {
+					currentCount = it.lignes
+				}
+				log.info "  waitMessagesExchangedNumber  [][]  Waiting C2:" + MAX_WAIT_TIME + " -- Current:" + currentCount + " -- Target:" + countToReachC2;
+			}
+		}
+        log.info "  waitMessagesExchangedNumber  [][]  finished checking C2 for $countToReachC2 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+        assert(countToReachC2 == currentCount),locateTest(context) + "Error:waitMessagesExchangedNumber: Number of Messages in C2 side is $currentCount instead of $countToReachC2";
+		
+		currentCount=0;
+		
+		if(countToReachC3>0){
+			log.info "  waitMessagesExchangedNumber  [][]  Start checking C3 for $countToReachC3 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+			while ( (currentCount < countToReachC3) && (MAX_WAIT_TIME > 0) ) {
+				sleep(STEP_WAIT_TIME)
+				MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+				sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C3Status})") {
+					currentCount = it.lignes
+				}
+				log.info "  waitMessagesExchangedNumber  [][]  Waiting C3:" + MAX_WAIT_TIME + " -- Current:" + currentCount + " -- Target:" + countToReachC3;
+			}
+		}
+        log.info "  waitMessagesExchangedNumber  [][]  finished checking C3 for $countToReachC3 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+        assert(countToReachC3 == currentCount),locateTest(context) + "Error:waitMessagesExchangedNumber: Number of Messages in C3 side is $currentCount instead of $countToReach";
+		
+        closeDbConnections(usedDomains);
+		debugLog("  ====  Ending \"waitMessagesExchangedNumber\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+        // Count total number of messages in C2 and C3 sides (to be used for load tests ...)
+    def countCurrentMessagesNumber(testRunner,C2Status="acknowledged", C3Status="received",String senderDomainId=blueDomainID, String receiverDomanId=redDomainID){
+        debugLog("  ====  Calling \"countCurrentMessagesNumber\".", log)	
+		def sqlSender = null; def sqlReceiver = null;
+		def countC2=0; def countC3=0;
+		
+		def propertyCountC2 = context.expand('${#TestCase#propertyCountC2}');
+		def propertyCountC3 = context.expand('${#TestCase#propertyCountC3}');
+		
+		sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
+        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
+        def usedDomains = [senderDomainId, receiverDomanId]
+		openDbConnections(usedDomains);
+		
+		sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C2Status})") {
+			countC2 = it.lignes
+		}
+		
+		sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C3Status})") {
+			countC3 = it.lignes
+		}
+		
+        closeDbConnections(usedDomains);
+				
+		testRunner.testCase.setPropertyValue( "propertyCountC2", countC2.toString() );
+		log.info "Setting property \"propertyCountC2\" value: $countC2";
+		testRunner.testCase.setPropertyValue( "propertyCountC3", countC3.toString() );
+		log.info "Setting property \"propertyCountC3\" value: $countC3";
+		debugLog("  ====  Ending \"countCurrentMessagesNumber\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+        // Clean Certificates o be revoked
+        def cleanToBeRevCertificates(String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
+        debugLog("  ====  Calling \"cleanToBeRevCertificates\".", log)
+        def sqlSender = null; def sqlReceiver = null;
+
+        sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
+        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
+        def usedDomains = [senderDomainId, receiverDomanId]
+        openDbConnections(usedDomains)
+		sqlSender.execute("DELETE FROM TB_CERTIFICATE WHERE REVOKE_NOTIFICATION_DATE IS NOT NULL");
+		sqlReceiver.execute("DELETE FROM TB_CERTIFICATE WHERE REVOKE_NOTIFICATION_DATE IS NOT NULL");
+		closeDbConnections(usedDomains)
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
 
 } // Domibus class end
