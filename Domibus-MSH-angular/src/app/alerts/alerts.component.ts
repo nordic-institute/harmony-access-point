@@ -290,7 +290,8 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   async doSave(): Promise<any> {
-    return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => this.getData());
+    return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise()
+      .then(() => this.getData());
   }
 
   setProcessedValue(row) {

@@ -34,13 +34,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('list', {static: false}) list: DatatableComponent;
 
-  // selected: any[];
-
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
-
-  // isLoading: boolean;
 
   mshRoles: Array<String>;
   msgTypes: Array<String>;
@@ -66,13 +62,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    // this.selected = [];
-
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
-
-    // this.isLoading = false;
 
     super.orderBy = 'received';
     super.asc = false;
@@ -301,35 +293,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.notifStatus = result.notifStatus;
     });
   }
-
-  // page() {
-  //   this.isLoading = true;
-  //   super.resetFilters();
-  //   this.getMessageLogEntries().then((result: MessageLogResult) => {
-  //     super.count = result.count;
-  //     super.rows = result.messageLogEntries;
-  //     this.selected = [];
-  //
-  //     if (result.filter.receivedFrom) {
-  //       result.filter.receivedFrom = new Date(result.filter.receivedFrom);
-  //     }
-  //     if (result.filter.receivedTo) {
-  //       result.filter.receivedTo = new Date(result.filter.receivedTo);
-  //     }
-  //     result.filter.isTestMessage = !!result.filter.messageSubtype;
-  //     super.filter = result.filter;
-  //
-  //     this.mshRoles = result.mshRoles;
-  //     this.msgTypes = result.msgTypes;
-  //     this.msgStatuses = result.msgStatus.sort();
-  //     this.notifStatus = result.notifStatus;
-  //
-  //     this.isLoading = false;
-  //   }, (error) => {
-  //     this.isLoading = false;
-  //     this.alertService.exception('Error occurred: ', error);
-  //   });
-  // }
 
   onActivate(event) {
     if ('dblclick' === event.type) {

@@ -89,8 +89,6 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   async doGetData(): Promise<any> {
-    // super.offset = 0;
-
     return this.partyService.getData(this.activeFilter).then(data => {
       const partiesRes: PartyFilteredResult = data[0];
       const processes: ProcessRo[] = data[1];
@@ -277,6 +275,5 @@ export class PartyComponent extends mix(BaseListComponent)
   OnSort() {
     super.resetFilters();
   }
-
 
 }

@@ -31,10 +31,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
 
-  // selected: PluginUserRO[];
-  // isLoading: boolean;
-  // isChanged: boolean;
-
   authenticationTypes: string[] = ['BASIC', 'CERTIFICATE'];
   filter: PluginUserSearchCriteria;
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
@@ -51,15 +47,10 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
-    // this.selected = [];
-    // this.isLoading = false;
     this.userRoles = [];
-
-    // this.isChanged = false;
 
     this.getUserRoles();
 
-    // super.setActiveFilter();
     this.filterData();
   }
 
@@ -138,24 +129,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
         this.setColumnPicker();
       });
   }
-
-  // async page() {
-  //   this.selected = [];
-  //   this.isChanged = false;
-  //
-  //   try {
-  //     this.isLoading = true;
-  //     const result = await this.pluginUserService.getUsers(this.activeFilter).toPromise();
-  //     super.rows = result.entries;
-  //     super.count = result.entries.length;
-  //     this.isLoading = false;
-  //
-  //     this.setColumnPicker();
-  //   } catch (err) {
-  //     this.alertService.exception('Error getting plugin users:', err);
-  //     this.isLoading = false;
-  //   }
-  // }
 
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
@@ -237,26 +210,8 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async doSave(): Promise<any> {
-    return this.pluginUserService.saveUsers(this.rows).then(() => this.getData());
+    return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
   }
-
-  // async save(): Promise<boolean> {
-  //   const save = await this.dialogsService.openSaveDialog();
-  //   if (save) {
-  //     try {
-  //       await this.pluginUserService.saveUsers(this.rows);
-  //       this.alertService.success('The operation \'update plugin users\' completed successfully.');
-  //       super.resetFilters();
-  //       this.filterData();
-  //       return true;
-  //     } catch (err) {
-  //       this.alertService.exception('The operation \'update plugin users\' completed with errors. ', err, false);
-  //       return false;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
   setIsDirty() {
     super.isChanged = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
@@ -265,14 +220,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
   canCancel() {
     return this.isDirty();
   }
-
-  // async cancel() {
-  //   const cancel = await this.dialogsService.openCancelDialog();
-  //   if (cancel) {
-  //     super.resetFilters();
-  //     this.filterData();
-  //   }
-  // }
 
   delete(row?: any) {
     const itemToDelete = row || this.selected[0];

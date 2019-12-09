@@ -26,8 +26,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  // selected: any[];
-
   backendFilterNames: any[];
 
   rowNumber: number;
@@ -39,9 +37,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
-  // isLoading: boolean;
-  // isChanged: boolean;
-
   areFiltersPersisted: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
@@ -51,8 +46,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   ngOnInit() {
     super.ngOnInit();
-
-    // this.selected = [];
 
     this.backendFilterNames = [];
 
@@ -66,9 +59,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
-    // this.isLoading = true;
-
-    // this.getBackendFiltersInfo();
     this.getData();
   }
 
@@ -109,41 +99,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
       }
     });
   }
-
-  // getBackendFiltersInfo() {
-  //   this.isChanged = false;
-  //   this.getMessageFilterEntries().subscribe((result: MessageFilterResult) => {
-  //     let newRows = [];
-  //     this.backendFilterNames = [];
-  //     if (result.messageFilterEntries) {
-  //       for (let i = 0; i < result.messageFilterEntries.length; i++) {
-  //         let currentFilter: BackendFilterEntry = result.messageFilterEntries[i];
-  //         if (!(currentFilter)) {
-  //           continue;
-  //         }
-  //         let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted);
-  //         newRows.push(backendEntry);
-  //         if (this.backendFilterNames.indexOf(backendEntry.backendName) == -1) {
-  //           this.backendFilterNames.push(backendEntry.backendName);
-  //         }
-  //       }
-  //       this.areFiltersPersisted = result.areFiltersPersisted;
-  //
-  //       super.rows = newRows;
-  //       super.count = newRows.length;
-  //
-  //       if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
-  //         this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
-  //           'It is strongly recommended to double check the filters configuration and afterwards save it.');
-  //         this.enableSave = true;
-  //       }
-  //     }
-  //   }, (error: any) => {
-  //     console.log('error getting the message filter: ' + error);
-  //     this.isLoading = false;
-  //     this.alertService.exception('Error occurred: ', error);
-  //   });
-  // }
 
   getMessageFilterEntries(): Observable<MessageFilterResult> {
     return this.http.get<MessageFilterResult>(MessageFilterComponent.MESSAGE_FILTER_URL);
@@ -298,36 +253,12 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     return MessageFilterComponent.MESSAGE_FILTER_URL + '/csv';
   }
 
-  // async cancel() {
-  //   const cancel = await this.dialogsService.openCancelDialog();
-  //   if (cancel) {
-  //     this.disableSelectionAndButtons();
-  //     this.getBackendFiltersInfo();
-  //   }
-  // }
-
   async doSave(): Promise<any> {
     this.disableSelectionAndButtons();
     return this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
       this.getBackendFiltersInfo();
     });
   }
-
-  // async save(): Promise<boolean> {
-  //   const save = await this.dialogsService.openSaveDialog();
-  //   if (save) {
-  //     this.disableSelectionAndButtons();
-  //     return await this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
-  //       this.alertService.success('The operation \'update message filters\' completed successfully.', false);
-  //       this.getBackendFiltersInfo();
-  //       return true;
-  //     }, err => {
-  //       this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
-  //       return false;
-  //     });
-  //   }
-  //   return false;
-  // }
 
   buttonDeleteAction(row) {
     this.deleteItems([row]);

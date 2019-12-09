@@ -101,23 +101,6 @@ export class LoggingComponent extends mix(BaseListComponent)
     });
   }
 
-  // page() {
-  //   this.isLoading = true;
-  //   super.resetFilters();
-  //   this.getLoggingEntries().then((result: LoggingLevelResult) => {
-  //     super.count = result.count;
-  //     super.rows = result.loggingEntries;
-  //
-  //     super.filter = result.filter;
-  //     this.levels = result.levels;
-  //
-  //     this.isLoading = false;
-  //   }, (error: any) => {
-  //     this.isLoading = false;
-  //     this.alertService.exception('Error occurred:', error);
-  //   });
-  // }
-
   onLevelChange(newLevel: string, row: any) {
     if (newLevel !== row.level) {
       this.alertService.clearAlert();

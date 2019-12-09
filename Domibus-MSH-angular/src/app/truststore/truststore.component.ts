@@ -27,10 +27,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  // rows: Array<TrustStoreEntry>;
-  // selected: Array<any>;
-  // isLoading: boolean;
-
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog,
@@ -41,10 +37,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
   ngOnInit(): void {
     super.ngOnInit();
 
-    // this.rows = [];
-    // this.selected = [];
-
-    // this.getTrustStoreEntries();
     this.getData();
   }
 
@@ -114,15 +106,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
       .afterClosed().subscribe(result => {
     });
   }
-
-  // onChangePage(event: any): void {
-  //   this.offset = event.offset;
-  // }
-
-  // changePageSize(newPageSize: number) {
-  //   this.rowLimiter.pageSize = newPageSize;
-  //   this.getTrustStoreEntries();
-  // }
 
   openEditTrustStore() {
     this.dialog.open(TrustStoreUploadComponent).componentInstance.onTruststoreUploaded
