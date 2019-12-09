@@ -42,9 +42,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
   currentSearchSelectedSource;
 
-  // selected: any[];
   markedForDeletionMessages: any[];
-  // isLoading: boolean;
 
   request: MessagesRequestRO;
 
@@ -85,9 +83,7 @@ export class JmsComponent extends mix(BaseListComponent)
     this.filter.toDate = new Date();
     this.filter.toDate.setHours(23, 59, 59, 999);
 
-    // this.selected = [];
     this.markedForDeletionMessages = [];
-    // this.isLoading = false;
 
     this.loadDestinations();
 
@@ -227,11 +223,6 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.filter.source && !this.isLoading;
   }
 
-  // filterData() {
-  //   super.setActiveFilter();
-  //   this.getData();
-  // }
-
   async doGetData(): Promise<any> {
     if (!this.filter.source) {
       return Promise.reject('Source should be set');
@@ -253,70 +244,12 @@ export class JmsComponent extends mix(BaseListComponent)
     });
   }
 
-  // private doSearch() {
-  //   if (!this.filter.source) {
-  //     this.alertService.error('Source should be set');
-  //     return;
-  //   }
-  //   if (this.isLoading) {
-  //     return;
-  //   }
-  //
-  //   this.isLoading = true;
-  //   this.selected = [];
-  //   this.markedForDeletionMessages = [];
-  //   this.currentSearchSelectedSource = this.selectedSource;
-  //
-  //   this.http.post<any>('rest/jms/messages', {
-  //     source: this.activeFilter.source,
-  //     jmsType: this.activeFilter.jmsType,
-  //     fromDate: this.activeFilter.fromDate,
-  //     toDate: this.activeFilter.toDate,
-  //     selector: this.activeFilter.selector,
-  //   }).subscribe(
-  //     res => {
-  //       super.rows = res.messages;
-  //       super.count = res.messages.length;
-  //
-  //       super.offset = 0;
-  //       this.isLoading = false;
-  //
-  //       this.refreshDestinations();
-  //     },
-  //     error => {
-  //       this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
-  //       this.isLoading = false;
-  //     }
-  //   );
-  // }
-
-  // async cancel() {
-  //   const cancel = await this.dialogsService.openCancelDialog();
-  //   if (cancel) {
-  //     super.resetFilters();
-  //     this.doSearch();
-  //   }
-  // }
-
   async doSave(): Promise<any> {
     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
     //because the user can change the source after pressing search and then select the messages and press delete
     //in this case I need to use currentSearchSelectedSource
     return this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
   }
-
-  // async save(): Promise<boolean> {
-  //   const save = await this.dialogsService.openSaveDialog();
-  //   if (save) {
-  //     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
-  //     //because the user can change the source after pressing search and then select the messages and press delete
-  //     //in this case I need to use currentSearchSelectedSource
-  //     this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
   move() {
     const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
@@ -469,13 +402,9 @@ export class JmsComponent extends mix(BaseListComponent)
       selectedMessages: messageIds,
       action: 'REMOVE'
     }).toPromise().then(() => {
-        // this.alertService.success('The operation \'updates on message(s)\' completed successfully.');
         this.refreshDestinations();
         this.markedForDeletionMessages = [];
       }
-      // , error => {
-      //   this.alertService.exception('The operation \'updates on message(s)\' could not be completed: ', error);
-      // }
     )
   }
 

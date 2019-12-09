@@ -52,7 +52,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is supposed to be overridden in derived classes to implement actual search
    */
-  //todo:try to get rid of it??
   public filterData() {
     this.setActiveFilter();
     return this.getData();

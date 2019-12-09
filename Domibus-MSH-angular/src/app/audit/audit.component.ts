@@ -36,8 +36,6 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-  // isLoading: boolean = false;
-
 // --- hide/show binding ---
   advancedSearch: boolean;
 
@@ -84,7 +82,6 @@ export class AuditComponent extends mix(BaseListComponent)
   }
 
   public async doGetData(): Promise<any> {
-    // this.countRecords();
     return this.searchAuditLog();
   }
 
@@ -92,33 +89,10 @@ export class AuditComponent extends mix(BaseListComponent)
     this.auditService.countAuditLogs(this.buildCriteria()).toPromise()
       .then(auditCount => {
         super.count = auditCount;
+      }, err => {
+        this.alertService.exception('Error counting audit entries: ', err);
       });
   }
-
-  // searchAndCount() {
-  //   this.setActiveFilter();
-  //   this.isLoading = true;
-  //   super.offset = 0;
-  //   const auditCriteria: AuditCriteria = this.buildCriteria();
-  //   const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
-  //   const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
-  //   auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-  //       super.rows = response;
-  //       this.isLoading = false;
-  //     },
-  //     error => {
-  //       this.alertService.exception('Could not load audits: ', error);
-  //       this.isLoading = false;
-  //     },
-  //     // on complete of auditLogsObservable Observable, we load the count
-  //     // TODO: load this in parallel and merge the stream at the end.
-  //     () => auditCountObservable.subscribe(auditCount => super.count = auditCount,
-  //       error => {
-  //         this.alertService.exception('Could not count audits: ', error);
-  //         this.isLoading = false;
-  //       })
-  //   );
-  // }
 
   toggleAdvancedSearch() {
     this.advancedSearch = !this.advancedSearch;
@@ -126,22 +100,12 @@ export class AuditComponent extends mix(BaseListComponent)
   }
 
   searchAuditLog(): Promise<any> {
-    // this.isLoading = true;
     const auditCriteria: AuditCriteria = this.buildCriteria();
     return this.auditService.listAuditLogs(auditCriteria).toPromise()
       .then((response: AuditResponseRo[]) => {
         super.rows = response;
-        // this.isLoading = false;
       });
-    // , error => {
-    //   this.alertService.exception('Could not load audits: ', error);
-    //   this.isLoading = false;
-    // });
   }
-
-  // page() {
-  //   this.searchAuditLog();
-  // }
 
   buildCriteria(): AuditCriteria {
     const auditCriteria: AuditCriteria = new AuditCriteria();

@@ -33,8 +33,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   notifiedToMinDate: Date = null;
   notifiedToMaxDate: Date = new Date();
 
-  // isLoading: boolean = false;
-
   mshRoles: string[];
   errorCodes: string[];
 
@@ -175,37 +173,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
       this.errorCodes = result.errorCodes;
     });
   }
-
-  // page() {
-  //   this.isLoading = true;
-  //   this.getErrorLogEntries().then((result: ErrorLogResult) => {
-  //     super.count = result.count;
-  //     super.rows = result.errorLogEntries;
-  //
-  //     if (result.filter.timestampFrom) {
-  //       result.filter.timestampFrom = new Date(result.filter.timestampFrom);
-  //     }
-  //     if (result.filter.timestampTo) {
-  //       result.filter.timestampTo = new Date(result.filter.timestampTo);
-  //     }
-  //     if (result.filter.notifiedFrom) {
-  //       result.filter.notifiedFrom = new Date(result.filter.notifiedFrom);
-  //     }
-  //     if (result.filter.notifiedTo) {
-  //       result.filter.notifiedTo = new Date(result.filter.notifiedTo);
-  //     }
-  //
-  //     super.filter = result.filter;
-  //     this.mshRoles = result.mshRoles;
-  //     this.errorCodes = result.errorCodes;
-  //
-  //     this.isLoading = false;
-  //   }, (error: any) => {
-  //     this.isLoading = false;
-  //     this.alertService.exception('Error occured:', error);
-  //   });
-  //
-  // }
 
   /**
    * The method is an override of the abstract method defined in SortableList mixin

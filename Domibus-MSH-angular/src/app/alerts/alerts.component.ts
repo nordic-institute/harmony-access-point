@@ -101,7 +101,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     super.orderBy = 'creationTime';
     super.asc = false;
 
-    // super.setActiveFilter();
     this.filterData();
   }
 
@@ -293,10 +292,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   async doSave(): Promise<any> {
     return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise().then(() => this.getData());
   }
-
-  // onAfterSave() {
-  //   this.getData();
-  // }
 
   setProcessedValue(row) {
     super.isChanged = true;
