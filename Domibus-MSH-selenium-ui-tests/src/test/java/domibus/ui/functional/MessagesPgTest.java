@@ -37,7 +37,7 @@ public class MessagesPgTest extends BaseTest {
 
 
 	/*Doubleclik on one message*/
-	@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void doubleclickMessageRow() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
@@ -97,7 +97,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/*Filter messages using advanced filters */
-	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessagesAdvancedFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		List<String> messageIDs = getMessageIDs(null, 5, false);
