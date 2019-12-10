@@ -72,7 +72,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
       },
       {
         name: 'Error Code',
-        width: 50
+        // width: 50
       },
       {
         name: 'Error Detail',
@@ -81,11 +81,12 @@ export class ErrorLogComponent extends mix(BaseListComponent)
       {
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Timestamp',
-        width: 180
+        // width: 180
       },
       {
         cellTemplate: this.rowWithDateFormatTpl,
-        name: 'Notified'
+        name: 'Notified',
+        width: 50
       }
 
     ];

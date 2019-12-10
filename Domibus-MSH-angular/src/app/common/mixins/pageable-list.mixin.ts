@@ -22,8 +22,8 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
     this.loadServerData();
   }
 
-  protected onBeforeGetServerData() {
-    super.onBeforeGetServerData();
+  protected onSetParameters() {
+    super.onSetParameters();
 
     let params = this.GETParams;
 

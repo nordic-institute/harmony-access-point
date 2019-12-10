@@ -51,12 +51,12 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     return undefined;
   }
 
-  protected onBeforeGetServerData() {
+  protected onSetParameters() {
   }
 
   public async getServerData(): Promise<any> {
     this.GETParams = new HttpParams();
-    this.onBeforeGetServerData();
+    this.onSetParameters();
     return this.http.get<ErrorLogResult>(this.GETUrl, {params: this.GETParams})
       .toPromise();
   }

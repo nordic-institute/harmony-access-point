@@ -68,8 +68,8 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
     return true;
   }
 
-  protected onBeforeGetServerData() {
-    super.onBeforeGetServerData();
+  protected onSetParameters() {
+    super.onSetParameters();
 
     let params = this.GETParams;
 

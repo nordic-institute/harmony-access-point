@@ -8,7 +8,6 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
-import {DirtyOperations} from '../common/dirty-operations';
 import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
@@ -151,18 +150,45 @@ export class AlertsComponent extends mix(BaseListComponent)
       .subscribe(aLevels => this.aLevels = aLevels);
   }
 
-  getAlertsEntries(): Promise<AlertsResult> {
-    let searchParams = this.setFilterParams();
-
-    searchParams = searchParams.append('page', this.offset.toString());
-    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
-
-    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
+  protected get GETUrl(): string {
+    return AlertsComponent.ALERTS_URL;
   }
 
-  private setFilterParams(): HttpParams {
-    let searchParams = this.createStaticSearchParams();
+  private setServerResults(result: AlertsResult) {
+    super.count = result.count;
+    super.rows = result.alertsEntries;
+  }
 
+  // getAlertsEntries(): Promise<AlertsResult> {
+  //   let searchParams = this.setFilterParams();
+  //
+  //   searchParams = searchParams.append('page', this.offset.toString());
+  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
+  //
+  //   return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
+  // }
+
+  protected onSetParameters() {
+    super.onSetParameters();
+
+    let filterParams = this.GETParams;
+
+    if (this.activeFilter.processed) {
+      filterParams = filterParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
+    }
+
+    filterParams = this.setDynamicFilterParams(filterParams);
+
+    super.GETParams = filterParams;
+  }
+
+  // private setFilterParams(): HttpParams {
+  //   let searchParams = this.createSearchParams();
+  //   searchParams = this.setDynamicFilterParams(searchParams);
+  //   return searchParams;
+  // }
+
+  private setDynamicFilterParams(searchParams: HttpParams) {
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
         searchParams = searchParams.append('parameters', filter || '');
@@ -183,61 +209,61 @@ export class AlertsComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  private createStaticSearchParams(): HttpParams {
-    let searchParams = new HttpParams();
+  // private createSearchParams(): HttpParams {
+  //   let searchParams = new HttpParams();
+  //
+  //   searchParams = searchParams.append('orderBy', this.orderBy);
+  //   if (this.asc != null) {
+  //     searchParams = searchParams.append('asc', this.asc.toString());
+  //   }
+  //
+  //   // filters
+  //   if (this.activeFilter.processed) {
+  //     searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
+  //   }
+  //
+  //   if (this.activeFilter.alertType) {
+  //     searchParams = searchParams.append('alertType', this.activeFilter.alertType);
+  //   }
+  //
+  //   if (this.activeFilter.alertStatus) {
+  //     searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
+  //   }
+  //
+  //   if (this.activeFilter.alertId) {
+  //     searchParams = searchParams.append('alertId', this.activeFilter.alertId);
+  //   }
+  //
+  //   if (this.activeFilter.alertLevel) {
+  //     searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
+  //   }
+  //
+  //   if (this.activeFilter.creationFrom) {
+  //     searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
+  //   }
+  //
+  //   if (this.activeFilter.creationTo) {
+  //     searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
+  //   }
+  //
+  //   if (this.activeFilter.reportingFrom) {
+  //     searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
+  //   }
+  //
+  //   if (this.activeFilter.reportingTo) {
+  //     searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
+  //   }
+  //
+  //   searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
+  //   return searchParams;
+  // }
 
-    searchParams = searchParams.append('orderBy', this.orderBy);
-    if (this.asc != null) {
-      searchParams = searchParams.append('asc', this.asc.toString());
-    }
-
-    // filters
-    if (this.activeFilter.processed) {
-      searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
-    }
-
-    if (this.activeFilter.alertType) {
-      searchParams = searchParams.append('alertType', this.activeFilter.alertType);
-    }
-
-    if (this.activeFilter.alertStatus) {
-      searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
-    }
-
-    if (this.activeFilter.alertId) {
-      searchParams = searchParams.append('alertId', this.activeFilter.alertId);
-    }
-
-    if (this.activeFilter.alertLevel) {
-      searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
-    }
-
-    if (this.activeFilter.creationFrom) {
-      searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
-    }
-
-    if (this.activeFilter.creationTo) {
-      searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
-    }
-
-    if (this.activeFilter.reportingFrom) {
-      searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
-    }
-
-    if (this.activeFilter.reportingTo) {
-      searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
-    }
-
-    searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
-    return searchParams;
-  }
-
-  async getDataAndSetResults(): Promise<any> {
-    return this.getAlertsEntries().then((result: AlertsResult) => {
-      super.count = result.count;
-      super.rows = result.alertsEntries;
-    });
-  }
+  // async getDataAndSetResults(): Promise<any> {
+  //   return this.getAlertsEntries().then((result: AlertsResult) => {
+  //     super.count = result.count;
+  //     super.rows = result.alertsEntries;
+  //   });
+  // }
 
   toggleAdvancedSearch() {
     this.advancedSearch = !this.advancedSearch;
@@ -291,7 +317,7 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   async doSave(): Promise<any> {
     return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise()
-      .then(() => this.getData());
+      .then(() => this.loadServerData());
   }
 
   setProcessedValue(row) {

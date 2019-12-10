@@ -32,8 +32,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.activeFilter = {};
   }
 
-  protected onBeforeGetServerData() {
-    super.onBeforeGetServerData();
+  protected onSetParameters() {
+    super.onSetParameters();
 
     let filterParams = this.GETParams;
 
