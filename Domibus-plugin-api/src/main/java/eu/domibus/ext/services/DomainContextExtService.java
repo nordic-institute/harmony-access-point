@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.ext.domain.DomainDTO;
 
 /**
@@ -30,4 +31,6 @@ public interface DomainContextExtService {
      * Clears the domain from the current thread
      */
     void clearCurrentDomain();
+
+    MetricRegistry getMetricRegistry();
 }

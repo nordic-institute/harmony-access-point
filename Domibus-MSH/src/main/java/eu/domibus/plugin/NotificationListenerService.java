@@ -142,9 +142,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
                 case MESSAGE_RECEIVED_FAILURE:
                     doMessageReceiveFailure(message);
                     break;
-                case MESSAGE_STATUS_CHANGE:
+               /* case MESSAGE_STATUS_CHANGE:
                     doMessageStatusChange(message);
-                    break;
+                    break;*/
             }
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);

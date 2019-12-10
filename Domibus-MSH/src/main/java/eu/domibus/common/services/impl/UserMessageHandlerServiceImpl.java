@@ -11,6 +11,7 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessagingService;
@@ -325,20 +326,32 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @throws IOException
      * @throws EbMS3Exception
      */
+
     protected String persistReceivedMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws SOAPException, TransformerException, EbMS3Exception {
-        LOG.info("Persisting received message");
-        UserMessage userMessage = messaging.getUserMessage();
+        com.codahale.metrics.Timer.Context persist_incoming_message=null;
+        try {
+            persist_incoming_message = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "persist_incoming_message")).time();
+            LOG.info("Persisting received message");
+            UserMessage userMessage = messaging.getUserMessage();
 
-        if (messageFragmentType != null) {
-            handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
+            if (messageFragmentType != null) {
+                handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
+            }
+
+            handlePayloads(request, userMessage);
+
+            boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
+            LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
+            final String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
+
+            return s;
+        }finally {
+            if(persist_incoming_message!=null){
+                persist_incoming_message.stop();
+            }
         }
-
-        handlePayloads(request, userMessage);
-
-        boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
-        LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
     }
+
 
     /**
      * Persists the incoming SourceMessage
