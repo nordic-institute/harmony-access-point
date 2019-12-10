@@ -29,7 +29,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public count: number;
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
-  protected GETParams: HttpParams;
+  // protected GETParams: HttpParams;
 
   constructor(private alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
@@ -40,7 +40,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
-    this.GETParams = new HttpParams();
+    // this.GETParams = new HttpParams();
   }
 
   public get name(): string {
@@ -51,13 +51,14 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     return undefined;
   }
 
-  protected onSetParameters() {
+  protected onSetParameters(): HttpParams {
+    return new HttpParams();
   }
 
   public async getServerData(): Promise<any> {
-    this.GETParams = new HttpParams();
-    this.onSetParameters();
-    return this.http.get<ErrorLogResult>(this.GETUrl, {params: this.GETParams})
+    // this.GETParams = new HttpParams();
+    let getParams = this.onSetParameters();
+    return this.http.get<ErrorLogResult>(this.GETUrl, {params: getParams})
       .toPromise();
   }
 
@@ -92,7 +93,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
           this.selected = [];
         }
 
-        if (instanceOfPageableList(this)) {
+        if (instanceOfPageableList(this) && this.type == PaginationType.Client) {
           this.offset = 0;
         }
       }, (error: any) => {

@@ -3,6 +3,7 @@ import {instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {OnInit} from '@angular/core';
 import {ISortableList} from './isortable-list';
+import {HttpParams} from '@angular/common/http';
 
 /**
  * @author Ion Perpegel
@@ -68,10 +69,10 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
     return true;
   }
 
-  protected onSetParameters() {
-    super.onSetParameters();
+  protected onSetParameters(): HttpParams {
+    let params = super.onSetParameters();
 
-    let params = this.GETParams;
+    // let params = this.GETParams;
 
     if (this.orderBy) {
       params = params.append('orderBy', this.orderBy);
@@ -80,7 +81,8 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
       params = params.append('asc', this.asc);
     }
 
-    super.GETParams = params;
+    // super.GETParams = params;
+    return params;
   }
 };
 

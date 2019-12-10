@@ -168,10 +168,10 @@ export class AlertsComponent extends mix(BaseListComponent)
   //   return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
   // }
 
-  protected onSetParameters() {
-    super.onSetParameters();
+  protected onSetParameters(): HttpParams {
+    let filterParams = super.onSetParameters();
 
-    let filterParams = this.GETParams;
+    // let filterParams = this.GETParams;
 
     if (this.activeFilter.processed) {
       filterParams = filterParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
@@ -179,7 +179,8 @@ export class AlertsComponent extends mix(BaseListComponent)
 
     filterParams = this.setDynamicFilterParams(filterParams);
 
-    super.GETParams = filterParams;
+    // super.GETParams = filterParams;
+    return filterParams;
   }
 
   // private setFilterParams(): HttpParams {

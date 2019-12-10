@@ -22,15 +22,16 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
     this.loadServerData();
   }
 
-  protected onSetParameters() {
-    super.onSetParameters();
+  protected onSetParameters(): HttpParams {
+    let params = super.onSetParameters();
 
-    let params = this.GETParams;
+    // let params = this.GETParams;
 
     params = params.append('page', this.offset.toString());
     params = params.append('pageSize', this.rowLimiter.pageSize.toString());
 
-    super.GETParams = params;
+    // super.GETParams = params;
+    return params;
   }
 
 };
@@ -92,6 +93,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   }
 
   public async resetPage() {
+    console.log('reset page:');
     return this.loadPage(0);
   }
 
@@ -101,6 +103,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       if (instanceOfFilterableList(this)) {
         this.resetFilters();
       }
+      console.log('loading page:', offset);
       this.offset = offset;
       this.page();
     } else {

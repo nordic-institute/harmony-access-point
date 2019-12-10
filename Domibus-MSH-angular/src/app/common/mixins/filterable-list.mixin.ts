@@ -32,10 +32,10 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.activeFilter = {};
   }
 
-  protected onSetParameters() {
-    super.onSetParameters();
+  protected onSetParameters(): HttpParams {
+    let filterParams = super.onSetParameters();
 
-    let filterParams = this.GETParams;
+    // let filterParams = this.GETParams;
 
     Object.keys(this.activeFilter).forEach((key: string) => {
       let value = this.activeFilter[key];
@@ -48,7 +48,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
       }
     });
 
-    super.GETParams = filterParams;
+    // super.GETParams = filterParams;
+    return filterParams;
   }
 
   /**
