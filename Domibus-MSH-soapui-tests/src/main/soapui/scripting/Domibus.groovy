@@ -758,7 +758,7 @@ def findNumberOfDomain(String inputSite) {
         def commandResult = null;
 
         commandString = "curl -s -o /dev/null -w \"%{http_code}\" --noproxy localhost " + urlToDomibus(side, log, context) + "/services";
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         return commandResult[0].trim()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -970,7 +970,7 @@ def findNumberOfDomain(String inputSite) {
 							"-F", "description=" + pmDescription,
 							"-F", "file=@" + pmodeFile,							
 							"-v"]
-            commandResult = runCurlCommand(commandString, log)
+            commandResult = runCommandInShell(commandString, log)
             assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected outcome \"" + outcome + "\"."
             if (outcome.toLowerCase() == "successfully") {
                 log.info "  uploadPmode  [][]  " + commandResult[0] + " Domibus: \"" + side + "\".";
@@ -1003,7 +1003,7 @@ def findNumberOfDomain(String inputSite) {
 				"-F", "description=" + pmDescription,
 				"-F", "file=@" + pmodeFile,							
 				"-v"]
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to connect to domibus."
         if (outcome.toLowerCase() == "successfully") {
             log.info "  uploadPmodeWithoutToken  [][]  " + commandResult[0] + " Domibus: \"" + side + "\".";
@@ -1040,7 +1040,7 @@ def findNumberOfDomain(String inputSite) {
 				"-F", "password=" + tsPassword,
 				"-F", "truststore=@" + truststoreFile,							
 				"-v"]
-            commandResult = runCurlCommand(commandString, log)
+            commandResult = runCommandInShell(commandString, log)
 			
             assert(commandResult[0].contains(outcome)),"Error:uploadTruststore: Error while trying to upload the truststore to domibus. Returned: "+commandResult[0]
             log.info "  uploadTruststore  [][]  " + commandResult[0] + " Domibus: \"" + side + "\".";
@@ -1170,7 +1170,7 @@ def findNumberOfDomain(String inputSite) {
 						"-H", "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-v"]
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getDomain: Error in the getDomain response."
 		debugLog("  ====  END \"getDomain\".", log)
         return commandResult[0].substring(5)
@@ -1193,7 +1193,7 @@ def findNumberOfDomain(String inputSite) {
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-X", "PUT","-v",
 						"--data-binary", "$domainValue"]
-            commandResult = runCurlCommand(commandString, log)
+            commandResult = runCommandInShell(commandString, log)
             assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:setDomain: Error while trying to set the domain: verify that domain $domainValue is correctly configured."
             debugLog("  setDomain  [][]  Domain set to $domainValue.",log)
         }
@@ -1227,7 +1227,7 @@ def findNumberOfDomain(String inputSite) {
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/user/users -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:getAdminConsoleUsers: Error while trying to connect to domibus.";
         return commandResult[0].substring(5)
     }
@@ -1264,7 +1264,7 @@ def findNumberOfDomain(String inputSite) {
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
-                commandResult = runCurlCommand(commandString, log)
+                commandResult = runCommandInShell(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addAdminConsoleUser: Error while trying to add a user.";
                 log.info "  addAdminConsoleUser  [][]  Admin Console user \"$userAC\" added.";
             }
@@ -1308,8 +1308,8 @@ def findNumberOfDomain(String inputSite) {
                 assert(userDeleted != null),"Error:removeAdminConsoleUser: Error while fetching the \"deleted\" status of user \"$userAC\".";
                 if (userDeleted == false) {
                     curlParams = "[ { \"userName\": \"$userAC\", \"roles\": \"$roleAC\", \"active\": true, \"authorities\": [ \"$roleAC\" ], \"status\": \"REMOVED\", \"suspended\": false, \"deleted\": true } ]"
-                    commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/user/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"", "-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log)]
-                    commandResult = runCurlCommand(commandString, log)
+                    commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/user/users", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\"", "-v","-X", "PUT", "--data-binary", formatJsonForCurl(curlParams, log)]
+                    commandResult = runCommandInShell(commandString, log)
                     assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:removeAdminConsoleUser: Error while trying to remove user $userAC.";
                     log.info "  removeAdminConsoleUser  [][]  User \"$userAC\" Removed."
                 } else {
@@ -1336,7 +1336,7 @@ def findNumberOfDomain(String inputSite) {
 					   "-H", 'Content-Type: application/json',
 					   "-H", "\"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\"",
 					   "-v"]
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:getPluginUsers: Error while trying to connect to domibus.";
         return commandResult[0].substring(5)
     }
@@ -1375,7 +1375,7 @@ def findNumberOfDomain(String inputSite) {
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
-                commandResult = runCurlCommand(commandString, log)
+                commandResult = runCommandInShell(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
                 log.info "  addPluginUser  [][]  Plugin user $userPl added.";
             }
@@ -1436,7 +1436,7 @@ def findNumberOfDomain(String inputSite) {
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]				
 
-                commandResult = runCurlCommand(commandString, log)
+                commandResult = runCommandInShell(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:removePluginUser: Error while trying to remove user $userPl.";
                 log.info "  removePluginUser  [][]  Plugin user $userPl removed.";
             }
@@ -1521,12 +1521,45 @@ static def ifWindowsEscapeJsonString(json) {
 
             for (def i = 1; i <= attempts; i++) {
                 log.info("  insertWrongPassword  [][]  Try to login with wrong password: Attempt $i.")
-                commandResult = runCurlCommand(commandString, log)
+                commandResult = runCommandInShell(commandString, log)
                 assert((commandResult[0].contains("Bad credentials")) || (commandResult[0].contains("Suspended"))),"Error:Authenticating user: Error while trying to connect to domibus."
             }
         } finally {
             resetAuthTokens(log)
         }
+    }
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Get Admin Console user Status (suspended or active)
+    static def adminConsoleUserSuspended(String side, context, log, String username, String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"adminConsoleUserSuspended\".", log)
+        def usersMap=null;
+        def multitenancyOn=false;
+        def jsonSlurper = new JsonSlurper()
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def userStatus = null;
+		def i = 0;
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
+            usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))		
+            debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
+            assert(usersMap != null),"Error:adminConsoleUserSuspended: Error while parsing the list of admin console users.";
+            while ( (i < usersMap.size()) && (userStatus == null) ) {
+                assert(usersMap[i] != null),"Error:adminConsoleUserSuspended: Error while parsing the list of admin console users.";
+                if (usersMap[i].userName == username) {
+					userStatus=usersMap[i].suspended;
+                }
+                i++;
+            }
+        } finally {
+            resetAuthTokens(log)
+        }
+		
+		assert(userStatus!=null),"Error:adminConsoleUserSuspended: Error user $username was not found."; 
+		return userStatus;	
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  Message filter Functions
@@ -1543,7 +1576,7 @@ static def ifWindowsEscapeJsonString(json) {
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagefilters -b "+context.expand( '${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to retrieve filters."
         return commandResult[0].substring(5)
     }
@@ -1612,7 +1645,7 @@ static def ifWindowsEscapeJsonString(json) {
                 } else {
                     curlParams = JsonOutput.toJson(filtersMap).toString()
                     commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagefilters -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
-                    commandResult = runCurlCommand(commandString, log)
+                    commandResult = runCommandInShell(commandString, log)
                     assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus.";
                     log.info "  setMessageFilters  [][]  Message filters update done successfully for Domibus: \"" + side + "\".";
                 }
@@ -1636,7 +1669,7 @@ static def ifWindowsEscapeJsonString(json) {
 						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
 						"--trace-ascii", "-"]
 	
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
         assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus."
         return commandResult[0];
     }
@@ -1719,12 +1752,12 @@ static def ifWindowsEscapeJsonString(json) {
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         // Run curl command
-        static def runCurlCommand(inputCommand, log) {
-        debugLog("  ====  Calling \"runCurlCommand\".", log)
+        static def runCommandInShell(inputCommand, log) {
+        debugLog("  ====  Calling \"runCommandInShell\".", log)
         def proc = null;
         def outputCatcher = new StringBuffer()
         def errorCatcher = new StringBuffer()
-        debugLog("  runCurlCommand  [][]  Run curl command: " + inputCommand, log)
+        debugLog("  runCommandInShell  [][]  Run curl command: " + inputCommand, log)
         if (inputCommand) {
             proc = inputCommand.execute()
             if (proc != null) {
@@ -1732,8 +1765,8 @@ static def ifWindowsEscapeJsonString(json) {
                 proc.waitFor()
             }
         }
-        debugLog("  runCurlCommand  [][]  outputCatcher: " + outputCatcher.toString(), log)
-        debugLog("  runCurlCommand  [][]  errorCatcher: " + errorCatcher.toString(), log)
+        debugLog("  runCommandInShell  [][]  outputCatcher: " + outputCatcher.toString(), log)
+        debugLog("  runCommandInShell  [][]  errorCatcher: " + errorCatcher.toString(), log)
         return ([outputCatcher.toString(), errorCatcher.toString()])
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
@@ -2130,7 +2163,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 							"--data-binary", "\"" + propNewValue + "\"", 
 							"-X", "PUT",
 							"-v"]
-            def commandResult = runCurlCommand(commandString, log)
+            def commandResult = runCommandInShell(commandString, log)
 			
             assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1] 														
 			log.info "  changePropertyAtRuntime  [][]  Property value was changed" 
@@ -2235,13 +2268,14 @@ static def String pathToLogFiles(side, log, context) {
 					  def found = false
 					testFile.eachLine{
 						line, lineNumber ->
-						lineNumber++
+						//lineNumber++
 						if (lineNumber > skipNumberOfLines) {
 							if(line =~ logEntryToFind) {
 								log.info "  checkLogFile  [][]  In log line $lineNumber searched entry was found. Line value is: $line"
 								found = true
 							}
 						}
+						lineNumber++
 					}
 					if (! found ){
 						if(checkPresent){
@@ -2296,7 +2330,7 @@ static def String pathToLogFiles(side, log, context) {
 								"-X", "PUT", 
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
-                commandResult = runCurlCommand(commandString, log)
+                commandResult = runCommandInShell(commandString, log)
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
                 log.info "  curlBlackList_PUT  [][]  Forbidden character detected in property value \"$userAC\".";
             }
@@ -2308,7 +2342,7 @@ static def String pathToLogFiles(side, log, context) {
 	
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST GET request to test blacklisted characters
-	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", String authUser=null, String authPwd=null){
+	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", domainValue="Default", String authUser=null, String authPwd=null){
         debugLog("  ====  Calling \"curlBlackList_GET\".", log)
         debugLog("  curlBlackList_GET  [][]  Get Admin Console users for Domibus \"$side\".", log)
         def commandString = null;
@@ -2318,9 +2352,10 @@ static def String pathToLogFiles(side, log, context) {
         def authenticationPwd=authPwd;
 
 		try{
-			(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)	
+			//(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
-			commandResult = runCurlCommand(commandString, log)
+			commandResult = runCommandInShell(commandString, log)
 			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
 			log.info "  curlBlackList_GET  [][]  Forbidden character detected in property value \"$data\".";
 		} finally {
@@ -2330,7 +2365,7 @@ static def String pathToLogFiles(side, log, context) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST POST request to test blacklisted characters
-	static def curlBlackList_POST(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD) {
+	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_USER, passwordLogin = DEFAULT_USER_PWD) {
         debugLog("  ====  Calling \"curlBlackList_POST\".", log)
         def commandString = null;
         def commandResult = null;
@@ -2342,7 +2377,7 @@ static def String pathToLogFiles(side, log, context) {
 						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
 						"--trace-ascii", "-"]
 		try{
-        commandResult = runCurlCommand(commandString, log)
+        commandResult = runCommandInShell(commandString, log)
 		} finally {
             resetAuthTokens(log)
         }
@@ -2405,7 +2440,7 @@ static def String pathToLogFiles(side, log, context) {
 		try{
 			// Try to retrieve the queue name from domibus to avoid problems like in case of cluster
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/jms/destinations -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
-			commandResult = runCurlCommand(commandString, log);
+			commandResult = runCommandInShell(commandString, log);
 			detailedQueueName=retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log);
 			debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName+"\".", log);
 			
@@ -2418,7 +2453,7 @@ static def String pathToLogFiles(side, log, context) {
 						"--data-binary", json, 
 						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
 
-			commandResult = runCurlCommand(commandString, log);
+			commandResult = runCommandInShell(commandString, log);
 			assert(commandResult[0].contains("{\"messages\"")),"Error:browseJmsQueue: Wrong response.";
 		} finally {
             resetAuthTokens(log);
@@ -2527,7 +2562,7 @@ static def String pathToLogFiles(side, log, context) {
 							"-H",  "Content-Type: application/json",
 							"--data-binary", json,							
 							"-v"]
-            commandResult = runCurlCommand(commandString, log)
+            commandResult = runCommandInShell(commandString, log)
             assert(commandResult[0].contains(outcome)),"Error:setLogLevel: Error while trying to set the log level of Package/Class \"$packageName\" for Domibus \"$side\"";
 			log.info "  setLogLevel  [][]  Log level successfully set to \"$logLevel\" for Package/Class \"$packageName\" in Domibus \"$side\".";
         } finally {
@@ -2576,6 +2611,314 @@ static def String pathToLogFiles(side, log, context) {
 		debugLog("  ====  Ending \"verifyUserAlerts\".", log)
     }
 
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def uireplicationCount(String side, context, log, enabled=true, String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"uireplicationCount\".", log)
+        def usersMap=null;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def countValue="";
+		def i=0;
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/count", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-H",  "Content-Type: application/json",							
+							"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:uireplicationCount: UIreplication count command returned an error.";
+			if(enabled){
+				assert(commandResult[0].substring(7)[0].isNumber()),"Error:uireplicationCount: UIreplication count command response has an unusual format: "+commandResult[0].substring(6);
+				while(commandResult[0].substring(7)[i].isNumber()){
+					countValue=countValue+commandResult[0].substring(7)[i];
+					i=i+1;
+				}
+			}
+			else{
+				assert(!(commandResult[0]==~ /(?s).*[Uu][Ii][Rr]eplication.*disabled.*/)||(commandResult[0].substring(7)[0].isNumber())),"Error:uireplicationCount: UIreplication is disabled and must not process any request.";
+			}
+        } finally {
+            resetAuthTokens(log)
+        }
+		debugLog("  ====  Ending \"uireplicationCount\".", log);
+		return countValue;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------	
+	static def uireplicationCount_Check(String side, context, log, expectedValue="0", String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"uireplicationCount_Check\".", log)
+		def returnedValue="0";	
+		returnedValue=uireplicationCount(side,context,log,true,domainValue,authUser,authPwd);
+		assert(expectedValue==returnedValue),"Error:uireplicationCount_Check: UIreplication count returned $returnedValue instead of $expectedValue.";
+		log.info "Number of records to be synched = $returnedValue"; 
+		debugLog("  ====  Ending \"uireplicationCount_Check\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def uireplicationSync(String side, context, log, enabled=true,String domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"uireplicationSync\".", log);
+        def usersMap=null;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+		def retCountValue="0";
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/sync", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-H",  "Content-Type: application/json",							
+							"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:uireplicationSync: UIreplication sync command returned an error.";
+			if(enabled){
+				retCountValue=uireplicationCount(side,context,log,true,domainValue,authUser,authPwd);
+				if(retCountValue=="0"){
+					assert((commandResult[0]==~ /(?s).*[Nn]o records were.*/)&&(!commandResult[0].substring(7)[0].isNumber())),"Error:uireplicationSync: UIreplication sync must not be done because the number of records to be synched is equal to 0.";
+				}
+				else{
+					assert(commandResult[0].substring(7)[0].isNumber()),"Error:uireplicationSync: UIreplication Sync command response has an unusual format: "+commandResult[0].substring(6);
+				}
+				log.info commandResult[0].substring(6);
+			}
+			else{
+				assert(commandResult[0]==~ /(?s).*[Uu][Ii][Rr]eplication.*disabled.*/),"Error:uireplicationSync: UIreplication is disabled and must not process any request.";
+				log.info "  uireplicationSync  [][] UIreplication is disabled."
+			}
+        } finally {
+            resetAuthTokens(log)
+        }
+		debugLog("  ====  Ending \"uireplicationSync\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+        // Wait until all messages are submitted/received (to be used for load tests ...)
+        def waitMessagesExchangedNumber(countToReachStrC2="0", countToReachStrC3="0",C2Status="acknowledged", C3Status="received", duration=20 ,String senderDomainId=blueDomainID, String receiverDomanId=redDomainID){
+        debugLog("  ====  Calling \"waitMessagesExchangedNumber\".", log)
+        def MAX_WAIT_TIME=(duration*60000); // Maximum time to wait to check that all messages are received.		
+        def STEP_WAIT_TIME=60000; // Time to wait before re-checking the message status.	
+		def sqlSender = null; def sqlReceiver = null;
+		def countToReachC2=countToReachStrC2.toInteger();def countToReachC3=countToReachStrC3.toInteger();
+		def currentCount=0;
+		
+		sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
+        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
+        def usedDomains = [senderDomainId, receiverDomanId]
+		openDbConnections(usedDomains);
+
+		if(countToReachC2>0){
+			log.info "  waitMessagesExchangedNumber  [][]  Start checking C2 for $countToReachC2 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+			while ( (currentCount < countToReachC2) && (MAX_WAIT_TIME > 0) ) {
+				sleep(STEP_WAIT_TIME)
+				MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+				sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C2Status})") {
+					currentCount = it.lignes
+				}
+				log.info "  waitMessagesExchangedNumber  [][]  Waiting C2:" + MAX_WAIT_TIME + " -- Current:" + currentCount + " -- Target:" + countToReachC2;
+			}
+		}
+        log.info "  waitMessagesExchangedNumber  [][]  finished checking C2 for $countToReachC2 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+        assert(countToReachC2 == currentCount),locateTest(context) + "Error:waitMessagesExchangedNumber: Number of Messages in C2 side is $currentCount instead of $countToReachC2";
+		
+		currentCount=0;
+		
+		if(countToReachC3>0){
+			log.info "  waitMessagesExchangedNumber  [][]  Start checking C3 for $countToReachC3 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+			while ( (currentCount < countToReachC3) && (MAX_WAIT_TIME > 0) ) {
+				sleep(STEP_WAIT_TIME)
+				MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+				sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C3Status})") {
+					currentCount = it.lignes
+				}
+				log.info "  waitMessagesExchangedNumber  [][]  Waiting C3:" + MAX_WAIT_TIME + " -- Current:" + currentCount + " -- Target:" + countToReachC3;
+			}
+		}
+        log.info "  waitMessagesExchangedNumber  [][]  finished checking C3 for $countToReachC3 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
+        assert(countToReachC3 == currentCount),locateTest(context) + "Error:waitMessagesExchangedNumber: Number of Messages in C3 side is $currentCount instead of $countToReach";
+		
+        closeDbConnections(usedDomains);
+		debugLog("  ====  Ending \"waitMessagesExchangedNumber\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+        // Count total number of messages in C2 and C3 sides (to be used for load tests ...)
+    def countCurrentMessagesNumber(testRunner,C2Status="acknowledged", C3Status="received",String senderDomainId=blueDomainID, String receiverDomanId=redDomainID){
+        debugLog("  ====  Calling \"countCurrentMessagesNumber\".", log)	
+		def sqlSender = null; def sqlReceiver = null;
+		def countC2=0; def countC3=0;
+		
+		def propertyCountC2 = context.expand('${#TestCase#propertyCountC2}');
+		def propertyCountC3 = context.expand('${#TestCase#propertyCountC3}');
+		
+		sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
+        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
+        def usedDomains = [senderDomainId, receiverDomanId]
+		openDbConnections(usedDomains);
+		
+		sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C2Status})") {
+			countC2 = it.lignes
+		}
+		
+		sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C3Status})") {
+			countC3 = it.lignes
+		}
+		
+        closeDbConnections(usedDomains);
+				
+		testRunner.testCase.setPropertyValue( "propertyCountC2", countC2.toString() );
+		log.info "Setting property \"propertyCountC2\" value: $countC2";
+		testRunner.testCase.setPropertyValue( "propertyCountC3", countC3.toString() );
+		log.info "Setting property \"propertyCountC3\" value: $countC3";
+		debugLog("  ====  Ending \"countCurrentMessagesNumber\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+        // Clean Certificates o be revoked
+        def cleanToBeRevCertificates(String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
+        debugLog("  ====  Calling \"cleanToBeRevCertificates\".", log)
+        def sqlSender = null; def sqlReceiver = null;
+
+        sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
+        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
+        def usedDomains = [senderDomainId, receiverDomanId]
+        openDbConnections(usedDomains)
+		sqlSender.execute("DELETE FROM TB_CERTIFICATE WHERE REVOKE_NOTIFICATION_DATE IS NOT NULL");
+		sqlReceiver.execute("DELETE FROM TB_CERTIFICATE WHERE REVOKE_NOTIFICATION_DATE IS NOT NULL");
+		closeDbConnections(usedDomains)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------	
+// Keystroes and trustores support methods
+//---------------------------------------------------------------------------------------------------------------------------------
+// Creates a new keystore. The name of the keystore will be "gateway_keystore.jks" unless the optional domain name
+// argument is provided - in this case the name of the keystore will be "gateway_keystore_DOMAIN.jks" -.
+static def generateKeyStore(context, log, keystoreAlias, keystorePassword, privateKeyPassword, validityOfKey = 300, keystoreFileName = "gateway_keystore.jks") {
+
+	assert (keystoreAlias?.trim()), "Please provide the alias of the keystore entry as the 3rd parameter (e.g. 'red_gw', 'blue_gw'}"
+	assert (keystorePassword?.trim()), "Please provide keystore password"
+	assert (privateKeyPassword?.trim()), "Please provide not empty private key password"
+	
+	log.info """Generating keystore using: 
+	keystoreAlias=${keystoreAlias},  
+	keystorePassword=${keystorePassword}, 
+	privateKeyPassword=${privateKeyPassword}, 
+	keystoreFileName=${keystoreFileName}
+	validityOfKey=${validityOfKey} (if not provided 300)"""
+
+    def commandString = null
+    def commandResult = null
+ 	def groovyutils = new com.eviware.soapui.support.GroovyUtils(context)
+	def projectPath = groovyutils.projectPath
+	def keystoreFile = projectPath +  File.separator  + keystoreFileName
+	log.info keystoreFile
+
+	def startDate = 0
+	def defaultValidity = 1 // 1 days is minimal validity for Key and Certificate Management Tool - keytool 
+	if (validityOfKey<=0) {
+		startDate = validityOfKey - defaultValidity
+		validityOfKey = defaultValidity
+	} 	
+
+	commandString =  ["keytool", "-genkeypair",
+							"-dname",  "C=BE,O=eDelivery,CN=${keystoreAlias}", 
+							"-alias", "${keystoreAlias}", 
+							"-keyalg", "RSA", 
+							"-keysize", "2048", 
+							"-keypass", "${privateKeyPassword}",
+							"-validity", validityOfKey.toString(), 
+							"-storetype", "JKS",
+							"-keystore", "${keystoreFile}",
+							"-storepass", "${keystorePassword}" ,
+							"-v"] 
+	if (startDate != 0) 
+		commandString << "-startdate" << startDate.toString() + "d"
+
+	commandResult = runCommandInShell(commandString, log)
+	assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, generating key, should not contain an error. Returned message: " +  commandResult[0] + "||||" +  commandResult[1]
+
+	def pemPath = projectPath +  File.separator  + returnDefaultPemFileName(keystoreFileName, keystoreAlias)
+	def pemFile = new File(pemPath)
+
+	assert !(pemFile.exists()), "The certificate file: ${pemPath} shouldn't already exist"
+
+	commandString =  ["keytool", "-exportcert",
+						"-alias", "${keystoreAlias}", 
+						"-file", pemPath, 
+						"-keystore", "${keystoreFile}", 
+						"-storetype", "JKS",
+						"-storepass", "${keystorePassword}",
+						"-rfc", "-v"] 
+
+	commandResult = runCommandInShell(commandString, log)
+	assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, generating *.pem file, should not contain an error. Returned message: " +  commandResult[0] + "||||" +  commandResult[1]
+
+	pemFile = new File(pemPath)
+	pemFile.setWritable(true)
+
+}
+
+// Shared method for creating pem filename
+static def String returnDefaultPemFileName(String keystoreFileName, String keystoreAlias) { 
+	return "${keystoreFileName}_${keystoreAlias}.pem"
+}
+// Remove files with filenames containing filter string in it	
+static def void deleteFiles(log, path, filter) {
+	new File(path).eachFile (groovy.io.FileType.FILES) { file ->
+	if (file.name.contains(filter)) {
+			log.info "Deleting file: " + file.name
+			file.delete()
+	}
+}
+}
+    
+// Imports an existing public-key certificate into a truststore. If the truststore is missing, it will be created. The
+// name of the truststore chosen as destination will be "gateway_truststore.jks" unless the optional truststoreFileName
+// argument is provided - in this case the name of the truststore used will be exactly as provided truststoreFileName 
+// (you need to include extension, example value "gateway_truststore_domain1.jks")
+static def updateTrustStore(context, log, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName = "gateway_truststore.jks") {
+
+	assert (keystoreAlias?.trim()), "Please provide the alias of the keystore entry as the 3rd parameter (e.g. 'red_gw', 'blue_gw'}"
+	assert (keystorePassword?.trim()), "Please provide keystore password"
+	assert (privateKeyPassword?.trim()), "Please provide not empty private key password"
+	
+	log.info """Updating truststore using: 
+	keystoreAlias=${keystoreAlias},  
+	keystorePassword=${keystorePassword}, 
+	privateKeyPassword=${privateKeyPassword}, 
+	truststoreFileName=${truststoreFileName},
+	keystoreFileName=${keystoreFileName}"""
+
+	 def commandString = null
+      def commandResult = null
+ 	 def groovyutils = new com.eviware.soapui.support.GroovyUtils(context)
+	 def projectPath = groovyutils.projectPath
+	 def truststoreFile = projectPath +  File.separator  + truststoreFileName
+	 def pemFilePath = projectPath +  File.separator  + returnDefaultPemFileName(keystoreFileName, keystoreAlias)
+
+	 def pemFile = new File(pemFilePath)
+	 assert (pemFile.exists()), "The certificate ${pemFile} shouldn't already exist"
+	 
+	commandString =  ["keytool", "-importcert",
+							"-alias", "${keystoreAlias}",
+							"-file", pemFilePath, 
+							"-keypass", "${privateKeyPassword}",
+							"-keystore", truststoreFile, 
+							"-storetype", "JKS",
+							"-storepass", "${keystorePassword}",
+							"-noprompt ", "-v"] 
+
+	  commandResult = runCommandInShell(commandString, log)
+	  assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, importing *.pem data to truststre, should not contain an error. Returned message: " +  commandResult[0] + "||||" +  commandResult[1]
+
+       def trustFile = new File(truststoreFile)
+	  trustFile.setWritable(true)
+}	
+	
+	
 //---------------------------------------------------------------------------------------------------------------------------------
 
 } // Domibus class end
