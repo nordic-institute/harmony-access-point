@@ -29,7 +29,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public count: number;
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
-  // protected GETParams: HttpParams;
 
   constructor(private alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
@@ -40,7 +39,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
-    // this.GETParams = new HttpParams();
   }
 
   public get name(): string {

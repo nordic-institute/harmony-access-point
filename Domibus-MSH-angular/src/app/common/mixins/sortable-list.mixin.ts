@@ -72,8 +72,6 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
   protected onSetParameters(): HttpParams {
     let params = super.onSetParameters();
 
-    // let params = this.GETParams;
-
     if (this.orderBy) {
       params = params.append('orderBy', this.orderBy);
     }
@@ -81,7 +79,6 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
       params = params.append('asc', this.asc);
     }
 
-    // super.GETParams = params;
     return params;
   }
 };

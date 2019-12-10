@@ -171,15 +171,12 @@ export class AlertsComponent extends mix(BaseListComponent)
   protected onSetParameters(): HttpParams {
     let filterParams = super.onSetParameters();
 
-    // let filterParams = this.GETParams;
-
     if (this.activeFilter.processed) {
       filterParams = filterParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
     }
 
     filterParams = this.setDynamicFilterParams(filterParams);
 
-    // super.GETParams = filterParams;
     return filterParams;
   }
 

@@ -9,6 +9,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
 import {AlertsResult} from '../alerts/alertsresult';
+import {ErrorLogResult} from '../errorlog/errorlogresult';
 
 /**
  * @author Catalin Enache
@@ -41,7 +42,7 @@ export class LoggingComponent extends mix(BaseListComponent)
     super.orderBy = 'name';
     super.asc = false;
 
-    this.loadServerData();
+    this.filterData();
   }
 
   ngAfterViewInit() {
@@ -64,44 +65,56 @@ export class LoggingComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  setFilterParams(): HttpParams {
-    let searchParams = new HttpParams();
+  // setFilterParams(): HttpParams {
+  //   let searchParams = new HttpParams();
+  //
+  //   if (this.orderBy) {
+  //     searchParams = searchParams.append('orderBy', this.orderBy);
+  //   }
+  //   if (this.asc != null) {
+  //     searchParams = searchParams.append('asc', this.asc.toString());
+  //   }
+  //
+  //   if (this.activeFilter.loggerName) {
+  //     searchParams = searchParams.append('loggerName', this.activeFilter.loggerName);
+  //   }
+  //   if (this.activeFilter.showClasses) {
+  //     searchParams = searchParams.append('showClasses', this.activeFilter.showClasses);
+  //   }
+  //
+  //   return searchParams;
+  // }
 
-    if (this.orderBy) {
-      searchParams = searchParams.append('orderBy', this.orderBy);
-    }
-    if (this.asc != null) {
-      searchParams = searchParams.append('asc', this.asc.toString());
-    }
-
-    if (this.activeFilter.loggerName) {
-      searchParams = searchParams.append('loggerName', this.activeFilter.loggerName);
-    }
-    if (this.activeFilter.showClasses) {
-      searchParams = searchParams.append('showClasses', this.activeFilter.showClasses);
-    }
-
-    return searchParams;
+  protected get GETUrl(): string {
+    return LoggingComponent.LOGGING_URL;
   }
 
-  getLoggingEntries(): Promise<LoggingLevelResult> {
-    let searchParams = this.setFilterParams();
+  // getLoggingEntries(): Promise<LoggingLevelResult> {
+  //   let searchParams = this.setFilterParams();
+  //
+  //   searchParams = searchParams.append('page', this.offset.toString());
+  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
+  //
+  //   return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams}).toPromise();
+  // }
 
-    searchParams = searchParams.append('page', this.offset.toString());
-    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
+  private setServerResults(result: LoggingLevelResult) {
+    super.count = result.count;
+    super.rows = result.loggingEntries;
 
-    return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams}).toPromise();
+    super.filter = result.filter;
+    this.levels = result.levels;
   }
 
-  async getDataAndSetResults(): Promise<any> {
-    return this.getLoggingEntries().then((result: LoggingLevelResult) => {
-      super.count = result.count;
-      super.rows = result.loggingEntries;
-
-      super.filter = result.filter;
-      this.levels = result.levels;
-    });
-  }
+  // async getDataAndSetResults(): Promise<any> {
+  //   return this.getLoggingEntries().then((result: LoggingLevelResult) => {
+  //     super.count = result.count;
+  //     super.rows = result.loggingEntries;
+  //
+  //     super.filter = result.filter;
+  //     this.levels = result.levels;
+  //   });
+  // }
 
   onLevelChange(newLevel: string, row: any) {
     if (newLevel !== row.level) {

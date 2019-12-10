@@ -25,12 +25,9 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
   protected onSetParameters(): HttpParams {
     let params = super.onSetParameters();
 
-    // let params = this.GETParams;
-
     params = params.append('page', this.offset.toString());
     params = params.append('pageSize', this.rowLimiter.pageSize.toString());
 
-    // super.GETParams = params;
     return params;
   }
 

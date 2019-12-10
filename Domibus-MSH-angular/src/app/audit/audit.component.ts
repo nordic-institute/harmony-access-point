@@ -68,7 +68,6 @@ export class AuditComponent extends mix(BaseListComponent)
     this.timestampToMaxDate = new Date();
 
 // --- lets count the records and fill the table.---
-//     this.searchAndCount();
     this.filterData().then(() => this.countRecords());
   }
 

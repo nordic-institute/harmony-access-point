@@ -16,8 +16,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   public filter: any;
   public activeFilter: any;
 
-  // protected filterParams: HttpParams;
-
   constructor(...args) {
     super(...args);
     this.filter = {};
@@ -35,8 +33,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   protected onSetParameters(): HttpParams {
     let filterParams = super.onSetParameters();
 
-    // let filterParams = this.GETParams;
-
     Object.keys(this.activeFilter).forEach((key: string) => {
       let value = this.activeFilter[key];
       if (value) {
@@ -48,7 +44,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
       }
     });
 
-    // super.GETParams = filterParams;
     return filterParams;
   }
 
