@@ -28,14 +28,14 @@ export class PartyService {
     return this.http.get<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName));
   }
 
-  // async getData(activeFilter): Promise<any> {
-  //   var serverCalls: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
-  //     this.listParties(activeFilter.name, activeFilter.endPoint,
-  //       activeFilter.partyID, activeFilter.process, activeFilter.process_role).toPromise(),
-  //     this.listProcesses().toPromise()
-  //   ];
-  //   return Promise.all(serverCalls);
-  // }
+  async getData(activeFilter): Promise<any> {
+    var serverCalls: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
+      this.listParties(activeFilter.name, activeFilter.endPoint,
+        activeFilter.partyID, activeFilter.process, activeFilter.process_role).toPromise(),
+      this.listProcesses().toPromise()
+    ];
+    return Promise.all(serverCalls);
+  }
 
   listProcesses (): Observable<ProcessRo[]> {
     return this.http.get<ProcessRo[]>(PartyService.LIST_PROCESSES)

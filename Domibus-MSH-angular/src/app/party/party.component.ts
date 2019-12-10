@@ -13,7 +13,6 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {AlertsResult} from '../alerts/alertsresult';
 
 /**
  * @author Thomas Dussart

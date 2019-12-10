@@ -194,105 +194,138 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  setFilterParams(): HttpParams {
-    let searchParams = new HttpParams();
+  // setFilterParams(): HttpParams {
+  //   let searchParams = new HttpParams();
+  //
+  //   if (this.orderBy) {
+  //     searchParams = searchParams.append('orderBy', this.orderBy);
+  //   }
+  //   if (this.asc != null) {
+  //     searchParams = searchParams.append('asc', this.asc.toString());
+  //   }
+  //
+  //   if (this.activeFilter.messageId) {
+  //     searchParams = searchParams.append('messageId', this.activeFilter.messageId);
+  //   }
+  //
+  //   if (this.activeFilter.mshRole) {
+  //     searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
+  //   }
+  //
+  //   if (this.activeFilter.conversationId) {
+  //     searchParams = searchParams.append('conversationId', this.activeFilter.conversationId);
+  //   }
+  //
+  //   if (this.activeFilter.messageType) {
+  //     searchParams = searchParams.append('messageType', this.activeFilter.messageType);
+  //   }
+  //
+  //   if (this.activeFilter.messageStatus) {
+  //     searchParams = searchParams.append('messageStatus', this.activeFilter.messageStatus);
+  //   }
+  //
+  //   if (this.activeFilter.notificationStatus) {
+  //     searchParams = searchParams.append('notificationStatus', this.activeFilter.notificationStatus);
+  //   }
+  //
+  //   if (this.activeFilter.fromPartyId) {
+  //     searchParams = searchParams.append('fromPartyId', this.activeFilter.fromPartyId);
+  //   }
+  //
+  //   if (this.activeFilter.toPartyId) {
+  //     searchParams = searchParams.append('toPartyId', this.activeFilter.toPartyId);
+  //   }
+  //
+  //   if (this.activeFilter.originalSender) {
+  //     searchParams = searchParams.append('originalSender', this.activeFilter.originalSender);
+  //   }
+  //
+  //   if (this.activeFilter.finalRecipient) {
+  //     searchParams = searchParams.append('finalRecipient', this.activeFilter.finalRecipient);
+  //   }
+  //
+  //   if (this.activeFilter.refToMessageId) {
+  //     searchParams = searchParams.append('refToMessageId', this.activeFilter.refToMessageId);
+  //   }
+  //
+  //   if (this.activeFilter.receivedFrom) {
+  //     searchParams = searchParams.append('receivedFrom', this.activeFilter.receivedFrom.getTime());
+  //   }
+  //
+  //   if (this.activeFilter.receivedTo) {
+  //     searchParams = searchParams.append('receivedTo', this.activeFilter.receivedTo.getTime());
+  //   }
+  //
+  //   if (this.activeFilter.isTestMessage) {
+  //     searchParams = searchParams.append('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
+  //   }
+  //
+  //   return searchParams;
+  // }
 
-    if (this.orderBy) {
-      searchParams = searchParams.append('orderBy', this.orderBy);
-    }
-    if (this.asc != null) {
-      searchParams = searchParams.append('asc', this.asc.toString());
-    }
-
-    if (this.activeFilter.messageId) {
-      searchParams = searchParams.append('messageId', this.activeFilter.messageId);
-    }
-
-    if (this.activeFilter.mshRole) {
-      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
-    }
-
-    if (this.activeFilter.conversationId) {
-      searchParams = searchParams.append('conversationId', this.activeFilter.conversationId);
-    }
-
-    if (this.activeFilter.messageType) {
-      searchParams = searchParams.append('messageType', this.activeFilter.messageType);
-    }
-
-    if (this.activeFilter.messageStatus) {
-      searchParams = searchParams.append('messageStatus', this.activeFilter.messageStatus);
-    }
-
-    if (this.activeFilter.notificationStatus) {
-      searchParams = searchParams.append('notificationStatus', this.activeFilter.notificationStatus);
-    }
-
-    if (this.activeFilter.fromPartyId) {
-      searchParams = searchParams.append('fromPartyId', this.activeFilter.fromPartyId);
-    }
-
-    if (this.activeFilter.toPartyId) {
-      searchParams = searchParams.append('toPartyId', this.activeFilter.toPartyId);
-    }
-
-    if (this.activeFilter.originalSender) {
-      searchParams = searchParams.append('originalSender', this.activeFilter.originalSender);
-    }
-
-    if (this.activeFilter.finalRecipient) {
-      searchParams = searchParams.append('finalRecipient', this.activeFilter.finalRecipient);
-    }
-
-    if (this.activeFilter.refToMessageId) {
-      searchParams = searchParams.append('refToMessageId', this.activeFilter.refToMessageId);
-    }
-
-    if (this.activeFilter.receivedFrom) {
-      searchParams = searchParams.append('receivedFrom', this.activeFilter.receivedFrom.getTime());
-    }
-
-    if (this.activeFilter.receivedTo) {
-      searchParams = searchParams.append('receivedTo', this.activeFilter.receivedTo.getTime());
-    }
-
+  protected onSetParameters(): HttpParams {
+    let filterParams = super.onSetParameters();
     if (this.activeFilter.isTestMessage) {
-      searchParams = searchParams.append('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
+      filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
+    } else {
+      filterParams = filterParams.delete('messageSubtype');
     }
-
-    return searchParams;
+    return filterParams;
   }
 
-  getMessageLogEntries(): Promise<MessageLogResult> {
-    let searchParams = this.setFilterParams();
+  // getMessageLogEntries(): Promise<MessageLogResult> {
+  //   let searchParams = this.setFilterParams();
+  //
+  //   searchParams = searchParams.append('page', this.offset.toString());
+  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
+  //
+  //   return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams})
+  //     .toPromise();
+  // }
 
-    searchParams = searchParams.append('page', this.offset.toString());
-    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
-
-    return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams})
-      .toPromise();
+  protected get GETUrl(): string {
+    return MessageLogComponent.MESSAGE_LOG_URL;
   }
 
-  public async getDataAndSetResults(): Promise<any> {
-    return this.getMessageLogEntries().then((result: MessageLogResult) => {
-      super.count = result.count;
-      super.rows = result.messageLogEntries;
+  private setServerResults(result: MessageLogResult) {
+    super.count = result.count;
+    super.rows = result.messageLogEntries;
 
-      if (result.filter.receivedFrom) {
-        result.filter.receivedFrom = new Date(result.filter.receivedFrom);
-      }
-      if (result.filter.receivedTo) {
-        result.filter.receivedTo = new Date(result.filter.receivedTo);
-      }
-      result.filter.isTestMessage = !!result.filter.messageSubtype;
-      super.filter = result.filter;
+    if (result.filter.receivedFrom) {
+      result.filter.receivedFrom = new Date(result.filter.receivedFrom);
+    }
+    if (result.filter.receivedTo) {
+      result.filter.receivedTo = new Date(result.filter.receivedTo);
+    }
+    result.filter.isTestMessage = !!result.filter.messageSubtype;
+    super.filter = result.filter;
 
-      this.mshRoles = result.mshRoles;
-      this.msgTypes = result.msgTypes;
-      this.msgStatuses = result.msgStatus.sort();
-      this.notifStatus = result.notifStatus;
-    });
+    this.mshRoles = result.mshRoles;
+    this.msgTypes = result.msgTypes;
+    this.msgStatuses = result.msgStatus.sort();
+    this.notifStatus = result.notifStatus;
   }
+
+  // public async getDataAndSetResults(): Promise<any> {
+  //   return this.getMessageLogEntries().then((result: MessageLogResult) => {
+  //     super.count = result.count;
+  //     super.rows = result.messageLogEntries;
+  //
+  //     if (result.filter.receivedFrom) {
+  //       result.filter.receivedFrom = new Date(result.filter.receivedFrom);
+  //     }
+  //     if (result.filter.receivedTo) {
+  //       result.filter.receivedTo = new Date(result.filter.receivedTo);
+  //     }
+  //     result.filter.isTestMessage = !!result.filter.messageSubtype;
+  //     super.filter = result.filter;
+  //
+  //     this.mshRoles = result.mshRoles;
+  //     this.msgTypes = result.msgTypes;
+  //     this.msgStatuses = result.msgStatus.sort();
+  //     this.notifStatus = result.notifStatus;
+  //   });
+  // }
 
   onActivate(event) {
     if ('dblclick' === event.type) {
