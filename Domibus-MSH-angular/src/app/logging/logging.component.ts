@@ -98,7 +98,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   //   return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams}).toPromise();
   // }
 
-  private setServerResults(result: LoggingLevelResult) {
+  public setServerResults(result: LoggingLevelResult) {
     super.count = result.count;
     super.rows = result.loggingEntries;
 

@@ -287,7 +287,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return MessageLogComponent.MESSAGE_LOG_URL;
   }
 
-  private setServerResults(result: MessageLogResult) {
+  public setServerResults(result: MessageLogResult) {
     super.count = result.count;
     super.rows = result.messageLogEntries;
 

@@ -54,7 +54,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public async getServerData(): Promise<any> {
-    // this.GETParams = new HttpParams();
     let getParams = this.onSetParameters();
     return this.http.get<ErrorLogResult>(this.GETUrl, {params: getParams})
       .toPromise();

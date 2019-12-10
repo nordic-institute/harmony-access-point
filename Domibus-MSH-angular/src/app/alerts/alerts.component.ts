@@ -154,7 +154,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     return AlertsComponent.ALERTS_URL;
   }
 
-  private setServerResults(result: AlertsResult) {
+  public setServerResults(result: AlertsResult) {
     super.count = result.count;
     super.rows = result.alertsEntries;
   }

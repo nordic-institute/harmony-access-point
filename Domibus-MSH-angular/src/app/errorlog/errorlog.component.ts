@@ -159,7 +159,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   //     .toPromise();
   // }
 
-  private setServerResults(result: ErrorLogResult) {
+  public setServerResults(result: ErrorLogResult) {
     super.count = result.count;
     super.rows = result.errorLogEntries;
 

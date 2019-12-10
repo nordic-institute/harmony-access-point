@@ -15,6 +15,8 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {MessageLogResult} from '../messagelog/messagelogresult';
+import {HttpClient, HttpParams} from '@angular/common/http';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -38,7 +40,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   userRoles: Array<String>;
 
   constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog,
-              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
+              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
@@ -120,15 +122,35 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter.userName = null;
   }
 
-  async getDataAndSetResults() {
-    return this.pluginUserService.getUsers(this.activeFilter).toPromise()
-      .then(result => {
-        super.rows = result.entries;
-        super.count = result.entries.length;
-
-        this.setColumnPicker();
-      });
+  protected get GETUrl(): string {
+    return PluginUserService.PLUGIN_USERS_URL;
   }
+
+  protected onSetParameters(): HttpParams {
+    let filterParams = super.onSetParameters();
+
+    filterParams = filterParams.append('page', '0');
+    filterParams = filterParams.append('pageSize', '10000');
+
+    return filterParams;
+  }
+
+  public setServerResults(result: { entries: PluginUserRO[], count: number }) {
+    super.rows = result.entries;
+    super.count = result.entries.length;
+
+    this.setColumnPicker();
+  }
+
+  // async getDataAndSetResults() {
+  //   return this.pluginUserService.getUsers(this.activeFilter).toPromise()
+  //     .then(result => {
+  //       super.rows = result.entries;
+  //       super.count = result.entries.length;
+  //
+  //       this.setColumnPicker();
+  //     });
+  // }
 
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
@@ -233,7 +255,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return PluginUserService.CSV_URL + '?' + this.pluginUserService.createFilterParams(this.filter).toString();
+    return PluginUserService.CSV_URL + '?' + this.setFilterParams(this.filter).toString();
   }
 
   onSort() {
