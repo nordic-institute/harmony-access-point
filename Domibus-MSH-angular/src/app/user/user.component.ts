@@ -170,7 +170,7 @@ export class UserComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  public async doGetData(): Promise<any> {
+  public async getDataAndSetResults(): Promise<any> {
     return this.getUsers();
   }
 
@@ -370,7 +370,7 @@ export class UserComponent extends mix(BaseListComponent)
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
     this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
-      this.getData();
+      this.loadServerData();
       // this.disableSelectionAndButtons();
     });
   }

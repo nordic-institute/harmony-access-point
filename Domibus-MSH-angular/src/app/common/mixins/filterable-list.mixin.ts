@@ -8,12 +8,15 @@ import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
+import {HttpParams} from '@angular/common/http';
 
 let FilterableListMixin = (superclass: Constructable) => class extends superclass
   implements IFilterableList, OnInit {
 
   public filter: any;
   public activeFilter: any;
+
+  // protected filterParams: HttpParams;
 
   constructor(...args) {
     super(...args);
@@ -27,6 +30,25 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     this.filter = {};
     this.activeFilter = {};
+  }
+
+  protected onBeforeGetServerData() {
+    super.onBeforeGetServerData();
+
+    let filterParams = this.GETParams;
+
+    Object.keys(this.activeFilter).forEach((key: string) => {
+      let value = this.activeFilter[key];
+      if (value) {
+        if(value instanceof Date) {
+          filterParams = filterParams.append(key, value.getTime());
+        } else {
+          filterParams = filterParams.append(key, value);
+        }
+      }
+    });
+
+    super.GETParams = filterParams;
   }
 
   /**
@@ -54,7 +76,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    */
   public filterData() {
     this.setActiveFilter();
-    return this.getData();
+    return this.loadServerData();
   }
 
   /**

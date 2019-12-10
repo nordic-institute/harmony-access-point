@@ -1,5 +1,8 @@
 import {Constructable} from './base-list.component';
 import {instanceOfPageableList} from './type.utils';
+import {IFilterableList} from './ifilterable-list';
+import {OnInit} from '@angular/core';
+import {ISortableList} from './isortable-list';
 
 /**
  * @author Ion Perpegel
@@ -8,12 +11,23 @@ import {instanceOfPageableList} from './type.utils';
  * A mixin for components that display a list of items that can be ordered
  * */
 
-let SortableListMixin = (superclass: Constructable) => class extends superclass {
+let SortableListMixin = (superclass: Constructable) => class extends superclass
+  implements ISortableList, OnInit {
+
   public orderBy: string;
   public asc: boolean;
 
+  // activeOrderBy: string;
+  // activeAsc: boolean;
+
   constructor(...args) {
     super(...args);
+  }
+
+  ngOnInit() {
+    if (super.ngOnInit) {
+      super.ngOnInit();
+    }
   }
 
   /**
@@ -33,14 +47,17 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass 
   public async doSort(event) {
     this.onBeforeSort();
 
-    let orderBy = event.column.prop;
-    let asc = (event.newValue === 'desc') ? false : true;
+    let previousOrderBy = this.orderBy;
+    let previousAsc = this.asc;
+
+    this.orderBy = event.column.prop;
+    this.asc = (event.newValue === 'desc') ? false : true;
 
     const success = await this.reload();
 
-    if (success) {
-      this.orderBy = orderBy;
-      this.asc = asc;
+    if (!success) {
+      this.orderBy = previousOrderBy;
+      this.asc = previousAsc;
     }
   }
 
@@ -49,6 +66,21 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass 
       return this.resetPage();
     }
     return true;
+  }
+
+  protected onBeforeGetServerData() {
+    super.onBeforeGetServerData();
+
+    let params = this.GETParams;
+
+    if (this.orderBy) {
+      params = params.append('orderBy', this.orderBy);
+    }
+    if (this.asc != null) {
+      params = params.append('asc', this.asc);
+    }
+
+    super.GETParams = params;
   }
 };
 

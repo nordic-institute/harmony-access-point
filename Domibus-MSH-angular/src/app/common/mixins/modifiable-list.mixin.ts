@@ -35,7 +35,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   onAfterSave() {
-    // this.getData(); //makes sense in alerts but not everywhere
+    // this.loadServerData(); //makes sense in alerts but not everywhere
   }
 
   public doSave(): Promise<any> {
@@ -81,7 +81,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
       this.isChanged = false;
-      this.getData();
+      this.loadServerData();
     }
   }
 

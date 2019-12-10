@@ -91,7 +91,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
 
     this.uploaded = false;
 
-    this.getData();
+    this.loadServerData();
 
     this.domainService.getCurrentDomain()
       .subscribe((domain: Domain) => this.currentDomain = domain);
@@ -138,7 +138,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     return this.http.get<any[]>(PModeArchiveComponent.PMODE_URL + '/list');
   }
 
-  public async doGetData(): Promise<any> {
+  public async getDataAndSetResults(): Promise<any> {
     this.disableAllButtons();
     return this.getAllPModeEntries();
   }

@@ -120,7 +120,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter.userName = null;
   }
 
-  async doGetData() {
+  async getDataAndSetResults() {
     return this.pluginUserService.getUsers(this.activeFilter).toPromise()
       .then(result => {
         super.rows = result.entries;

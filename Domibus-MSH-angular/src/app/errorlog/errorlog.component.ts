@@ -99,79 +99,85 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  createSearchParams(): HttpParams {
-    let searchParams = new HttpParams();
+  // setFilterParams(): HttpParams {
+  //   let searchParams = new HttpParams();
+  //
+  //   if (this.orderBy) {
+  //     searchParams = searchParams.append('orderBy', this.orderBy);
+  //   }
+  //   if (this.asc != null) {
+  //     searchParams = searchParams.append('asc', this.asc.toString());
+  //   }
+  //
+  //   if (this.activeFilter.errorSignalMessageId) {
+  //     searchParams = searchParams.append('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
+  //   }
+  //   if (this.activeFilter.mshRole) {
+  //     searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
+  //   }
+  //   if (this.activeFilter.messageInErrorId) {
+  //     searchParams = searchParams.append('messageInErrorId', this.activeFilter.messageInErrorId);
+  //   }
+  //   if (this.activeFilter.errorCode) {
+  //     searchParams = searchParams.append('errorCode', this.activeFilter.errorCode);
+  //   }
+  //   if (this.activeFilter.errorDetail) {
+  //     searchParams = searchParams.append('errorDetail', this.activeFilter.errorDetail);
+  //   }
+  //   if (this.activeFilter.timestampFrom != null) {
+  //     searchParams = searchParams.append('timestampFrom', this.activeFilter.timestampFrom.getTime());
+  //   }
+  //   if (this.activeFilter.timestampTo != null) {
+  //     searchParams = searchParams.append('timestampTo', this.activeFilter.timestampTo.getTime());
+  //   }
+  //   if (this.activeFilter.notifiedFrom != null) {
+  //     searchParams = searchParams.append('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
+  //   }
+  //   if (this.activeFilter.notifiedTo != null) {
+  //     searchParams = searchParams.append('notifiedTo', this.activeFilter.notifiedTo.getTime());
+  //   }
+  //
+  //   return searchParams;
+  // }
 
-    if (this.orderBy) {
-      searchParams = searchParams.append('orderBy', this.orderBy);
-    }
-    if (this.asc != null) {
-      searchParams = searchParams.append('asc', this.asc.toString());
-    }
-
-    if (this.activeFilter.errorSignalMessageId) {
-      searchParams = searchParams.append('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
-    }
-    if (this.activeFilter.mshRole) {
-      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
-    }
-    if (this.activeFilter.messageInErrorId) {
-      searchParams = searchParams.append('messageInErrorId', this.activeFilter.messageInErrorId);
-    }
-    if (this.activeFilter.errorCode) {
-      searchParams = searchParams.append('errorCode', this.activeFilter.errorCode);
-    }
-    if (this.activeFilter.errorDetail) {
-      searchParams = searchParams.append('errorDetail', this.activeFilter.errorDetail);
-    }
-    if (this.activeFilter.timestampFrom != null) {
-      searchParams = searchParams.append('timestampFrom', this.activeFilter.timestampFrom.getTime());
-    }
-    if (this.filter.timestampTo != null) {
-      searchParams = searchParams.append('timestampTo', this.activeFilter.timestampTo.getTime());
-    }
-    if (this.activeFilter.notifiedFrom != null) {
-      searchParams = searchParams.append('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
-    }
-    if (this.activeFilter.notifiedTo != null) {
-      searchParams = searchParams.append('notifiedTo', this.activeFilter.notifiedTo.getTime());
-    }
-
-    return searchParams;
+  protected get name(): string {
+    return 'Error Logs';
   }
 
-  getErrorLogEntries(): Promise<ErrorLogResult> {
-    let searchParams = this.createSearchParams();
-
-    searchParams = searchParams.append('page', this.offset.toString());
-    searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
-
-    return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams})
-      .toPromise();
+  protected get GETUrl(): string {
+    return ErrorLogComponent.ERROR_LOG_URL;
   }
 
-  async doGetData(): Promise<any> {
-    return this.getErrorLogEntries().then((result: ErrorLogResult) => {
-      super.count = result.count;
-      super.rows = result.errorLogEntries;
+  // getServerData(): Promise<ErrorLogResult> {
+  //   let searchParams = this.setFilterParams();
+  //
+  //   searchParams = searchParams.append('page', this.offset.toString());
+  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
+  //
+  //   return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams})
+  //     .toPromise();
+  // }
 
-      if (result.filter.timestampFrom) {
-        result.filter.timestampFrom = new Date(result.filter.timestampFrom);
-      }
-      if (result.filter.timestampTo) {
-        result.filter.timestampTo = new Date(result.filter.timestampTo);
-      }
-      if (result.filter.notifiedFrom) {
-        result.filter.notifiedFrom = new Date(result.filter.notifiedFrom);
-      }
-      if (result.filter.notifiedTo) {
-        result.filter.notifiedTo = new Date(result.filter.notifiedTo);
-      }
+  private setServerResults(result: ErrorLogResult) {
+    super.count = result.count;
+    super.rows = result.errorLogEntries;
 
-      super.filter = result.filter;
-      this.mshRoles = result.mshRoles;
-      this.errorCodes = result.errorCodes;
-    });
+    if (result.filter.timestampFrom) {
+      result.filter.timestampFrom = new Date(result.filter.timestampFrom);
+    }
+    if (result.filter.timestampTo) {
+      result.filter.timestampTo = new Date(result.filter.timestampTo);
+    }
+    if (result.filter.notifiedFrom) {
+      result.filter.notifiedFrom = new Date(result.filter.notifiedFrom);
+    }
+    if (result.filter.notifiedTo) {
+      result.filter.notifiedTo = new Date(result.filter.notifiedTo);
+    }
+
+    super.filter = result.filter;
+    this.mshRoles = result.mshRoles;
+    this.errorCodes = result.errorCodes;
   }
 
   /**
@@ -218,6 +224,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return ErrorLogComponent.ERROR_LOG_CSV_URL + this.createSearchParams().toString();
+    return ErrorLogComponent.ERROR_LOG_CSV_URL + this.setFilterParams().toString();
   }
 }

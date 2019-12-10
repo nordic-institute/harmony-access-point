@@ -223,7 +223,7 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.filter.source && !this.isLoading;
   }
 
-  async doGetData(): Promise<any> {
+  async getDataAndSetResults(): Promise<any> {
     if (!this.filter.source) {
       return Promise.reject('Source should be set');
     }

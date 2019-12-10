@@ -152,7 +152,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   getAlertsEntries(): Promise<AlertsResult> {
-    let searchParams = this.createSearchParams();
+    let searchParams = this.setFilterParams();
 
     searchParams = searchParams.append('page', this.offset.toString());
     searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
@@ -160,7 +160,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
   }
 
-  private createSearchParams() {
+  private setFilterParams(): HttpParams {
     let searchParams = this.createStaticSearchParams();
 
     if (this.dynamicFilters.length > 0) {
@@ -183,7 +183,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  private createStaticSearchParams() {
+  private createStaticSearchParams(): HttpParams {
     let searchParams = new HttpParams();
 
     searchParams = searchParams.append('orderBy', this.orderBy);
@@ -232,7 +232,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     return searchParams;
   }
 
-  async doGetData(): Promise<any> {
+  async getDataAndSetResults(): Promise<any> {
     return this.getAlertsEntries().then((result: AlertsResult) => {
       super.count = result.count;
       super.rows = result.alertsEntries;
@@ -300,6 +300,6 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   public get csvUrl(): string {
     // todo: add dynamic params for csv filtering, if requested
-    return AlertsComponent.ALERTS_CSV_URL + '?' + this.createSearchParams().toString();
+    return AlertsComponent.ALERTS_CSV_URL + '?' + this.setFilterParams().toString();
   }
 }

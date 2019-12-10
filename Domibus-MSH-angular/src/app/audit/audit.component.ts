@@ -81,7 +81,7 @@ export class AuditComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  public async doGetData(): Promise<any> {
+  public async getDataAndSetResults(): Promise<any> {
     return this.searchAuditLog();
   }
 

@@ -194,7 +194,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  createSearchParams(): HttpParams {
+  setFilterParams(): HttpParams {
     let searchParams = new HttpParams();
 
     if (this.orderBy) {
@@ -264,7 +264,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   getMessageLogEntries(): Promise<MessageLogResult> {
-    let searchParams = this.createSearchParams();
+    let searchParams = this.setFilterParams();
 
     searchParams = searchParams.append('page', this.offset.toString());
     searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
@@ -273,7 +273,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
       .toPromise();
   }
 
-  public async doGetData(): Promise<any> {
+  public async getDataAndSetResults(): Promise<any> {
     return this.getMessageLogEntries().then((result: MessageLogResult) => {
       super.count = result.count;
       super.rows = result.messageLogEntries;
@@ -377,7 +377,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString();
+    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.setFilterParams().toString();
   }
 
   details(selectedRow: any) {

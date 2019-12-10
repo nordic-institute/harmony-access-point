@@ -37,7 +37,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
   ngOnInit(): void {
     super.ngOnInit();
 
-    this.getData();
+    this.loadServerData();
   }
 
   ngAfterViewInit() {
@@ -78,7 +78,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  public async doGetData(): Promise<any> {
+  public async getDataAndSetResults(): Promise<any> {
     return this.getTrustStoreEntries();
   }
 

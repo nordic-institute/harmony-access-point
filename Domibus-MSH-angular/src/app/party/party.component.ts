@@ -88,7 +88,7 @@ export class PartyComponent extends mix(BaseListComponent)
     this.deletedParties.length = 0;
   }
 
-  async doGetData(): Promise<any> {
+  async getDataAndSetResults(): Promise<any> {
     return this.partyService.getData(this.activeFilter).then(data => {
       const partiesRes: PartyFilteredResult = data[0];
       const processes: ProcessRo[] = data[1];

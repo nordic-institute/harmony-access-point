@@ -3,6 +3,7 @@ import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 import {IPageableList, PaginationType} from './Ipageable-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {OnInit} from '@angular/core';
+import {HttpParams} from '@angular/common/http';
 
 /**
  * @author Ion Perpegel
@@ -16,9 +17,20 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
     super.type = PaginationType.Server;
   }
 
-  //when server-paging, call get data from server????
+  //when server-paging, call get data from server
   public page() {
-    this.getData();
+    this.loadServerData();
+  }
+
+  protected onBeforeGetServerData() {
+    super.onBeforeGetServerData();
+
+    let params = this.GETParams;
+
+    params = params.append('page', this.offset.toString());
+    params = params.append('pageSize', this.rowLimiter.pageSize.toString());
+
+    super.GETParams = params;
   }
 
 };

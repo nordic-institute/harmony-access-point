@@ -2,6 +2,7 @@ import {IBaseList} from './ibase-list';
 import {IPageableList} from './Ipageable-list';
 import {IFilterableList} from './ifilterable-list';
 import {IModifiableList} from './imodifiable-list';
+import {ISortableList} from './isortable-list';
 
 /**
  * @author Ion Perpegel
@@ -25,3 +26,8 @@ export function instanceOfFilterableList(object: any): object is IFilterableList
 export function instanceOfModifiableList(object: any): object is IModifiableList {
   return 'isDirty' in object && 'save' in object && 'saveIfNeeded' in object;
 }
+
+export function instanceOfSortableList(object: any): object is ISortableList {
+  return 'onSort' in object && 'doSort' in object;
+}
+

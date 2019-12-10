@@ -59,14 +59,14 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
-    this.getData();
+    this.loadServerData();
   }
 
   public get name(): string {
     return 'Message Filters';
   }
 
-  async doGetData(): Promise<any> {
+  async getDataAndSetResults(): Promise<any> {
     this.getBackendFiltersInfo();
   }
 

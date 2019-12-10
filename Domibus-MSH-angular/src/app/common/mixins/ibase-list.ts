@@ -14,7 +14,7 @@ export interface IBaseList<T> {
   readonly csvUrl: string;
   columnPicker: ColumnPickerBase; //here for now
 
-  doGetData(): Promise<any>;
+  getDataAndSetResults(): Promise<any>;
 
-  getData(): Promise<any>;
+  loadServerData(): Promise<any>;
 }

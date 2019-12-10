@@ -29,7 +29,6 @@ export class LoggingComponent extends mix(BaseListComponent)
   @ViewChild('rowWithToggleTpl', {static: false}) rowWithToggleTpl: TemplateRef<any>;
 
   levels: Array<String>;
-  // isLoading: boolean = false;
 
   constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
               private changeDetector: ChangeDetectorRef) {
@@ -39,7 +38,10 @@ export class LoggingComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.getData();
+    super.orderBy = 'name';
+    super.asc = false;
+
+    this.loadServerData();
   }
 
   ngAfterViewInit() {
@@ -62,7 +64,7 @@ export class LoggingComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  createSearchParams(): HttpParams {
+  setFilterParams(): HttpParams {
     let searchParams = new HttpParams();
 
     if (this.orderBy) {
@@ -72,10 +74,10 @@ export class LoggingComponent extends mix(BaseListComponent)
       searchParams = searchParams.append('asc', this.asc.toString());
     }
 
-    if (this.filter.loggerName) {
+    if (this.activeFilter.loggerName) {
       searchParams = searchParams.append('loggerName', this.activeFilter.loggerName);
     }
-    if (this.filter.showClasses) {
+    if (this.activeFilter.showClasses) {
       searchParams = searchParams.append('showClasses', this.activeFilter.showClasses);
     }
 
@@ -83,7 +85,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   }
 
   getLoggingEntries(): Promise<LoggingLevelResult> {
-    let searchParams = this.createSearchParams();
+    let searchParams = this.setFilterParams();
 
     searchParams = searchParams.append('page', this.offset.toString());
     searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
@@ -91,7 +93,7 @@ export class LoggingComponent extends mix(BaseListComponent)
     return this.http.get<LoggingLevelResult>(LoggingComponent.LOGGING_URL, {params: searchParams}).toPromise();
   }
 
-  async doGetData(): Promise<any> {
+  async getDataAndSetResults(): Promise<any> {
     return this.getLoggingEntries().then((result: LoggingLevelResult) => {
       super.count = result.count;
       super.rows = result.loggingEntries;

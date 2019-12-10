@@ -4,14 +4,16 @@ import {DownloadService} from '../download.service';
 import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
-import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList} from './type.utils';
+import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList, instanceOfSortableList} from './type.utils';
 import {PaginationType} from './Ipageable-list';
+import {ErrorLogResult} from '../../errorlog/errorlogresult';
+import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  *
- * Base class for list components;
+ * Base class for list components: mainly takes care of getting data from the server
  */
 export interface Constructable {
   new(...args);
@@ -27,8 +29,9 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public count: number;
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
+  protected GETParams: HttpParams;
 
-  constructor(private alertService: AlertService) {
+  constructor(private alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 
@@ -37,16 +40,38 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
+    this.GETParams = new HttpParams();
   }
 
   public get name(): string {
     return this.constructor.name;
   }
 
-  public async doGetData(): Promise<any> {
+  protected get GETUrl(): string {
+    return undefined;
   }
 
-  public async getData(): Promise<any> {
+  protected onBeforeGetServerData() {
+  }
+
+  public async getServerData(): Promise<any> {
+    this.GETParams = new HttpParams();
+    this.onBeforeGetServerData();
+    return this.http.get<ErrorLogResult>(this.GETUrl, {params: this.GETParams})
+      .toPromise();
+  }
+
+  public async setServerResults(data: any) {
+  }
+
+  public async getDataAndSetResults(): Promise<any> {
+    return this.getServerData()
+      .then((data: any) => {
+        this.setServerResults(data);
+      });
+  }
+
+  public async loadServerData(): Promise<any> {
     if (this.isLoading) {
       return;
     }
@@ -58,20 +83,22 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       this.resetFilters();
     }
 
-    return this.doGetData().then((result) => {
-      this.isLoading = false;
-      if (instanceOfModifiableList(this)) {
-        this.isChanged = false;
-        this.selected = [];
-      }
-      //can we do it elsewhere??
-      if (instanceOfPageableList(this) && this.type == PaginationType.Client) {
+    return this.getDataAndSetResults()
+      .then((result) => {
+        this.isLoading = false;
+
+        if (instanceOfModifiableList(this)) {
+          this.isChanged = false;
+          this.selected = [];
+        }
+
+        if (instanceOfPageableList(this)) {
           this.offset = 0;
-      }
-    }, (error: any) => {
-      this.isLoading = false;
-      this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
-    });
+        }
+      }, (error: any) => {
+        this.isLoading = false;
+        this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
+      });
   }
 
   public get csvUrl(): string {
