@@ -363,14 +363,11 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                     final byte[] bytes = Base64.decodeBase64(certString);
                     org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory certificateFactory = new org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory();
                     return certificateFactory.engineGenerateCertPath(new ByteArrayInputStream(bytes)).getCertificates();
-
                 }
             }
         }
         return null;
     }
-
-
     protected List<? extends Certificate> getCertificateFromKeyInfo(CXFRequestData data, Element securityHeader) throws WSSecurityException {
 
         X509Certificate[] certs;
