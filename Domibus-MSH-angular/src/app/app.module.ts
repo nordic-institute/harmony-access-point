@@ -93,6 +93,7 @@ import { CommonModule } from '@angular/common';
 import {DialogsService} from './common/dialogs/dialogs.service';
 import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
+import {PageFooterComponent} from './common/page-footer/page-footer.component';
 
 
 @NgModule({
@@ -147,7 +148,8 @@ import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area
     NotAuthorizedComponent,
     PropertiesComponent,
     GridHeaderComponent,
-    FilterAreaFooterComponent
+    FilterAreaFooterComponent,
+    PageFooterComponent
   ],
   entryComponents: [
     AppComponent,

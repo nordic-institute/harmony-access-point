@@ -7,16 +7,13 @@ import {IFilterableList} from '../mixins/ifilterable-list';
   templateUrl: './filter-area-footer.component.html',
   // styleUrls: ['./grid-header.component.css']
 })
-export class FilterAreaFooterComponent implements OnInit {
+export class FilterAreaFooterComponent {
 
   constructor() {
   }
 
   @Input()
   parent: BaseListComponent<any> & IFilterableList;
-
-  ngOnInit() {
-  }
 
   toggleAdvancedSearch() {
     this.parent.advancedSearch = true;
