@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit} from '@angular/core';
-import {IPageableList} from '../mixins/Ipageable-list';
+import {IpageableList} from '../mixins/ipageable-list';
 import BaseListComponent from '../mixins/base-list.component';
 
 @Component({
@@ -13,7 +13,7 @@ export class GridHeaderComponent implements OnInit {
   }
 
   @Input()
-  parent: BaseListComponent<any> & IPageableList;
+  parent: BaseListComponent<any> & IpageableList;
 
   ngOnInit() {
   }

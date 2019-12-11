@@ -1,6 +1,5 @@
 import {Constructable} from './base-list.component';
 import {instanceOfPageableList} from './type.utils';
-import {IFilterableList} from './ifilterable-list';
 import {OnInit} from '@angular/core';
 import {ISortableList} from './isortable-list';
 import {HttpParams} from '@angular/common/http';
@@ -18,9 +17,6 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
   public orderBy: string;
   public asc: boolean;
 
-  // activeOrderBy: string;
-  // activeAsc: boolean;
-
   constructor(...args) {
     super(...args);
   }
@@ -35,8 +31,8 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
    * The method is abstract so the derived, actual components implement it
    * It is called by the infrastructure/mixin just before calling the reload data method, after setting the oredBy and asc parameters
    */
-  public onBeforeSort() {
-  }
+  // public onBeforeSort() {
+  // }
 
   /**
    * The method is called from grid sorting and it is referred in the grid params as it is visible in the derived components

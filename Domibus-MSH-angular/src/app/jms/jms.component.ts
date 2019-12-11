@@ -13,6 +13,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {AuditResponseRo} from '../audit/audit';
 
 @Component({
   selector: 'app-jms',
@@ -222,26 +223,45 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.filter.source && !this.isLoading;
   }
 
-  async getDataAndSetResults(): Promise<any> {
+  protected get GETUrl(): string {
+    return 'rest/jms/messages';
+  }
+
+  protected async onBeforeGetData(): Promise<any> {
     if (!this.filter.source) {
       return Promise.reject('Source should be set');
     }
 
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
-
-    return this.http.post<any>('rest/jms/messages', {
-      // source: this.activeFilter.source,
-      // jmsType: this.activeFilter.jmsType,
-      // fromDate: this.activeFilter.fromDate,
-      // toDate: this.activeFilter.toDate,
-      // selector: this.activeFilter.selector,
-    }).toPromise().then(res => {
-      super.rows = res.messages;
-      super.count = res.messages.length;
-      this.refreshDestinations();
-    });
   }
+
+  public setServerResults(res) {
+    super.rows = res.messages;
+    super.count = res.messages.length;
+    this.refreshDestinations();
+  }
+
+  // async getDataAndSetResults(): Promise<any> {
+  //   if (!this.filter.source) {
+  //     return Promise.reject('Source should be set');
+  //   }
+  //
+  //   this.markedForDeletionMessages = [];
+  //   this.currentSearchSelectedSource = this.selectedSource;
+  //
+  //   return this.http.post<any>('rest/jms/messages', {
+  //     source: this.activeFilter.source,
+  //     jmsType: this.activeFilter.jmsType,
+  //     fromDate: this.activeFilter.fromDate,
+  //     toDate: this.activeFilter.toDate,
+  //     selector: this.activeFilter.selector,
+  //   }).toPromise().then(res => {
+  //     super.rows = res.messages;
+  //     super.count = res.messages.length;
+  //     this.refreshDestinations();
+  //   });
+  // }
 
   async doSave(): Promise<any> {
     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
@@ -407,25 +427,25 @@ export class JmsComponent extends mix(BaseListComponent)
     )
   }
 
-  getFilterPath() {
-    let result = '?';
-    if (this.activeFilter.source) {
-      result += 'source=' + this.activeFilter.source + '&';
-    }
-    if (this.activeFilter.jmsType) {
-      result += 'jmsType=' + this.activeFilter.jmsType + '&';
-    }
-    if (this.activeFilter.fromDate) {
-      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
-    }
-    if (this.activeFilter.toDate) {
-      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
-    }
-    if (this.activeFilter.selector) {
-      result += 'selector=' + this.activeFilter.selector + '&';
-    }
-    return result;
-  }
+  // getFilterPath() {
+  //   let result = '?';
+  //   if (this.activeFilter.source) {
+  //     result += 'source=' + this.activeFilter.source + '&';
+  //   }
+  //   if (this.activeFilter.jmsType) {
+  //     result += 'jmsType=' + this.activeFilter.jmsType + '&';
+  //   }
+  //   if (this.activeFilter.fromDate) {
+  //     result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
+  //   }
+  //   if (this.activeFilter.toDate) {
+  //     result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
+  //   }
+  //   if (this.activeFilter.selector) {
+  //     result += 'selector=' + this.activeFilter.selector + '&';
+  //   }
+  //   return result;
+  // }
 
   public saveAsCSV() {
     if (!this.activeFilter.source) {
@@ -437,7 +457,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return 'rest/jms/csv' + this.getFilterPath();
+    return 'rest/jms/csv' + this.createAndSetParameters();
   }
 
   isDirty(): boolean {

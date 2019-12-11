@@ -181,13 +181,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     this.errorCodes = result.errorCodes;
   }
 
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  public onBeforeSort() {
-    super.resetFilters();
-  }
-
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
   }

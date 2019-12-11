@@ -1,6 +1,6 @@
 import {Constructable} from './base-list.component';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
-import {IPageableList, PaginationType} from './Ipageable-list';
+import {IpageableList, PaginationType} from './ipageable-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {OnInit} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
@@ -53,7 +53,7 @@ export let ClientPageableListMixin = (superclass: Constructable) => class extend
  * A mixin for components that display a list of items that are paged on server or client
  */
 export let PageableListMixin = (superclass: Constructable) => class extends superclass
-  implements IPageableList, OnInit {
+  implements IpageableList, OnInit {
 
   public type: PaginationType;
   public offset: number;

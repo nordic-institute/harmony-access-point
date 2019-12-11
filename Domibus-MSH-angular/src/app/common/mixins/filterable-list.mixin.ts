@@ -1,15 +1,15 @@
-/**
- * @author Ion Perpegel
- * @since 4.1
- *
- * A mixin for components that display a list of items that can be filtered
- */
 import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
 
+/**
+ * @author Ion Perpegel
+ * @since 4.1
+ *
+ * A mixin for components that display a list of items that can be filtered
+ */
 let FilterableListMixin = (superclass: Constructable) => class extends superclass
   implements IFilterableList, OnInit {
 
@@ -40,7 +40,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
       let value = this.activeFilter[key];
       if (value) {
         if (value instanceof Date) {
-          filterParams = filterParams.append(key, value.getTime());
+          filterParams = filterParams.append(key, value.toISOString());
         } else if (value instanceof Array) {
           value.forEach(el => filterParams = filterParams.append(key, el));
         }

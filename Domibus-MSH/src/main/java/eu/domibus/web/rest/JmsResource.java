@@ -57,8 +57,8 @@ public class JmsResource extends BaseResource {
         }
     }
 
-    @PostMapping(value = {"/messages"})
-    public ResponseEntity<MessagesResponseRO> messages(@RequestBody @Valid JmsFilterRequestRO request) {
+    @GetMapping(value = {"/messages"})
+    public ResponseEntity<MessagesResponseRO> messages(@Valid JmsFilterRequestRO request) {
 
         final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
         try {

@@ -6,7 +6,7 @@ import {RowLimiterBase} from '../row-limiter/row-limiter-base';
  *
  * An interface for the list with pagination ( client or server)
  * */
-export interface IPageableList {
+export interface IpageableList {
   type: PaginationType;
   offset: number;
   rowLimiter: RowLimiterBase;

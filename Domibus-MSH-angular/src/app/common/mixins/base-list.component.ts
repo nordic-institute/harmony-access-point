@@ -5,7 +5,7 @@ import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList, instanceOfSortableList} from './type.utils';
-import {PaginationType} from './Ipageable-list';
+import {PaginationType} from './ipageable-list';
 import {ErrorLogResult} from '../../errorlog/errorlogresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 
@@ -62,11 +62,15 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public async setServerResults(data: any) {
   }
 
+  protected async onBeforeGetData(): Promise<any> {
+    return true;
+  }
+
   public async getDataAndSetResults(): Promise<any> {
-    return this.getServerData()
-      .then((data: any) => {
-        this.setServerResults(data);
-      });
+    await this.onBeforeGetData();
+
+    let data = await this.getServerData();
+    this.setServerResults(data);
   }
 
   public async loadServerData(): Promise<any> {
@@ -81,22 +85,27 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       this.resetFilters();
     }
 
-    return this.getDataAndSetResults()
-      .then((result) => {
-        this.isLoading = false;
+    let result: any;
+    try {
+      result = await this.getDataAndSetResults();
+    } catch (error) {
+      this.isLoading = false;
+      this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
+      throw error;
+    }
 
-        if (instanceOfModifiableList(this)) {
-          this.isChanged = false;
-          this.selected = [];
-        }
+    this.isLoading = false;
 
-        if (instanceOfPageableList(this) && this.type == PaginationType.Client) {
-          this.offset = 0;
-        }
-      }, (error: any) => {
-        this.isLoading = false;
-        this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
-      });
+    if (instanceOfModifiableList(this)) {
+      this.isChanged = false;
+      this.selected = [];
+    }
+
+    if (instanceOfPageableList(this) && this.type == PaginationType.Client) {
+      this.offset = 0;
+    }
+
+    return result;
   }
 
   public get csvUrl(): string {

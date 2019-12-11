@@ -1,5 +1,5 @@
 import {IBaseList} from './ibase-list';
-import {IPageableList} from './Ipageable-list';
+import {IpageableList} from './ipageable-list';
 import {IFilterableList} from './ifilterable-list';
 import {IModifiableList} from './imodifiable-list';
 import {ISortableList} from './isortable-list';
@@ -15,7 +15,7 @@ export function instanceOfIBaseList(object: any): object is IBaseList<any> {
   return 'rows' in object && 'count' in object && 'csvUrl' in object;
 }
 
-export function instanceOfPageableList(object: any): object is IPageableList {
+export function instanceOfPageableList(object: any): object is IpageableList {
   return 'offset' in object && 'changePageSize' in object && 'onPageSizeChanging' in object;
 }
 

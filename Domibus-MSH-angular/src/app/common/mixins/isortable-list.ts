@@ -9,8 +9,6 @@ import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 export interface ISortableList {
   orderBy: string;
   asc: boolean;
-  // activeOrderBy: string;
-  // activeAsc: boolean;
 
   onSort(event);
 

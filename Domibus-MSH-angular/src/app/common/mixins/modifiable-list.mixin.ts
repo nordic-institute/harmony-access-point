@@ -3,7 +3,7 @@ import {DirtyOperations} from '../dirty-operations';
 import {IModifiableList} from './imodifiable-list';
 import {OnInit} from '@angular/core';
 import {instanceOfPageableList} from './type.utils';
-import {PaginationType} from './Ipageable-list';
+import {PaginationType} from './ipageable-list';
 
 /**
  * @author Ion Perpegel
