@@ -92,6 +92,8 @@ import {HttpClientModule} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import {DialogsService} from './common/dialogs/dialogs.service';
 import {GridHeaderComponent} from './common/grid-header/grid-header.component';
+import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
+
 
 @NgModule({
   declarations: [
@@ -144,7 +146,8 @@ import {GridHeaderComponent} from './common/grid-header/grid-header.component';
     LogoutAuthExtProviderComponent,
     NotAuthorizedComponent,
     PropertiesComponent,
-    GridHeaderComponent
+    GridHeaderComponent,
+    FilterAreaFooterComponent
   ],
   entryComponents: [
     AppComponent,

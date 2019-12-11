@@ -36,7 +36,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   mshRoles: string[];
   errorCodes: string[];
 
-  advancedSearch: boolean;
+  // advancedSearch: boolean;
 
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
@@ -197,10 +197,10 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     this.notifiedFromMaxDate = event.value;
   }
 
-  toggleAdvancedSearch(): boolean {
-    this.advancedSearch = !this.advancedSearch;
-    return false;//to prevent default navigation
-  }
+  // toggleAdvancedSearch(): boolean {
+  //   this.advancedSearch = !this.advancedSearch;
+  //   return false;//to prevent default navigation
+  // }
 
   onActivate(event) {
     if ('dblclick' === event.type) {

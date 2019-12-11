@@ -43,7 +43,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   msgStatuses: Array<String>;
   notifStatus: Array<String>;
 
-  advancedSearch: boolean;
+  // advancedSearch: boolean;
   fourCornerEnabled: boolean;
 
   messageResent: EventEmitter<boolean>;
@@ -419,15 +419,15 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  toggleAdvancedSearch() {
-    this.advancedSearch = true;
-  }
+  // toggleAdvancedSearch() {
+  //   this.advancedSearch = true;
+  // }
 
-  toggleBasicSearch() {
-    this.advancedSearch = false;
-
-    this.resetAdvancedSearchParams();
-  }
+  // toggleBasicSearch() {
+  //   this.advancedSearch = false;
+  //
+  //   this.resetAdvancedSearchParams();
+  // }
 
   resetAdvancedSearchParams() {
     this.filter.mshRole = null;

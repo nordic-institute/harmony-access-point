@@ -9,6 +9,7 @@ import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 export interface IFilterableList {
   filter: any;
   activeFilter: any;
+  advancedSearch: boolean;
 
   filterData();
 
@@ -17,5 +18,8 @@ export interface IFilterableList {
   setActiveFilter();
 
   resetFilters();
+
+  resetAdvancedSearchParams();
+
 }
 

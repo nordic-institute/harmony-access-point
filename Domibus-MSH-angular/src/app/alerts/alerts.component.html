@@ -4,7 +4,7 @@
   <mat-card>
     <mat-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="tryFilter()">
+        <form name="filterForm" #filterForm="ngForm" >
           <!-- Processed -->
           <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
             <mat-option [value]="''"></mat-option>
@@ -14,7 +14,7 @@
           </mat-select>
           <!-- Alert Type (Basic) -->
           <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
-                     id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
+                      id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
             <mat-option [value]="''"></mat-option>
             <mat-option *ngFor="let atype of aTypes" [value]="atype">
               {{atype}}
@@ -22,7 +22,7 @@
           </mat-select>
 
           <mat-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
-                     id="alertstatus_id">
+                      id="alertstatus_id">
             <mat-option [value]="''"></mat-option>
             <mat-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
               {{aStatus}}
@@ -36,7 +36,7 @@
           </mat-form-field>
           <!-- Alert Level (Basic) -->
           <mat-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
-                     id="alertlevel_id">
+                      id="alertlevel_id">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let alevel of aLevels" [value]="alevel">
@@ -121,15 +121,18 @@
           </div>
 
           <!-- Search Button and Basic/Advanced Search-->
-          <div class="searchArea">
-            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
-                    button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
-          </div>
+
+          <filter-area-footer [parent]="this"></filter-area-footer>
+
+<!--                    <div class="searchArea">-->
+<!--                      <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"-->
+<!--                              button-click-behaviour>-->
+<!--                        <mat-icon>search</mat-icon>-->
+<!--                        <span>Search</span>-->
+<!--                      </button>-->
+<!--                      <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>-->
+<!--                      <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>-->
+<!--                    </div>-->
         </form>
       </div>
     </mat-card-content>

@@ -4,7 +4,7 @@
   <mat-card>
     <mat-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="tryFilter()">
+        <form name="filterForm" #filterForm="ngForm">
           <mat-form-field>
             <input matInput placeholder="Message Id" name="messageId" [(ngModel)]="filter.messageId"
                    #messageId="ngModel" id="messageid_id">
@@ -85,14 +85,15 @@
             <mat-checkbox name="showTestMessages" id="showTestMessages_id" [(ngModel)]="filter.isTestMessage">Show Only Test Messages</mat-checkbox>
           </ng-container>
 
-          <div class="searchArea">
-            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id" button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-            <a href="#" *ngIf="advancedSearch" (click)="toggleBasicSearch()" id="basiclink_id">Basic</a>
-          </div>
+          <filter-area-footer [parent]="this"></filter-area-footer>
+<!--          <div class="searchArea">-->
+<!--            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id" button-click-behaviour>-->
+<!--              <mat-icon>search</mat-icon>-->
+<!--              <span>Search</span>-->
+<!--            </button>-->
+<!--            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>-->
+<!--            <a href="#" *ngIf="advancedSearch" (click)="toggleBasicSearch()" id="basiclink_id">Basic</a>-->
+<!--          </div>-->
         </form>
       </div>
     </mat-card-content>

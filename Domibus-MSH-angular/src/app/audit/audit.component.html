@@ -28,14 +28,15 @@
                         #timestampControl="ngModel" id="to_id" *ngIf="advancedSearch">
         </md2-datepicker>
 
-        <div class="searchArea">
-          <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()" button-click-behaviour>
-            <mat-icon>search</mat-icon>
-            <span>Search</span>
-          </button>
-          <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-          <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
-        </div>
+        <filter-area-footer [parent]="this"></filter-area-footer>
+<!--        <div class="searchArea">-->
+<!--          <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()" button-click-behaviour>-->
+<!--            <mat-icon>search</mat-icon>-->
+<!--            <span>Search</span>-->
+<!--          </button>-->
+<!--          <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>-->
+<!--          <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>-->
+<!--        </div>-->
       </div>
     </mat-card-content>
   </mat-card>

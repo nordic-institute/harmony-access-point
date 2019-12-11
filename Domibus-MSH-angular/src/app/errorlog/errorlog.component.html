@@ -2,10 +2,8 @@
 <div class="selectionCriteria">
   <mat-card>
     <mat-card-content>
-
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="tryFilter()">
-
+        <form name="filterForm" #filterForm="ngForm">
           <mat-form-field>
             <input matInput placeholder="Signal Message Id" name="errorSignalMessageId"
                    [(ngModel)]="filter.errorSignalMessageId" #errorSignalMessageId="ngModel" id="signalmessageid_id"
@@ -73,15 +71,15 @@
                           #timestampControl="ngModel" id="notifiedto_id"
                           *ngIf="advancedSearch"></md2-datepicker>
 
-
-          <div class="searchArea">
-            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id" button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
-          </div>
+          <filter-area-footer [parent]="this"></filter-area-footer>
+<!--          <div class="searchArea">-->
+<!--            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id" button-click-behaviour>-->
+<!--              <mat-icon>search</mat-icon>-->
+<!--              <span>Search</span>-->
+<!--            </button>-->
+<!--            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>-->
+<!--            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>-->
+<!--          </div>-->
         </form>
       </div>
 

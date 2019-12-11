@@ -1,5 +1,5 @@
 import {Constructable} from './base-list.component';
-import {OnInit} from '@angular/core';
+import {OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
@@ -15,6 +15,10 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
   public filter: any;
   public activeFilter: any;
+
+  public advancedSearch: boolean;
+
+  // filterForm: TemplateRef<any>;
 
   constructor(...args) {
     super(...args);
@@ -101,6 +105,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return Promise.resolve(true);
   }
 
+  public resetAdvancedSearchParams() {
+  }
 };
 
 export default FilterableListMixin;

@@ -38,8 +38,7 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-// --- hide/show binding ---
-  advancedSearch: boolean;
+  // advancedSearch: boolean;
 
 // --- Table binding ---
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
@@ -109,10 +108,10 @@ export class AuditComponent extends mix(BaseListComponent)
     super.rows = result;
   }
 
-  toggleAdvancedSearch() {
-    this.advancedSearch = !this.advancedSearch;
-    return false; // to prevent default navigation
-  }
+  // toggleAdvancedSearch() {
+  //   this.advancedSearch = !this.advancedSearch;
+  //   return false; // to prevent default navigation
+  // }
 
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();

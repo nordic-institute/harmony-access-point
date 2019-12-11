@@ -34,7 +34,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
-  advancedSearch: boolean;
+  // advancedSearch: boolean;
 
   aTypes: Array<any>;
   aStatuses: Array<any>;
@@ -126,6 +126,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time'].indexOf(col.name) != -1
     });
+
   }
 
   ngAfterViewChecked() {
@@ -263,10 +264,10 @@ export class AlertsComponent extends mix(BaseListComponent)
   //   });
   // }
 
-  toggleAdvancedSearch() {
-    this.advancedSearch = !this.advancedSearch;
-    return false; // to prevent default navigation
-  }
+  // toggleAdvancedSearch() {
+  //   this.advancedSearch = !this.advancedSearch;
+  //   return false; // to prevent default navigation
+  // }
 
   getAlertParameters(alertType: string): Promise<string[]> {
     let searchParams = new HttpParams();
