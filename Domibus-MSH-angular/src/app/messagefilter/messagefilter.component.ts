@@ -68,6 +68,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   async getDataAndSetResults(): Promise<any> {
     this.getBackendFiltersInfo();
+    this.disableSelectionAndButtons();
   }
 
   getBackendFiltersInfo() {
@@ -108,7 +109,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.rows[row][prop] = newPropValue;
   }
 
-  buttonNew() {
+  add() {
     let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
     formRef.afterClosed().subscribe(result => {
       if (result == true) {
@@ -155,7 +156,9 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     return toFind.expression === '' && routingCriterias.length == 0;
   }
 
-  buttonEditAction(row) {
+  edit(row?) {
+    row = row || this.selected[0];
+
     let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
@@ -264,7 +267,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.deleteItems([row]);
   }
 
-  buttonDelete() {
+  delete() {
     this.deleteItems(this.selected);
   }
 
@@ -394,7 +397,27 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   onActivate(event) {
     if ('dblclick' === event.type) {
-      this.buttonEditAction(event.row);
+      this.edit(event.row);
     }
+  }
+
+  canCancel() {
+    return this.enableCancel;
+  }
+
+  canSave() {
+    return this.enableSave;
+  }
+
+  canAdd() {
+    return true;
+  }
+
+  canEdit() {
+    return this.enableEdit;
+  }
+
+  canDelete() {
+    return this.enableDelete;
   }
 }

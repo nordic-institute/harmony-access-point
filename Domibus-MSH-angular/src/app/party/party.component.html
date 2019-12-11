@@ -68,7 +68,7 @@
           color="primary" tooltip="Edit" button-click-behaviour>
     <mat-icon>edit</mat-icon>
   </button>
-  <button mat-icon-button (click)="delete(row)" color="primary"
+  <button mat-icon-button (click)="deleteRow(row)" color="primary"
           tooltip="Delete" button-click-behaviour>
     <mat-icon>delete</mat-icon>
   </button>
@@ -89,11 +89,11 @@
         <mat-icon>add</mat-icon>
         <span>New</span>
       </button>
-      <button id="editPartyButton" mat-raised-button (click)="edit(null)" color="primary" [disabled]="!canEdit()" button-click-behaviour>
+      <button id="editPartyButton" mat-raised-button (click)="edit()" color="primary" [disabled]="!canEdit()" button-click-behaviour>
         <mat-icon>edit</mat-icon>
         <span>Edit</span>
       </button>
-      <button id="deletePartyButton" mat-raised-button (click)="remove()" color="primary" [disabled]="!canDelete()" button-click-behaviour>
+      <button id="deletePartyButton" mat-raised-button (click)="delete()" color="primary" [disabled]="!canDelete()" button-click-behaviour>
         <mat-icon>delete</mat-icon>
         <span>Delete</span>
       </button>

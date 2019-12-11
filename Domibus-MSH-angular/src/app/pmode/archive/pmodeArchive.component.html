@@ -53,21 +53,19 @@
         <table class="group-action-button">
           <tr>
             <td>
-              <button mat-raised-button color="primary" (click)="cancel()" id="cancelbutton_id" [disabled]="disabledCancel"
-                      button-click-behaviour>
+              <button mat-raised-button color="primary" (click)="cancel()" id="cancelbutton_id" [disabled]="!canCancel()" button-click-behaviour>
                 <mat-icon>cancel</mat-icon>
                 <span>Cancel</span>
               </button>
-              <button mat-raised-button color="primary" (click)="save()" id="savebutton_id" [disabled]="disabledSave"
-                      button-click-behaviour>
+              <button mat-raised-button color="primary" (click)="save()" id="savebutton_id" [disabled]="!canSave()" button-click-behaviour>
                 <mat-icon>save</mat-icon>
                 <span>Save</span>
               </button>
-              <button mat-raised-button color="primary" (click)="deleteArchive()" id="deleteArchivebutton_id" [disabled]="disabledDelete"
-                      button-click-behaviour>
+              <button mat-raised-button color="primary" (click)="delete()" id="deleteArchivebutton_id" [disabled]="!canDelete()" button-click-behaviour>
                 <mat-icon>delete</mat-icon>
                 <span>Delete</span>
               </button>
+
               <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"
                       button-click-behaviour>
                 <mat-icon>file_download</mat-icon>

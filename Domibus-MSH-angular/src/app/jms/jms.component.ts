@@ -468,4 +468,15 @@ export class JmsComponent extends mix(BaseListComponent)
     super.resetFilters();
   }
 
+  canCancel() {
+    return (this.markedForDeletionMessages.length > 0);
+  }
+
+  canSave() {
+    return this.canCancel();
+  }
+
+  canDelete() {
+    return (this.selected.length > 0);
+  }
 }

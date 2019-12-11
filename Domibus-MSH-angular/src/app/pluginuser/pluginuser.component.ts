@@ -199,6 +199,10 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return this.selected.length === 1;
   }
 
+  canDelete() {
+    return this.canEdit();
+  }
+
   async edit(row?: PluginUserRO) {
     row = row || this.selected[0];
     const rowCopy = Object.assign({}, row);
@@ -229,6 +233,10 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   canSave() {
     return this.isDirty();
+  }
+
+  canAdd() {
+    return true;
   }
 
   async doSave(): Promise<any> {

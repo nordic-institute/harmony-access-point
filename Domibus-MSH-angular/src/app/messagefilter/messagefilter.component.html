@@ -71,7 +71,7 @@
                     tooltip="Move Down" button-click-behaviour>
               <mat-icon>arrow_drop_down</mat-icon>
             </button>
-            <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
+            <button mat-icon-button color="primary" type="button" (click)="edit(row)"
                     id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit" button-click-behaviour>
               <mat-icon>edit</mat-icon>
             </button>
@@ -104,28 +104,23 @@
       <table class="group-action-button">
         <tr>
           <td>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableCancel"
-                    (click)="cancel()" id="cancelbutton_id" button-click-behaviour>
+            <button mat-raised-button color="primary" type="button" (click)="cancel()" [disabled]="!canCancel()" id="cancelbutton_id" button-click-behaviour>
               <mat-icon>cancel</mat-icon>
               <span>Cancel</span>
             </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="save()"
-                    id="savebutton_id" button-click-behaviour>
+            <button mat-raised-button color="primary" type="button" (click)="save()" [disabled]="!canSave()" id="savebutton_id" button-click-behaviour>
               <mat-icon>save</mat-icon>
               <span>Save</span>
             </button>
-            <button mat-raised-button color="primary" type="button" (click)="buttonNew()" id="newbutton_id"
-                    button-click-behaviour>
+            <button mat-raised-button color="primary" type="button" (click)="add()" [disabled]="!canAdd()" id="newbutton_id" button-click-behaviour>
               <mat-icon>add</mat-icon>
               <span>New</span>
             </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableEdit"
-                    (click)="buttonEditAction(this.selected[0])" id="editbutton_id" button-click-behaviour>
+            <button mat-raised-button color="primary" type="button" (click)="edit()" [disabled]="!canEdit()" id="editbutton_id" button-click-behaviour>
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableDelete"
-                    (click)="buttonDelete()" id="deletebutton_id" button-click-behaviour>
+            <button mat-raised-button color="primary" type="button" (click)="delete()" [disabled]="!canDelete()" id="deletebutton_id" button-click-behaviour>
               <mat-icon>delete</mat-icon>
               <span>Delete</span>
             </button>

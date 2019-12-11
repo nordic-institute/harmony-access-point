@@ -240,7 +240,7 @@ export class UserComponent extends mix(BaseListComponent)
     return false;
   }
 
-  buttonNew(): void {
+  add(): void {
     if (this.isLoading) return;
 
     this.setPage(this.getLastPage());
@@ -270,7 +270,7 @@ export class UserComponent extends mix(BaseListComponent)
     });
   }
 
-  buttonEdit() {
+  edit() {
     if (this.currentUser && this.currentUser.deleted) {
       this.alertService.error('You cannot edit a deleted user.', false, 5000);
       return;
@@ -325,7 +325,7 @@ export class UserComponent extends mix(BaseListComponent)
     this.enableCancel = this.isChanged;
   }
 
-  buttonDelete() {
+  delete() {
     this.deleteUsers(this.selected);
   }
 
@@ -395,7 +395,7 @@ export class UserComponent extends mix(BaseListComponent)
 
   onActivate(event) {
     if ('dblclick' === event.type) {
-      this.buttonEdit();
+      this.edit();
     }
   }
 
@@ -404,5 +404,25 @@ export class UserComponent extends mix(BaseListComponent)
     if (this.filter.deleted_notSet) {
       this.filter.deleted = true;
     }
+  }
+
+  canCancel() {
+    return this.enableCancel;
+  }
+
+  canSave() {
+    return this.enableSave && !this.isLoading;
+  }
+
+  canAdd() {
+    return !this.isLoading;
+  }
+
+  canEdit() {
+    return this.enableEdit && !this.isLoading;
+  }
+
+  canDelete() {
+    return this.enableDelete && !this.isLoading;
   }
 }

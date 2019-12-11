@@ -238,7 +238,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    * Method called when Delete button is clicked
    * All the selected rows will be deleted
    */
-  deleteArchive() {
+  delete() {
     this.deleteRows(this.selected);
   }
 
@@ -437,5 +437,16 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     });
   }
 
+  canCancel() {
+    return !this.disabledCancel;
+  }
+
+  canSave() {
+    return !this.disabledSave;
+  }
+
+  canDelete() {
+    return !this.disabledDelete;
+  }
 }
 

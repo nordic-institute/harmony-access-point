@@ -196,19 +196,19 @@ export class PartyComponent extends mix(BaseListComponent)
     this.newParties.push(newParty);
     const ok = await this.edit(newParty);
     if (!ok) {
-      this.remove();
+      this.delete();
     }
     super.rows = [...this.rows];
   }
 
-  remove() {
+  delete() {
     if (this.isSaving) return;
     if (!this.selected || this.selected.length == 0) return;
 
-    this.delete(this.selected[0])
+    this.deleteRow(this.selected[0])
   }
 
-  delete(row) {
+  deleteRow(row) {
     if (!row) return;
 
     this.rows.splice(this.rows.indexOf(row), 1);
@@ -224,7 +224,7 @@ export class PartyComponent extends mix(BaseListComponent)
       this.newParties.splice(this.newParties.indexOf(row), 1);
   }
 
-  async edit(row): Promise<boolean> {
+  async edit(row?): Promise<boolean> {
     row = row || this.selected[0];
 
     await this.manageCertificate(row);
@@ -232,7 +232,7 @@ export class PartyComponent extends mix(BaseListComponent)
     const rowCopy = JSON.parse(JSON.stringify(row)); // clone
     const allProcessesCopy = JSON.parse(JSON.stringify(this.allProcesses));
 
-    const dialogRef: MatDialogRef<PartyDetailsComponent> = this.dialog.open(PartyDetailsComponent, {
+    const dialogRef = this.dialog.open(PartyDetailsComponent, {
       data: {
         edit: rowCopy,
         allProcesses: allProcessesCopy
