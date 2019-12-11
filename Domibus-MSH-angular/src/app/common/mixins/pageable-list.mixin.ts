@@ -90,7 +90,6 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   }
 
   public async resetPage() {
-    console.log('reset page:');
     return this.loadPage(0);
   }
 
@@ -100,7 +99,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       if (instanceOfFilterableList(this)) {
         this.resetFilters();
       }
-      console.log('loading page:', offset);
+      super.selected = [];
       this.offset = offset;
       this.page();
     } else {

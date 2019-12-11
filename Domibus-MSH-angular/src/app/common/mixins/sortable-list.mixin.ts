@@ -42,7 +42,7 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
   }
 
   public async doSort(event) {
-    this.onBeforeSort();
+    // this.onBeforeSort();
 
     let previousOrderBy = this.orderBy;
     let previousAsc = this.asc;
