@@ -126,8 +126,8 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return PluginUserService.PLUGIN_USERS_URL;
   }
 
-  protected onSetParameters(): HttpParams {
-    let filterParams = super.onSetParameters();
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
 
     filterParams = filterParams.append('page', '0');
     filterParams = filterParams.append('pageSize', '10000');

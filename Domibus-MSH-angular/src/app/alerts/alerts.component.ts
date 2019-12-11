@@ -168,8 +168,8 @@ export class AlertsComponent extends mix(BaseListComponent)
   //   return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
   // }
 
-  protected onSetParameters(): HttpParams {
-    let filterParams = super.onSetParameters();
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
 
     if (this.activeFilter.processed) {
       filterParams = filterParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');

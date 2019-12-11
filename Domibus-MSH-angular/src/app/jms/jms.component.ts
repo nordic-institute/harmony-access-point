@@ -231,11 +231,11 @@ export class JmsComponent extends mix(BaseListComponent)
     this.currentSearchSelectedSource = this.selectedSource;
 
     return this.http.post<any>('rest/jms/messages', {
-      source: this.activeFilter.source,
-      jmsType: this.activeFilter.jmsType,
-      fromDate: this.activeFilter.fromDate,
-      toDate: this.activeFilter.toDate,
-      selector: this.activeFilter.selector,
+      // source: this.activeFilter.source,
+      // jmsType: this.activeFilter.jmsType,
+      // fromDate: this.activeFilter.fromDate,
+      // toDate: this.activeFilter.toDate,
+      // selector: this.activeFilter.selector,
     }).toPromise().then(res => {
       super.rows = res.messages;
       super.count = res.messages.length;

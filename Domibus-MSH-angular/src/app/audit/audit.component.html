@@ -5,13 +5,13 @@
 
     <mat-card-content>
       <div class="panel">
-        <mat-select matInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTarget">
+        <mat-select matInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTargetName">
           <mat-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</mat-option>
         </mat-select>
-        <mat-select matInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.users">
+        <mat-select matInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.user">
           <mat-option *ngFor="let item of existingUsers" [value]="item">{{item}}</mat-option>
         </mat-select>
-        <mat-select matInput placeholder="Action" id="action_id" multiple [(ngModel)]="filter.actions">
+        <mat-select matInput placeholder="Action" id="action_id" multiple [(ngModel)]="filter.action">
           <mat-option *ngFor="let item of existingActions" [value]="item">{{item}}</mat-option>
         </mat-select>
         <md2-datepicker placeholder="Changed from:" appClearInvalid
@@ -29,7 +29,7 @@
         </md2-datepicker>
 
         <div class="searchArea">
-          <button mat-raised-button color="primary" id="searchbutton_id" (click)="searchAndCount()" button-click-behaviour>
+          <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()" button-click-behaviour>
             <mat-icon>search</mat-icon>
             <span>Search</span>
           </button>

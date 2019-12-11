@@ -8,6 +8,8 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {AlertsResult} from '../alerts/alertsresult';
+import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
  * @author Thomas Dussart
@@ -43,7 +45,7 @@ export class AuditComponent extends mix(BaseListComponent)
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
-              private changeDetector: ChangeDetectorRef) {
+              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
@@ -68,7 +70,11 @@ export class AuditComponent extends mix(BaseListComponent)
     this.timestampToMaxDate = new Date();
 
 // --- lets count the records and fill the table.---
-    this.filterData().then(() => this.countRecords());
+    this.filterData();
+  }
+
+  protected onBeforeFilterData() {
+    this.countRecords();
   }
 
   ngAfterViewInit() {
@@ -80,12 +86,14 @@ export class AuditComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  public async getDataAndSetResults(): Promise<any> {
-    return this.searchAuditLog();
-  }
+  // public async getDataAndSetResults(): Promise<any> {
+  //   return this.searchAuditLog();
+  // }
 
   countRecords() {
-    this.auditService.countAuditLogs(this.buildCriteria()).toPromise()
+    // this.auditService.countAuditLogs(this.buildCriteria()).toPromise()
+
+    this.auditService.countAuditLogs(this.createAndSetParameters()).toPromise()
       .then(auditCount => {
         super.count = auditCount;
       }, err => {
@@ -93,33 +101,50 @@ export class AuditComponent extends mix(BaseListComponent)
       });
   }
 
+  protected get GETUrl(): string {
+    return 'rest/audit/list';
+  }
+
+  public setServerResults(result: AuditResponseRo[]) {
+    super.rows = result;
+  }
+
   toggleAdvancedSearch() {
     this.advancedSearch = !this.advancedSearch;
     return false; // to prevent default navigation
   }
 
-  searchAuditLog(): Promise<any> {
-    const auditCriteria: AuditCriteria = this.buildCriteria();
-    return this.auditService.listAuditLogs(auditCriteria).toPromise()
-      .then((response: AuditResponseRo[]) => {
-        super.rows = response;
-      });
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
+
+    filterParams = filterParams.set('start', this.offset * this.rowLimiter.pageSize);
+    filterParams = filterParams.set('max', this.rowLimiter.pageSize);
+
+    return filterParams;
   }
 
-  buildCriteria(): AuditCriteria {
-    const auditCriteria: AuditCriteria = new AuditCriteria();
+  // searchAuditLog(): Promise<any> {
+  //   const auditCriteria: AuditCriteria = this.buildCriteria();
+  //   return this.auditService.listAuditLogs(auditCriteria).toPromise()
+  //     .then((response: AuditResponseRo[]) => {
+  //       super.rows = response;
+  //     });
+  // }
 
-    auditCriteria.auditTargetName = this.activeFilter.auditTarget;
-    auditCriteria.user = this.activeFilter.users;
-    auditCriteria.action = this.activeFilter.actions;
-    auditCriteria.from = this.activeFilter.from;
-    auditCriteria.to = this.activeFilter.to;
-
-    auditCriteria.start = this.offset * this.rowLimiter.pageSize;
-    auditCriteria.max = this.rowLimiter.pageSize;
-
-    return auditCriteria;
-  }
+  // buildCriteria(): AuditCriteria {
+  //   const auditCriteria: AuditCriteria = new AuditCriteria();
+  //
+  //   auditCriteria.auditTargetName = this.activeFilter.auditTargetName;
+  //   auditCriteria.user = this.activeFilter.user;
+  //   auditCriteria.action = this.activeFilter.action;
+  //   auditCriteria.from = this.activeFilter.from;
+  //   auditCriteria.to = this.activeFilter.to;
+  //
+  //   auditCriteria.start = this.offset * this.rowLimiter.pageSize;
+  //   auditCriteria.max = this.rowLimiter.pageSize;
+  //
+  //   return auditCriteria;
+  // }
 
   initColumns() {
     this.columnPicker.allColumns = [

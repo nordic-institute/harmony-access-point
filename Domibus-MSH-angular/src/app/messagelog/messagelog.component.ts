@@ -263,8 +263,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
   //   return searchParams;
   // }
 
-  protected onSetParameters(): HttpParams {
-    let filterParams = super.onSetParameters();
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
     if (this.activeFilter.isTestMessage) {
       filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
     } else {

@@ -21,6 +21,9 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.filter = {};
   }
 
+  protected onBeforeFilterData() {
+  }
+
   ngOnInit() {
     if (super.ngOnInit) {
       super.ngOnInit();
@@ -30,15 +33,18 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.activeFilter = {};
   }
 
-  protected onSetParameters(): HttpParams {
-    let filterParams = super.onSetParameters();
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
 
     Object.keys(this.activeFilter).forEach((key: string) => {
       let value = this.activeFilter[key];
       if (value) {
-        if(value instanceof Date) {
+        if (value instanceof Date) {
           filterParams = filterParams.append(key, value.getTime());
-        } else {
+        } else if (value instanceof Array) {
+          value.forEach(el => filterParams = filterParams.append(key, el));
+        }
+        else {
           filterParams = filterParams.append(key, value);
         }
       }
@@ -72,6 +78,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    */
   public filterData() {
     this.setActiveFilter();
+    this.onBeforeFilterData();
     return this.loadServerData();
   }
 

@@ -49,12 +49,12 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     return undefined;
   }
 
-  protected onSetParameters(): HttpParams {
+  protected createAndSetParameters(): HttpParams {
     return new HttpParams();
   }
 
   public async getServerData(): Promise<any> {
-    let getParams = this.onSetParameters();
+    let getParams = this.createAndSetParameters();
     return this.http.get<ErrorLogResult>(this.GETUrl, {params: getParams})
       .toPromise();
   }
