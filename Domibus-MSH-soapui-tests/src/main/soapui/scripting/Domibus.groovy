@@ -1734,10 +1734,19 @@ static def ifWindowsEscapeJsonString(json) {
 		def basePathPropName = ""
 		debugLog("Input extension: " + extension, log)
 		
-        if (type.toLowerCase() == "special") 
-			basePathPropName = "specialPModesPath"
-		else 
-			basePathPropName = "defaultPModesPath"
+        switch (type.toLowerCase()) {
+			case "special":
+				basePathPropName = "specialPModesPath"
+				break; 
+			case "default": 
+				basePathPropName = "defaultPModesPath"
+				break;
+			case "temp":
+				basePathPropName = "tempFilesDir"
+				break;
+			default: 
+				assert 0, "Unknown type of path provided: ${type}. Supported types: special, default, temp."
+		}
 			
 		returnPath = (context.expand("\${#Project#${basePathPropName}}") + extension).replace("\\\\", "\\")
 		
@@ -2574,13 +2583,24 @@ static def String pathToLogFiles(side, log, context) {
 // Alerts in DB verification
 //---------------------------------------------------------------------------------------------------------------------------------
 	
-	 // Verification of user iminnent expiration
-    def verifyUserAlerts(domainId, userName, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
+	 // Verification of user iminnent expiration and expired
+    def verifyUserAlerts(domainId, propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
         debugLog("  ====  Calling \"verifyUserAlerts\".", log)
+        genericAlertValidation(domainId, "USER", propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts, filterEventType)
+		debugLog("  ====  Ending \"verifyUserAlerts\".", log)
+    }
+
+    def verifyCertAlerts(domainId, propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
+        debugLog("  ====  Calling \"verifyCertAlerts\".", log)
+        genericAlertValidation(domainId, "ALIAS", propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts, filterEventType)
+		debugLog("  ====  Ending \"verifyCertAlerts\".", log)
+    }	
+	 // Verification of user iminnent expiration and expired
+    def genericAlertValidation(domainId, propertyType, propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
+        debugLog("  ====  Calling \"genericAlertValidation\".", log)
+        log.info"  verifyUserAlerts  [][] Alert to be found propertyType=${propertyType}, propertyValue=${propertyValue}, eventType=${eventType}, alertStatus=${alertStatus}, alertLevel=${alertLevel}"
+		
         def sqlHandler = null
-		
-        debugLog("  verifyUserAlerts  [][] Alert to be found userName=${userName} eventType=${eventType} alertStatus=${alertStatus} alertLevel=${alertLevel}", log)
-		
         sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
 
         openDbConnections([domainId])
@@ -2590,17 +2610,17 @@ static def String pathToLogFiles(side, log, context) {
 		FROM TB_EVENT_PROPERTY P 
 		JOIN TB_EVENT E ON P.FK_EVENT = E.ID_PK 
 		JOIN TB_ALERT A ON P.FK_EVENT = A.ID_PK 
-		where P.PROPERTY_TYPE = 'USER' 
-		  and LOWER(P.STRING_VALUE) = LOWER('${userName}')  
+		where P.PROPERTY_TYPE = '${propertyType}' 
+		  and LOWER(P.STRING_VALUE) = LOWER('${propertyValue}')  
 		  and E.EVENT_TYPE LIKE '${filterEventType}'
 		  ORDER BY CREATION_TIME DESC"""
 		List alerts = sqlHandler.rows(sqlQuery)
 				
-		assert alerts.size() == expectNumberOfAlerts, "Error:verifyUserAlerts: Incorrect number for alerts expected number was ${expectNumberOfAlerts} and got ${alerts.size()} for specific user: ${userName}. "
+		assert alerts.size() == expectNumberOfAlerts, "Error:genericAlertValidation: Incorrect number for alerts expected number was ${expectNumberOfAlerts} and got ${alerts.size()} for specific property type and value ${propertyType}: ${propertyValue} "
 		if (expectNumberOfAlerts == 0) 
 			return ;
 		
-		debugLog("Alert found for specific user: ${userName}. ", log) 
+		debugLog("Alert found for specific property type and value ${propertyType}: ${propertyValue}. ", log) 
 		
 		// Check returned alert
 		assert alerts[0].EVENT_TYPE.toUpperCase() == eventType.toUpperCase(), "Incorrect event type returned. Expected ${eventType} returned value: ${alerts[0].EVENT_TYPE}"
@@ -2608,8 +2628,10 @@ static def String pathToLogFiles(side, log, context) {
 		assert alerts[0].ALERT_LEVEL.toUpperCase() == alertLevel.toUpperCase(), "Incorrect alert level returned. Expected ${alertLevel} returned value: ${alerts[0].ALERT_LEVEL}"
 
         closeDbConnections([domainId])
-		debugLog("  ====  Ending \"verifyUserAlerts\".", log)
+		log.info "Alert data checked successfully"
+		debugLog("  ====  Ending \"genericAlertValidation\".", log)
     }
+	
 
 //---------------------------------------------------------------------------------------------------------------------------------
     static def uireplicationCount(String side, context, log, enabled=true, String domainValue="Default", String authUser=null, String authPwd=null){
@@ -2796,7 +2818,7 @@ static def String pathToLogFiles(side, log, context) {
 //---------------------------------------------------------------------------------------------------------------------------------
 // Creates a new keystore. The name of the keystore will be "gateway_keystore.jks" unless the optional domain name
 // argument is provided - in this case the name of the keystore will be "gateway_keystore_DOMAIN.jks" -.
-static def generateKeyStore(context, log, keystoreAlias, keystorePassword, privateKeyPassword, validityOfKey = 300, keystoreFileName = "gateway_keystore.jks") {
+static def generateKeyStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword, validityOfKey = 300, keystoreFileName = "gateway_keystore.jks") {
 
 	assert (keystoreAlias?.trim()), "Please provide the alias of the keystore entry as the 3rd parameter (e.g. 'red_gw', 'blue_gw'}"
 	assert (keystorePassword?.trim()), "Please provide keystore password"
@@ -2806,14 +2828,12 @@ static def generateKeyStore(context, log, keystoreAlias, keystorePassword, priva
 	keystoreAlias=${keystoreAlias},  
 	keystorePassword=${keystorePassword}, 
 	privateKeyPassword=${privateKeyPassword}, 
-	keystoreFileName=${keystoreFileName}
-	validityOfKey=${validityOfKey} (if not provided 300)"""
+	keystoreFileName=${keystoreFileName}, 
+	validityOfKey=${validityOfKey}"""
 
     def commandString = null
     def commandResult = null
- 	def groovyutils = new com.eviware.soapui.support.GroovyUtils(context)
-	def projectPath = groovyutils.projectPath
-	def keystoreFile = projectPath +  File.separator  + keystoreFileName
+	def keystoreFile = workingDirectory + keystoreFileName
 	log.info keystoreFile
 
 	def startDate = 0
@@ -2840,7 +2860,7 @@ static def generateKeyStore(context, log, keystoreAlias, keystorePassword, priva
 	commandResult = runCommandInShell(commandString, log)
 	assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, generating key, should not contain an error. Returned message: " +  commandResult[0] + "||||" +  commandResult[1]
 
-	def pemPath = projectPath +  File.separator  + returnDefaultPemFileName(keystoreFileName, keystoreAlias)
+	def pemPath = workingDirectory + returnDefaultPemFileName(keystoreFileName, keystoreAlias)
 	def pemFile = new File(pemPath)
 
 	assert !(pemFile.exists()), "The certificate file: ${pemPath} shouldn't already exist"
@@ -2854,7 +2874,7 @@ static def generateKeyStore(context, log, keystoreAlias, keystorePassword, priva
 						"-rfc", "-v"] 
 
 	commandResult = runCommandInShell(commandString, log)
-	assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, generating *.pem file, should not contain an error. Returned message: " +  commandResult[0] + "||||" +  commandResult[1]
+	assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, generating *.pem file, should not contain an error. Returned message: " +  commandResult[0] + "||" +  commandResult[1]
 
 	pemFile = new File(pemPath)
 	pemFile.setWritable(true)
@@ -2867,37 +2887,42 @@ static def String returnDefaultPemFileName(String keystoreFileName, String keyst
 }
 // Remove files with filenames containing filter string in it	
 static def void deleteFiles(log, path, filter) {
-	new File(path).eachFile (groovy.io.FileType.FILES) { file ->
-	if (file.name.contains(filter)) {
-			log.info "Deleting file: " + file.name
-			file.delete()
-	}
+	log.info "  deleteFiles  [][]  Delete files from [${path}] with filenames containg [${filter}] string."
+	try {
+		new File(path).eachFile (groovy.io.FileType.FILES) { file ->
+		if (file.name.contains(filter)) {
+				log.info "Deleting file: " + file.name
+				file.delete()
+			}
+		} 
+	} catch (Exception ex) {
+        log.error "  deleteFiles  [][]  Error while trying to delete files, exception: " + ex;
+        assert 0;
+    }
 }
-}
-    
+
 // Imports an existing public-key certificate into a truststore. If the truststore is missing, it will be created. The
 // name of the truststore chosen as destination will be "gateway_truststore.jks" unless the optional truststoreFileName
 // argument is provided - in this case the name of the truststore used will be exactly as provided truststoreFileName 
 // (you need to include extension, example value "gateway_truststore_domain1.jks")
-static def updateTrustStore(context, log, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName = "gateway_truststore.jks") {
+static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName = "gateway_truststore.jks") {
 
 	assert (keystoreAlias?.trim()), "Please provide the alias of the keystore entry as the 3rd parameter (e.g. 'red_gw', 'blue_gw'}"
 	assert (keystorePassword?.trim()), "Please provide keystore password"
 	assert (privateKeyPassword?.trim()), "Please provide not empty private key password"
 	
 	log.info """Updating truststore using: 
-	keystoreAlias=${keystoreAlias},  
+	keystoreAlias=${keystoreAlias}, 
 	keystorePassword=${keystorePassword}, 
 	privateKeyPassword=${privateKeyPassword}, 
-	truststoreFileName=${truststoreFileName},
+	truststoreFileName=${truststoreFileName}, 
 	keystoreFileName=${keystoreFileName}"""
 
 	 def commandString = null
-      def commandResult = null
- 	 def groovyutils = new com.eviware.soapui.support.GroovyUtils(context)
-	 def projectPath = groovyutils.projectPath
-	 def truststoreFile = projectPath +  File.separator  + truststoreFileName
-	 def pemFilePath = projectPath +  File.separator  + returnDefaultPemFileName(keystoreFileName, keystoreAlias)
+     def commandResult = null
+
+	 def truststoreFile = workingDirectory  + truststoreFileName
+	 def pemFilePath = workingDirectory  + returnDefaultPemFileName(keystoreFileName, keystoreAlias)
 
 	 def pemFile = new File(pemFilePath)
 	 assert (pemFile.exists()), "The certificate ${pemFile} shouldn't already exist"
@@ -2912,9 +2937,9 @@ static def updateTrustStore(context, log, keystoreAlias, keystorePassword, priva
 							"-noprompt ", "-v"] 
 
 	  commandResult = runCommandInShell(commandString, log)
-	  assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, importing *.pem data to truststre, should not contain an error. Returned message: " +  commandResult[0] + "||||" +  commandResult[1]
+	  assert!(commandResult[0].contains("error")),"Error: Output of keytool execution, importing *.pem data to truststre, should not contain an error. Returned message: " +  commandResult[0] + "||" +  commandResult[1]
 
-       def trustFile = new File(truststoreFile)
+      def trustFile = new File(truststoreFile)
 	  trustFile.setWritable(true)
 }	
 	
