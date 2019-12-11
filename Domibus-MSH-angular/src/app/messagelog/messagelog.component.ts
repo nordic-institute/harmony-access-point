@@ -194,7 +194,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  // setFilterParams(): HttpParams {
+  // createAndSetParameters(): HttpParams {
   //   let searchParams = new HttpParams();
   //
   //   if (this.orderBy) {
@@ -274,7 +274,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   // getMessageLogEntries(): Promise<MessageLogResult> {
-  //   let searchParams = this.setFilterParams();
+  //   let searchParams = this.createAndSetParameters();
   //
   //   searchParams = searchParams.append('page', this.offset.toString());
   //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
@@ -410,7 +410,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.setFilterParams().toString();
+    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createAndSetParameters().toString();
   }
 
   details(selectedRow: any) {

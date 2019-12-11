@@ -65,7 +65,7 @@ export class LoggingComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  // setFilterParams(): HttpParams {
+  // createAndSetParameters(): HttpParams {
   //   let searchParams = new HttpParams();
   //
   //   if (this.orderBy) {
@@ -90,7 +90,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   }
 
   // getLoggingEntries(): Promise<LoggingLevelResult> {
-  //   let searchParams = this.setFilterParams();
+  //   let searchParams = this.createAndSetParameters();
   //
   //   searchParams = searchParams.append('page', this.offset.toString());
   //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());

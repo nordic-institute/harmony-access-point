@@ -160,7 +160,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   // getAlertsEntries(): Promise<AlertsResult> {
-  //   let searchParams = this.setFilterParams();
+  //   let searchParams = this.createAndSetParameters();
   //
   //   searchParams = searchParams.append('page', this.offset.toString());
   //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
@@ -180,7 +180,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     return filterParams;
   }
 
-  // private setFilterParams(): HttpParams {
+  // private createAndSetParameters(): HttpParams {
   //   let searchParams = this.createSearchParams();
   //   searchParams = this.setDynamicFilterParams(searchParams);
   //   return searchParams;
@@ -324,6 +324,6 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   public get csvUrl(): string {
     // todo: add dynamic params for csv filtering, if requested
-    return AlertsComponent.ALERTS_CSV_URL + '?' + this.setFilterParams().toString();
+    return AlertsComponent.ALERTS_CSV_URL + '?' + this.createAndSetParameters().toString();
   }
 }

@@ -255,7 +255,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return PluginUserService.CSV_URL + '?' + this.setFilterParams(this.filter).toString();
+    return PluginUserService.CSV_URL + '?' + this.createAndSetParameters().toString();
   }
 
   onSort() {

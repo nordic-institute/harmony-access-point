@@ -194,6 +194,6 @@ export class AuditComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return 'rest/audit/csv?' + this.buildCriteria().toURLSearchParams().toString();
+    return 'rest/audit/csv?' + this.createAndSetParameters().toString();
   }
 }
