@@ -18,11 +18,12 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
   public advancedSearch: boolean;
 
-  // filterForm: TemplateRef<any>;
+  public advancedFilters: Set<string>;
 
   constructor(...args) {
     super(...args);
     this.filter = {};
+    this.advancedFilters = new Set<string>();
   }
 
   protected onBeforeFilterData() {
@@ -47,8 +48,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
           filterParams = filterParams.append(key, value.toISOString());
         } else if (value instanceof Array) {
           value.forEach(el => filterParams = filterParams.append(key, el));
-        }
-        else {
+        } else {
           filterParams = filterParams.append(key, value);
         }
       }
@@ -105,7 +105,18 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return Promise.resolve(true);
   }
 
+  public onResetAdvancedSearchParams() {
+  }
+
   public resetAdvancedSearchParams() {
+    this.advancedFilters.forEach(filterName => {
+      if (typeof this.filter[filterName] === 'boolean') {
+        this.filter[filterName] = false;
+      } else {
+        this.filter[filterName] = null;
+      }
+    });
+    this.onResetAdvancedSearchParams();
   }
 };
 

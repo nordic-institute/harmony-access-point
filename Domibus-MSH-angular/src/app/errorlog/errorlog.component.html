@@ -30,12 +30,12 @@
                           [type]="'datetime'"
                           #timestampControl="ngModel" id="totimestamp_id"></md2-datepicker>
 
-          <mat-form-field *ngIf="advancedSearch">
+          <mat-form-field *ngIf="advancedSearch" >
             <input matInput placeholder="Error Detail" name="ErrorDetail" [(ngModel)]="filter.errorDetail"
                    #errorDetail="ngModel" id="errordetail_id">
           </mat-form-field>
           <mat-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
-                     id="aprole_id" *ngIf="advancedSearch">
+                     id="aprole_id" *ngIf="advancedSearch" >
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let role of mshRoles" [value]="role">
@@ -44,7 +44,7 @@
           </mat-select>
 
           <mat-select placeholder="Error Code" [(ngModel)]="filter.errorCode" name="errorCode" class="optionField"
-                     id="errorcode_id" *ngIf="advancedSearch">
+                     id="errorcode_id" *ngIf="advancedSearch" >
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let code of errorCodes" [value]="code">
@@ -78,7 +78,7 @@
 <!--              <span>Search</span>-->
 <!--            </button>-->
 <!--            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>-->
-<!--            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>-->
+<!--            <a href="#" *ngIf="advancedSearch"  (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>-->
 <!--          </div>-->
         </form>
       </div>

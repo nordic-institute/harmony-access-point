@@ -10,6 +10,7 @@ export interface IFilterableList {
   filter: any;
   activeFilter: any;
   advancedSearch: boolean;
+  advancedFilters: Set<string>;
 
   filterData();
 

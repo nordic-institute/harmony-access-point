@@ -429,20 +429,25 @@ export class MessageLogComponent extends mix(BaseListComponent)
   //   this.resetAdvancedSearchParams();
   // }
 
-  resetAdvancedSearchParams() {
-    this.filter.mshRole = null;
-    this.filter.conversationId = null;
+  onResetAdvancedSearchParams() {
     this.filter.messageType = this.msgTypes[1];
-    this.filter.notificationStatus = null;
-    this.filter.originalSender = null;
-    this.filter.finalRecipient = null;
-    this.filter.refToMessageId = null;
-    this.filter.receivedFrom = null;
-    this.filter.receivedTo = null;
-    this.filter.isTestMessage = null;
-
     this.conversationIdValue = null;
   }
+
+  // resetAdvancedSearchParams() {
+  //   this.filter.mshRole = null;
+  //   this.filter.conversationId = null;
+  //   this.filter.messageType = this.msgTypes[1];
+  //   this.filter.notificationStatus = null;
+  //   this.filter.originalSender = null;
+  //   this.filter.finalRecipient = null;
+  //   this.filter.refToMessageId = null;
+  //   this.filter.receivedFrom = null;
+  //   this.filter.receivedTo = null;
+  //   this.filter.isTestMessage = null;
+  //
+  //   this.conversationIdValue = null;
+  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
