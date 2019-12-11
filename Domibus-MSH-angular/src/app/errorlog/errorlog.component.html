@@ -31,11 +31,11 @@
                           #timestampControl="ngModel" id="totimestamp_id"></md2-datepicker>
 
           <mat-form-field *ngIf="advancedSearch" >
-            <input matInput placeholder="Error Detail" name="ErrorDetail" [(ngModel)]="filter.errorDetail"
-                   #errorDetail="ngModel" id="errordetail_id">
+            <input matInput placeholder="Error Detail" name="errorDetail" [(ngModel)]="filter.errorDetail"
+                   #errorDetail="ngModel" id="errordetail_id" advanced-filter-behaviour [parent]="this">
           </mat-form-field>
           <mat-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
-                     id="aprole_id" *ngIf="advancedSearch" >
+                     id="aprole_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let role of mshRoles" [value]="role">
@@ -44,7 +44,7 @@
           </mat-select>
 
           <mat-select placeholder="Error Code" [(ngModel)]="filter.errorCode" name="errorCode" class="optionField"
-                     id="errorcode_id" *ngIf="advancedSearch" >
+                     id="errorcode_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let code of errorCodes" [value]="code">
@@ -60,7 +60,8 @@
                           [max]="notifiedFromMaxDate"
                           (change)='onNotifiedFromChange($event)'
                           #timestampControl="ngModel" id="notifiedfrom_id"
-                          *ngIf="advancedSearch"></md2-datepicker>
+                          *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+          </md2-datepicker>
           <md2-datepicker placeholder="Notified To:" appClearInvalid
                           [(ngModel)]="filter.notifiedTo"
                           name="notifiedTo"
@@ -69,9 +70,11 @@
                           [max]="notifiedToMaxDate"
                           (change)='onNotifiedToChange($event)'
                           #timestampControl="ngModel" id="notifiedto_id"
-                          *ngIf="advancedSearch"></md2-datepicker>
+                          *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+          </md2-datepicker>
 
           <filter-area-footer [parent]="this"></filter-area-footer>
+          
 <!--          <div class="searchArea">-->
 <!--            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id" button-click-behaviour>-->
 <!--              <mat-icon>search</mat-icon>-->
