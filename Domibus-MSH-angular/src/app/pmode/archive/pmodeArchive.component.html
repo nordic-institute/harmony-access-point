@@ -3,29 +3,31 @@
   <div class="panel">
     <grid-header [parent]="this"></grid-header>
 
-    <ngx-datatable
-      #archivePmodeDatatable
-      id="archivePmodeTable"
-      class="material striped"
-      [rows]="rows"
-      [columns]="columnPicker.selectedColumns"
-      [columnMode]="'force'"
-      [headerHeight]="50"
-      [footerHeight]="50"
-      [rowHeight]="'auto'"
-      [scrollbarH]="true"
-      [externalPaging]="true"
-      [externalSorting]="true"
-      [loadingIndicator]="isLoading"
-      [count]="count"
-      [offset]="offset"
-      [limit]="rowLimiter.pageSize"
-      (page)='onPage($event)'
-      [selected]="selected"
-      [selectionType]="'multi'"
-      (activate)="onActivate($event)"
-      (select)="onSelect($event)">
-    </ngx-datatable>
+    <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+
+<!--    <ngx-datatable-->
+<!--      #archivePmodeDatatable-->
+<!--      id="archivePmodeTable"-->
+<!--      class="material striped"-->
+<!--      [rows]="rows"-->
+<!--      [columns]="columnPicker.selectedColumns"-->
+<!--      [columnMode]="'force'"-->
+<!--      [headerHeight]="50"-->
+<!--      [footerHeight]="50"-->
+<!--      [rowHeight]="'auto'"-->
+<!--      [scrollbarH]="true"-->
+<!--      [externalPaging]="true"-->
+<!--      [externalSorting]="true"-->
+<!--      [loadingIndicator]="isLoading"-->
+<!--      [count]="count"-->
+<!--      [offset]="offset"-->
+<!--      [limit]="rowLimiter.pageSize"-->
+<!--      (page)='onPage($event)'-->
+<!--      [selected]="selected"-->
+<!--      [selectionType]="'multi'"-->
+<!--      (activate)="onActivate($event)"-->
+<!--      (select)="onSelect($event)">-->
+<!--    </ngx-datatable>-->
 
     <ng-template #descriptionTpl let-row="row" let-value="value" ngx-datatable-cell-template>
       <span class="text-select">{{value}}</span>

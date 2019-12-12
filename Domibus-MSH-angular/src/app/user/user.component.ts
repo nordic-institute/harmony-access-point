@@ -224,8 +224,8 @@ export class UserComponent extends mix(BaseListComponent)
     this.currentUser = this.selected[0];
     this.editedUser = this.currentUser;
 
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
+    // this.selected.splice(0, this.selected.length);
+    // this.selected.push(...selected);
     this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
     this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }
@@ -393,11 +393,11 @@ export class UserComponent extends mix(BaseListComponent)
     return Math.floor(this.rows.length / this.rowLimiter.pageSize);
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.edit();
-    }
-  }
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     this.edit();
+  //   }
+  // }
 
   setState() {
     this.filter.deleted_notSet = this.filter.i++ % 3 === 1;

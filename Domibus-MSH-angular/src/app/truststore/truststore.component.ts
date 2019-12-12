@@ -28,6 +28,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+  // sortedColumns: [{prop: string, dir: string}];
 
   constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog,
               public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
@@ -36,6 +37,8 @@ export class TruststoreComponent extends mix(BaseListComponent)
 
   ngOnInit(): void {
     super.ngOnInit();
+
+    // this.sortedColumns = [{prop: 'received', dir: 'desc'}];
 
     this.loadServerData();
   }
@@ -90,18 +93,18 @@ export class TruststoreComponent extends mix(BaseListComponent)
     });
   }
 
-  onSelect({selected}) {
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
-  }
+  // onSelect({selected}) {
+  //   this.selected.splice(0, this.selected.length);
+  //   this.selected.push(...selected);
+  // }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
-  }
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     this.showDetails(event.row);
+  //   }
+  // }
 
-  details(selectedRow: any) {
+  showDetails(selectedRow: any) {
     this.dialog.open(TruststoreDialogComponent, {data: {trustStoreEntry: selectedRow}})
       .afterClosed().subscribe(result => {
     });

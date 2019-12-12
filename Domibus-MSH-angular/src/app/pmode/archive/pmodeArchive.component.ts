@@ -413,14 +413,18 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     }
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      const current = event.row;
-      this.preview(current);
-    }
+  edit(row) {
+    this.showDetails(row);
   }
 
-  private preview(row) {
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     const current = event.row;
+  //     this.showDetails(current);
+  //   }
+  // }
+
+  private showDetails(row) {
     this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true', {
       observe: 'response',
       responseType: 'text'

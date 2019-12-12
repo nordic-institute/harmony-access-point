@@ -36,25 +36,27 @@
 
   <grid-header [parent]="this"></grid-header>
 
-  <ngx-datatable
-    id="userTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [loadingIndicator]="false"
-    [selected]="selected"
-    [limit]="rowLimiter.pageSize"
-    [selectionType]="'multi'"
-    (select)="onSelect($event)"
-    (activate)="onActivate($event)"
-    [offset]="offset"
-    (page)="onPage($event)">
-  </ngx-datatable>
+  <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+
+<!--  <ngx-datatable-->
+<!--    id="userTable"-->
+<!--    class="material striped"-->
+<!--    [rows]="rows"-->
+<!--    [columns]="columnPicker.selectedColumns"-->
+<!--    [columnMode]="'force'"-->
+<!--    [headerHeight]="50"-->
+<!--    [footerHeight]="50"-->
+<!--    [rowHeight]="'auto'"-->
+<!--    [scrollbarH]="true"-->
+<!--    [loadingIndicator]="false"-->
+<!--    [selected]="selected"-->
+<!--    [limit]="rowLimiter.pageSize"-->
+<!--    [selectionType]="'multi'"-->
+<!--    (select)="onSelect($event)"-->
+<!--    (activate)="onActivate($event)"-->
+<!--    [offset]="offset"-->
+<!--    (page)="onPage($event)">-->
+<!--  </ngx-datatable>-->
 
   <ng-template #editableTpl let-value="value" let-row="row" ngx-datatable-cell-template>
           <span class="clickAble" [class.user-deleted]="row.deleted"
