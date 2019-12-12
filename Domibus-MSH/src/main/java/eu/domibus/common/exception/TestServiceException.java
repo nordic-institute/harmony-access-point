@@ -35,8 +35,12 @@ public class TestServiceException extends DomibusCoreException {
     }
 
 
-
-    public TestServiceException(String messagee) {
-        super(messagee);
+    /**
+     * Constructs a new DomibusCoreException with a  error message.
+     *
+     * @param message the message detail. It is saved for later retrieval by the {@link #getMessage()} method.
+     */
+    public TestServiceException(String message) {
+        super(message);
     }
 }
