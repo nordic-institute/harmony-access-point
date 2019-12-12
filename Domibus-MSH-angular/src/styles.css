@@ -301,6 +301,7 @@ mat-card {
 /* --- GROUP BUTTON ACTION ---*/
 .group-action-button {
   margin-top: 20px;
+  display: inline-block;
 }
 
 .group-action-button button {

@@ -1,84 +1,99 @@
 ﻿<page-header id="pmodeheader_id" style="margin: 0px;">PMode - Archive</page-header>
 <div class="selectionCriteria">
-      <div class="panel">
-        <grid-header [parent]="this"></grid-header>
+  <div class="panel">
+    <grid-header [parent]="this"></grid-header>
 
-        <ngx-datatable
-          #archivePmodeDatatable
-          id="archivePmodeTable"
-          class="material striped"
-          [rows]="rows"
-          [columns]="columnPicker.selectedColumns"
-          [columnMode]="'force'"
-          [headerHeight]="50"
-          [footerHeight]="50"
-          [rowHeight]="'auto'"
-          [scrollbarH]="true"
-          [externalPaging]="true"
-          [externalSorting]="true"
-          [loadingIndicator]="isLoading"
-          [count]="count"
-          [offset]="offset"
-          [limit]="rowLimiter.pageSize"
-          (page)='onPage($event)'
-          [selected]="selected"
-          [selectionType]="'multi'"
-          (activate)="onActivate($event)"
-          (select)="onSelect($event)">
-        </ngx-datatable>
+    <ngx-datatable
+      #archivePmodeDatatable
+      id="archivePmodeTable"
+      class="material striped"
+      [rows]="rows"
+      [columns]="columnPicker.selectedColumns"
+      [columnMode]="'force'"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="'auto'"
+      [scrollbarH]="true"
+      [externalPaging]="true"
+      [externalSorting]="true"
+      [loadingIndicator]="isLoading"
+      [count]="count"
+      [offset]="offset"
+      [limit]="rowLimiter.pageSize"
+      (page)='onPage($event)'
+      [selected]="selected"
+      [selectionType]="'multi'"
+      (activate)="onActivate($event)"
+      (select)="onSelect($event)">
+    </ngx-datatable>
 
-        <ng-template #descriptionTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-          <span class="text-select">{{value}}</span>
-        </ng-template>
+    <ng-template #descriptionTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value}}</span>
+    </ng-template>
 
-        <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-          <span class="text-select">{{value| domibusDate: dateFormat}}</span>
-        </ng-template>
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value| domibusDate: dateFormat}}</span>
+    </ng-template>
 
-        <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-          <button mat-icon-button color="primary" id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete"
-                  [disabled]="row.current" (click)="deleteArchiveAction(row)" button-click-behaviour>
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button mat-icon-button color="primary" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download"
-                  (click)="downloadArchive(row)" button-click-behaviour>
-            <mat-icon>file_download</mat-icon>
-          </button>
-          <button mat-icon-button color="primary" id="restoreButtonRow{{rows.indexOf(row)}}_id" tooltip="Restore"
-                  [disabled]="row.current" (click)="restoreArchive(row)" button-click-behaviour>
-            <mat-icon>settings_backup_restore</mat-icon>
-          </button>
-        </ng-template>
+    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+      <button mat-icon-button color="primary" id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete"
+              [disabled]="row.current" (click)="deleteArchiveAction(row)" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download"
+              (click)="downloadArchive(row)" button-click-behaviour>
+        <mat-icon>file_download</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" id="restoreButtonRow{{rows.indexOf(row)}}_id" tooltip="Restore"
+              [disabled]="row.current" (click)="restoreArchive(row)" button-click-behaviour>
+        <mat-icon>settings_backup_restore</mat-icon>
+      </button>
+    </ng-template>
 
-        <table class="group-action-button">
-          <tr>
-            <td>
-              <button mat-raised-button color="primary" (click)="cancel()" id="cancelbutton_id" [disabled]="!canCancel()" button-click-behaviour>
-                <mat-icon>cancel</mat-icon>
-                <span>Cancel</span>
-              </button>
-              <button mat-raised-button color="primary" (click)="save()" id="savebutton_id" [disabled]="!canSave()" button-click-behaviour>
-                <mat-icon>save</mat-icon>
-                <span>Save</span>
-              </button>
-              <button mat-raised-button color="primary" (click)="delete()" id="deleteArchivebutton_id" [disabled]="!canDelete()" button-click-behaviour>
-                <mat-icon>delete</mat-icon>
-                <span>Delete</span>
-              </button>
+    <page-footer [parent]="this" [isAddVisible]="false" [isEditVisible]="false"></page-footer>
 
-              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"
-                      button-click-behaviour>
-                <mat-icon>file_download</mat-icon>
-                <span>Download</span>
-              </button>
-              <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"
-                      button-click-behaviour>
-                <mat-icon>settings_backup_restore</mat-icon>
-                <span>Restore</span>
-              </button>
-            </td>
-          </tr>
-        </table>
+    <div class="group-action-button">
+      <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"
+              button-click-behaviour>
+        <mat-icon>file_download</mat-icon>
+        <span>Download</span>
+      </button>
+      <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"
+              button-click-behaviour>
+        <mat-icon>settings_backup_restore</mat-icon>
+        <span>Restore</span>
+      </button>
+    </div>
 
-      </div>
+    <!--        <table class="group-action-button">-->
+    <!--          <tr>-->
+    <!--            <td>-->
+    <!--              <button mat-raised-button color="primary" (click)="cancel()" id="cancelbutton_id" [disabled]="!canCancel()" button-click-behaviour>-->
+    <!--                <mat-icon>cancel</mat-icon>-->
+    <!--                <span>Cancel</span>-->
+    <!--              </button>-->
+    <!--              <button mat-raised-button color="primary" (click)="save()" id="savebutton_id" [disabled]="!canSave()" button-click-behaviour>-->
+    <!--                <mat-icon>save</mat-icon>-->
+    <!--                <span>Save</span>-->
+    <!--              </button>-->
+    <!--              <button mat-raised-button color="primary" (click)="delete()" id="deleteArchivebutton_id" [disabled]="!canDelete()" button-click-behaviour>-->
+    <!--                <mat-icon>delete</mat-icon>-->
+    <!--                <span>Delete</span>-->
+    <!--              </button>-->
+
+    <!--              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"-->
+    <!--                      button-click-behaviour>-->
+    <!--                <mat-icon>file_download</mat-icon>-->
+    <!--                <span>Download</span>-->
+    <!--              </button>-->
+    <!--              <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"-->
+    <!--                      button-click-behaviour>-->
+    <!--                <mat-icon>settings_backup_restore</mat-icon>-->
+    <!--                <span>Restore</span>-->
+    <!--              </button>-->
+    <!--            </td>-->
+    <!--          </tr>-->
+    <!--        </table>-->
+
+  </div>
 </div>

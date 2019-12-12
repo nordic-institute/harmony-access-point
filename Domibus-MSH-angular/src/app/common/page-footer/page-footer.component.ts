@@ -1,8 +1,6 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
-import {DomibusInfo} from '../appinfo/domibusinfo';
 import BaseListComponent from '../mixins/base-list.component';
-import {IFilterableList} from '../mixins/ifilterable-list';
 
 @Component({
   templateUrl: 'page-footer.component.html',
@@ -17,6 +15,12 @@ export class PageFooterComponent implements OnInit {
 
   @Input()
   parent: BaseListComponent<any>;
+
+  @Input()
+  isAddVisible: boolean = true;
+
+  @Input()
+  isEditVisible: boolean = true;
 
   async ngOnInit() {
   }
