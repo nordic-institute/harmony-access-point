@@ -6,7 +6,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 /**
  * @author Catalin Enache
@@ -19,7 +19,7 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
 })
 
 export class LoggingComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin, SortableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin) implements OnInit {
 
   static readonly LOGGING_URL: string = 'rest/logging/loglevel';
   static readonly RESET_LOGGING_URL: string = 'rest/logging/reset';

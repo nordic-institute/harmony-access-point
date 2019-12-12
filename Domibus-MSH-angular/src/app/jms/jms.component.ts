@@ -14,6 +14,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {AuditResponseRo} from '../audit/audit';
+import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
   selector: 'app-jms',
@@ -21,7 +22,7 @@ import {AuditResponseRo} from '../audit/audit';
   styleUrls: ['./jms.component.css']
 })
 export class JmsComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin)
+  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, DirtyOperations {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
@@ -465,9 +466,9 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
 
-  onSort() {
-    super.resetFilters();
-  }
+  // onSort() {
+  //   super.resetFilters();
+  // }
 
   canCancel() {
     return (this.markedForDeletionMessages.length > 0);

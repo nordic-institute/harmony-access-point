@@ -17,6 +17,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {MessageLogResult} from '../messagelog/messagelogresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
+import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -24,7 +25,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
   providers: [PluginUserService, UserService]
 })
 export class PluginUserComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin)
+  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, DirtyOperations {
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
@@ -266,7 +267,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return PluginUserService.CSV_URL + '?' + this.createAndSetParameters().toString();
   }
 
-  onSort() {
-    super.resetFilters();
-  }
+  // onSort() {
+  //   super.resetFilters();
+  // }
 }

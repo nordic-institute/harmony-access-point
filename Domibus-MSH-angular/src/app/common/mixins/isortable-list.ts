@@ -13,6 +13,4 @@ export interface ISortableList {
   sortedColumns: { prop: string, dir: string }[];
 
   onSort(event);
-
-  doSort(event);
 }

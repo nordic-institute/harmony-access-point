@@ -20,7 +20,7 @@ export function instanceOfPageableList(object: any): object is IPageableList {
 }
 
 export function instanceOfFilterableList(object: any): object is IFilterableList {
-  return 'search' in object && 'tryFilter' in object && 'activeFilter' in object;
+  return 'filterData' in object && 'tryFilter' in object && 'activeFilter' in object;
 }
 
 export function instanceOfModifiableList(object: any): object is IModifiableList {
@@ -28,6 +28,6 @@ export function instanceOfModifiableList(object: any): object is IModifiableList
 }
 
 export function instanceOfSortableList(object: any): object is ISortableList {
-  return 'onSort' in object && 'doSort' in object;
+  return 'onSort' in object && 'orderBy' in object;
 }
 

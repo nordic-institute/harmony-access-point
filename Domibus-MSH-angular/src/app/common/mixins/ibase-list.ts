@@ -12,7 +12,7 @@ export interface IBaseList<T> {
   selected: T[];
   count: number;
   readonly csvUrl: string;
-  columnPicker: ColumnPickerBase; //here for now
+  columnPicker: ColumnPickerBase;
 
   getDataAndSetResults(): Promise<any>;
 

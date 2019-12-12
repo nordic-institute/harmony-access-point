@@ -7,7 +7,7 @@ import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
@@ -20,7 +20,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 
 export class AlertsComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, SortableListMixin, ModifiableListMixin, ServerPageableListMixin)
+  .with(FilterableListMixin, ServerSortableListMixin, ModifiableListMixin, ServerPageableListMixin)
   implements OnInit {
 
   static readonly ALERTS_URL: string = 'rest/alerts';

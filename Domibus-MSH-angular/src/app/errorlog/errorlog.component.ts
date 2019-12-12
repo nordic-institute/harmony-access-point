@@ -7,7 +7,7 @@ import {MatDialog, MatDialogRef} from '@angular/material';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
@@ -18,7 +18,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 
 export class ErrorLogComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, SortableListMixin, ServerPageableListMixin)
+  .with(FilterableListMixin, ServerSortableListMixin, ServerPageableListMixin)
   implements OnInit {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';

@@ -1,16 +1,94 @@
 import {Constructable} from './base-list.component';
-import {instanceOfPageableList} from './type.utils';
+import {instanceOfFilterableList, instanceOfPageableList} from './type.utils';
 import {OnInit} from '@angular/core';
 import {ISortableList} from './isortable-list';
 import {HttpParams} from '@angular/common/http';
 
 /**
  * @author Ion Perpegel
+ * @since 4.2
+ *
+ * A mixin for components that display a list of items that are sorted on client
+ */
+export let ClientSortableListMixin = (superclass: Constructable) => class extends SortableListMixin(superclass)
+  implements ISortableList, OnInit {
+
+  constructor(...args) {
+    super(...args);
+  }
+
+  /**
+   * The method is called from grid sorting and just resets the filter params
+   */
+  public onSort(event) {
+    if (instanceOfFilterableList(this)) {
+      this.resetFilters();
+    }
+  }
+};
+
+/**
+ * @author Ion Perpegel
  * @since 4.1
  *
- * A mixin for components that display a list of items that can be ordered
+ * A mixin for components that display a list of items that can be sorted on server
  * */
+export let ServerSortableListMixin = (superclass: Constructable) => class extends SortableListMixin(superclass)
+  implements ISortableList, OnInit {
 
+  constructor(...args) {
+    super(...args);
+  }
+
+  /**
+   * The method is called from grid sorting and load data from server in specified order
+   */
+  public onSort(event) {
+    this.doSort(event);
+  }
+
+  private async doSort(event) {
+    let previousOrderBy = this.orderBy;
+    let previousAsc = this.asc;
+
+    this.orderBy = event.column.prop;
+    this.asc = (event.newValue === 'desc') ? false : true;
+
+    const success = await this.reload();
+
+    if (!success) {
+      this.orderBy = previousOrderBy;
+      this.asc = previousAsc;
+    }
+  }
+
+  private async reload() {
+    if (instanceOfPageableList(this)) {
+      return this.resetPage();
+    }
+    return true;
+  }
+
+  protected createAndSetParameters(): HttpParams {
+    let params = super.createAndSetParameters();
+
+    if (this.orderBy) {
+      params = params.append('orderBy', this.orderBy);
+    }
+    if (this.asc != null) {
+      params = params.append('asc', this.asc);
+    }
+
+    return params;
+  }
+};
+
+/**
+ * @author Ion Perpegel
+ * @since 4.1
+ *
+ * A mixin for components that display a list of items that can be sorted on server
+ * */
 let SortableListMixin = (superclass: Constructable) => class extends superclass
   implements ISortableList, OnInit {
 
@@ -32,55 +110,10 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
   }
 
   /**
-   * The method is abstract so the derived, actual components implement it
-   * It is called by the infrastructure/mixin just before calling the reload data method, after setting the oredBy and asc parameters
-   */
-  // public onBeforeSort() {
-  // }
-
-  /**
-   * The method is called from grid sorting and it is referred in the grid params as it is visible in the derived components
+   * The method is called from grid sorting
    */
   public onSort(event) {
-    this.doSort(event);
   }
 
-  public async doSort(event) {
-    // this.onBeforeSort();
-
-    let previousOrderBy = this.orderBy;
-    let previousAsc = this.asc;
-
-    this.orderBy = event.column.prop;
-    this.asc = (event.newValue === 'desc') ? false : true;
-
-    const success = await this.reload();
-
-    if (!success) {
-      this.orderBy = previousOrderBy;
-      this.asc = previousAsc;
-    }
-  }
-
-  public async reload() {
-    if (instanceOfPageableList(this)) {
-      return this.resetPage();
-    }
-    return true;
-  }
-
-  protected createAndSetParameters(): HttpParams {
-    let params = super.createAndSetParameters();
-
-    if (this.orderBy) {
-      params = params.append('orderBy', this.orderBy);
-    }
-    if (this.asc != null) {
-      params = params.append('asc', this.asc);
-    }
-
-    return params;
-  }
 };
 
-export default SortableListMixin;

@@ -8,7 +8,7 @@ import {DownloadService} from '../common/download.service';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import BaseListComponent from '../common/mixins/base-list.component';
 import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
@@ -22,7 +22,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 
 export class MessageLogComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin, SortableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin) implements OnInit {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
