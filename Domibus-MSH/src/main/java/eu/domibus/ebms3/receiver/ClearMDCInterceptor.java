@@ -1,6 +1,8 @@
 package eu.domibus.ebms3.receiver;
 
+import com.codahale.metrics.Timer;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -24,8 +26,16 @@ public class ClearMDCInterceptor extends AbstractPhaseInterceptor<Message> {
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        LOG.debug("handleMessage");
-        clearMDC();
+        Timer.Context timerContext = null;
+        try {
+            timerContext = MetricsHelper.getMetricRegistry().timer("ClearMDCInterceptor.handleMessage").time();
+            LOG.debug("handleMessage");
+            clearMDC();
+        } finally {
+            if (timerContext != null) {
+                timerContext.stop();
+            }
+        }
     }
 
     @Override

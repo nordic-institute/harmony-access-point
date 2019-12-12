@@ -1,5 +1,7 @@
 package eu.domibus.common.services.impl;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.UserMessageException;
@@ -13,6 +15,7 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.SignalMessageLog;
@@ -23,6 +26,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.sender.ResponseHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -100,6 +104,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     @Autowired
     protected SoapUtil soapUtil;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Override
     public SOAPMessage generateReceipt(String messageId, final Boolean nonRepudiation) throws EbMS3Exception {
         final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
@@ -118,7 +125,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
 
-
     @Override
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
@@ -132,39 +138,77 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
-                responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
-
+                com.codahale.metrics.Timer.Context generate_receipt = null;
+                try {
+                    generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".createMessage")).time();
+                    responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
+                } finally {
+                    if (generate_receipt != null) {
+                        generate_receipt.stop();
+                    }
+                }
 
                 String messageId;
                 String timestamp;
 
                 Source requestMessage;
                 if (duplicate) {
-                    final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageInfo().getMessageId());
-                    Messaging existingMessage = messagingDao.findMessageByMessageId(userMessage.getMessageInfo().getMessageId());
-                    messageId = existingMessage.getSignalMessage().getMessageInfo().getMessageId();
-                    timestamp = timestampDateFormatter.generateTimestamp(existingMessage.getSignalMessage().getMessageInfo().getTimestamp());
-                    requestMessage = new StreamSource(new StringReader(rawXmlByMessageId.getRawMessage()));
+                    generate_receipt = null;
+                    try {
+                        generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".tackleDuplicate")).time();
+                        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageInfo().getMessageId());
+                        Messaging existingMessage = messagingDao.findMessageByMessageId(userMessage.getMessageInfo().getMessageId());
+                        messageId = existingMessage.getSignalMessage().getMessageInfo().getMessageId();
+                        timestamp = timestampDateFormatter.generateTimestamp(existingMessage.getSignalMessage().getMessageInfo().getTimestamp());
+                        requestMessage = new StreamSource(new StringReader(rawXmlByMessageId.getRawMessage()));
+                    } finally {
+                        if (generate_receipt != null) {
+                            generate_receipt.stop();
+                        }
+                    }
                 } else {
-                    messageId = messageIdGenerator.generateMessageId();
-                    timestamp = timestampDateFormatter.generateTimestamp();
-                    requestMessage = request.getSOAPPart().getContent();
+                    generate_receipt = null;
+                    try {
+                        generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".tackleNotDuplicate")).time();
+                        messageId = messageIdGenerator.generateMessageId();
+                        timestamp = timestampDateFormatter.generateTimestamp();
+                        requestMessage = request.getSOAPPart().getContent();
+                    } finally {
+                        if (generate_receipt != null) {
+                            generate_receipt.stop();
+                        }
+                    }
                 }
 
+                generate_receipt = null;
+                try {
+                    generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".transform")).time();
+                    final Transformer transformer = getTemplates().newTransformer();
+                    transformer.setParameter("messageid", messageId);
+                    transformer.setParameter("timestamp", timestamp);
+                    transformer.setParameter("nonRepudiation", Boolean.toString(nonRepudiation));
 
-                final Transformer transformer = getTemplates().newTransformer();
-                transformer.setParameter("messageid", messageId);
-                transformer.setParameter("timestamp", timestamp);
-                transformer.setParameter("nonRepudiation", Boolean.toString(nonRepudiation));
+                    final DOMResult domResult = new DOMResult();
+                    transformer.transform(requestMessage, domResult);
+                    responseMessage.getSOAPPart().setContent(new DOMSource(domResult.getNode()));
 
-                final DOMResult domResult = new DOMResult();
-                transformer.transform(requestMessage, domResult);
-                responseMessage.getSOAPPart().setContent(new DOMSource(domResult.getNode()));
-
-                setMessagingId(responseMessage, userMessage);
+                    setMessagingId(responseMessage, userMessage);
+                } finally {
+                    if (generate_receipt != null) {
+                        generate_receipt.stop();
+                    }
+                }
 
                 if (!duplicate) {
-                    saveResponse(responseMessage, selfSendingFlag);
+                    generate_receipt = null;
+                    try {
+                        generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".saveNonDuplicate")).time();
+                        saveResponse(responseMessage, selfSendingFlag);
+                    } finally {
+                        if (generate_receipt != null) {
+                            generate_receipt.stop();
+                        }
+                    }
                 }
 
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
@@ -189,11 +233,20 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
      */
     protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) {
         try {
-            LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
+            Timer.Context as4receiptContext = null;
+            Messaging messaging = null;
+            SignalMessage signalMessage = null;
+            try {
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse")).time();
+                LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-            Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
-            final SignalMessage signalMessage = messaging.getSignalMessage();
-
+                messaging = messageUtil.getMessagingWithDom(responseMessage);
+                signalMessage = messaging.getSignalMessage();
+            } finally {
+                if (as4receiptContext != null) {
+                    as4receiptContext.stop();
+                }
+            }
             if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity
                 basically we are generating another messageId for Signal Message on receiver side
@@ -203,30 +256,61 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             }
             LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
             // Stores the signal message
-            signalMessageDao.create(signalMessage);
-            // Updating the reference to the signal message
-            Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
-            MessageSubtype messageSubtype = null;
-            if (sentMessage != null) {
-                LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
-                if (userMessageHandlerService.checkTestMessage(sentMessage.getUserMessage())) {
-                    messageSubtype = MessageSubtype.TEST;
+            try {
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse")).time();
+                signalMessageDao.create(signalMessage);
+            } finally {
+                if (as4receiptContext != null) {
+                    as4receiptContext.stop();
                 }
-                sentMessage.setSignalMessage(signalMessage);
-                messagingDao.update(sentMessage);
             }
-            // Builds the signal message log
-            SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                    .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
-                    .setMessageStatus(MessageStatus.ACKNOWLEDGED)
-                    .setMshRole(MSHRole.SENDING)
-                    .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
-            // Saves an entry of the signal message log
-            SignalMessageLog signalMessageLog = smlBuilder.build();
-            signalMessageLog.setMessageSubtype(messageSubtype);
-            signalMessageLogDao.create(signalMessageLog);
 
-            uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
+            MessageSubtype messageSubtype = null;
+            try {
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "findAndUpdate")).time();
+                // Updating the reference to the signal message
+                Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+                if (sentMessage != null) {
+                    LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
+                    if (userMessageHandlerService.checkTestMessage(sentMessage.getUserMessage())) {
+                        messageSubtype = MessageSubtype.TEST;
+                    }
+                    sentMessage.setSignalMessage(signalMessage);
+                    messagingDao.update(sentMessage);
+                }
+            } finally {
+                if (as4receiptContext != null) {
+                    as4receiptContext.stop();
+                }
+            }
+
+            SignalMessageLog signalMessageLog = null;
+            try {
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "buildAndCreateSignal")).time();
+                // Builds the signal message log
+                SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
+                        .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
+                        .setMessageStatus(MessageStatus.ACKNOWLEDGED)
+                        .setMshRole(MSHRole.SENDING)
+                        .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
+                // Saves an entry of the signal message log
+                signalMessageLog = smlBuilder.build();
+                signalMessageLog.setMessageSubtype(messageSubtype);
+                signalMessageLogDao.create(signalMessageLog);
+            } finally {
+                if (as4receiptContext != null) {
+                    as4receiptContext.stop();
+                }
+            }
+
+            try {
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse")).time();
+                uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
+            } finally {
+                if (as4receiptContext != null) {
+                    as4receiptContext.stop();
+                }
+            }
         } catch (SOAPException ex) {
             LOG.error("Unable to save the SignalMessage due to error: ", ex);
         }

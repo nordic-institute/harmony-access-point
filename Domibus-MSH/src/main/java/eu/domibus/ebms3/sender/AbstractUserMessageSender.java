@@ -181,15 +181,19 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
-            com.codahale.metrics.Timer.Context finally_block = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "finally_block")).time();
+            com.codahale.metrics.Timer.Context finally_block =null;
             try {
+                finally_block = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "handleReliability")).time();
                 getLog().debug("Finally handle reliability");
                 reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+            }finally {
+                if(finally_block==null) {
+                    finally_block.stop();
+                }
             }
-            finally_block.stop();
         }
     }
 

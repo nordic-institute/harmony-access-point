@@ -1,13 +1,17 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.common.services.impl.AS4ReceiptService;
 import eu.domibus.core.message.SignalMessageLogDefaultService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -84,25 +88,58 @@ public class ResponseHandler {
     @Transactional(propagation = Propagation.SUPPORTS)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
-        nonRepudiationService.saveResponse(response, signalMessage);
+        Timer.Context responseHandlerContext = null;
+        try {
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponse")).time();
+            nonRepudiationService.saveResponse(response, signalMessage);
+        } finally {
+            if (responseHandlerContext != null) {
+                responseHandlerContext.stop();
+            }
+        }
 
-        // Stores the signal message
-        signalMessageDao.create(signalMessage);
+        responseHandlerContext = null;
+        try {
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponse")).time();
+            // Stores the signal message
+            signalMessageDao.create(signalMessage);
 
-        sentMessage.setSignalMessage(signalMessage);
-        messagingDao.update(sentMessage);
+            sentMessage.setSignalMessage(signalMessage);
+            messagingDao.update(sentMessage);
 
-        // Builds the signal message log
-        // Updating the reference to the signal message
-        String userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
-        String userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
+        } finally {
+            if (responseHandlerContext != null) {
+                responseHandlerContext.stop();
+            }
+        }
 
-        signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
+        responseHandlerContext = null;
+        try {
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.signalMessageLog")).time();
+            // Builds the signal message log
+            // Updating the reference to the signal message
+            String userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
+            String userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
 
-        createWarningEntries(signalMessage);
+            signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
 
+            createWarningEntries(signalMessage);
+        } finally {
+            if (responseHandlerContext != null) {
+                responseHandlerContext.stop();
+            }
+        }
+
+        responseHandlerContext = null;
+        try {
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.uiReplication")).time();
         //UI replication
         uiReplicationSignalService.signalMessageReceived(signalMessage.getMessageInfo().getMessageId());
+        } finally {
+            if (responseHandlerContext != null) {
+                responseHandlerContext.stop();
+            }
+        }
     }
 
     protected void createWarningEntries(SignalMessage signalMessage) {

@@ -1,5 +1,7 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.Timer;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -41,16 +43,24 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-        Object messageType = message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
-        Object messageId = message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
-        if(!MessageType.USER_MESSAGE.equals(messageType) || messageId==null){
-            return;
-        }
+        Timer.Context timerContext = null;
         try {
-            SOAPMessage soapContent = message.getContent(SOAPMessage.class);
-            messageExchangeService.saveRawXml(soapUtil.getRawXMLMessage(soapContent),messageId.toString());
-        } catch (TransformerException e) {
-            throw new WebServiceException(new IllegalArgumentException(e));
+            timerContext = MetricsHelper.getMetricRegistry().timer("SaveRawPulledMessageInterceptor.handleMessage").time();
+            Object messageType = message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
+            Object messageId = message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
+            if (!MessageType.USER_MESSAGE.equals(messageType) || messageId == null) {
+                return;
+            }
+            try {
+                SOAPMessage soapContent = message.getContent(SOAPMessage.class);
+                messageExchangeService.saveRawXml(soapUtil.getRawXMLMessage(soapContent), messageId.toString());
+            } catch (TransformerException e) {
+                throw new WebServiceException(new IllegalArgumentException(e));
+            }
+        } finally {
+            if (timerContext != null) {
+                timerContext.stop();
+            }
         }
 
     }

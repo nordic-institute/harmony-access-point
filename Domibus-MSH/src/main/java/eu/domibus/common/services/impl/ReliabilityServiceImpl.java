@@ -1,9 +1,11 @@
 package eu.domibus.common.services.impl;
 
+import com.codahale.metrics.Timer;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
@@ -87,15 +89,33 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
         switch (reliabilityCheckSuccessful) {
             case OK:
-                responseHandler.saveResponse(responseSoapMessage, messaging, responseResult.getResponseMessaging());
+                Timer.Context timerContext = null;
+                try {
+                    timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.saveResponse").time();
+                    responseHandler.saveResponse(responseSoapMessage, messaging, responseResult.getResponseMessaging());
+                } finally {
+                    if (timerContext != null) {
+                        timerContext.stop();
+                    }
+                }
 
                 ResponseHandler.ResponseStatus responseStatus = responseResult.getResponseStatus();
                 switch (responseStatus) {
                     case OK:
-                        userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
+                        try {
+                            timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.setMessageAsAcknowledged").time();
+                            userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
+                        } finally {
+                            timerContext.stop();
+                        }
 
                         if (userMessage.isUserMessageFragment()) {
-                            splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
+                            try {
+                                timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.splitAndJoinService.incrementSentFragments").time();
+                                splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
+                            } finally {
+                                timerContext.stop();
+                            }
                         }
                         break;
                     case WARNING:
@@ -105,11 +125,20 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                         assert false;
                 }
                 if (!isTestMessage) {
-                    backendNotificationService.notifyOfSendSuccess(userMessageLog);
+                    try {
+                        timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.notifyOfSendSuccess").time();
+                        backendNotificationService.notifyOfSendSuccess(userMessageLog);
+                    } finally {
+                        timerContext.stop();
+                    }
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
-
-                messagingDao.clearPayloadData(userMessage);
+                try {
+                    timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.clearPayloadData").time();
+                    messagingDao.clearPayloadData(userMessage);
+                } finally {
+                    timerContext.stop();
+                }
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 break;

@@ -1,8 +1,10 @@
 package eu.domibus.ebms3.receiver;
 
+import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,6 +30,9 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
+        Timer.Context timerContext = null;
+        try {
+            timerContext = MetricsHelper.getMetricRegistry().timer("SetPolicyInClientInterceptor.handleMessage").time();
         Policy policy = (Policy) message.getExchange().get(PolicyConstants.POLICY_OVERRIDE);
         if (policy == null) {
             throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0010, "No valid security policy found");
@@ -43,6 +48,11 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
         message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
         message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
+        }finally {
+            if (timerContext != null) {
+                timerContext.stop();
+            }
+        }
     }
 
     protected void throwFault(SoapMessage message, ErrorCode.EbMS3ErrorCode ebMS3ErrorCode, String errorMessage) {

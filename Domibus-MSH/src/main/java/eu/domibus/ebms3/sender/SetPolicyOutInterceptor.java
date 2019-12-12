@@ -1,9 +1,11 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.Timer;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.MetricsHelper;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.PModeProvider;
@@ -58,35 +60,44 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
      */
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
-        LOG.debug("SetPolicyOutInterceptor");
-        final String pModeKey = (String) message.getContextualProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
-        LOG.debug("Using pmodeKey [{}]", pModeKey);
-        message.getExchange().put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
-        message.getInterceptorChain().add(new PrepareAttachmentInterceptor());
-
-        final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
-
-        message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
-
-        final String securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
-        message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-        message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-
-        LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
-
-        String encryptionUsername = extractEncryptionUsername(pModeKey);
-        message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionUsername);
-        LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionUsername);
-
+        Timer.Context timerContext = null;
         try {
-            final Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
-            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, legConfiguration.getSecurity().getPolicy());
-            message.put(PolicyConstants.POLICY_OVERRIDE, policy);
-            message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
+            timerContext = MetricsHelper.getMetricRegistry().timer("SetPolicyOutInterceptor.handleMessage").time();
 
-        } catch (final ConfigurationException e) {
-            LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
-            throw new Fault(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity(), null, null));
+            LOG.debug("SetPolicyOutInterceptor");
+            final String pModeKey = (String) message.getContextualProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+            LOG.debug("Using pmodeKey [{}]", pModeKey);
+            message.getExchange().put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
+            message.getInterceptorChain().add(new PrepareAttachmentInterceptor());
+
+            final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
+
+            message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
+
+            final String securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+            message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
+
+            String encryptionUsername = extractEncryptionUsername(pModeKey);
+            message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionUsername);
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionUsername);
+
+            try {
+                final Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+                LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, legConfiguration.getSecurity().getPolicy());
+                message.put(PolicyConstants.POLICY_OVERRIDE, policy);
+                message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
+
+            } catch (final ConfigurationException e) {
+                LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
+                throw new Fault(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity(), null, null));
+            }
+        }finally {
+            if (timerContext != null) {
+                timerContext.stop();
+            }
         }
     }
 

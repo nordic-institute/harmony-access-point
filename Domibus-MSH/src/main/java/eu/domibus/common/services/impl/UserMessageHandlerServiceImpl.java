@@ -147,10 +147,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
         handle_incoming_message.stop();
 
-        com.codahale.metrics.Timer.Context generate_receipt = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "generate_receipt")).time();
-        SOAPMessage soapMessage = as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
-        generate_receipt.stop();
-        return soapMessage;
+        com.codahale.metrics.Timer.Context generate_receipt = null;
+        try {
+            generate_receipt = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "generate_receipt")).time();
+            SOAPMessage soapMessage = as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
+            return soapMessage;
+        } finally {
+            generate_receipt.stop();
+        }
     }
 
     @Override
@@ -328,7 +332,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
 
     protected String persistReceivedMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws SOAPException, TransformerException, EbMS3Exception {
-        com.codahale.metrics.Timer.Context persist_incoming_message=null;
+        com.codahale.metrics.Timer.Context persist_incoming_message = null;
         try {
             persist_incoming_message = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "persist_incoming_message")).time();
             LOG.info("Persisting received message");
@@ -345,8 +349,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
 
             return s;
-        }finally {
-            if(persist_incoming_message!=null){
+        } finally {
+            if (persist_incoming_message != null) {
                 persist_incoming_message.stop();
             }
         }

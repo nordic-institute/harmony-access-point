@@ -188,9 +188,15 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         Timer.Context jms_deliver_message_hacked = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "jms_deliver_message_hacked")).time();
         try {
             final Submission submission = this.messageRetriever.downloadMessage(messageId);
-            LOG.warn("The response message does not come from C4");
             Submission submissionResponse = getSubmissionResponse(submission, HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId));
-            messageSubmitter.submit(submissionResponse, getName());
+            new Thread(() -> {
+                try {
+                    messageSubmitter.submit(submissionResponse, getName());
+                } catch (MessagingProcessingException e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }).start();
+
         } catch (MessagingProcessingException e) {
             LOG.error(e.getMessage(), e);
         } finally {
