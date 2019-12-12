@@ -83,6 +83,8 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     }
   }
 
+  public edit(row: any) {
+  }
 };
 
 export default ModifiableListMixin;

@@ -17,7 +17,7 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
   public orderBy: string;
   public asc: boolean;
 
-  public sortedColumns: { prop: 'timestamp', dir: 'desc' }[];
+  public sortedColumns: { prop: string, dir: string }[];
 
   constructor(...args) {
     super(...args);

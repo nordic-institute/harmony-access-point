@@ -18,6 +18,8 @@ export interface IModifiableList {
 
   cancel();
 
+  edit(row: any);
+
   // onAfterSave();
 }
 

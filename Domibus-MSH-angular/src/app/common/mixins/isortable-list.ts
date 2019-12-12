@@ -10,7 +10,7 @@ export interface ISortableList {
   orderBy: string;
   asc: boolean;
 
-  sortedColumns: { prop: 'timestamp', dir: 'desc' }[];
+  sortedColumns: { prop: string, dir: string }[];
 
   onSort(event);
 

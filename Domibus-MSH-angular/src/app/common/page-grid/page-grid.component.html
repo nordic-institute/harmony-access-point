@@ -16,7 +16,10 @@
   [limit]="parent.rowLimiter.pageSize"
   (page)='parent.onPage($event)'
   (sort)="parent.onSort($event)"
-  [sorts]="parent.sortedColumns"
+  [sorts]="sortedColumns"
+  [selectionType]="selectionType"
+  [selected]="parent.selected"
+  (select)="parent.onSelect($event)"
   (activate)="parent.onActivate($event)"
 >
 </ngx-datatable>
