@@ -51,6 +51,11 @@
 
 <page-grid [parent]="this"></page-grid>
 
+<ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+  <span class="text-select">{{value | domibusDate: dateFormat}}</span>
+</ng-template>
+
+
 <!--<ngx-datatable-->
 <!--  id="auditTable"-->
 <!--  class="material striped"-->

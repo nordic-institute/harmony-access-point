@@ -54,28 +54,30 @@
 
   <grid-header [parent]="this"></grid-header>
 
-  <ngx-datatable
-    id="errorLogTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [loadingIndicator]="isLoading"
-    [selectionType]="'multi'"
-    [selected]="selected"
-    [limit]="rowLimiter.pageSize"
-    [offset]="offset"
-    [sorts]="[{prop: 'timestamp', dir: 'desc'}]"
-    (sort)="onSort()"
-    (activate)="onActivate($event)"
-    (select)="onSelect($event)"
-    (page)="onPage($event)"
-  >
-  </ngx-datatable>
+  <page-grid [parent]="this" [selectionType]="'multi'" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
+
+  <!--  <ngx-datatable-->
+  <!--    id="errorLogTable"-->
+  <!--    class="material striped"-->
+  <!--    [rows]="rows"-->
+  <!--    [columns]="columnPicker.selectedColumns"-->
+  <!--    [columnMode]="'force'"-->
+  <!--    [headerHeight]="50"-->
+  <!--    [footerHeight]="50"-->
+  <!--    [rowHeight]="'auto'"-->
+  <!--    [scrollbarH]="true"-->
+  <!--    [loadingIndicator]="isLoading"-->
+  <!--    [selectionType]="'multi'"-->
+  <!--    [selected]="selected"-->
+  <!--    [limit]="rowLimiter.pageSize"-->
+  <!--    [offset]="offset"-->
+  <!--    [sorts]="[{prop: 'timestamp', dir: 'desc'}]"-->
+  <!--    (sort)="onSort()"-->
+  <!--    (activate)="onActivate($event)"-->
+  <!--    (select)="onSelect($event)"-->
+  <!--    (page)="onPage($event)"-->
+  <!--  >-->
+  <!--  </ngx-datatable>-->
 
   <ng-template #rowWithJSONTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     {{value | json }}

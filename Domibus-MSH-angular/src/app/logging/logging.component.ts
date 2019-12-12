@@ -1,6 +1,5 @@
 import {ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
 import {LoggingLevelResult} from './logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
@@ -8,8 +7,6 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import SortableListMixin from '../common/mixins/sortable-list.mixin';
-import {AlertsResult} from '../alerts/alertsresult';
-import {ErrorLogResult} from '../errorlog/errorlogresult';
 
 /**
  * @author Catalin Enache
@@ -41,6 +38,7 @@ export class LoggingComponent extends mix(BaseListComponent)
 
     super.orderBy = 'name';
     super.asc = false;
+    // super.sortedColumns = [{prop: 'timestamp', dir: 'desc'}];
 
     this.filterData();
   }

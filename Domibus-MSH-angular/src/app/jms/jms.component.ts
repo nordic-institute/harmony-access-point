@@ -200,16 +200,20 @@ export class JmsComponent extends mix(BaseListComponent)
     this.selectedSource = toSelect;
   }
 
-  onSelect({selected}) {
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
+  // onSelect({selected}) {
+  //   this.selected.splice(0, this.selected.length);
+  //   this.selected.push(...selected);
+  // }
+
+  edit(row) {
+    this.showDetails(row);
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
-  }
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     this.showDetails(event.row);
+  //   }
+  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
@@ -357,13 +361,10 @@ export class JmsComponent extends mix(BaseListComponent)
     });
   }
 
-  details(selectedRow: any) {
+  showDetails(selectedRow: any) {
     let dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
-    dialogRef.afterClosed().subscribe(result => {
-      //Todo:
-    });
   }
 
   deleteAction(row) {
