@@ -21,6 +21,7 @@ public class SandwichMenu extends DComponent {
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
 		log.debug("sandwich menu init");
+		wait.defaultWait.until(ExpectedConditions.presenceOfElementLocated(expandButton));
 	}
 
 	By expandButton = By.id("settingsmenu_id");
