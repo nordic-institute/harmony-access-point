@@ -96,6 +96,19 @@ public class TestRunData {
 		}
 	}
 
+	public boolean useProxy() {
+		try {
+			return Boolean.valueOf(prop.getProperty("useProxy"));
+		} catch (Exception e) {
+			System.out.println("e = " + e);
+			return false;
+		}
+	}
+
+	public String getProxyAddress() {
+		return prop.getProperty("proxyAddress");
+	}
+
 	public String getChromeDriverPath() {
 		return prop.getProperty("webdriver.chrome.driver");
 	}
