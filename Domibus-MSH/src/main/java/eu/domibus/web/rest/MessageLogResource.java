@@ -162,7 +162,7 @@ public class MessageLogResource extends BaseResource {
 
 
     /**
-     * This method is to get the last send UserMessage for the given party Id
+     * This method gets the last send UserMessage for the given party Id
      *
      * @param request
      * @return ResposeEntity of TestServiceMessageInfoRO
@@ -176,7 +176,7 @@ public class MessageLogResource extends BaseResource {
 
 
     /**
-     * This method is to get the last Received Signal Message for the given party Id and User MessageId
+     * This method gets last Received Signal Message for the given party Id and User MessageId
      *
      * @param request
      * @return ResposeEntity of TestServiceMessageInfoRO
