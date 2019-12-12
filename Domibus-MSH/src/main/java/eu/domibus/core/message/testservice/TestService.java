@@ -4,10 +4,14 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.TestServiceException;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
@@ -29,9 +33,9 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.NoResultException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+
+import static eu.domibus.core.alerts.model.common.MessageEvent.DESCRIPTION;
 
 /**
  * @author Cosmin Baciu
@@ -59,6 +63,9 @@ public class TestService {
 
     @Autowired
     private MessagingDao messagingDao;
+
+    @Autowired
+    private ErrorLogDao errorLogDao;
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
@@ -144,7 +151,7 @@ public class TestService {
         String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
             LOG.debug("Could not find last user message id for party [{}]", partyId);
-            throw new TestServiceException("No User message id  found for the sending party [" + partyId + "]");
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message id  found for the sending party [" + partyId + "]");
         }
 
         UserMessageLog userMessageLog = null;
@@ -156,17 +163,21 @@ public class TestService {
         }
 
         if (userMessageLog != null) {
-            TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-            testServiceMessageInfoRO.setMessageId(userMessageId);
-            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
-            testServiceMessageInfoRO.setPartyId(partyId);
-            Party party = pModeProvider.getPartyByIdentifier(partyId);
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
-            return testServiceMessageInfoRO;
+            return getTestServiceMessageInfoRO(partyId, userMessageId, userMessageLog);
         }
+        Map<ErrorCode, String> errorMap = getErrorsForMessage(userMessageId);
+        throw new TestServiceException("No User Message found. Error Details in error log [" + errorMap + "]");
+    }
 
-        throw new TestServiceException("No User Message found for message Id [" + userMessageId + "]");
+    private TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
+        testServiceMessageInfoRO.setMessageId(userMessageId);
+        testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
+        testServiceMessageInfoRO.setPartyId(partyId);
+        Party party = pModeProvider.getPartyByIdentifier(partyId);
+        testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
+
+        return testServiceMessageInfoRO;
     }
 
     /**
@@ -178,7 +189,8 @@ public class TestService {
      */
     public TestServiceMessageInfoRO getLastTestReceived(String partyId, String userMessageId) throws TestServiceException {
         LOG.debug("Getting last received test message from partyId='{}'", partyId);
-
+        String errorCode = StringUtils.EMPTY;
+        String errorDetails = StringUtils.EMPTY;
         Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
         if (messaging == null) {
             LOG.debug("Could not find messaging for message ID[{}]", userMessageId);
@@ -187,16 +199,35 @@ public class TestService {
 
         SignalMessage signalMessage = messaging.getSignalMessage();
         if (signalMessage != null) {
-            TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-            testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
-            testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
-            Party party = pModeProvider.getPartyByIdentifier(partyId);
-            testServiceMessageInfoRO.setPartyId(partyId);
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
-            return testServiceMessageInfoRO;
+            return getTestServiceMessageInfoRO(partyId, signalMessage);
         }
-        throw new TestServiceException("No Signal Message found for the message Id [" + userMessageId + "]");
+        Map<ErrorCode, String> errorMap = getErrorsForMessage(userMessageId);
+        for (Map.Entry<ErrorCode, String> entry : errorMap.entrySet()) {
+            errorCode = entry.getKey().getErrorCodeName();
+            errorDetails = entry.getValue();
+        }
+        throw new TestServiceException("No Signal Message found. Error Details in error log  [" + errorCode + " - " + errorDetails + "]");
+    }
+
+    private Map<ErrorCode, String> getErrorsForMessage(String userMessageId) {
+        Map<ErrorCode, String> errorMap = new HashMap<ErrorCode, String>();
+
+        List<ErrorLogEntry> errorLogEntries = errorLogDao.getErrorsForMessage(userMessageId);
+        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
+            errorMap.put(errorLogEntry.getErrorCode(), errorLogEntry.getErrorDetail());
+        }
+        return errorMap;
+    }
+
+    private TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
+        testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
+        testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
+        Party party = pModeProvider.getPartyByIdentifier(partyId);
+        testServiceMessageInfoRO.setPartyId(partyId);
+        testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
+
+        return testServiceMessageInfoRO;
     }
 
 }

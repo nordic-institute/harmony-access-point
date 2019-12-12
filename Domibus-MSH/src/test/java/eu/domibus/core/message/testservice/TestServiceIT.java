@@ -1,5 +1,6 @@
 package eu.domibus.core.message.testservice;
 
+import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.pmode.PModeProvider;
@@ -37,6 +38,8 @@ public class TestServiceIT {
     @Injectable
     private MessagingDao messagingDao;
 
+    @Injectable
+    private ErrorLogDao errorLogDao;
 
     @Test
     public void createSubmission() throws IOException {

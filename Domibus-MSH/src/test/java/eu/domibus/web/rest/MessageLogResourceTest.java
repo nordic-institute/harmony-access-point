@@ -229,7 +229,7 @@ public class MessageLogResourceTest {
         new Expectations() {{
 
             testService.getLastTestSent(partyId);
-            result = new TestServiceException();
+            result = new TestServiceException("No User Message found. Error Details in error log");
         }};
 
         // When
@@ -275,7 +275,7 @@ public class MessageLogResourceTest {
         String userMessageId = "userMessageId";
         new Expectations() {{
             testService.getLastTestReceived(partyId, userMessageId);
-            result = new TestServiceException();
+            result = new TestServiceException("No Signal Message found. Error Details in error log");
         }};
 
         messageLogResource.getLastTestReceived(

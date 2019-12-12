@@ -2,6 +2,7 @@ package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
 
+import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.TestServiceException;
@@ -48,6 +49,9 @@ public class TestServiceTest {
 
     @Injectable
     private MessagingDao messagingDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
 
     @Injectable
     private DatabaseMessageHandler databaseMessageHandler;
@@ -466,7 +470,7 @@ public class TestServiceTest {
     }
 
     @Test(expected = Exception.class)
-    public void testGetLastTestReceived_NotFound() throws Exception {
+    public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
         // Given
         new Expectations() {{
             new XStream();
@@ -474,6 +478,8 @@ public class TestServiceTest {
             xStream.fromXML((InputStream) any);
             times = 0;
             messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
             result = null;
         }};
 

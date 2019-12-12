@@ -56,11 +56,18 @@ export class TestServiceComponent implements OnInit {
       const payload = {sender: this.sender, receiver: this.filter.receiverPartyId};
       this.http.post(TestServiceComponent.TEST_SERVICE_URL, payload)
         .subscribe(
-          () => this.onChangeParties(),
+          () => {
+            this.onChangeParties(),
+              this.alertService.success('Test Message Sent Successfully. Please press Update button to refresh and receive the response! ', false)
+          },
           (err) => this.alertService.exception('Problems while submitting test', err)
         );
     } else if (this.isDynamicDiscoveryPModeProvider()) {
-      const payload = {sender: this.sender, receiver: this.filter.finalRecipient, receiverType: this.filter.finalRecipientType};
+      const payload = {
+        sender: this.sender,
+        receiver: this.filter.finalRecipient,
+        receiverType: this.filter.finalRecipientType
+      };
       this.http.post(TestServiceComponent.TEST_SERVICE_SUBMIT_DYNAMICDISCOVERY_URL, payload)
         .subscribe(
           () => this.onChangeInfo(),
@@ -105,8 +112,11 @@ export class TestServiceComponent implements OnInit {
   update() {
     if (this.isDynamicDiscoveryPModeProvider()) {
       this.getLastSentRequest(this.filter.finalRecipient);
+      this.getLastReceivedRequest(this.filter.receiverPartyId, this.messageInfoSent.messageId);
     } else if (this.isPModeDaoOrCachingPModeProvider()) {
-      this.getLastSentRequest(this.filter.receiverPartyId);
+      // this.getLastSentRequest(this.filter.receiverPartyId);
+      this.alertService.clearAlert();
+      this.getLastReceivedRequest(this.filter.receiverPartyId, this.messageInfoSent.messageId);
     } else {
       this.disableButtonAndClearInfo();
     }
@@ -152,8 +162,8 @@ export class TestServiceComponent implements OnInit {
           this.messageInfoSent.finalRecipient = result.accessPoint;
           this.messageInfoSent.receivedTo = new Date(result.timeReceived);
           this.messageInfoSent.messageId = result.messageId;
-
-          this.getLastReceivedRequest(partyId, result.messageId);
+          //return this.messageInfoSent.messageId;
+          //  this.getLastReceivedRequest(partyId, result.messageId);
         }
       }, (err) => {
         this.alertService.exception(`Error retrieving Last Sent Test Messages for PartyId '${partyId}'`, err);
