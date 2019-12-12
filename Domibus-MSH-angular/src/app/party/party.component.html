@@ -39,29 +39,31 @@
   <grid-header [parent]="this"></grid-header>
 </div>
 
-<ngx-datatable
-  id="partyTable"
-  class="material striped"
-  [rows]="rows"
-  [columnMode]="'force'"
-  [columns]="columnPicker.selectedColumns"
-  [headerHeight]="50"
-  [footerHeight]="50"
-  [rowHeight]="'auto'"
-  [scrollbarH]="true"
-  [externalPaging]="false"
-  [externalSorting]="false"
-  [loadingIndicator]="isLoading"
-  [count]="count"
-  [offset]="offset"
-  [limit]="rowLimiter.pageSize"
-  (page)="onPage($event)"
-  (sort)="OnSort()"
-  [selected]="selected"
-  [selectionType]="'single'"
-  (activate)="onActivate($event)"
->
-</ngx-datatable>
+<page-grid [parent]="this" [selectionType]="'single'" ></page-grid>
+
+<!--<ngx-datatable-->
+<!--  id="partyTable"-->
+<!--  class="material striped"-->
+<!--  [rows]="rows"-->
+<!--  [columnMode]="'force'"-->
+<!--  [columns]="columnPicker.selectedColumns"-->
+<!--  [headerHeight]="50"-->
+<!--  [footerHeight]="50"-->
+<!--  [rowHeight]="'auto'"-->
+<!--  [scrollbarH]="true"-->
+<!--  [externalPaging]="false"-->
+<!--  [externalSorting]="false"-->
+<!--  [loadingIndicator]="isLoading"-->
+<!--  [count]="count"-->
+<!--  [offset]="offset"-->
+<!--  [limit]="rowLimiter.pageSize"-->
+<!--  (page)="onPage($event)"-->
+<!--  (sort)="OnSort()"-->
+<!--  [selected]="selected"-->
+<!--  [selectionType]="'single'"-->
+<!--  (activate)="onActivate($event)"-->
+<!--&gt;-->
+<!--</ngx-datatable>-->
 
 <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
   <button mat-icon-button (click)="edit(row)"

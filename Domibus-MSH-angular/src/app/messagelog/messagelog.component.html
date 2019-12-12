@@ -109,31 +109,33 @@
 
   <grid-header [parent]="this"></grid-header>
 
-  <ngx-datatable
-      #list
-      id="messageLogTable"
-      class="material striped"
-      [rows]="rows"
-      [columns]="columnPicker.selectedColumns"
-      [columnMode]="'force'"
-      [headerHeight]="50"
-      [footerHeight]="50"
-      [rowHeight]="'auto'"
-      [scrollbarH]="true"
-      [externalPaging]="true"
-      [externalSorting]="true"
-      [loadingIndicator]="isLoading"
-      [count]="count"
-      [offset]="offset"
-      [limit]="rowLimiter.pageSize"
-      [sorts]="[{prop: 'received', dir: 'desc'}]"
-      (page)='onPage($event)'
-      (sort)="onSort($event)"
-      [selected]="selected"
-      [selectionType]="'multi'"
-      (activate)="onActivate($event)"
-  >
-  </ngx-datatable>
+  <page-grid [parent]="this" [selectionType]="'single'" [sortedColumns]="sortedColumns"></page-grid>
+
+<!--  <ngx-datatable-->
+<!--      #list-->
+<!--      id="messageLogTable"-->
+<!--      class="material striped"-->
+<!--      [rows]="rows"-->
+<!--      [columns]="columnPicker.selectedColumns"-->
+<!--      [columnMode]="'force'"-->
+<!--      [headerHeight]="50"-->
+<!--      [footerHeight]="50"-->
+<!--      [rowHeight]="'auto'"-->
+<!--      [scrollbarH]="true"-->
+<!--      [externalPaging]="true"-->
+<!--      [externalSorting]="true"-->
+<!--      [loadingIndicator]="isLoading"-->
+<!--      [count]="count"-->
+<!--      [offset]="offset"-->
+<!--      [limit]="rowLimiter.pageSize"-->
+<!--      [sorts]="[{prop: 'received', dir: 'desc'}]"-->
+<!--      (page)='onPage($event)'-->
+<!--      (sort)="onSort($event)"-->
+<!--      [selected]="selected"-->
+<!--      [selectionType]="'multi'"-->
+<!--      (activate)="onActivate($event)"-->
+<!--  >-->
+<!--  </ngx-datatable>-->
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value| domibusDate: dateFormat}}</span>

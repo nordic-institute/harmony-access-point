@@ -68,6 +68,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'received';
     super.asc = false;
+    super.sortedColumns = [{prop: 'received', dir: 'desc'}];
 
     this.messageResent = new EventEmitter(false);
 
@@ -329,7 +330,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   onActivate(event) {
     if ('dblclick' === event.type) {
-      this.details(event.row);
+      this.showDetails(event.row);
     }
   }
 
@@ -413,7 +414,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createAndSetParameters().toString();
   }
 
-  details(selectedRow: any) {
+  showDetails(selectedRow: any) {
     this.dialog.open(MessagelogDetailsComponent, {
       data: {message: selectedRow, fourCornerEnabled: this.fourCornerEnabled}
     });
