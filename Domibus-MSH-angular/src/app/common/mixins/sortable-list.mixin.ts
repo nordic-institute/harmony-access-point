@@ -17,6 +17,8 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
   public orderBy: string;
   public asc: boolean;
 
+  public sortedColumns: { prop: 'timestamp', dir: 'desc' }[];
+
   constructor(...args) {
     super(...args);
   }
@@ -25,6 +27,8 @@ let SortableListMixin = (superclass: Constructable) => class extends superclass
     if (super.ngOnInit) {
       super.ngOnInit();
     }
+
+    this.sortedColumns = [];
   }
 
   /**

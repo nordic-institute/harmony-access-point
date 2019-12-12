@@ -49,29 +49,30 @@
   <grid-header [parent]="this"></grid-header>
 </div>
 
+<page-grid [parent]="this"></page-grid>
 
-<ngx-datatable
-  id="auditTable"
-  class="material striped"
-  [rows]="rows"
-  [columnMode]="'force'"
-  [columns]="columnPicker.selectedColumns"
-  [headerHeight]="50"
-  [footerHeight]="50"
-  [rowHeight]="'auto'"
-  [scrollbarH]="true"
-  [externalPaging]="true"
-  [externalSorting]="true"
-  [loadingIndicator]="isLoading"
-  [count]="count"
-  [offset]="offset"
-  [limit]="rowLimiter.pageSize"
-  (page)='onPage($event)'
->
-  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value | domibusDate: dateFormat}}</span>
-  </ng-template>
+<!--<ngx-datatable-->
+<!--  id="auditTable"-->
+<!--  class="material striped"-->
+<!--  [rows]="rows"-->
+<!--  [columnMode]="'force'"-->
+<!--  [columns]="columnPicker.selectedColumns"-->
+<!--  [headerHeight]="50"-->
+<!--  [footerHeight]="50"-->
+<!--  [rowHeight]="'auto'"-->
+<!--  [scrollbarH]="true"-->
+<!--  [externalPaging]="true"-->
+<!--  [externalSorting]="true"-->
+<!--  [loadingIndicator]="isLoading"-->
+<!--  [count]="count"-->
+<!--  [offset]="offset"-->
+<!--  [limit]="rowLimiter.pageSize"-->
+<!--  (page)='onPage($event)'-->
+<!--&gt;-->
+<!--  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>-->
+<!--    <span class="text-select">{{value | domibusDate: dateFormat}}</span>-->
+<!--  </ng-template>-->
 
-</ngx-datatable>
+<!--</ngx-datatable>-->
 
 

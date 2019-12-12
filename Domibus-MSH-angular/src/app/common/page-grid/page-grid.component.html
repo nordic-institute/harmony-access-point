@@ -1,0 +1,22 @@
+<ngx-datatable
+  id="pageGridId"
+  class="material striped"
+  [rows]="parent.rows"
+  [columns]="parent.columnPicker.selectedColumns"
+  [columnMode]="'force'"
+  [headerHeight]="50"
+  [footerHeight]="50"
+  [rowHeight]="'auto'"
+  [scrollbarH]="true"
+  [externalPaging]="true"
+  [externalSorting]="true"
+  [loadingIndicator]="parent.isLoading"
+  [count]="parent.count"
+  [offset]="parent.offset"
+  [limit]="parent.rowLimiter.pageSize"
+  (page)='parent.onPage($event)'
+  (sort)="parent.onSort($event)"
+  [sorts]="parent.sortedColumns"
+  (activate)="parent.onActivate($event)"
+>
+</ngx-datatable>

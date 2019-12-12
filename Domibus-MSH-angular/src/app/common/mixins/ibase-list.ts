@@ -17,4 +17,8 @@ export interface IBaseList<T> {
   getDataAndSetResults(): Promise<any>;
 
   loadServerData(): Promise<any>;
+
+  onActivate($event);
+
+  showDetails(row: T)
 }

@@ -133,6 +133,14 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     return this[name] && this[name] instanceof Function;
   }
 
+  public onActivate(event) {
+    if ('dblclick' === event.type) {
+      this.showDetails(event.row);
+    }
+  }
+
+  public showDetails(row: T) {
+  }
 };
 
 

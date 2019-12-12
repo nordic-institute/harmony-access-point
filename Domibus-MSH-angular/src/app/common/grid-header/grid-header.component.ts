@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit} from '@angular/core';
+import {Component,  Input, OnInit} from '@angular/core';
 import {IPageableList} from '../mixins/ipageable-list';
 import BaseListComponent from '../mixins/base-list.component';
 

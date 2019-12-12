@@ -13,6 +13,8 @@ export interface IPageableList {
 
   onPageSizeChanging: CallbackFunction;
 
+  onPage(event);
+
   changePageSize(newPageLimit: number);
 
   resetPage();

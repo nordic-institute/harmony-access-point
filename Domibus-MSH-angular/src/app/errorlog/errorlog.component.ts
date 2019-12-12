@@ -51,6 +51,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'timestamp';
     super.asc = false;
+    super.sortedColumns = [{prop: 'timestamp', dir: 'desc'}];
 
     this.filterData();
   }
@@ -202,13 +203,13 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   //   return false;//to prevent default navigation
   // }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
-  }
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     this.showDetails(event.row);
+  //   }
+  // }
 
-  details(selectedRow: any) {
+  showDetails(selectedRow: any) {
     let dialogRef: MatDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
     dialogRef.componentInstance.message = selectedRow;
     // dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;

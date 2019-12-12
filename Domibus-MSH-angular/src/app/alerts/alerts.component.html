@@ -145,27 +145,29 @@
 <div class="panel">
   <grid-header [parent]="this"></grid-header>
 
+  <page-grid [parent]="this"></page-grid>
+
   <!-- Data Table -->
-  <ngx-datatable
-    id="alertsTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="isLoading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-  >
-  </ngx-datatable>
+<!--  <ngx-datatable-->
+<!--    id="alertsTable"-->
+<!--    class="material striped"-->
+<!--    [rows]="rows"-->
+<!--    [columns]="columnPicker.selectedColumns"-->
+<!--    [columnMode]="'force'"-->
+<!--    [headerHeight]="50"-->
+<!--    [footerHeight]="50"-->
+<!--    [rowHeight]="'auto'"-->
+<!--    [scrollbarH]="true"-->
+<!--    [externalPaging]="true"-->
+<!--    [externalSorting]="true"-->
+<!--    [loadingIndicator]="isLoading"-->
+<!--    [count]="count"-->
+<!--    [offset]="offset"-->
+<!--    [limit]="rowLimiter.pageSize"-->
+<!--    (page)='onPage($event)'-->
+<!--    (sort)="onSort($event)"-->
+<!--  >-->
+<!--  </ngx-datatable>-->
 
   <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
     <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed" (click)="setProcessedValue(row)">

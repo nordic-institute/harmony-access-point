@@ -94,6 +94,7 @@ import {DialogsService} from './common/dialogs/dialogs.service';
 import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
 import {PageFooterComponent} from './common/page-footer/page-footer.component';
+import {PageGridComponent} from './common/page-grid/page-grid.component';
 
 
 @NgModule({
@@ -149,7 +150,8 @@ import {PageFooterComponent} from './common/page-footer/page-footer.component';
     PropertiesComponent,
     GridHeaderComponent,
     FilterAreaFooterComponent,
-    PageFooterComponent
+    PageFooterComponent,
+    PageGridComponent
   ],
   entryComponents: [
     AppComponent,
