@@ -34,7 +34,6 @@ public class TestServiceException extends DomibusCoreException {
         super(dce, message, cause);
     }
 
-
     /**
      * Constructs a new DomibusCoreException with a  error message.
      *
