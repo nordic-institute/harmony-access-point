@@ -72,9 +72,9 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     protected DomibusProxyService domibusProxyService;
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
+    @Cacheable(value = "dispatchClient", key = "#currentThreadName + #domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
-    public Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
+    public Dispatch<SOAPMessage> getClient(String currentThreadName, String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
 
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);

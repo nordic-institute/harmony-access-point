@@ -11,7 +11,9 @@ import javax.xml.ws.Dispatch;
  */
 public interface DispatchClientProvider {
 
-    Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable);
+    //Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable);
+
+    Dispatch<SOAPMessage> getClient(String threadName, String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable);
 
     Dispatch<SOAPMessage> getLocalClient(String domain, String endpoint);
 }

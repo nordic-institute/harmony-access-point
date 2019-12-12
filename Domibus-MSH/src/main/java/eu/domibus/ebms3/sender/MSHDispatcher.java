@@ -9,7 +9,10 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.replication.UIReplicationListener;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DIS
 @Service
 public class MSHDispatcher {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcher.class);
+
     public static final String MESSAGE_TYPE_IN = "MESSAGE_TYPE";
     public static final String MESSAGE_TYPE_OUT = "MESSAGE_TYPE_OUT";
     public static final String LOCAL_MSH_ENDPOINT = "local://localMSH";
@@ -59,15 +64,20 @@ public class MSHDispatcher {
         com.codahale.metrics.Timer.Context get_client = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "get_client")).time();
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
-        final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.getClient(domain.getCode(), endpoint, legConfiguration.getSecurity().getSignatureMethod().getAlgorithm(), policy, pModeKey, cacheable);
+        String threadName = Thread.currentThread().getName();
+        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ThreadName to getClient" + threadName);
+        final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.getClient(threadName, domain.getCode(), endpoint, legConfiguration.getSecurity().getSignatureMethod().getAlgorithm(), policy, pModeKey, cacheable);
         get_client.stop();
 
         final SOAPMessage result;
         try {
+            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ before dispatch");
             com.codahale.metrics.Timer.Context dispatchTimer = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "dispatch")).time();
             result = dispatch.invoke(soapMessage);
             dispatchTimer.stop();
+            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ after dispatch");
         } catch (final WebServiceException e) {
+            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Catch after dispatch");
             Exception exception = e;
             if(e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
