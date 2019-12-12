@@ -237,7 +237,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             Messaging messaging = null;
             SignalMessage signalMessage = null;
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "loadMessaging")).time();
                 LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
                 messaging = messageUtil.getMessagingWithDom(responseMessage);
@@ -257,7 +257,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
             // Stores the signal message
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "createSignalMessage")).time();
                 signalMessageDao.create(signalMessage);
             } finally {
                 if (as4receiptContext != null) {
@@ -304,7 +304,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             }
 
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "uiReplication")).time();
                 uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
             } finally {
                 if (as4receiptContext != null) {

@@ -106,7 +106,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                             timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.setMessageAsAcknowledged").time();
                             userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
                         } finally {
-                            timerContext.stop();
+                            if (timerContext != null) {
+                                timerContext.stop();
+                            }
                         }
 
                         if (userMessage.isUserMessageFragment()) {
@@ -114,7 +116,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                                 timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.splitAndJoinService.incrementSentFragments").time();
                                 splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
                             } finally {
-                                timerContext.stop();
+                                if (timerContext != null) {
+                                    timerContext.stop();
+                                }
                             }
                         }
                         break;
@@ -129,7 +133,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                         timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.notifyOfSendSuccess").time();
                         backendNotificationService.notifyOfSendSuccess(userMessageLog);
                     } finally {
-                        timerContext.stop();
+                        if (timerContext != null) {
+                            timerContext.stop();
+                        }
                     }
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
@@ -137,7 +143,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.clearPayloadData").time();
                     messagingDao.clearPayloadData(userMessage);
                 } finally {
-                    timerContext.stop();
+                    if (timerContext != null) {
+                        timerContext.stop();
+                    }
                 }
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());

@@ -190,7 +190,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             }finally {
-                if(finally_block==null) {
+                if(finally_block!=null) {
                     finally_block.stop();
                 }
             }
