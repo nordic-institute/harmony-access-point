@@ -26,25 +26,25 @@ public class UserModal extends EditModal {
 		wait.forElementToBeVisible(okBtn);
 	}
 
-	@FindBy(id = "username_id")
+	@FindBy(css = "edituser-form form #username_id")
 	WebElement usernameInput;
 
-	@FindBy(id = "email_id")
+	@FindBy(css = "edituser-form form #email_id")
 	WebElement emailInput;
 
-	@FindBy(id = "password_id")
+	@FindBy(css = "edituser-form form #password_id")
 	WebElement passwordInput;
 
-	@FindBy(id = "confirmation_id")
+	@FindBy(css = "edituser-form form #confirmation_id")
 	WebElement confirmationInput;
 
-	@FindBy(id = "domain_id")
+	@FindBy(css = "edituser-form form #domain_id")
 	WebElement domainSelectContainer;
 
-	@FindBy(id = "role_id")
+	@FindBy(css = "edituser-form form #role_id")
 	WebElement rolesSelectContainer;
 
-	@FindBy(id = "active_id")
+	@FindBy(css = "edituser-form form #active_id")
 	WebElement activeChk;
 
 	@FindBy(css = "edituser-form form #username_id + div")
