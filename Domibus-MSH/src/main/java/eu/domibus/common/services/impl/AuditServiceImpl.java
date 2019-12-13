@@ -17,6 +17,7 @@ import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -107,6 +108,7 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addPModeDownloadedAudit(final String messageId) {
         auditDao.savePModeAudit(
@@ -120,6 +122,7 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addMessageDownloadedAudit(final String messageId) {
         auditDao.saveMessageAudit(
@@ -132,6 +135,7 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void addMessageResentAudit(final String messageId) {
         auditDao.saveMessageAudit(

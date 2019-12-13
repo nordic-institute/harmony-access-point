@@ -1,7 +1,6 @@
 package eu.domibus.core.csv;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.web.rest.ro.ErrorLogRO;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -18,8 +17,7 @@ public class ErrorLogCsvServiceImpl extends CsvServiceImpl {
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
         if (field.getName().equals("errorCode")) {
             Object fieldValue = field.get(elem);
-            String res = ((ErrorCode) fieldValue).getErrorCodeName();
-            return res;
+            return ((ErrorCode) fieldValue).name();
         } else {
             return super.serializeFieldValue(field, elem);
         }

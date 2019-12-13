@@ -5,7 +5,9 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.clustering.SignalServiceImpl;
@@ -16,16 +18,20 @@ import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.configuration.DefaultDomibusConfigurationService;
-import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
+import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.mpc.MpcServiceImpl;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
+import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.PropertyResolver;
+import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.property.PropertyResolver;
 import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -114,6 +120,11 @@ public class PModeDaoTestIT {
             return Mockito.mock(DomibusPropertyProviderImpl.class);
         }
 
+        @Bean
+        public DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager() {
+            return Mockito.mock(DomibusPropertyMetadataManagerImpl.class);
+        }
+
         @Bean(name = "domibusDefaultProperties")
         public Properties domibusDefaultProperties() {
             return Mockito.mock(Properties.class);
@@ -178,6 +189,21 @@ public class PModeDaoTestIT {
         @Bean
         public SignalService signalService() {
             return new SignalServiceImpl();
+        }
+
+        @Bean
+        public MpcService mpcService() {
+            return new MpcServiceImpl();
+        }
+
+        @Bean
+        public PasswordEncryptionService passwordEncryptionService() {
+            return Mockito.mock(PasswordEncryptionService.class);
+        }
+
+        @Bean
+        public PasswordEncryptionContextFactory passwordEncryptionContextFactory() {
+            return Mockito.mock(PasswordEncryptionContextFactory.class);
         }
     }
 

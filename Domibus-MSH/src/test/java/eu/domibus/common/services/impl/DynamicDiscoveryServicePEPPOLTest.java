@@ -1,12 +1,12 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.common.util.ProxyUtil;
-import eu.domibus.pki.CertificateService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -70,10 +70,10 @@ public class DynamicDiscoveryServicePEPPOLTest {
     @Test
     public void testLookupInformationMock(final @Capturing LookupClient smpClient) throws Exception {
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE, (String) any);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = TransportProfile.AS4.getIdentifier();
@@ -81,7 +81,7 @@ public class DynamicDiscoveryServicePEPPOLTest {
             smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentTypeIdentifier) any);
             result = sm;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             result = transportProfileAS4;
         }};
 
@@ -97,10 +97,10 @@ public class DynamicDiscoveryServicePEPPOLTest {
     @Test
     public void testLookupInformationMockOtherTransportProfile(final @Capturing LookupClient smpClient) throws Exception {
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE, (String) any);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = "AS4_other_transport_profile";
@@ -108,7 +108,7 @@ public class DynamicDiscoveryServicePEPPOLTest {
             smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentTypeIdentifier) any);
             result = sm;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             result = transportProfileAS4;
         }};
 
@@ -125,10 +125,10 @@ public class DynamicDiscoveryServicePEPPOLTest {
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE, (String) any);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = TransportProfile.AS4.getIdentifier();

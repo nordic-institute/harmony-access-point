@@ -2,8 +2,11 @@ package eu.domibus.ext.delegate.converter;
 
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.ext.delegate.mapper.MonitoringMapperDecorator;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
+import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +30,7 @@ import java.util.List;
 public class DomainExtDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {MessageAcknowledgement.class, MessageAcknowledgementDTO.class, DomainExtDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {MessageAcknowledgement.class, MessageAcknowledgementDTO.class, DomainExtDefaultConverter.class,  MonitoringMapperDecorator.class})
     @ImportResource({
             "classpath:config/ext-services-delegate-domibusContext.xml",
             "classpath:config/commonsTestContext.xml"
@@ -35,7 +38,6 @@ public class DomainExtDefaultConverterTest {
     static class ContextConfiguration {
 
     }
-
     @Autowired
     DomainExtConverter domibusDomainConverter;
 
@@ -58,7 +60,6 @@ public class DomainExtDefaultConverterTest {
         toConvertList.add(toConvert1);
         toConvertList.add(toConvert2);
 
-
         final List<MessageAcknowledgementDTO> convertedList = domibusDomainConverter.convert(toConvertList, MessageAcknowledgementDTO.class);
         objectService.assertObjects(convertedList, toConvertList);
     }
@@ -67,6 +68,13 @@ public class DomainExtDefaultConverterTest {
     public void testConvertMessageAttempt() throws Exception {
         MessageAttempt toConvert = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
         final MessageAttemptDTO converted = domibusDomainConverter.convert(toConvert, MessageAttemptDTO.class);
+        objectService.assertObjects(converted, toConvert);
+    }
+
+    @Test
+    public void testPasswordEncryptionResult() throws Exception {
+        PasswordEncryptionResult toConvert = (PasswordEncryptionResult) objectService.createInstance(PasswordEncryptionResult.class);
+        final PasswordEncryptionResultDTO converted = domibusDomainConverter.convert(toConvert, PasswordEncryptionResultDTO.class);
         objectService.assertObjects(converted, toConvert);
     }
 

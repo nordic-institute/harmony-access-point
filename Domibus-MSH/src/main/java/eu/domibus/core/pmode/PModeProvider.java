@@ -13,13 +13,15 @@ import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.Service;
+import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.crypto.spi.PullRequestPmodeData;
+import eu.domibus.core.crypto.spi.model.UserMessageMapping;
+import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -47,10 +49,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -77,12 +76,8 @@ public abstract class PModeProvider {
     @Qualifier("jaxbContextConfig")
     private JAXBContext jaxbContext;
 
-//    @Autowired
-//    protected JMSManager jmsManager;
-//
-//    @Qualifier("clusterCommandTopic")
-//    @Autowired
-//    protected Topic clusterCommandTopic;
+    @Autowired
+    private MpcService mpcService;
 
     @Autowired
     protected SignalService signalService;
@@ -117,7 +112,7 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
-    public ConfigurationRaw getRawConfiguration(int id) {
+    public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
@@ -133,6 +128,7 @@ public abstract class PModeProvider {
         return null;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void removePMode(int id) {
         LOG.debug("Removing PMode with id: [{}]", id);
         configurationRawDAO.deleteById(id);
@@ -192,6 +188,7 @@ public abstract class PModeProvider {
         configurationRawDAO.create(configurationRaw);
 
         LOG.info("Configuration successfully updated");
+        this.refresh();
 
         // Sends a message into the topic queue in order to refresh all the singleton instances of the PModeProvider.
         signalService.signalPModeUpdate();
@@ -200,8 +197,8 @@ public abstract class PModeProvider {
     }
 
     private String validateDescriptionSize(final String description) {
-        if(StringUtils.isNotEmpty(description) && description.length()>255){
-            return description.substring(0,254);
+        if (StringUtils.isNotEmpty(description) && description.length() > 255) {
+            return description.substring(0, 254);
         }
         return description;
     }
@@ -241,55 +238,88 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, noRollbackFor = IllegalStateException.class)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
 
         final String agreementName;
-        final String senderParty;
-        final String receiverParty;
         final String service;
         final String action;
         final String leg;
-
+        String mpc;
+        String senderParty;
+        String receiverParty = StringUtils.EMPTY;
+        final Set<PartyId> fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
+        final Set<PartyId> toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
         final String messageId = userMessage.getMessageInfo().getMessageId();
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getFromFirstPartyId());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getToFirstPartyId());
+        LOG.putMDC(DomibusLogger.MDC_SERVICE, userMessage.getCollaborationInfo().getService().getValue());
+        LOG.putMDC(DomibusLogger.MDC_ACTION, userMessage.getCollaborationInfo().getAction());
 
         try {
             agreementName = findAgreement(userMessage.getCollaborationInfo().getAgreementRef());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_AGREEMENT_FOUND, agreementName, userMessage.getCollaborationInfo().getAgreementRef());
-            senderParty = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
-            LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, senderParty, userMessage.getPartyInfo().getFrom().getPartyId());
-            receiverParty = findPartyName(userMessage.getPartyInfo().getTo().getPartyId());
-            LOG.businessInfo(DomibusMessageCode.BUS_PARTY_ID_FOUND, receiverParty, userMessage.getPartyInfo().getTo().getPartyId());
+            try {
+                senderParty = findPartyName(fromPartyId);
+                LOG.businessInfo(DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND, senderParty, fromPartyId);
+            } catch (EbMS3Exception exc) {
+                LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
+                exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
+                throw exc;
+            }
+            try {
+                receiverParty = findPartyName(toPartyId);
+                LOG.businessInfo(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_FOUND, receiverParty, toPartyId);
+            } catch (EbMS3Exception exc) {
+                if (isPull && mpcService.forcePullOnMpc(userMessage)) {
+                    LOG.info("Receiver party not found in pMode, extract from MPC");
+                    receiverParty = mpcService.extractInitiator(userMessage.getMpc());
+                    exc.setErrorDetail("Receiver Party extracted from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
+                } else {
+                    LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
+                    exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
+                    throw exc;
+                }
+            }
+            LOG.debug("Found SenderParty as [{}] and  Receiver Party as [{}]", senderParty, receiverParty);
             service = findServiceName(userMessage.getCollaborationInfo().getService());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getCollaborationInfo().getService());
             action = findActionName(userMessage.getCollaborationInfo().getAction());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_ACTION_FOUND, action, userMessage.getCollaborationInfo().getAction());
-            leg = findLegName(agreementName, senderParty, receiverParty, service, action);
-            LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action);
+            if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
+                mpc = mpcService.extractBaseMpc(userMessage.getMpc());
+                leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc);
+            } else {
+                mpc = userMessage.getMpc();
+                leg = findLegName(agreementName, senderParty, receiverParty, service, action);
+            }
+            LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
 
             if ((StringUtils.equalsIgnoreCase(action, Ebms3Constants.TEST_ACTION) && (!StringUtils.equalsIgnoreCase(service, Ebms3Constants.TEST_SERVICE)))) {
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "ebMS3 Test Service: " + Ebms3Constants.TEST_SERVICE + " and ebMS3 Test Action: " + Ebms3Constants.TEST_ACTION + " can only be used together [CORE]", messageId, null);
             }
 
-            MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(agreementName, senderParty, receiverParty, service, action, leg);
+            MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(agreementName, senderParty, receiverParty, service, action, leg, mpc);
             LOG.debug("Found pmodeKey [{}] for message [{}]", messageExchangeConfiguration.getPmodeKey(), userMessage);
             return messageExchangeConfiguration;
         } catch (EbMS3Exception e) {
-            if(userMessage.getMessageInfo() != null) {
-                e.setRefToMessageId(userMessage.getMessageInfo().getMessageId());
-            }
-
+            e.setRefToMessageId(messageId);
             throw e;
         } catch (IllegalStateException ise) {
             // It can happen if DB is clean and no pmodes are configured yet!
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode could not be found. Are PModes configured in the database?", messageId, ise);
         }
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
+        return findUserMessageExchangeContext(userMessage, mshRole, false);
     }
 
 
@@ -307,15 +337,50 @@ public abstract class PModeProvider {
 
     public abstract List<String> getMpcURIList();
 
+    public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
+
     protected abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception;
 
+    protected abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception;
+
     protected abstract String findActionName(String action) throws EbMS3Exception;
+
+    protected abstract Mpc findMpc(final String mpcValue) throws EbMS3Exception;
 
     protected abstract String findServiceName(eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception;
 
     protected abstract String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception;
 
     protected abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
+        final String actionValue = userMessage.getCollaborationInfo().getAction();
+        final String actionName = findActionName(actionValue);
+        final eu.domibus.ebms3.common.model.Service service = userMessage.getCollaborationInfo().getService();
+        final String serviceName = findServiceName(service);
+        final String partyName = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
+        return new UserMessagePmodeData(serviceName, actionName, partyName);
+    }
+
+    public PullRequestPmodeData getPullRequestMapping(PullRequest pullRequest) throws EbMS3Exception {
+        Mpc mpc;
+        try {
+            LOG.debug("Find the mpc based on the pullRequest mpc [{}]", pullRequest.getMpc());
+            mpc = findMpc(pullRequest.getMpc());
+        } catch (EbMS3Exception e) {
+            LOG.debug("Could not find the mpc [{}], check if base mpc should be used", pullRequest.getMpc());
+            if (mpcService.forcePullOnMpc(pullRequest.getMpc())) {
+                String mpcQualifiedName = mpcService.extractBaseMpc(pullRequest.getMpc());
+                LOG.debug("Trying base mpc [{}]", mpcQualifiedName);
+                mpc = findMpc(mpcQualifiedName);
+            } else {
+                LOG.debug("Base mpc is not to be used, rethrowing the exception", e);
+                throw e;
+            }
+        }
+        return new PullRequestPmodeData(mpc.getName());
+    }
 
     public abstract Party getGatewayParty();
 
@@ -349,7 +414,7 @@ public abstract class PModeProvider {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[0];
     }
 
-    protected String getReceiverPartyNameFromPModeKey(final String pModeKey) {
+    public String getReceiverPartyNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[1];
     }
 
@@ -379,7 +444,7 @@ public abstract class PModeProvider {
 
     public abstract List<Party> findAllParties();
 
-    public abstract List<String> findPartyIdByServiceAndAction(final String service, final String action);
+    public abstract List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps);
 
     public abstract String getPartyIdType(String partyIdentifier);
 

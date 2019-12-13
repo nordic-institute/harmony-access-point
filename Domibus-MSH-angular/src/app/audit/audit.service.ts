@@ -1,10 +1,10 @@
-import {Injectable} from "@angular/core";
-import {AuditCriteria, AuditResponseRo} from "./audit";
-import {Observable} from "rxjs/Observable";
-import {AlertService} from "../common/alert/alert.service";
-import {Http} from "@angular/http";
-import {DownloadService} from "../common/download.service";
-import {isNullOrUndefined} from "util";
+import {Injectable} from '@angular/core';
+import {AuditCriteria, AuditResponseRo} from './audit';
+import {Observable} from 'rxjs/Observable';
+import {HttpClient} from '@angular/common/http';
+import {DownloadService} from '../common/download.service';
+import 'rxjs-compat/add/operator/mergeMap';
+import 'rxjs-compat/add/observable/from';
 
 /**
  * @author Thomas Dussart
@@ -15,50 +15,29 @@ import {isNullOrUndefined} from "util";
 @Injectable()
 export class AuditService {
 
-  constructor(private http: Http, private alertService: AlertService) {
+  constructor(private http: HttpClient) {
 
   }
 
   listAuditLogs(auditCriteria: AuditCriteria): Observable<AuditResponseRo[]> {
-    return this.http.post("rest/audit/list", auditCriteria).map(res => res.json());
+    return this.http.post<AuditResponseRo[]>('rest/audit/list', auditCriteria);
   }
 
   countAuditLogs(auditCriteria: AuditCriteria): Observable<number> {
-    return this.http.post("rest/audit/count", auditCriteria).map(res => res.json());
+    return this.http.post<number>('rest/audit/count', auditCriteria);
   }
 
-  listTargetTypes(): Observable<string> {
-    return this.http.get("rest/audit/targets")
-      .flatMap(res => res.json())
-      .map((auditTarget: string) => auditTarget);
+  listTargetTypes(): Observable<string[]> {
+    return this.http.get<string[]>('rest/audit/targets');
   }
 
   listActions(): Observable<string> {
-    return Observable.from(["Created", "Modified", "Deleted", "Downloaded", "Resent", "Moved"]);
-  }
-
-  getFilterPath(auditCriteria: AuditCriteria) : string {
-    let result = '?';
-    if(!isNullOrUndefined(auditCriteria.auditTargetName)) {
-      result += 'auditTargetName=' + auditCriteria.auditTargetName + '&';
-    }
-    if(!isNullOrUndefined(auditCriteria.user)) {
-      result += 'user=' + auditCriteria.user + '&';
-    }
-    if(!isNullOrUndefined(auditCriteria.action)) {
-      result += 'action=' + auditCriteria.action + '&';
-    }
-    if(!isNullOrUndefined(auditCriteria.from)) {
-      result += 'from=' + auditCriteria.from.getTime() + '&';
-    }
-    if(!isNullOrUndefined(auditCriteria.to)) {
-      result += 'to=' + auditCriteria.to.getTime() + '&';
-    }
-    return result;
+    return Observable.from(['Created', 'Modified', 'Deleted', 'Downloaded', 'Resent', 'Moved']);
   }
 
   saveAsCsv(auditCriteria: AuditCriteria) {
-    DownloadService.downloadNative("rest/audit/csv" + this.getFilterPath(auditCriteria));
+    const url = 'rest/audit/csv?' + auditCriteria.toURLSearchParams().toString();
+    DownloadService.downloadNative(url);
   }
 
 }

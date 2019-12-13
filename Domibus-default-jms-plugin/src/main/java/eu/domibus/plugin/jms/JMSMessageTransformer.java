@@ -1,7 +1,6 @@
 package eu.domibus.plugin.jms;
 
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -25,7 +24,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -59,6 +57,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     @Override
     public MapMessage transformFromSubmission(final Submission submission, final MapMessage messageOut) {
         try {
+            if (submission.getMpc() != null) {
+                messageOut.setStringProperty(MPC, submission.getMpc());
+            }
             messageOut.setStringProperty(ACTION, submission.getAction());
             messageOut.setStringProperty(SERVICE, submission.getService());
             messageOut.setStringProperty(SERVICE_TYPE, submission.getServiceType());
@@ -99,6 +100,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             messageOut.setStringProperty(AGREEMENT_REF, submission.getAgreementRef());
             messageOut.setStringProperty(REF_TO_MESSAGE_ID, submission.getRefToMessageId());
 
+            // save the first payload (payload_1) for the bodyload (if exists)
             int counter = 1;
             for (final Submission.Payload p : submission.getPayloads()) {
                 if (p.isInBody()) {
@@ -107,10 +109,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 }
             }
 
-            final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE, "true"));
+            final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE));
             for (final Submission.Payload p : submission.getPayloads()) {
-                transformFromSubmissionHandlePayload(messageOut, putAttachmentsInQueue, counter, p);
-                counter++;
+                // counter is increased for payloads (not for bodyload which is always set to payload_1)
+                counter = transformFromSubmissionHandlePayload(messageOut, putAttachmentsInQueue, counter, p);
             }
             messageOut.setIntProperty(TOTAL_NUMBER_OF_PAYLOADS, submission.getPayloads().size());
         } catch (final JMSException | IOException ex) {
@@ -122,19 +124,14 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     protected String getProperty(String propertyName) {
-        return getProperty(propertyName, null);
+        return domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName);
     }
 
-    protected String getProperty(String propertyName, String defaultValue) {
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        return domibusPropertyExtService.getDomainProperty(currentDomain, JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName, defaultValue);
-    }
-
-
-    private void transformFromSubmissionHandlePayload(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Submission.Payload p) throws JMSException, IOException {
+    private int transformFromSubmissionHandlePayload(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Submission.Payload p) throws JMSException, IOException {
         if (p.isInBody()) {
             if (p.getPayloadDatahandler() != null) {
                 messageOut.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), IOUtils.toByteArray(p.getPayloadDatahandler().getInputStream()));
+                messageOut.setStringProperty(P1_IN_BODY, "true");
             }
 
             messageOut.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), findMime(p.getPayloadProperties()));
@@ -155,7 +152,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             }
             messageOut.setStringProperty(payMimeTypeProp, findMime(p.getPayloadProperties()));
             messageOut.setStringProperty(payContID, p.getContentId());
+            counter++;
         }
+        return counter;
     }
 
     private String findElement(String element, Collection<Submission.TypedProperty> props) {
@@ -185,6 +184,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     public Submission transformToSubmission(final MapMessage messageIn) {
         final Submission target = new Submission();
         try {
+            String mpc = trim(messageIn.getStringProperty(MPC));
+            if (!isEmpty(mpc)) {
+                target.setMpc(mpc);
+            }
             target.setMessageId(trim(messageIn.getStringProperty(MESSAGE_ID)));
 
             setTargetFromPartyIdAndFromPartyType(messageIn, target);

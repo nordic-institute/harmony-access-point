@@ -1,5 +1,6 @@
 package eu.domibus.api.util;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -8,7 +9,13 @@ import java.util.Date;
  */
 public interface DateUtil {
 
+    DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
     Date fromString(String value);
 
     Date getStartOfDay();
+
+    String getCurrentTime(DateTimeFormatter dateTimeFormatter);
+
+    String getCurrentTime();
 }

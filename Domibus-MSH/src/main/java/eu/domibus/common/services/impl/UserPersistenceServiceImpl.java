@@ -1,13 +1,12 @@
 package eu.domibus.common.services.impl;
 
 import com.google.common.collect.Collections2;
-import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
 import eu.domibus.common.dao.security.UserDao;
 import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.model.security.User;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Ion Perpegel
@@ -44,9 +42,6 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     private UserRoleDao userRoleDao;
 
     @Autowired
-    private ConsoleUserPasswordHistoryDao userPasswordHistoryDao;
-
-    @Autowired
     private BCryptPasswordEncoder bCryptEncoder;
 
     @Autowired
@@ -59,7 +54,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     private ConsoleUserSecurityPolicyManager securityPolicyManager;
 
     @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    UserSessionsService userSessionsService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -104,8 +99,8 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
             }
 
             existing.setEmail(user.getEmail());
-            existing.clearRoles();
-            addRoleToUser(user.getAuthorities(), existing);
+
+            updateRolesIfNecessary(user, existing);
 
             userDao.update(existing);
 
@@ -113,6 +108,29 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
                 userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
             }
         }
+    }
+
+    protected void updateRolesIfNecessary(eu.domibus.api.user.User user, User existing) {
+        if (sameRoles(user, existing)) {
+            LOG.trace("Role didn't change for user [{}], no updates needed.", user.getUserName());
+            return;
+        }
+
+        //if downgrade role then invalidate session
+        if (existing.hasRole(AuthRole.ROLE_AP_ADMIN) || user.hasRole(AuthRole.ROLE_USER)) {
+            LOG.trace("Downgrading user role, invalidate session of user [{}].", user.getUserName());
+            userSessionsService.invalidateSessions(existing);
+        }
+
+        //roles have changed so update
+        existing.clearRoles();
+        addRoleToUser(user.getAuthorities(), existing);
+    }
+
+    private boolean sameRoles(eu.domibus.api.user.User user, User existing) {
+        String newRoles = user.getAuthorities().toString();
+        String existingRoles = existing.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()).toString();
+        return newRoles.equals(existingRoles);
     }
 
     protected void changePassword(User user, String currentPassword, String newPassword) {
@@ -129,20 +147,9 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void insertNewUsers(Collection<eu.domibus.api.user.User> newUsers) {
-        // validate user not already in general schema
-        // get all users from user-domains table in general schema
-        List<UserDomain> allUsers = userDomainService.getAllUserDomainMappings();
-        for (eu.domibus.api.user.User user : newUsers) {
-            List<UserDomain> existing = allUsers.stream()
-                    .filter(userDomain -> userDomain.getUserName().equalsIgnoreCase(user.getUserName()))
-                    .collect(Collectors.toList());
-
-            if (!existing.isEmpty()) {
-                UserDomain existingUser = existing.get(0);
-                String errorMessage = "Cannot add user " + existingUser.getUserName() + " because this name already exists in the "
-                        + existingUser.getDomain() + " domain.";
-                throw new UserManagementException(errorMessage);
-            }
+        for (UserBase user : newUsers) {
+            // validate user not already in general schema
+            securityPolicyManager.validateUniqueUser(user);
         }
 
         for (eu.domibus.api.user.User user : newUsers) {
@@ -168,6 +175,8 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
                 .filter(user -> user != null)
                 .collect(Collectors.toList());
         userDao.delete(users);
+
+        usersToDelete.forEach(user -> userSessionsService.invalidateSessions(user));
     }
 
     protected void addRoleToUser(List<String> authorities, User userEntity) {

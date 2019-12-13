@@ -3,16 +3,18 @@ package eu.domibus.core.nonrepudiation;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.model.logging.RawEnvelopeLog;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.util.SoapUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
 
 /**
  * @author Cosmin Baciu
@@ -27,7 +29,10 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected RawEnvelopeLogDao rawEnvelopeLogDao;
+
+    @Autowired
+    protected SoapUtil soapUtil;
 
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
@@ -36,7 +41,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         }
 
         try {
-            String rawXMLMessage = SoapUtil.getRawXMLMessage(request);
+            String rawXMLMessage = soapUtil.getRawXMLMessage(request);
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
             RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
             if (userMessage != null) {
@@ -57,7 +62,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         }
 
         try {
-            String rawXMLMessage = SoapUtil.getRawXMLMessage(response);
+            String rawXMLMessage = soapUtil.getRawXMLMessage(response);
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
             RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
             rawEnvelopeLog.setRawXML(rawXMLMessage);
@@ -69,6 +74,6 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     protected boolean isNonRepudiationAuditDisabled() {
-        return !domibusPropertyProvider.getBooleanProperty("domibus.nonrepudiation.audit.active");
+        return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE);
     }
 }

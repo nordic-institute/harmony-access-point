@@ -8,8 +8,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.handler.DatabaseMessageHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import java.util.Set;
  * @since 3.3
  */
 @Component
+@Transactional(propagation = Propagation.SUPPORTS)
 public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper {
 
 
@@ -40,6 +42,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         if (partyId == null || partyId.isEmpty()) {
             return null;
         }
+        // TODO maybe use To#getFirstPartyId() instead
         return partyId.iterator().next().getValue();
     }
 
@@ -79,7 +82,8 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         return false;
     }
 
-    private String getOriginalUser(UserMessage userMessage, String type) {
+    @Override
+    public String getOriginalUser(UserMessage userMessage, String type) {
         if (userMessage == null || userMessage.getMessageProperties() == null || userMessage.getMessageProperties().getProperty() == null) {
             return null;
         }

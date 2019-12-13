@@ -1,0 +1,79 @@
+<page-header id="propertiesheader_id">Properties</page-header>
+
+<div class="selectionCriteria">
+  <mat-card>
+    <mat-card-content>
+      <div class="panel">
+        <form name="filterForm" #filterForm="ngForm">
+
+          <div>
+            <mat-form-field>
+              <input matInput placeholder="Property Name..." name="filterPropertyName" [(ngModel)]="filter.propertyName" #filterPropertyName="ngModel" id="filterPropertyName_id" (ngModelChange)="onPropertyNameChanged()">
+            </mat-form-field>
+          </div>
+
+          <ng-container *ngIf="showGlobalPropertiesControl">
+            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id" (ngModelChange)="refresh()">
+            <span>Show Domain Properties</span>
+          </ng-container>
+
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+<div>
+  <mat-card>
+    <mat-card-content>
+
+      <div class="panel">
+        <div class="group-filter-button">
+    <span class="row-button">
+      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
+                       (onPageSizeChanged)="onChangePageSize($event.value)"></app-row-limiter>
+    </span>
+        </div>
+
+        <ngx-datatable
+          id="propertiesTable"
+          class="material striped"
+          [rows]="rows"
+          [columnMode]="'force'"
+          [columns]="columns"
+          [headerHeight]="50"
+          [footerHeight]="50"
+          [rowHeight]="'auto'"
+          [scrollbarH]="true"
+          [externalPaging]="true"
+          [externalSorting]="true"
+          [loadingIndicator]="loading"
+          [count]="count"
+          [offset]="offset"
+          [limit]="rowLimiter.pageSize"
+          (page)="onPage($event)"
+        >
+        </ngx-datatable>
+
+        <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+
+          <div class="input-group property-edit">
+            <input matInput type="text" autocomplete="off" class="form-control property-value"
+                   [(ngModel)]="row.value"
+                   (focus)="onPropertyValueFocus(row)"
+                   (blur)="onPropertyValueBlur(row)"
+                   (keydown.enter)="updateProperty(row)"
+                   (keydown.escape)="revertProperty(row)">
+
+            <span class="property-edit-buttons input-group-addon">
+              <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)"><mat-icon mat-tooltip="Save" mdTooltipPosition="above">save</mat-icon></button>
+              <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)"><mat-icon mat-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon></button>
+            </span>
+
+          </div>
+
+        </ng-template>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -21,6 +21,7 @@ public class SandwichMenu extends DComponent {
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
 		log.debug("sandwich menu init");
+		wait.defaultWait.until(ExpectedConditions.presenceOfElementLocated(expandButton));
 	}
 
 	By expandButton = By.id("settingsmenu_id");
@@ -84,7 +85,9 @@ public class SandwichMenu extends DComponent {
 		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
 
 		expandMenu();
-		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+//		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(logoutLnk));
+		wait.forXMillis(500);
 
 		log.debug("Logging out...");
 		driver.findElement(logoutLnk).click();

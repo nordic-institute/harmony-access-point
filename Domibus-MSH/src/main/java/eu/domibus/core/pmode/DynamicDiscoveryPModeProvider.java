@@ -2,12 +2,13 @@ package eu.domibus.core.pmode;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
@@ -18,7 +19,6 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.pki.CertificateService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
@@ -48,9 +53,11 @@ import java.util.*;
  * The sender may not register, it can send a message to a registered receiver even if he (the sender) is not registered.
  * Therefore, on the receiver there is no lookup for the sender. The message is accepted based on the root CA as long as the process matches.
  */
+
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
-    private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = "domibus.dynamicdiscovery.client.specification";
+    private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProvider.class);
 
@@ -93,17 +100,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         super.init();
         dynamicResponderProcesses = findDynamicResponderProcesses();
         dynamicInitiatorProcesses = findDynamicSenderProcesses();
-        if(DynamicDiscoveryClientSpecification.PEPPOL.getName().equalsIgnoreCase(domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION, "OASIS"))) {
+        if(DynamicDiscoveryClientSpecification.PEPPOL.getName().equalsIgnoreCase(domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION))) {
             dynamicDiscoveryService = dynamicDiscoveryServicePEPPOL;
         } else { // OASIS client is used by default
             dynamicDiscoveryService = dynamicDiscoveryServiceOASIS;
         }
-    }
-
-    @Override
-    public void refresh(){
-        super.refresh();
-        this.init();
     }
 
     protected Collection<eu.domibus.common.model.configuration.Process> findDynamicResponderProcesses() {
@@ -139,7 +140,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * @return true if domibus.dynamicdiscovery.useDynamicDiscovery is enabled for the current domain.
      */
     protected boolean useDynamicDiscovery() {
-        return domibusPropertyProvider.getBooleanDomainProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY);
+        return domibusPropertyProvider.getBooleanProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY);
     }
 
     /* Method finds MessageExchangeConfiguration for given usermesage and role. If property domibus.smlzone

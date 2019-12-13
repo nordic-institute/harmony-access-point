@@ -11,6 +11,7 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
@@ -32,8 +33,7 @@ import javax.jms.Session;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
+import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -41,11 +41,6 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
 public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSImpl.class);
-
-    protected static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
-    protected static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
-    protected static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
-    protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
     @Autowired
     protected JMSExtService jmsExtService;
@@ -96,12 +91,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
+                //trim the empty space
+                messageID = messageExtService.cleanMessageIdentifier(messageID);
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
             }
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
 
-            LOG.info("Received message with messageId [" + messageID + "], jmsCorrelationID [" + jmsCorrelationID + "]");
+            LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
 
             if (!MESSAGE_TYPE_SUBMIT.equals(messageType)) {
                 String wrongMessageTypeMessage = getWrongMessageTypeErrorMessage(messageID, jmsCorrelationID, messageType);
@@ -115,13 +112,13 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                LOG.error("Exception occurred receiving message [" + messageID + "], jmsCorrelationID [" + jmsCorrelationID + "]", e);
+                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
             sendReplyMessage(messageID, errorMessage, jmsCorrelationID);
 
-            LOG.info("Submitted message with messageId [" + messageID + "], jmsCorrelationID [" + jmsCorrelationID + "]");
+            LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
@@ -143,7 +140,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     public void deliverMessage(final String messageId) {
         LOG.debug("Delivering message");
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
+        final String queueValue = domibusPropertyExtService.getProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
         }
@@ -175,8 +172,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String queueProperty) {
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, queueProperty);
+        final String queueValue = domibusPropertyExtService.getProperty(queueProperty);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DomibusPropertyExtException("Error getting the queue [" + queueProperty + "]");
         }
@@ -186,8 +182,16 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message");
-        return this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
+        LOG.debug("Downloading message [{}]", messageId);
+        try {
+            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+            return result;
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
     }
 
     private class DownloadMessageCreator implements MessageCreator {

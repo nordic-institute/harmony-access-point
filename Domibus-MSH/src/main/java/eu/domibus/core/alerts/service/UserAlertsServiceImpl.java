@@ -34,9 +34,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertConfiguration;
-
-    @Autowired
     private EventService eventService;
 
     @Autowired
@@ -116,14 +113,14 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     protected void triggerImminentExpirationEvents(boolean usersWithDefaultPassword) {
-        final RepetitiveAlertModuleConfiguration eventConfiguration = alertConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordImminentExpiration());
+        final RepetitiveAlertModuleConfiguration eventConfiguration = alertsConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordImminentExpiration());
         if (!eventConfiguration.isActive()) {
             return;
         }
 
         final Integer duration = eventConfiguration.getEventDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 
         LocalDate from = LocalDate.now().minusDays(maxPasswordAgeInDays);
         LocalDate to = LocalDate.now().minusDays(maxPasswordAgeInDays).plusDays(duration);
@@ -139,13 +136,13 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     protected void triggerExpiredEvents(boolean usersWithDefaultPassword) {
-        final RepetitiveAlertModuleConfiguration eventConfiguration = alertConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordExpired());
+        final RepetitiveAlertModuleConfiguration eventConfiguration = alertsConfiguration.getRepetitiveAlertConfiguration(getAlertTypeForPasswordExpired());
         if (!eventConfiguration.isActive()) {
             return;
         }
         final Integer duration = eventConfiguration.getEventDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 
         LocalDate from = LocalDate.now().minusDays(maxPasswordAgeInDays).minusDays(duration);
         LocalDate to = LocalDate.now().minusDays(maxPasswordAgeInDays);

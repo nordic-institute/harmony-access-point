@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FSPurgeReceivedWorker extends DomibusQuartzJobExtBean {
 
     @Autowired
-    private FSPurgeReceivedService purgeReceivedService;
+    protected FSPurgeReceivedService purgeReceivedService;
 
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) {

@@ -1,47 +1,48 @@
 <page-header id="alertsheader_id">Alerts</page-header>
 
 <div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
+  <mat-card>
+    <mat-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="search()">
+        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="trySearch()">
           <!-- Processed -->
-          <md-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
-            <md-option [value]="''"></md-option>
-            <md-option *ngFor="let aprocessed of aProcessedValues" [value]="aprocessed">
+          <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
+            <mat-option [value]="''"></mat-option>
+            <mat-option *ngFor="let aprocessed of aProcessedValues" [value]="aprocessed">
               {{aprocessed}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
           <!-- Alert Type (Basic) -->
-          <md-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
-                     id="alerttype_id" (change)="onAlertTypeChanged(filter.alertType)">
-            <md-option [value]="''"></md-option>
-            <md-option *ngFor="let atype of aTypes" [value]="atype">
+          <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
+                     id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
+            <mat-option [value]="''"></mat-option>
+            <mat-option *ngFor="let atype of aTypes" [value]="atype">
               {{atype}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
 
-          <md-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
+          <mat-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
                      id="alertstatus_id">
-            <md-option [value]="''"></md-option>
-            <md-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
+            <mat-option [value]="''"></mat-option>
+            <mat-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
               {{aStatus}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
           <!-- Alert Id (Advanced) -->
-          <md-input-container *ngIf="advancedSearch">
-            <input mdInput placeholder="Alert Id" name="alertId" [(ngModel)]="filter.alertId"
-                   #alertId="ngModel" id="alertid_id">
-          </md-input-container>
+          <mat-form-field *ngIf="advancedSearch">
+            <input matInput placeholder="Alert Id" name="alertId" [(ngModel)]="filter.alertId"
+                   #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}" [errorStateMatcher]="matcher">
+            <mat-error *ngIf="alertId.invalid && (alertId.dirty || alertId.touched)">Alert Id must be 19 digits long and must not start with a 0</mat-error>
+          </mat-form-field>
           <!-- Alert Level (Basic) -->
-          <md-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
+          <mat-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
                      id="alertlevel_id">
-            <md-option [value]="''">
-            </md-option>
-            <md-option *ngFor="let alevel of aLevels" [value]="alevel">
+            <mat-option [value]="''">
+            </mat-option>
+            <mat-option *ngFor="let alevel of aLevels" [value]="alevel">
               {{alevel}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
           <!-- Creation From (Basic) -->
           <md2-datepicker placeholder="Creation From:" appClearInvalid
                           [(ngModel)]="filter.creationFrom"
@@ -88,26 +89,26 @@
 
           <!-- Alert Type Criteria -->
           <div class="panel" *ngIf="filter.alertType">
-            <md-card>
+            <mat-card>
               <div>
-                <md-card-title>
+                <mat-card-title>
                   {{filter.alertType}}
-                </md-card-title>
+                </mat-card-title>
               </div>
-              <md-card-content>
-                <md-input-container *ngFor="let item of nonDateParameters; let i = index">
-                  <input mdInput placeholder={{item}} name={{item}} [(ngModel)]="dynamicFilters[i]"
+              <mat-card-content>
+                <mat-form-field *ngFor="let item of nonDateParameters; let i = index">
+                  <input matInput placeholder={{item}} name={{item}} [(ngModel)]="dynamicFilters[i]"
                          #{{item}}="ngModel" id={{item}}_id>
-                </md-input-container>
+                </mat-form-field>
                 <span *ngIf="alertTypeWithDate">
-                  <md2-datepicker mdInput
+                  <md2-datepicker matInput
                                   placeholder={{dateFromName}}
                                   [(ngModel)]="dynamicDatesFilter.from"
                                   name="from"
                                   [type]="'datetime'"
                                   #timestampControl="ngModel" id={{dateFromName}}_id>
                   </md2-datepicker>
-                  <md2-datepicker mdInput
+                  <md2-datepicker matInput
                                   placeholder={{dateToName}}
                                   [(ngModel)]="dynamicDatesFilter.to"
                                   name="To"
@@ -115,15 +116,15 @@
                                   #timestampControl="ngModel" id={{dateToName}}_id>
                   </md2-datepicker>
                 </span>
-              </md-card-content>
-            </md-card>
+              </mat-card-content>
+            </mat-card>
           </div>
 
           <!-- Search Button and Basic/Advanced Search-->
           <div class="searchArea">
-            <button md-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
+            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
                     button-click-behaviour>
-              <md-icon>search</md-icon>
+              <mat-icon>search</mat-icon>
               <span>Search</span>
             </button>
             <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
@@ -131,11 +132,11 @@
           </div>
         </form>
       </div>
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 
   <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
-    <input autofocus type="checkbox" [checked]="value" id="processed{{row.$$index}}_id"
+    <input autofocus type="checkbox" [checked]="value" id="processed{{rows.indexOf(row)}}_id"
            (click)="setProcessedValue(row)"/>
   </ng-template>
 
@@ -151,8 +152,8 @@
       <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
                          (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
     </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()"
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
+    <button mat-icon-button color="primary" (click)="saveAsCSV()"
+            id="saveascsvbutton_id" mat-tooltip="Export as CSV" button-click-behaviour>
       <img src="assets/images/exportCSV.svg" width="30" height="30">
     </button>
   </div>
@@ -183,15 +184,19 @@
     <span class="text-select">{{value| domibusDate: dateFormat}}</span>
   </ng-template>
 
+  <ng-template #rowWithSpaceAfterCommaTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value.join(', ')}}</span>
+  </ng-template>
+
   <div class="group-action-button">
-    <button id="alertsCancelButton" md-raised-button color="primary" (click)="cancel()"
-            [disabled]="!isDirty" button-click-behaviour>
-      <md-icon>cancel</md-icon>
+    <button id="alertsCancelButton" mat-raised-button color="primary" (click)="cancel()"
+            [disabled]="!isDirty()" button-click-behaviour>
+      <mat-icon>cancel</mat-icon>
       <span>Cancel</span>
     </button>
-    <button id="alertsSaveButton" md-raised-button color="primary" (click)="save(false)"
-            [disabled]="!isDirty" button-click-behaviour>
-      <md-icon>save</md-icon>
+    <button id="alertsSaveButton" mat-raised-button color="primary" (click)="save(false)"
+            [disabled]="!isDirty()" button-click-behaviour>
+      <mat-icon>save</mat-icon>
       <span>Save</span>
     </button>
   </div>

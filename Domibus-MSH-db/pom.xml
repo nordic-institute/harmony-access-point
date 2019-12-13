@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.1-RC1-SNAPSHOT</version>
+        <version>4.2-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>domibus-db</artifactId>
@@ -16,6 +16,44 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-file</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql5innoDb-VERSION-delete-db.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/mysql5innoDb-${project.version}-delete-db.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql5innoDb-VERSION-uireplication-insert.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/mysql5innoDb-${project.version}-uireplication-insert.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle10g-VERSION-delete-db.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle10g-${project.version}-delete-db.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle10g-VERSION-multi-tenancy-rights.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle10g-${project.version}-multi-tenancy-rights.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle10g-VERSION-uireplication-insert.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle10g-${project.version}-uireplication-insert.sql</destinationFile>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Create the folder to store the generated sql scripts-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -39,189 +77,339 @@
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>${liquibase.version}</version>
                 <configuration>
-
                    <outputFileEncoding>UTF-8</outputFileEncoding>
                </configuration>
                <executions>
+
+                   <!-- 4.2.0 starts here -->
                    <execution>
-                       <id>generate-mysql-script-delta-4.1-RC1</id>
+                       <id>generate-mysql-script-data-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-delta.xml
+                               src/main/resources/db/changelog-4.2-data.xml
                            </changeLogFile>
                            <url>
-                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-delta.mysql
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2-data.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.0.1-to-4.1-RC1-migration.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.2-data.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-delta-multi-tenancy-4.1-RC1</id>
+                       <id>generate-mysql-script-multi-tenancy-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-multi-tenancy-delta.xml
+                               src/main/resources/db/changelog-4.2-multi-tenancy.xml
                            </changeLogFile>
                            <url>
-                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-multi-tenancy-delta.mysql
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2-multi-tenancy.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.0.1-to-4.1-RC1-multi-tenancy-migration.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.2-multi-tenancy.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-data-4.1-RC1</id>
+                       <id>generate-mysql-script-full-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-data.xml
+                               src/main/resources/db/changelog-4.2.xml
                            </changeLogFile>
                            <url>
-                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-data.mysql
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1-RC1-data.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.2.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-multi-tenancy-4.1-RC1</id>
+                       <id>generate-oracle-script-data-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-multi-tenancy.xml
+                               src/main/resources/db/changelog-4.2-data.xml
                            </changeLogFile>
                            <url>
-                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-multi-tenancy.mysql
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2-data.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1-RC1-multi-tenancy.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.2-data.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-full-4.1-RC1</id>
+                       <id>generate-oracle-script-multi-tenancy-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1.xml
+                               src/main/resources/db/changelog-4.2-multi-tenancy.xml
                            </changeLogFile>
                            <url>
-                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1.mysql
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2-multi-tenancy.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1-RC1.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.2-multi-tenancy.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-delta-4.1-RC1</id>
+                       <id>generate-oracle-script-full-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-delta.xml
+                               src/main/resources/db/changelog-4.2.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-delta.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.0.1-to-4.1-RC1-migration.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.2.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-delta-multi-tenancy-4.1-RC1</id>
+                       <id>generate-mysql-script-delta-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-multi-tenancy-delta.xml
+                               src/main/resources/db/changelog-4.2-delta.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-multi-tenancy-delta.oracle
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2-delta.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.0.1-to-4.1-RC1-multi-tenancy-migration.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.2-to-4.2-migration.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-data-4.1-RC1</id>
+                       <id>generate-mysql-script-delta-multi-tenancy-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-data.xml
+                               src/main/resources/db/changelog-4.2-multi-tenancy-delta.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-data.oracle
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2-multi-tenancy-delta.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.1-RC1-data.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.2-to-4.2-multi-tenancy-migration.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-multi-tenancy-4.1-RC1</id>
+                       <id>generate-oracle-script-delta-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1-multi-tenancy.xml
+                               src/main/resources/db/changelog-4.2-delta.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1-multi-tenancy.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2-delta.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.1-RC1-multi-tenancy.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.2-to-4.2-migration.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-full-4.1-RC1</id>
+                       <id>generate-oracle-script-delta-multi-tenancy-4.2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.1-RC1.xml
+                               src/main/resources/db/changelog-4.2-multi-tenancy-delta.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-RC1.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2-multi-tenancy-delta.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.1-RC1.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.2-to-4.2-multi-tenancy-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- 4.2.0 ends here -->
+
+                   <!-- 4.1.2 starts here -->
+                   <execution>
+                       <id>generate-mysql-script-delta-4.1.2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1.2-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1.2-delta.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.1-to-4.1.2-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-delta-multi-tenancy-4.1.2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1.2-multi-tenancy-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1.2-multi-tenancy-delta.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.1-to-4.1.2-multi-tenancy-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-delta-4.1.2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1.2-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1.2-delta.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.1-to-4.1.2-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-delta-multi-tenancy-4.1.2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1.2-multi-tenancy-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1.2-multi-tenancy-delta.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.1-to-4.1.2-multi-tenancy-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- 4.1.2 ends here -->
+
+                   <execution>
+                       <id>generate-mysql-script-delta-4.1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-delta.mysql
+                       </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.0.2-to-4.1-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-delta-multi-tenancy-4.1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1-multi-tenancy-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1-multi-tenancy-delta.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.0.2-to-4.1-multi-tenancy-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-delta-4.1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-delta.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle10g-4.0.2-to-4.1-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-delta-multi-tenancy-4.1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1-multi-tenancy-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1-multi-tenancy-delta.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle10g-4.0.2-to-4.1-multi-tenancy-migration.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>

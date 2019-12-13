@@ -1,8 +1,9 @@
-import {Http, Response} from "@angular/http";
-import {AlertService} from "app/common/alert/alert.service";
-import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {TrustStoreEntry} from "./trustore.model";
+import {HttpClient} from '@angular/common/http';
+import {AlertService} from 'app/common/alert/alert.service';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {TrustStoreEntry} from './trustore.model';
+import * as FileSaver from 'file-saver';
 
 /**
  * @Author Dussart Thomas
@@ -12,27 +13,33 @@ import {TrustStoreEntry} from "./trustore.model";
 @Injectable()
 export class TrustStoreService {
 
-  url = "rest/truststore";
-  constructor(private http: Http, private alertService: AlertService) {
+  url = 'rest/truststore';
+
+  constructor(private http: HttpClient, private alertService: AlertService) {
 
   }
 
   getEntries(): Observable<TrustStoreEntry[]> {
-    return this.http.get(this.url + '/list')
-      .map(this.extractData)
+    return this.http.get<TrustStoreEntry[]>(this.url + '/list')
       .catch(err => this.alertService.handleError(err));
   }
 
-  saveTrustStore(file, password): Observable<Response> {
+  uploadTrustStore(file, password): Observable<string> {
     let input = new FormData();
     input.append('truststore', file);
     input.append('password', password);
-    return this.http.post(this.url + '/save', input);
+    return this.http.post<string>(this.url + '/save', input);
   }
 
-  private extractData(res: Response) {
-    let body = res.json();
-    return body || {};
+
+  /**
+   * Local persister for the jks file
+   * @param data
+   */
+  saveTrustStoreFile(data: any) {
+    const blob = new Blob([data], {type: 'application/octet-stream'});
+    let filename = 'TrustStore.jks';
+    FileSaver.saveAs(blob, filename, false);
   }
 
 }

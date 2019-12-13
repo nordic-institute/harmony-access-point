@@ -9,8 +9,9 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import mockit.Expectations;
@@ -67,6 +68,10 @@ public class PModeDaoTest {
 
     @Injectable
     protected SignalService signalService;
+
+    @Injectable
+    private MpcService mpcService;
+
 
     @Mocked
     TypedQuery<LegConfiguration> queryLegConfiguration;
@@ -147,7 +152,7 @@ public class PModeDaoTest {
         final byte[] xmlBytes = {1, 0, 1};
         resultConfigurationRaw.setXml(xmlBytes);
         new Expectations(pModeDao) {{
-            pModeDao.getRawConfiguration(anyInt);
+            pModeDao.getRawConfiguration(anyLong);
             result = resultConfigurationRaw;
         }};
 
@@ -162,7 +167,7 @@ public class PModeDaoTest {
     public void testGetPModeFileNull() {
         // Given
         new Expectations(pModeDao) {{
-            pModeDao.getRawConfiguration(anyInt);
+            pModeDao.getRawConfiguration(anyLong);
             result = null;
         }};
 
@@ -180,7 +185,7 @@ public class PModeDaoTest {
         rawConfiguration.setDescription("description");
         rawConfiguration.setXml(new byte[]{1, 0, 1});
         new Expectations(configurationRawDAO) {{
-            configurationRawDAO.getConfigurationRaw(anyInt);
+            configurationRawDAO.getConfigurationRaw(anyLong);
             result = rawConfiguration;
         }};
 
@@ -200,7 +205,7 @@ public class PModeDaoTest {
         try {
             // When
             pModeDao.removePMode(1);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Assert.fail();
         }
 
@@ -214,8 +219,8 @@ public class PModeDaoTest {
         final List<PModeArchiveInfo> detailedConfigurationRawList = new ArrayList<>();
         detailedConfigurationRawList.add(new PModeArchiveInfo(1, new Date(), "username", "description"));
         new Expectations(configurationRawDAO) {{
-             configurationRawDAO.getDetailedConfigurationRaw();
-             result = detailedConfigurationRawList;
+            configurationRawDAO.getDetailedConfigurationRaw();
+            result = detailedConfigurationRawList;
         }};
 
         // When
@@ -256,7 +261,7 @@ public class PModeDaoTest {
         }};
 
         // When
-        List<String> partyIdByServiceAndAction = pModeDao.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> partyIdByServiceAndAction = pModeDao.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         // Then
         Assert.assertEquals(expectedResult, partyIdByServiceAndAction);
@@ -279,7 +284,7 @@ public class PModeDaoTest {
 
     @Test
     public void testGetAgreementRef() {
-        Assert.assertNull(pModeDao.getAgreementRef( ""));
+        Assert.assertNull(pModeDao.getAgreementRef(""));
     }
 
 }

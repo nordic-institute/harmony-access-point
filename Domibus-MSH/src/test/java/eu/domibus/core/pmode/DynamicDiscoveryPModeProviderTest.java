@@ -16,12 +16,14 @@ import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.services.impl.DynamicDiscoveryServiceOASIS;
 import eu.domibus.common.services.impl.DynamicDiscoveryServicePEPPOL;
 import eu.domibus.common.util.EndpointInfo;
-import eu.domibus.core.crypto.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.pki.CertificateServiceImpl;
 import eu.domibus.xml.XMLUtilImpl;
@@ -49,6 +51,7 @@ import java.lang.reflect.Method;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
@@ -57,6 +60,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDiscoveryPModeProviderTest {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
     private static final String DYNRESPONDER_AND_PARTYSELF = "dynResponderAndPartySelf.xml";
@@ -151,7 +156,7 @@ public class DynamicDiscoveryPModeProviderTest {
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServiceOASIS);
 
         /* test selection of dynamic discovery client Peppol compliant*/
-        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getDomainProperty(anyString(), anyString());
+        doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getProperty(anyString());
         dynamicDiscoveryPModeProvider.init();
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServicePEPPOL);
     }
@@ -171,10 +176,10 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Test
     public void testUseDynamicDiscovery() {
-        doReturn(false).when(domibusPropertyProvider).getBooleanDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         assertFalse(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
 
-        doReturn(true).when(domibusPropertyProvider).getBooleanDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         assertTrue(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
     }
 
@@ -248,7 +253,7 @@ public class DynamicDiscoveryPModeProviderTest {
     public void testFindUserMessageExchangeContextPartyNotFound() throws Exception {
 
         Configuration testData = initializeConfiguration(NO_DYNINITIATOR_AND_NOT_SELF);
-
+        Set<PartyId> partyId = null;
         DynamicDiscoveryPModeProvider classUnderTest = mock(DynamicDiscoveryPModeProvider.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         doReturn(testData).when(classUnderTest).getConfiguration();
         Whitebox.setInternalState(classUnderTest, "domainProvider", domainProvider);
@@ -258,17 +263,18 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY), eq("false"));
+        doReturn("false").when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
+            partyId= userMessage.getPartyInfo().getFrom().getPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("No matching party found", ex.getErrorDetail());
+            assertEquals(("Sender party could not found for the value  " + partyId), ex.getErrorDetail());
         }
 
-        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
-        doReturn(true).when(domibusPropertyProvider).getBooleanDomainProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
+        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
@@ -462,7 +468,8 @@ public class DynamicDiscoveryPModeProviderTest {
             preparePersist.setAccessible(true);
             preparePersist.invoke(configuration);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOG.info("Could not initialize configuration", e);
+            return false;
         } catch (InvocationTargetException | NoSuchMethodException e) {
             return false;
         }

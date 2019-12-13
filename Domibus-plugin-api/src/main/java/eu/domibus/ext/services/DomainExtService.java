@@ -3,20 +3,25 @@ package eu.domibus.ext.services;
 import eu.domibus.ext.domain.DomainDTO;
 
 /**
- * Service used to operations related with domains.
- *
- * <p>Operations available in the {@link DomainExtService} : </p>
- * <ul>
- *     <li>Gets domain for scheduler ({@link #getDomainForScheduler(String)})</li>
- *     <li>Gets domain defined with code ({@link #getDomain(String)}</li>
- * </ul>
+ * Service used for operations related with domains.
  *
  * @author Tiago Miguel
  * @since 4.0
  */
 public interface DomainExtService {
 
+    /**
+     * Gets the domain for the provided scheduler
+     * @param schedulerName the scheduler name
+     * @return the domain for the provided scheduler
+     */
     DomainDTO getDomainForScheduler(String schedulerName);
 
+    /**
+     * Gets the domain having the provided domain code
+     *
+     * @param code The domain code
+     * @return the domain for the provided scheduler
+     */
     DomainDTO getDomain(String code);
 }

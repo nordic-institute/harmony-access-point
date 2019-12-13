@@ -1,13 +1,14 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
+import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
-import eu.domibus.ebms3.common.model.MessageSubtype;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.Injectable;
 import mockit.Tested;
@@ -33,6 +34,9 @@ public class UserMessageLogDefaultServiceParameterizedTest {
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private SignalMessageLogDao signalMessageLogDao;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -65,7 +69,7 @@ public class UserMessageLogDefaultServiceParameterizedTest {
         final String backendName = "JMS";
         final String endpoint = "http://localhost";
 
-        userMessageLogDefaultService.save(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, service, action);
+        userMessageLogDefaultService.save(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, service, action, null, null);
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));

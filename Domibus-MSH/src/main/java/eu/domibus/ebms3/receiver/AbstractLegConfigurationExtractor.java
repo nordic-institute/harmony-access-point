@@ -3,7 +3,6 @@ package eu.domibus.ebms3.receiver;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
-import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -18,7 +17,7 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
 
     protected final Messaging messaging;
 
-    protected static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
 
 
     AbstractLegConfigurationExtractor(final SoapMessage message, final Messaging messaging) {

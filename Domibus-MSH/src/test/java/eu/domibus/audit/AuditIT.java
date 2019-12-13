@@ -2,6 +2,9 @@ package eu.domibus.audit;
 
 import eu.domibus.common.model.security.User;
 import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,14 +23,21 @@ import javax.persistence.PersistenceContext;
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class AuditIT {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditIT.class);
+
     @PersistenceContext
     private javax.persistence.EntityManager em;
+
+    @Before
+    public void setup() {
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+    }
 
     //just inserting audited entity to verify that envers does not cause any problems.
     @Test
     @Transactional
     public void testSaveEntity() {
-        User user=new User();
+        User user = new User();
         user.setUserName("Test33");
         user.setEmail("dussart.thomas@gmail.com");
         user.setPassword("test");

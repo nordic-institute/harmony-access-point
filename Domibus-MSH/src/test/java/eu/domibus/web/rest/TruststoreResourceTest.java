@@ -4,13 +4,14 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.Expectations;
@@ -21,6 +22,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -35,6 +38,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
+import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
 
 /**
  * @author Tiago Miguel
@@ -66,6 +72,9 @@ public class TruststoreResourceTest {
 
     @Injectable
     ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void testUploadTruststoreFileSuccess() throws IOException {
@@ -106,7 +115,7 @@ public class TruststoreResourceTest {
             domainProvider.getCurrentDomain();
             result = domain;
 
-            multiDomainCertificateProvider.replaceTrustStore(domain, (byte[]) any, anyString);
+            multiDomainCertificateProvider.replaceTrustStore(domain, anyString, (byte[]) any, anyString);
             result = new CryptoException("Password is incorrect");
         }};
 
@@ -177,5 +186,41 @@ public class TruststoreResourceTest {
         Assert.assertEquals("Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
                         "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator(),
                 csv.getBody());
+    }
+
+    @Test
+    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile) throws Exception {
+        // GIVEN
+        final String emptyPassword = "";
+
+        // WHEN
+        ResponseEntity<String> response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
+
+        // THEN
+        Assert.assertEquals("Should have rejected the request as bad", HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assert.assertTrue("Should have returned the correct error message", response.getBody().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
+    }
+
+    @Test
+    public void testDownload() throws IOException {
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        // Given
+        new Expectations() {{
+            certificateService.getTruststoreContent();
+            result = fileContent;
+        }};
+
+        // When
+        ResponseEntity<? extends Resource> responseEntity = truststoreResource.downloadTrustStore();
+
+        // Then
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+    }
+
+    private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
+        Assert.assertNotNull(responseEntity);
+        Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
+        Assert.assertEquals("attachment; filename=TrustStore.jks", responseEntity.getHeaders().get("content-disposition").get(0));
+        Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
     }
 }

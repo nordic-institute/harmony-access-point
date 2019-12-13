@@ -1,5 +1,6 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -16,7 +17,6 @@ import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
-import org.dozer.Mapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,18 +91,18 @@ public class UIReplicationDataServiceImplTest {
 
 
     @Test
-    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable Mapper domainCoreConverter) {
+    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomainCoreConverter domainCoreConverter) {
 
         new Expectations(uiReplicationDataService) {{
-            uiReplicationDataService.saveUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
+            uiReplicationDataService.createUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
         }};
 
         //tested
-        uiReplicationDataService.messageReceived(messageId, jmsTime.getTime());
+        uiReplicationDataService.userMessageReceived(messageId, jmsTime.getTime());
 
         new FullVerifications(uiReplicationDataService) {{
             String messageIdActual;
-            uiReplicationDataService.saveUIMessageFromUserMessageLog(messageIdActual = withCapture(), anyLong);
+            uiReplicationDataService.createUIMessageFromUserMessageLog(messageIdActual = withCapture(), anyLong);
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
         }};
@@ -111,123 +111,17 @@ public class UIReplicationDataServiceImplTest {
     @Test
     public void testMessageSubmitted() {
         new Expectations(uiReplicationDataService) {{
-            uiReplicationDataService.saveUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
+            uiReplicationDataService.createUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
         }};
 
         //tested
-        uiReplicationDataService.messageSubmitted(messageId, jmsTime.getTime());
+        uiReplicationDataService.userMessageSubmitted(messageId, jmsTime.getTime());
 
         new FullVerifications(uiReplicationDataService) {{
             String messageIdActual;
-            uiReplicationDataService.saveUIMessageFromUserMessageLog(messageIdActual = withCapture(), anyLong);
+            uiReplicationDataService.createUIMessageFromUserMessageLog(messageIdActual = withCapture(), anyLong);
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
-        }};
-    }
-
-    @Test
-    public void testMessageStatusChange_EntityFound_ResultOK(final @Mocked UIMessageEntity uiMessageEntity) {
-        final UserMessageLog userMessageLog = createUserMessageLog();
-
-        new Expectations(uiReplicationDataService) {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
-            uiMessageDao.findUIMessageByMessageId(anyString);
-            result = uiMessageEntity;
-
-            uiMessageEntity.getLastModified().getTime();
-            result = jmsTime.getTime() - 20;
-        }};
-
-        //tested method
-        uiReplicationDataService.messageStatusChange(messageId, messageStatus, jmsTime.getTime());
-
-        new FullVerifications(uiReplicationDataService) {{
-            String messageIdActual;
-            MessageStatus messageStatusActual;
-            Date deletedActual, nextAttemptActual, failedActual, lastModifiedActual;
-
-            uiMessageDao.updateMessageStatus(messageIdActual = withCapture(), messageStatusActual = withCapture(),
-                    deletedActual = withCapture(), nextAttemptActual = withCapture(), failedActual = withCapture(),
-            withAny(new java.util.Date()));
-
-            Assert.assertEquals(messageId, messageIdActual);
-            Assert.assertEquals(messageStatus, messageStatusActual);
-            Assert.assertEquals(deleted, deletedActual);
-            Assert.assertEquals(nextAttempt, nextAttemptActual);
-            Assert.assertEquals(failed, failedActual);
-        }};
-    }
-
-    @Test
-    public void testMessageStatusChange_EntityNotFound_Warning() {
-        final UserMessageLog userMessageLog = createUserMessageLog();
-
-        new Expectations() {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
-            uiMessageDao.findUIMessageByMessageId(anyString);
-            result = null;
-        }};
-
-        //tested method
-        uiReplicationDataService.messageStatusChange(messageId, messageStatus, jmsTime.getTime());
-
-        new FullVerifications(uiReplicationDataService) {{
-
-        }};
-    }
-
-    @Test
-    public void testMessageNotificationStatusChange_EntityFound_ResultOK(final @Mocked UIMessageEntity uiMessageEntity) {
-        final UserMessageLog userMessageLog = createUserMessageLog();
-
-        new Expectations(uiReplicationDataService) {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
-            uiMessageDao.findUIMessageByMessageId(anyString);
-            result = uiMessageEntity;
-
-            uiMessageEntity.getLastModified2().getTime();
-            result = jmsTime.getTime() - 20;
-        }};
-
-        //tested method
-        uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, jmsTime.getTime());
-
-        new FullVerifications(uiReplicationDataService) {{
-            String messageIdActual;
-            NotificationStatus notificationStatusActual;
-
-            uiMessageDao.updateNotificationStatus(messageIdActual = withCapture(),
-                    notificationStatusActual = withCapture(), withAny(new java.util.Date()));
-
-            Assert.assertEquals(messageId, messageIdActual);
-            Assert.assertEquals(notificationStatus, notificationStatusActual);
-
-        }};
-    }
-
-    @Test
-    public void testMessageNotificationStatusChange_EntityNotFound_Warning() {
-        final UserMessageLog userMessageLog = createUserMessageLog();
-
-        new Expectations(uiReplicationDataService) {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
-            uiMessageDao.findUIMessageByMessageId(anyString);
-            result = null;
-        }};
-
-        //tested method
-        uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, jmsTime.getTime());
-
-        new FullVerifications(uiReplicationDataService) {{
-
         }};
     }
 
@@ -247,7 +141,7 @@ public class UIReplicationDataServiceImplTest {
         uiReplicationDataService.messageChange(messageId, jmsTime.getTime());
 
         new FullVerifications(uiReplicationDataService) {{
-            uiMessageDao.updateMessage(messageId, messageStatus, deleted, failed, restored, nextAttempt, sendAttempts, sendAttemptsMax, jmsTime);
+            uiMessageDao.updateMessage(userMessageLog, jmsTime.getTime());
         }};
     }
 
@@ -256,9 +150,6 @@ public class UIReplicationDataServiceImplTest {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
         new Expectations(uiReplicationDataService) {{
-            userMessageLogDao.findByMessageId(anyString);
-            result = userMessageLog;
-
             uiMessageDao.findUIMessageByMessageId(anyString);
             result = null;
         }};
@@ -274,7 +165,7 @@ public class UIReplicationDataServiceImplTest {
     public void testSignalMessageSubmitted() {
 
         new Expectations(uiReplicationDataService) {{
-            uiReplicationDataService.saveUIMessageFromSignalMessageLog(anyString, jmsTime.getTime());
+            uiReplicationDataService.createUIMessageFromSignalMessageLog(anyString, jmsTime.getTime());
         }};
 
         //tested
@@ -282,7 +173,7 @@ public class UIReplicationDataServiceImplTest {
 
         new FullVerifications(uiReplicationDataService) {{
             String messageIdActual;
-            uiReplicationDataService.saveUIMessageFromSignalMessageLog(messageIdActual = withCapture(), anyLong);
+            uiReplicationDataService.createUIMessageFromSignalMessageLog(messageIdActual = withCapture(), anyLong);
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
         }};
@@ -291,7 +182,7 @@ public class UIReplicationDataServiceImplTest {
     @Test
     public void testSignalMessageReceived() {
         new Expectations(uiReplicationDataService) {{
-            uiReplicationDataService.saveUIMessageFromSignalMessageLog(anyString, jmsTime.getTime());
+            uiReplicationDataService.createUIMessageFromSignalMessageLog(anyString, jmsTime.getTime());
         }};
 
         //tested
@@ -299,7 +190,7 @@ public class UIReplicationDataServiceImplTest {
 
         new FullVerifications(uiReplicationDataService) {{
             String messageIdActual;
-            uiReplicationDataService.saveUIMessageFromSignalMessageLog(messageIdActual = withCapture(), anyLong);
+            uiReplicationDataService.createUIMessageFromSignalMessageLog(messageIdActual = withCapture(), anyLong);
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
         }};
@@ -326,17 +217,14 @@ public class UIReplicationDataServiceImplTest {
             userMessageDefaultServiceHelper.getOriginalSender(userMessage);
             result = originalSender;
 
-            uiMessageEntity.getLastModified();
-            result = jmsTime;
-
         }};
 
         //tested method
-        uiReplicationDataService.saveUIMessageFromUserMessageLog(messageId, jmsTime.getTime());
+        uiReplicationDataService.createUIMessageFromUserMessageLog(messageId, jmsTime.getTime());
 
         new FullVerifications(uiMessageEntity) {{
 
-            uiMessageEntity.setEntityId(anyInt);
+            uiMessageEntity.setEntityId(anyLong);
 
             String actualValue;
             uiMessageEntity.setMessageId(actualValue = withCapture());
@@ -361,8 +249,6 @@ public class UIReplicationDataServiceImplTest {
             Assert.assertEquals(refToMessageId, actualValue);
 
             uiMessageEntity.setLastModified(withAny(new java.util.Date()));
-            uiMessageEntity.setLastModified2(withAny(new java.util.Date()));
-
 
             final UIMessageEntity entityActual;
             uiMessageDao.create(entityActual = withCapture());
@@ -403,17 +289,14 @@ public class UIReplicationDataServiceImplTest {
             userMessageDefaultServiceHelper.getOriginalSender(userMessage);
             result = originalSender;
 
-            uiMessageEntity.getLastModified();
-            result = jmsTime;
-
         }};
 
         //tested method
-        uiReplicationDataService.saveUIMessageFromSignalMessageLog(messageId, jmsTime.getTime());
+        uiReplicationDataService.createUIMessageFromSignalMessageLog(messageId, jmsTime.getTime());
 
         new FullVerifications(uiMessageEntity) {{
 
-            uiMessageEntity.setEntityId(anyInt);
+            uiMessageEntity.setEntityId(anyLong);
 
             String actualValue;
             uiMessageEntity.setMessageId(actualValue = withCapture());
@@ -438,8 +321,6 @@ public class UIReplicationDataServiceImplTest {
             Assert.assertEquals(refToMessageId, actualValue);
 
             uiMessageEntity.setLastModified(withAny(new java.util.Date()));
-
-            uiMessageEntity.setLastModified2(withAny(new java.util.Date()));
 
             final UIMessageEntity entityActual;
             uiMessageDao.create(entityActual = withCapture());

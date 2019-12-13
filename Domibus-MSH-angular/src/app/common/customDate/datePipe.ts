@@ -10,7 +10,7 @@ import { Pipe, PipeTransform } from '@angular/core';
  * When they solve it, we can delete this file and use the pipe with date and format again.
  */
 export class DatePipe implements PipeTransform {
-  transform(value: string, type: string = ""): string {
+  transform(value: string | Date, type: string = ""): string {
     if(value) {
       let d = new Date(value);
 

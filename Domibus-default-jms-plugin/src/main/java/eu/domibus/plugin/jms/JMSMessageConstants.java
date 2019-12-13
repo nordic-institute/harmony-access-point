@@ -7,6 +7,7 @@ package eu.domibus.plugin.jms;
 public class JMSMessageConstants {
 
     public static final String JMS_PLUGIN_PROPERTY_PREFIX = "jmsplugin";
+    public static final String MPC = "mpc";
     public static final String MESSAGE_ID = "messageId";
     public static final String P1_IN_BODY = "p1InBody";
     public static final String JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY = "messageType";
@@ -51,4 +52,13 @@ public class JMSMessageConstants {
 
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password"; //NOSONAR
+
+    public static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
+
+    public static final String QUEUE_NOTIFICATION = "queue.notification";
+    public static final String QUEUE_IN = "queue.in";
+    public static final String QUEUE_IN_CONCURRENCY = "queue.in.concurrency";
 }

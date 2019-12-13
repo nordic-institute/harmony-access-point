@@ -2,7 +2,7 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.FSPluginProperties;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -15,9 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -35,7 +36,7 @@ public class FSPurgeFailedServiceTest {
     private FSFilesManager fsFilesManager;
 
     @Injectable
-    private FSMultiTenancyService fsMultiTenancyService;
+    private FSDomainService fsMultiTenancyService;
 
     @Injectable
     private DomibusConfigurationExtService domibusConfigurationExtService;
@@ -73,11 +74,17 @@ public class FSPurgeFailedServiceTest {
 
     @Test
     public void testPurgeMessages() throws FileSystemException, FSSetUpException {
+        final List<String> domains = new ArrayList<>();
+        domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
+
         new Expectations(1, instance) {{
             fsPluginProperties.getDomains();
-            result = Collections.emptyList();
+            result = domains;
 
-            fsFilesManager.setUpFileSystem(null);
+            fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
+            result = true;
+
+            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.FAILED_FOLDER);
@@ -86,7 +93,7 @@ public class FSPurgeFailedServiceTest {
             fsFilesManager.findAllDescendantFiles(failedFolder);
             result = new FileObject[]{ recentFile, oldFile };
 
-            fsPluginProperties.getFailedPurgeExpired(null);
+            fsPluginProperties.getFailedPurgeExpired(FSSendMessagesService.DEFAULT_DOMAIN);
             result = 20;
         }};
 

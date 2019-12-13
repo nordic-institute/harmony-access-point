@@ -1,11 +1,14 @@
 package eu.domibus.security;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
+import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.dao.security.UserPasswordHistoryDao;
 import eu.domibus.common.model.security.UserEntityBase;
@@ -34,6 +37,7 @@ import java.util.regex.Pattern;
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * Template method pattern algorithm class responsible for security validations for both console and plugin users
  */
 
 @Service
@@ -54,8 +58,12 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     @Autowired
     protected DomainService domainService;
 
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
 
-    // abstract methods
+    @Autowired
+    UserSessionsService userSessionsService;
+
     protected abstract String getPasswordComplexityPatternProperty();
 
     public abstract String getPasswordHistoryPolicyProperty();
@@ -64,7 +72,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract String getMaximumPasswordAgeProperty();
 
-    protected abstract String getWarningDaysBeforeExpiration();
+    protected abstract String getWarningDaysBeforeExpirationProperty();
 
     protected abstract UserPasswordHistoryDao getUserHistoryDao();
 
@@ -76,15 +84,15 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract int getSuspensionInterval();
 
-    // public interface
-    public void validateComplexity(final String userName, final String password) throws DomibusCoreException {
+    protected abstract UserEntityBase.Type getUserType();
 
+    public void validateComplexity(final String userName, final String password) throws DomibusCoreException {
         String errorMessage = "The password of " + userName + " user does not meet the minimum complexity requirements";
         if (StringUtils.isBlank(password)) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMessage);
         }
 
-        String passwordPattern = domibusPropertyProvider.getOptionalDomainProperty(getPasswordComplexityPatternProperty());
+        String passwordPattern = domibusPropertyProvider.getProperty(getPasswordComplexityPatternProperty());
         if (StringUtils.isBlank(passwordPattern)) {
             return;
         }
@@ -97,8 +105,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
-
-        int oldPasswordsToCheck = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(getPasswordHistoryPolicyProperty()));
+        int oldPasswordsToCheck = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (oldPasswordsToCheck == 0) {
             return;
         }
@@ -111,32 +118,40 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
+    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     public void validatePasswordExpired(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
+        LOG.debug("Validating if password expired for user [{}]", userName);
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
-        LOG.debug("Password expiration policy for user [{}] : {} days", userName, maxPasswordAgeInDays);
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+        LOG.debug("Password expiration policy for user [{}] : [{}] days", userName, maxPasswordAgeInDays);
 
         if (maxPasswordAgeInDays <= 0) {
+            LOG.debug("Configured maxPasswordAgeInDays is <=0, password not expired");
             return;
         }
 
         LocalDate expirationDate = passwordChangeDate == null ? LocalDate.now() : passwordChangeDate.plusDays(maxPasswordAgeInDays).toLocalDate();
 
         if (expirationDate.isBefore(LocalDate.now())) {
-            LOG.debug("Password expired for user [{}]", userName);
+            LOG.debug("Password expired for user [{}]: expirationDate [{}] < now", userName, expirationDate);
             throw new CredentialsExpiredException(CREDENTIALS_EXPIRED);
         }
     }
 
     public Integer getDaysTillExpiration(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
-        int warningDaysBeforeExpiration = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(getWarningDaysBeforeExpiration()));
+        String warningDaysBeforeExpirationProperty = getWarningDaysBeforeExpirationProperty();
+        if (StringUtils.isBlank(warningDaysBeforeExpirationProperty)) {
+            return null;
+        }
+
+        int warningDaysBeforeExpiration = domibusPropertyProvider.getIntegerProperty(warningDaysBeforeExpirationProperty);
         if (warningDaysBeforeExpiration <= 0) {
             return null;
         }
 
         String expirationProperty = isDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = Integer.valueOf(domibusPropertyProvider.getOptionalDomainProperty(expirationProperty));
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 
         if (maxPasswordAgeInDays <= 0) {
             return null;
@@ -156,7 +171,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         LocalDate expirationDate = passwordDate.plusDays(maxPasswordAgeInDays);
         LocalDate today = LocalDate.now();
         int daysUntilExpiration = (int) ChronoUnit.DAYS.between(today, expirationDate);
-        
+
         LOG.debug("Password policy: days until expiration for user [{}] : {} days", userName, daysUntilExpiration);
 
         if (0 <= daysUntilExpiration && daysUntilExpiration <= warningDaysBeforeExpiration) {
@@ -179,14 +194,14 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     }
 
     private void savePasswordHistory(U user) {
-        int passwordsToKeep = domibusPropertyProvider.getIntegerOptionalDomainProperty(getPasswordHistoryPolicyProperty());
+        int passwordsToKeep = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (passwordsToKeep <= 0) {
             return;
         }
 
         UserPasswordHistoryDao dao = getUserHistoryDao();
         dao.savePassword(user, user.getPassword(), user.getPasswordChangeDate());
-        dao.removePasswords(user, passwordsToKeep - 1);
+        dao.removePasswords(user, passwordsToKeep);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -256,12 +271,14 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             userEntity.setSuspensionDate(null);
             userEntity.setAttemptCount(0);
         } else if (!user.isActive() && userEntity.isActive()) {
-            LOG.debug("User:[{}] has been disabled by administrator", user.getUserName());
+            LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
+            userSessionsService.invalidateSessions(user);
             getUserAlertsService().triggerDisabledEvent(user);
         }
         userEntity.setActive(user.isActive());
         return userEntity;
     }
+
 
     @Transactional
     public void reactivateSuspendedUsers() {
@@ -269,6 +286,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
         //user will not be reactivated.
         if (suspensionInterval <= 0) {
+            LOG.trace("Suspended [{}] are not reactivated", getUserType().getName());
             return;
         }
 
@@ -286,4 +304,23 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(users);
     }
 
+    /**
+     * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
+     */
+    public void validateUniqueUser(UserBase user) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            //check to see if it is a domain user
+            String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());
+            if (domain != null) {
+                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists in the " + domain + " domain.";
+                throw new UserManagementException(errorMessage);
+            }
+            //if no luck, check also if it is super-user/AP admin
+            String preferredDomain = userDomainService.getPreferredDomainForUser(user.getUniqueIdentifier());
+            if (preferredDomain != null) {
+                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because an AP admin with this name already exists.";
+                throw new UserManagementException(errorMessage);
+            }
+        }
+    }
 }

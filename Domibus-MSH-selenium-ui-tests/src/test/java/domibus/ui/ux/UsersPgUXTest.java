@@ -79,7 +79,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	}
 
 	/* Doubleclick on one user (deleted) */
-	@Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void doubleclickDeletedUser() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
@@ -324,7 +324,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	}
 
 	/* USR-24 - Deleted user row selection on single click */
-	@Test(description = "USR-24", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void selectDeletedUserRow() throws Exception {
 		String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
 		log.info("checking for username " + username);

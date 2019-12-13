@@ -1,10 +1,10 @@
-import {Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, URLSearchParams, Response} from '@angular/http';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './messagelogresult';
 import {Observable} from 'rxjs';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagelogDialogComponent} from 'app/messagelog/messagelog-dialog/messagelog-dialog.component';
-import {MdDialog, MdSelectChange} from '@angular/material';
+import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
@@ -13,7 +13,10 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {isNullOrUndefined} from 'util';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import BaseListComponent from '../common/base-list.component';
+import mix from '../common/mixins/mixin.utils';
 
 @Component({
   moduleId: module.id,
@@ -22,20 +25,19 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   styleUrls: ['./messagelog.component.css']
 })
 
-export class MessageLogComponent extends FilterableListComponent implements OnInit {
-
+export class MessageLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoTpl') public nextAttemptInfoTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoWithDateFormatTpl') public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
-  @ViewChild('list') list: DatatableComponent;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('list', {static: false}) list: DatatableComponent;
 
   columnPicker: ColumnPickerBase;
-  rowLimiter: RowLimiterBase;
+  public rowLimiter: RowLimiterBase;
 
   selected: any[];
 
@@ -47,8 +49,6 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   rows: any[];
   count: number;
   offset: number;
-  orderBy: string;
-  asc: boolean;
 
   mshRoles: Array<String>;
   msgTypes: Array<String>;
@@ -63,8 +63,11 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
   canSearchByConversationId: boolean;
   conversationIdValue: String;
 
-  constructor(private http: Http, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MdDialog, private elementRef: ElementRef) {
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
+  constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
+              public dialog: MatDialog, private elementRef: ElementRef,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -84,17 +87,25 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
     this.rows = [];
     this.count = 0;
     this.offset = 0;
-    this.orderBy = 'received';
-    this.asc = false;
+    this['orderBy'] = 'received';
+    this['asc'] = false;
 
     this.messageResent = new EventEmitter(false);
 
     this.canSearchByConversationId = true;
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
-    this.configureColumnPicker();
 
     this.search();
+  }
+
+  async ngAfterViewInit() {
+    this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
+    this.configureColumnPicker();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   private configureColumnPicker() {
@@ -200,87 +211,88 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
     }
   }
 
-  createSearchParams(): URLSearchParams {
-    const searchParams = new URLSearchParams();
+
+  createSearchParams(): HttpParams {
+    let searchParams = new HttpParams();
 
     if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
+      searchParams = searchParams.append('orderBy', this.orderBy);
     }
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     if (this.activeFilter.messageId) {
-      searchParams.set('messageId', this.activeFilter.messageId);
+      searchParams = searchParams.append('messageId', this.activeFilter.messageId);
     }
 
     if (this.activeFilter.mshRole) {
-      searchParams.set('mshRole', this.activeFilter.mshRole);
+      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
     }
 
     if (this.activeFilter.conversationId) {
-      searchParams.set('conversationId', this.activeFilter.conversationId);
+      searchParams = searchParams.append('conversationId', this.activeFilter.conversationId);
     }
 
     if (this.activeFilter.messageType) {
-      searchParams.set('messageType', this.activeFilter.messageType);
+      searchParams = searchParams.append('messageType', this.activeFilter.messageType);
     }
 
     if (this.activeFilter.messageStatus) {
-      searchParams.set('messageStatus', this.activeFilter.messageStatus);
+      searchParams = searchParams.append('messageStatus', this.activeFilter.messageStatus);
     }
 
     if (this.activeFilter.notificationStatus) {
-      searchParams.set('notificationStatus', this.activeFilter.notificationStatus);
+      searchParams = searchParams.append('notificationStatus', this.activeFilter.notificationStatus);
     }
 
     if (this.activeFilter.fromPartyId) {
-      searchParams.set('fromPartyId', this.activeFilter.fromPartyId);
+      searchParams = searchParams.append('fromPartyId', this.activeFilter.fromPartyId);
     }
 
     if (this.activeFilter.toPartyId) {
-      searchParams.set('toPartyId', this.activeFilter.toPartyId);
+      searchParams = searchParams.append('toPartyId', this.activeFilter.toPartyId);
     }
 
     if (this.activeFilter.originalSender) {
-      searchParams.set('originalSender', this.activeFilter.originalSender);
+      searchParams = searchParams.append('originalSender', this.activeFilter.originalSender);
     }
 
     if (this.activeFilter.finalRecipient) {
-      searchParams.set('finalRecipient', this.activeFilter.finalRecipient);
+      searchParams = searchParams.append('finalRecipient', this.activeFilter.finalRecipient);
     }
 
     if (this.activeFilter.refToMessageId) {
-      searchParams.set('refToMessageId', this.activeFilter.refToMessageId);
+      searchParams = searchParams.append('refToMessageId', this.activeFilter.refToMessageId);
     }
 
     if (this.activeFilter.receivedFrom) {
-      searchParams.set('receivedFrom', this.activeFilter.receivedFrom.getTime());
+      searchParams = searchParams.append('receivedFrom', this.activeFilter.receivedFrom.getTime());
     }
 
     if (this.activeFilter.receivedTo) {
-      searchParams.set('receivedTo', this.activeFilter.receivedTo.getTime());
+      searchParams = searchParams.append('receivedTo', this.activeFilter.receivedTo.getTime());
     }
 
     if (this.activeFilter.isTestMessage) {
-      searchParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
+      searchParams = searchParams.append('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
     }
 
     return searchParams;
   }
 
   getMessageLogEntries(offset: number, pageSize: number): Observable<MessageLogResult> {
-    const searchParams = this.createSearchParams();
+    let searchParams = this.createSearchParams();
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
-    return this.http.get(MessageLogComponent.MESSAGE_LOG_URL, {search: searchParams})
-      .map((response: Response) =>
-        response.json()
-      );
+    return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams});
   }
 
+  /**
+   * The method is the actual implementation of the abstract method declared in the base abstract class
+   */
   page(offset, pageSize) {
     this.loading = true;
     super.resetFilters();
@@ -308,7 +320,7 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
         result.filter.receivedTo = new Date(result.filter.receivedTo);
       }
       result.filter.isTestMessage = !isNullOrUndefined(result.filter.messageSubtype);
-      this.filter = result.filter;
+      this['filter'] = result.filter;
 
       this.mshRoles = result.mshRoles;
       this.msgTypes = result.msgTypes;
@@ -316,10 +328,10 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
       this.notifStatus = result.notifStatus;
 
       this.loading = false;
-    }, (error: any) => {
-      console.log('error getting the message log:' + error);
+    }, (error) => {
+      console.log('error getting the message log:', error);
       this.loading = false;
-      this.alertService.error('Error occured:' + error);
+      this.alertService.exception('Error occurred: ', error);
     });
   }
 
@@ -327,11 +339,11 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
     this.page(event.offset, event.pageSize);
   }
 
-  onSort(event) {
-    this.orderBy = event.column.prop;
-    this.asc = (event.newValue === 'desc') ? false : true;
-
-    this.page(this.offset, this.rowLimiter.pageSize);
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public reload() {
+    this.page(0, this.rowLimiter.pageSize);
   }
 
   onActivate(event) {
@@ -346,7 +358,7 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
 
   search() {
     super.setActiveFilter();
-    console.log('search by:',this.activeFilter);
+    console.log('search by:', this.activeFilter);
     this.page(0, this.rowLimiter.pageSize);
   }
 
@@ -374,30 +386,44 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.error('The message ' + messageId + ' could not be resent.');
+      this.alertService.exception('The message ' + messageId + ' could not be resent.', err);
     });
   }
 
   isResendButtonEnabledAction(row): boolean {
-    return !row.deleted && row.messageStatus === 'SEND_FAILURE';
+    return this.isRowResendButtonEnabled(row);
   }
 
   isResendButtonEnabled() {
-    if (this.selected && this.selected.length == 1 && !this.selected[0].deleted && this.selected[0].messageStatus === 'SEND_FAILURE')
-      return true;
+    return this.isOneRowSelected() && !this.selected[0].deleted
+      && this.isRowResendButtonEnabled(this.selected[0]);
+  }
 
-    return false;
+  private isRowResendButtonEnabled(row): boolean {
+    return !row.deleted
+      && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
+      && !this.isSplitAndJoinMessage(row);
+  }
+
+  private isSplitAndJoinMessage(row) {
+    return row.messageFragment || row.sourceMessage;
   }
 
   isDownloadButtonEnabledAction(row): boolean {
-    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE';
+    return this.isRowDownloadButtonEnabled(row);
   }
 
   isDownloadButtonEnabled(): boolean {
-    if (this.selected && this.selected.length == 1 && !this.selected[0].deleted)
-      return true;
+    return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
+  }
 
-    return false;
+  private isRowDownloadButtonEnabled(row): boolean {
+    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
+      && !this.isSplitAndJoinMessage(row);
+  }
+
+  private isOneRowSelected() {
+    return this.selected && this.selected.length == 1;
   }
 
   private downloadMessage(messageId) {
@@ -473,7 +499,7 @@ export class MessageLogComponent extends FilterableListComponent implements OnIn
     dataTableBodyDom.scrollLeft = 0;
   }
 
-  onMessageTypeChanged($event: MdSelectChange) {
+  onMessageTypeChanged($event: MatSelectChange) {
     this.canSearchByConversationId = (this.filter.messageType == 'USER_MESSAGE');
     if (this.canSearchByConversationId) {
       this.filter.conversationId = this.conversationIdValue;

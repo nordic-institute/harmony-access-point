@@ -1,9 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
-import {Headers, Http, Response} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import {User} from './user';
-import {ReplaySubject} from 'rxjs';
 import {SecurityEventService} from './security.event.service';
 import {DomainService} from './domain.service';
 import {PasswordPolicyRO} from './passwordPolicyRO';
@@ -11,14 +9,17 @@ import {AlertService} from '../common/alert/alert.service';
 
 @Injectable()
 export class SecurityService {
-  static ROLE_AP_ADMIN = 'ROLE_AP_ADMIN';
-  static ROLE_DOMAIN_ADMIN = 'ROLE_ADMIN';
+  public static ROLE_AP_ADMIN = 'ROLE_AP_ADMIN';
+  public static ROLE_DOMAIN_ADMIN = 'ROLE_ADMIN';
+  public static ROLE_USER = 'ROLE_USER';
+  public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
+  public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
 
   passwordPolicy: Promise<PasswordPolicyRO>;
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
-  constructor(private http: Http,
+  constructor(private http: HttpClient,
               private securityEventService: SecurityEventService,
               private alertService: AlertService,
               private domainService: DomainService) {
@@ -27,13 +28,12 @@ export class SecurityService {
   login(username: string, password: string) {
     this.domainService.resetDomain();
 
-    const headers = new Headers({'Content-Type': 'application/json'});
-    return this.http.post('rest/security/authentication',
+    return this.http.post<User>('rest/security/authentication',
       {
         username: username,
         password: password
-      }).subscribe((response: Response) => {
-        this.updateCurrentUser(response.json());
+      }).subscribe((response: User) => {
+        this.updateCurrentUser(response);
 
         this.domainService.setAppTitle();
 
@@ -46,22 +46,20 @@ export class SecurityService {
   }
 
   /**
-   * It simulates the login function for an external authentication provider
-   * Saves current user to local storage, etc
+   * get the user from the server and saves it locally
    */
-  async login_extauthprovider() {
-    console.log('login from auth external provider');
-
+  async getCurrentUserAndSaveLocally() {
+    let userSet = false;
     try {
-      //get the user from server and write it in local storage
       const user = await this.getCurrentUserFromServer();
       if (user) {
         this.updateCurrentUser(user);
-        this.domainService.setAppTitle();
+        userSet = true;
       }
     } catch (ex) {
-      console.log('getCurrentUserFromServer error' + ex);
+      console.log('getCurrentUserAndSaveLocally error' + ex);
     }
+    return userSet;
   }
 
   logout() {
@@ -70,7 +68,7 @@ export class SecurityService {
 
     this.clearSession();
 
-    this.http.delete('rest/security/authentication').subscribe((res: Response) => {
+    this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
       },
       (error: any) => {
@@ -80,8 +78,7 @@ export class SecurityService {
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.pluginPasswordPolicy) {
-      this.pluginPasswordPolicy = this.http.get('rest/application/pluginPasswordPolicy')
-        .map(this.extractData)
+      this.pluginPasswordPolicy = this.http.get<PasswordPolicyRO>('rest/application/pluginPasswordPolicy')
         .map(this.formatValidationMessage)
         .catch(err => this.alertService.handleError(err))
         .toPromise();
@@ -96,54 +93,47 @@ export class SecurityService {
 
   clearSession() {
     this.domainService.resetDomain();
-    sessionStorage.removeItem('currentUser');
+    localStorage.removeItem('currentUser');
   }
 
   getCurrentUser(): User {
-    const storedUser = sessionStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem('currentUser');
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
   updateCurrentUser(user: User): void {
-    console.log('save current user on local storage');
-    sessionStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
-  private getCurrentUsernameFromServer(): Observable<string> {
-    const subject = new ReplaySubject();
-    this.http.get('rest/security/username')
-      .subscribe((res: Response) => {
-        subject.next(res.text());
-      }, (error: any) => {
-        subject.next(null);
-      });
-    return subject.asObservable();
+
+  getCurrentUsernameFromServer(): Promise<string> {
+    return this.http.get<string>('rest/security/username').toPromise();
   }
 
   getCurrentUserFromServer(): Promise<User> {
-    return this.http.get('rest/security/user').
-      map((res: Response) => res.json()).toPromise();
+    return this.http.get<User>('rest/security/user').toPromise();
   }
 
 
-  isAuthenticated(callServer: boolean = false): Observable<boolean> {
-    const subject = new ReplaySubject();
-    if (callServer) {
-      // we get the username from the server to trigger the redirection to the login screen in case the user is not authenticated
-      this.getCurrentUsernameFromServer()
-        .subscribe((user: string) => {
-          let userUndefined = (user == null || user == "");
-          subject.next(!userUndefined);
-        }, (error: any) => {
-          console.log('isAuthenticated error' + error);
-          subject.next(false);
-        });
+  isAuthenticated(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      let isAuthenticated = false;
 
-    } else {
-      const currentUser = this.getCurrentUser();
-      subject.next(currentUser !== null);
-    }
-    return subject.asObservable();
+      // we get the username from the server to trigger the redirection
+      // to the login screen in case the user is not authenticated
+      this.getCurrentUserFromServer().then(user => {
+
+        isAuthenticated = user ? user.username != '' : false;
+        let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
+        if (shouldUpdateUserLocally) {
+          this.updateCurrentUser(user);
+        }
+        resolve(isAuthenticated);
+      }).catch(reason => {
+        console.log('Error while calling getCurrentUsernameFromServer: ' + reason);
+        reject(false);
+      });
+    });
   }
 
   isCurrentUserSuperAdmin(): boolean {
@@ -152,6 +142,10 @@ export class SecurityService {
 
   isCurrentUserAdmin(): boolean {
     return this.isCurrentUserInRole([SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN]);
+  }
+
+  hasCurrentUserPrivilegeUser(): boolean {
+    return this.isCurrentUserInRole([SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN]);
   }
 
   isUserFromExternalAuthProvider(): boolean {
@@ -172,22 +166,18 @@ export class SecurityService {
     return hasRole;
   }
 
-  isAuthorized(roles: Array<string>): Observable<boolean> {
-    const subject = new ReplaySubject();
 
-    this.isAuthenticated(false).subscribe((isAuthenticated: boolean) => {
-      if (isAuthenticated && roles) {
-        const hasRole = this.isCurrentUserInRole(roles);
-        subject.next(hasRole);
-      }
-    });
-    return subject.asObservable();
+  isAuthorized(roles: Array<string>) {
+    let isAuthorized = false;
+    if (roles) {
+      isAuthorized = this.isCurrentUserInRole(roles);
+    }
+    return isAuthorized;
   }
 
   getPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.passwordPolicy) {
-      this.passwordPolicy = this.http.get('rest/application/passwordPolicy')
-        .map(this.extractData)
+      this.passwordPolicy = this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy')
         .map(this.formatValidationMessage)
         .catch(err => this.alertService.handleError(err))
         .toPromise();
@@ -227,11 +217,6 @@ export class SecurityService {
     }
     return {response: false};
 
-  }
-
-  private extractData(res: Response) {
-    const result = res.json() || {};
-    return result;
   }
 
   async changePassword(params): Promise<any> {

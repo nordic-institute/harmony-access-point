@@ -1,17 +1,23 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
-import {Http, URLSearchParams, Response, Headers} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
-import {MdDialog} from '@angular/material';
+import {ErrorStateMatcher, MatDialog, ShowOnDirtyErrorStateMatcher} from '@angular/material';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {DirtyOperations} from '../common/dirty-operations';
+import {AlertsEntry} from './alertsentry';
+import 'rxjs-compat/add/operator/filter';
 
 @Component({
   moduleId: module.id,
@@ -19,7 +25,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   providers: []
 })
 
-export class AlertsComponent extends FilterableListComponent implements OnInit {
+export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit, DirtyOperations {
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';
@@ -27,62 +33,100 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
   static readonly ALERTS_LEVELS_URL: string = AlertsComponent.ALERTS_URL + '/levels';
   static readonly ALERTS_PARAMS_URL: string = AlertsComponent.ALERTS_URL + '/params';
 
-  @ViewChild('rowProcessed') rowProcessed: TemplateRef<any>;
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
+  public rowLimiter: RowLimiterBase;
 
   advancedSearch: boolean;
-  loading: boolean = false;
+  loading: boolean;
 
   // data table
-  rows = [];
-  count = 0;
-  offset = 0;
-  orderBy = 'creationTime';
-  asc = false;
+  rows: Array<AlertsEntry>;
+  count: number;
+  offset: number;
 
-  isDirty = false;
+  isChanged: boolean;
 
-  aTypes = [];
-  aStatuses = [];
-  aLevels = [];
+  aTypes: Array<any>;
+  aStatuses: Array<any>;
+  aLevels: Array<any>;
 
   aProcessedValues = ['PROCESSED', 'UNPROCESSED'];
 
-  dynamicFilters = [];
+  dynamicFilters: Array<any>;
+  dynamicDatesFilter: any;
+  nonDateParameters: Array<any>;
+  alertTypeWithDate: boolean;
 
-  dynamicDatesFilter: any = {};
+  timestampCreationFromMaxDate: Date;
+  timestampCreationToMinDate: Date;
+  timestampCreationToMaxDate: Date;
+  timestampReportingFromMaxDate: Date;
+  timestampReportingToMinDate: Date;
+  timestampReportingToMaxDate: Date;
 
-  nonDateParameters = [];
-  alertTypeWithDate: boolean = false;
+  dateFromName: string;
+  dateToName: string;
+  displayDomainCheckBox: boolean;
 
-  timestampCreationFromMaxDate: Date = new Date();
-  timestampCreationToMinDate: Date = null;
-  timestampCreationToMaxDate: Date = new Date();
-  timestampReportingFromMaxDate: Date = new Date();
-  timestampReportingToMinDate: Date = null;
-  timestampReportingToMaxDate: Date = new Date();
+  matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
 
-  dateFromName: string = '';
-  dateToName: string = '';
-  displayDomainCheckBox: boolean = false;
+  filter: any;
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
 
     this.getAlertTypes();
     this.getAlertLevels();
     this.getAlertStatuses();
-    if (this.securityService.isCurrentUserSuperAdmin()) {
-      this.displayDomainCheckBox = true;
-    }
   }
 
   ngOnInit() {
+    super.ngOnInit();
+
+    this.loading = false;
+    this.rows = [];
+    this.count = 0;
+    this.offset = 0;
+    this.isChanged = false;
+
+    this.aTypes = [];
+    this.aStatuses = [];
+    this.aLevels = [];
+
+    this.dynamicFilters = [];
+    this.dynamicDatesFilter = {};
+    this.nonDateParameters = [];
+    this.alertTypeWithDate = false;
+
+    this.timestampCreationFromMaxDate = new Date();
+    this.timestampCreationToMinDate = null;
+    this.timestampCreationToMaxDate = new Date();
+    this.timestampReportingFromMaxDate = new Date();
+    this.timestampReportingToMinDate = null;
+    this.timestampReportingToMaxDate = new Date();
+
+    this.dateFromName = '';
+    this.dateToName = '';
+    this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
+
     this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
+    this.rowLimiter = new RowLimiterBase();
+
+    this['orderBy'] = 'creationTime';
+    this['asc'] = false;
+
+    this.search();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {name: 'Alert Id', width: 20, prop: 'entityId'},
       {name: 'Processed', cellTemplate: this.rowProcessed, width: 20},
@@ -91,7 +135,7 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
       {name: 'Alert Status', width: 50},
       {name: 'Creation Time', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Reporting Time', cellTemplate: this.rowWithDateFormatTpl, width: 155},
-      {name: 'Parameters', sortable: false},
+      {name: 'Parameters', cellTemplate: this.rowWithSpaceAfterCommaTpl, sortable: false},
       {name: 'Sent Attempts', width: 50, prop: 'attempts',},
       {name: 'Max Attempts', width: 50},
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
@@ -101,135 +145,118 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
     });
+  }
 
-    this.search();
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   getAlertTypes(): void {
-    this.http.get(AlertsComponent.ALERTS_TYPES_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_TYPES_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aTypes => this.aTypes = aTypes);
   }
 
   getAlertStatuses(): void {
-    this.http.get(AlertsComponent.ALERTS_STATUS_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_STATUS_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aStatuses => this.aStatuses = aStatuses);
   }
 
   getAlertLevels(): void {
-    this.http.get(AlertsComponent.ALERTS_LEVELS_URL)
-      .map(this.extractData)
+    this.http.get<any[]>(AlertsComponent.ALERTS_LEVELS_URL)
       .catch(err => this.alertService.handleError(err))
       .subscribe(aLevels => this.aLevels = aLevels);
   }
 
-  private extractData(res: Response) {
-    let body = res.json();
-    return body || {};
-  }
+  getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
+    let searchParams = this.createSearchParams();
 
-  getAlertsEntries(offset: number, pageSize: number, orderBy: string, asc: boolean): Observable<AlertsResult> {
-    const searchParams = this.createSearchParams();
+    searchParams = searchParams.append('page', offset.toString());
+    searchParams = searchParams.append('pageSize', pageSize.toString());
 
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
-
-    return this.http.get(AlertsComponent.ALERTS_URL, {
-      search: searchParams
-    }).map((response: Response) =>
-      response.json()
-    );
+    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams});
   }
 
   private createSearchParams() {
-    const searchParams = this.createStaticSearchParams();
+    let searchParams = this.createStaticSearchParams();
 
     if (this.dynamicFilters.length > 0) {
-      let d: string[] = [];
-      for (let i = 0; i < this.dynamicFilters.length; i++) {
-        d[i] = '';
+      for (let filter of this.dynamicFilters) {
+        searchParams = searchParams.append('parameters', filter || '');
       }
-      for (let filter in this.dynamicFilters) {
-        d[filter] = this.dynamicFilters[filter];
-      }
-      searchParams.set('parameters', d.toString());
     }
 
     if (this.alertTypeWithDate) {
       const from = this.dynamicDatesFilter.from;
       if (from) {
-        searchParams.set('dynamicFrom', from.getTime());
+        searchParams = searchParams.append('dynamicFrom', from.getTime());
       }
 
       const to = this.dynamicDatesFilter.to;
       if (to) {
-        searchParams.set('dynamicTo', to.getTime());
+        searchParams = searchParams.append('dynamicTo', to.getTime());
       }
     }
     return searchParams;
   }
 
   private createStaticSearchParams() {
-    const searchParams: URLSearchParams = new URLSearchParams();
+    let searchParams = new HttpParams();
 
-    searchParams.set('orderBy', this.orderBy);
+    searchParams = searchParams.append('orderBy', this.orderBy);
     if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
+      searchParams = searchParams.append('asc', this.asc.toString());
     }
 
     // filters
     if (this.activeFilter.processed) {
-      searchParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
+      searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
     }
 
     if (this.activeFilter.alertType) {
-      searchParams.set('alertType', this.activeFilter.alertType);
+      searchParams = searchParams.append('alertType', this.activeFilter.alertType);
     }
 
     if (this.activeFilter.alertStatus) {
-      searchParams.set('alertStatus', this.activeFilter.alertStatus);
+      searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
     }
 
     if (this.activeFilter.alertId) {
-      searchParams.set('alertId', this.activeFilter.alertId);
+      searchParams = searchParams.append('alertId', this.activeFilter.alertId);
     }
 
     if (this.activeFilter.alertLevel) {
-      searchParams.set('alertLevel', this.activeFilter.alertLevel);
+      searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
     }
 
     if (this.activeFilter.creationFrom) {
-      searchParams.set('creationFrom', this.activeFilter.creationFrom.getTime());
+      searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
     }
 
     if (this.activeFilter.creationTo) {
-      searchParams.set('creationTo', this.activeFilter.creationTo.getTime());
+      searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
     }
 
     if (this.activeFilter.reportingFrom) {
-      searchParams.set('reportingFrom', this.activeFilter.reportingFrom.getTime());
+      searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
     }
 
     if (this.activeFilter.reportingTo) {
-      searchParams.set('reportingTo', this.activeFilter.reportingTo.getTime());
+      searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
     }
 
-    searchParams.set('domainAlerts', this.activeFilter.domainAlerts);
+    searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
     return searchParams;
   }
 
-  page(offset, pageSize, orderBy, asc) {
+  page(offset, pageSize) {
     this.loading = true;
     this.resetFilters();
-    this.getAlertsEntries(offset, pageSize, orderBy, asc).subscribe((result: AlertsResult) => {
+    this.getAlertsEntries(offset, pageSize).subscribe((result: AlertsResult) => {
       console.log('alerts response: ' + result);
       this.offset = offset;
       this.rowLimiter.pageSize = pageSize;
-      this.orderBy = orderBy;
-      this.asc = asc;
       this.count = result.count;
       const start = offset * pageSize;
       const end = start + pageSize;
@@ -246,14 +273,14 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
     }, (error: any) => {
       console.log('error getting the alerts:' + error);
       this.loading = false;
-      this.alertService.error('Error occurred:' + error);
+      this.alertService.exception('Error occurred:', error);
     });
   }
 
   search() {
-    console.log('Searching using filter:' + this.filter);
+    this.isChanged = false;
     this.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize, this.orderBy, this.asc);
+    this.page(0, this.rowLimiter.pageSize);
   }
 
   toggleAdvancedSearch() {
@@ -261,29 +288,29 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
     return false; // to prevent default navigation
   }
 
-  getAlertParameters(alertType: string): Observable<Array<string>> {
-    const searchParams: URLSearchParams = new URLSearchParams();
-    searchParams.set('alertType', alertType);
-    return this.http.get(AlertsComponent.ALERTS_PARAMS_URL, {search: searchParams}).map(this.extractData);
+  getAlertParameters(alertType: string): Promise<string[]> {
+    let searchParams = new HttpParams();
+    searchParams = searchParams.append('alertType', alertType);
+    return this.http.get<string[]>(AlertsComponent.ALERTS_PARAMS_URL, {params: searchParams}).toPromise();
   }
 
-  onAlertTypeChanged(alertType: string) {
+  async onAlertTypeChanged(alertType: string) {
     this.nonDateParameters = [];
     this.alertTypeWithDate = false;
     this.dynamicFilters = [];
     this.dynamicDatesFilter = [];
-    const alertParametersObservable = this.getAlertParameters(alertType).flatMap(value => value);
+    const alertParameters = await this.getAlertParameters(alertType);
     const TIME_SUFFIX = '_TIME';
     const DATE_SUFFIX = '_DATE';
-    let nonDateParamerters = alertParametersObservable.filter(value => {
+    let nonDateParameters = alertParameters.filter((value) => {
       console.log('Value:' + value);
       return (value.search(TIME_SUFFIX) === -1 && value.search(DATE_SUFFIX) === -1)
     });
-    nonDateParamerters.subscribe(item => this.nonDateParameters.push(item));
-    let dateParameters = alertParametersObservable.filter(value => {
+    this.nonDateParameters.push(...nonDateParameters);
+    let dateParameters = alertParameters.filter((value) => {
       return value.search(TIME_SUFFIX) > 0 || value.search(DATE_SUFFIX) > 1
     });
-    dateParameters.subscribe(item => {
+    dateParameters.forEach(item => {
       this.dateFromName = item + ' FROM';
       this.dateToName = item + ' TO';
       this.alertTypeWithDate = true;
@@ -310,25 +337,23 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
   // datatable methods
 
   onPage(event) {
-    console.log('Page Event', event);
-    this.page(event.offset, event.pageSize, this.orderBy, this.asc);
+    this.page(event.offset, event.pageSize);
   }
 
-  onSort(event) {
-    let ascending = true;
-    if (event.newValue === 'desc') {
-      ascending = false;
-    }
-    this.page(0, this.rowLimiter.pageSize, event.column.prop, ascending);
+  /**
+   * The method is an override of the abstract method defined in SortableList mixin
+   */
+  public reload() {
+    this.page(0, this.rowLimiter.pageSize);
   }
 
   changePageSize(newPageLimit: number) {
     this.rowLimiter.pageSize = newPageLimit;
-    this.page(0, newPageLimit, this.orderBy, this.asc);
+    this.page(0, newPageLimit);
   }
 
   saveAsCSV() {
-    if (this.isDirty) {
+    if (this.isChanged) {
       this.save(true);
     } else {
       if (this.count > AlertComponent.MAX_COUNT_CSV) {
@@ -338,7 +363,8 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
 
       super.resetFilters();
       // todo: add dynamic params for csv filtering, if requested
-      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?' + this.createStaticSearchParams().toString());
+      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?'
+        + this.createSearchParams().toString());
     }
   }
 
@@ -346,8 +372,8 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
     this.dialog.open(CancelDialogComponent)
       .afterClosed().subscribe(result => {
       if (result) {
-        this.isDirty = false;
-        this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
+        this.isChanged = false;
+        this.page(this.offset, this.rowLimiter.pageSize);
       }
     });
   }
@@ -356,16 +382,16 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
     const dialogRef = this.dialog.open(SaveDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.http.put(AlertsComponent.ALERTS_URL, JSON.stringify(this.rows), {headers: new Headers({'Content-Type': 'application/json'})}).subscribe(() => {
+        this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
           this.alertService.success('The operation \'update alerts\' completed successfully.', false);
-          this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
-          this.isDirty = false;
+          this.page(this.offset, this.rowLimiter.pageSize);
+          this.isChanged = false;
           if (withDownloadCSV) {
             DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
           }
         }, err => {
-          this.alertService.error('The operation \'update alerts\' not completed successfully (' + err.status + ').', false);
-          this.page(this.offset, this.rowLimiter.pageSize, this.orderBy, this.asc);
+          this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
+          this.page(this.offset, this.rowLimiter.pageSize);
         });
       } else {
         if (withDownloadCSV) {
@@ -376,9 +402,12 @@ export class AlertsComponent extends FilterableListComponent implements OnInit {
   }
 
   setProcessedValue(row) {
-    this.isDirty = true;
+    this.isChanged = true;
     row.processed = !row.processed;
-    this.rows[row.$$index] = row;
+    this.rows[this.rows.indexOf(row)] = row;
   }
 
+  isDirty(): boolean {
+    return this.isChanged;
+  }
 }

@@ -33,9 +33,6 @@ public class PluginUserAlertsServiceImplTest {
     @Injectable
     private EventService eventService;
 
-    @Injectable
-    MultiDomainAlertConfigurationService alertConfiguration;
-
     @Tested
     private PluginUserAlertsServiceImpl userAlertsService;
 
@@ -78,7 +75,7 @@ public class PluginUserAlertsServiceImplTest {
     public void testGetUserType() {
         UserEntityBase.Type val = userAlertsService.getUserType();
 
-        Assert.assertEquals( UserEntityBase.Type.PLUGIN, val);
+        Assert.assertEquals(UserEntityBase.Type.PLUGIN, val);
     }
 
     @Test

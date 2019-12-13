@@ -14,7 +14,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -22,16 +25,18 @@ import java.util.*;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends BasicDao {
+public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
+
+    protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
     public MessageLogDao(final Class<F> type) {
         super(type);
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void setMessageStatus(MessageLog messageLog, MessageStatus messageStatus) {
+    public void setMessageStatus(F messageLog, MessageStatus messageStatus) {
         messageLog.setMessageStatus(messageStatus);
 
         switch (messageStatus) {
@@ -59,24 +64,14 @@ public abstract class MessageLogDao<F extends MessageLog> extends BasicDao {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, messageLog.getMessageType(), messageStatus);
     }
 
-    public MessageStatus getMessageStatus(String messageId) {
-        try {
-            return findByMessageId(messageId).getMessageStatus();
-        } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id [" + messageId + "]");
-            return MessageStatus.NOT_FOUND;
-        }
-    }
+    public abstract MessageStatus getMessageStatus(String messageId);
 
     protected abstract MessageLog findByMessageId(String messageId);
 
     protected abstract MessageLog findByMessageId(String messageId, MSHRole mshRole);
 
-    protected abstract Long countMessages(Map<String, Object> filters);
-
-    protected abstract List<F> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
-
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<? extends MessageLog> mle) {
+    @Override
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<F> mle) {
         List<Predicate> predicates = new ArrayList<>();
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {

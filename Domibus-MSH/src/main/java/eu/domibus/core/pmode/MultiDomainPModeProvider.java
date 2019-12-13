@@ -6,18 +6,18 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Service;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +29,7 @@ import java.util.Map;
  * @since 4.0
  */
 @org.springframework.stereotype.Service
+@Transactional(propagation = Propagation.SUPPORTS)
 @Primary
 public class MultiDomainPModeProvider extends PModeProvider {
 
@@ -86,13 +87,28 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public String findMpcUri(String mpcName) throws EbMS3Exception {
+        return getCurrentPModeProvider().findMpcUri(mpcName);
+    }
+
+    @Override
     protected String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
         return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action);
     }
 
     @Override
+    protected String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception {
+        return getCurrentPModeProvider().findPullLegName(agreementRef, senderParty, receiverParty, service, action, mpc);
+    }
+
+    @Override
     protected String findActionName(String action) throws EbMS3Exception {
         return getCurrentPModeProvider().findActionName(action);
+    }
+
+    @Override
+    protected Mpc findMpc(String mpcValue) throws EbMS3Exception {
+        return getCurrentPModeProvider().findMpc(mpcValue);
     }
 
     @Override
@@ -105,6 +121,10 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().findPartyName(partyId);
     }
 
+    @Override
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
+        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull);
+    }
 
     @Override
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
@@ -121,11 +141,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getGatewayParty();
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(String pModeKey) {
         return getCurrentPModeProvider().getSenderParty(pModeKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(String pModeKey) {
         return getCurrentPModeProvider().getReceiverParty(pModeKey);
@@ -151,6 +173,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getAgreement(pModeKey);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(String pModeKey) {
         return getCurrentPModeProvider().getLegConfiguration(pModeKey);
@@ -212,8 +235,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(String service, String action) {
-        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action);
+    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action, meps);
     }
 
     @Override
@@ -242,7 +265,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public ConfigurationRaw getRawConfiguration(int id) {
+    public ConfigurationRaw getRawConfiguration(long id) {
         return getCurrentPModeProvider().getRawConfiguration(id);
     }
 
@@ -292,7 +315,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String getReceiverPartyNameFromPModeKey(String pModeKey) {
+    public String getReceiverPartyNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getReceiverPartyNameFromPModeKey(pModeKey);
     }
 

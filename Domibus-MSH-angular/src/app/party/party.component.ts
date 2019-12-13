@@ -1,18 +1,18 @@
-import {Component, OnInit} from '@angular/core';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {PartyService} from './party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
-import {Observable} from 'rxjs/Observable';
 import {AlertService} from '../common/alert/alert.service';
 import {AlertComponent} from '../common/alert/alert.component';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
-import {Http} from '@angular/http';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import {HttpClient} from '@angular/common/http';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 /**
  * @author Thomas Dussart
@@ -26,7 +26,7 @@ import {FilterableListComponent} from '../common/filterable-list.component';
   styleUrls: ['./party.component.css']
 })
 
-export class PartyComponent extends FilterableListComponent implements OnInit, DirtyOperations {
+export class PartyComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
   rows: PartyResponseRo[];
   allRows: PartyResponseRo[];
   selected: PartyResponseRo[];
@@ -47,7 +47,8 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
   pModeExists: boolean;
   isBusy: boolean;
 
-  constructor(public dialog: MdDialog, public partyService: PartyService, public alertService: AlertService, private http: Http) {
+  constructor(public dialog: MatDialog, public partyService: PartyService, public alertService: AlertService,
+              private http: HttpClient, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -67,15 +68,21 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
     this.updatedParties = [];
     this.deletedParties = [];
 
-    this.initColumns();
-
-    const res = await this.http.get(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
-    if (res && res.text()) {
+    const res = await this.http.get<any>(CurrentPModeComponent.PMODE_URL + '/current').toPromise();
+    if (res) {
       this.pModeExists = true;
       this.search();
     } else {
       this.pModeExists = false;
     }
+  }
+
+  ngAfterViewInit() {
+    this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   isDirty(): boolean {
@@ -88,44 +95,39 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
     this.deletedParties.length = 0;
   }
 
-  searchIfOK() {
-    this.checkIsDirtyAndThen(() => {
-      this.search();
-    });
-  }
-
   private search() {
     super.setActiveFilter();
     this.listPartiesAndProcesses();
   }
 
-  listPartiesAndProcesses() {
+  async listPartiesAndProcesses() {
     this.offset = 0;
-    return Observable.forkJoin([
-      this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID,
-        this.activeFilter.process, this.activeFilter.process_role),
-      this.partyService.listProcesses()
-    ])
-      .subscribe((data: any[]) => {
-          const partiesRes: PartyFilteredResult = data[0];
-          const processes: ProcessRo[] = data[1];
+    var promises: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
+      this.partyService.listParties(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process, this.activeFilter.process_role).toPromise(),
+      this.partyService.listProcesses().toPromise()
+    ];
 
-          this.allProcesses = processes.map(el => el.name);
+    try {
+      let data = await Promise.all(promises);
+      const partiesRes: PartyFilteredResult = data[0];
+      const processes: ProcessRo[] = data[1];
 
-          this.rows = partiesRes.data;
-          this.allRows = partiesRes.allData;
-          this.count = this.allRows.length;
-          this.selected.length = 0;
+      this.allProcesses = processes.map(el => el.name);
 
-          this.loading = false;
-          this.resetDirty();
-        },
-        error => {
-          this.alertService.error('Could not load parties due to: "' + error + '"');
-          this.loading = false;
-        }
-      );
+      this.rows = partiesRes.data;
+      this.allRows = partiesRes.allData;
+      this.count = this.allRows.length;
+      this.selected.length = 0;
+
+      this.loading = false;
+      this.resetDirty();
+
+    } catch (error) {
+      this.alertService.exception('Could not load parties due to: ', error);
+      this.loading = false;
+    }
   }
+
 
   refresh() {
     // ugly but the grid does not feel the paging changes otherwise
@@ -265,6 +267,7 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
     if (!ok) {
       this.remove();
     }
+    this.rows = [...this.rows];
   }
 
   remove() {
@@ -273,8 +276,11 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
     const deletedParty = this.selected[0];
     if (!deletedParty) return;
 
+    console.log('removing ' , deletedParty)
+
     this.rows.splice(this.rows.indexOf(deletedParty), 1);
-    this.allRows.splice(this.rows.indexOf(deletedParty), 1);
+    this.allRows.splice(this.allRows.indexOf(deletedParty), 1);
+    this.rows = [...this.rows];
 
     this.selected.length = 0;
     this.count--;
@@ -290,10 +296,10 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
 
     await this.manageCertificate(row);
 
-    const rowCopy = JSON.parse(JSON.stringify(row));
+    const rowCopy = JSON.parse(JSON.stringify(row)); // clone
     const allProcessesCopy = JSON.parse(JSON.stringify(this.allProcesses));
 
-    const dialogRef: MdDialogRef<PartyDetailsComponent> = this.dialog.open(PartyDetailsComponent, {
+    const dialogRef: MatDialogRef<PartyDetailsComponent> = this.dialog.open(PartyDetailsComponent, {
       data: {
         edit: rowCopy,
         allProcesses: allProcessesCopy
@@ -306,6 +312,9 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
         return; // nothing changed
 
       Object.assign(row, rowCopy);
+      row.name = rowCopy.name;// TODO temp
+      this.rows = [...this.rows];
+
       if (this.updatedParties.indexOf(row) < 0)
         this.updatedParties.push(row);
     }
@@ -319,26 +328,14 @@ export class PartyComponent extends FilterableListComponent implements OnInit, D
         this.partyService.getCertificate(party.name)
           .subscribe((cert: CertificateRo) => {
             party.certificate = cert;
-            resolve(party);
+            resolve(cert);
           }, err => {
-            resolve(party);
+            resolve(null);
           });
       } else {
-        resolve(party);
+        resolve(party.certificate);
       }
     });
-  }
-
-  checkIsDirtyAndThen(func: Function) {
-    if (this.isDirty()) {
-      this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
-        if (yes) {
-          func.call(this);
-        }
-      });
-    } else {
-      func.call(this);
-    }
   }
 
   OnSort() {

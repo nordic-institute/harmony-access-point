@@ -2,12 +2,15 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
+import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.services.PluginUserService;
+import eu.domibus.core.security.PluginUserPasswordHistoryDao;
 import eu.domibus.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel, Catalin Enache
@@ -42,9 +46,6 @@ public class PluginUserServiceImpl implements PluginUserService {
     private BCryptPasswordEncoder bcryptEncoder;
 
     @Autowired
-    private UserRoleDao userRoleDao;
-
-    @Autowired
     private UserDomainService userDomainService;
 
     @Autowired
@@ -55,6 +56,9 @@ public class PluginUserServiceImpl implements PluginUserService {
 
     @Autowired
     PluginUserAlertsServiceImpl userAlertsService;
+
+    @Autowired
+    PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     @Override
     public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
@@ -75,6 +79,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         final Domain currentDomain = domainProvider.getCurrentDomain();
 
         checkUsers(addedUsers);
+
         addedUsers.forEach(u -> insertNewUser(u, currentDomain));
 
         updatedUsers.forEach(u -> updateUser(u));
@@ -88,6 +93,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         userAlertsService.triggerPasswordExpirationEvents();
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void reactivateSuspendedUsers() {
         userSecurityPolicyManager.reactivateSuspendedUsers();
@@ -116,18 +122,13 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
 
         // check for duplicates with other users or plugin users in multi-tenancy mode
-        List<String> allUserNames = userDomainService.getAllUserNames();
-        for (AuthenticationEntity user : addedUsers) {
-            if (allUserNames.stream().anyMatch(name -> name.equalsIgnoreCase(user.getUserName())))
-                throw new UserManagementException("Cannot add user " + user.getUserName() + " because this name already exists.");
+        for (UserBase user : addedUsers) {
+            // validate user not already in general schema
+            userSecurityPolicyManager.validateUniqueUser(user);
         }
     }
 
-    private Map<String, Object> createFilterMap(
-            AuthType authType,
-            AuthRole authRole,
-            String originalUser,
-            String userName) {
+    protected Map<String, Object> createFilterMap(AuthType authType, AuthRole authRole, String originalUser, String userName) {
         HashMap<String, Object> filters = new HashMap<>();
         if (authType != null) {
             filters.put("authType", authType.name());
@@ -140,20 +141,22 @@ public class PluginUserServiceImpl implements PluginUserService {
         return filters;
     }
 
-    private void insertNewUser(AuthenticationEntity u, Domain domain) {
+    protected void insertNewUser(AuthenticationEntity u, Domain domain) {
         if (u.getPassword() != null) {
             u.setPassword(bcryptEncoder.encode(u.getPassword()));
         }
         authenticationDAO.create(u);
 
-        String userIdentifier = u.getCertificateId() != null ? u.getCertificateId() : u.getUserName();
-        userDomainService.setDomainForUser(userIdentifier, domain.getCode());
+        userDomainService.setDomainForUser(u.getUniqueIdentifier(), domain.getCode());
     }
 
-    private void updateUser(AuthenticationEntity modified) {
+    protected void updateUser(AuthenticationEntity modified) {
         AuthenticationEntity existing = authenticationDAO.read(modified.getEntityId());
 
-        userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+        if (StringUtils.isBlank(existing.getCertificateId())) {
+            // locking policy is only applicable to Basic auth plugin users
+            userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+        }
 
         if (!StringUtils.isEmpty(modified.getPassword())) {
             changePassword(existing, modified.getPassword());
@@ -169,11 +172,17 @@ public class PluginUserServiceImpl implements PluginUserService {
         userSecurityPolicyManager.changePassword(user, newPassword);
     }
 
-    private void deleteUser(AuthenticationEntity u) {
+    protected void deleteUser(AuthenticationEntity u) {
         AuthenticationEntity entity = authenticationDAO.read(u.getEntityId());
-        authenticationDAO.delete(entity);
+        delete(entity);
 
-        String userIdentifier = u.getCertificateId() != null ? u.getCertificateId() : u.getUserName();
-        userDomainService.deleteDomainForUser(userIdentifier);
+        userDomainService.deleteDomainForUser(u.getUniqueIdentifier());
+    }
+
+    private void delete(AuthenticationEntity user) {
+        //delete password history
+        pluginUserPasswordHistoryDao.removePasswords(user, 0);
+        //delete actual user
+        authenticationDAO.delete(user);
     }
 }

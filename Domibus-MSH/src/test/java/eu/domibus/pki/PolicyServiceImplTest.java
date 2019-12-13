@@ -2,6 +2,8 @@ package eu.domibus.pki;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
@@ -9,10 +11,15 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.Bus;
+import org.apache.cxf.ws.policy.PolicyBuilder;
+import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.validation.constraints.AssertTrue;
 
 /**
  * @author Arun Raj
@@ -22,7 +29,8 @@ import org.junit.runner.RunWith;
 public class PolicyServiceImplTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImplTest.class);
-    private static final String TEST_RESOURCES_DIR = "./src/test/resources";
+    private static final String TEST_RESOURCES_DIR = "./src/test/resources/policy";
+
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
 
@@ -67,6 +75,38 @@ public class PolicyServiceImplTest {
 
         try {
             policyService.parsePolicy("NonExistentFileLocation");
+        } catch (Exception e) {
+            Assert.assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
+        }
+    }
+
+    @Test
+    public void testSignOnlyPolicy() {
+        PolicyBuilder pb = new PolicyBuilderImpl();
+        new Expectations() {{
+            bus.getExtension(PolicyBuilder.class);
+            result = pb;
+            domibusConfigurationService.getConfigLocation();
+            result = ".";
+        }};
+
+        Policy policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_signOnly.xml");
+        Assert.assertTrue(policyService.isNoEncryptionPolicy(policy));
+        policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test.xml");
+        Assert.assertFalse(policyService.isNoEncryptionPolicy(policy));
+        policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_donothing.xml");
+        Assert.assertTrue(policyService.isNoEncryptionPolicy(policy));
+    }
+
+    @Test
+    public void testGetPolicy() {
+        LegConfiguration legConfiguration = new LegConfiguration();
+        Security securityPolicy = new Security();
+        securityPolicy.setPolicy("NonExistentPolicy");
+        legConfiguration.setSecurity(securityPolicy);
+
+        try {
+            policyService.getPolicy(legConfiguration);
         } catch (Exception e) {
             Assert.assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
         }

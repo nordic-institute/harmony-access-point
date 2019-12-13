@@ -1,18 +1,21 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.message.UserMessageLogService;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.logging.MessageLog;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
-import eu.domibus.ebms3.common.model.PartyInfo;
+import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,8 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.soap.SOAPMessage;
+
 /**
  * @author Thomas Dussart
+ * @author Cosmin Baciu
  * @since 3.3
  */
 
@@ -33,7 +39,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityServiceImpl.class);
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -50,57 +56,84 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     private UserMessageLogDao userMessageLogDao;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void handleReliability(final String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, final ResponseHandler.CheckResult isOk, final LegConfiguration legConfiguration) {
-        changeMessageStatusAndNotify(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
-    }
+    @Autowired
+    protected UserMessageService userMessageService;
+
+    @Autowired
+    protected SplitAndJoinService splitAndJoinService;
+
+    @Autowired
+    protected ResponseHandler responseHandler;
+
+    @Autowired
+    private UIReplicationSignalService uiReplicationSignalService;
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleReliabilityInNewTransaction(final String messageId, UserMessage userMessage, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, final ResponseHandler.CheckResult isOk, final LegConfiguration legConfiguration) {
-        handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
+    public void handleReliabilityInNewTransaction(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+        LOG.debug("Handling reliability in a new transaction");
+        handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
     }
 
-    private void changeMessageStatusAndNotify(String messageId, UserMessage userMessage, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, ResponseHandler.CheckResult isOk, LegConfiguration legConfiguration) {
-        final Boolean isTestMessage = userMessageHandlerService.checkTestMessage(legConfiguration);
-        final MessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+        LOG.debug("Handling reliability");
+
+        final Boolean isTestMessage = userMessageLog.isTestMessage();
+        final UserMessage userMessage = messaging.getUserMessage();
 
         switch (reliabilityCheckSuccessful) {
             case OK:
-                switch (isOk) {
+                responseHandler.saveResponse(responseSoapMessage, messaging, responseResult.getResponseMessaging());
+
+                ResponseHandler.ResponseStatus responseStatus = responseResult.getResponseStatus();
+                switch (responseStatus) {
                     case OK:
-                        userMessageLogService.setMessageAsAcknowledged(messageId);
+                        userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
+
+                        if (userMessage.isUserMessageFragment()) {
+                            splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
+                        }
                         break;
                     case WARNING:
-                        userMessageLogService.setMessageAsAckWithWarnings(messageId);
+                        userMessageLogService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
                         break;
                     default:
                         assert false;
                 }
                 if (!isTestMessage) {
-                    backendNotificationService.notifyOfSendSuccess(messageId);
+                    backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
-                messagingDao.clearPayloadData(messageId);
-                final PartyInfo partyInfo = userMessage.getPartyInfo();
-                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS, messageId, partyInfo.getFrom().getFirstPartyId(), partyInfo.getTo().getFirstPartyId());
+
+                messagingDao.clearPayloadData(userMessage);
+                LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 break;
             case WAITING_FOR_CALLBACK:
                 updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(messageId, legConfiguration);
                 break;
             case SEND_FAIL:
-                updateRetryLoggingService.updatePushedMessageRetryLogging(messageId, legConfiguration);
+                updateRetryLoggingService.updatePushedMessageRetryLogging(messageId, legConfiguration, attempt);
                 break;
             case ABORT:
-                updateRetryLoggingService.messageFailedInANewTransaction(userMessageLog);
+                updateRetryLoggingService.messageFailedInANewTransaction(userMessage, userMessageLog, attempt);
+
+                if (userMessage.isUserMessageFragment()) {
+                    userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
+                }
                 break;
         }
+        //call ui replication sync service
+        uiReplicationSignalService.messageChange(messageId);
+
+        LOG.debug("Finished handling reliability");
     }
 }

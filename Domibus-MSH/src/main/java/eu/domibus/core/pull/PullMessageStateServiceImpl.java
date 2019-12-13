@@ -1,10 +1,12 @@
 package eu.domibus.core.pull;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
@@ -28,19 +30,22 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageStateServiceImpl.class);
 
     @Autowired
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UpdateRetryLoggingService updateRetryLoggingService;
+    protected UpdateRetryLoggingService updateRetryLoggingService;
 
     @Autowired
-    private BackendNotificationService backendNotificationService;
+    protected BackendNotificationService backendNotificationService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected MessagingDao messagingDao;
 
     /**
      * {@inheritDoc}
@@ -60,8 +65,19 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Override
     @Transactional
     public void sendFailed(final UserMessageLog userMessageLog) {
-        LOG.debug("Message:[{}] failed to be pull.", userMessageLog.getMessageId());
-        updateRetryLoggingService.messageFailed(userMessageLog);
+        if (userMessageLog == null) {
+            LOG.warn("Could not mark message as failed: userMessageLog is null");
+            return;
+        }
+
+        LOG.debug("Setting [{}] message as failed", userMessageLog.getMessageId());
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
+        if (userMessage == null) {
+            LOG.debug("Could not set [{}] message as failed: could not find userMessage", userMessageLog.getMessageId());
+            return;
+        }
+
+        updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
     }
 
     /**
@@ -73,7 +89,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", userMessageLog.getMessageId(), userMessageLog.getMessageStatus(), readyToPull);
         userMessageLog.setMessageStatus(readyToPull);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageStatusChange(userMessageLog.getMessageId(), readyToPull);
+        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
     }
 

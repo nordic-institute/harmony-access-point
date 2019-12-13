@@ -1,8 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {SecurityService} from './security/security.service';
-import {Router, RouterOutlet} from '@angular/router';
+import {Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {SecurityEventService} from './security/security.event.service';
-import {Http} from '@angular/http';
 import {DomainService} from './security/domain.service';
 import {HttpEventService} from './common/http/http.event.service';
 import {DomibusInfoService} from "./common/appinfo/domibusinfo.service";
@@ -17,26 +16,45 @@ export class AppComponent implements OnInit {
   fullMenu: boolean = true;
   menuClass: string = this.fullMenu ? 'menu-expanded' : 'menu-collapsed';
   extAuthProviderEnabled: boolean = false;
+  extAuthProvideRedirectTo: string;
 
-  @ViewChild(RouterOutlet)
+  @ViewChild(RouterOutlet, {static: false})
   outlet: RouterOutlet;
 
   constructor (private securityService: SecurityService,
                private router: Router,
                private securityEventService: SecurityEventService,
-               private http: Http,
                private httpEventService: HttpEventService,
                private domainService: DomainService,
                private domibusInfoService: DomibusInfoService) {
 
     this.domainService.setAppTitle();
+
+    /* ugly but necessary: intercept ECAS redirect */
+    this.router.events.subscribe(event => {
+      if (event instanceof RoutesRecognized) {
+        if (event.url.indexOf('?ticket=ST') !== -1) {
+          let route = event.state.root.firstChild;
+          this.extAuthProvideRedirectTo = '/' + route.url;
+        }
+      }
+    });
   }
 
   async ngOnInit () {
-
     this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
     if (this.extAuthProviderEnabled) {
-      this.securityService.login_extauthprovider();
+      const user = await this.securityService.getCurrentUserFromServer();
+      if (user) {
+        this.securityService.updateCurrentUser(user);
+        this.domainService.setAppTitle();
+      }
+      if (this.extAuthProvideRedirectTo) {
+        const success = await this.router.navigate([this.extAuthProvideRedirectTo]);
+        if (success) {
+          console.log('redirect to: ' + this.extAuthProvideRedirectTo + ' done');
+        }
+      }
     }
 
     this.httpEventService.subscribe((error) => {
@@ -57,7 +75,7 @@ export class AppComponent implements OnInit {
   }
 
   isUser (): boolean {
-    return !!this.currentUser;
+    return this.securityService.hasCurrentUserPrivilegeUser();
   }
 
   isExtAuthProviderEnabled (): boolean {

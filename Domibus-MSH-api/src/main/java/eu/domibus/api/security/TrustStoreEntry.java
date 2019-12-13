@@ -24,6 +24,8 @@ public class TrustStoreEntry {
         this.validUntil = validUntil;
     }
 
+    public TrustStoreEntry() {
+    }
 
     public String getName() {
         return name;
@@ -49,5 +51,25 @@ public class TrustStoreEntry {
 
     public void setFingerprints(String fingerprints) {
         this.fingerprints = fingerprints;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
+
+    public void setValidFrom(Date validFrom) {
+        this.validFrom = validFrom;
+    }
+
+    public void setValidUntil(Date validUntil) {
+        this.validUntil = validUntil;
     }
 }

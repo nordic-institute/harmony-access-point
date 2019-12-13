@@ -38,7 +38,7 @@ public class CheckReleaseSQLScriptsGenerationIT {
 
     /**
      * This integration test fetches the current artefact version of Domibus and verifies that the generated
-     * sql-scripts directory has the necessary MySQL and Oralce DDLs for the release.
+     * sql-scripts directory has the necessary MySQL and Oracle DDLs for the release.
      * <p>
      * This is expected to be executed on Integration-Test phase of maven build.
      * The required sql-scripts directory is generated during the maven generate-resources phase.
@@ -129,7 +129,7 @@ public class CheckReleaseSQLScriptsGenerationIT {
     protected String retrieveDomibusArtifactVersion() {
         /*During Maven compile phase the domibus.properties file in the target folder with the artefact version copied from the POM*/
         DomibusPropertiesService domibusPropertiesService = new DomibusPropertiesService();
-        String domibusArtifactVersion = domibusPropertiesService.getImplVersion();
+        String domibusArtifactVersion = domibusPropertiesService.getArtifactVersion();
         if (StringUtils.isBlank(domibusArtifactVersion)) {
             LOG.error("Domibus artefact version could not be loaded!!!");
             Assert.fail("Domibus artefact version could not be loaded!!!");

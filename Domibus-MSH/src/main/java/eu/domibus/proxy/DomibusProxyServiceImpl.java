@@ -7,8 +7,11 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author idragusa
@@ -18,16 +21,10 @@ import org.springframework.stereotype.Service;
  * Domibus uses the same proxy configuration for requests on all domains
  */
 @Service("domibusProxyService")
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusProxyServiceImpl implements DomibusProxyService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImpl.class);
-
-    public static final String DOMIBUS_PROXY_ENABLED = "domibus.proxy.enabled";
-    public static final String DOMIBUS_PROXY_HTTP_HOST = "domibus.proxy.http.host";
-    public static final String DOMIBUS_PROXY_HTTP_PORT = "domibus.proxy.http.port";
-    public static final String DOMIBUS_PROXY_USER = "domibus.proxy.user";
-    public static final String DOMIBUS_PROXY_PASSWORD = "domibus.proxy.password"; //NOSONAR: This is not a hardcoded password, it is just the name of a property
-    public static final String DOMIBUS_PROXY_NON_PROXY_HOSTS = "domibus.proxy.nonProxyHosts";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -45,6 +42,11 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
             }
         }
         return domibusProxy;
+    }
+
+    @Override
+    public void resetProxy() {
+        domibusProxy = null;
     }
 
     @Override

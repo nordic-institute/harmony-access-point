@@ -6,6 +6,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.ebms3.common.model.UserMessage;
 
 /**
  * @author Thomas Dussart
@@ -41,6 +42,7 @@ public interface MessageExchangeService {
 
     /**
      * Load pmode and find pull process in order to initialize pull request.
+     *
      * @param mpc the mpc of the exchange
      */
     void initiatePullRequest(final String mpc);
@@ -84,4 +86,24 @@ public interface MessageExchangeService {
     void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName);
 
     void verifySenderCertificate(LegConfiguration legConfiguration, String receiverName);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#forcePullOnMpc(String)}
+     */
+    boolean forcePullOnMpc(String mpc);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#forcePullOnMpc(UserMessage)}
+     */
+    boolean forcePullOnMpc(UserMessage userMessage);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#extractInitiator(String)}
+     */
+    String extractInitiator(String mpc);
+
+    /**
+     * See {@link eu.domibus.core.mpc.MpcService#extractBaseMpc(String)}
+     */
+    String extractBaseMpc(String mpc);
 }

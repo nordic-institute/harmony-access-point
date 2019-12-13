@@ -2,8 +2,6 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.security.*;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateServiceImpl;
 import eu.domibus.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
@@ -34,8 +32,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(JMockit.class)
 public class CustomAuthenticationProviderTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomAuthenticationProviderTest.class);
 
     private CertificateServiceImpl certificateService = new CertificateServiceImpl();
 

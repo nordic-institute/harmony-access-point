@@ -1,9 +1,8 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.BasicDao;
-import eu.domibus.ebms3.common.model.MessageSubtype;
+import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.common.dao.ListDao;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
@@ -27,16 +25,23 @@ import java.util.*;
  * @since 4.0
  */
 @Repository
-public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMessageDao {
+public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMessageDao {
 
-    /** logger */
+    /**
+     * logger
+     */
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIMessageDaoImpl.class);
 
-    /** message id */
+    /**
+     * message id
+     */
     private static final String MESSAGE_ID = "MESSAGE_ID";
 
-    /** just map special column names which doesn't match filterKey with the same name */
+    /**
+     * just map special column names which doesn't match filterKey with the same name
+     */
     private static Map<String, String> filterKeyToColumnMap = new HashMap<>();
+
     static {
         filterKeyToColumnMap.put("fromPartyId", "fromId");
         filterKeyToColumnMap.put("toPartyId", "toId");
@@ -73,68 +78,47 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
      * @return number of messages
      */
     @Override
-    public int countMessages(Map<String, Object> filters) {
+    public long countEntries(Map<String, Object> filters) {
         long startTime = System.currentTimeMillis();
 
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<UIMessageEntity> uiMessageEntity = cq.from(UIMessageEntity.class);
-        cq.select(cb.count(uiMessageEntity));
-        List<Predicate> predicates = getPredicates(filters, cb, uiMessageEntity);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        TypedQuery<Long> query = em.createQuery(cq);
+        Long result = super.countEntries(filters);
 
-        Long result = query.getSingleResult();
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] milliseconds to countMessages", endTime - startTime);
         }
-        return result.intValue();
+        return result;
     }
 
     /**
      * list the messages from {@code TB_MESSAGE_UI} table with pagination
      *
-     * @param from    the beginning of the page
-     * @param max     how many messages in a page
-     * @param column  which column to order by
-     * @param asc     ordering type - ascending or descending
-     * @param filters it should include messageType always - User or Signal message
+     * @param from       the beginning of the page
+     * @param max        how many messages in a page
+     * @param sortColumn which column to order by
+     * @param asc        ordering type - ascending or descending
+     * @param filters    it should include messageType always - User or Signal message
      * @return a list of {@link UIMessageEntity}
      */
     @Override
-    public List<UIMessageEntity> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
+    public List<UIMessageEntity> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters) {
         long startTime = System.currentTimeMillis();
 
-        List<UIMessageEntity> result;
-        CriteriaBuilder cb = this.em.getCriteriaBuilder();
-        CriteriaQuery<UIMessageEntity> cq = cb.createQuery(UIMessageEntity.class);
-
-        Root<UIMessageEntity> root = cq.from(UIMessageEntity.class);
-        cq.select(root);
-        List<Predicate> predicates = getPredicates(filters, cb, root);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        if (column != null) {
-            String filterColumn = filterKeyToColumnMap.get(column);
-            if (StringUtils.isNotBlank(filterColumn)) {
-                column = filterColumn;
-            }
-            if (asc) {
-                cq.orderBy(cb.asc(root.get(column)));
-            } else {
-                cq.orderBy(cb.desc(root.get(column)));
-            }
-
-        }
-        TypedQuery<UIMessageEntity> query = this.em.createQuery(cq);
-        query.setFirstResult(from);
-        query.setMaxResults(max);
-
-        result = query.getResultList();
+        List<UIMessageEntity> result = super.findPaged(from, max, sortColumn, asc, filters);
 
         final long endTime = System.currentTimeMillis();
         LOG.debug("[{}] milliseconds to findPaged [{}] messages", endTime - startTime, max);
         return result;
+    }
+
+    @Override
+    protected String getSortColumn(String sortColumn) {
+        String filterColumn = filterKeyToColumnMap.get(sortColumn);
+        if (StringUtils.isNotBlank(filterColumn)) {
+            return filterColumn;
+        } else {
+            return sortColumn;
+        }
     }
 
     /**
@@ -146,67 +130,38 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
     public void saveOrUpdate(final UIMessageEntity uiMessageEntity) {
         // Sonar Bug: ignored because the following call happens within a transaction that gets started by the service calling this method
         UIMessageEntity uiMessageEntityFound = findUIMessageByMessageId(uiMessageEntity.getMessageId()); //NOSONAR
+        Date currentDate = new Date(System.currentTimeMillis());
+        uiMessageEntity.setLastModified(currentDate);
         if (uiMessageEntityFound != null) {
+
+            LOG.debug("TB_MESSAGE_UI will be updated for messageId=[{}]", uiMessageEntityFound.getMessageId());
             uiMessageEntity.setEntityId(uiMessageEntityFound.getEntityId());
-            uiMessageEntity.setLastModified(uiMessageEntityFound.getLastModified());
+            uiMessageEntity.setCreatedBy(uiMessageEntityFound.getCreatedBy());
+            uiMessageEntity.setCreationTime(uiMessageEntityFound.getCreationTime());
             em.merge(uiMessageEntity);
-            LOG.debug("uiMessageEntity having messageId={} have been updated", uiMessageEntity.getMessageId());
+            LOG.debug("uiMessageEntity having messageId=[{}] have been updated", uiMessageEntity.getMessageId());
             return;
         }
         em.persist(uiMessageEntity);
-        LOG.debug("uiMessageEntity having messageId={} have been inserted", uiMessageEntity.getMessageId());
+        LOG.debug("uiMessageEntity having messageId=[{}] have been inserted", uiMessageEntity.getMessageId());
     }
 
     @Override
-    public boolean updateMessageStatus(String messageId, MessageStatus messageStatus, Date deleted, Date nextAttempt,
-                                       Date failed, Date lastModified) {
-        try {
-            int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessageStatus", UIMessageEntity.class)
-                    .setParameter(1, messageStatus.name())
-                    .setParameter(2, deleted, TemporalType.TIMESTAMP)
-                    .setParameter(3, nextAttempt, TemporalType.TIMESTAMP)
-                    .setParameter(4, failed, TemporalType.TIMESTAMP)
-                    .setParameter(5, lastModified, TemporalType.TIMESTAMP)
-                    .setParameter(6, messageId)
-                    .executeUpdate();
-            return rowsUpdated == 1;
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateNotificationStatus(String messageId, NotificationStatus notificationStatus, Date lastModified) {
-        try {
-            int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateNotificationStatus", UIMessageEntity.class)
-                    .setParameter(1, notificationStatus.name())
-                    .setParameter(2, lastModified, TemporalType.TIMESTAMP)
-                    .setParameter(3, messageId)
-                    .executeUpdate();
-            return rowsUpdated == 1;
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateMessage(String messageId, MessageStatus messageStatus, Date deleted, Date failed, Date restored, Date nextAttempt,
-                                 Integer sendAttempts, Integer sendAttemptsMax, Date lastModified) {
+    public boolean updateMessage(UserMessageLog userMessageLog, long lastModified) {
+        LOG.debug("updateMessage executed MessageStatus=[{}] NotificationStatus=[{}] lastModified=[{}]",
+                userMessageLog.getMessageStatus(), userMessageLog.getNotificationStatus(), lastModified);
         try {
             int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessage", UIMessageEntity.class)
-                    .setParameter(1, messageStatus.name())
-                    .setParameter(2, deleted, TemporalType.TIMESTAMP)
-                    .setParameter(3, failed, TemporalType.TIMESTAMP)
-                    .setParameter(4, restored, TemporalType.TIMESTAMP)
-                    .setParameter(5, nextAttempt, TemporalType.TIMESTAMP)
-                    .setParameter(6, sendAttempts)
-                    .setParameter(7, sendAttemptsMax)
-                    .setParameter(8, lastModified, TemporalType.TIMESTAMP)
-                    .setParameter(9, messageId)
+                    .setParameter(1, userMessageLog.getMessageStatus().name())
+                    .setParameter(2, userMessageLog.getNotificationStatus().name())
+                    .setParameter(3, userMessageLog.getDeleted(), TemporalType.TIMESTAMP)
+                    .setParameter(4, userMessageLog.getFailed(), TemporalType.TIMESTAMP)
+                    .setParameter(5, userMessageLog.getRestored(), TemporalType.TIMESTAMP)
+                    .setParameter(6, userMessageLog.getNextAttempt(), TemporalType.TIMESTAMP)
+                    .setParameter(7, userMessageLog.getSendAttempts())
+                    .setParameter(8, userMessageLog.getSendAttemptsMax())
+                    .setParameter(9, new Date(lastModified), TemporalType.TIMESTAMP)
+                    .setParameter(10, userMessageLog.getMessageId())
                     .executeUpdate();
             return rowsUpdated == 1;
 
@@ -224,7 +179,7 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
      * @param ume
      * @return
      */
-    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<? extends UIMessageEntity> ume) {
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<UIMessageEntity> ume) {
         List<Predicate> predicates = new ArrayList<>();
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             String filterKey = filter.getKey();
@@ -246,7 +201,7 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
         return predicates;
     }
 
-    private void addStringPredicates(CriteriaBuilder cb, Root<? extends UIMessageEntity> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {
+    private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {
         if (StringUtils.isNotBlank(filterKey) && !filter.getValue().toString().isEmpty()) {
 
             String filterColumn = filterKeyToColumnMap.get(filterKey);
@@ -254,7 +209,7 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
         }
     }
 
-    private void addDatePredicates(CriteriaBuilder cb, Root<? extends UIMessageEntity> ume, List<Predicate> predicates, String filterKey, Object filterValue) {
+    private void addDatePredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, String filterKey, Object filterValue) {
         if (!filterValue.toString().isEmpty()) {
             switch (filterKey) {
                 case "receivedFrom":
@@ -268,6 +223,5 @@ public class UIMessageDaoImpl extends BasicDao<UIMessageEntity> implements UIMes
             }
         }
     }
-
 
 }

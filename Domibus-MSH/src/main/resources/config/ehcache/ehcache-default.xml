@@ -16,6 +16,7 @@
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"
            overflowToDisk="false">
+        <sizeOfPolicy maxDepth="100" maxDepthExceededBehavior="abort"/>
     </cache>
     <cache name="certValidationByAlias"
            maxBytesLocalHeap="5m"
@@ -64,6 +65,26 @@
            overflowToDisk="false">
     </cache>
     <cache name="domainByScheduler"
+           maxBytesLocalHeap="5m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="dss-cache"
+           maxBytesLocalHeap="5m"
+           timeToLiveSeconds="300"
+           overflowToDisk="false">
+    </cache>
+    <cache name="encryptionKey"
+           maxBytesLocalHeap="5m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="passwordEncryptionKey"
+           maxBytesLocalHeap="5m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="multitenantCache"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"
            overflowToDisk="false">

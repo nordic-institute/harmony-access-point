@@ -1,9 +1,9 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {isNullOrUndefined} from 'util';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
@@ -37,9 +37,9 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
 
   private ERROR_PMODE_EMPTY = 'As PMode is empty, no file was downloaded.';
 
-  @ViewChild('descriptionTpl') public descriptionTpl: TemplateRef<any>;
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('descriptionTpl', {static: false}) public descriptionTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -71,13 +71,16 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   // check: @selectedIndexChange(value)
   private uploaded: boolean;
 
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
   /**
    * Constructor
    * @param {Http} http Http object used for the requests
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
-   * @param {MdDialog} dialog Object used for opening dialogs
+   * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private domainService: DomainService) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
   }
 
   /**
@@ -105,15 +108,12 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
 
     this.uploaded = false;
 
-    this.initializeArchivePmodes();
+    this.getAllPModeEntries();
 
     this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
   }
 
-  /**
-   * Initialize columns and gets all PMode entries from database
-   */
-  initializeArchivePmodes() {
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         cellTemplate: this.rowWithDateFormatTpl,
@@ -140,8 +140,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Configuration Date', 'Username', 'Description', 'Actions'].indexOf(col.name) !== -1
     });
+  }
 
-    this.getAllPModeEntries();
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   /**
@@ -156,11 +158,10 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
 
   /**
    * Gets all the PMode
-   * @returns {Observable<Response>}
+   * @returns {Observable<any>}
    */
-  getResultObservable(): Observable<Response> {
-    return this.http.get(PModeArchiveComponent.PMODE_URL + '/list')
-      .publishReplay(1).refCount();
+  getResultObservable(): Observable<any[]> {
+    return this.http.get<any[]>(PModeArchiveComponent.PMODE_URL + '/list');
   }
 
   /**
@@ -170,13 +171,12 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.loading = true;
 
     try {
-      const response = await this.getResultObservable().toPromise();
+      this.allPModes = await this.getResultObservable().toPromise();
 
       this.offset = 0;
       this.actualRow = 0;
       this.actualId = undefined;
 
-      this.allPModes = response.json();
       this.count = this.allPModes.length;
       if (this.count > 0) {
         this.allPModes[0].current = true;
@@ -264,23 +264,25 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   saveButton(withDownloadCSV: boolean) {
     this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
       if (result) {
-        this.http.delete(PModeArchiveComponent.PMODE_URL, {params: {ids: JSON.stringify(this.deleteList)}}).subscribe(() => {
-            this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
+        const queryParams = {ids: this.deleteList};
+        this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams})
+          .subscribe(() => {
+              this.alertService.success('The operation \'update pmodes\' completed successfully.', false);
 
-            this.disableAllButtons();
-            this.selected = [];
-            this.deleteList = [];
+              this.disableAllButtons();
+              this.selected = [];
+              this.deleteList = [];
 
-            if (withDownloadCSV) {
-              DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
-            }
-          },
-          () => {
-            this.alertService.error('The operation \'update pmodes\' not completed successfully.', false);
-            this.getAllPModeEntries();
-            this.disableAllButtons();
-            this.selected = [];
-          });
+              if (withDownloadCSV) {
+                DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
+              }
+            },
+            (error) => {
+              this.alertService.exception('The operation \'update pmodes\' not completed successfully.', error);
+              this.getAllPModeEntries();
+              this.disableAllButtons();
+              this.selected = [];
+            });
       } else {
         if (withDownloadCSV) {
           DownloadService.downloadNative(PModeArchiveComponent.PMODE_CSV_URL);
@@ -296,7 +298,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
     this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
       if (result) {
         this.deleteList = [];
-        this.initializeArchivePmodes();
+        this.getAllPModeEntries();
         this.disabledSave = true;
         this.disabledCancel = true;
       } else {
@@ -314,8 +316,8 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * Method called when Download button is clicked
    * @param row The selected row
    */
-  downloadArchive(rowIndex) {
-    this.download(this.tableRows[rowIndex]);
+  downloadArchive(row) {
+    this.download(row);
   }
 
   /**
@@ -323,15 +325,31 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param row Row where Delete icon is located
    */
   deleteArchiveAction(row) {
-    // workaround to delete one entry from the array
-    // since "this.rows.splice(row, 1);" doesn't work...
-    let array = this.tableRows.slice();
-    this.deleteList.push(array[row].id);
-    array.splice(row, 1);
-    array = array.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
-    this.allPModes.splice(this.offset * this.rowLimiter.pageSize + row, 1);
-    this.tableRows = array.slice();
-    this.count--;
+    this.deleteRows([row]);
+  }
+
+  /**
+   * Method called when Delete button is clicked
+   * All the selected rows will be deleted
+   */
+  deleteArchive() {
+    this.deleteRows(this.selected);
+  }
+
+  deleteRows(rows: any[]) {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const row = rows[i];
+      const rowIndex = this.tableRows.indexOf(row);
+      // workaround to delete one entry from the array
+      // since "this.rows.splice(rowIndex, 1);" doesn't work...
+      let copy = this.tableRows.slice();
+      copy.splice(rowIndex, 1);
+      copy = copy.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
+      this.allPModes.splice(this.offset * this.rowLimiter.pageSize + rowIndex, 1);
+      this.tableRows = copy.slice();
+      this.deleteList.push(row.id);
+      this.count--;
+    }
 
     if (this.offset > 0 && this.isPageEmpty()) {
       this.page(this.offset - 1, this.rowLimiter.pageSize);
@@ -341,31 +359,6 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
       this.selected = [];
       this.enableSaveAndCancelButtons();
     }, 100);
-  }
-
-  /**
-   * Method called when Delete button is clicked
-   * All the selected rows will be deleted
-   */
-  deleteArchive() {
-    for (let i = this.selected.length - 1; i >= 0; i--) {
-      let array = this.tableRows.slice();
-      // index is changed if selected items are not sorted recalculate new index
-      let idx = array.indexOf(this.selected[i]);
-      array.splice(idx, 1);
-      array = array.concat(this.allPModes[this.offset * this.rowLimiter.pageSize + this.rowLimiter.pageSize]);
-      this.allPModes.splice(this.offset * this.rowLimiter.pageSize + idx, 1);
-      this.tableRows = array.slice();
-      this.deleteList.push(this.selected[i].id);
-      this.count--;
-    }
-
-    if (this.offset > 0 && this.isPageEmpty()) {
-      this.page(this.offset - 1, this.rowLimiter.pageSize);
-    }
-
-    this.enableSaveAndCancelButtons();
-    this.selected = [];
   }
 
   /**
@@ -412,7 +405,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
               this.restore(selectedRow);
             },
             error => {
-              this.alertService.error('The operation \'update pmodes\' not completed successfully.', false);
+              this.alertService.exception('The operation \'delete pmodes\' not completed successfully.', error);
               this.enableSaveAndCancelButtons();
               this.selected = [];
             });
@@ -421,7 +414,6 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
         }
       });
     }
-    //this.page(0, this.rowLimiter.pageSize);
   }
 
   private async restore(selectedRow) {
@@ -457,11 +449,11 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    * @param id The id of the selected entry on the DB
    */
   download(row) {
-    this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id).subscribe(res => {
+    this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id, {observe: 'response', responseType: 'text'}).subscribe(res => {
       const uploadDateStr = DateFormatService.format(new Date(row.configurationDate));
-      PModeArchiveComponent.downloadFile(res.text(), this.currentDomain.name, uploadDateStr);
+      PModeArchiveComponent.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
     }, err => {
-      this.alertService.error(err);
+      this.alertService.exception("Error downloading pMode from archive:", err);
     });
   }
 
@@ -514,7 +506,7 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
    */
   selectedIndexChange(value) {
     if (value === 1 && this.uploaded) { // Archive Tab
-      this.getResultObservable().map((response: Response) => response.json()).map((response) => response.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize))
+      this.getResultObservable().map((response) => response.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize))
         .subscribe((response) => {
             this.tableRows = response;
             if (this.offset === 0) {
@@ -541,17 +533,19 @@ export class PModeArchiveComponent implements OnInit, DirtyOperations {
   }
 
   private preview(row) {
-    this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true ').subscribe(res => {
+    this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true', {
+      observe: 'response',
+      responseType: 'text'
+    }).subscribe(res => {
       const HTTP_OK = 200;
       if (res.status === HTTP_OK) {
-        const content = res.text();
+        const content = res.body;
         this.dialog.open(PmodeViewComponent, {
           data: {metadata: row, content: content}
-        }).afterClosed().subscribe(result => {
         });
       }
     }, err => {
-      this.alertService.error(err);
+      this.alertService.exception('Error getting the current PMode:', err);
     });
   }
 

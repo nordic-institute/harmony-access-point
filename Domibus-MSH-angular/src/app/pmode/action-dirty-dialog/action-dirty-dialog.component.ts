@@ -1,5 +1,5 @@
 import {Component, Inject, Input, OnInit} from '@angular/core';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-action-dirty-dialog',
@@ -8,8 +8,8 @@ import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
 })
 export class ActionDirtyDialogComponent implements OnInit {
 
-  constructor(@Inject(MD_DIALOG_DATA) public data: { actionTitle: string, actionName: string, actionIconName: string },
-              public dialogRef: MdDialogRef<ActionDirtyDialogComponent>) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { actionTitle: string, actionName: string, actionIconName: string },
+              public dialogRef: MatDialogRef<ActionDirtyDialogComponent>) {
   }
 
   ngOnInit() {

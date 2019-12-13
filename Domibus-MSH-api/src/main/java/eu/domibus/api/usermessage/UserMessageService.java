@@ -11,6 +11,26 @@ import java.util.List;
  */
 public interface UserMessageService {
 
+    String COMMAND_SOURCE_MESSAGE_REJOIN = "SourceMessageRejoin";
+    String COMMAND_SOURCE_MESSAGE_RECEIPT = "SourceMessageReceipt";
+    String COMMAND_SOURCE_MESSAGE_REJOIN_FILE = "SourceMessageRejoinFile";
+    String COMMAND_SPLIT_AND_JOIN_SEND_FAILED = "SplitAndJoinSendFailed";
+    String COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED = "SetMessageFragmentAsFailed";
+    String COMMAND_SEND_SIGNAL_ERROR = "SendSignalError";
+    String COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED = "SplitAndJoinReceiveFailed";
+
+
+    String MSG_SOURCE_MESSAGE_FILE = "SourceMessageFile";
+    String MSG_TYPE = "messageType";
+    String MSG_GROUP_ID = "groupId";
+    String MSG_BACKEND_NAME = "backendName";
+    String MSG_SOURCE_MESSAGE_ID = "sourceMessageId";
+    String MSG_USER_MESSAGE_ID = "userMessageId";
+    String MSG_EBMS3_ERROR_CODE = "ebms3ErrorCode";
+    String MSG_EBMS3_ERROR_DETAIL = "ebms3ErrorDetail";
+
+    String PULL_RECEIPT_REF_TO_MESSAGE_ID = "pullReceiptRefToMessageId";
+
     String getFinalRecipient(final String messageId);
 
     List<String> getFailedMessages(String finalRecipient);
@@ -21,22 +41,106 @@ public interface UserMessageService {
 
     void sendEnqueuedMessage(String messageId);
 
+    /**
+     * Resend a message in the status SEND_FAILURE or
+     * SEND_ENQUEUED
+     *
+     * @param messageId message Id of the message
+     */
+    void resendFailedOrSendEnqueuedMessage(final String messageId);
+
     List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end, String finalRecipient);
 
     void deleteFailedMessage(String messageId);
 
-    void delete(List<String> messageIds);
-
     void deleteMessage(String messageId);
 
-    void scheduleSending(String messageId);
+    void scheduleSending(String messageId, boolean isSplitAndJoin);
 
-    void scheduleSending(String messageId, Long delay);
+    /**
+     * Schedules the handling of the SplitAndJoin send failed event
+     *
+     * @param groupId The groupId for which the failure will be triggered
+     * @param errorDetail The error detail
+     */
+    void scheduleSplitAndJoinSendFailed(String groupId, String errorDetail);
 
-    void scheduleSending(String messageId, int retryCount);
+    /**
+     * Schedules the marking of the UserMessageFragment as failed
+     *
+     * @param messageId
+     */
+    void scheduleSetUserMessageFragmentAsFailed(String messageId);
+
+    /**
+     * Schedules the sending of the SourceMessage
+     *
+     * @param messageId
+     */
+    void scheduleSourceMessageSending(String messageId);
+
+    /**
+     * Schedules the rejoining of the SourceMessage file
+     *
+     * @param groupId
+     * @param backendName
+     */
+    void scheduleSourceMessageRejoinFile(String groupId, String backendName);
+
+    /**
+     * Schedules the rejoining of the SourceMessage
+     *
+     * @param groupId
+     * @param file
+     * @param backendName
+     */
+    void scheduleSourceMessageRejoin(String groupId, String file, String backendName);
+
+    /**
+     * Schedules the sending of the SourceMessage receipt
+     *
+     * @param messageId
+     * @param pmodeKey
+     */
+    void scheduleSourceMessageReceipt(String messageId, String pmodeKey);
+
+    /**
+     * Schedules the sending of the Signal error in case a SourceMessage fails to be rejoined
+     *
+     * @param messageId
+     * @param errorCode
+     * @param errorDetail
+     * @param pmodeKey
+     */
+    void scheduleSendingSignalError(String messageId, String errorCode, String errorDetail, String pmodeKey);
+
+    void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail);
+
+    void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin);
+
+    void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin);
+
+    /**
+     * Schedule the sending of the asynchronous Pull Receipt
+     *
+     * @param messageId MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param pmodeKey  the pmode key of the UserMessage
+     */
+    void scheduleSendingPullReceipt(String messageId, String pmodeKey);
+
+    /**
+     * Schedule the sending of the asynchronous Pull Receipt (counting the retries)
+     *
+     * @param messageId MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param pmodeKey  the pmode key of the UserMessage
+     * @param retryCount the number of current attempts to send the receipt
+     *
+     */
+    void scheduleSendingPullReceipt(String messageId, String pmodeKey, int retryCount);
 
     /**
      * Gets a User Message based on the {@code messageId}
+     *
      * @param messageId User Message Identifier
      * @return User Message {@link UserMessage}
      */

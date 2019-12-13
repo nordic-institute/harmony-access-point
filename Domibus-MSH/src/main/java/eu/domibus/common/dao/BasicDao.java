@@ -1,6 +1,5 @@
 package eu.domibus.common.dao;
 
-import eu.domibus.common.model.common.BasicAudit;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +14,9 @@ import java.util.Collection;
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
-
 public abstract class BasicDao<T extends AbstractBaseEntity> {
 
-    private final Class<T> typeOfT;
+    protected final Class<T> typeOfT;
 
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager em;
@@ -34,7 +32,6 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         return em.find(typeOfT, id);
     }
 
-    @BasicAudit
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(final T entity) {
         em.persist(entity);
@@ -45,7 +42,7 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         em.remove(em.merge(entity));
     }
 
-    public T read(final int id) {
+    public T read(final long id) {
         return em.find(this.typeOfT, id);
     }
 
@@ -71,4 +68,5 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
     public void flush() {
         em.flush();
     }
+
 }

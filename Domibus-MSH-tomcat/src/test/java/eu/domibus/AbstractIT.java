@@ -44,6 +44,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -66,6 +67,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 import static org.awaitility.Awaitility.with;
 
@@ -103,6 +105,17 @@ public abstract class AbstractIT {
 
         FileUtils.deleteDirectory(new File("target/temp"));
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
+
+        //we are using randomly available port in order to allow run in parallel
+        int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
+        int activeMQRmiServerPort = SocketUtils.findAvailableTcpPort(1200, 1300);
+        int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 61690);
+        System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
+        System.setProperty(ACTIVE_MQ_RMI_SERVER_PORT, String.valueOf(activeMQRmiServerPort));
+        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
+        LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
+        LOG.info("activeMQ.rmiServerPort=[{}]", activeMQRmiServerPort);
+        LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(

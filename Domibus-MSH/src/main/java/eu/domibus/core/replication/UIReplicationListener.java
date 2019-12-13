@@ -1,8 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -35,12 +34,16 @@ public class UIReplicationListener {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    private DatabaseUtil databaseUtil;
+
     @JmsListener(destination = "${domibus.jms.queue.ui.replication}", containerFactory = "uiReplicationJmsListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processUIReplication(final MapMessage map) throws JMSException {
 
         final String domainCode = map.getStringProperty(MessageConstants.DOMAIN);
         domainContextProvider.setCurrentDomain(domainCode);
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         //disabling read of JMS messages
         if (!uiReplicationSignalService.isReplicationEnabled()) {
@@ -54,18 +57,10 @@ public class UIReplicationListener {
 
         switch (UIJMSType.valueOf(jmsType)) {
             case USER_MESSAGE_RECEIVED:
-                uiReplicationDataService.messageReceived(messageId, map.getJMSTimestamp());
+                uiReplicationDataService.userMessageReceived(messageId, map.getJMSTimestamp());
                 break;
             case USER_MESSAGE_SUBMITTED:
-                uiReplicationDataService.messageSubmitted(messageId, map.getJMSTimestamp());
-                break;
-            case MESSAGE_STATUS_CHANGE:
-                MessageStatus messageStatus = MessageStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_STATUS));
-                uiReplicationDataService.messageStatusChange(messageId, messageStatus, map.getJMSTimestamp());
-                break;
-            case MESSAGE_NOTIFICATION_STATUS_CHANGE:
-                NotificationStatus notificationStatus = NotificationStatus.valueOf(map.getStringProperty(UIReplicationSignalService.JMS_PROP_NOTIF_STATUS));
-                uiReplicationDataService.messageNotificationStatusChange(messageId, notificationStatus, map.getJMSTimestamp());
+                uiReplicationDataService.userMessageSubmitted(messageId, map.getJMSTimestamp());
                 break;
             case MESSAGE_CHANGE:
                 uiReplicationDataService.messageChange(messageId, map.getJMSTimestamp());

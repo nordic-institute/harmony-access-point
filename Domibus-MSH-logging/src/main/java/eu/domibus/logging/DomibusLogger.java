@@ -21,6 +21,10 @@ public class DomibusLogger extends CategoryLogger {
     public static final String MDC_USER = "user";
     public static final String MDC_MESSAGE_ID = "messageId";
     public static final String MDC_DOMAIN = "domain";
+    public static final String MDC_FROM = "from";
+    public static final String MDC_TO = "to";
+    public static final String MDC_SERVICE = "service";
+    public static final String MDC_ACTION = "action";
 
     public static final String MDC_PROPERTY_PREFIX = "d_";
 
@@ -134,5 +138,13 @@ public class DomibusLogger extends CategoryLogger {
 
     public Map<String, String> getCopyOfContextMap() {
         return MDC.getCopyOfContextMap();
+    }
+
+    /**
+     * Sets the MDC context map with the provided one. For more info see javadoc {@link MDC#setContextMap(java.util.Map)}
+     * @param newContextMap
+     */
+    public void setContextMap(Map<String, String> newContextMap) {
+        MDC.setContextMap(newContextMap);
     }
 }

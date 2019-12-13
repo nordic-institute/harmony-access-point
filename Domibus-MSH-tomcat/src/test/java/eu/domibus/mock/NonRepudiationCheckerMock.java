@@ -5,7 +5,8 @@ import eu.domibus.ebms3.sender.NonRepudiationChecker;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -16,12 +17,17 @@ import org.w3c.dom.NodeList;
 public class NonRepudiationCheckerMock implements NonRepudiationChecker {
 
     @Override
-    public NodeList getNonRepudiationNodeList(Node securityInfo) throws EbMS3Exception {
+    public List<String> getNonRepudiationDetailsFromSecurityInfoNode(Node securityInfo) throws EbMS3Exception {
         return null;
     }
 
     @Override
-    public boolean compareUnorderedReferenceNodeLists(NodeList referencesFromSecurityHeader, NodeList referencesFromNonRepudiationInformation) {
+    public boolean compareUnorderedReferenceNodeLists(List<String> referencesFromSecurityHeader, List<String> referencesFromNonRepudiationInformation) {
         return true;
+    }
+
+    @Override
+    public List<String> getNonRepudiationDetailsFromReceipt(Node nonRepudiationInformation) throws EbMS3Exception {
+        return null;
     }
 }

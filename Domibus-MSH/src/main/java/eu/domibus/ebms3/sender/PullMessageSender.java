@@ -8,22 +8,24 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.pull.PullReceiptSender;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
+import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.ebms3.receiver.UserMessageHandlerContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.pki.PolicyService;
-import eu.domibus.util.MessageUtil;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,6 +45,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_REQUEST;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -53,6 +57,9 @@ import java.util.concurrent.Executor;
 public class PullMessageSender {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageSender.class);
+
+    @Autowired
+    protected MessageUtil messageUtil;
 
     @Autowired
     private MSHDispatcher mshDispatcher;
@@ -80,7 +87,7 @@ public class PullMessageSender {
     private DomibusInitializationHelper domibusInitializationHelper;
 
     @Autowired
-    private PullReceiptSender pullReceiptSender;
+    private UserMessageDefaultService userMessageDefaultService;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
@@ -89,13 +96,20 @@ public class PullMessageSender {
     @Qualifier("taskExecutor")
     private Executor executor;
 
+    @Autowired
+    private PullFrequencyHelper pullFrequencyHelper;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
+    @Timer(OUTGOING_PULL_REQUEST)
+    @Counter(OUTGOING_PULL_REQUEST)
     public void processPullRequest(final Message map) {
         if (domibusInitializationHelper.isNotReady()) {
             return;
         }
+        LOG.clearCustomKeys();
+
         String domainCode;
         try {
             domainCode = map.getStringProperty(MessageConstants.DOMAIN);
@@ -108,48 +122,46 @@ public class PullMessageSender {
         boolean notifyBusinessOnError = false;
         Messaging messaging = null;
         String messageId = null;
+        String mpcName = null;
+
         try {
-            final String mpc = map.getStringProperty(PullContext.MPC);
-            final String pMode = map.getStringProperty(PullContext.PMODE_KEY);
+            final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
+            final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
             notifyBusinessOnError = Boolean.valueOf(map.getStringProperty(PullContext.NOTIFY_BUSINNES_ON_ERROR));
             SignalMessage signalMessage = new SignalMessage();
             PullRequest pullRequest = new PullRequest();
-            pullRequest.setMpc(mpc);
+            pullRequest.setMpc(mpcQualifiedName);
             signalMessage.setPullRequest(pullRequest);
-            LOG.debug("Sending pull request with mpc:[{}]", mpc);
-            final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pMode);
-            final Party receiverParty = pModeProvider.getReceiverParty(pMode);
+            LOG.debug("Sending pull request with mpc:[{}]", mpcQualifiedName);
+            final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+            mpcName = legConfiguration.getDefaultMpc().getName();
+            Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             final Policy policy = getPolicy(legConfiguration);
             LOG.trace("Build soap message");
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
-            final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pMode);
-            messaging = MessageUtil.getMessage(response, jaxbContext);
+            final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
+            messaging = messageUtil.getMessage(response);
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
-                LOG.trace("No message for sent pull request with mpc:[{}]", mpc);
+                LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
                 logError(signalMessage);
                 return;
             }
             messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
-            UserMessageHandlerContext userMessageHandlerContext = new UserMessageHandlerContext();
+
             LOG.trace("handle message");
-            final SOAPMessage acknowledgement = userMessageHandlerService.handleNewUserMessage(pMode, response, messaging, userMessageHandlerContext);
-            final PartyInfo partyInfo = messaging.getUserMessage().getPartyInfo();
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIVED, partyInfo.getFrom().getFirstPartyId(), partyInfo.getTo().getFirstPartyId());
-            final String sendMessageId = messageId;
-            //TODO this will be changed in 4.1
-            /**
-             * Here we execute the sending of the receipt in a different thread for two reasons:
-             *  1 - If you have a timeout during the sending of the receipt you do not want a complete rollback as the
-             *      message is received.
-             *  2 - It can happen that between the reception and the sending of the message, the message is ready to pull again
-             *      Then the message is retrieved again before commit. The commit occurs just after we verify if the message
-             *      already exist, then we have a constraint violation of the message. The shorter the saving transaction the better.
-             *
-             * Ideally the message id should be committed to a queue and the sending of the receipt executed in another process.
-             */
+            Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+            userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
+
+            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
+                    messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
+            String sendMessageId = messageId;
+            if (userMessageHandlerService.checkSelfSending(pModeKey)) {
+                sendMessageId += UserMessageHandlerService.SELF_SENDING_SUFFIX;
+            }
             try {
-                executor.execute(() -> pullReceiptSender.sendReceipt(acknowledgement, receiverParty.getEndpoint(), policy, legConfiguration, pMode, sendMessageId,domainCode));
+                userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, pModeKey);
             } catch (Exception ex) {
                 LOG.warn("Message[{}] exception while sending receipt asynchronously.", messageId, ex);
             }
@@ -164,13 +176,13 @@ public class PullMessageSender {
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
             }
-            checkConnectionProblem(e);
+            checkConnectionProblem(e, mpcName);
         }
     }
 
     private Policy getPolicy(LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
-            return policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+            return policyService.getPolicy(legConfiguration);
         } catch (final ConfigurationException e) {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Policy configuration invalid", null, e);
             ex.setMshRole(MSHRole.SENDING);
@@ -186,9 +198,10 @@ public class PullMessageSender {
         }
     }
 
-    private void checkConnectionProblem(EbMS3Exception e) {
+    private void checkConnectionProblem(EbMS3Exception e, String mpcName) {
         if (e.getErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
             LOG.warn("ConnectionFailure ", e);
+            pullFrequencyHelper.increaseError(mpcName);
         } else {
             throw new WebServiceException(e);
         }

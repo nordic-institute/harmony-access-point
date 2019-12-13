@@ -6,7 +6,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.1-RC1-SNAPSHOT</version>
+        <version>4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-MSH-weblogic-common</artifactId>
@@ -42,6 +42,11 @@
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->
 

@@ -1,9 +1,9 @@
 package eu.domibus.common.model.logging;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -55,10 +55,14 @@ public class MessageLogInfo {
 
     private Date restored;
 
+    private Boolean messageFragment;
+
+    private Boolean sourceMessage;
 
     public MessageLogInfo() {
     }
 
+    //constructor for signal messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,
                           final NotificationStatus notificationStatus,
@@ -78,7 +82,6 @@ public class MessageLogInfo {
                           final Date failed,
                           final Date restored,
                           final MessageSubtype messageSubtype) {
-        //message log information.
         this.messageId = messageId;
         this.messageStatus = messageStatus;
         this.notificationStatus = notificationStatus;
@@ -96,13 +99,92 @@ public class MessageLogInfo {
         this.originalSender = originalSender;
         this.finalRecipient = finalRecipient;
         this.refToMessageId = refToMessageId;
-        // rest of message log information.
         this.failed = failed;
         this.restored = restored;
         this.messageSubtype = messageSubtype;
     }
 
+    //constructor for user messages
+    public MessageLogInfo(final String messageId,
+                          final MessageStatus messageStatus,
+                          final NotificationStatus notificationStatus,
+                          final MSHRole mshRole,
+                          final MessageType messageType,
+                          final Date deleted,
+                          final Date received,
+                          final int sendAttempts,
+                          final int sendAttemptsMax,
+                          final Date nextAttempt,
+                          final String conversationId,
+                          final String fromPartyId,
+                          final String toPartyId,
+                          final String originalSender,
+                          final String finalRecipient,
+                          final String refToMessageId,
+                          final Date failed,
+                          final Date restored,
+                          final MessageSubtype messageSubtype,
+                          final Boolean messageFragment,
+                          final Boolean sourceMessage) {
+        this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
+                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
+                originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
 
+        this.messageFragment = messageFragment;
+        this.sourceMessage = sourceMessage;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public void setMessageStatus(MessageStatus messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
+    public void setNotificationStatus(NotificationStatus notificationStatus) {
+        this.notificationStatus = notificationStatus;
+    }
+
+    public void setReceived(Date received) {
+        this.received = received;
+    }
+
+    public void setMshRole(MSHRole mshRole) {
+        this.mshRole = mshRole;
+    }
+
+    public void setSendAttempts(int sendAttempts) {
+        this.sendAttempts = sendAttempts;
+    }
+
+    public void setSendAttemptsMax(int sendAttemptsMax) {
+        this.sendAttemptsMax = sendAttemptsMax;
+    }
+
+    public void setNextAttempt(Date nextAttempt) {
+        this.nextAttempt = nextAttempt;
+    }
+
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
+
+    public void setMessageSubtype(MessageSubtype messageSubtype) {
+        this.messageSubtype = messageSubtype;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
+
+    public void setFailed(Date failed) {
+        this.failed = failed;
+    }
+
+    public void setRestored(Date restored) {
+        this.restored = restored;
+    }
 
     public String getConversationId() {
         return conversationId;
@@ -204,6 +286,22 @@ public class MessageLogInfo {
         return messageSubtype;
     }
 
+    public Boolean getMessageFragment() {
+        return messageFragment;
+    }
+
+    public void setMessageFragment(Boolean messageFragment) {
+        this.messageFragment = messageFragment;
+    }
+
+    public Boolean getSourceMessage() {
+        return sourceMessage;
+    }
+
+    public void setSourceMessage(Boolean sourceMessage) {
+        this.sourceMessage = sourceMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -232,6 +330,7 @@ public class MessageLogInfo {
                 .append(refToMessageId, that.refToMessageId)
                 .append(failed, that.failed)
                 .append(restored, that.restored)
+                .append(messageFragment, this.messageFragment)
                 .isEquals();
     }
 
@@ -257,6 +356,7 @@ public class MessageLogInfo {
                 .append(failed)
                 .append(restored)
                 .append(messageSubtype)
+                .append(messageFragment)
                 .toHashCode();
     }
 }

@@ -21,18 +21,17 @@ public class RetentionWorker extends DomibusQuartzJobBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionWorker.class);
 
-
     @Autowired
-    private MessageRetentionService messageRetentionService;
+    protected MessageRetentionService messageRetentionService;
 
     @Autowired
     private ConfigurationDAO configurationDAO;
 
     @Autowired
-    AuthUtils authUtils;
+    private AuthUtils authUtils;
 
     @Override
-    protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
+    protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.debug("RetentionWorker executed");
         if(!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");

@@ -14,20 +14,19 @@ import eu.domibus.ebms3.common.model.PayloadInfo;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
 
 /**
  * @author Arun Raj
@@ -44,12 +43,12 @@ import java.util.regex.Pattern;
  */
 
 @Service
-@Transactional(noRollbackFor = {IllegalArgumentException.class})
+@Transactional(noRollbackFor = {IllegalArgumentException.class}, propagation = Propagation.SUPPORTS)
 public class BackendMessageValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);
 
-    protected static final String KEY_MESSAGEID_PATTERN = "domibus.sendMessage.messageIdPattern";
+    protected static final String KEY_MESSAGEID_PATTERN = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -120,9 +119,7 @@ public class BackendMessageValidator {
      * This validation will be skipped if the pattern is not present in the configuration file.
      */
     protected void validateMessageIdPattern(String messageId, String elementType) throws EbMS3Exception {
-
-        Domain domain = domainContextProvider.getCurrentDomain();
-        String messageIdPattern = domibusPropertyProvider.getProperty(domain, KEY_MESSAGEID_PATTERN);
+        String messageIdPattern = domibusPropertyProvider.getProperty(KEY_MESSAGEID_PATTERN);
         LOG.debug("MessageIdPattern read from file is [{}]", messageIdPattern);
 
         if (StringUtils.isBlank(messageIdPattern)) {
@@ -200,22 +197,22 @@ public class BackendMessageValidator {
     }
 
     public void validatePayloads(PayloadInfo payloadInfo) throws EbMS3Exception {
-        if(payloadInfo == null || CollectionUtils.isEmpty(payloadInfo.getPartInfo())) {
+        if (payloadInfo == null || CollectionUtils.isEmpty(payloadInfo.getPartInfo())) {
             return;
         }
 
-        for(PartInfo partInfo : payloadInfo.getPartInfo()) {
+        for (PartInfo partInfo : payloadInfo.getPartInfo()) {
             validateCompressionProperty(partInfo.getPartProperties());
         }
     }
 
-    protected void validateCompressionProperty(PartProperties properties) throws SubmissionValidationException{
-        if(properties == null || CollectionUtils.isEmpty(properties.getProperties())) {
+    protected void validateCompressionProperty(PartProperties properties) throws SubmissionValidationException {
+        if (properties == null || CollectionUtils.isEmpty(properties.getProperties())) {
             return;
         }
 
-        for(Property property : properties.getProperties()) {
-            if(CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
+        for (Property property : properties.getProperties()) {
+            if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
                 throw new SubmissionValidationException("The occurrence of the property " + CompressionService.COMPRESSION_PROPERTY_KEY + " and its value are fully controlled by the AS4 compression feature");
             }
         }

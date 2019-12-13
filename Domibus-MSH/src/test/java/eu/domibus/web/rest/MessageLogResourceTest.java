@@ -2,6 +2,8 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -20,13 +22,11 @@ import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.web.rest.ro.MessageLogRO;
-import eu.domibus.web.rest.ro.MessageLogResultRO;
-import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import eu.domibus.web.rest.ro.*;
+import eu.domibus.common.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -99,6 +99,12 @@ public class MessageLogResourceTest {
     @Mocked
     SignalMessage signalMessage;
 
+    @Injectable
+    BlacklistValidator blacklistValidator;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Parameterized.Parameters(name = "{index}: messageType=\"{0}\" messageSubtype=\"{2}\"")
     public static Collection<Object[]> values() {
         return Arrays.asList(new Object[][]{
@@ -155,7 +161,7 @@ public class MessageLogResourceTest {
             messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any);
             result = messageList;
 
-            csvServiceImpl.exportToCSV(messageList, null, (Map<String, String>)any, (List<String>)any);
+            csvServiceImpl.exportToCSV(messageList, null, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +
                     "conversationId,fromPartyId,toPartyId,originalSender,finalRecipient,refToMessageId,messageId," + MessageStatus.ACKNOWLEDGED + "," +
                     NotificationStatus.NOTIFIED + "," + MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + ",1,5," + date + "," +
@@ -163,9 +169,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = messageLogResource.getCsv("received", true, null, null, null, messageType, null,
-                null, null, null, null, null,
-                null, null, null, messageSubtype);
+        final ResponseEntity<String> csv = messageLogResource.getCsv(new MessageLogFilterRequestRO() {{
+            setOrderBy("received");
+            setMessageType(messageType);
+            setMessageSubtype(messageSubtype);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
@@ -187,9 +195,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = messageLogResource.getCsv("received", true, null, null, null, messageType, null,
-                null, null, null, null, null,
-                null, null, null, messageSubtype);
+        final ResponseEntity<String> csv = messageLogResource.getCsv(new MessageLogFilterRequestRO() {{
+            setOrderBy("received");
+            setMessageType(messageType);
+            setMessageSubtype(messageSubtype);
+        }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
@@ -209,7 +219,10 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(partyId);
+        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+                new LatestOutgoingMessageRequestRO() {{
+                    setPartyId(partyId);
+                }});
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
@@ -226,7 +239,10 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent("test");
+        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+                new LatestOutgoingMessageRequestRO() {{
+                    setPartyId("test");
+                }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestSent.getStatusCode());
@@ -251,7 +267,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(partyId, userMessageId);
+        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
+                new LatestIncomingMessageRequestRO() {{
+                    setPartyId(partyId);
+                    setUserMessageId(userMessageId);
+                }});
 
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
@@ -270,7 +290,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived("test", "test");
+        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
+                new LatestIncomingMessageRequestRO() {{
+                    setPartyId("test");
+                    setUserMessageId("test");
+                }});
 
         // Then
         Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestReceived.getStatusCode());
@@ -313,10 +337,12 @@ public class MessageLogResourceTest {
      * @return <code>MessageLogResultRO</code> object
      */
     private MessageLogResultRO getMessageLog(MessageType messageType, MessageSubtype messageSubtype) {
-        return messageLogResource.getMessageLog(1, 10, "MessageId", true,
-                null, null, null, messageType, null,
-                null, null, null, null, null, null,
-                null, null, messageSubtype);
+        return messageLogResource.getMessageLog(new MessageLogFilterRequestRO() {{
+            setPage(1);
+            setMessageId("MessageId");
+            setMessageType(messageType);
+            setMessageSubtype(messageSubtype);
+        }});
     }
 
     /**
@@ -332,7 +358,7 @@ public class MessageLogResourceTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype);
+                "refToMessageId", date, date, messageSubtype, false, false);
         result.add(messageLog);
         return result;
     }

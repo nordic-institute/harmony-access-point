@@ -19,6 +19,7 @@ public class Command {
     public static final String RELOAD_TRUSTSTORE = "RELOAD_TRUSTSTORE";
     public static final String LOGGING_RESET = "LOGGING_RESET";
     public static final String LOGGING_SET_LEVEL = "LOGGING_SET_LEVEL";
+    public static final String DOMIBUS_PROPERTY_CHANGE = "DOMIBUS_PROPERTY_CHANGE";
 
     private int entityId;
     protected String commandName;

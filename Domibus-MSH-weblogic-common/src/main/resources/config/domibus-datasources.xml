@@ -20,8 +20,20 @@
     <bean id="sendMessageQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="jms/domibus.internal.dispatch.queue"/>
     </bean>
+    <bean id="sendLargeMessageQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="jms/domibus.internal.largeMessage.queue"/>
+    </bean>
+    <bean id="splitAndJoinQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="jms/domibus.internal.splitAndJoin.queue"/>
+    </bean>
     <bean id="pullMessageQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="jms/domibus.internal.pull.queue"/>
+    </bean>
+    <bean id="sendPullReceiptQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="jms/domibus.internal.pull.receipt.queue"/>
+    </bean>
+    <bean id="retentionMessageQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="jms/domibus.internal.retentionMessage.queue"/>
     </bean>
     <bean id="alertMessageQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="jms/domibus.internal.alert.queue"/>
@@ -35,7 +47,6 @@
     <bean id="uiReplicationQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="jms/domibus.internal.ui.replication.queue"/>
     </bean>
-
     <bean id="clusterCommandTopic" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="jms/domibus.internal.command"/>
     </bean>

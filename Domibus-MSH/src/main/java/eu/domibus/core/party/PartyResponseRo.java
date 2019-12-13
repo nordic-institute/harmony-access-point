@@ -1,5 +1,8 @@
 package eu.domibus.core.party;
 
+import eu.domibus.api.validators.CustomWhiteListed;
+import eu.domibus.api.validators.SkipWhiteListed;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +13,7 @@ import java.util.Set;
  */
 public class PartyResponseRo {
 
-    private Integer entityId;
+    protected Integer entityId;
 
     protected Set<IdentifierRo> identifiers; //NOSONAR
 
@@ -18,16 +21,30 @@ public class PartyResponseRo {
 
     protected String userName;
 
+    /**
+     * Custom annotation to add some additional characters to be permitted by black-list/white-list validation
+     * The endpoint property can contain the specified characters so we must permit this
+     */
+    @CustomWhiteListed(permitted = ":/=?&-+%")
     protected String endpoint;
 
     private String joinedIdentifiers;
 
+    /**
+     * Custom annotation to skip the black-list validation altogether because this field is calculated on the fly and does not get persisted
+     */
+    @SkipWhiteListed
     private String joinedProcesses;
 
-    private List<ProcessRo> processesWithPartyAsInitiator =new ArrayList<>();
+    private List<ProcessRo> processesWithPartyAsInitiator = new ArrayList<>();
 
-    private List<ProcessRo> processesWithPartyAsResponder =new ArrayList<>();
+    private List<ProcessRo> processesWithPartyAsResponder = new ArrayList<>();
 
+    /**
+     * Custom annotation to add some additional characters to be permitted by black-list/white-list validation
+     * The certificate content property can contain the specified characters so we must permit this
+     */
+    @CustomWhiteListed(permitted = "/+-=\n ") // base64 characters
     protected String certificateContent;
 
     public Set<IdentifierRo> getIdentifiers() {
@@ -105,6 +122,7 @@ public class PartyResponseRo {
     public String getCertificateContent() {
         return certificateContent;
     }
+
     public void setCertificateContent(String certificateContent) {
         this.certificateContent = certificateContent;
     }

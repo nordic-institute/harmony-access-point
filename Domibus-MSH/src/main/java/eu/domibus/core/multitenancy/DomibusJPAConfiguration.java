@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +23,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import javax.sql.DataSource;
 import java.util.Optional;
 import java.util.Properties;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
 
 /**
  * @author Cosmin Baciu
@@ -51,11 +54,12 @@ public class DomibusJPAConfiguration {
     @Bean
     @Primary
     @DependsOn("transactionManager")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(Optional<ConnectionProvider> singleTenantConnectionProviderImpl,
+                                                                       Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setPersistenceUnitName("domibusJTA");
-        final String packagesToScanString = domibusPropertyProvider.getProperty("domibus.entityManagerFactory.packagesToScan");
+        final String packagesToScanString = domibusPropertyProvider.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN);
         if (StringUtils.isNotEmpty(packagesToScanString)) {
             final String[] packagesToScan = StringUtils.split(packagesToScanString, ",");
             result.setPackagesToScan(packagesToScan);
@@ -64,12 +68,14 @@ public class DomibusJPAConfiguration {
         result.setJpaVendorAdapter(jpaVendorAdapter());
         final PrefixedProperties jpaProperties = jpaProperties();
 
-        final boolean tenantConnectionProviderPresent = multiTenantConnectionProviderImpl.isPresent();
-        if (tenantConnectionProviderPresent) {
+        if (singleTenantConnectionProviderImpl.isPresent()) {
+            LOG.info("Configuring jpaProperties for single-tenancy");
+            jpaProperties.put(Environment.CONNECTION_PROVIDER, singleTenantConnectionProviderImpl.get());
+        } else if (multiTenantConnectionProviderImpl.isPresent()) {
             LOG.info("Configuring jpaProperties for multi-tenancy");
             jpaProperties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
             jpaProperties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProviderImpl.get());
-            if(tenantIdentifierResolver.isPresent()) {
+            if (tenantIdentifierResolver.isPresent()) {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
             }
         }

@@ -6,9 +6,12 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 /**
@@ -18,10 +21,13 @@ import org.apache.cxf.binding.soap.SoapMessage;
 
 public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReceiptLegConfigurationExtractor.class);
+
     private MessagingDao messagingDao;
 
     private PModeProvider pModeProvider;
 
+    private MessageExchangeService messageExchangeService;
 
     public ReceiptLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
         super(message, messaging);
@@ -41,7 +47,15 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
         if (userMessage == null) {
             throw new MessageAcknowledgeException(DomibusCoreErrorCode.DOM_001, "Message with ID [" + messageId + "] does not exist");
         }
-        String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+        String pModeKey;
+        if (messageExchangeService.forcePullOnMpc(userMessage)) {
+            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
+            LOG.debug("Exchange context (pull exchange), pModeKey [{}]", pModeKey);
+        } else {
+            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            LOG.debug("Exchange context, pModeKey [{}]", pModeKey);
+        }
+
         setUpMessage(pModeKey);
         return pModeProvider.getLegConfiguration(pModeKey);
     }
@@ -58,5 +72,9 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
 
     public void setpModeProvider(PModeProvider pModeProvider) {
         this.pModeProvider = pModeProvider;
+    }
+
+    public void setMessageExchangeService(MessageExchangeService messageExchangeService) {
+        this.messageExchangeService = messageExchangeService;
     }
 }

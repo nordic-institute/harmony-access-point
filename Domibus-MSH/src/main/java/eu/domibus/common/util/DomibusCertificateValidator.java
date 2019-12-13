@@ -1,11 +1,8 @@
 package eu.domibus.common.util;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.security.CertificateException;
-import eu.domibus.api.security.ChainCertificateInvalidException;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import no.difi.vefa.peppol.common.code.Service;
 import no.difi.vefa.peppol.security.api.CertificateValidator;
 import no.difi.vefa.peppol.security.lang.PeppolSecurityException;

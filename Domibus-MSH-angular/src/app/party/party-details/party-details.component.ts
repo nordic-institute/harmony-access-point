@@ -1,5 +1,5 @@
-import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MD_DIALOG_DATA, MdDialog, MdDialogRef} from '@angular/material';
+import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../party';
 import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party-identifier-details.component';
@@ -25,16 +25,16 @@ export class PartyDetailsComponent implements OnInit {
   selectedIdentifiers = [];
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  @ViewChild('fileInput')
+  @ViewChild('fileInput', {static: false})
   private fileInput;
 
-  endpointPattern = '^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:(\\.)?(?:[a-z\u00a1-\uffff]{2,})))(?::\\d{2,5})?(?:[/?#]\\S*)?$';
+  endpointPattern = '^(?:(?:(?:https?):)?\\/\\/)(?:\\S+)$';
 
-  constructor(public dialogRef: MdDialogRef<PartyDetailsComponent>,
-              @Inject(MD_DIALOG_DATA) public data: any,
-              private dialog: MdDialog,
+  constructor(public dialogRef: MatDialogRef<PartyDetailsComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any,
+              private dialog: MatDialog,
               public partyService: PartyService,
-              public alertService: AlertService) {
+              public alertService: AlertService, private cdr: ChangeDetectorRef) {
     this.party = data.edit;
     this.identifiers = this.party.identifiers;
     this.allProcesses = data.allProcesses;
@@ -79,12 +79,11 @@ export class PartyDetailsComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const arrayBuffer = reader.result;
-      const array = new Uint8Array(arrayBuffer);
-      const binaryString = String.fromCharCode.apply(null, array);
-      this.party.certificateContent = binaryString;
+      var binaryData = <string>reader.result;
 
-      this.partyService.uploadCertificate({content: binaryString}, this.party.name)
+      this.party.certificateContent = btoa(binaryData); // base64
+
+      this.partyService.uploadCertificate({content: this.party.certificateContent}, this.party.name)
         .subscribe(res => {
             this.party.certificate = res;
           },
@@ -97,7 +96,7 @@ export class PartyDetailsComponent implements OnInit {
       this.alertService.exception('Error reding certificate file ' + file.name, err);
     };
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsBinaryString(file);
   }
 
   initColumns() {
@@ -129,7 +128,7 @@ export class PartyDetailsComponent implements OnInit {
 
     const rowClone = JSON.parse(JSON.stringify(identifierRow));
 
-    const dialogRef: MdDialogRef<PartyIdentifierDetailsComponent> = this.dialog.open(PartyIdentifierDetailsComponent, {
+    const dialogRef: MatDialogRef<PartyIdentifierDetailsComponent> = this.dialog.open(PartyIdentifierDetailsComponent, {
       data: {
         edit: rowClone
       }
@@ -155,6 +154,7 @@ export class PartyDetailsComponent implements OnInit {
     const identifierRow = {entityId: 0, partyId: '', partyIdType: {name: '', value: ''}};
 
     this.party.identifiers.push(identifierRow);
+
     this.selectedIdentifiers.length = 0;
     this.selectedIdentifiers.push(identifierRow);
 
@@ -162,6 +162,7 @@ export class PartyDetailsComponent implements OnInit {
     if (!ok) {
       this.removeIdentifier();
     }
+    this.party.identifiers = [...this.party.identifiers];
   }
 
   ok() {

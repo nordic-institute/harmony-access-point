@@ -1,8 +1,8 @@
 package eu.domibus.core.pull;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -13,6 +13,8 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
@@ -29,15 +31,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
 public class PullMessageServiceImplTest {
-
-    @Injectable
-    private UserMessageLogService userMessageLogService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -64,10 +61,13 @@ public class PullMessageServiceImplTest {
     private PModeProvider pModeProvider;
 
     @Injectable
-    private java.util.Properties domibusProperties;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Injectable
+    protected MpcService mpcService;
 
     @Tested
     private PullMessageServiceImpl pullMessageService;
@@ -75,6 +75,8 @@ public class PullMessageServiceImplTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    private UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Test
     public void updatePullMessageAfterRequest() {
@@ -93,7 +95,7 @@ public class PullMessageServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final int id = 99;
+        final long id = 99;
         new Expectations() {{
 
             messagingLockDao.findReadyToPull(mpc, initiator);
@@ -130,7 +132,7 @@ public class PullMessageServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final int id = 99;
+        final long id = 99;
         new Expectations() {{
 
             messagingLockDao.findReadyToPull(mpc, initiator);
@@ -167,7 +169,7 @@ public class PullMessageServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final int id = 99;
+        final long id = 99;
         new Expectations() {{
 
             messagingLockDao.findReadyToPull(mpc, initiator);
@@ -207,14 +209,14 @@ public class PullMessageServiceImplTest {
         final String mpc = "mpc";
         final Date staledDate = new Date();
         final LegConfiguration legConfiguration = new LegConfiguration();
-        new Expectations(pullMessageService) {{
+        new NonStrictExpectations(pullMessageService) {{
             partyIdExtractor.getPartyId();
             result = partyId;
             messageLog.getMessageId();
             result = messageId;
             messageLog.getMpc();
             result = mpc;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "", "", null);
         }};
 
@@ -238,7 +240,7 @@ public class PullMessageServiceImplTest {
             result = mpc;
             messageLog.getNextAttempt();
             result=null;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;

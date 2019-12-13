@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 
 @Component({
   selector: 'app-cancel-dialog',
@@ -8,7 +8,7 @@ import {MdDialogRef} from "@angular/material";
 })
 export class CancelDialogComponent implements OnInit {
 
-  constructor(public dialogRef: MdDialogRef<CancelDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<CancelDialogComponent>) {
   }
 
   ngOnInit() {

@@ -1,17 +1,17 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.dao.InMemoryDataBaseConfig;
-import eu.domibus.ebms3.common.model.MessageSubtype;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ import java.util.*;
 @Transactional
 public class UIMessageDaoImplIT {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
 
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
@@ -62,6 +62,7 @@ public class UIMessageDaoImplIT {
         uiMessageEntity1 = createUIMessageEntity(messageId1, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity2 = createUIMessageEntity(messageId2, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity3 = createUIMessageEntity(messageId3, "domibus-red", "domibus-blue", MSHRole.RECEIVING);
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
 
@@ -82,6 +83,7 @@ public class UIMessageDaoImplIT {
         uiMessageEntity.setMshRole(mshRole);
         uiMessageEntity.setSendAttempts(0);
         uiMessageEntity.setSendAttemptsMax(5);
+        uiMessageEntity.setLastModified(new Date(System.currentTimeMillis()));
 
         uiMessageDao.create(uiMessageEntity);
 
@@ -109,15 +111,15 @@ public class UIMessageDaoImplIT {
     @Test
     public void testCountMessages() {
         Map<String, Object> filters = new HashMap<>();
-        int count;
+        long count;
 
         filters.put("messageSubtype", MessageSubtype.TEST);
-        count = uiMessageDao.countMessages(filters);
+        count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(0, count);
 
         filters.put("messageSubtype", null);
         filters.put("fromPartyId", "domibus-blue");
-        count = uiMessageDao.countMessages(filters);
+        count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(2, count);
     }
 
@@ -154,33 +156,6 @@ public class UIMessageDaoImplIT {
         uiMessageEntity3.setSendAttempts(3);
         uiMessageDao.saveOrUpdate(uiMessageEntity3);
         Assert.assertEquals(3, uiMessageDao.findUIMessageByMessageId(messageId3).getSendAttempts());
-    }
-
-    @Test
-    public void testUpdateMessageStatus() {
-
-        Assert.assertTrue(uiMessageDao.updateMessageStatus(messageId1, MessageStatus.SEND_ENQUEUED, null,
-                null, null, new Date()));
-
-        Assert.assertFalse(uiMessageDao.updateMessageStatus(messageId1 + "123", MessageStatus.SEND_ENQUEUED, null,
-                null, null, new Date()));
-    }
-
-    @Test
-    public void testUpdateNotificationStatus() {
-        Assert.assertTrue(uiMessageDao.updateNotificationStatus(messageId2, NotificationStatus.NOTIFIED, new Date()));
-
-        Assert.assertFalse(uiMessageDao.updateNotificationStatus(messageId2 + "123", NotificationStatus.NOTIFIED, new Date()));
-    }
-
-    @Test
-    public void testUpdateMessage() {
-
-        Assert.assertTrue(uiMessageDao.updateMessage(messageId3, MessageStatus.DOWNLOADED, null, null, null,
-                null, null, null, new Date()));
-        Assert.assertFalse(uiMessageDao.updateMessage(messageId3 + "123", MessageStatus.DOWNLOADED, null, null, null,
-                null, null, null, new Date()));
-
     }
 
 }

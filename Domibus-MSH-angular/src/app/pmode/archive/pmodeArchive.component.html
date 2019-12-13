@@ -12,8 +12,8 @@
                          (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)">
             </app-column-picker>
           </span>
-          <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-                  id="saveascsvbutton_id" md-tooltip="Export as CSV">
+          <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
+                  id="saveascsvbutton_id" mat-tooltip="Export as CSV">
             <img src="assets/images/exportCSV.svg" width="30" height="30">
           </button>
         </div>
@@ -51,46 +51,46 @@
         </ng-template>
 
         <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-          <button md-icon-button color="primary" id="deleteButtonRow{{row.$$index}}_id" tooltip="Delete"
-                  [disabled]="row.current" (click)="deleteArchiveAction(row.$$index)">
-            <md-icon>delete</md-icon>
+          <button mat-icon-button color="primary" id="deleteButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Delete"
+                  [disabled]="row.current" (click)="deleteArchiveAction(row)" button-click-behaviour>
+            <mat-icon>delete</mat-icon>
           </button>
-          <button md-icon-button color="primary" id="downloadButtonRow{{row.$$index}}_id" tooltip="Download"
-                  (click)="downloadArchive(row.$$index)">
-            <md-icon>file_download</md-icon>
+          <button mat-icon-button color="primary" id="downloadButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Download"
+                  (click)="downloadArchive(row)" button-click-behaviour>
+            <mat-icon>file_download</mat-icon>
           </button>
-          <button md-icon-button color="primary" id="restoreButtonRow{{row.$$index}}_id" tooltip="Restore"
-                  [disabled]="row.current" (click)="restoreArchive(row)">
-            <md-icon>settings_backup_restore</md-icon>
+          <button mat-icon-button color="primary" id="restoreButtonRow{{tableRows.indexOf(row)}}_id" tooltip="Restore"
+                  [disabled]="row.current" (click)="restoreArchive(row)" button-click-behaviour>
+            <mat-icon>settings_backup_restore</mat-icon>
           </button>
         </ng-template>
 
         <table class="group-action-button">
           <tr>
             <td>
-              <button md-raised-button color="primary" (click)="cancelButton()" id="cancelbutton_id" [disabled]="disabledCancel"
+              <button mat-raised-button color="primary" (click)="cancelButton()" id="cancelbutton_id" [disabled]="disabledCancel"
                       button-click-behaviour>
-                <md-icon>cancel</md-icon>
+                <mat-icon>cancel</mat-icon>
                 <span>Cancel</span>
               </button>
-              <button md-raised-button color="primary" (click)="saveButton(false)" id="savebutton_id" [disabled]="disabledSave"
+              <button mat-raised-button color="primary" (click)="saveButton(false)" id="savebutton_id" [disabled]="disabledSave"
                       button-click-behaviour>
-                <md-icon>save</md-icon>
+                <mat-icon>save</mat-icon>
                 <span>Save</span>
               </button>
-              <button md-raised-button color="primary" (click)="deleteArchive()" id="deleteArchivebutton_id" [disabled]="disabledDelete"
+              <button mat-raised-button color="primary" (click)="deleteArchive()" id="deleteArchivebutton_id" [disabled]="disabledDelete"
                       button-click-behaviour>
-                <md-icon>delete</md-icon>
+                <mat-icon>delete</mat-icon>
                 <span>Delete</span>
               </button>
-              <button md-raised-button color="primary" (click)="downloadArchive(selected[0].$$index)" id="downloadArchivebutton_id" [disabled]="disabledDownload"
+              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"
                       button-click-behaviour>
-                <md-icon>file_download</md-icon>
+                <mat-icon>file_download</mat-icon>
                 <span>Download</span>
               </button>
-              <button md-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"
+              <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"
                       button-click-behaviour>
-                <md-icon>settings_backup_restore</md-icon>
+                <mat-icon>settings_backup_restore</mat-icon>
                 <span>Restore</span>
               </button>
             </td>

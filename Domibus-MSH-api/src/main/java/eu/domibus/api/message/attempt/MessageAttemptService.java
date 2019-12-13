@@ -11,4 +11,6 @@ public interface MessageAttemptService {
     List<MessageAttempt> getAttemptsHistory(String messageId);
 
     void create(MessageAttempt attempt);
+
+    void createAndUpdateEndDate(MessageAttempt attempt);
 }

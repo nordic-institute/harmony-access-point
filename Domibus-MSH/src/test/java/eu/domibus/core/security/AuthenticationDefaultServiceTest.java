@@ -3,6 +3,7 @@ package eu.domibus.core.security;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.*;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CertificateServiceImpl;
@@ -60,6 +61,9 @@ public class AuthenticationDefaultServiceTest{
 
     @Injectable
     DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DatabaseUtil databaseUtil;
 
     @Tested
     AuthenticationService authenticationService = new AuthenticationDefaultService();

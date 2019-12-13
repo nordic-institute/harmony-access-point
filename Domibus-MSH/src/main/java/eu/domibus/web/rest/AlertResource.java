@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
@@ -13,13 +12,16 @@ import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.ro.AlertFilterRequestRO;
+import eu.domibus.web.rest.ro.AlertResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +29,8 @@ import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping(value = "/rest/alerts")
-public class AlertResource {
+@Validated
+public class AlertResource extends BaseResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertResource.class);
 
@@ -47,53 +50,22 @@ public class AlertResource {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @GetMapping
-    public AlertResult findAlerts(@RequestParam(value = "page", defaultValue = "0") int page,
-                                  @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                  @RequestParam(value = "asc", defaultValue = "true") Boolean ask,
-                                  @RequestParam(value = "orderBy", required = false) String column,
-                                  @RequestParam(value = "processed", required = false) String processed,
-                                  @RequestParam(value = "alertType", required = false) String alertType,
-                                  @RequestParam(value = "alertStatus", required = false) String alertStatus,
-                                  @RequestParam(value = "alertId", required = false) Integer alertId,
-                                  @RequestParam(value = "alertLevel", required = false) String alertLevel,
-                                  @RequestParam(value = "creationFrom", required = false) String creationFrom,
-                                  @RequestParam(value = "creationTo", required = false) String creationTo,
-                                  @RequestParam(value = "reportingFrom", required = false) String reportingFrom,
-                                  @RequestParam(value = "reportingTo", required = false) String reportingTo,
-                                  @RequestParam(value = "parameters", required = false) String[] parameters,
-                                  @RequestParam(value = "dynamicFrom", required = false) String dynamicaPropertyFrom,
-                                  @RequestParam(value = "dynamicTo", required = false) String dynamicaPropertyTo,
-                                  @RequestParam(value = "domainAlerts", required = false, defaultValue = "false") Boolean domainAlerts) {
-        AlertCriteria alertCriteria = getAlertCriteria(
-                page,
-                pageSize,
-                ask,
-                column,
-                processed,
-                alertType,
-                alertStatus,
-                alertId,
-                alertLevel,
-                creationFrom,
-                creationTo,
-                reportingFrom,
-                reportingTo,
-                parameters,
-                dynamicaPropertyFrom,
-                dynamicaPropertyTo);
+    public AlertResult findAlerts(@Valid AlertFilterRequestRO request) {
+        AlertCriteria alertCriteria = getAlertCriteria(request);
 
-        if (!authUtils.isSuperAdmin() || domainAlerts) {
+        if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
             return retrieveAlerts(alertCriteria, false);
         }
 
         return domainTaskExecutor.submit(() -> retrieveAlerts(alertCriteria, true));
     }
 
-    private AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
+
+    protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
         final Long alertCount = alertService.countAlerts(alertCriteria);
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
         final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
-        alertRoList.forEach(alert->alert.setSuperAdmin(isSuperAdmin));
+        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
         final AlertResult alertResult = new AlertResult();
         alertResult.setAlertsEntries(alertRoList);
         alertResult.setCount(alertCount.intValue());
@@ -145,69 +117,27 @@ public class AlertResource {
     }
 
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@RequestParam(value = "page", defaultValue = "0") int page,
-                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                         @RequestParam(value = "asc", defaultValue = "true") Boolean ask,
-                                         @RequestParam(value = "orderBy", required = false) String column,
-                                         @RequestParam(value = "processed", required = false) String processed,
-                                         @RequestParam(value = "alertType", required = false) String alertType,
-                                         @RequestParam(value = "alertStatus", required = false) String alertStatus,
-                                         @RequestParam(value = "alertId", required = false) Integer alertId,
-                                         @RequestParam(value = "alertLevel", required = false) String alertLevel,
-                                         @RequestParam(value = "creationFrom", required = false) String creationFrom,
-                                         @RequestParam(value = "creationTo", required = false) String creationTo,
-                                         @RequestParam(value = "reportingFrom", required = false) String reportingFrom,
-                                         @RequestParam(value = "reportingTo", required = false) String reportingTo,
-                                         @RequestParam(value = "parameters", required = false) String[] nonDateDynamicParameters,
-                                         @RequestParam(value = "dynamicFrom", required = false) String dynamicaPropertyFrom,
-                                         @RequestParam(value = "dynamicTo", required = false) String dynamicaPropertyTo,
-                                        @RequestParam(value = "domainAlerts", required = false, defaultValue = "false") Boolean domainAlerts) {
-
-        AlertCriteria alertCriteria = getAlertCriteria(
-                0,
-                csvServiceImpl.getMaxNumberRowsToExport(),
-                ask,
-                column,
-                processed,
-                alertType,
-                alertStatus,
-                alertId,
-                alertLevel,
-                creationFrom,
-                creationTo,
-                reportingFrom,
-                reportingTo,
-                nonDateDynamicParameters,
-                dynamicaPropertyFrom,
-                dynamicaPropertyTo);
-
+    public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
+        request.setPage(0);
+        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
+        AlertCriteria alertCriteria = getAlertCriteria(request);
         List<AlertRo> alertRoList;
-        if (!authUtils.isSuperAdmin() || domainAlerts) {
+        if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
             alertRoList = fetchAndTransformAlerts(alertCriteria, false);
         } else {
             alertRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria, true));
         }
 
-        String resultText;
-        try {
-
-            resultText = csvServiceImpl.exportToCSV(alertRoList, AlertRo.class,
-                    CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(), new ArrayList<>());
-
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("alerts"))
-                .body(resultText);
+        return exportToCSV(alertRoList,
+                AlertRo.class,
+                CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(),
+                new ArrayList<>(),
+                "alerts");
 
     }
 
     private Alert toAlert(AlertRo alertRo) {
-        final int entityId = alertRo.getEntityId();
+        final long entityId = alertRo.getEntityId();
         final boolean processed = alertRo.isProcessed();
         Alert alert = new Alert();
         alert.setEntityId(entityId);
@@ -218,59 +148,56 @@ public class AlertResource {
     protected List<AlertRo> fetchAndTransformAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
         final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
-        alertRoList.forEach(alert->alert.setSuperAdmin(isSuperAdmin));
+        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
         return alertRoList;
     }
 
-    private AlertCriteria getAlertCriteria(int page, int pageSize, Boolean ask, String column, String
-            processed, String alertType, String alertStatus, Integer alertId, String alertLevel, String creationFrom, String
-                                                   creationTo, String reportingFrom, String reportingTo, String[] parameters, String dynamicaPropertyFrom, String
-                                                   dynamicaPropertyTo) {
+    private AlertCriteria getAlertCriteria(AlertFilterRequestRO request) {
         AlertCriteria alertCriteria = new AlertCriteria();
-        alertCriteria.setPage(page);
-        alertCriteria.setPageSize(pageSize);
-        alertCriteria.setAsk(ask);
-        alertCriteria.setColumn(column);
-        alertCriteria.setProcessed(processed);
-        alertCriteria.setAlertType(alertType);
-        alertCriteria.setAlertID(alertId);
-        alertCriteria.setAlertLevel(alertLevel);
-        alertCriteria.setAlertStatus(alertStatus);
+        alertCriteria.setPage(request.getPage());
+        alertCriteria.setPageSize(request.getPageSize());
+        alertCriteria.setAsc(request.getAsc());
+        alertCriteria.setOrderBy(request.getOrderBy());
+        alertCriteria.setProcessed(request.getProcessed());
+        alertCriteria.setAlertType(request.getAlertType());
+        alertCriteria.setAlertID(request.getAlertId());
+        alertCriteria.setAlertLevel(request.getAlertLevel());
+        alertCriteria.setAlertStatus(request.getAlertStatus());
 
-        if (StringUtils.isNotEmpty(creationFrom)) {
-            alertCriteria.setCreationFrom(dateUtil.fromString(creationFrom));
+        if (StringUtils.isNotEmpty(request.getCreationFrom())) {
+            alertCriteria.setCreationFrom(dateUtil.fromString(request.getCreationFrom()));
         }
-        if (StringUtils.isNotEmpty(creationTo)) {
-            alertCriteria.setCreationTo(dateUtil.fromString(creationTo));
+        if (StringUtils.isNotEmpty(request.getCreationTo())) {
+            alertCriteria.setCreationTo(dateUtil.fromString(request.getCreationTo()));
         }
-        if (StringUtils.isNotEmpty(reportingFrom)) {
-            alertCriteria.setReportingFrom(dateUtil.fromString(reportingFrom));
-        }
-
-        if (StringUtils.isNotEmpty(reportingTo)) {
-            alertCriteria.setReportingTo(dateUtil.fromString(reportingTo));
+        if (StringUtils.isNotEmpty(request.getReportingFrom())) {
+            alertCriteria.setReportingFrom(dateUtil.fromString(request.getReportingFrom()));
         }
 
-        if (StringUtils.isEmpty(alertType)) {
-            alertType = AlertType.MSG_STATUS_CHANGED.name();
+        if (StringUtils.isNotEmpty(request.getReportingTo())) {
+            alertCriteria.setReportingTo(dateUtil.fromString(request.getReportingTo()));
         }
-        if (parameters != null) {
-            final List<String> nonDateParameters = getNonDateParameters(alertType);
+
+        if (StringUtils.isEmpty(request.getAlertType())) {
+            request.setAlertType(AlertType.MSG_STATUS_CHANGED.name());
+        }
+        if (request.getParameters() != null) {
+            final List<String> nonDateParameters = getNonDateParameters(request.getAlertType());
             final Map<String, String> parametersMap = IntStream.
-                    range(0, parameters.length).
-                    mapToObj(i -> new SimpleImmutableEntry<>(nonDateParameters.get(i), parameters[i])).
+                    range(0, request.getParameters().length).
+                    mapToObj(i -> new SimpleImmutableEntry<>(nonDateParameters.get(i), request.getParameters()[i])).
                     filter(keyValuePair -> !keyValuePair.getValue().isEmpty()).
                     collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue)); //NOSONAR
             alertCriteria.setParameters(parametersMap);
         }
-        final String uniqueDynamicDateParameter = getUniqueDynamicDateParameter(alertType);
+        final String uniqueDynamicDateParameter = getUniqueDynamicDateParameter(request.getAlertType());
         alertCriteria.setUniqueDynamicDateParameter(uniqueDynamicDateParameter);
-        if (StringUtils.isNotEmpty(dynamicaPropertyFrom)) {
-            alertCriteria.setDynamicaPropertyFrom(dateUtil.fromString(dynamicaPropertyFrom));
+        if (StringUtils.isNotEmpty(request.getDynamicFrom())) {
+            alertCriteria.setDynamicaPropertyFrom(dateUtil.fromString(request.getDynamicFrom()));
         }
 
-        if (StringUtils.isNotEmpty(dynamicaPropertyTo)) {
-            alertCriteria.setDynamicaPropertyTo(dateUtil.fromString(dynamicaPropertyTo));
+        if (StringUtils.isNotEmpty(request.getDynamicTo())) {
+            alertCriteria.setDynamicaPropertyTo(dateUtil.fromString(request.getDynamicTo()));
         }
 
         return alertCriteria;
@@ -317,4 +244,8 @@ public class AlertResource {
         return alertRo;
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

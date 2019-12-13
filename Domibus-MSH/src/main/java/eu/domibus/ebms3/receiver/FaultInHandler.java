@@ -5,6 +5,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.services.ErrorService;
+import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.ebms3.common.handler.AbstractFaultHandler;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.pmode.exception.NoMatchingPModeFoundException;
@@ -42,6 +43,9 @@ public class FaultInHandler extends AbstractFaultHandler {
     @Autowired
     private ErrorService errorService;
 
+    @Autowired
+    protected UserMessageHandlerService userMessageHandlerService;
+
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -60,7 +64,7 @@ public class FaultInHandler extends AbstractFaultHandler {
     @Override
     public boolean handleFault(final SOAPMessageContext context) {
 
-        if(context == null) {
+        if (context == null) {
             LOG.error("Context is null and shouldn't be");
             throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
         }
@@ -116,7 +120,7 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     private void processEbMSError(final SOAPMessageContext context, final EbMS3Exception ebMS3Exception) {
 
-        if(ebMS3Exception == null) {
+        if (ebMS3Exception == null) {
             LOG.warn("ebMSException is null on this stage and shouldn't");
             throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
         }
@@ -131,8 +135,13 @@ public class FaultInHandler extends AbstractFaultHandler {
         context.setMessage(soapMessageWithEbMS3Error);
 
         final Messaging messaging = this.extractMessaging(soapMessageWithEbMS3Error);
+        final String senderParty = LOG.getMDC(DomibusLogger.MDC_FROM);
+        final String receiverParty = LOG.getMDC(DomibusLogger.MDC_TO);
+        final String service = LOG.getMDC(DomibusLogger.MDC_SERVICE);
+        final String action = LOG.getMDC(DomibusLogger.MDC_ACTION);
 
-        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, messaging.getSignalMessage().getMessageInfo().getMessageId());
+        final Boolean testMessage = userMessageHandlerService.checkTestMessage(service, action);
+        LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, messaging.getSignalMessage().getMessageInfo().getMessageId());
 
         errorService.createErrorLog(ErrorLogEntry.parse(messaging, MSHRole.RECEIVING));
     }

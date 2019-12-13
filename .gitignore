@@ -8,6 +8,10 @@
 
 ## soapUI test reports ##
 
+## soapUI test execution cookie ##
+Domibus-MSH-soapui-tests/src/main/soapui/cookie.txt
+*.xml_SoapuiStringReplace
+
 ## Maven output folder ##
 target/
 
@@ -37,3 +41,4 @@ target/
 
 ## maven-shade-plugin generated files
 dependency-reduced-pom.xml
+/.idea/

@@ -21,6 +21,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,8 +39,6 @@ import java.util.List;
 public class UserManagementServiceImpl implements UserService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceImpl.class);
-
-//    protected static final String LOGIN_SUSPENSION_TIME = "domibus.console.login.suspension.time";
 
     @Autowired
     protected UserDao userDao;
@@ -143,6 +142,7 @@ public class UserManagementServiceImpl implements UserService {
     /**
      * {@inheritDoc}
      */
+    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     @Override
     public void validateExpiredPassword(final String userName) {
         UserEntityBase user = getUserWithName(userName);

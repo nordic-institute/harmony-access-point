@@ -9,7 +9,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -23,7 +22,6 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
 
     @Autowired
     protected RetryService retryService;
-
 
     @Autowired
     protected AuthUtils authUtils;
@@ -44,7 +42,7 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
         try {
             retryService.resetWaitingForReceiptPullMessages();
         } catch (Exception e) {
-            LOG.error("Error while reseting waiting for receipt.", e);
+            LOG.error("Error while resetting waiting for receipt.", e);
         }
 
         try {

@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {RowLimiterBase} from 'app/common/row-limiter/row-limiter-base';
 import {AlertService} from '../common/alert/alert.service';
@@ -6,7 +6,7 @@ import {AlertComponent} from '../common/alert/alert.component';
 import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
 import {PluginUserRO} from './pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicpluginuser-form.component';
 import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
 import {UserService} from '../user/user.service';
@@ -14,15 +14,17 @@ import {UserState} from '../user/user';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {DownloadService} from '../common/download.service';
 import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 @Component({
   templateUrl: './pluginuser.component.html',
   styleUrls: ['./pluginuser.component.css'],
   providers: [PluginUserService, UserService]
 })
-export class PluginUserComponent extends FilterableListComponent implements OnInit, DirtyOperations {
-  @ViewChild('activeTpl') activeTpl: TemplateRef<any>;
+export class PluginUserComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
+  @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
@@ -37,18 +39,19 @@ export class PluginUserComponent extends FilterableListComponent implements OnIn
 
   authenticationTypes: string[] = ['BASIC', 'CERTIFICATE'];
   filter: PluginUserSearchCriteria;
-  columnPicker: ColumnPickerBase;
+  columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   userRoles: Array<String>;
 
-  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MdDialog) {
+  constructor(private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
-    this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
+    super.ngOnInit();
 
-    this.initColumns();
+    this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
     this.offset = 0;
     this.selected = [];
@@ -61,6 +64,14 @@ export class PluginUserComponent extends FilterableListComponent implements OnIn
 
     super.setActiveFilter();
     this.search();
+  }
+
+  ngAfterViewInit() {
+    this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   get displayedUsers(): PluginUserRO[] {
@@ -94,22 +105,13 @@ export class PluginUserComponent extends FilterableListComponent implements OnIn
   changeAuthType(x) {
     this.clearSearchParams();
 
-    this.searchIfOK();
+    super.trySearch();
   }
 
   clearSearchParams() {
     this.filter.authRole = null;
     this.filter.originalUser = null;
     this.filter.userName = null;
-  }
-
-  async searchIfOK(): Promise<boolean> {
-    const ok = await this.checkIsDirty();
-    if (ok) {
-      super.setActiveFilter();
-      this.search();
-    }
-    return ok;
   }
 
   async search() {
@@ -125,7 +127,7 @@ export class PluginUserComponent extends FilterableListComponent implements OnIn
 
       this.setColumnPicker();
     } catch (err) {
-      this.alertService.error(err);
+      this.alertService.exception('Error getting plugin users:', err);
       this.loading = false;
     }
   }
@@ -255,15 +257,6 @@ export class PluginUserComponent extends FilterableListComponent implements OnIn
     this.selected.length = 0;
   }
 
-  async checkIsDirty(): Promise<boolean> {
-    if (!this.isDirty()) {
-      return Promise.resolve(true);
-    }
-
-    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
-    return Promise.resolve(ok);
-  }
-
   refresh() {
     // ugly but the grid does not feel the paging changes otherwise
     this.loading = true;
@@ -284,7 +277,7 @@ export class PluginUserComponent extends FilterableListComponent implements OnIn
    * Saves the content of the datatable into a CSV file
    */
   async saveAsCSV() {
-    const ok = await this.checkIsDirty();
+    const ok = await super.checkIfNotDirty();
     if (ok) {
       if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
         this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);

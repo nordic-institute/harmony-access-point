@@ -65,7 +65,7 @@ public class TestServiceResourceTest {
         testPartiesList.add("testParty2");
 
         new Expectations() {{
-            partyService.findPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
             result = testPartiesList;
         }};
 
@@ -84,7 +84,7 @@ public class TestServiceResourceTest {
         testServiceRequestRO.setReceiver("receiver");
 
         new Expectations() {{
-            testService.submitTest(testServiceRequestRO.getSender(),  testServiceRequestRO.getReceiver());
+            testService.submitTest(testServiceRequestRO.getSender(), testServiceRequestRO.getReceiver());
             result = "test";
         }};
 
@@ -92,7 +92,7 @@ public class TestServiceResourceTest {
         String submitTest = testServiceResource.submitTest(testServiceRequestRO);
 
         // Then
-        Assert.assertEquals("test" ,submitTest);
+        Assert.assertEquals("test", submitTest);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TestServiceResourceTest {
         testServiceRequestRO.setServiceType("servicetype");
 
         new Expectations() {{
-            testService.submitTestDynamicDiscovery(testServiceRequestRO.getSender(),  testServiceRequestRO.getReceiver(), testServiceRequestRO.getReceiverType());
+            testService.submitTestDynamicDiscovery(testServiceRequestRO.getSender(), testServiceRequestRO.getReceiver(), testServiceRequestRO.getReceiverType());
             result = "dynamicdiscovery";
         }};
 
@@ -113,6 +113,6 @@ public class TestServiceResourceTest {
         String submitTestDynamicDiscovery = testServiceResource.submitTestDynamicDiscovery(testServiceRequestRO);
 
         // Then
-        Assert.assertEquals("dynamicdiscovery" ,submitTestDynamicDiscovery);
+        Assert.assertEquals("dynamicdiscovery", submitTestDynamicDiscovery);
     }
 }

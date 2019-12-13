@@ -1,9 +1,8 @@
-import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Response} from '@angular/http';
+import {ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
-import {isNullOrUndefined} from 'util';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
 import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
@@ -13,14 +12,16 @@ import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {Observable} from 'rxjs/Observable';
 import {DownloadService} from '../common/download.service';
 import {AlertComponent} from '../common/alert/alert.component';
-import {FilterableListComponent} from '../common/filterable-list.component';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
-export class JmsComponent extends FilterableListComponent implements OnInit, DirtyOperations {
+export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
 
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
   rowLimiter: RowLimiterBase = new RowLimiterBase();
@@ -34,17 +35,17 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
   defaultQueueSet: EventEmitter<boolean>;
   queuesInfoGot: EventEmitter<boolean>;
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithJSONTpl') rowWithJSONTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
+  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<Object>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   queues: any[];
   orderedQueues: any[];
 
   currentSearchSelectedSource;
 
-  selectedMessages: Array<any>;
-  markedForDeletionMessages: Array<any>;
+  selectedMessages: any[];
+  markedForDeletionMessages: any[];
   loading: boolean;
 
   rows: Array<any>;
@@ -58,17 +59,21 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
   }
 
   set selectedSource(value: any) {
+    var oldVal = this._selectedSource;
     this._selectedSource = value;
     this.filter.source = value.name;
-    this.defaultQueueSet.emit();
+    this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
-    this.filter = new MessagesRequestRO();
+    super.ngOnInit();
+
+    this['filter'] = new MessagesRequestRO();
 
     this.offset = 0;
     this.timestampFromMaxDate = new Date();
@@ -81,6 +86,33 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
     this.queues = [];
     this.orderedQueues = [];
 
+    // set toDate equals to now
+    this.filter.toDate = new Date();
+    this.filter.toDate.setHours(23, 59, 59, 999);
+
+    this.selectedMessages = [];
+    this.markedForDeletionMessages = [];
+    this.loading = false;
+
+    this.rows = [];
+
+    this.loadDestinations();
+
+    this.queuesInfoGot.subscribe(result => {
+      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
+    });
+
+    this.defaultQueueSet.subscribe(oldVal => {
+      super.trySearch().then(ok => {
+        if (!ok) {
+          //revert the drop-down value to the old oen
+          this._selectedSource = oldVal;
+        }
+      });
+    });
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'ID',
@@ -126,37 +158,20 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['ID', 'Time', 'Custom prop', 'JMS prop', 'Actions'].indexOf(col.name) != -1
     });
-
-    // set toDate equals to now
-    this.filter.toDate = new Date();
-    this.filter.toDate.setHours(23, 59, 59, 999);
-
-    this.selectedMessages = [];
-    this.markedForDeletionMessages = [];
-    this.loading = false;
-
-    this.rows = [];
-
-    this.loadDestinations();
-
-    this.queuesInfoGot.subscribe(result => {
-      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
-    });
-
-    this.defaultQueueSet.subscribe(result => {
-      this.search();
-    });
   }
 
-  private getDestinations(): Observable<Response> {
-    return this.http.get('rest/jms/destinations')
-      .map(response => response.json().jmsDestinations)
-      .catch((error: Response) => this.alertService.handleError('Could not load queues: ' + error));
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
-  private loadDestinations(): Observable<Response> {
-    const result = this.getDestinations();
-    result.subscribe(
+  private getDestinations(): Observable<any> {
+    return this.http.get<any>('rest/jms/destinations')
+      .map(response => response.jmsDestinations)
+      .catch((error) => this.alertService.exception('Could not load queues ', error));
+  }
+
+  private loadDestinations() {
+    this.getDestinations().subscribe(
       (destinations) => {
         this.queues = [];
         for (const key in destinations) {
@@ -165,18 +180,17 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
         this.queuesInfoGot.emit();
       }
     );
-
-    return result;
   }
 
-  private refreshDestinations(): Observable<Response> {
+  private refreshDestinations(): Observable<any> {
     const result = this.getDestinations();
     result.subscribe(
       (destinations) => {
         for (const key in destinations) {
-          const queue = this.queues.find(el => el.name === key);
+          var src = destinations[key];
+          const queue = this.queues.find(el => el.name === src.name);
           if (queue) {
-            Object.assign(queue, destinations[key]);
+            Object.assign(queue, src);
           }
         }
       }
@@ -253,15 +267,15 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
     this.selectedMessages = [];
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
-    this.http.post('rest/jms/messages', {
+    this.http.post<any>('rest/jms/messages', {
       source: this.activeFilter.source,
       jmsType: this.activeFilter.jmsType,
-      fromDate: !isNullOrUndefined(this.activeFilter.fromDate) ? this.activeFilter.fromDate.getTime() : undefined,
-      toDate: !isNullOrUndefined(this.activeFilter.toDate) ? this.activeFilter.toDate.getTime() : undefined,
+      fromDate: this.activeFilter.fromDate,
+      toDate: this.activeFilter.toDate,
       selector: this.activeFilter.selector,
     }).subscribe(
-      (response: Response) => {
-        this.rows = response.json().messages;
+      res => {
+        this.rows = res.messages;
         this.offset = 0;
         this.refresh();
         this.loading = false;
@@ -269,7 +283,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
         this.refreshDestinations();
       },
       error => {
-        this.alertService.error('An error occured while loading the JMS messages. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide (Error Status: ' + error.status + ')');
+        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
         this.loading = false;
       }
     );
@@ -292,7 +306,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
   }
 
   move() {
-    const dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
+    const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
 
@@ -305,10 +319,10 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
             let originalQueue = message.customProperties.originalQueue;
             // EDELIVERY-2814
             let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-            if (!isNullOrUndefined(originalQueue)) {
+            if (originalQueue) {
               let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
               console.debug(queues);
-              if (!isNullOrUndefined(queues)) {
+              if (queues) {
                 dialogRef.componentInstance.queues = queues;
                 dialogRef.componentInstance.selectedSource = queues[0];
               }
@@ -334,7 +348,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
 
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!isNullOrUndefined(result) && !isNullOrUndefined(result.destination)) {
+      if (result && result.destination) {
         let messageIds = this.selectedMessages.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
@@ -342,7 +356,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
   }
 
   moveAction(row) {
-    let dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
+    let dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
       try {
@@ -351,7 +365,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
         let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
         let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
         console.debug(queues);
-        if (!isNullOrUndefined(queues)) {
+        if (queues) {
           dialogRef.componentInstance.queues = queues;
           dialogRef.componentInstance.selectedSource = queues[0];
         }
@@ -371,7 +385,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
     }
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!isNullOrUndefined(result) && !isNullOrUndefined(result.destination)) {
+      if (result && result.destination) {
         let messageIds = this.selectedMessages.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
@@ -379,7 +393,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
   }
 
   details(selectedRow: any) {
-    let dialogRef: MdDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
+    let dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
     dialogRef.afterClosed().subscribe(result => {
@@ -417,7 +431,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
         this.alertService.success('The operation \'move messages\' completed successfully.');
 
         //refresh destinations
-        this.refreshDestinations().subscribe((response: Response) => {
+        this.refreshDestinations().subscribe(res => {
           this.setDefaultQueue(this.currentSearchSelectedSource.name);
         });
 
@@ -429,7 +443,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
         this.rows = newRows;
       },
       error => {
-        this.alertService.error('The operation \'move messages\' could not be completed: ' + error);
+        this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
       }
     )
   }
@@ -446,26 +460,26 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
         this.markedForDeletionMessages = [];
       },
       error => {
-        this.alertService.error('The operation \'updates on message(s)\' could not be completed: ' + error);
+        this.alertService.exception('The operation \'updates on message(s)\' could not be completed: ', error);
       }
     )
   }
 
   getFilterPath() {
     let result = '?';
-    if (!isNullOrUndefined(this.activeFilter.source)) {
+    if (this.activeFilter.source) {
       result += 'source=' + this.activeFilter.source + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.jmsType)) {
+    if (this.activeFilter.jmsType) {
       result += 'jmsType=' + this.activeFilter.jmsType + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.fromDate)) {
-      result += 'fromDate=' + this.activeFilter.fromDate.getTime() + '&';
+    if (this.activeFilter.fromDate) {
+      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.toDate)) {
-      result += 'toDate=' + this.activeFilter.toDate.getTime() + '&';
+    if (this.activeFilter.toDate) {
+      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
     }
-    if (!isNullOrUndefined(this.activeFilter.selector)) {
+    if (this.activeFilter.selector) {
       result += 'selector=' + this.activeFilter.selector + '&';
     }
     return result;
@@ -485,7 +499,7 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
   }
 
   isDirty(): boolean {
-    return !isNullOrUndefined(this.markedForDeletionMessages) && this.markedForDeletionMessages.length > 0;
+    return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
 
   onPage($event) {
@@ -495,5 +509,9 @@ export class JmsComponent extends FilterableListComponent implements OnInit, Dir
 
   onSort() {
     super.resetFilters();
+  }
+
+  toJson(value) {
+    return JSON.stringify(value);
   }
 }

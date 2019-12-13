@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.multitenant;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,28 @@ import org.springframework.stereotype.Service;
 public class DomibusConfigurationServiceDelegate implements DomibusConfigurationExtService {
 
     @Autowired
-    DomibusConfigurationService domibusConfigurationService;
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected AuthUtils authUtils;
 
     @Override
     public boolean isMultiTenantAware() {
         return domibusConfigurationService.isMultiTenantAware();
+    }
+
+    @Override
+    public boolean isSecuredLoginRequired() {
+        return !authUtils.isUnsecureLoginAllowed();
+    }
+
+    @Override
+    public String getConfigLocation() {
+        return domibusConfigurationService.getConfigLocation();
+    }
+
+    @Override
+    public boolean isClusterDeployment() {
+        return domibusConfigurationService.isClusterDeployment();
     }
 }

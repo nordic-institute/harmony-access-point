@@ -1,9 +1,11 @@
 package eu.domibus.core.pull;
 
-import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
@@ -33,7 +35,7 @@ public class PullMessageServiceTest {
     private MessagingLockDao messagingLockDao;
 
     @Injectable
-    private UserMessageLogService userMessageLogService;
+    MpcService mpcService;
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -62,6 +64,12 @@ public class PullMessageServiceTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    UserMessageLogDefaultService userMessageLogDefaultService;
+
     @Test
     @Ignore
     public void pullMessageForTheFirstTime() {
@@ -70,7 +78,7 @@ public class PullMessageServiceTest {
 
         new Expectations() {
             {
-                messagingLockDao.getNextPullMessageToProcess(6);
+                messagingLockDao.getNextPullMessageToProcess(6L);
                 result = MESSAGE_ID;
             }
         };
@@ -89,7 +97,7 @@ public class PullMessageServiceTest {
                 result = partyId;
             }
         };
-        pullService.addPullMessageLock(partyIdExtractor, null, null);
+        pullService.addPullMessageLock(partyIdExtractor, "", null);
         new Verifications() {{
             MessagingLock messagingLock = new MessagingLock();
             // messagingLockDao.releaseLock(messagingLock = withCapture());

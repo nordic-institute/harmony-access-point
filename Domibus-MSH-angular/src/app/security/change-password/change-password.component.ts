@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {UserValidatorService} from '../../user/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
-import {Http, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
 import {Router} from '@angular/router';
 
@@ -21,7 +21,7 @@ export class ChangePasswordComponent implements OnInit {
   userForm: FormGroup;
 
   constructor(private fb: FormBuilder, private securityService: SecurityService,
-              private userValidatorService: UserValidatorService, private http: Http,
+              private userValidatorService: UserValidatorService, private http: HttpClient,
               private alertService: AlertService, private router: Router) {
 
     this.currentPassword = this.securityService.password;

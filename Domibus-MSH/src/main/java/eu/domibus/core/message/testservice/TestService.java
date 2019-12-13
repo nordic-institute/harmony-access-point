@@ -1,6 +1,9 @@
 package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.ExplicitTypePermission;
+import com.thoughtworks.xstream.security.NoTypePermission;
+import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.logging.DomibusLogger;
@@ -18,6 +21,7 @@ import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -30,9 +34,12 @@ public class TestService {
 
     private static final String TEST_PAYLOAD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><hello>world</hello>";
 
+    private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = "finalRecipient";
+
+    private static final String BACKEND_NAME = "TestService";
+
     @Autowired
     private PModeProvider pModeProvider;
-
 
     @Autowired
     private DatabaseMessageHandler databaseMessageHandler;
@@ -44,9 +51,9 @@ public class TestService {
 
         // Set Receiver
         messageData.getToParties().clear();
-        messageData.getToParties().add(new Submission.Party(receiver, pModeProvider.getPartyIdType(receiver)));
+        messageData.addToParty(receiver, pModeProvider.getPartyIdType(receiver));
 
-        return databaseMessageHandler.submit(messageData, "TestService");
+        return databaseMessageHandler.submit(messageData, BACKEND_NAME);
     }
 
     public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {
@@ -59,19 +66,23 @@ public class TestService {
 
         // Set Final Recipient Value and Type
         for (Submission.TypedProperty property : messageData.getMessageProperties()) {
-            if (property.getKey().equals("finalRecipient")) {
+            if (property.getKey().equals(MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT)) {
                 property.setValue(receiver);
                 property.setType(receiverType);
             }
         }
 
-        return databaseMessageHandler.submit(messageData, "TestService");
+        return databaseMessageHandler.submit(messageData, BACKEND_NAME);
     }
 
     protected Submission createSubmission(String sender) throws IOException {
-        Resource testservicefile = new ClassPathResource("messages/testservice/testservicemessage.xml");
+        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.xml");
         XStream xstream = new XStream();
-        Submission submission = (Submission) xstream.fromXML(testservicefile.getInputStream());
+        xstream.addPermission(NoTypePermission.NONE);
+        xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
+        xstream.addPermission(new ExplicitTypePermission(new Class[] { List.class, Submission.class, Submission.TypedProperty.class, Submission.Party.class }));
+
+        Submission submission = (Submission) xstream.fromXML(testServiceFile.getInputStream());
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
         Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");
         Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
@@ -81,7 +92,7 @@ public class TestService {
 
         // Set Sender
         submission.getFromParties().clear();
-        submission.getFromParties().add(new Submission.Party(sender, pModeProvider.getPartyIdType(sender)));
+        submission.addFromParty(sender, pModeProvider.getPartyIdType(sender));
 
         // Set ServiceType
         submission.setServiceType(pModeProvider.getServiceType(Ebms3Constants.TEST_SERVICE));

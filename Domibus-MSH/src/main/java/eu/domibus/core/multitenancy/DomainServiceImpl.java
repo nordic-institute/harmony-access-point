@@ -5,22 +5,30 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DATABASE_SCHEMA;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class DomainServiceImpl implements DomainService {
 
-    private  static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
-    private static final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
+
+    private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -29,23 +37,33 @@ public class DomainServiceImpl implements DomainService {
     protected DomainDao domainDao;
 
 
+    private List<Domain> domains;
+
     @Override
-    public List<Domain> getDomains() {
-        return domainDao.findAll();
+    public synchronized List<Domain> getDomains() {
+        if (domains == null) {
+            domains = domainDao.findAll();
+        }
+        return domains;
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE, key = "#code")
+    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
     @Override
     public Domain getDomain(String code) {
+        LOG.trace("Getting domain with code [{}]", code);
+
         final List<Domain> domains = getDomains();
         if (domains == null) {
+            LOG.trace("No domains found");
             return null;
         }
         for (Domain domain : domains) {
             if (StringUtils.equalsIgnoreCase(code, domain.getCode())) {
+                LOG.trace("Found domain [{}] for code [{}]", domain, code);
                 return domain;
             }
         }
+        LOG.trace("No domain found with code [{}]", code);
         return null;
     }
 

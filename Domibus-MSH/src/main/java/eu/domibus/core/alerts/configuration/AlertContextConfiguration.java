@@ -1,5 +1,7 @@
 package eu.domibus.core.alerts.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.cache.ClassTemplateLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,9 @@ public class AlertContextConfiguration {
         final MappingJackson2MessageConverter mappingJackson2MessageConverter = new MappingJackson2MessageConverter();
         mappingJackson2MessageConverter.setTargetType(TEXT);
         mappingJackson2MessageConverter.setTypeIdPropertyName("_type");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        mappingJackson2MessageConverter.setObjectMapper(objectMapper);
         return mappingJackson2MessageConverter;
     }
 

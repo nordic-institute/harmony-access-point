@@ -1,48 +1,45 @@
-import {Injectable} from "@angular/core";
-import {Http, Response} from "@angular/http";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/operator/map";
-import {ReplaySubject} from "rxjs";
-import {DomibusInfo} from "./domibusinfo";
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import 'rxjs/add/operator/map';
+import {DomibusInfo} from './domibusinfo';
+import {SupportTeamInfo} from "../../security/not-authorized/supportteaminfo";
 
 @Injectable()
 export class DomibusInfoService {
 
   private isFourCornerEnabledPromise: Promise<boolean>;
   private isExtAuthProviderEnabledPromise: Promise<boolean>;
+  private domibusInfo: Promise<DomibusInfo>;
+  private supportTeamInfo: Promise<SupportTeamInfo>;
 
-  constructor(private http: Http) {
+  constructor(private http: HttpClient) {
   }
 
-
-  getDomibusInfo(): Observable<DomibusInfo> {
-    let subject = new ReplaySubject();
-    this.http.get('rest/application/info')
-      .map((response: Response) => {
-        let domibusInfo = new DomibusInfo(response.json().version);
-        return domibusInfo;
-      })
-      .subscribe((res: DomibusInfo) => {
-        subject.next(res);
-      }, (error: any) => {
-        // console.log("getDomibusInfo:" + error);
-      });
-    return subject.asObservable();
+  getDomibusInfo(): Promise<DomibusInfo> {
+    if (!this.domibusInfo) {
+      this.domibusInfo = this.http.get<DomibusInfo>('rest/application/info').toPromise();
+    }
+    return this.domibusInfo;
   }
 
   isFourCornerEnabled(): Promise<boolean> {
     if (!this.isFourCornerEnabledPromise) {
-      this.isFourCornerEnabledPromise = this.http.get('rest/application/fourcornerenabled')
-        .map((res: Response) => res.json()).toPromise();
+      this.isFourCornerEnabledPromise = this.http.get<boolean>('rest/application/fourcornerenabled').toPromise();
     }
     return this.isFourCornerEnabledPromise;
   }
 
   isExtAuthProviderEnabled(): Promise<boolean> {
     if (!this.isExtAuthProviderEnabledPromise) {
-      this.isExtAuthProviderEnabledPromise = this.http.get('rest/application/extauthproviderenabled')
-        .map((res: Response) => res.json()).toPromise();
+      this.isExtAuthProviderEnabledPromise = this.http.get<boolean>('rest/application/extauthproviderenabled').toPromise();
     }
     return this.isExtAuthProviderEnabledPromise;
+  }
+
+  getSupportTeamInfo(): Promise<SupportTeamInfo> {
+    if (!this.supportTeamInfo) {
+      this.supportTeamInfo = this.http.get<SupportTeamInfo>('rest/application/supportteam').toPromise();
+    }
+    return this.supportTeamInfo;
   }
 }

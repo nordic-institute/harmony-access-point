@@ -1,7 +1,6 @@
 package eu.domibus.pki;
 
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.util.HttpUtilImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -16,7 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.Security;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -126,6 +124,12 @@ public class CRLUtilTest {
 
         System.out.println(x509CRL);
     }
+
+//    public void test_isCertificateRevokedFromLDAP() throws Exception {
+//        final String ldapURL = "ldap://ldap.sbca.telesec.de/CN=Shared%20Business%20CA%204,OU=T-Systems%20Trust%20Center,O=T-Systems%20International%20GmbH,C=DE?CertificateRevocationList";
+//
+//        crlUtil.ce
+//    }
 
     @Test(expected = DomibusCRLException.class)
     public void testDownloadCRLFromLDAP_WrongUrl() throws Exception {

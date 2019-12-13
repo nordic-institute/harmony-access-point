@@ -1,7 +1,11 @@
 package eu.domibus.plugin.routing;
 
 import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.routing.dao.BackendFilterDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +13,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +24,7 @@ import java.util.List;
  */
 @Service
 public class RoutingService {
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RoutingService.class);
 
     @Autowired
     private BackendFilterDao backendFilterDao;
@@ -59,14 +66,48 @@ public class RoutingService {
         return coreConverter.convert(filters, BackendFilter.class);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @CacheEvict(value = "backendFilterCache", allEntries = true)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public void updateBackendFilters(final List<BackendFilter> filters) {
+
+        validateFilters(filters);
+
         List<BackendFilterEntity> backendFilterEntities = coreConverter.convert(filters, BackendFilterEntity.class);
         List<BackendFilterEntity> allBackendFilterEntities = backendFilterDao.findAll();
         List<BackendFilterEntity> backendFilterEntityListToDelete = backendFiltersToDelete(allBackendFilterEntities, backendFilterEntities);
         backendFilterDao.deleteAll(backendFilterEntityListToDelete);
         backendFilterDao.update(backendFilterEntities);
+    }
+
+    protected void validateFilters(List<BackendFilter> filters) {
+        LOG.trace("Validating backend filters");
+
+        filters.forEach(filter -> {
+            if (filters.stream().anyMatch(f -> f != filter
+                    && f.getBackendName().equals(filter.getBackendName())
+                    && areEqual(f.getRoutingCriterias(), filter.getRoutingCriterias()))) {
+                LOG.debug("Two message filters have the same type and criteria: [{}]", filter.getBackendName());
+                throw new ConfigurationException("Two message filters cannot have the same criteria.");
+            }
+        });
+    }
+
+    private boolean areEqual(List<RoutingCriteria> c1, List<RoutingCriteria> c2) {
+        LOG.trace("Comparing 2 filter criteria");
+
+        if (c1.size() != c2.size()) {
+            LOG.trace("Filter criteria have different size, hence false for comparing [{}] and [{}]", c1, c2);
+            return false;
+        }
+        for (RoutingCriteria cr1 : c1) {
+            if (!c2.stream().anyMatch(cr2 -> cr2.getName().equals(cr1.getName()) && cr2.getExpression().equals(cr1.getExpression()))) {
+                LOG.trace("Filter criteria have different property name or value, hence false for comparing [{}] and [{}]", c1, c2);
+                return false;
+            }
+        }
+        LOG.trace("Filter criteria have the same properties and values, hence true for comparing [{}] and [{}]", c1, c2);
+        return true;
     }
 
     private List<BackendFilterEntity> backendFiltersToDelete(final List<BackendFilterEntity> masterData, final List<BackendFilterEntity> newData) {

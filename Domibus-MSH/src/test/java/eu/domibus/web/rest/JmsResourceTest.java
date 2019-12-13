@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -64,7 +63,7 @@ public class JmsResourceTest {
     @Test
     public void testMessages() {
         // Given
-        MessagesRequestRO requestRO = new MessagesRequestRO();
+        JmsFilterRequestRO requestRO = new JmsFilterRequestRO();
 
         final List<JmsMessage> jmsMessageList = new ArrayList<>();
         JmsMessage jmsMessage = new JmsMessage();
@@ -76,8 +75,8 @@ public class JmsResourceTest {
         jmsMessageList.add(jmsMessage);
 
         new Expectations() {{
-           jmsManager.browseMessages(anyString, anyString, (Date)any, (Date)any, anyString);
-           result = jmsMessageList;
+            jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString);
+            result = jmsMessageList;
         }};
 
         // When
@@ -89,7 +88,38 @@ public class JmsResourceTest {
     }
 
     @Test
+    public void testActionMoveNoValidParam() {
+        // Given
+        SortedMap<String, JMSDestination> dests = new TreeMap<>();
+        dests.put("domibus.queue1", new JMSDestination());
+        new Expectations() {{
+            jmsManager.getDestinations();
+            result = dests;
+        }};
+
+        List<String> selectedMessages = new ArrayList<>();
+        selectedMessages.add("message1");
+        MessagesActionRequestRO request = new MessagesActionRequestRO();
+        request.setAction(MessagesActionRequestRO.Action.MOVE);
+        request.setSource("source1");
+        request.setDestination("domibus.queue2");
+        request.setSelectedMessages(selectedMessages);
+
+        // When
+        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
+
+        // Then
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
     public void testActionMove() {
+        SortedMap<String, JMSDestination> dests = new TreeMap<>();
+        dests.put("domibus.queue1", new JMSDestination() {{ setName("domibus.queue1"); }});
+        new Expectations() {{
+            jmsManager.getDestinations();
+            result = dests;
+        }};
         testAction(MessagesActionRequestRO.Action.MOVE);
     }
 
@@ -105,7 +135,7 @@ public class JmsResourceTest {
         MessagesActionRequestRO request = new MessagesActionRequestRO();
         request.setAction(action);
         request.setSource("source1");
-        request.setDestination("destination1");
+        request.setDestination("domibus.queue1");
         request.setSelectedMessages(selectedMessages);
 
         // When
@@ -133,4 +163,33 @@ public class JmsResourceTest {
         Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
         Assert.assertNull(responseEntity.getBody().getOutcome());
     }
+
+
+//    @Test
+//    public void testGetCsv() throws EbMS3Exception {
+//        // Given
+//        String source = "";
+//        String jmsType = null;
+//        Long fromDate = LocalDate.now().plusDays(-10).toEpochDay();
+//        Long toDate = LocalDate.now().toEpochDay();
+//        String selector = "";
+//        JmsMessage jmsMessage = new JmsMessage();
+//        List<JmsMessage> jmsMessageList = Arrays.asList(jmsMessage);
+//        String mockCsvResult = "csv";
+//
+//        new Expectations(jmsResource) {{
+//            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
+//            result = jmsMessageList;
+//            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
+//            result = mockCsvResult;
+//        }};
+//
+//        // When
+//        final ResponseEntity<String> csv = jmsResource.getCsv(source, jmsType, fromDate, toDate, selector);
+//
+//        // Then
+//        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
+//        Assert.assertEquals(mockCsvResult, csv.getBody());
+//    }
+
 }

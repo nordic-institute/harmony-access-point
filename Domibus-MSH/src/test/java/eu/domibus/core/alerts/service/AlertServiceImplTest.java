@@ -27,11 +27,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.MessageEvent.MESSAGE_ID;
 import static eu.domibus.core.alerts.model.common.MessageEvent.OLD_STATUS;
 import static eu.domibus.core.alerts.service.AlertServiceImpl.*;
-import static eu.domibus.core.alerts.service.MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-import static eu.domibus.core.alerts.service.MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_RETRY_TIME;
 import static org.junit.Assert.*;
 
 /**
@@ -83,7 +83,7 @@ public class AlertServiceImplTest {
             multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
             result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 
-            domibusPropertyProvider.getIntegerOptionalDomainProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
             multiDomainAlertConfigurationService.getAlertLevel(withAny(new Alert()));
@@ -122,7 +122,7 @@ public class AlertServiceImplTest {
         final String mailSubjectServerName = "localhost";
         final String alertSuperInstanceNameSubjectProperty = MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
         final String messageId = "messageId";
-        final int entityId = 1;
+        final long entityId = 1;
         final AlertType alertType = AlertType.MSG_STATUS_CHANGED;
         final AlertLevel alertLevel = AlertLevel.HIGH;
 
@@ -173,7 +173,7 @@ public class AlertServiceImplTest {
     @Test
     public void handleAlertStatusSuccess(final @Mocked eu.domibus.core.alerts.model.persist.Alert persistedAlert) {
         final Alert alert = new Alert();
-        final int entityId = 1;
+        final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.SUCCESS);
         new Expectations() {{
@@ -194,7 +194,7 @@ public class AlertServiceImplTest {
     public void handleAlertStatusFailedWithRemainingAttempts(final @Mocked eu.domibus.core.alerts.model.persist.Alert persistedAlert, @Mocked final org.joda.time.LocalDateTime dateTime) throws ParseException {
         final int nextAttemptInMinutes = 10;
         final Alert alert = new Alert();
-        final int entityId = 1;
+        final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
 
@@ -215,7 +215,7 @@ public class AlertServiceImplTest {
             multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
             result=DOMIBUS_ALERT_RETRY_TIME;
 
-            domibusPropertyProvider.getOptionalDomainProperty(DOMIBUS_ALERT_RETRY_TIME);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
             dateTime.now().plusMinutes(nextAttemptInMinutes).toDate();
@@ -235,7 +235,7 @@ public class AlertServiceImplTest {
     @Test
     public void handleAlertStatusFailedWithNoMoreAttempts(final @Mocked eu.domibus.core.alerts.model.persist.Alert persistedAlert, @Mocked final org.joda.time.LocalDateTime dateTime) throws ParseException {
         final Alert alert = new Alert();
-        final int entityId = 1;
+        final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
 
@@ -345,20 +345,20 @@ public class AlertServiceImplTest {
     @Test
     public void updateAlertProcessed() {
         final Alert firstAlert = new Alert();
-        final int firstEntityId = 1;
+        final long firstEntityId = 1;
         firstAlert.setEntityId(firstEntityId);
         firstAlert.setProcessed(false);
         List<Alert> alerts = Lists.newArrayList(firstAlert);
         final Alert secondAlert = new Alert();
         secondAlert.setProcessed(true);
-        final int secondEntityId = 2;
+        final long secondEntityId = 2;
         secondAlert.setEntityId(secondEntityId);
         alerts.add(secondAlert);
 
         alertService.updateAlertProcessed(alerts);
 
         new Verifications() {{
-            List<Integer> entityIds = new ArrayList<>();
+            List<Long> entityIds = new ArrayList<>();
             List<Boolean> processeds = new ArrayList<>();
             alertDao.updateAlertProcessed(withCapture(entityIds), withCapture(processeds));
             assertEquals(firstEntityId, entityIds.get(0), 0);

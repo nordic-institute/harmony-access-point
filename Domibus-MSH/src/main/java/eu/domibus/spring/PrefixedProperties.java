@@ -1,6 +1,6 @@
 package eu.domibus.spring;
 
-import eu.domibus.property.PropertyResolver;
+import eu.domibus.core.property.PropertyResolver;
 
 import java.util.Enumeration;
 import java.util.Properties;

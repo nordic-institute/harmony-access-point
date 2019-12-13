@@ -12,29 +12,30 @@ import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
-import eu.domibus.security.UserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
+ * Template method pattern derived class responsible for particularities of console users
  */
 
 @Service
 public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<User> {
-    final static String WARNING_DAYS_BEFORE_EXPIRATION = "domibus.passwordPolicy.warning.beforeExpiration";
+    static final String WARNING_DAYS_BEFORE_EXPIRATION = DOMIBUS_PASSWORD_POLICY_WARNING_BEFORE_EXPIRATION;
 
-    static final String PASSWORD_COMPLEXITY_PATTERN = "domibus.passwordPolicy.pattern";
-    static final String PASSWORD_HISTORY_POLICY = "domibus.passwordPolicy.dontReuseLast";
+    static final String PASSWORD_COMPLEXITY_PATTERN = DOMIBUS_PASSWORD_POLICY_PATTERN; //NOSONAR
+    static final String PASSWORD_HISTORY_POLICY = DOMIBUS_PASSWORD_POLICY_DONT_REUSE_LAST; //NOSONAR
 
-    final static String MAXIMUM_PASSWORD_AGE = "domibus.passwordPolicy.expiration";
-    final static String MAXIMUM_DEFAULT_PASSWORD_AGE = "domibus.passwordPolicy.defaultPasswordExpiration";
+    static final String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_EXPIRATION; //NOSONAR
+    static final String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION; //NOSONAR
 
-    protected static final String MAXIMUM_LOGIN_ATTEMPT = "domibus.console.login.maximum.attempt";
+    protected static final String MAXIMUM_LOGIN_ATTEMPT = DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT;
 
-    protected static final String LOGIN_SUSPENSION_TIME = "domibus.console.login.suspension.time";
-
+    protected static final String LOGIN_SUSPENSION_TIME = DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME;
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -72,7 +73,7 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
     }
 
     @Override
-    public String getWarningDaysBeforeExpiration() {
+    public String getWarningDaysBeforeExpirationProperty() {
         return WARNING_DAYS_BEFORE_EXPIRATION;
     }
 
@@ -88,8 +89,7 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
 
     @Override
     protected int getMaxAttemptAmount(UserEntityBase user) {
-        final Domain domain = getCurrentOrDefaultDomainForUser((User) user);
-        return domibusPropertyProvider.getIntegerDomainProperty(domain, MAXIMUM_LOGIN_ATTEMPT);
+        return domibusPropertyProvider.getIntegerProperty(MAXIMUM_LOGIN_ATTEMPT);
     }
 
     @Override
@@ -99,26 +99,12 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
 
     @Override
     protected int getSuspensionInterval() {
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-
-        int suspensionInterval;
-        if (domain == null) { //it is called for super-users so we read from default domain
-            suspensionInterval = domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
-        } else { //for normal users the domain is set as current Domain
-            suspensionInterval = domibusPropertyProvider.getIntegerDomainProperty(LOGIN_SUSPENSION_TIME);
-        }
-        return suspensionInterval;
+        return domibusPropertyProvider.getIntegerProperty(LOGIN_SUSPENSION_TIME);
     }
 
-    private Domain getCurrentOrDefaultDomainForUser(User user) {
-        String domainCode;
-        boolean isSuperAdmin = user.isSuperAdmin();
-        if (isSuperAdmin) {
-            domainCode = DomainService.DEFAULT_DOMAIN.getCode();
-        } else {
-            domainCode = userDomainService.getDomainForUser(user.getUserName());
-        }
-        return domainService.getDomain(domainCode);
+    @Override
+    protected UserEntityBase.Type getUserType() {
+        return UserEntityBase.Type.CONSOLE;
     }
 
 }

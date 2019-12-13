@@ -14,6 +14,7 @@ import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -23,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
@@ -38,6 +41,7 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.*;
  * @since 4.0
  */
 @Service
+@Transactional(propagation = Propagation.SUPPORTS)
 public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
@@ -83,6 +87,9 @@ public class EventServiceImpl implements EventService {
 
     @Autowired
     private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+
+    @Autowired
+    protected MpcService mpcService;
 
     /**
      * {@inheritDoc}
@@ -177,11 +184,6 @@ public class EventServiceImpl implements EventService {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
-            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.valueOf(role));
-            final Party senderParty = pModeProvider.getSenderParty(userMessageExchangeContext.getPmodeKey());
-            final Party receiverParty = pModeProvider.getReceiverParty(userMessageExchangeContext.getPmodeKey());
-            event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
-            event.addStringKeyValue(TO_PARTY.name(), receiverParty.getName());
             StringBuilder errors = new StringBuilder();
             errorLogDao.
                     getErrorsForMessage(messageId).
@@ -190,6 +192,24 @@ public class EventServiceImpl implements EventService {
             if (!errors.toString().isEmpty()) {
                 event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors.toString(), MAX_DESCRIPTION_LENGTH));
             }
+
+            String receiverPartyName = null;
+            if (mpcService.forcePullOnMpc(userMessage.getMpc())) {
+                LOG.debug("Find UserMessage exchange context (pull context)");
+                userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                LOG.debug("Extract receiverPartyName from mpc");
+                receiverPartyName = mpcService.extractInitiator(userMessage.getMpc());
+            } else {
+                LOG.debug("Find UserMessage exchange context");
+                userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.valueOf(role));
+                LOG.debug("Get receiverPartyName from exchange context pModeKey");
+                receiverPartyName = pModeProvider.getReceiverParty(userMessageExchangeContext.getPmodeKey()).getName();
+            }
+
+            final Party senderParty = pModeProvider.getSenderParty(userMessageExchangeContext.getPmodeKey());
+            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty);
+            event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
+            event.addStringKeyValue(TO_PARTY.name(), receiverPartyName);
         } catch (EbMS3Exception e) {
             LOG.error("Message:[{}] Errors while enriching message event", messageId, e);
         }

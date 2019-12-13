@@ -2,9 +2,6 @@
 package eu.domibus.plugin.handler;
 
 
-import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.Submission;
-
 /**
  * Pull requests are initiated through this interface
  *
@@ -19,5 +16,5 @@ public interface MessagePuller {
      * @param mpc the mpc to be used in the pull request
      *
      */
-    public void initiatePull(String mpc) ;
+    void initiatePull(String mpc) ;
 }

@@ -1,8 +1,9 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -12,20 +13,28 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.CertificateService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.api.validators.SkipWhiteListed;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -34,9 +43,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping(value = "/rest/truststore")
-public class TruststoreResource {
+public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
+
+    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty."; //NOSONAR
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
@@ -53,25 +64,48 @@ public class TruststoreResource {
     @Autowired
     private CsvServiceImpl csvServiceImpl;
 
-
     @Autowired
     private ErrorHandlerService errorHandlerService;
 
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+        rootCause = rootCause == null ? ex : rootCause;
+        return errorHandlerService.createResponse(rootCause, HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @PostMapping(value = "/save")
     public ResponseEntity<String> uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststore,
-                                                       @RequestParam("password") String password) throws IOException {
+                                                       @SkipWhiteListed @RequestParam("password") String password) throws IOException {
         if (truststore.isEmpty()) {
             return ResponseEntity.badRequest().body("Failed to upload the truststore file since it was empty.");
         }
+        if (StringUtils.isBlank(password)) {
+            return ResponseEntity.badRequest().body(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
+        }
 
-        byte[] bytes = truststore.getBytes();
-        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), bytes, password);
+        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststore.getOriginalFilename(), truststore.getBytes(), password);
         return ResponseEntity.ok("Truststore file has been successfully replaced.");
+    }
+
+    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
+        byte[] content = certificateService.getTruststoreContent();
+        ByteArrayResource resource = new ByteArrayResource(content);
+
+        HttpStatus status = HttpStatus.OK;
+        if (resource.getByteArray().length == 0) {
+            status = HttpStatus.NO_CONTENT;;
+        }
+
+        return ResponseEntity.status(status)
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header("content-disposition", "attachment; filename=TrustStore.jks")
+                .body(resource);
     }
 
     @RequestMapping(value = {"/list"}, method = GET)
@@ -85,22 +119,19 @@ public class TruststoreResource {
      *
      * @return CSV file with the contents of Truststore table
      */
-    @RequestMapping(path = "/csv", method = RequestMethod.GET)
+    @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        String resultText;
         final List<TrustStoreRO> trustStoreROS = trustStoreEntries();
 
-        try {
-            resultText = csvServiceImpl.exportToCSV(trustStoreROS, TrustStoreRO.class,
-                    CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(), CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems());
-        } catch (CsvException e) {
-            return ResponseEntity.noContent().build();
-        }
+        return exportToCSV(trustStoreROS, TrustStoreRO.class,
+                CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(),
+                CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems(),
+                "truststore");
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=" + csvServiceImpl.getCsvFilename("truststore"))
-                .body(resultText);
     }
 
+    @Override
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }

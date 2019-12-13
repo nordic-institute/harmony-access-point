@@ -2,13 +2,13 @@ package eu.domibus.core.multitenancy.dao;
 
 
 import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.security.User;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -51,7 +51,8 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findPreferredDomains", UserDomainEntity.class);
         return namedQuery.getResultList();
     }
-    
+
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setDomainByUser(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
@@ -65,7 +66,8 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
             this.create(userDomainEntity);
         }
     }
-    
+
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setPreferredDomainByUser(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
@@ -80,18 +82,13 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteDomainByUser(String userName) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
             this.delete(userDomainEntity);
         }
-    }
-
-    @Override
-    public List<String> listAllUserNames() {
-        TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findAll", UserDomainEntity.class);
-        return namedQuery.getResultList().stream().map(el->el.getUserName()).collect(Collectors.toList());
     }
 
     private UserDomainEntity findUserDomainEntity(String userName) {
@@ -103,12 +100,6 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         } catch (NoResultException e) {
             return null;
         }
-    }
-
-    @Override
-    public List<UserDomainEntity> listAllUsers() {
-        TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findAll", UserDomainEntity.class);
-        return namedQuery.getResultList();
     }
 
 }

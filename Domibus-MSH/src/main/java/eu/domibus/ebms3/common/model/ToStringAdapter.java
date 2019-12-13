@@ -2,18 +2,17 @@ package eu.domibus.ebms3.common.model;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.xml.XMLUtilImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
@@ -31,9 +30,6 @@ import java.util.List;
 public class ToStringAdapter extends XmlAdapter<Node, List<String>> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ToStringAdapter.class);
-
-    private final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    private final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
     @Override
     /**
@@ -62,20 +58,21 @@ public class ToStringAdapter extends XmlAdapter<Node, List<String>> {
         return this.stringToNode(v.get(0));
     }
 
-    private String nodeToString(final Node node) throws TransformerException {
+    protected String nodeToString(final Node node) throws TransformerException {
         final StringWriter sw = new StringWriter();
-        final Transformer t = this.transformerFactory.newTransformer();
+        final Transformer t = XMLUtilImpl.getTransformerFactory().newTransformer();
         t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         t.transform(new DOMSource(node), new StreamResult(sw));
         return sw.toString();
     }
 
-    private Node stringToNode(final String content) {
+    protected Node stringToNode(final String content) {
+
         try {
-            final Document doc = this.documentBuilderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(content)));
+            final Document doc = XMLUtilImpl.getDocumentBuilderFactoryNamespaceAware().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
 
             if (doc.getChildNodes().getLength() == 1) {
-                return doc.getChildNodes().item(1);
+                return doc.getChildNodes().item(0);
             }
 
         } catch (SAXException | IOException | ParserConfigurationException e) {
