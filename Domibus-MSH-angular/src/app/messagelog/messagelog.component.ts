@@ -68,7 +68,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'received';
     super.asc = false;
-    super.sortedColumns = [{prop: 'received', dir: 'desc'}];
+    // super.sortedColumns = [{prop: 'received', dir: 'desc'}];
 
     this.messageResent = new EventEmitter(false);
 

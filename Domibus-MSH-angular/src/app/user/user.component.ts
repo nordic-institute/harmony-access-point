@@ -212,7 +212,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   onSelect({selected}) {
-    if (isNullOrUndefined(selected) || selected.length == 0) {
+    if (!selected || selected.length == 0) {
       // unselect
       this.enableDelete = false;
       this.enableEdit = false;
@@ -224,8 +224,6 @@ export class UserComponent extends mix(BaseListComponent)
     this.currentUser = this.selected[0];
     this.editedUser = this.currentUser;
 
-    // this.selected.splice(0, this.selected.length);
-    // this.selected.push(...selected);
     this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
     this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }

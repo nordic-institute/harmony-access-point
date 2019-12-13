@@ -93,7 +93,7 @@
 <div class="panel">
   <grid-header [parent]="this"></grid-header>
 
-  <page-grid [parent]="this" [sortedColumns]="sortedColumns"></page-grid>
+  <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
 
 <!--  <ngx-datatable-->
 <!--    id="errorLogTable"-->

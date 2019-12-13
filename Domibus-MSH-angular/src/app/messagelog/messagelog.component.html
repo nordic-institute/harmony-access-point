@@ -109,7 +109,7 @@
 
   <grid-header [parent]="this"></grid-header>
 
-  <page-grid [parent]="this" [selectionType]="'single'" [sortedColumns]="sortedColumns"></page-grid>
+  <page-grid [parent]="this" [selectionType]="'single'" [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
 
 <!--  <ngx-datatable-->
 <!--      #list-->

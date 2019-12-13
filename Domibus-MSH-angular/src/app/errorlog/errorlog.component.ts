@@ -51,7 +51,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'timestamp';
     super.asc = false;
-    super.sortedColumns = [{prop: 'timestamp', dir: 'desc'}];
+    // super.sortedColumns = [{prop: 'timestamp', dir: 'desc'}];
 
     this.filterData();
   }

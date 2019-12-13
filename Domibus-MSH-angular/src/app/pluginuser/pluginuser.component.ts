@@ -170,11 +170,11 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.userRoles = result;
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.edit(event.row);
-    }
-  }
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     this.edit(event.row);
+  //   }
+  // }
 
   async add() {
     const newItem = this.pluginUserService.createNew();
