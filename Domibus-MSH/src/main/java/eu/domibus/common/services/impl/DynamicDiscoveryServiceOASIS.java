@@ -91,11 +91,15 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             final ParticipantIdentifier participantIdentifier = new ParticipantIdentifier(participantId, participantIdScheme);
             final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
             final ProcessIdentifier processIdentifier = new ProcessIdentifier(processId, processIdScheme);
-            ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
-
+            LOG.debug("Request details for ServiceMetadata Participant Identifier [{}], and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme());
+            LOG.debug("Request details for ServiceMetadata Document Identifier [{}], and scheme [{}]", documentIdentifier.getIdentifier(), documentIdentifier.getScheme());
+            LOG.debug("Request details for ServiceMetadata Process Identifier [{}], and scheme [{}]", processIdentifier.getIdentifier(), processIdentifier.getScheme());
+            ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
+            LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Get the endpoint for " + transportProfileAS4);
-            final Endpoint endpoint = sm.getEndpoint(processIdentifier, new TransportProfile(transportProfileAS4));
+            final Endpoint endpoint = serviceMetadata.getEndpoint(processIdentifier, new TransportProfile(transportProfileAS4));
+            LOG.debug("Endpoint for transport profile -  [{}]", endpoint);
             if (endpoint == null || endpoint.getAddress() == null || endpoint.getProcessIdentifier() == null) {
                 throw new ConfigurationException("Could not fetch metadata for: " + participantId + " " + participantIdScheme + " " + documentId +
                         " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfileAS4);
