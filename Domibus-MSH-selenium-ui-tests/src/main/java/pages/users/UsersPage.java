@@ -25,7 +25,7 @@ public class UsersPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(id = "userTable")
+	@FindBy(id = "pageGridId")
 	private WebElement userTableContainer;
 
 	@FindBy(id = "userCancelButton")

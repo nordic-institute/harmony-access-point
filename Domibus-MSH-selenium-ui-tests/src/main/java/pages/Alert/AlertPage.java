@@ -15,7 +15,7 @@ public class AlertPage extends DomibusPage {
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
     }
 
-    @FindBy(id = "alertsTable")
+    @FindBy(id = "pageGridId")
     public WebElement gridContainer;
 
     @FindBy(id = "alertsHeader_id")

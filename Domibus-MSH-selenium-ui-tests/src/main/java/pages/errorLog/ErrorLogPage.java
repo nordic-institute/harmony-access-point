@@ -27,7 +27,7 @@ public class ErrorLogPage extends DomibusPage {
 	}
 
 
-	@FindBy(id = "errorLogTable")
+	@FindBy(id = "pageGridId")
 	private WebElement errorLogTableContainer;
 
 	ErrFilters filters = new ErrFilters(driver);

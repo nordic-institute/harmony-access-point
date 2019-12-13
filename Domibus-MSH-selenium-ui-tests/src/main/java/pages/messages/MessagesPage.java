@@ -25,7 +25,7 @@ public class MessagesPage extends DomibusPage {
 
 	}
 
-	@FindBy(id = "messageLogTable")
+	@FindBy(id = "pageGridId")
 	public  WebElement gridContainer;
 
 	@FindBy(id = "downloadbutton_id")

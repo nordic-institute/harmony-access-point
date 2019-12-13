@@ -27,7 +27,7 @@ public class MessageFilterPage extends DomibusPage {
 	}
 
 
-	@FindBy(id = "messageFilterTable")
+	@FindBy(id = "pageGridId")
 	private WebElement gridContainer;
 
 	@FindBy(id = "moveupbutton_id")

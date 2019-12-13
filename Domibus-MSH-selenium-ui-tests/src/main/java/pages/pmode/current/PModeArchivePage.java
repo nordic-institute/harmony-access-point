@@ -24,7 +24,7 @@ public class PModeArchivePage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(id = "archivePmodeTable")
+	@FindBy(id = "pageGridId")
 	private WebElement archiveGridContainer;
 	@FindBy(id = "cancelbutton_id")
 	private WebElement cancelButton;

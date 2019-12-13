@@ -25,7 +25,7 @@ public class PluginUsersPage extends DomibusPage {
 
 	public PluginUsersFilterArea filters = new PluginUsersFilterArea(driver);
 
-	@FindBy(css = "#userTable")
+	@FindBy(css = "#pageGridId")
 	private WebElement userGridContainer;
 
 	@FindBy(css = "#userCancelButton")

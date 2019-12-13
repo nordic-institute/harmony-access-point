@@ -31,7 +31,7 @@ public class PModePartiesPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "#partyTable")
+	@FindBy(css = "#pageGridId")
 	WebElement gridContainer;
 
 	@FindBy(css = "#cancelPartyButton")
