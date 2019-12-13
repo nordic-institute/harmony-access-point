@@ -191,11 +191,11 @@ mat-sidenav[_ngcontent-c0] {
     [HEADING]
 ----------------------------------------------------*/
 
-h1 {
-  font-size: 48px;
-  margin-top: 0;
-  margin-bottom: 0;
-  font-size: xx-large;
+page-header h1 {
+  /*font-size: 48px;*/
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: xx-large !important;
 }
 
 h2 {
