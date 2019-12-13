@@ -2910,7 +2910,7 @@ static def String pathToLogFiles(side, log, context) {
 //---------------------------------------------------------------------------------------------------------------------------------
 // DB operations
 //---------------------------------------------------------------------------------------------------------------------------------
-    // Clean Certificates o be revoked
+    // Clean Certificates to be revoked
     def cleanToBeRevCertificates(String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"cleanToBeRevCertificates\".", log)
         def sqlSender = null; def sqlReceiver = null;
@@ -2925,20 +2925,17 @@ static def String pathToLogFiles(side, log, context) {
     }
 //---------------------------------------------------------------------------------------------------------------------------------	
 	// Set user's password default parameter
-    def setPasswordDefaultValue(String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID,String username ,valueToSet=false) {
-        debugLog("  ====  Calling \"cleanToBeRevCertificates\".", log)
-        def sqlSender = null; def sqlReceiver = null;
+    def setPasswordDefaultValue(String targetDomainId = blueDomainID,String username ,valueToSet=false) {
+        debugLog("  ====  Calling \"setPasswordDefaultValue\".", log)
+        def sqlDB = null;
 
-        sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
-        sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
-        def usedDomains = [senderDomainId, receiverDomanId]
+        sqlDB = retrieveSqlConnectionRefFromDomainId(targetDomainId)
+        def usedDomains = [targetDomainId]
         openDbConnections(usedDomains)
 		if(valueToSet){
-			sqlSender.execute("UPDATE TB_USER set DEFAULT_PASSWORD=1 WHERE USER_NAME = '${username}'");
-			sqlReceiver.execute("UPDATE TB_USER set DEFAULT_PASSWORD=1 WHERE USER_NAME = '${username}'");
+			sqlDB.execute("UPDATE TB_USER set DEFAULT_PASSWORD=1 WHERE USER_NAME = '${username}'");
 		}else{
-			sqlSender.execute("UPDATE TB_USER set DEFAULT_PASSWORD=0 WHERE USER_NAME = '${username}'");
-			sqlReceiver.execute("UPDATE TB_USER set DEFAULT_PASSWORD=0 WHERE USER_NAME = '${username}'");
+			sqlDB.execute("UPDATE TB_USER set DEFAULT_PASSWORD=0 WHERE USER_NAME = '${username}'");
 		}
 		closeDbConnections(usedDomains)
     }
