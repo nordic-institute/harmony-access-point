@@ -19,7 +19,8 @@ public enum MetricNames {
     VERIFY_TRUST,
     AUTHORIZE_MESSAGE,
     SERVER_POLICY_IN,
-    TRUST_SENDER;
+    TRUST_SENDER,
+    ON_MESSAGE;
 
     public String getCounterName() {
         return this.name().toUpperCase() + "_counter";

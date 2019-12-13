@@ -11,6 +11,8 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.*;
 import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -39,6 +41,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
+import static eu.domibus.common.metrics.MetricNames.ON_MESSAGE;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -112,6 +115,8 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
+    @Timer(value = ON_MESSAGE)
+    @Counter(ON_MESSAGE)
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
