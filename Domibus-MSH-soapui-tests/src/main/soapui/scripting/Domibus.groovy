@@ -2925,10 +2925,10 @@ static def String pathToLogFiles(side, log, context) {
     }
 //---------------------------------------------------------------------------------------------------------------------------------	
 	// Set user's password default parameter
-    def setPasswordDefaultValue(String targetDomainId = blueDomainID,String username ,valueToSet=false) {
+    def setPasswordDefaultValue(String targetDomainId,String username ,valueToSet=false) {
         debugLog("  ====  Calling \"setPasswordDefaultValue\".", log)
         def sqlDB = null;
-
+		assert((targetDomainId!=null)&&(targetDomainId.trim()!="")),"Error: DomainId provided must not be empty."
         sqlDB = retrieveSqlConnectionRefFromDomainId(targetDomainId)
         def usedDomains = [targetDomainId]
         openDbConnections(usedDomains)
