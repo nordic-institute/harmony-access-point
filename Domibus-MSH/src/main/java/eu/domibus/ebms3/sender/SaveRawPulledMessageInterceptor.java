@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.sender;
 
 import com.codahale.metrics.Timer;
-import eu.domibus.common.metrics.MetricsHelper;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;

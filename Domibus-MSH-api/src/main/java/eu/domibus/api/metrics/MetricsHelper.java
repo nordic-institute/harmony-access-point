@@ -1,4 +1,4 @@
-package eu.domibus.common.metrics;
+package eu.domibus.api.metrics;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
