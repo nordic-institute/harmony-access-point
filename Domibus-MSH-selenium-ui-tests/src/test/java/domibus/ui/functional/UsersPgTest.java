@@ -240,7 +240,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/* USR-7 - Admin edits an existing user and presses Cancel */
-	@Test(description = "USR-7", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editUserAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -280,7 +280,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/* USR-7 - Admin edits an existing user and presses Save */
-	@Test(description = "USR-8", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editUserAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
