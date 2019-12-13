@@ -4,7 +4,7 @@ import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.MetricsHelper;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

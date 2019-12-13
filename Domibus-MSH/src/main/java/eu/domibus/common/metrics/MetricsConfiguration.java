@@ -8,6 +8,7 @@ import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import org.slf4j.Logger;

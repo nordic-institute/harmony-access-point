@@ -3,7 +3,7 @@ package eu.domibus.ebms3.sender;
 import com.codahale.metrics.Timer;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.metrics.MetricsHelper;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.ebms3.common.handler.AbstractFaultHandler;
 import eu.domibus.ebms3.common.model.Messaging;
