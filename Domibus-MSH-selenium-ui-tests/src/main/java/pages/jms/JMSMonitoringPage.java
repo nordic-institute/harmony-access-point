@@ -24,16 +24,16 @@ public class JMSMonitoringPage extends DomibusPage {
 	@FindBy(css = "#pageGridId")
 	public WebElement messagesTableGrid;
 
-	@FindBy(css = "#jmsCancelButton")
+	@FindBy(css = "#cancelButtonId")
 	public WebElement cancelButton;
 
-	@FindBy(css = "#jmsSaveButton")
+	@FindBy(css = "#saveButtonId")
 	public WebElement saveButton;
 
 	@FindBy(css = "#jmsMoveButton")
 	public WebElement moveButton;
 
-	@FindBy(css = "#jmsDeleteButton")
+	@FindBy(css = "#deleteButtonId")
 	public WebElement deleteButton;
 
 	public DGrid grid() {

@@ -28,19 +28,19 @@ public class UsersPage extends DomibusPage {
 	@FindBy(id = "pageGridId")
 	private WebElement userTableContainer;
 
-	@FindBy(id = "userCancelButton")
+	@FindBy(id = "cancelButtonId")
 	private WebElement cancelBtn;
 
-	@FindBy(id = "userSaveButton")
+	@FindBy(id = "saveButtonId")
 	private WebElement saveBtn;
 
-	@FindBy(id = "userNewButton")
+	@FindBy(id = "addButtonId")
 	private WebElement newBtn;
 
-	@FindBy(id = "userEditButton")
+	@FindBy(id = "editButtonId")
 	private WebElement editBtn;
 
-	@FindBy(id = "userDeleteButton")
+	@FindBy(id = "deleteButtonId")
 	private WebElement deleteBtn;
 
 	public DGrid grid() {
