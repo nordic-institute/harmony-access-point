@@ -1,7 +1,8 @@
 import {Component, Input} from '@angular/core';
-import {IPageableList} from '../mixins/ipageable-list';
+import {IPageableList, PaginationType} from '../mixins/ipageable-list';
 import BaseListComponent from '../mixins/base-list.component';
 import {ISortableList} from '../mixins/isortable-list';
+import {instanceOfPageableList, instanceOfSortableList} from '../mixins/type.utils';
 
 @Component({
   selector: 'page-grid',
@@ -15,7 +16,7 @@ export class PageGridComponent {
   }
 
   @Input()
-  parent: BaseListComponent<any> & (IPageableList | ISortableList);
+  parent: BaseListComponent<any> & (IPageableList | ISortableList | (IPageableList & ISortableList));
 
   @Input()
   selectionType: undefined | 'single' | 'multi' = undefined;
@@ -28,4 +29,11 @@ export class PageGridComponent {
   //   return result;
   // }
 
+  useExternalPaging() {
+    return instanceOfPageableList(this.parent) && this.parent.type != PaginationType.Client;
+  }
+
+  useExternalSorting() {
+    return instanceOfSortableList(this.parent);
+  }
 }

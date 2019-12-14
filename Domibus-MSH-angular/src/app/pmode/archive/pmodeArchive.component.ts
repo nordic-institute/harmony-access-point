@@ -17,7 +17,7 @@ import {DialogsService} from '../../common/dialogs/dialogs.service';
 import mix from '../../common/mixins/mixin.utils';
 import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
-import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
+import {ClientPageableListMixin, PageableListMixin} from '../../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -30,7 +30,7 @@ import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
  * PMode Archive Component Typescript
  */
 export class PModeArchiveComponent extends mix(BaseListComponent)
-  .with(ModifiableListMixin, ClientPageableListMixin)
+  .with(ModifiableListMixin, PageableListMixin)
   implements OnInit, DirtyOperations {
 
   static readonly PMODE_URL: string = 'rest/pmode';

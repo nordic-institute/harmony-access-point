@@ -111,13 +111,13 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   add() {
     let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
-    formRef.afterClosed().subscribe(result => {
-      if (result == true) {
-        let backendEntry = this.createEntry(formRef);
+    formRef.afterClosed().toPromise().then(result => {
+      if (result) {
+        let backendEntry = this.createEntry(result);
         if (this.findRowsIndex(backendEntry) == -1) {
           super.rows = [...this.rows, backendEntry];
-          super.count = super.rows.length;
-          this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
+          super.count = this.rows.length + 1;
+          this.setDirty(result.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
         }
@@ -165,21 +165,21 @@ export class MessageFilterComponent extends mix(BaseListComponent)
         edit: row
       }
     });
-    formRef.afterClosed().subscribe(result => {
-      if (result == true) {
-        let backendEntry = this.createEntry(formRef);
+    formRef.afterClosed().toPromise().then(result => {
+      if (result) {
+        let backendEntry = this.createEntry(result);
         let backendEntryPos = this.findRowsIndex(backendEntry);
         if (backendEntryPos == -1) {
-          this.updateSelectedPlugin(formRef.componentInstance.plugin);
+          this.updateSelectedPlugin(result.plugin);
 
           for (var criteria of this.routingCriterias) {
-            this.updateSelectedProperty(criteria, formRef.componentInstance[criteria]);
+            this.updateSelectedProperty(criteria, result[criteria]);
           }
 
           super.rows = [...this.rows];
           super.count = this.rows.length;
 
-          this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
+          this.setDirty(result.messageFilterForm.dirty);
         } else {
           if (backendEntryPos != this.rowNumber) {
             this.alertService.error('Impossible to insert a duplicate entry');
@@ -189,16 +189,16 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     });
   }
 
-  private createEntry(formRef: MatDialogRef<EditMessageFilterComponent>) {
+  private createEntry(componentInstance: EditMessageFilterComponent) {
     let routingCriterias: Array<RoutingCriteriaEntry> = [];
 
     for (var criteria of this.routingCriterias) {
-      if (!!formRef.componentInstance[criteria]) {
-        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, formRef.componentInstance[criteria]));
+      if (!!componentInstance[criteria]) {
+        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, componentInstance[criteria]));
       }
     }
 
-    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, formRef.componentInstance.plugin, routingCriterias, false);
+    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, componentInstance.plugin, routingCriterias, false);
     return backendEntry;
   }
 
