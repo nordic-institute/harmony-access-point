@@ -186,6 +186,7 @@ public class UsersPgUXTest extends BaseUXTest {
         String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
         log.info("downloaded file with name " + fileName);
 
+        page.includeDeletedUsers();
         page.grid().getGridCtrl().showCtrls();
         page.grid().getGridCtrl().getAllLnk().click();
         page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
@@ -374,6 +375,7 @@ public class UsersPgUXTest extends BaseUXTest {
         String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
         log.info("downloaded file with name " + fileName);
 
+        page.includeDeletedUsers();
         page.grid().getGridCtrl().showCtrls();
         page.grid().getGridCtrl().getAllLnk().click();
         page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
