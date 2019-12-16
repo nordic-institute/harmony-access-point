@@ -49,13 +49,13 @@ public class TestDB {
 
         rawMessages.forEach(el -> {
             if (type.equals("async")) {
-                LOG.info("Saving async [{}]", rawMessages.indexOf(el));
+                //LOG.debug("Saving async [{}]", rawMessages.indexOf(el));
                 saveAsync(el);
-                LOG.info("Saved async [{}]", rawMessages.indexOf(el));
+                //LOG.debug("Saved async [{}]", rawMessages.indexOf(el));
             } else {
-                LOG.info("Saving sync [{}]", rawMessages.indexOf(el));
+                //LOG.info("Saving sync [{}]", rawMessages.indexOf(el));
                 saveSync(el);
-                LOG.info("Saved sync [{}]", rawMessages.indexOf(el));
+                //LOG.info("Saved sync [{}]", rawMessages.indexOf(el));
             }
         });
 
