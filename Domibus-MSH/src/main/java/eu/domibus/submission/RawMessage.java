@@ -1,13 +1,10 @@
-package eu.domibus.web.rest.testdb;
+package eu.domibus.submission;
 
-import eu.domibus.common.model.configuration.Identifier;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "TB_RAWMESSAGE")

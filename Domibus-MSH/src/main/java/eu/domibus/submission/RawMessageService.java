@@ -1,11 +1,11 @@
-package eu.domibus.web.rest.testdb;
+package eu.domibus.submission;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.testdb.TestDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 

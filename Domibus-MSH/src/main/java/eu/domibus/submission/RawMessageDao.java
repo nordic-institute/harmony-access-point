@@ -1,7 +1,6 @@
-package eu.domibus.web.rest.testdb;
+package eu.domibus.submission;
 
 import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
