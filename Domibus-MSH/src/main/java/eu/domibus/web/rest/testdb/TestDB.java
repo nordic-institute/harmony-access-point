@@ -38,7 +38,7 @@ public class TestDB {
         LOG.info("Testing the database with [{}] messages, type: [{}]", count, type);
         byte[] payload = null;
         try {
-            payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SendMessage.xml"), "UTF-8").getBytes();
+            payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("50K_payload_SendMessage.xml"), "UTF-8").getBytes();
         } catch (IOException exc) {
             LOG.error("Exception ", exc);
         }
