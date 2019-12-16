@@ -3,12 +3,17 @@ package eu.domibus.submission;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "TB_RAWMESSAGE")
 public class RawMessage extends AbstractBaseEntity {
+
+    @Transient
+    protected int messageId;
+
     @Column(name = "RAWENVELOPE")
     protected String rawEnvelope;
 
@@ -36,6 +41,13 @@ public class RawMessage extends AbstractBaseEntity {
         this.rawPayload = rawPayload;
     }
 
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
+    }
 
     @Override
     public boolean equals(Object o) {

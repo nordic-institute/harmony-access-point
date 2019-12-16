@@ -28,6 +28,7 @@ public class RawMessageService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveSync(RawMessage rawMessage, String name) {
+        LOG.warn("Inside saveSync [{}]", rawMessage.getMessageId());
         Counter counter = null;
         com.codahale.metrics.Timer.Context saveSyncTimerContext = null;
         saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(TestDB.class, name)).time();
