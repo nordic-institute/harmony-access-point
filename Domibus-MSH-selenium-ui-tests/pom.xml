@@ -181,7 +181,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
-							<groups>multiTenancy</groups>
+							<groups>singleTenancy</groups>
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
 							</suiteXmlFiles>
@@ -224,7 +224,7 @@
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
-								<runBrowser>firefox</runBrowser>
+								<runBrowser>chrome</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>
