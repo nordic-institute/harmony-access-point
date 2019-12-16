@@ -98,6 +98,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .csrf().csrfTokenRepository(tokenRepository).requireCsrfProtectionMatcher(csrfURLMatcher)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/testdb/**").permitAll()
                 .antMatchers("/", "/index.html", "/login",
                         "/rest/security/authentication",
                         "/rest/application/info",
