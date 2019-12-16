@@ -25,8 +25,8 @@ public class RawMessageService {
     }
 
     @Transactional
-    public void saveSync(RawMessage rawMessage) {
-        com.codahale.metrics.Timer.Context saveSyncTimer = metricRegistry.timer(MetricRegistry.name(TestDB.class, "saveSync")).time();
+    public void saveSync(RawMessage rawMessage, String name) {
+        com.codahale.metrics.Timer.Context saveSyncTimer = metricRegistry.timer(MetricRegistry.name(TestDB.class, name)).time();
         rawMessageDao.create(rawMessage);
         saveSyncTimer.stop();
     }

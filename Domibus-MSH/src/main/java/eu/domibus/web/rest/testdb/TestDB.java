@@ -61,18 +61,17 @@ public class TestDB {
 //    }
 
     public void saveSync(RawMessage rawMessage) {
-        rawMessageService.saveSync(rawMessage);
+        rawMessageService.saveSync(rawMessage, "SaveSync-1");
     }
 
     public void saveAsync(RawMessage rawMessage) {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                LOG.info("Executing job...");
-                rawMessageService.saveSync(rawMessage);
+                rawMessageService.saveSync(rawMessage, "SaveAsync-2");
             }
         };
-        task.run();
+        new Thread(task).start();
     }
 }
 
