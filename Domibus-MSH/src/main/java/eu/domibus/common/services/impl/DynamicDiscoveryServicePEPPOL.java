@@ -79,10 +79,10 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             final DocumentTypeIdentifier documentIdentifier = getDocumentTypeIdentifier(documentId);
 
             final ProcessIdentifier processIdentifier = getProcessIdentifier(processId);
-            LOG.debug("Getting the ServiceMetadata");
-            LOG.debug("Request details for ServiceMetadata Participant Identifier [{}], and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme());
-            LOG.debug("Request details for ServiceMetadata Document Identifier [{}], and scheme [{}]", documentIdentifier.getIdentifier(), documentIdentifier.getScheme());
-            LOG.debug("Request details for ServiceMetadata Process Identifier [{}], and scheme [{}]", processIdentifier.getIdentifier(), processIdentifier.getScheme());
+            LOG.debug("Getting Request details for ServiceMetadata");
+            LOG.debug("Participant Identifier [{}], and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme());
+            LOG.debug("Document Identifier [{}], and scheme [{}]", documentIdentifier.getIdentifier(), documentIdentifier.getScheme());
+            LOG.debug("Process Identifier [{}], and scheme [{}]", processIdentifier.getIdentifier(), processIdentifier.getScheme());
             final ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getProcesses());
 

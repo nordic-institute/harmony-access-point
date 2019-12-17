@@ -87,13 +87,13 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         try {
             DynamicDiscovery smpClient = createDynamicDiscoveryClient();
 
-            LOG.debug("Preparing to request the ServiceMetadata");
+            LOG.debug("Getting Request details for ServiceMetadata");
             final ParticipantIdentifier participantIdentifier = new ParticipantIdentifier(participantId, participantIdScheme);
             final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
             final ProcessIdentifier processIdentifier = new ProcessIdentifier(processId, processIdScheme);
-            LOG.debug("Request details for ServiceMetadata Participant Identifier [{}], and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme());
-            LOG.debug("Request details for ServiceMetadata Document Identifier [{}], and scheme [{}]", documentIdentifier.getIdentifier(), documentIdentifier.getScheme());
-            LOG.debug("Request details for ServiceMetadata Process Identifier [{}], and scheme [{}]", processIdentifier.getIdentifier(), processIdentifier.getScheme());
+            LOG.debug("Participant Identifier [{}], and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme());
+            LOG.debug("Document Identifier [{}], and scheme [{}]", documentIdentifier.getIdentifier(), documentIdentifier.getScheme());
+            LOG.debug("Process Identifier [{}], and scheme [{}]", processIdentifier.getIdentifier(), processIdentifier.getScheme());
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
