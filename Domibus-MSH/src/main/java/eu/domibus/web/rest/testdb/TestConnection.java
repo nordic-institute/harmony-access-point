@@ -1,6 +1,8 @@
 package eu.domibus.web.rest.testdb;
 
-import eu.domibus.common.metrics.Counter;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,33 +28,44 @@ public class TestConnection {
 
     @RequestMapping(path = "cn", method = RequestMethod.POST)
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @Timer(value = TEST_CN)
-    @Counter(TEST_CN)
     public ResponseEntity<String> testCn(
             @RequestPart("myFile") MultipartFile messageXML,
             @QueryParam("count") int count) {
         LOG.info("Testing the connection, count: [{}]", count);
         byte[] payload = null;
+        Counter counter = null;
+        com.codahale.metrics.Timer.Context testCnTimerContext = null;
         try {
-            payload = messageXML.getBytes();
-        } catch (IOException e) {
-            LOG.error("!!!!!!!!!Exception getting bytes", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception getting bytes " + ExceptionUtils.getRootCauseMessage(e));
-        }
-
-        int l = payload.length;
-        LOG.info("Message length is [{}], [{}]", l, payload[l-1]);
-
-        if (count > 0) {
+            testCnTimerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(TestDB.class, "testCn_timer")).time();
+            counter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(TestDB.class, "testCn_counter"));
+            counter.inc();
             try {
-                Thread.sleep(count*1000);
-            } catch (InterruptedException e) {
-                LOG.error("!!!!!!!!!Interrupted exception ", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Interrupted exception " + ExceptionUtils.getRootCauseMessage(e));
+                payload = messageXML.getBytes();
+            } catch (IOException e) {
+                LOG.error("!!!!!!!!!Exception getting bytes", e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception getting bytes " + ExceptionUtils.getRootCauseMessage(e));
+            }
+
+            int l = payload.length;
+            LOG.info("Message length is [{}], [{}]", l, payload[l - 1]);
+
+            if (count > 0) {
+                try {
+                    Thread.sleep(count * 10);
+                } catch (InterruptedException e) {
+                    LOG.error("!!!!!!!!!Interrupted exception ", e);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Interrupted exception " + ExceptionUtils.getRootCauseMessage(e));
+                }
+            }
+            return ResponseEntity.status(HttpStatus.OK).body("OK");
+        } finally {
+            if (counter != null) {
+                counter.dec();
+            }
+            if (testCnTimerContext != null) {
+                testCnTimerContext.stop();
             }
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
 }
 
