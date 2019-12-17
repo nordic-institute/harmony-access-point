@@ -74,7 +74,7 @@ public class LoginPgTest extends BaseTest {
 
 		log.info("Verifying correct error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
 		//rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
@@ -102,7 +102,7 @@ public class LoginPgTest extends BaseTest {
 
 		log.info("Verifying correct error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
 //		rest.deleteUser(username, null);
 		log.info("Deleted user: " + username);
@@ -134,10 +134,10 @@ public class LoginPgTest extends BaseTest {
 
 			if (i <= 4) {
 				log.info("Verifying LOGIN_INVALID_CREDENTIALS error message is displayed");
-				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
+				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 			} else {
 				log.info("Verifying LOGIN_ACCOUNT_SUSPENDED error message is displayed");
-				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED, "Account blocked message displayed as expected");
+				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_ACCOUNT_SUSPENDED, "Account blocked message displayed as expected");
 			}
 		}
 
@@ -146,7 +146,7 @@ public class LoginPgTest extends BaseTest {
 		soft.assertTrue(page.isLoaded(), "User is still on Login page");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed (2)");
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "Displayed message is correct (2)");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_ACCOUNT_SUSPENDED_1, "Displayed message is correct (2)");
 
 		rest.unblockUser(username, null);
 		log.info("Unblocked user account");
@@ -184,7 +184,7 @@ public class LoginPgTest extends BaseTest {
 		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.defaultPass()));
 		page.login(username, data.defaultPass());
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
 
 		rest.unblockUser(username, null);
 		log.info("Unblocked user account");

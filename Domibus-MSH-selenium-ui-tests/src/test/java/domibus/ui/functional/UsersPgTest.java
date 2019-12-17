@@ -345,7 +345,7 @@ public class UsersPgTest extends BaseTest {
 		page.getSandwichMenu().logout();
 		DomibusPage pg = login(username, data.defaultPass());
 		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed for deactivated user trying to login");
-		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
+		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
 
 //		admin edits to disable active user
 		log.info("Disable active user");
@@ -369,7 +369,7 @@ public class UsersPgTest extends BaseTest {
 
 		pg = login(username, data.defaultPass());
 		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed for deactivated user trying to login");
-		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
+		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_USER_INACTIVE, "User is notified that his account is inactive");
 
 		soft.assertAll();
 	}
@@ -397,7 +397,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("try to login with old password");
 		DomibusPage pg = login(username, data.defaultPass());
 		soft.assertTrue(pg.getAlertArea().isError(), "Error displayed when trying to login with old password");
-		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "User notified he has wrong credentials");
+		soft.assertEquals(pg.getAlertArea().getAlertMessage(), DMessages.LOGIN.LOGIN_INVALID_CREDENTIALS, "User notified he has wrong credentials");
 
 		log.info("try to login with new password");
 		pg = login(username, data.getNewTestPass());
@@ -419,15 +419,15 @@ public class UsersPgTest extends BaseTest {
 		UserModal modal = new UserModal(driver);
 		log.info("checking with only one letter");
 		modal.getUserNameInput().fill("t");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERS.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
 
 		log.info("checking with only two letters");
 		modal.getUserNameInput().fill("te");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (2)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERS.USER_USERNAME_VALIDATION, "Correct error message shown (2)");
 
 		log.info("checking with only two letters and special characters");
 		modal.getUserNameInput().fill("te$%^*");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (3)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USERS.USER_USERNAME_VALIDATION, "Correct error message shown (3)");
 
 		log.info("checking with valid username");
 		modal.getUserNameInput().fill("testUser");
@@ -501,7 +501,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.USERS.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
 
 //		deleted user
 		log.info("creating new user with existing deleted username");
@@ -515,7 +515,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.USERS.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
 
 		soft.assertAll();
 	}
@@ -544,7 +544,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username, domainCode), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.USERS.DUPLICATE_USERNAME_ERROR, username, domainCode), "Correct message displayed");
 
 //		deleted user
 		log.info("creating new user with existing deleted username");
@@ -559,7 +559,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking error message");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, deleted_username, domainCode), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.USERS.DUPLICATE_USERNAME_ERROR, deleted_username, domainCode), "Correct message displayed");
 
 
 		soft.assertAll();
@@ -586,7 +586,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, "default");
+		String expectedMessage = String.format(DMessages.USERS.USER_DUPLICATE_USERNAME, username, "default");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		soft.assertAll();
@@ -614,7 +614,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("checking");
 		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
-		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domainCode);
+		String expectedMessage = String.format(DMessages.USERS.USER_DUPLICATE_USERNAME, username, domainCode);
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
 		soft.assertAll();
@@ -635,7 +635,7 @@ public class UsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.USER_DELETE_LOGGED_IN_USER, username),
+				String.format(DMessages.USERS.USER_DELETE_LOGGED_IN_USER, username),
 				"Correct error message is shown");
 
 		soft.assertAll();

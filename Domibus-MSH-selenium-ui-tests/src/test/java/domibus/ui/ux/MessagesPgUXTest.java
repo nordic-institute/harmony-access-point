@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -121,7 +121,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.MESSAGES.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -298,7 +298,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.MESSAGES.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

@@ -9,7 +9,7 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.Generator;
 import utils.TestUtils;
 
@@ -130,7 +130,7 @@ public class AuditPgUXTest extends BaseUXTest {
 		soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
 
 		log.info("Download all grid record csv");
-		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.AUDIT.AUDIT_CSV, null, null);
 
 		log.info("downloaded audit logs to file :" + fileName);
 		System.out.println(auditPage.grid().getRowsNo());
@@ -153,7 +153,7 @@ public class AuditPgUXTest extends BaseUXTest {
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
 
-		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.AUDIT.AUDIT_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

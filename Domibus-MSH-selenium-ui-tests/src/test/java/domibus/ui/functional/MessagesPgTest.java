@@ -292,7 +292,7 @@ public class MessagesPgTest extends BaseTest {
 		}
 
 		soft.assertTrue(statusChanged, "Message changed to SEND_ENQUEUED");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS, "Page shows corect success message");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGES.MESSAGES_RESEND_MESSAGE_SUCCESS, "Page shows corect success message");
 		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
 
 		soft.assertAll();

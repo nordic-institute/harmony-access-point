@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;
 import pages.truststore.TruststoreModal;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.TRUSTORE.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded errors to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -245,7 +245,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.TRUSTORE.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

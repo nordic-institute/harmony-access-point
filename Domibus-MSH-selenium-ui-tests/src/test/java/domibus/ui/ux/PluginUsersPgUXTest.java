@@ -102,7 +102,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		String errMess = pum.getPassErrMess().getText();
 
 		log.info("check error message");
-		soft.assertTrue(errMess.contains(DMessages.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
+		soft.assertTrue(errMess.contains(DMessages.PASSWORDS.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
 
 		log.info("setting passord and confirmation not to match");
 		pum.getPasswordInput().fill(data.defaultPass());
@@ -110,7 +110,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		log.info("check error message");
 		errMess = pum.getConfirmationErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
+		soft.assertEquals(errMess, DMessages.PASSWORDS.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
 
 		page.clickVoidSpace();
 
@@ -184,33 +184,33 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		pum.getUserNameInput().clear();
 		String errMess = pum.getUsernameErrMess().getText();
-		soft.assertEquals(errMess, DMessages.USER_USERNAME_NO_EMPTY, "Username should not be empty");
+		soft.assertEquals(errMess, DMessages.USERS.USER_USERNAME_NO_EMPTY, "Username should not be empty");
 
 		pum.getUserNameInput().fill(username);
 
 		pum.getOriginalUserInput().fill("kdsjflksjfsldjk");
-		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
+		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
 		pum.getOriginalUserInput().clear();
 
-		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty");
+		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.USERS.ROLE_EMPTY, "Role cannot be empty");
 		pum.getRolesSelect().selectOptionByIndex(0);
 
 
 		errMess = pum.getPassErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+		soft.assertEquals(errMess, DMessages.PASSWORDS.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 
 		errMess = pum.getConfirmationErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+		soft.assertEquals(errMess, DMessages.PASSWORDS.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 
 		pum.getPasswordInput().fill("tst");
 
 		errMess = pum.getPassErrMess().getText();
-		soft.assertTrue(errMess.contains(DMessages.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
+		soft.assertTrue(errMess.contains(DMessages.PASSWORDS.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
 
 		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
 		errMess = pum.getConfirmationErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
+		soft.assertEquals(errMess, DMessages.PASSWORDS.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
 
 		page.clickVoidSpace();
 

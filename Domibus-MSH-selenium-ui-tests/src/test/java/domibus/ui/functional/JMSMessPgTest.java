@@ -109,7 +109,7 @@ public class JMSMessPgTest extends BaseTest {
 
 			log.info("checking success message");
 			soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
-			soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.JMS_MOVE_MESSAGE_SUCCESS, "Correct message is shown");
+			soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.JMS.JMS_MOVE_MESSAGE_SUCCESS, "Correct message is shown");
 
 			log.info("checking number of listed messages for this queue");
 			soft.assertTrue(page.grid().getPagination().getTotalItems() == noOfMessages - 1, "Queue has one less message");

@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMessModal;
 import pages.jms.JMSMonitoringPage;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -238,7 +238,7 @@ public class JMSMessPgUXTest extends BaseUXTest {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("source", qName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+		String fileName = rest.downloadGrid(RestPaths.JMSMESSEGES.JMS_MESSAGES_CSV, params, null);
 		log.info("downloaded file " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -269,7 +269,7 @@ public class JMSMessPgUXTest extends BaseUXTest {
 			HashMap<String, String> params = new HashMap<>();
 			params.put("source", qName);
 
-			String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, domain);
+			String fileName = rest.downloadGrid(RestPaths.JMSMESSEGES.JMS_MESSAGES_CSV, params, domain);
 			log.info("downloaded file " + fileName);
 
 			page.grid().getGridCtrl().showCtrls();
@@ -441,7 +441,7 @@ public class JMSMessPgUXTest extends BaseUXTest {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("source", qName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+		String fileName = rest.downloadGrid(RestPaths.JMSMESSEGES.JMS_MESSAGES_CSV, params, null);
 		log.info("downloaded file " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

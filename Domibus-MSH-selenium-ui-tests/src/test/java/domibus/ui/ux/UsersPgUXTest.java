@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
 import pages.users.UsersPage;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class UsersPgUXTest extends BaseUXTest {
         // FIXME: the red alert area pushes the grid down, and, sometimes, changes the selected row. We're selecting again the double-clicked row.
 
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.USER_CANNOT_EDIT_DELETED, "Page shows error message");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.USERS.USER_CANNOT_EDIT_DELETED, "Page shows error message");
 
 		soft.assertTrue(page.getEditBtn().isDisabled(), "Edit button is not enabled for deleted users!");
 		soft.assertTrue(page.getDeleteBtn().isDisabled(), "Delete button is not enabled for deleted users!");
@@ -141,7 +141,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		modal.getEmailInput().fill("invalidEmail@");
 
 		soft.assertTrue(modal.getEmailErrMess().isPresent(), "When entering an invalid email an error message is shown");
-		soft.assertTrue(StringUtils.equalsIgnoreCase(modal.getEmailErrMess().getText(), DMessages.USER_EMAIL_INVALID), "When entering an invalid email the CORRECT error message is shown");
+		soft.assertTrue(StringUtils.equalsIgnoreCase(modal.getEmailErrMess().getText(), DMessages.USERS.USER_EMAIL_INVALID), "When entering an invalid email the CORRECT error message is shown");
 
 		page.clickVoidSpace();
 
@@ -152,7 +152,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		modal.getEmailInput().fill("invalidEmail@");
 
 		soft.assertTrue(modal.getEmailErrMess().isPresent(), "When entering an invalid email an error message is shown (new)");
-		soft.assertTrue(StringUtils.equalsIgnoreCase(modal.getEmailErrMess().getText(), DMessages.USER_EMAIL_INVALID), "When entering an invalid email the CORRECT error message is shown (new)");
+		soft.assertTrue(StringUtils.equalsIgnoreCase(modal.getEmailErrMess().getText(), DMessages.USERS.USER_EMAIL_INVALID), "When entering an invalid email the CORRECT error message is shown (new)");
 
 		soft.assertAll();
 	}
@@ -164,7 +164,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 
-		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.USERS.USERS_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -183,7 +183,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 
-		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.USERS.USERS_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -371,7 +371,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		page.getSidebar().goToPage(PAGES.USERS);
 		page.getDomainSelector().selectOptionByText(domainName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
+		String fileName = rest.downloadGrid(RestPaths.USERS.USERS_CSV, null, domainCode);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

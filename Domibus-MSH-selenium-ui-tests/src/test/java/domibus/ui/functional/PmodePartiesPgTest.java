@@ -147,7 +147,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("validate presence of success message");
         soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
         soft.assertTrue(StringUtils.equalsIgnoreCase(page.getAlertArea().getAlertMessage(),
-                DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
+                DMessages.PMODE.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
         soft.assertTrue(page.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
         soft.assertAll();
     }

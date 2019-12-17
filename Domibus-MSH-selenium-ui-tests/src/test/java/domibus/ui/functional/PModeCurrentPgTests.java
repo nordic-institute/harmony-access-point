@@ -104,7 +104,7 @@ public class PModeCurrentPgTests extends BaseTest {
 
 		log.info("checking success message");
 		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
-		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS), "Page shows correct message");
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE.PMODE_UPDATE_SUCCESS), "Page shows correct message");
 
 		page.refreshPage();
 		String afterRefresh = page.getTextArea().getText();

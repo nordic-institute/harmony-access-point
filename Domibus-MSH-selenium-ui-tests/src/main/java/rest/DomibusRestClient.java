@@ -78,7 +78,7 @@ public class DomibusRestClient {
 	}
 
 	private boolean isLoggedIn() {
-		WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.USERNAME));
+		WebResource.Builder builder = decorateBuilder(resource.path(RestPaths.LOGIN.USERNAME));
 		int response = builder.get(ClientResponse.class).getStatus();
 		return (response == 200);
 	}
@@ -113,7 +113,7 @@ public class DomibusRestClient {
 		params.put("username", adminUser.get("username"));
 		params.put("password", adminUser.get("pass"));
 
-		ClientResponse response = resource.path(RestServicePaths.LOGIN)
+		ClientResponse response = resource.path(RestPaths.LOGIN.LOGIN)
 				.type(MediaType.APPLICATION_JSON_TYPE)
 				.post(ClientResponse.class, new JSONObject(params).toString());
 
@@ -129,7 +129,7 @@ public class DomibusRestClient {
 		}
 
 		if (getDomainCodes().contains(domainCode)) {
-			WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.SESSION_DOMAIN));
+			WebResource.Builder builder = decorateBuilder(resource.path(RestPaths.LOGIN.SESSION_DOMAIN));
 
 			builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
 					.put(ClientResponse.class, domainCode);
@@ -187,11 +187,12 @@ public class DomibusRestClient {
 	}
 
 	// -------------------------------------------- Users --------------------------------------------------------------
+
 	public JSONArray getUsers(String domain) {
 
 		switchDomain(domain);
 
-		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
+		ClientResponse response = requestGET(resource.path(RestPaths.USERS.USERS), null);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get users ");
 		}
@@ -224,7 +225,7 @@ public class DomibusRestClient {
 
 		String payload = provider.createUserObj(username, role, pass, domain);
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), payload);
+		ClientResponse response = requestPUT(resource.path(RestPaths.USERS.USERS), payload);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not create user");
 		}
@@ -234,7 +235,7 @@ public class DomibusRestClient {
 	public void deleteUser(String username, String domain) throws Exception {
 		switchDomain(domain);
 
-		String getResponse = requestGET(resource.path(RestServicePaths.USERS), null).getEntity(String.class);
+		String getResponse = requestGET(resource.path(RestPaths.USERS.USERS), null).getEntity(String.class);
 
 		JSONArray pusers = new JSONArray(sanitizeResponse(getResponse));
 		JSONArray toDelete = new JSONArray();
@@ -248,7 +249,7 @@ public class DomibusRestClient {
 			}
 		}
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), toDelete.toString());
+		ClientResponse response = requestPUT(resource.path(RestPaths.USERS.USERS), toDelete.toString());
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not delete user");
 		}
@@ -277,7 +278,7 @@ public class DomibusRestClient {
 
 			user.put("status", "UPDATED");
 
-			ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), "[" + user.toString() + "]");
+			ClientResponse response = requestPUT(resource.path(RestPaths.USERS.USERS), "[" + user.toString() + "]");
 			if (response.getStatus() != 200) {
 				throw new RuntimeException("Could not UPDATE user");
 			}
@@ -304,7 +305,7 @@ public class DomibusRestClient {
 		String payload = provider.createPluginUserObj(username, role, pass);
 
 		switchDomain(domain);
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		ClientResponse response = requestPUT(resource.path(RestPaths.PLUGIN_USERS.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
 			throw new RuntimeException("Could not create plugin user");
 		}
@@ -314,7 +315,7 @@ public class DomibusRestClient {
 		String payload = provider.createCertPluginUserObj(username, role);
 
 		switchDomain(domain);
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		ClientResponse response = requestPUT(resource.path(RestPaths.PLUGIN_USERS.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
 			throw new RuntimeException("Could not create plugin user");
 		}
@@ -324,7 +325,7 @@ public class DomibusRestClient {
 
 		switchDomain(domain);
 
-		String getResponse = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), null).getEntity(String.class);
+		String getResponse = requestGET(resource.path(RestPaths.PLUGIN_USERS.PLUGIN_USERS), null).getEntity(String.class);
 
 		JSONArray pusers = new JSONObject(sanitizeResponse(getResponse)).getJSONArray("entries");
 		JSONArray toDelete = new JSONArray();
@@ -336,7 +337,7 @@ public class DomibusRestClient {
 			}
 		}
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
+		ClientResponse response = requestPUT(resource.path(RestPaths.PLUGIN_USERS.PLUGIN_USERS), toDelete.toString());
 		if (response.getStatus() != 204) {
 			throw new RuntimeException("Could not delete plugin user");
 		}
@@ -351,7 +352,7 @@ public class DomibusRestClient {
 		params.put("page", "0");
 		params.put("pageSize", "10000");
 
-		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
+		ClientResponse response = requestGET(resource.path(RestPaths.PLUGIN_USERS.PLUGIN_USERS), params);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get users ");
 		}
@@ -368,7 +369,7 @@ public class DomibusRestClient {
 	// -------------------------------------------- Domains ------------------------------------------------------------
 	private JSONArray getDomains() {
 		JSONArray domainArray = null;
-		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMAINS), null);
+		ClientResponse response = requestGET(resource.path(RestPaths.LOGIN.DOMAINS), null);
 		try {
 			if (response.getStatus() == 200) {
 				String rawStringResponse = response.getEntity(String.class);
@@ -432,7 +433,7 @@ public class DomibusRestClient {
 
 		switchDomain(domain);
 
-		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
+		String currentMSGFRaw = requestGET(resource.path(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS), null).getEntity(String.class);
 		JSONArray currentMSGF = null;
 		try {
 			currentMSGF = new JSONObject(sanitizeResponse(currentMSGFRaw)).getJSONArray("messageFilterEntries");
@@ -441,7 +442,7 @@ public class DomibusRestClient {
 			e.printStackTrace();
 		}
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), currentMSGF.toString());
+		ClientResponse response = requestPUT(resource.path(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS), currentMSGF.toString());
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get message filter");
 		}
@@ -451,7 +452,7 @@ public class DomibusRestClient {
 
 		switchDomain(domain);
 
-		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
+		String currentMSGFRaw = requestGET(resource.path(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS), null).getEntity(String.class);
 		JSONArray currentMSGF;
 		JSONArray deletedL = new JSONArray();
 
@@ -469,7 +470,7 @@ public class DomibusRestClient {
 		}
 
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), deletedL.toString());
+		ClientResponse response = requestPUT(resource.path(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS), deletedL.toString());
 		if (response.getStatus() != 200) {
 			log.debug(String.valueOf(response.getStatus()));
 			log.debug(response.getEntity(String.class));
@@ -481,7 +482,7 @@ public class DomibusRestClient {
 
 		switchDomain(domain);
 
-		String currentMSGFRaw = requestGET(resource.path(RestServicePaths.MESSAGE_FILTERS), null).getEntity(String.class);
+		String currentMSGFRaw = requestGET(resource.path(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS), null).getEntity(String.class);
 		JSONArray currentMSGF = new JSONArray();
 
 		try {
@@ -498,7 +499,7 @@ public class DomibusRestClient {
 
 		HashMap<String, String> fields = new HashMap<>();
 		fields.put("description", "automatic red");
-		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
+		ClientResponse response = requestPOSTFile(resource.path(RestPaths.PMODE.PMODE), pmodeFilePath, fields);
 		if (response.getStatus() != 200) {
 			log.debug(String.valueOf(response.getStatus()));
 			log.debug(response.getEntity(String.class));
@@ -513,7 +514,7 @@ public class DomibusRestClient {
 
 	private JSONArray getPmodesList(String domain) throws Exception{
 		switchDomain(domain);
-		String getResponse = requestGET(resource.path(RestServicePaths.PMODE_LIST), null).getEntity(String.class);
+		String getResponse = requestGET(resource.path(RestPaths.PMODE.PMODE_LIST), null).getEntity(String.class);
 		JSONArray entries = new JSONArray(sanitizeResponse(getResponse));
 		return entries;
 	}
@@ -532,7 +533,7 @@ public class DomibusRestClient {
 	public String downloadPmode(String domain, Integer pmodeID) throws Exception{
 		switchDomain(domain);
 
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.PMODE_CURRENT_DOWNLOAD + pmodeID), null);
+		ClientResponse clientResponse = requestGET(resource.path(RestPaths.PMODE.PMODE_CURRENT_DOWNLOAD + pmodeID), null);
 
 		InputStream in = clientResponse.getEntity(InputStream.class);
 		File file = File.createTempFile("pmode", ".xml");
@@ -572,7 +573,7 @@ public class DomibusRestClient {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("messageId", id);
 
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
+		ClientResponse clientResponse = requestGET(resource.path(RestPaths.MESSAGES.MESSAGE_LOG_MESSAGE), params);
 		InputStream in = clientResponse.getEntity(InputStream.class);
 
 		File file = File.createTempFile("message", ".zip");
@@ -585,7 +586,7 @@ public class DomibusRestClient {
 
 	public JSONArray getListOfMessages(String domain) throws Exception {
 		switchDomain(domain);
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), null);
+		ClientResponse clientResponse = requestGET(resource.path(RestPaths.MESSAGES.MESSAGE_LOG_MESSAGES), null);
 		if (clientResponse.getStatus() != 200) {
 			return new JSONArray();
 		}
@@ -594,7 +595,7 @@ public class DomibusRestClient {
 	}
 
 	public void syncRecord() {
-		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
+		ClientResponse response = requestGET(resource.path(RestPaths.UI_REPLICATION_SYNC), null);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Data is not sync now ");
 		} else {
@@ -603,7 +604,7 @@ public class DomibusRestClient {
 	}
 
 	public JSONArray getDomibusPropertyDetail(HashMap<String, String> params) throws Exception {
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
+		ClientResponse clientResponse = requestGET(resource.path(RestPaths.PROPERTIES.DOMIBUS_PROPERTIES), params);
 		if (clientResponse.getStatus() != 200) {
 			throw new RuntimeException("Could not get properties ");
 		}
@@ -614,7 +615,7 @@ public class DomibusRestClient {
 
 	public void updateDomibusProperty(String propertyName, HashMap<String, String> params,String payload) throws Exception {
 
-		String RestServicePathForPropertyUpdate=RestServicePaths.DOMIBUS_PROPERTIES+"/"+propertyName;
+		String RestServicePathForPropertyUpdate= RestPaths.PROPERTIES.DOMIBUS_PROPERTIES+"/"+propertyName;
 		ClientResponse clientResponse =requesttPUT(resource.path(RestServicePathForPropertyUpdate),payload);
 		if(clientResponse.getStatus()!=200){
 			throw new RuntimeException("Could not update "+ propertyName +" property");

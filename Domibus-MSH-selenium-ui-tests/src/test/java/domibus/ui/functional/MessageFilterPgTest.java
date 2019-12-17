@@ -16,7 +16,7 @@ import pages.login.LoginPage;
 import pages.msgFilter.MessageFilterGrid;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.Generator;
 
 import java.util.ArrayList;
@@ -628,7 +628,7 @@ public class MessageFilterPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		MessageFilterPage page = new MessageFilterPage(driver);
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -746,7 +746,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTERS.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
 
 		log.info("checking button state");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
@@ -793,7 +793,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTERS.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
 
 		log.info("checking buttons state");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
@@ -834,7 +834,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTERS.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
 
 		log.info("checking buttons state");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
@@ -873,7 +873,7 @@ public class MessageFilterPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		MessageFilterPage page = new MessageFilterPage(driver);
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.MESSAGES_FILTERS.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 

@@ -40,7 +40,7 @@ public class ChangePasswordPgTest extends BaseTest {
 		log.info("Click on update button");
 		cpage.getUpdateButton().click();
 		log.info("Error message shown:" + page.getAlertArea().getAlertMessage());
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.CHANGEPASSWORD_WRONG_CURRENT_PASSWORD, "Displayed message is correct");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PASSWORDS.CHANGEPASSWORD_WRONG_CURRENT_PASSWORD, "Displayed message is correct");
 		soft.assertAll();
 	}
 

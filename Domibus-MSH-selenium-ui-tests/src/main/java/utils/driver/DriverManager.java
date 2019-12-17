@@ -37,6 +37,8 @@ public class DriverManager {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 		options.addArguments("--ignore-certificate-errors");
+		options.addArguments("window-size=1920,1080");
+
 		if (data.useProxy()) {
 			options.setCapability(CapabilityType.PROXY, getProxy());
 		}
@@ -56,6 +58,8 @@ public class DriverManager {
 
 		FirefoxOptions options = new FirefoxOptions();
 		options.setHeadless(data.isHeadless());
+		options.addArguments("window-size=1920,1080");
+
 		if (data.useProxy()) {
 			options.setCapability(CapabilityType.PROXY, getProxy());
 		}

@@ -12,7 +12,7 @@ import org.testng.asserts.SoftAssert;
 import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.archive.PMAModal;
 import pages.pmode.archive.PModeArchivePage;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.TestUtils;
 
 import java.nio.file.Files;
@@ -206,7 +206,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
+		String fileName = rest.downloadGrid(RestPaths.PMODE.PMODE_ARCHIVE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

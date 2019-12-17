@@ -106,7 +106,7 @@ public class TestServicePage extends DomibusPage {
 
 	public boolean invalidConfigurationState() throws Exception {
 		return (getAlertArea().isError()
-				&& StringUtils.equalsIgnoreCase(getAlertArea().getAlertMessage(), DMessages.TESTSERVICE_NOTCONFIGURED)
+				&& StringUtils.equalsIgnoreCase(getAlertArea().getAlertMessage(), DMessages.TS.TESTSERVICE_NOTCONFIGURED)
 				&& !getTestBtn().isEnabled()
 				&& !getUpdateBtn().isEnabled()
 				&& getPartySelector().getOptionsTexts().size() == 1

@@ -14,7 +14,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.Generator;
 
 public class PModeArchivePage extends DomibusPage {
@@ -201,7 +201,7 @@ public class PModeArchivePage extends DomibusPage {
 	}
 
 	public String getRestServicePath() throws Exception {
-		String restPath = RestServicePaths.PMODE_CURRENT_DOWNLOAD.concat(String.valueOf(getpagination().getTotalItems()));
+		String restPath = RestPaths.PMODE.PMODE_CURRENT_DOWNLOAD.concat(String.valueOf(getpagination().getTotalItems()));
 		return restPath;
 	}
 

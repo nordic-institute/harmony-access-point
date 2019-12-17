@@ -390,7 +390,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking for error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
+				String.format(DMessages.PLUGIN_USER.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, domainCode);
@@ -418,7 +418,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking page for errors");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, "Default"),
+				String.format(DMessages.PLUGIN_USER.PLUGINUSER_DUPLICATE_USERNAME, username, "Default"),
 				"Error message is shown");
 
 		soft.assertAll();
@@ -448,7 +448,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking page for errors");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
+				String.format(DMessages.PLUGIN_USER.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
 				"Error message is shown");
 
 		soft.assertAll();
@@ -516,7 +516,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN, username),
+				String.format(DMessages.PLUGIN_USER.PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN, username),
 				"Error message is shown");
 
 		rest.deletePluginUser(username, null);

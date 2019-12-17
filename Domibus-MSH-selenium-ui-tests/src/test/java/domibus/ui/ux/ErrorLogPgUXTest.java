@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.errorLog.ErrorLogPage;
 import pages.errorLog.ErrorModal;
-import rest.RestServicePaths;
+import rest.RestPaths;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -225,7 +225,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		params.put("orderBy", "timestamp");
 		params.put("asc", "false");
 
-		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
+		String fileName = rest.downloadGrid(RestPaths.ERROR_LOG.ERROR_LOG_CSV, params, null);
 		log.info("downloaded errors to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -390,7 +390,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		params.put("orderBy", "timestamp");
 		params.put("asc", "false");
 
-		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
+		String fileName = rest.downloadGrid(RestPaths.ERROR_LOG.ERROR_LOG_CSV, params, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
