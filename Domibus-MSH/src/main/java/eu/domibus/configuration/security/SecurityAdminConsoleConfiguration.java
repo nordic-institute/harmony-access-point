@@ -17,6 +17,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.ws.rs.HttpMethod;
+
 /**
  * Default Spring security config for Domibus
  *
@@ -58,6 +60,7 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
+                .antMatchers("/rest/testconnection/cn").permitAll()
                 .antMatchers( "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name());
     }
 

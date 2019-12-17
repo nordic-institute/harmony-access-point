@@ -19,7 +19,7 @@ public class URLCsrfMatcher implements RequestMatcher {
     protected String ignoreUrl;
 
     private RegexRequestMatcher unprotectedMatcher = null;
-    private final HashSet<String> allowedMethods = new HashSet<String>( Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+    private final HashSet<String> allowedMethods = new HashSet<String>( Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS", "POST", "PUT"));
 
     @PostConstruct
     public void init() {

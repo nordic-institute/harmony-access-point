@@ -30,6 +30,9 @@ public class SecurityBaseConfiguration {
     public RequestMatcher csrfURLMatcher() {
         URLCsrfMatcher requestMatcher = new URLCsrfMatcher();
         requestMatcher.setIgnoreUrl("/rest/security/authentication");
+        requestMatcher.setIgnoreUrl("/rest/testconnection/cn");
+        requestMatcher.setIgnoreUrl("/rest/testconnection/**");
+        requestMatcher.setIgnoreUrl("/rest/testconnection");
         return requestMatcher;
     }
 

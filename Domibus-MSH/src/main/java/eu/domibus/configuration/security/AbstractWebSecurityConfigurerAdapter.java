@@ -85,7 +85,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
         web
                 .ignoring().antMatchers("/services/**")
                 .and()
-                .ignoring().antMatchers("/ext/**");
+                .ignoring().antMatchers("/ext/**")
+                .and()
+                .ignoring().antMatchers("/rest/testconnection/cn");
     }
 
     /**
@@ -95,9 +97,11 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
      */
     private void configureHttpSecurityCommon(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf().csrfTokenRepository(tokenRepository).requireCsrfProtectionMatcher(csrfURLMatcher)
-                .and()
+                //.csrf().csrfTokenRepository(tokenRepository).requireCsrfProtectionMatcher(csrfURLMatcher)
+                //.and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/rest/testconnection/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/rest/testconnection").permitAll()
                 .antMatchers("/testdb/**").permitAll()
                 .antMatchers("/", "/index.html", "/login",
                         "/rest/security/authentication",
@@ -107,7 +111,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                         "/rest/application/extauthproviderenabled",
                         "/rest/application/multitenancy",
                         "/rest/application/supportteam",
-                        "/rest/security/user").permitAll()
+                        "/rest/security/user",
+                        "/rest/testconnection/cn",
+                        "/rest/testconnection").permitAll()
                 .antMatchers("/rest/application/domains").hasAnyAuthority(AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers(HttpMethod.PUT, "/rest/security/user/password").authenticated()
                 .antMatchers("/rest/pmode/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
@@ -121,13 +127,13 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/alerts/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/testservice/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/logging/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
-                .antMatchers("/rest/**").authenticated()
-                .and()
-                .exceptionHandling().and()
-                .headers().frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
-                .and()
-                .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
-                .and()
-                .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class);
+                .antMatchers("/rest/**").authenticated();
+                //.and()
+                //.exceptionHandling().and()
+                //.headers().frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
+                //.and()
+                //.httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
+                //.and()
+                //.addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

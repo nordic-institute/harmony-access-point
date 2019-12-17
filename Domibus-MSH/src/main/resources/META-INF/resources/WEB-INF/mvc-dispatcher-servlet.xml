@@ -27,10 +27,14 @@
             <mvc:exclude-mapping path="/rest/security/user/domain"/>
             <mvc:exclude-mapping path="/rest/security/user/password"/>
             <mvc:exclude-mapping path="/rest/application/**"/>
+            <mvc:exclude-mapping path="/rest/testconnection/**"/>
+            <mvc:exclude-mapping path="/rest/testconnection"/>
             <bean class="eu.domibus.web.security.DefaultPasswordInterceptor" />
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/rest/**"/>
+            <mvc:exclude-mapping path="/rest/testconnection/**"/>
+            <mvc:exclude-mapping path="/rest/testconnection"/>
             <bean class="eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor" />
         </mvc:interceptor>
     </mvc:interceptors>
