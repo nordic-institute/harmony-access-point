@@ -124,7 +124,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     ];
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time'].indexOf(col.name) != -1
+      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Parameters'].indexOf(col.name) != -1
     });
 
   }

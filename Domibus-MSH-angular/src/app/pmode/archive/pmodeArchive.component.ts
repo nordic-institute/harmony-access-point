@@ -97,6 +97,10 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
       .subscribe((domain: Domain) => this.currentDomain = domain);
   }
 
+  public get name(): string {
+    return 'pmodes';
+  }
+
   ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
