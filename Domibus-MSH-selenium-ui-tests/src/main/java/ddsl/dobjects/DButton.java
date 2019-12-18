@@ -22,7 +22,7 @@ public class DButton extends DObject {
 
 	@Override
 	public String getText() throws Exception {
-		String spanText = element.findElement(By.cssSelector("span span")).getText().trim();
+		String spanText = element.findElement(By.cssSelector("span > span")).getText().trim();
 		return spanText;
 	}
 

@@ -192,7 +192,7 @@ public class BaseUXTest extends BaseTest {
 			for (int i = 0; i < buttons.length(); i++) {
 				JSONObject curButton = buttons.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(curButton.getString("name"), field.getName())) {
-					log.info(String.format("Evaualting button with description %s", curButton.toString()));
+					log.info(String.format("Evaluating button with description %s", curButton.toString()));
 
 					WebElement element = (WebElement) field.get(page);
 					DButton dButton = new DButton(driver, element);
