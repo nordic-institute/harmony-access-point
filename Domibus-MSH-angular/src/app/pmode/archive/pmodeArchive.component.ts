@@ -17,7 +17,7 @@ import {DialogsService} from '../../common/dialogs/dialogs.service';
 import mix from '../../common/mixins/mixin.utils';
 import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
-import {ClientPageableListMixin, PageableListMixin} from '../../common/mixins/pageable-list.mixin';
+import {PageableListMixin} from '../../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,

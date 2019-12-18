@@ -72,12 +72,12 @@ export class AuditComponent extends mix(BaseListComponent)
     this.filterData();
   }
 
-  protected onBeforeFilterData() {
+  filterData() {
+    super.filterData();
     this.countRecords();
   }
 
   ngAfterViewInit() {
-// --- lets init the table columns ---
     this.initColumns();
   }
 

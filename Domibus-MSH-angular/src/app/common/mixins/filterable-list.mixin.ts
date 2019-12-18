@@ -3,6 +3,7 @@ import {OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
+import {PaginationType} from './ipageable-list';
 
 /**
  * @author Ion Perpegel
@@ -26,9 +27,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.advancedFilters = new Set<string>();
   }
 
-  protected onBeforeFilterData() {
-  }
-
   ngOnInit() {
     if (super.ngOnInit) {
       super.ngOnInit();
@@ -36,6 +34,45 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     this.filter = {};
     this.activeFilter = {};
+  }
+
+  /**
+   * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
+   */
+  public async tryFilter(): Promise<boolean> {
+    const canFilter = await this.canProceedToFilter();
+    if (canFilter) {
+      this.setActiveFilter();
+      this.filterData();
+    }
+    return canFilter;
+  }
+
+  /**
+   * The method is supposed to be overridden in derived classes to implement actual search
+   */
+  public filterData() {
+    this.setActiveFilter();
+
+    if (instanceOfPageableList(this)) {
+      this.offset = 0;
+    }
+
+    return this.loadServerData();
+  }
+
+  public onResetAdvancedSearchParams() {
+  }
+
+  public resetAdvancedSearchParams() {
+    this.advancedFilters.forEach(filterName => {
+      if (typeof this.filter[filterName] === 'boolean') {
+        this.filter[filterName] = false;
+      } else {
+        this.filter[filterName] = null;
+      }
+    });
+    this.onResetAdvancedSearchParams();
   }
 
   protected createAndSetParameters(): HttpParams {
@@ -77,46 +114,11 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     Object.assign(this.filter, this.activeFilter);
   }
 
-  /**
-   * The method is supposed to be overridden in derived classes to implement actual search
-   */
-  public filterData() {
-    this.setActiveFilter();
-    this.onBeforeFilterData();
-    return this.loadServerData();
-  }
-
-  /**
-   * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
-   */
-  public async tryFilter(): Promise<boolean> {
-    const canSearch = await this.canProceedToFilter();
-    if (canSearch) {
-      this.setActiveFilter();
-      this.filterData();
-    }
-    return canSearch;
-  }
-
   private canProceedToFilter(): Promise<boolean> {
     if (instanceOfModifiableList(this) && this.isDirty()) {
       return this.dialogsService.openCancelDialog();
     }
     return Promise.resolve(true);
-  }
-
-  public onResetAdvancedSearchParams() {
-  }
-
-  public resetAdvancedSearchParams() {
-    this.advancedFilters.forEach(filterName => {
-      if (typeof this.filter[filterName] === 'boolean') {
-        this.filter[filterName] = false;
-      } else {
-        this.filter[filterName] = null;
-      }
-    });
-    this.onResetAdvancedSearchParams();
   }
 };
 
