@@ -5,7 +5,6 @@ import com.thoughtworks.xstream.XStream;
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.exception.TestServiceException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.pmode.PModeProvider;
@@ -46,6 +45,9 @@ public class TestServiceTest {
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private UserMessageLog userMessageLog;
 
     @Injectable
     private MessagingDao messagingDao;
@@ -408,7 +410,7 @@ public class TestServiceTest {
     }
 
     private void getUserMessageLog(String partyId, String userMessageId) {
-        UserMessageLog userMessageLog = new UserMessageLog();
+
         new Expectations() {{
             new XStream();
             times = 0;
@@ -440,9 +442,8 @@ public class TestServiceTest {
     }
 
     @Test
-    public void testGetLastTestReceived(@Injectable Messaging messaging) throws TestServiceException {
+    public void testGetLastTestReceived(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
         // Given
-        Party party = new Party();
         party.setEndpoint("testEndpoint");
 
         new Expectations() {{

@@ -9,7 +9,6 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.exception.TestServiceException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.UserMessageLog;
@@ -34,8 +33,6 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.*;
-
-import static eu.domibus.core.alerts.model.common.MessageEvent.DESCRIPTION;
 
 /**
  * @author Cosmin Baciu
@@ -146,7 +143,7 @@ public class TestService {
      * @throws TestServiceException
      */
     public TestServiceMessageInfoRO getLastTestSent(String partyId) throws TestServiceException {
-        LOG.debug("Getting last sent test message for partyId='{}'", partyId);
+        LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
         String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
@@ -169,7 +166,7 @@ public class TestService {
         throw new TestServiceException("No User Message found. Error Details in error log [" + errorMap + "]");
     }
 
-    private TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
+    protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
         TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
         testServiceMessageInfoRO.setMessageId(userMessageId);
         testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
@@ -188,12 +185,12 @@ public class TestService {
      * @throws TestServiceException
      */
     public TestServiceMessageInfoRO getLastTestReceived(String partyId, String userMessageId) throws TestServiceException {
-        LOG.debug("Getting last received test message from partyId='{}'", partyId);
+        LOG.debug("Getting last received test message from partyId [{}]", partyId);
         String errorCode = StringUtils.EMPTY;
         String errorDetails = StringUtils.EMPTY;
         Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
         if (messaging == null) {
-            LOG.debug("Could not find messaging for message ID[{}]", userMessageId);
+            LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
             throw new TestServiceException("No User Message found for message Id [" + userMessageId + "]");
         }
 
@@ -209,7 +206,7 @@ public class TestService {
         throw new TestServiceException("No Signal Message found. Error Details in error log  [" + errorCode + " - " + errorDetails + "]");
     }
 
-    private Map<ErrorCode, String> getErrorsForMessage(String userMessageId) {
+    protected Map<ErrorCode, String> getErrorsForMessage(String userMessageId) {
         Map<ErrorCode, String> errorMap = new HashMap<ErrorCode, String>();
 
         List<ErrorLogEntry> errorLogEntries = errorLogDao.getErrorsForMessage(userMessageId);
@@ -219,7 +216,7 @@ public class TestService {
         return errorMap;
     }
 
-    private TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
+    protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
         TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
         testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
         testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());

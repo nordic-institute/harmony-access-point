@@ -4,7 +4,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.exception.TestServiceException;
+import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.services.MessagesLogService;
 import eu.domibus.core.csv.CsvCustomColumns;
