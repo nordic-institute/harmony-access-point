@@ -9,23 +9,22 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.PartyDao;
-import eu.domibus.common.exception.TestServiceException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagesLogService;
+import eu.domibus.common.validators.BlacklistValidator;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.message.testservice.TestService;
+import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.web.rest.ro.*;
-import eu.domibus.common.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -75,6 +74,12 @@ public class MessageLogResourceTest {
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Injectable
+    private TestServiceMessageInfoRO testServiceMessageInfoResult;
+
+    @Injectable
+    private Party party;
 
     @Parameterized.Parameter(0)
     public MessageType messageType;
@@ -201,9 +206,7 @@ public class MessageLogResourceTest {
     public void testGetLastTestSent() throws TestServiceException {
         // Given
         String partyId = "test";
-        Party party = new Party();
         party.setEndpoint("testEndpoint");
-        TestServiceMessageInfoRO testServiceMessageInfoResult = new TestServiceMessageInfoRO();
         testServiceMessageInfoResult.setPartyId(partyId);
         testServiceMessageInfoResult.setAccessPoint(party.getEndpoint());
         new Expectations() {{
@@ -216,10 +219,9 @@ public class MessageLogResourceTest {
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId(partyId);
                 }});
-
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
-        Assert.assertEquals(partyId, testServiceMessageInfoRO.getPartyId());
+        Assert.assertEquals(testServiceMessageInfoResult.getPartyId(), testServiceMessageInfoRO.getPartyId());
     }
 
     @Test(expected = TestServiceException.class)
@@ -227,7 +229,6 @@ public class MessageLogResourceTest {
         // Given
         String partyId = "partyId";
         new Expectations() {{
-
             testService.getLastTestSent(partyId);
             result = new TestServiceException("No User Message found. Error Details in error log");
         }};
@@ -240,14 +241,11 @@ public class MessageLogResourceTest {
     }
 
     @Test
-    public void testGetLastTestReceived(@Injectable Messaging messaging) throws TestServiceException {
+    public void testGetLastTestReceived() throws TestServiceException {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
-
-        Party party = new Party();
         party.setEndpoint("testEndpoint");
-        TestServiceMessageInfoRO testServiceMessageInfoResult = new TestServiceMessageInfoRO();
         testServiceMessageInfoResult.setPartyId(partyId);
         testServiceMessageInfoResult.setAccessPoint(party.getEndpoint());
         new Expectations() {{
@@ -261,10 +259,9 @@ public class MessageLogResourceTest {
                     setPartyId(partyId);
                     setUserMessageId(userMessageId);
                 }});
-
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
-        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), testServiceMessageInfoResult.getPartyId());
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 
