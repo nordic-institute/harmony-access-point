@@ -1,6 +1,8 @@
 package ddsl.dobjects;
 
 import org.openqa.selenium.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -13,6 +15,8 @@ import java.awt.event.KeyEvent;
 
 
 public class DObject {
+
+	protected Logger log = LoggerFactory.getLogger(this.getClass());
 
 	protected WebDriver driver;
 	protected DWait wait;
@@ -78,7 +82,12 @@ public class DObject {
 
 	public String getAttribute(String attributeName) throws Exception {
 		if (isPresent()) {
-			return element.getAttribute(attributeName).trim();
+			String attr = element.getAttribute(attributeName);
+			if (attr == null) {
+				log.debug("Attribute " + attributeName + " not found");
+				return null;
+			}
+			return attr.trim();
 		}
 		throw new DObjectNotPresentException();
 	}
