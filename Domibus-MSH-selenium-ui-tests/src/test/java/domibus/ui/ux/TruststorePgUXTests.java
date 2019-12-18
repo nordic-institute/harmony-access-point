@@ -80,7 +80,7 @@ public class TruststorePgUXTests extends BaseUXTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
 		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
-		log.info("downloaded errors to file " + fileName);
+		log.info("downloaded rows to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 

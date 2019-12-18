@@ -91,7 +91,7 @@ public class MessagesPgTest extends BaseTest {
 		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
 
 		List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
-		soft.assertTrue(filteredRowInfo.size() == expectedResult.size(), "No of listed items in page matches expected");
+		soft.assertEquals(filteredRowInfo.size(), expectedResult.size(), "No of listed items in page matches expected");
 
 		soft.assertAll();
 	}
