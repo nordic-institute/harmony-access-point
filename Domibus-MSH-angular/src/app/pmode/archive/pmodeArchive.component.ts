@@ -17,7 +17,7 @@ import {DialogsService} from '../../common/dialogs/dialogs.service';
 import mix from '../../common/mixins/mixin.utils';
 import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
-import {PageableListMixin} from '../../common/mixins/pageable-list.mixin';
+import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -30,19 +30,15 @@ import {PageableListMixin} from '../../common/mixins/pageable-list.mixin';
  * PMode Archive Component Typescript
  */
 export class PModeArchiveComponent extends mix(BaseListComponent)
-  .with(ModifiableListMixin, PageableListMixin)
+  .with(ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations {
 
   static readonly PMODE_URL: string = 'rest/pmode';
   static readonly PMODE_CSV_URL: string = PModeArchiveComponent.PMODE_URL + '/csv';
 
-  private ERROR_PMODE_EMPTY = 'As PMode is empty, no file was downloaded.';
-
   @ViewChild('descriptionTpl', {static: false}) public descriptionTpl: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
-
-  allPModes: any[];
 
   disabledSave: boolean;
   disabledCancel: boolean;
@@ -53,14 +49,14 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   actualId: number;
   actualRow: number;
 
-  deleteList: any [];
+  deleteList: any[];
 
   currentDomain: Domain;
 
   // needed for the first request after upload
   // datatable was empty if we don't do the request again
   // resize window shows information
-  // check: @selectedIndexChange(value)
+
   private uploaded: boolean;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
@@ -81,8 +77,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    */
   ngOnInit() {
     super.ngOnInit();
-
-    this.allPModes = [];
 
     this.actualId = 0;
     this.actualRow = 0;
@@ -152,25 +146,18 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    */
   async getAllPModeEntries() {
     return this.getResultObservable().toPromise().then((results) => {
-      this.allPModes = results;
+      super.rows = results;
+      super.count = this.rows.length;
+
       this.actualRow = 0;
       this.actualId = undefined;
 
-      super.count = this.allPModes.length;
       if (this.count > 0) {
-        this.allPModes[0].current = true;
-        this.actualId = this.allPModes[0].id;
-      }
-      super.rows = this.allPModes.slice(0, this.rowLimiter.pageSize);
-      if (this.rows.length > 0) {
         this.rows[0].current = true;
-        this.rows[0].description = '[CURRENT]: ' + this.allPModes[0].description;
+        this.rows[0].description = '[CURRENT]: ' + this.rows[0].description;
+        this.actualId = this.rows[0].id;
       }
     });
-  }
-
-  page() {
-    super.rows = this.allPModes.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize);
   }
 
   /**
@@ -246,40 +233,20 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     this.deleteRows(this.selected);
   }
 
-  deleteRows(rows: any[]) {
+  private deleteRows(rows: any[]) {
     for (let i = rows.length - 1; i >= 0; i--) {
       const row = rows[i];
       const rowIndex = this.rows.indexOf(row);
-      this.allPModes.splice(this.offset * this.rowLimiter.pageSize + rowIndex, 1);
+      this.rows.splice(rowIndex, 1);
       this.deleteList.push(row.id);
       super.count = this.count - 1;
     }
-
-    if (this.offset > 0 && this.isPageEmpty()) {
-      super.offset--;
-    }
-    this.page();
+    super.rows = [...this.rows];
 
     setTimeout(() => {
       super.selected = [];
       this.enableSaveAndCancelButtons();
     }, 100);
-  }
-
-  /**
-   * Method return true if all elements this.tableRows
-   * are null or undefined or if is empty.
-   *
-   */
-  isPageEmpty(): boolean {
-    if (this.rows || this.rows.length) {
-      for (let i = 0; i < this.rows.length; i++) {
-        if (this.rows[i]) {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   /**
@@ -306,7 +273,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
         }
       }).afterClosed().subscribe(result => {
         if (result === 'ok') {
-          this.http.delete(PModeArchiveComponent.PMODE_URL, {params: {ids: JSON.stringify(this.deleteList)}}).subscribe(result => {
+          this.http.delete(PModeArchiveComponent.PMODE_URL, {params: {ids: this.deleteList}}).subscribe(result => {
               this.restore(selectedRow);
             },
             error => {
@@ -322,7 +289,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   }
 
   private async restore(selectedRow) {
-    this.allPModes[this.actualRow].current = false;
+    this.rows[this.actualRow].current = false;
     try {
       await this.http.put(PModeArchiveComponent.PMODE_URL + '/restore/' + selectedRow.id, null)
         .toPromise();
@@ -333,7 +300,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
       this.actualRow = 0;
 
       await this.getAllPModeEntries();
-      this.page();
 
     } catch (e) {
       this.alertService.exception('The operation \'restore pmode\' not completed successfully.', e);
@@ -392,41 +358,9 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     return !this.disabledCancel;
   }
 
-  /**
-   * Method called every time a tab changes
-   * @param value Tab Position
-   */
-  selectedIndexChange(value) {
-    if (value === 1 && this.uploaded) { // Archive Tab
-      this.getResultObservable().map((response) => response.slice(this.offset * this.rowLimiter.pageSize, (this.offset + 1) * this.rowLimiter.pageSize))
-        .subscribe((response) => {
-            super.rows = response;
-            if (this.offset === 0) {
-              this.rows[0].current = true;
-              this.rows[0].description = '[CURRENT]: ' + response[0].description;
-            }
-            this.uploaded = false;
-          }, () => {
-          },
-          () => {
-            this.allPModes[0].current = true;
-            this.actualId = this.allPModes[0].id;
-            this.actualRow = 0;
-            super.count = this.allPModes.length;
-          });
-    }
-  }
-
   edit(row) {
     this.showDetails(row);
   }
-
-  // onActivate(event) {
-  //   if ('dblclick' === event.type) {
-  //     const current = event.row;
-  //     this.showDetails(current);
-  //   }
-  // }
 
   private showDetails(row) {
     this.http.get(CurrentPModeComponent.PMODE_URL + '/' + row.id + '?noAudit=true', {
