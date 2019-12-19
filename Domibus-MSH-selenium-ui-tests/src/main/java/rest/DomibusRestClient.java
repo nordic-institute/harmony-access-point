@@ -585,7 +585,9 @@ public class DomibusRestClient {
 
 	public JSONArray getListOfMessages(String domain) throws Exception {
 		switchDomain(domain);
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), null);
+		HashMap<String, String> par = new HashMap<>();
+		par.put("messageStatus", "SEND_FAILURE");
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
 		if (clientResponse.getStatus() != 200) {
 			return new JSONArray();
 		}
@@ -598,7 +600,7 @@ public class DomibusRestClient {
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Data is not sync now ");
 		} else {
-			System.out.println("Data is syncronized now with response code:" + response.getStatus());
+			System.out.println("Data is synchronized now with response code:" + response.getStatus());
 		}
 	}
 

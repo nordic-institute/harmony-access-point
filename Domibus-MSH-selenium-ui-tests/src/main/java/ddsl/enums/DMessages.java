@@ -31,10 +31,10 @@ public class DMessages {
 	public static final String PASS_NO_MATCH_MESSAGE = "Passwords do not match";
 	public static final String PASS_EMPTY_MESSAGE = "You should type a password";
 
-	public static final String PLUGINUSER_DUPLICATE_USERNAME = "The operation 'update plugin users' completed with errors. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
-	public static final String PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN = "The operation 'update plugin users' completed with errors. [DOM_001]:Cannot add user %s because this name already exists.";
+	public static final String PLUGINUSER_DUPLICATE_USERNAME = "The operation 'update plugin users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
+	public static final String PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN = "The operation 'update plugin users' did not complete successfully. [DOM_001]:Cannot add user %s because this name already exists.";
 	public static final String DUPLICATE_CERT_PLUGINUSER_ = "The operation update plugin users completed with errors.  [DOM_001]:Cannot add user with certificate %s because this certificate already exists.";
-	public static final String USER_DUPLICATE_USERNAME = "The operation 'update users' not completed successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
+	public static final String USER_DUPLICATE_USERNAME = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 
 
 	public static final String TESTSERVICE_NOTCONFIGURED = "The test service is not properly configured.";
@@ -52,7 +52,7 @@ public class DMessages {
 	public  static final String CHANGEPASSWORD_WRONG_CURRENT_PASSWORD= "Password could not be changed. [DOM_001]:The current password does not match the provided one.";
 
 	public class Users {
-		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' not completed successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
+		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "Duplicate user name for user: %s.";
 	}
 

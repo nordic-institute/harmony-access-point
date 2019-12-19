@@ -1,5 +1,6 @@
 package ddsl.dobjects;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -27,7 +28,11 @@ public class Checkbox extends DObject {
 
     public boolean isChecked() throws Exception {
         if (isPresent()) {
-            return (null != element.getAttribute("checked"));
+            if (null != element.getAttribute("checked")) {
+                return true;
+            }
+            WebElement input = element.findElement(By.cssSelector("input[type='checkbox']"));
+            return (input != null && null != input.getAttribute("checked"));
         }
         throw new DObjectNotPresentException();
     }
