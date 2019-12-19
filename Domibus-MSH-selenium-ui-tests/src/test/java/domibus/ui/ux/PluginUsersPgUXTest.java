@@ -132,7 +132,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 		log.info("check that username field is disabled");
-		soft.assertTrue(!pum.getUserNameInput().isEnabled(), "Username is disabled");
+		soft.assertTrue(pum.getUserNameInput().isDisabled(), "Username is disabled");
 
 		page.clickVoidSpace();
 
@@ -162,7 +162,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 		log.info("check that username field is disabled");
-		soft.assertTrue(!pum.getUserNameInput().isEnabled(), "Username is disabled");
+		soft.assertTrue(pum.getUserNameInput().isDisabled(), "Username is disabled");
 
 		page.clickVoidSpace();
 

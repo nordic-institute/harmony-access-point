@@ -65,9 +65,6 @@ public class JMSMessPgUXTest extends BaseUXTest {
 			log.info("getting info for row 0");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 
-			log.info("select row 0");
-			page.grid().selectRow(0);
-
 			log.info("double click row 0");
 			page.grid().doubleClickRow(0);
 

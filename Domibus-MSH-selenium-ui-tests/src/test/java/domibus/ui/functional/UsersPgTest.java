@@ -67,9 +67,8 @@ public class UsersPgTest extends BaseTest {
 		String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
 
 		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-
-		UsersPage page = new UsersPage(driver);
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+		page.includeDeletedUsers();
 
 		log.info("Selecting user " + username);
 		int index = page.grid().scrollTo("Username", username);
@@ -112,7 +111,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("Cancel changes");
 		page.cancelAndConfirm();
 
-		soft.assertTrue(!page.getUsersGrid().isDeleted(username), "User presented as NOT deleted in the grid");
+		soft.assertFalse(page.getUsersGrid().isDeleted(username), "User presented as NOT deleted in the grid");
 
 		soft.assertAll();
 	}
@@ -194,7 +193,7 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled on page load");
 
 //		create new user
 		log.info("creating new user " + username);
@@ -221,7 +220,7 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled on page load");
 
 //		create new user
 		log.info("creating new user " + username);
@@ -245,8 +244,8 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled on page load");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled on page load");
 
 		log.info("aquiring user for edit");
 		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
@@ -273,7 +272,7 @@ public class UsersPgTest extends BaseTest {
 		page.grid().scrollToAndDoubleClick("Username", username);
 		modal = new UserModal(driver);
 
-		soft.assertTrue(!modal.getActiveChk().isChecked(), "User is still disabled");
+		soft.assertFalse(modal.getActiveChk().isChecked(), "User is still disabled");
 		soft.assertNotEquals(modal.getEmailInput().getText(), email, "User email is NOT the one set by editing");
 
 		soft.assertAll();
@@ -336,9 +335,9 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("Uncheck the active checkbox");
 		modal.getActiveChk().uncheck();
+		modal.wait.forXMillis(5000);
 		modal.clickOK();
 
-		log.info("Saving");
 		page.saveAndConfirm();
 
 		log.info("logging out");
@@ -446,8 +445,8 @@ public class UsersPgTest extends BaseTest {
 	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserRoleAndCheckPrivileges() throws Exception {
 		// we need to create a new user, because a random existing one may have a different password
-		String username = getUser(null, DRoles.ADMIN, true, false, false).getString("userName");
-		rest.createUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), null);
+		String username = Generator.randomAlphaNumeric(10);
+		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 
 		log.info("changing role to User for Admin " + username);
 
@@ -496,11 +495,10 @@ public class UsersPgTest extends BaseTest {
 		um.fillData(username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
-		log.info("Saving");
-		page.getSaveBtn().click();
+		page.saveAndConfirm();
 
 		log.info("checking error message");
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
 
 //		deleted user
@@ -510,11 +508,10 @@ public class UsersPgTest extends BaseTest {
 		um.fillData(deleted_username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
-		log.info("Saving");
-		page.getSaveBtn().click();
+		page.saveAndConfirm();
 
 		log.info("checking error message");
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
 
 		soft.assertAll();
@@ -538,13 +535,13 @@ public class UsersPgTest extends BaseTest {
 		um.fillData(username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
-		log.info("Saving");
-		page.getSaveBtn().click();
-		new Dialog(driver).confirm();
+		page.saveAndConfirm();
 
 		log.info("checking error message");
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, username, domainCode), "Correct message displayed");
+
+		page.refreshPage();
 
 //		deleted user
 		log.info("creating new user with existing deleted username");
@@ -553,12 +550,10 @@ public class UsersPgTest extends BaseTest {
 		um.fillData(deleted_username, "", DRoles.USER, data.defaultPass(), data.defaultPass());
 		um.clickOK();
 
-		log.info("Saving");
-		page.getSaveBtn().click();
-		new Dialog(driver).confirm();
+		page.saveAndConfirm();
 
 		log.info("checking error message");
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_ERROR, deleted_username, domainCode), "Correct message displayed");
 
 
@@ -573,8 +568,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("got plugin user " + username);
 
 		SoftAssert soft = new SoftAssert();
-		loginAndGoToUsersPage(data.getAdminUser());
-		UsersPage page = new UsersPage(driver);
+		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
 		log.info("creating new user");
 		page.getNewBtn().click();
@@ -585,7 +579,7 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		log.info("checking");
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
 		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, "default");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
@@ -613,7 +607,7 @@ public class UsersPgTest extends BaseTest {
 		page.saveAndConfirm();
 
 		log.info("checking");
-		soft.assertEquals(page.getAlertArea().isError(), true, "Error message displayed");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
 		String expectedMessage = String.format(DMessages.USER_DUPLICATE_USERNAME, username, domainCode);
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), expectedMessage, "Correct message displayed");
 
