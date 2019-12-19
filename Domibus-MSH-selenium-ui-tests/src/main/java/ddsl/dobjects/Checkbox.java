@@ -5,6 +5,8 @@ import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.util.List;
+
 
 /**
  * @author Catalin Comanici
@@ -31,8 +33,8 @@ public class Checkbox extends DObject {
             if (null != element.getAttribute("checked")) {
                 return true;
             }
-            WebElement input = element.findElement(By.cssSelector("input[type='checkbox']"));
-            return (input != null && null != input.getAttribute("checked"));
+            List<WebElement> input = element.findElements(By.cssSelector("input[type='checkbox']"));
+            return !input.isEmpty() && null != input.get(0).getAttribute("checked");
         }
         throw new DObjectNotPresentException();
     }
