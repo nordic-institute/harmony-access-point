@@ -139,7 +139,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             try {
                 com.codahale.metrics.Timer.Context generate_receipt = null;
                 try {
-                    generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".createMessage")).time();
+                    generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "createMessage")).time();
                     responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
                 } finally {
                     if (generate_receipt != null) {
@@ -236,7 +236,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             Messaging messaging = null;
             SignalMessage signalMessage = null;
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "loadMessaging")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.1.loadMessaging")).time();
                 LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
                 messaging = messageUtil.getMessagingWithDom(responseMessage);
@@ -256,7 +256,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
             // Stores the signal message
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "createSignalMessage")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.2.createSignalMessage")).time();
                 signalMessageDao.create(signalMessage);
             } finally {
                 if (as4receiptContext != null) {
@@ -265,10 +265,18 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             }
 
             MessageSubtype messageSubtype = null;
+            Messaging sentMessage = null;
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "findAndUpdate")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.3.findMessage")).time();
                 // Updating the reference to the signal message
-                Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+                sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+            } finally {
+                if (as4receiptContext != null) {
+                    as4receiptContext.stop();
+                }
+            }
+            try {
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.4.updateMessage")).time();
                 if (sentMessage != null) {
                     LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
                     if (userMessageHandlerService.checkTestMessage(sentMessage.getUserMessage())) {
@@ -283,9 +291,10 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 }
             }
 
+
             SignalMessageLog signalMessageLog = null;
             try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "buildAndCreateSignal")).time();
+                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.5.buildAndCreateSignal")).time();
                 // Builds the signal message log
                 SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
                         .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
