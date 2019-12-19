@@ -55,7 +55,7 @@ public class MessageResourceTest {
         userMessage.setMpc("mpc1");
         userMessage.setPartyInfo(new PartyInfo());
         PayloadInfo payloadInfo = new PayloadInfo();
-        byte[] byteA = new byte[]{1,0,1};
+        byte[] byteA = new byte[]{1, 0, 1};
         PartInfo partInfoBody = new PartInfo();
         partInfoBody.setInBody(true);
         partInfoBody.setBinaryData(byteA);
@@ -121,6 +121,20 @@ public class MessageResourceTest {
         UserMessage message = createUserMessage();
         Assert.assertEquals("bodyload", messageResource.getPayloadName(message.getPayloadInfo().getPartInfo().get(0)));
         Assert.assertEquals("href", messageResource.getPayloadName(message.getPayloadInfo().getPartInfo().get(1)));
+    }
+
+    @Test
+    public void testReSend() {
+        String messageId = "messageId";
+        new Expectations() {
+            {
+                userMessageService.resendFailedOrSendEnqueuedMessage(messageId);
+                times = 1;
+                auditService.addMessageResentAudit(messageId);
+                times = 1;
+            }
+        };
+        messageResource.resend(messageId);
     }
 
 }
