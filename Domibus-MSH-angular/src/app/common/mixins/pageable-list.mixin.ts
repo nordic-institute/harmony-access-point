@@ -103,7 +103,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       this.offset = offset;
       this.page();
     } else {
-      //how to make grid show the correct page??
+      //TODO: try to use before event instead(if exists) or make grid show the correct value
     }
     return canChangePage;
   }

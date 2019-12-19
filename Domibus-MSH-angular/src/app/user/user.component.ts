@@ -5,7 +5,6 @@ import {MAT_CHECKBOX_CLICK_ACTION, MatDialog, MatDialogRef} from '@angular/mater
 import {UserValidatorService} from 'app/user/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
-import {isNullOrUndefined} from 'util';
 import {HttpClient} from '@angular/common/http';
 import {DirtyOperations} from '../common/dirty-operations';
 import {SecurityService} from '../security/security.service';

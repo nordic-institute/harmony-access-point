@@ -406,7 +406,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return 'rest/jms/csv?' + this.createAndSetParameters().toString();
+    return 'rest/jms/csv?' + this.createAndSetParameters();
   }
 
   isDirty(): boolean {

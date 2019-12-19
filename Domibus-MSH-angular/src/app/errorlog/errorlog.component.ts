@@ -150,6 +150,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   }
 
   public get csvUrl(): string {
-    return ErrorLogComponent.ERROR_LOG_CSV_URL + this.createAndSetParameters().toString();
+    return ErrorLogComponent.ERROR_LOG_CSV_URL + this.createAndSetParameters();
   }
 }
