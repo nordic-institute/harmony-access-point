@@ -364,10 +364,10 @@ export class UserComponent extends mix(BaseListComponent)
 
   public async doSave(): Promise<any> {
     const isValid = this.userValidatorService.validateUsers(this.rows);
-    if (!isValid) return false;
+    if (!isValid) return false; // TODO throw instead
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
-    this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
+    return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
       this.loadServerData();
       // this.disableSelectionAndButtons();
     });

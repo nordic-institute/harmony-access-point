@@ -176,6 +176,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
             this.updateSelectedProperty(criteria, result[criteria]);
           }
 
+          const rowCopy = JSON.parse(JSON.stringify(this.rows[this.rowNumber])); // clone
+          this.rows.splice(this.rowNumber, 1, rowCopy);
           super.rows = [...this.rows];
           super.count = this.rows.length;
 

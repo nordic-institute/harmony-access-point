@@ -49,12 +49,17 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     if (save) {
       this.isSaving = true;
       let saved: boolean;
+      let operationName: string = 'update ' + (this.name || '').toLowerCase();
       try {
-        await this.doSave();
-        this.alertService.success(`The operation 'update ${this.name}' completed successfully.`);
-        saved = true;
+        let result = await this.doSave();
+        if (result === false) {
+          saved = false; // TODO do not expect false after client validation on save
+        } else {
+          this.alertService.success(`The operation '${operationName}' completed successfully.`);
+          saved = true;
+        }
       } catch (err) {
-        this.alertService.exception(`The operation 'update ${this.name}' did not complet successfully!`, err);
+        this.alertService.exception(`The operation '${operationName}' did not complete successfully.`, err);
         saved = false;
       }
       this.isSaving = false;
