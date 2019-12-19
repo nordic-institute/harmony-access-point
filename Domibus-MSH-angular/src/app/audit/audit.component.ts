@@ -38,8 +38,6 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-  // advancedSearch: boolean;
-
 // --- Table binding ---
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -85,13 +83,7 @@ export class AuditComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  // public async getDataAndSetResults(): Promise<any> {
-  //   return this.searchAuditLog();
-  // }
-
   countRecords() {
-    // this.auditService.countAuditLogs(this.buildCriteria()).toPromise()
-
     this.auditService.countAuditLogs(this.createAndSetParameters()).toPromise()
       .then(auditCount => {
         super.count = auditCount;
@@ -108,11 +100,6 @@ export class AuditComponent extends mix(BaseListComponent)
     super.rows = result;
   }
 
-  // toggleAdvancedSearch() {
-  //   this.advancedSearch = !this.advancedSearch;
-  //   return false; // to prevent default navigation
-  // }
-
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
 
@@ -121,29 +108,6 @@ export class AuditComponent extends mix(BaseListComponent)
 
     return filterParams;
   }
-
-  // searchAuditLog(): Promise<any> {
-  //   const auditCriteria: AuditCriteria = this.buildCriteria();
-  //   return this.auditService.listAuditLogs(auditCriteria).toPromise()
-  //     .then((response: AuditResponseRo[]) => {
-  //       super.rows = response;
-  //     });
-  // }
-
-  // buildCriteria(): AuditCriteria {
-  //   const auditCriteria: AuditCriteria = new AuditCriteria();
-  //
-  //   auditCriteria.auditTargetName = this.activeFilter.auditTargetName;
-  //   auditCriteria.user = this.activeFilter.user;
-  //   auditCriteria.action = this.activeFilter.action;
-  //   auditCriteria.from = this.activeFilter.from;
-  //   auditCriteria.to = this.activeFilter.to;
-  //
-  //   auditCriteria.start = this.offset * this.rowLimiter.pageSize;
-  //   auditCriteria.max = this.rowLimiter.pageSize;
-  //
-  //   return auditCriteria;
-  // }
 
   initColumns() {
     this.columnPicker.allColumns = [

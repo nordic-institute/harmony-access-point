@@ -41,8 +41,6 @@
 <div class="panel">
   <grid-header [parent]="this"></grid-header>
 
-<!--  <page-grid [parent]="this" [selectionType]="'single'" [rows]="displayedUsers"></page-grid>-->
-
   <ngx-datatable
     id="pageGridId"
     class="material striped"
@@ -85,32 +83,5 @@
   </ng-template>
 
   <page-footer [parent]="this"></page-footer>
-
-<!--  <table class="group-action-button">-->
-<!--    <tr>-->
-<!--      <td>-->
-<!--        <button id="userCancelButton" mat-raised-button (click)="cancel()" color="primary" [disabled]="!canCancel()" button-click-behaviour>-->
-<!--          <mat-icon>cancel</mat-icon>-->
-<!--          <span>Cancel</span>-->
-<!--        </button>-->
-<!--        <button id="userSaveButton" mat-raised-button (click)="save()" color="primary" [disabled]="!canSave()" button-click-behaviour>-->
-<!--          <mat-icon>save</mat-icon>-->
-<!--          <span>Save</span>-->
-<!--        </button>-->
-<!--        <button id="userNewButton" mat-raised-button (click)="add()" [disabled]="!canAdd()" color="primary" button-click-behaviour>-->
-<!--          <mat-icon>add</mat-icon>-->
-<!--          <span>New</span>-->
-<!--        </button>-->
-<!--        <button id="userEditButton" mat-raised-button (click)="edit()" color="primary" [disabled]="!canEdit()" button-click-behaviour>-->
-<!--          <mat-icon>edit</mat-icon>-->
-<!--          <span>Edit</span>-->
-<!--        </button>-->
-<!--        <button id="userDeleteButton" mat-raised-button (click)="delete()" [disabled]="!canDelete()" color="primary" button-click-behaviour>-->
-<!--          <mat-icon>delete</mat-icon>-->
-<!--          <span>Delete</span>-->
-<!--        </button>-->
-<!--      </td>-->
-<!--    </tr>-->
-<!--  </table>-->
 
 </div>

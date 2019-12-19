@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {PartyResponseRo, PartyFilteredResult, ProcessRo, CertificateRo} from './party';
 import {Observable} from 'rxjs/Observable';
-import {DownloadService} from '../common/download.service';
 
 /**
  * @author Thomas Dussart

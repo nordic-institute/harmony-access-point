@@ -144,12 +144,6 @@ export class PartyComponent extends mix(BaseListComponent)
       + this.partyService.getFilterPath(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process);
   }
 
-  // onActivate(event) {
-  //   if ('dblclick' === event.type) {
-  //     this.edit(event.row);
-  //   }
-  // }
-
   canAdd() {
     return !!this.pModeExists && !this.isSaving;
   }

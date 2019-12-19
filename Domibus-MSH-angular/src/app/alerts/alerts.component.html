@@ -122,19 +122,8 @@
             </mat-card>
           </div>
 
-          <!-- Search Button and Basic/Advanced Search-->
-
           <filter-area-footer [parent]="this"></filter-area-footer>
 
-<!--                    <div class="searchArea">-->
-<!--                      <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"-->
-<!--                              button-click-behaviour>-->
-<!--                        <mat-icon>search</mat-icon>-->
-<!--                        <span>Search</span>-->
-<!--                      </button>-->
-<!--                      <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>-->
-<!--                      <a href="#" *ngIf="advancedSearch"  (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>-->
-<!--                    </div>-->
         </form>
       </div>
     </mat-card-content>
@@ -146,28 +135,6 @@
   <grid-header [parent]="this"></grid-header>
 
   <page-grid [parent]="this"></page-grid>
-
-  <!-- Data Table -->
-<!--  <ngx-datatable-->
-<!--    id="alertsTable"-->
-<!--    class="material striped"-->
-<!--    [rows]="rows"-->
-<!--    [columns]="columnPicker.selectedColumns"-->
-<!--    [columnMode]="'force'"-->
-<!--    [headerHeight]="50"-->
-<!--    [footerHeight]="50"-->
-<!--    [rowHeight]="'auto'"-->
-<!--    [scrollbarH]="true"-->
-<!--    [externalPaging]="true"-->
-<!--    [externalSorting]="true"-->
-<!--    [loadingIndicator]="isLoading"-->
-<!--    [count]="count"-->
-<!--    [offset]="offset"-->
-<!--    [limit]="rowLimiter.pageSize"-->
-<!--    (page)='onPage($event)'-->
-<!--    (sort)="onSort($event)"-->
-<!--  >-->
-<!--  </ngx-datatable>-->
 
   <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
     <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed" (click)="setProcessedValue(row)">

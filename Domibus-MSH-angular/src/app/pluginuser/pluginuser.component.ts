@@ -15,7 +15,6 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {MessageLogResult} from '../messagelog/messagelogresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
@@ -143,16 +142,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.setColumnPicker();
   }
 
-  // async getDataAndSetResults() {
-  //   return this.pluginUserService.getUsers(this.activeFilter).toPromise()
-  //     .then(result => {
-  //       super.rows = result.entries;
-  //       super.count = result.entries.length;
-  //
-  //       this.setColumnPicker();
-  //     });
-  // }
-
   inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
   }
@@ -169,12 +158,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
     const result = await this.pluginUserService.getUserRoles().toPromise();
     this.userRoles = result;
   }
-
-  // onActivate(event) {
-  //   if ('dblclick' === event.type) {
-  //     this.edit(event.row);
-  //   }
-  // }
 
   async add() {
     const newItem = this.pluginUserService.createNew();
@@ -267,7 +250,4 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return PluginUserService.CSV_URL + '?' + this.createAndSetParameters().toString();
   }
 
-  // onSort() {
-  //   super.resetFilters();
-  // }
 }

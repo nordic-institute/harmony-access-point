@@ -13,7 +13,6 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {AuditResponseRo} from '../audit/audit';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
@@ -201,20 +200,9 @@ export class JmsComponent extends mix(BaseListComponent)
     this.selectedSource = toSelect;
   }
 
-  // onSelect({selected}) {
-  //   this.selected.splice(0, this.selected.length);
-  //   this.selected.push(...selected);
-  // }
-
   edit(row) {
     this.showDetails(row);
   }
-
-  // onActivate(event) {
-  //   if ('dblclick' === event.type) {
-  //     this.showDetails(event.row);
-  //   }
-  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
@@ -246,27 +234,6 @@ export class JmsComponent extends mix(BaseListComponent)
     super.count = res.messages.length;
     this.refreshDestinations();
   }
-
-  // async getDataAndSetResults(): Promise<any> {
-  //   if (!this.filter.source) {
-  //     return Promise.reject('Source should be set');
-  //   }
-  //
-  //   this.markedForDeletionMessages = [];
-  //   this.currentSearchSelectedSource = this.selectedSource;
-  //
-  //   return this.http.post<any>('rest/jms/messages', {
-  //     source: this.activeFilter.source,
-  //     jmsType: this.activeFilter.jmsType,
-  //     fromDate: this.activeFilter.fromDate,
-  //     toDate: this.activeFilter.toDate,
-  //     selector: this.activeFilter.selector,
-  //   }).toPromise().then(res => {
-  //     super.rows = res.messages;
-  //     super.count = res.messages.length;
-  //     this.refreshDestinations();
-  //   });
-  // }
 
   async doSave(): Promise<any> {
     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
@@ -429,26 +396,6 @@ export class JmsComponent extends mix(BaseListComponent)
     )
   }
 
-  // getFilterPath() {
-  //   let result = '?';
-  //   if (this.activeFilter.source) {
-  //     result += 'source=' + this.activeFilter.source + '&';
-  //   }
-  //   if (this.activeFilter.jmsType) {
-  //     result += 'jmsType=' + this.activeFilter.jmsType + '&';
-  //   }
-  //   if (this.activeFilter.fromDate) {
-  //     result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
-  //   }
-  //   if (this.activeFilter.toDate) {
-  //     result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
-  //   }
-  //   if (this.activeFilter.selector) {
-  //     result += 'selector=' + this.activeFilter.selector + '&';
-  //   }
-  //   return result;
-  // }
-
   public saveAsCSV() {
     if (!this.activeFilter.source) {
       this.alertService.error('Source should be set');
@@ -465,10 +412,6 @@ export class JmsComponent extends mix(BaseListComponent)
   isDirty(): boolean {
     return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
-
-  // onSort() {
-  //   super.resetFilters();
-  // }
 
   canCancel() {
     return (this.markedForDeletionMessages.length > 0);

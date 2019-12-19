@@ -32,25 +32,4 @@ export class AuditCriteria {
   to;
   start;
   max;
-
-  // public toURLSearchParams(): HttpParams {
-  //   let searchParams = new HttpParams();
-  //
-  //   if (this.auditTargetName) {
-  //     this.auditTargetName.forEach(el => searchParams = searchParams.append('auditTargetName', el));
-  //   }
-  //   if (this.action) {
-  //     this.action.forEach(el => searchParams = searchParams.append('action', el));
-  //   }
-  //   if (this.user) {
-  //     this.user.forEach(el => searchParams = searchParams.append('user', el));
-  //   }
-  //   if (this.from) {
-  //     searchParams = searchParams.append('from', this.from.toISOString());
-  //   }
-  //   if (this.to) {
-  //     searchParams = searchParams.append('to', this.to.toISOString());
-  //   }
-  //   return searchParams;
-  // }
 }

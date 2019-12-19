@@ -7,27 +7,6 @@
 
         <page-grid [parent]="this" [selectionType]="'single'" [sortedColumns]="[{prop: 'alias', dir: 'desc'}]"></page-grid>
 
-<!--      <ngx-datatable-->
-<!--        id="errorLogTable"-->
-<!--        class="material striped"-->
-<!--        [rows]="rows"-->
-<!--        [columnMode]="'force'"-->
-<!--        [columns]="columnPicker.selectedColumns"-->
-<!--        [headerHeight]="50"-->
-<!--        [footerHeight]="50"-->
-<!--        [rowHeight]="'auto'"-->
-<!--        [scrollbarH]="true"-->
-<!--        [loadingIndicator]="isLoading"-->
-<!--        [selectionType]="'multi'"-->
-<!--        [selected]="selected"-->
-<!--        [limit]="rowLimiter.pageSize"-->
-<!--        [offset]="offset"-->
-<!--        (page)="onPage($event)"-->
-<!--        [sorts]="[{prop: 'alias', dir: 'desc'}]"-->
-<!--        (activate)="onActivate($event)"-->
-<!--        (select)="onSelect($event)">-->
-<!--      </ngx-datatable>-->
-
       <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
         <span class="text-select">{{value | domibusDate: dateFormat}}</span>
       </ng-template>

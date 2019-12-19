@@ -5,30 +5,6 @@
 
     <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
 
-<!--    <ngx-datatable-->
-<!--      #archivePmodeDatatable-->
-<!--      id="archivePmodeTable"-->
-<!--      class="material striped"-->
-<!--      [rows]="rows"-->
-<!--      [columns]="columnPicker.selectedColumns"-->
-<!--      [columnMode]="'force'"-->
-<!--      [headerHeight]="50"-->
-<!--      [footerHeight]="50"-->
-<!--      [rowHeight]="'auto'"-->
-<!--      [scrollbarH]="true"-->
-<!--      [externalPaging]="true"-->
-<!--      [externalSorting]="true"-->
-<!--      [loadingIndicator]="isLoading"-->
-<!--      [count]="count"-->
-<!--      [offset]="offset"-->
-<!--      [limit]="rowLimiter.pageSize"-->
-<!--      (page)='onPage($event)'-->
-<!--      [selected]="selected"-->
-<!--      [selectionType]="'multi'"-->
-<!--      (activate)="onActivate($event)"-->
-<!--      (select)="onSelect($event)">-->
-<!--    </ngx-datatable>-->
-
     <ng-template #descriptionTpl let-row="row" let-value="value" ngx-datatable-cell-template>
       <span class="text-select">{{value}}</span>
     </ng-template>
@@ -66,36 +42,6 @@
         <span>Restore</span>
       </button>
     </div>
-
-    <!--        <table class="group-action-button">-->
-    <!--          <tr>-->
-    <!--            <td>-->
-    <!--              <button mat-raised-button color="primary" (click)="cancel()" id="cancelbutton_id" [disabled]="!canCancel()" button-click-behaviour>-->
-    <!--                <mat-icon>cancel</mat-icon>-->
-    <!--                <span>Cancel</span>-->
-    <!--              </button>-->
-    <!--              <button mat-raised-button color="primary" (click)="save()" id="savebutton_id" [disabled]="!canSave()" button-click-behaviour>-->
-    <!--                <mat-icon>save</mat-icon>-->
-    <!--                <span>Save</span>-->
-    <!--              </button>-->
-    <!--              <button mat-raised-button color="primary" (click)="delete()" id="deleteArchivebutton_id" [disabled]="!canDelete()" button-click-behaviour>-->
-    <!--                <mat-icon>delete</mat-icon>-->
-    <!--                <span>Delete</span>-->
-    <!--              </button>-->
-
-    <!--              <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"-->
-    <!--                      button-click-behaviour>-->
-    <!--                <mat-icon>file_download</mat-icon>-->
-    <!--                <span>Download</span>-->
-    <!--              </button>-->
-    <!--              <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"-->
-    <!--                      button-click-behaviour>-->
-    <!--                <mat-icon>settings_backup_restore</mat-icon>-->
-    <!--                <span>Restore</span>-->
-    <!--              </button>-->
-    <!--            </td>-->
-    <!--          </tr>-->
-    <!--        </table>-->
 
   </div>
 </div>

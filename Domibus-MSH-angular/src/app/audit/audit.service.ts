@@ -22,14 +22,6 @@ export class AuditService {
     return this.http.get<number>('rest/audit/count', {params: searchParams});
   }
 
-  // listAuditLogs(auditCriteria: AuditCriteria): Observable<AuditResponseRo[]> {
-  //   return this.http.post<AuditResponseRo[]>('rest/audit/list', auditCriteria);
-  // }
-  //
-  // countAuditLogs(auditCriteria: AuditCriteria): Observable<number> {
-  //   return this.http.post<number>('rest/audit/count', auditCriteria);
-  // }
-
   listTargetTypes(): Observable<string[]> {
     return this.http.get<string[]>('rest/audit/targets');
   }

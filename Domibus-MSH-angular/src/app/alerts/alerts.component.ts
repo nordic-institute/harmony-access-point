@@ -34,8 +34,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
 
-  // advancedSearch: boolean;
-
   aTypes: Array<any>;
   aStatuses: Array<any>;
   aLevels: Array<any>;
@@ -160,15 +158,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     super.rows = result.alertsEntries;
   }
 
-  // getAlertsEntries(): Promise<AlertsResult> {
-  //   let searchParams = this.createAndSetParameters();
-  //
-  //   searchParams = searchParams.append('page', this.offset.toString());
-  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
-  //
-  //   return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams}).toPromise();
-  // }
-
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
 
@@ -180,12 +169,6 @@ export class AlertsComponent extends mix(BaseListComponent)
 
     return filterParams;
   }
-
-  // private createAndSetParameters(): HttpParams {
-  //   let searchParams = this.createSearchParams();
-  //   searchParams = this.setDynamicFilterParams(searchParams);
-  //   return searchParams;
-  // }
 
   private setDynamicFilterParams(searchParams: HttpParams) {
     if (this.dynamicFilters.length > 0) {
@@ -207,67 +190,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     }
     return searchParams;
   }
-
-  // private createSearchParams(): HttpParams {
-  //   let searchParams = new HttpParams();
-  //
-  //   searchParams = searchParams.append('orderBy', this.orderBy);
-  //   if (this.asc != null) {
-  //     searchParams = searchParams.append('asc', this.asc.toString());
-  //   }
-  //
-  //   // filters
-  //   if (this.activeFilter.processed) {
-  //     searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
-  //   }
-  //
-  //   if (this.activeFilter.alertType) {
-  //     searchParams = searchParams.append('alertType', this.activeFilter.alertType);
-  //   }
-  //
-  //   if (this.activeFilter.alertStatus) {
-  //     searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
-  //   }
-  //
-  //   if (this.activeFilter.alertId) {
-  //     searchParams = searchParams.append('alertId', this.activeFilter.alertId);
-  //   }
-  //
-  //   if (this.activeFilter.alertLevel) {
-  //     searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
-  //   }
-  //
-  //   if (this.activeFilter.creationFrom) {
-  //     searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
-  //   }
-  //
-  //   if (this.activeFilter.creationTo) {
-  //     searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
-  //   }
-  //
-  //   if (this.activeFilter.reportingFrom) {
-  //     searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
-  //   }
-  //
-  //   if (this.activeFilter.reportingTo) {
-  //     searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
-  //   }
-  //
-  //   searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
-  //   return searchParams;
-  // }
-
-  // async getDataAndSetResults(): Promise<any> {
-  //   return this.getAlertsEntries().then((result: AlertsResult) => {
-  //     super.count = result.count;
-  //     super.rows = result.alertsEntries;
-  //   });
-  // }
-
-  // toggleAdvancedSearch() {
-  //   this.advancedSearch = !this.advancedSearch;
-  //   return false; // to prevent default navigation
-  // }
 
   getAlertParameters(alertType: string): Promise<string[]> {
     let searchParams = new HttpParams();

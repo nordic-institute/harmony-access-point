@@ -43,7 +43,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   msgStatuses: Array<String>;
   notifStatus: Array<String>;
 
-  // advancedSearch: boolean;
   fourCornerEnabled: boolean;
 
   messageResent: EventEmitter<boolean>;
@@ -68,7 +67,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'received';
     super.asc = false;
-    // super.sortedColumns = [{prop: 'received', dir: 'desc'}];
 
     this.messageResent = new EventEmitter(false);
 
@@ -195,75 +193,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  // createAndSetParameters(): HttpParams {
-  //   let searchParams = new HttpParams();
-  //
-  //   if (this.orderBy) {
-  //     searchParams = searchParams.append('orderBy', this.orderBy);
-  //   }
-  //   if (this.asc != null) {
-  //     searchParams = searchParams.append('asc', this.asc.toString());
-  //   }
-  //
-  //   if (this.activeFilter.messageId) {
-  //     searchParams = searchParams.append('messageId', this.activeFilter.messageId);
-  //   }
-  //
-  //   if (this.activeFilter.mshRole) {
-  //     searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
-  //   }
-  //
-  //   if (this.activeFilter.conversationId) {
-  //     searchParams = searchParams.append('conversationId', this.activeFilter.conversationId);
-  //   }
-  //
-  //   if (this.activeFilter.messageType) {
-  //     searchParams = searchParams.append('messageType', this.activeFilter.messageType);
-  //   }
-  //
-  //   if (this.activeFilter.messageStatus) {
-  //     searchParams = searchParams.append('messageStatus', this.activeFilter.messageStatus);
-  //   }
-  //
-  //   if (this.activeFilter.notificationStatus) {
-  //     searchParams = searchParams.append('notificationStatus', this.activeFilter.notificationStatus);
-  //   }
-  //
-  //   if (this.activeFilter.fromPartyId) {
-  //     searchParams = searchParams.append('fromPartyId', this.activeFilter.fromPartyId);
-  //   }
-  //
-  //   if (this.activeFilter.toPartyId) {
-  //     searchParams = searchParams.append('toPartyId', this.activeFilter.toPartyId);
-  //   }
-  //
-  //   if (this.activeFilter.originalSender) {
-  //     searchParams = searchParams.append('originalSender', this.activeFilter.originalSender);
-  //   }
-  //
-  //   if (this.activeFilter.finalRecipient) {
-  //     searchParams = searchParams.append('finalRecipient', this.activeFilter.finalRecipient);
-  //   }
-  //
-  //   if (this.activeFilter.refToMessageId) {
-  //     searchParams = searchParams.append('refToMessageId', this.activeFilter.refToMessageId);
-  //   }
-  //
-  //   if (this.activeFilter.receivedFrom) {
-  //     searchParams = searchParams.append('receivedFrom', this.activeFilter.receivedFrom.getTime());
-  //   }
-  //
-  //   if (this.activeFilter.receivedTo) {
-  //     searchParams = searchParams.append('receivedTo', this.activeFilter.receivedTo.getTime());
-  //   }
-  //
-  //   if (this.activeFilter.isTestMessage) {
-  //     searchParams = searchParams.append('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
-  //   }
-  //
-  //   return searchParams;
-  // }
-
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
     if (this.activeFilter.isTestMessage) {
@@ -273,16 +202,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
     return filterParams;
   }
-
-  // getMessageLogEntries(): Promise<MessageLogResult> {
-  //   let searchParams = this.createAndSetParameters();
-  //
-  //   searchParams = searchParams.append('page', this.offset.toString());
-  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
-  //
-  //   return this.http.get<MessageLogResult>(MessageLogComponent.MESSAGE_LOG_URL, {params: searchParams})
-  //     .toPromise();
-  // }
 
   protected get GETUrl(): string {
     return MessageLogComponent.MESSAGE_LOG_URL;
@@ -306,27 +225,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.msgStatuses = result.msgStatus.sort();
     this.notifStatus = result.notifStatus;
   }
-
-  // public async getDataAndSetResults(): Promise<any> {
-  //   return this.getMessageLogEntries().then((result: MessageLogResult) => {
-  //     super.count = result.count;
-  //     super.rows = result.messageLogEntries;
-  //
-  //     if (result.filter.receivedFrom) {
-  //       result.filter.receivedFrom = new Date(result.filter.receivedFrom);
-  //     }
-  //     if (result.filter.receivedTo) {
-  //       result.filter.receivedTo = new Date(result.filter.receivedTo);
-  //     }
-  //     result.filter.isTestMessage = !!result.filter.messageSubtype;
-  //     super.filter = result.filter;
-  //
-  //     this.mshRoles = result.mshRoles;
-  //     this.msgTypes = result.msgTypes;
-  //     this.msgStatuses = result.msgStatus.sort();
-  //     this.notifStatus = result.notifStatus;
-  //   });
-  // }
 
   onActivate(event) {
     if ('dblclick' === event.type) {
@@ -420,35 +318,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  // toggleAdvancedSearch() {
-  //   this.advancedSearch = true;
-  // }
-
-  // toggleBasicSearch() {
-  //   this.advancedSearch = false;
-  //
-  //   this.resetAdvancedSearchParams();
-  // }
-
   onResetAdvancedSearchParams() {
     this.filter.messageType = this.msgTypes[1];
     this.conversationIdValue = null;
   }
-
-  // resetAdvancedSearchParams() {
-  //   this.filter.mshRole = null;
-  //   this.filter.conversationId = null;
-  //   this.filter.messageType = this.msgTypes[1];
-  //   this.filter.notificationStatus = null;
-  //   this.filter.originalSender = null;
-  //   this.filter.finalRecipient = null;
-  //   this.filter.refToMessageId = null;
-  //   this.filter.receivedFrom = null;
-  //   this.filter.receivedTo = null;
-  //   this.filter.isTestMessage = null;
-  //
-  //   this.conversationIdValue = null;
-  // }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;

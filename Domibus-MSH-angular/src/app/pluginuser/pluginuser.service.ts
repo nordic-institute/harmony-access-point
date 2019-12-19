@@ -27,34 +27,6 @@ export class PluginUserService {
   constructor(private http: HttpClient, private userService: UserService, private alertService: AlertService) {
   }
 
-  // getUsers(filter?: PluginUserSearchCriteria)
-  //   : Observable<{ entries: PluginUserRO[], count: number }> {
-  //
-  //   let searchParams = this.createFilterParams(filter);
-  //
-  //   return this.http.get<{ entries: PluginUserRO[], count: number }>(PluginUserService.PLUGIN_USERS_URL, {params: searchParams});
-  // }
-
-  // createFilterParams(filter: PluginUserSearchCriteria) {
-  //   let searchParams = new HttpParams();
-  //   searchParams = searchParams.append('page', '0');
-  //   searchParams = searchParams.append('pageSize', '10000');
-  //
-  //   if (filter.authType) {
-  //     searchParams = searchParams.append('authType', filter.authType);
-  //   }
-  //   if (filter.authRole) {
-  //     searchParams = searchParams.append('authRole', filter.authRole);
-  //   }
-  //   if (filter.userName) {
-  //     searchParams = searchParams.append('userName', filter.userName);
-  //   }
-  //   if (filter.originalUser) {
-  //     searchParams = searchParams.append('originalUser', filter.originalUser);
-  //   }
-  //   return searchParams;
-  // }
-
   createNew(): PluginUserRO {
     const item = new PluginUserRO();
     item.status = UserState[UserState.NEW];

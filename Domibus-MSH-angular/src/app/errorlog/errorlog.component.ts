@@ -36,8 +36,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   mshRoles: string[];
   errorCodes: string[];
 
-  // advancedSearch: boolean;
-
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
@@ -51,7 +49,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'timestamp';
     super.asc = false;
-    // super.sortedColumns = [{prop: 'timestamp', dir: 'desc'}];
 
     this.filterData();
   }
@@ -101,47 +98,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  // createAndSetParameters(): HttpParams {
-  //   let searchParams = new HttpParams();
-  //
-  //   if (this.orderBy) {
-  //     searchParams = searchParams.append('orderBy', this.orderBy);
-  //   }
-  //   if (this.asc != null) {
-  //     searchParams = searchParams.append('asc', this.asc.toString());
-  //   }
-  //
-  //   if (this.activeFilter.errorSignalMessageId) {
-  //     searchParams = searchParams.append('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
-  //   }
-  //   if (this.activeFilter.mshRole) {
-  //     searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
-  //   }
-  //   if (this.activeFilter.messageInErrorId) {
-  //     searchParams = searchParams.append('messageInErrorId', this.activeFilter.messageInErrorId);
-  //   }
-  //   if (this.activeFilter.errorCode) {
-  //     searchParams = searchParams.append('errorCode', this.activeFilter.errorCode);
-  //   }
-  //   if (this.activeFilter.errorDetail) {
-  //     searchParams = searchParams.append('errorDetail', this.activeFilter.errorDetail);
-  //   }
-  //   if (this.activeFilter.timestampFrom != null) {
-  //     searchParams = searchParams.append('timestampFrom', this.activeFilter.timestampFrom.getTime());
-  //   }
-  //   if (this.activeFilter.timestampTo != null) {
-  //     searchParams = searchParams.append('timestampTo', this.activeFilter.timestampTo.getTime());
-  //   }
-  //   if (this.activeFilter.notifiedFrom != null) {
-  //     searchParams = searchParams.append('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
-  //   }
-  //   if (this.activeFilter.notifiedTo != null) {
-  //     searchParams = searchParams.append('notifiedTo', this.activeFilter.notifiedTo.getTime());
-  //   }
-  //
-  //   return searchParams;
-  // }
-
   protected get name(): string {
     return 'Error Logs';
   }
@@ -149,16 +105,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   protected get GETUrl(): string {
     return ErrorLogComponent.ERROR_LOG_URL;
   }
-
-  // getServerData(): Promise<ErrorLogResult> {
-  //   let searchParams = this.createAndSetParameters();
-  //
-  //   searchParams = searchParams.append('page', this.offset.toString());
-  //   searchParams = searchParams.append('pageSize', this.rowLimiter.pageSize.toString());
-  //
-  //   return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams})
-  //     .toPromise();
-  // }
 
   public setServerResults(result: ErrorLogResult) {
     super.count = result.count;
@@ -198,24 +144,9 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     this.notifiedFromMaxDate = event.value;
   }
 
-  // toggleAdvancedSearch(): boolean {
-  //   this.advancedSearch = !this.advancedSearch;
-  //   return false;//to prevent default navigation
-  // }
-
-  // onActivate(event) {
-  //   if ('dblclick' === event.type) {
-  //     this.showDetails(event.row);
-  //   }
-  // }
-
   showDetails(selectedRow: any) {
     let dialogRef: MatDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
     dialogRef.componentInstance.message = selectedRow;
-    // dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
-    dialogRef.afterClosed().subscribe(result => {
-      //Todo:
-    });
   }
 
   public get csvUrl(): string {
