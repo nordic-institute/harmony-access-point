@@ -196,7 +196,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                     Trigger.TriggerState triggerState = quartzScheduler.getTriggerState(trigger.getKey());
                     Date previousFireTime = trigger.getPreviousFireTime();
                     //Storing details of triggers either in ERROR state or BLOCKED for more than 5 minutes.
-                    if (triggerState.equals(Trigger.TriggerState.ERROR) || (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() >= 5 * 60 * 1000))) {
+                    if (triggerState.equals(Trigger.TriggerState.ERROR) || (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > 5 * 60 * 1000))) {
                         MonitoringStatus state = triggerState.equals(Trigger.TriggerState.ERROR) ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
                         QuartzTriggerDetails quartzTriggerDetails = new QuartzTriggerDetails();
                         quartzTriggerDetails.setDomainName(domainName);
