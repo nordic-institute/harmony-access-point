@@ -97,6 +97,7 @@ public class DGrid extends DComponent {
             throw new Exception("Row number too high " + rowNumber);
         }
 
+        this.wait.forXMillis(200);
         Actions action = new Actions(driver);
         action.doubleClick(gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"))).perform();
         // ngx-datatable has an issue when double-clicking "between" cells;
@@ -153,12 +154,13 @@ public class DGrid extends DComponent {
         return index;
     }
 
-    public void scrollToAndSelect(String columnName, String value) throws Exception {
+    public int scrollToAndSelect(String columnName, String value) throws Exception {
         int index = scrollTo(columnName, value);
         if (index < 0) {
             throw new Exception("Cannot select row because it doesn't seem to be in grid");
         }
         selectRow(index);
+        return index;
     }
 
     public HashMap<String, String> getRowInfo(int rowNumber) throws Exception {
@@ -201,13 +203,14 @@ public class DGrid extends DComponent {
         throw new Exception("Column name not present in the grid " + columnName);
     }
 
-    public void scrollToAndDoubleClick(String columnName, String value) throws Exception {
+    public int scrollToAndDoubleClick(String columnName, String value) throws Exception {
         int index = scrollTo(columnName, value);
         doubleClickRow(index);
 
 //		necessary wait if the method is to remain generic
 //		otherwise we need to know what modal is going to be opened so we know what to expect
         wait.forXMillis(1000);
+        return index;
     }
 
     public List<HashMap<String, String>> getAllRowInfo() throws Exception {

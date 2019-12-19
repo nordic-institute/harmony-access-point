@@ -80,7 +80,6 @@ public class UsersPgTest extends BaseTest {
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "After pressing delete the Save button is active");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "After pressing delete the Cancel button is active");
 
-		log.info("Save changes");
 		page.saveAndConfirm();
 
 		soft.assertTrue(page.getUsersGrid().isDeleted(username), "User presented as deleted in the grid");
@@ -108,7 +107,6 @@ public class UsersPgTest extends BaseTest {
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "After pressing delete the Save button is active");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "After pressing delete the Cancel button is active");
 
-		log.info("Cancel changes");
 		page.cancelAndConfirm();
 
 		soft.assertFalse(page.getUsersGrid().isDeleted(username), "User presented as NOT deleted in the grid");
@@ -149,7 +147,7 @@ public class UsersPgTest extends BaseTest {
 		if(data.isIsMultiDomain()) {
 			logout();
 			String superUser = getUser(null, DRoles.SUPER, true, false, true).getString("userName");
-			log.info("checking for super admin " +superUser);
+			log.info("checking for super admin " + superUser);
 			login(superUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
 
 			log.info("click NEW");
@@ -228,7 +226,7 @@ public class UsersPgTest extends BaseTest {
 		page.grid().waitForRowsToLoad();
 
 		log.info("Press Save");
-		soft.assertTrue(page.getSaveBtn().isEnabled(), "Cancel button is enabled after new user creation");
+		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is enabled after new user creation");
 		page.saveAndConfirm();
 
 		log.info("searching for user in grid");
@@ -239,33 +237,32 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/* USR-7 - Admin edits an existing user and presses Cancel */
-	@Test(description = "USR-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "USR-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		log.info("acquiring user for edit");
+		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
+
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
 		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled on page load");
 		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled on page load");
 
-		log.info("aquiring user for edit");
-		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
-		page.refreshPage();
-
 		log.info("editing user");
 		page.grid().scrollToAndDoubleClick("Username", username);
-		UserModal modal = new UserModal(driver);
+
 		log.info("make the user active");
+		UserModal modal = new UserModal(driver);
 		modal.getActiveChk().check();
 
 		String email = Generator.randomAlphaNumeric(5) + "@test.com";
-		log.info("editign email to " + email);
+		log.info("editing email to " + email);
 		modal.getEmailInput().fill(email);
 		modal.clickOK();
 
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is enabled after edit");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after edit");
 
-		log.info("click Cancel");
 		page.cancelAndConfirm();
 
 		log.info("checking edited values");
@@ -279,38 +276,37 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/* USR-7 - Admin edits an existing user and presses Save */
-	@Test(description = "USR-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "USR-8", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		log.info("acquiring user for edit");
+		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
+
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
-		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled on page load");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
-
-		log.info("aquiring user for edit");
-		String username = getUser(null, DRoles.USER, false, false, false).getString("userName");
-		page.refreshPage();
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled on page load");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled on page load");
 
 		log.info("editing user");
 		page.grid().scrollToAndDoubleClick("Username", username);
-		UserModal modal = new UserModal(driver);
+
 		log.info("make the user active");
+		UserModal modal = new UserModal(driver);
 		modal.getActiveChk().check();
 
 		String email = Generator.randomAlphaNumeric(5) + "@test.com";
-		log.info("editign email to " + email);
+		log.info("editing email to " + email);
 		modal.getEmailInput().fill(email);
 		modal.clickOK();
 
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is enabled after edit");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after edit");
 
-		log.info("click Save");
 		page.saveAndConfirm();
 
 		log.info("checking edited values");
 		page.grid().scrollToAndDoubleClick("Username", username);
-//		modal = new UserModal(driver);
+		modal = new UserModal(driver);
 
 		soft.assertTrue(modal.getActiveChk().isChecked(), "User is enabled");
 		soft.assertEquals(modal.getEmailInput().getText(), email, "User email is the one set by editing");
@@ -335,7 +331,6 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("Uncheck the active checkbox");
 		modal.getActiveChk().uncheck();
-		modal.wait.forXMillis(5000);
 		modal.clickOK();
 
 		page.saveAndConfirm();
@@ -353,14 +348,15 @@ public class UsersPgTest extends BaseTest {
 		page = loginAndGoToUsersPage(data.getAdminUser());
 
 		log.info("editing user " + username);
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndSelect("Username", username);
+		page.getEditBtn().click();
+
 		modal = new UserModal(driver);
 
 		log.info("Uncheck the active checkbox");
 		modal.getActiveChk().uncheck();
 		modal.clickOK();
 
-		log.info("Saving");
 		page.saveAndConfirm();
 
 		log.info("logging out");
@@ -461,7 +457,6 @@ public class UsersPgTest extends BaseTest {
 		um.getRoleSelect().selectOptionByText(DRoles.USER);
 		um.clickOK();
 
-		log.info("Saving");
 		page.saveAndConfirm();
 
 		log.info("logout");
@@ -592,7 +587,7 @@ public class UsersPgTest extends BaseTest {
 		String domainName = getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
 		String username = getPluginUser(domainCode, DRoles.ADMIN, true, false).getString("userName");
-		log.info("got plugin user " + username + "on domain " + domainCode);
+		log.info("got plugin user " + username + " on domain " + domainCode);
 
 		SoftAssert soft = new SoftAssert();
 		loginAndGoToUsersPage(data.getAdminUser());
@@ -623,7 +618,7 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(username, data.defaultPass());
 
-		log.info("deleteing created user");
+		log.info("deleting created user");
 		page.grid().scrollToAndSelect("Username", username);
 		page.getDeleteBtn().click();
 
