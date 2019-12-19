@@ -51,27 +51,11 @@ public class TestDB {
             rawMessages.add(rawMessage);
         }
 
-//        rawMessages.parallelStream().forEach(el -> {
-//            if (type.equals("async")) {
-//                //LOG.debug("Saving async [{}]", rawMessages.indexOf(el));
-//                saveAsync(el);
-//                //LOG.debug("Saved async [{}]", rawMessages.indexOf(el));
-//            } else {
-//                //LOG.info("Saving sync [{}]", rawMessages.indexOf(el));
-//                saveSync(el);
-//                //LOG.info("Saved sync [{}]", rawMessages.indexOf(el));
-//            }
-//        });
-
         rawMessages.forEach(el -> {
             if (type.equals("async")) {
-                //LOG.debug("Saving async [{}]", rawMessages.indexOf(el));
                 saveAsync(el);
-                //LOG.debug("Saved async [{}]", rawMessages.indexOf(el));
             } else {
-                //LOG.info("Saving sync [{}]", rawMessages.indexOf(el));
                 saveSync(el);
-                //LOG.info("Saved sync [{}]", rawMessages.indexOf(el));
             }
         });
 
