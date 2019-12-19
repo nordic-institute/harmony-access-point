@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.converters.UserConverter;
 import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
@@ -15,10 +16,10 @@ import eu.domibus.common.model.security.UserLoginErrorReason;
 import eu.domibus.common.model.security.UserRole;
 import eu.domibus.common.services.UserPersistenceService;
 import eu.domibus.common.services.UserService;
-import eu.domibus.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.security.ConsoleUserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -180,4 +181,13 @@ public class UserManagementServiceImpl implements UserService {
         }
         return user;
     }
+
+    public void validateAtLeastOneOfRole(AuthRole role) {
+        List<User> users = userDao.findByRole(role.toString());
+        long count = users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
+        if (count == 0) {
+            throw new UserManagementException("There must always be at least one active Domain Admin for each Domain.");
+        }
+    }
+
 }
