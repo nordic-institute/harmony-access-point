@@ -75,12 +75,6 @@ public class MessageLogResourceTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
-    @Injectable
-    private TestServiceMessageInfoRO testServiceMessageInfoResult;
-
-    @Injectable
-    private Party party;
-
     @Parameterized.Parameter(0)
     public MessageType messageType;
 
@@ -203,7 +197,7 @@ public class MessageLogResourceTest {
     }
 
     @Test
-    public void testGetLastTestSent() throws TestServiceException {
+    public void testGetLastTestSent(@Injectable TestServiceMessageInfoRO testServiceMessageInfoResult) throws TestServiceException {
         // Given
         String partyId = "test";
         new Expectations() {{
@@ -238,7 +232,7 @@ public class MessageLogResourceTest {
     }
 
     @Test
-    public void testGetLastTestReceived() throws TestServiceException {
+    public void testGetLastTestReceived(@Injectable TestServiceMessageInfoRO testServiceMessageInfoResult, @Injectable Party party) throws TestServiceException {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
