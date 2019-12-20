@@ -4,26 +4,20 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessagesLogService;
 import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.NoResultException;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,13 +48,7 @@ public class MessageLogResource extends BaseResource {
     private static final String RECEIVED_TO_STR = "receivedTo";
 
     @Autowired
-    private UserMessageLogDao userMessageLogDao;
-
-    @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
-    private PModeProvider pModeProvider;
+    protected TestService testService;
 
     @Autowired
     private DateUtil dateUtil;
@@ -173,64 +160,32 @@ public class MessageLogResource extends BaseResource {
                 "messages");
     }
 
+
+    /**
+     * This method gets the last send UserMessage for the given party Id
+     *
+     * @param request
+     * @return ResposeEntity of TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
     @GetMapping(value = "test/outgoing/latest")
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) {
-        String partyId = request.getPartyId();
-        LOG.debug("Getting last sent test message for partyId='{}'", partyId);
-
-        String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
-        if (StringUtils.isBlank(userMessageId)) {
-            LOG.debug("Could not find last user message id for party [{}]", partyId);
-            return ResponseEntity.noContent().build();
-        }
-
-        UserMessageLog userMessageLog = null;
-        //TODO create a UserMessageLog object independent of Hibernate annotations in the domibus-api and use the UserMessageLogService instead
-        try {
-            userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
-        } catch (NoResultException ex) {
-            LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
-        }
-
-        if (userMessageLog != null) {
-            TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-            testServiceMessageInfoRO.setMessageId(userMessageId);
-            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
-            testServiceMessageInfoRO.setPartyId(partyId);
-            Party party = pModeProvider.getPartyByIdentifier(partyId);
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
-            return ResponseEntity.ok().body(testServiceMessageInfoRO);
-        }
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) throws TestServiceException {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestSent(request.getPartyId());
+        return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
+
+    /**
+     * This method gets last Received Signal Message for the given party Id and User MessageId
+     *
+     * @param request
+     * @return ResposeEntity of TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
     @GetMapping(value = "test/incoming/latest")
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) {
-        String partyId = request.getPartyId();
-        String userMessageId = request.getUserMessageId();
-        LOG.debug("Getting last received test message from partyId='{}'", partyId);
-
-        Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
-        if (messaging == null) {
-            LOG.debug("Could not find messaging for message ID[{}]", userMessageId);
-            return ResponseEntity.noContent().build();
-        }
-
-        SignalMessage signalMessage = messaging.getSignalMessage();
-        if (signalMessage != null) {
-            TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-            testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
-            testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
-            Party party = pModeProvider.getPartyByIdentifier(partyId);
-            testServiceMessageInfoRO.setPartyId(partyId);
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
-            return ResponseEntity.ok().body(testServiceMessageInfoRO);
-        }
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) throws TestServiceException {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceived(request.getPartyId(), request.getUserMessageId());
+        return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
     private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
