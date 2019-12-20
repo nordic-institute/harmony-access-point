@@ -361,18 +361,17 @@ export class UserComponent extends mix(BaseListComponent)
     this.enableDelete = false;
   }
 
-  public async doSave(): Promise<any> {
+  async doSave(): Promise<any> {
     const isValid = this.userValidatorService.validateUsers(this.rows);
     if (!isValid) return false; // TODO throw instead
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
     return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
       this.loadServerData();
-      // this.disableSelectionAndButtons();
     });
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return UserComponent.USER_CSV_URL;
   }
 
@@ -389,12 +388,6 @@ export class UserComponent extends mix(BaseListComponent)
       return 0;
     return Math.floor(this.rows.length / this.rowLimiter.pageSize);
   }
-
-  // onActivate(event) {
-  //   if ('dblclick' === event.type) {
-  //     this.edit();
-  //   }
-  // }
 
   setState() {
     this.filter.deleted_notSet = this.filter.i++ % 3 === 1;

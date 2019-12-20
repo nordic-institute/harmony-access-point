@@ -254,7 +254,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.enableDelete = false;
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return MessageFilterComponent.MESSAGE_FILTER_URL + '/csv';
   }
 

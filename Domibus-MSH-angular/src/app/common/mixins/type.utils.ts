@@ -8,7 +8,7 @@ import {ISortableList} from './isortable-list';
  * @author Ion Perpegel
  * @since 4.2
  *
- * A helper class that's a bit nicer when applying multiple mixins
+ * Helper methods for components with multiple mixins applied.
  * */
 
 export function instanceOfIBaseList(object: any): object is IBaseList<any> {

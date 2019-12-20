@@ -1,4 +1,3 @@
-import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 
 /**
  * @author Ion Perpegel

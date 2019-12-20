@@ -139,7 +139,7 @@ export class PartyComponent extends mix(BaseListComponent)
     })
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return PartyService.CSV_PARTIES
       + this.partyService.getFilterPath(this.activeFilter.name, this.activeFilter.endPoint, this.activeFilter.partyID, this.activeFilter.process);
   }

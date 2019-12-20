@@ -110,9 +110,5 @@ export class DomainSelectorComponent implements OnInit {
     }
   }
 
-  // private supportsDirtyOperations() {
-  //   return this.currentComponent && this.currentComponent.isDirty
-  //     && this.currentComponent.isDirty instanceof Function;
-  // }
 }
 

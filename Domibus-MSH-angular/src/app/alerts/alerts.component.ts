@@ -245,8 +245,8 @@ export class AlertsComponent extends mix(BaseListComponent)
     super.isChanged = true;
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     // todo: add dynamic params for csv filtering, if requested
-    return AlertsComponent.ALERTS_CSV_URL + '?' + this.createAndSetParameters().toString();
+    return AlertsComponent.ALERTS_CSV_URL + '?' + this.createAndSetParameters();
   }
 }

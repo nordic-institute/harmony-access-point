@@ -1,10 +1,9 @@
-import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 
 /**
  * @author Ion Perpegel
  * @since 4.2
  *
- * An interface for the list with pagination ( client or server)
+ * An interface for the sortable lists ( client or server)
  * */
 export interface ISortableList {
   orderBy: string;

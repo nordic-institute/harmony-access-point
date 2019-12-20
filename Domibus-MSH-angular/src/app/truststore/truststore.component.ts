@@ -126,7 +126,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
       return false;
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return TruststoreComponent.TRUSTSTORE_CSV_URL;
   }
 

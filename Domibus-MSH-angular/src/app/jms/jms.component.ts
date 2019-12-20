@@ -396,7 +396,7 @@ export class JmsComponent extends mix(BaseListComponent)
     )
   }
 
-  public saveAsCSV() {
+  saveAsCSV() {
     if (!this.activeFilter.source) {
       this.alertService.error('Source should be set');
       return;
@@ -405,7 +405,7 @@ export class JmsComponent extends mix(BaseListComponent)
     super.saveAsCSV();
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return 'rest/jms/csv?' + this.createAndSetParameters();
   }
 

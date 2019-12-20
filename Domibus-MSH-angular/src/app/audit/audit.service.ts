@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
-import {AuditCriteria, AuditResponseRo} from './audit';
 import {Observable} from 'rxjs/Observable';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {DownloadService} from '../common/download.service';
 import 'rxjs-compat/add/operator/mergeMap';
 import 'rxjs-compat/add/observable/from';
 

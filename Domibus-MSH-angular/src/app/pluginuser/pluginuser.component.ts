@@ -203,16 +203,15 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  private async openItemInEditForm(rowCopy: PluginUserRO, edit = true) {
+  private openItemInEditForm(rowCopy: PluginUserRO, edit = true) {
     const editForm = this.inBasicMode() ? EditbasicpluginuserFormComponent : EditcertificatepluginuserFormComponent;
-    const ok = await this.dialog.open(editForm, {
+    return this.dialog.open(editForm, {
       data: {
         edit: edit,
         user: rowCopy,
         userroles: this.userRoles,
       }
     }).afterClosed().toPromise();
-    return ok;
   }
 
   canSave() {
@@ -246,8 +245,8 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.selected.length = 0;
   }
 
-  public get csvUrl(): string {
-    return PluginUserService.CSV_URL + '?' + this.createAndSetParameters().toString();
+  get csvUrl(): string {
+    return PluginUserService.CSV_URL + '?' + this.createAndSetParameters();
   }
 
 }

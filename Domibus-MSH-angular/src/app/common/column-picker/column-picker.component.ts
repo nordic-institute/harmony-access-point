@@ -23,13 +23,10 @@ export class ColumnPickerComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-
     this.allColumns.forEach(col => col.isSelected = this.isChecked(col));
-
   }
 
   ngOnInit() {
-
   }
 
   toggleColumnSelection() {
@@ -44,20 +41,6 @@ export class ColumnPickerComponent implements OnInit {
       this.selectedColumns = this.allColumns.filter(col => col.isSelected);
       this.onSelectedColumnsChanged.emit(this.selectedColumns);
     });
-
-    // const selecting = !this.isChecked(col);
-    // col.isSelected = !col.isSelected;
-
-    // if (col.isSelected) {
-    //   this.selectedColumns = this.allColumns.filter(c => this.selectedColumns.indexOf(c) >= 0 || c.name === col.name);
-    // } else {
-    //   this.selectedColumns = this.selectedColumns.filter(c => c.name !== col.name);
-    // }
-    //
-    // this.setLastColumn(this.selectedColumns, 'Actions');
-    // this.onSelectedColumnsChanged.emit(this.selectedColumns);
-
-
   }
 
   selectAllColumns() {
@@ -72,17 +55,6 @@ export class ColumnPickerComponent implements OnInit {
 
   isChecked(col) {
     const isChecked = this.selectedColumns.find(c => c.name === col.name) != null;
-    // console.log('evaluating isChecked for ', col.name, isChecked);createStaticSearchParams
     return isChecked;
   }
-
-  // setLastColumn(array: Array<any>, colName: any) {
-  //   let col = array.find(x => x.name === colName);
-  //   if (!isNullOrUndefined(col)) {
-  //     let posCol = array.indexOf(col);
-  //     array.splice(posCol, 1);
-  //     array.push(col);
-  //   }
-  // }
-
 }

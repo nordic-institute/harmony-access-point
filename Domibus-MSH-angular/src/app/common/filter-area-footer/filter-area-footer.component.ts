@@ -5,7 +5,6 @@ import {IFilterableList} from '../mixins/ifilterable-list';
 @Component({
   selector: 'filter-area-footer',
   templateUrl: './filter-area-footer.component.html',
-  // styleUrls: ['./page-grid.component.css']
 })
 export class FilterAreaFooterComponent {
 

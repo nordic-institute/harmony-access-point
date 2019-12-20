@@ -308,8 +308,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.downloadMessage(this.selected[0].messageId);
   }
 
-  public get csvUrl(): string {
-    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createAndSetParameters().toString();
+  get csvUrl(): string {
+    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createAndSetParameters();
   }
 
   showDetails(selectedRow: any) {

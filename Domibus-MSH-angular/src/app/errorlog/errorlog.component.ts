@@ -106,7 +106,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     return ErrorLogComponent.ERROR_LOG_URL;
   }
 
-  public setServerResults(result: ErrorLogResult) {
+  setServerResults(result: ErrorLogResult) {
     super.count = result.count;
     super.rows = result.errorLogEntries;
 
@@ -149,7 +149,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
     dialogRef.componentInstance.message = selectedRow;
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return ErrorLogComponent.ERROR_LOG_CSV_URL + this.createAndSetParameters();
   }
 }

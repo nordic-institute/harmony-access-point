@@ -199,7 +199,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     this.disabledRestore = !(this.selected[0] != null && this.selected.length === 1 && this.selected[0].id !== this.actualId);
   }
 
-  public doSave(): Promise<any> {
+  doSave(): Promise<any> {
     const queryParams = {ids: this.deleteList};
     return this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams}).toPromise()
       .then(() => {
@@ -327,7 +327,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     });
   }
 
-  public get csvUrl(): string {
+  get csvUrl(): string {
     return PModeArchiveComponent.PMODE_CSV_URL;
   }
 

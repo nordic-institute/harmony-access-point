@@ -101,11 +101,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       this.selected = [];
     }
 
-    // TODO : review this. it should be removed.
-    // if (instanceOfPageableList(this) && this.type == PaginationType.Client) {
-    //   this.offset = 0;
-    // }
-
     return result;
   }
 

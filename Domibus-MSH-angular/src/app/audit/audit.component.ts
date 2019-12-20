@@ -2,14 +2,12 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@ang
 import {AuditService} from './audit.service';
 import {UserService} from '../user/user.service';
 import {AlertService} from '../common/alert/alert.service';
-import {AuditCriteria, AuditResponseRo} from './audit';
-import {Observable} from 'rxjs/Observable';
+import {AuditResponseRo} from './audit';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {AlertsResult} from '../alerts/alertsresult';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpParams} from '@angular/common/http';
 
 /**
  * @author Thomas Dussart
@@ -42,7 +40,7 @@ export class AuditComponent extends mix(BaseListComponent)
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
-              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -156,7 +154,7 @@ export class AuditComponent extends mix(BaseListComponent)
     this.timestampFromMaxDate = event.value;
   }
 
-  public get csvUrl(): string {
-    return 'rest/audit/csv?' + this.createAndSetParameters().toString();
+  get csvUrl(): string {
+    return 'rest/audit/csv?' + this.createAndSetParameters();
   }
 }

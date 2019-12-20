@@ -1,9 +1,8 @@
 import {Constructable} from './base-list.component';
-import {OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {OnInit} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
-import {PaginationType} from './ipageable-list';
 
 /**
  * @author Ion Perpegel
