@@ -206,9 +206,6 @@ public class MessageLogResourceTest {
     public void testGetLastTestSent() throws TestServiceException {
         // Given
         String partyId = "test";
-        party.setEndpoint("testEndpoint");
-        testServiceMessageInfoResult.setPartyId(partyId);
-        testServiceMessageInfoResult.setAccessPoint(party.getEndpoint());
         new Expectations() {{
             testService.getLastTestSent(partyId);
             result = testServiceMessageInfoResult;
@@ -245,9 +242,6 @@ public class MessageLogResourceTest {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
-        party.setEndpoint("testEndpoint");
-        testServiceMessageInfoResult.setPartyId(partyId);
-        testServiceMessageInfoResult.setAccessPoint(party.getEndpoint());
         new Expectations() {{
             testService.getLastTestReceived(partyId, userMessageId);
             result = testServiceMessageInfoResult;
