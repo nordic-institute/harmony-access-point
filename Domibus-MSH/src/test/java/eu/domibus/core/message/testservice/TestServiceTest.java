@@ -92,8 +92,8 @@ public class TestServiceTest {
 
     private String messageId, returnedMessageId;
 
-    private TestServiceMessageInfoRO lastTestSent;
     private String partyId = "test";
+
     private String userMessageId = "testmessageid";
 
     @Before
@@ -395,22 +395,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void testGetLastTestSent() throws Exception {
-        getUserMessageLog(partyId, userMessageId);
-        getLastSentMessage();
-        matchLastTestSent();
-    }
-
-    private void getLastSentMessage() throws TestServiceException {
-        lastTestSent = testService.getLastTestSent(partyId);
-    }
-
-    private void matchLastTestSent() {
-        Assert.assertEquals(partyId, lastTestSent.getPartyId());
-    }
-
-    private void getUserMessageLog(String partyId, String userMessageId) {
-
+    public void testGetLastTestSent() {
         new Expectations() {{
             new XStream();
             times = 0;
@@ -421,6 +406,8 @@ public class TestServiceTest {
             userMessageLogDao.findByMessageId(userMessageId);
             result = userMessageLog;
         }};
+        TestServiceMessageInfoRO lastTestSent = testService.getLastTestSent(partyId);
+        Assert.assertEquals(partyId, lastTestSent.getPartyId());
     }
 
     @Test(expected = TestServiceException.class)
@@ -444,9 +431,9 @@ public class TestServiceTest {
     @Test
     public void testGetLastTestReceived(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
         // Given
-        party.setEndpoint("testEndpoint");
-
         new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
             new XStream();
             times = 0;
             xStream.fromXML((InputStream) any);
