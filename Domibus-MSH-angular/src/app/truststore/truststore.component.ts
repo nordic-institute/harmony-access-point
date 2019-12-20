@@ -86,7 +86,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
     this.trustStoreService.getEntries().toPromise().then(trustStoreEntries => {
       super.rows = trustStoreEntries;
       super.count = trustStoreEntries ? trustStoreEntries.length : 0;
-      // super.offset = 0;
     });
   }
 

@@ -117,7 +117,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
     return Promise.resolve(true);
   }
 
-  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
+  // using an arrow-function instead of a regular function to preserve the correct "this" when called from the row-limiter component context
   onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
     const canChangePage = await this.canProceedToPageChange();
     return !canChangePage;
