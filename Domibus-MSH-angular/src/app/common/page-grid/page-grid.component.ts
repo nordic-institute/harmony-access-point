@@ -16,18 +16,13 @@ export class PageGridComponent {
   }
 
   @Input()
-  parent: BaseListComponent<any> & (IPageableList | ISortableList | (IPageableList & ISortableList));
+  parent: BaseListComponent<any> & IPageableList & ISortableList;
 
   @Input()
   selectionType: undefined | 'single' | 'multi' = undefined;
 
   @Input()
   sortedColumns: { prop: string, dir: string }[] = [];
-
-  // get displayedRows(): any[] {
-  //   var result = this.rows || this.parent.rows;
-  //   return result;
-  // }
 
   useExternalPaging() {
     return instanceOfPageableList(this.parent) && this.parent.type != PaginationType.Client;

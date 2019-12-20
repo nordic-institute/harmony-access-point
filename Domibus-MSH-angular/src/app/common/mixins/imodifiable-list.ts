@@ -18,8 +18,14 @@ export interface IModifiableList {
 
   cancel();
 
-  edit(row: any);
+  edit(row?: any);
 
-  // onAfterSave();
+  delete(row?: any);
+
+  canCancel(): boolean;
+  canSave(): boolean;
+  canDelete(): boolean;
+  canEdit(): boolean;
+  canAdd(): boolean;
 }
 

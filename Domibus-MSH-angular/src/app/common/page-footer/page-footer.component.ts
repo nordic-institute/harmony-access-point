@@ -1,6 +1,6 @@
 ﻿import {Component, Input, OnInit} from '@angular/core';
-import {DomibusInfoService} from '../appinfo/domibusinfo.service';
 import BaseListComponent from '../mixins/base-list.component';
+import {IModifiableList} from '../mixins/imodifiable-list';
 
 @Component({
   templateUrl: 'page-footer.component.html',
@@ -10,11 +10,11 @@ import BaseListComponent from '../mixins/base-list.component';
 
 export class PageFooterComponent implements OnInit {
 
-  constructor(private domibusInfoService: DomibusInfoService) {
+  constructor() {
   }
 
   @Input()
-  parent: BaseListComponent<any>;
+  parent: BaseListComponent<any> & IModifiableList;
 
   @Input()
   isAddVisible: boolean = true;
