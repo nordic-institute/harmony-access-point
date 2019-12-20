@@ -91,9 +91,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             final ParticipantIdentifier participantIdentifier = new ParticipantIdentifier(participantId, participantIdScheme);
             final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
             final ProcessIdentifier processIdentifier = new ProcessIdentifier(processId, processIdScheme);
-            LOG.debug("Participant Identifier [{}], and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme());
-            LOG.debug("Document Identifier [{}], and scheme [{}]", documentIdentifier.getIdentifier(), documentIdentifier.getScheme());
-            LOG.debug("Process Identifier [{}], and scheme [{}]", processIdentifier.getIdentifier(), processIdentifier.getScheme());
+            LOG.debug("ServiceMetadata request contains Participant Identifier [{}] and scheme [{}], Document Identifier [{}] and scheme [{}], Process Identifier [{}] and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme(), documentIdentifier.getIdentifier(), documentIdentifier.getScheme(), processIdentifier.getIdentifier(), processIdentifier.getScheme());
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
