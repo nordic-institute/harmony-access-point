@@ -725,6 +725,14 @@
             <column name="VALUE_MOD" type="BOOLEAN"/>
         </createTable>
 
+
+        <createTable tableName="TB_RAWMESSAGE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_RAWMESSAGE"/>
+            </column>
+            <column name="RAWENVELOPE" type="VARCHAR(500)"/>
+            <column name="RAWPAYLOAD" type="LONGBLOB"/>
+        </createTable>
         <createTable tableName="TB_PART_INFO">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PART_INFO"/>
