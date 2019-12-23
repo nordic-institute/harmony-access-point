@@ -1325,6 +1325,71 @@ def findNumberOfDomain(String inputSite) {
             resetAuthTokens(log)
         }
     }
+//-------------------------------------------------------------------------------------------------------------------------------
+    static def loginAdminConsole(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD,String domainValue = "Default", checkResp0=null,checkResp1=null,success=true){
+        debugLog("  ====  Calling \"loginAdminConsole\".", log)
+        def commandString = null;
+        def commandResult = null;
+		def authenticationUser = userLogin;
+        def authenticationPwd = passwordLogin;
+		def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}')
+		
+		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+		
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/authentication",
+						"-i",
+						"-v",
+						"-H",  "Content-Type: application/json", 
+						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
+						"--trace-ascii", "-"]
+	
+        commandResult = runCommandInShell(commandString, log)
+		if(success){
+			assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus.";
+		}
+		if(checkResp0!=null){
+			assert(commandResult[0].contains(checkResp0)),"Error:Authenticating user: Error checking response for string \"$checkResp0\".";
+		}
+		if(checkResp1){
+			assert(commandResult[0].contains(checkResp1)),"Error:Authenticating user: Error checking response for string \"$checkResp1\".";
+		}
+    }
+//-------------------------------------------------------------------------------------------------------------------------------
+    static def UpdateAdminConsoleUserPass(String side, context, log, String userLogin = SUPER_USER, oldPassword = SUPER_USER_PWD,newPassword="Domibus-1234",String domainValue = "Default",checkResp0=null,checkResp1=null,success=true){
+        debugLog("  ====  Calling \"loginAdminConsole\".", log)
+        def commandString = null;
+        def commandResult = null;
+		def authenticationUser = userLogin;
+        def authenticationPwd = oldPassword;
+		
+		def json = ifWindowsEscapeJsonString('{\"currentPassword\":\"' + "${oldPassword}" + '\",\"newPassword\":\"' + "${newPassword}" + '\"}')
+		
+		
+		try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/password",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H",  "Content-Type: application/json",
+						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-v",
+						"-X", "PUT",
+						"--data-binary", json,   
+						"--trace-ascii", "-"]
+			commandResult = runCommandInShell(commandString, log)
+			if(success){
+				assert((commandResult[0]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || (commandResult[0]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:Authenticating user: Error while trying to connect to domibus.";
+			}
+			if(checkResp0!=null){
+				assert(commandResult[0].contains(checkResp0)),"Error:UpdateAdminConsoleUserPass: Error checking response for string \"$checkResp0\".";
+			}
+			if(checkResp1){
+				assert(commandResult[0].contains(checkResp1)),"Error:UpdateAdminConsoleUserPass: Error checking response for string \"$checkResp1\".";
+			}
+        } finally {
+            resetAuthTokens(log)
+        }
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
     static def getPluginUsers(String side, context, log, String authUser=null, String authPwd=null){
         debugLog("  ====  Calling \"getPluginUsers\".", log)
@@ -1346,7 +1411,7 @@ def findNumberOfDomain(String inputSite) {
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def addPluginUser(String side, context, log, String domainValue="Default", String userRole="ROLE_ADMIN", String userPl, String passwordPl="Domibus-123", String originalUser="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1", String authUser=null, String authPwd=null){
+    static def addPluginUser(String side, context, log, String domainValue="Default", String userRole="ROLE_ADMIN", String userPl, String passwordPl="Domibus-123", String originalUser="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",success=true, String authUser=null, String authPwd=null){
         debugLog("  ====  Calling \"addPluginUser\".", log)
         def usersMap=null;
         def mapElement=null;
@@ -1381,8 +1446,14 @@ def findNumberOfDomain(String inputSite) {
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]
                 commandResult = runCommandInShell(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
-                log.info "  addPluginUser  [][]  Plugin user $userPl added.";
+				
+				if(success){
+					assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:addPluginUser: Error while trying to add a user.";
+					log.info "  addPluginUser  [][]  Plugin user $userPl added.";
+				}else{
+					assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*500.*/)&&(commandResult[0]==~ /(?s).*password of.*user.*not meet the minimum complexity requirements.*/)),"Error:addAdminConsoleUser: user \"$userPl\" was created .";
+					log.info "  addPluginUser  [][]  Plugin user \"$userPl\" was not added.";
+				}
             }
         } finally {
             resetAuthTokens(log)
@@ -1442,10 +1513,78 @@ def findNumberOfDomain(String inputSite) {
 								"--data-binary", formatJsonForCurl(curlParams, log), 
 								"-v"]				
 
-                commandResult = runCommandInShell(commandString, log)
+                commandResult = runCommandInShell(commandString, log);
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:removePluginUser: Error while trying to remove user $userPl.";
                 log.info "  removePluginUser  [][]  Plugin user $userPl removed.";
             }
+        } finally {
+            resetAuthTokens(log)
+        }
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def updatePluginUserPass(String side, context, log, String userPl, newPassword="Domibus-1234", String domainValue="Default",checkResp0=null,checkResp1=null,success=true, String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"updatePluginUser\".", log)
+        def usersMap=null;
+        def mapElement=null;
+        def multitenancyOn=false;
+        def commandString = null;
+        def commandResult = null;
+        def jsonSlurper = new JsonSlurper()
+        def curlParams=null;
+        def authenticationUser=authUser;
+        def authenticationPwd=authPwd;
+        def originalUser=null;
+        def rolePl=null;
+        def entityId=null;
+		def active=null;
+		def suspended=null;
+        def i=0;
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+            debugLog("  updatePluginUser  [][]  Fetch users list and verify that user $userPl exists.", log)
+            usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
+            debugLog("  updatePluginUser  [][]  usersMap:	$usersMap", log)
+            assert(userExists(usersMap, userPl, log, true)),"Error: updatePluginUser  [][]  Plugin user $userPl doesn't exist.";
+            while (i < usersMap.entries.size()) {
+                assert(usersMap.entries[i] != null),"Error:updatePluginUser: Error while parsing the list of plugin users.";
+                if (usersMap.entries[i].userName == userPl) {
+                    rolePl = usersMap.entries[i].authRoles;
+                    originalUser = usersMap.entries[i].originalUser;
+                    entityId = usersMap.entries[i].entityId;
+					active = usersMap.entries[i].active
+					suspended = usersMap.entries[i].suspended;
+                    i = usersMap.entries.size()
+                }
+                i++;
+            }
+            assert(rolePl != null),"Error:updatePluginUser: Error while fetching the role of user \"$userPl\"."
+            assert(entityId != null),"Error:updatePluginUser: Error while fetching the \"entityId\" of user \"$userPl\" from the user list."
+							  
+			curlParams = "[ { \"entityId\": \"$entityId\", \"userName\": \"$userPl\", \"password\": \"$newPassword\", \"certificateId\": null,\"authRoles\": \"$rolePl\", \"authenticationType\": \"BASIC\", \"status\": \"UPDATED\", \"active\": $active, \"suspended\": $suspended } ]"
+							  
+            debugLog("  updatePluginUser  [][]  curlParams: " + curlParams, log)
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users", 
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-X", "PUT", 
+						"--data-binary", formatJsonForCurl(curlParams, log), 
+						"-v"]				
+
+            commandResult = runCommandInShell(commandString, log);
+			
+			if(success){
+				assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:updatePluginUser: Error while trying to update the password of the user \"$userPl\"";
+				log.info "  updatePluginUser  [][]  Password of plugin user \"$userPl\" was successfully updated.";
+			}
+			if(checkResp0!=null){
+				assert(commandResult[0].contains(checkResp0)),"Error:updatePluginUser: Error checking response for string \"$checkResp0\".";
+			}
+			if(checkResp1){
+				assert(commandResult[0].contains(checkResp1)),"Error:updatePluginUser: Error checking response for string \"$checkResp1\".";
+			}
         } finally {
             resetAuthTokens(log)
         }
@@ -1713,71 +1852,7 @@ static def ifWindowsEscapeJsonString(json) {
         assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus."
         return commandResult[0];
     }
-//-------------------------------------------------------------------------------------------------------------------------------
-    static def loginAdminConsole(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD,String domainValue = "Default", checkResp0=null,checkResp1=null,success=true){
-        debugLog("  ====  Calling \"loginAdminConsole\".", log)
-        def commandString = null;
-        def commandResult = null;
-		def authenticationUser = userLogin;
-        def authenticationPwd = passwordLogin;
-		def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}')
-		
-		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-		
-        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/authentication",
-						"-i",
-						"-v",
-						"-H",  "Content-Type: application/json", 
-						"--data-binary", json, "-c", context.expand('${projectDir}') + File.separator + "cookie.txt", 
-						"--trace-ascii", "-"]
-	
-        commandResult = runCommandInShell(commandString, log)
-		if(success){
-			assert(commandResult[0].contains("XSRF-TOKEN")),"Error:Authenticating user: Error while trying to connect to domibus.";
-		}
-		if(checkResp0!=null){
-			assert(commandResult[0].contains(checkResp0)),"Error:Authenticating user: Error checking response for string \"$checkResp0\".";
-		}
-		if(checkResp1){
-			assert(commandResult[0].contains(checkResp1)),"Error:Authenticating user: Error checking response for string \"$checkResp1\".";
-		}
-    }
-//-------------------------------------------------------------------------------------------------------------------------------
-    static def UpdateAdminConsoleUserPass(String side, context, log, String userLogin = SUPER_USER, oldPassword = SUPER_USER_PWD,newPassword="Domibus-1234",String domainValue = "Default",checkResp0=null,checkResp1=null,success=true){
-        debugLog("  ====  Calling \"loginAdminConsole\".", log)
-        def commandString = null;
-        def commandResult = null;
-		def authenticationUser = userLogin;
-        def authenticationPwd = oldPassword;
-		
-		def json = ifWindowsEscapeJsonString('{\"currentPassword\":\"' + "${oldPassword}" + '\",\"newPassword\":\"' + "${newPassword}" + '\"}')
-		
-		
-		try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/password",
-						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-						"-H",  "Content-Type: application/json",
-						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-						"-v",
-						"-X", "PUT",
-						"--data-binary", json,   
-						"--trace-ascii", "-"]
-			commandResult = runCommandInShell(commandString, log)
-			if(success){
-				assert((commandResult[0]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || (commandResult[0]==~ /(?s).*HTTP\/\d.\d\s*204.*/)),"Error:Authenticating user: Error while trying to connect to domibus.";
-			}
-			if(checkResp0!=null){
-				assert(commandResult[0].contains(checkResp0)),"Error:Authenticating user: Error checking response for string \"$checkResp0\".";
-			}
-			if(checkResp1){
-				assert(commandResult[0].contains(checkResp1)),"Error:Authenticating user: Error checking response for string \"$checkResp1\".";
-			}
-        } finally {
-            resetAuthTokens(log)
-        }
-    }
 //---------------------------------------------------------------------------------------------------------------------------------
         static def String returnXsfrToken(String side, context, log, String userLogin = SUPER_USER, passwordLogin = SUPER_USER_PWD) {
         debugLog("  ====  Calling \"returnXsfrToken\".", log)
@@ -2257,8 +2332,9 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 		tStep.run(testRunner, context)
 	}	
 }
-
-//---------------------------------------------------------------------------------------------------------------------------------
+//IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+// Handling domibus properties at runtime
+//IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
     static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
 		def authenticationUser = authUser
         def authenticationPwd = authPwd
@@ -2287,9 +2363,97 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
         }
         debugLog("  ====  Finished \"changePropertyAtRuntime\".", log)		
     }
+//---------------------------------------------------------------------------------------------------------------------------------	
+	static def getPropertyAtRuntime(String side, String propName, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+		def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def jsonSlurper = new JsonSlurper()
+		def propMetadata=null;
+		def usersMap=null;
+		def i=0;
+		def propValue=null;
 
+        debugLog("  ====  Calling \"getPropertyAtRuntime\".", log)
+        log.info "  getPropertyAtRuntime  [][]  Property to get: \"$propName\".";
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties?name=$propName&pageSize=10", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+							"-H",  "Content-Type: text/xml", 							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd), 
+							"-v"]
+            def commandResult = runCommandInShell(commandString, log)
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:getPropertyAtRuntime: Error while trying to connect to domibus.";
+			propMetadata=commandResult[0].substring(5);
+			debugLog("  getPropertyAtRuntime  [][]  Property serach result: $propMetadata", log);
+			usersMap = jsonSlurper.parseText(propMetadata);
+			assert(usersMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null value found.";
+			assert(usersMap.items != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value.";
+			
+            while ( (i < usersMap.items.size()) && (propValue == null) ) {
+                assert(usersMap.items[i] != null),"Error:getPropertyAtRuntime: Error while parsing the list of returned properties.";
+                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].metadata.name + "--.", log)
+                if (usersMap.items[i].metadata.name == propName) {
+					propValue = usersMap.items[i].value;
+                }
+                i++;
+            }
+            assert(propValue!=null), "Error: getPropertyAtRuntime: no property found matching name \"$propName\"" 														
+			log.info "  getPropertyAtRuntime  [][]  Property \"$propName\" value = \"$propValue\"." 
+
+        } finally {
+            resetAuthTokens(log)
+        }
+        debugLog("  ====  Finished \"getPropertyAtRuntime\".", log)		
+		return propValue;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------	
+	static def testPropertyAtRuntime(String side, String propName, String propTestValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+
+		def returnedPropValue = null;
+		
+        debugLog("  ====  Calling \"testPropertyAtRuntime\".", log);
+		returnedPropValue=getPropertyAtRuntime(side,propName,context,log,domainValue,authUser,authPwd);			
+        debugLog("  testPropertyAtRuntime  [][]  Comparing property fetched value \"$returnedPropValue\" against input value \"$propTestValue\".",log);
+		assert(returnedPropValue.equals(propTestValue)),"Error: testPropertyAtRuntime: property fetched value = \"$returnedPropValue\" instead of \"$propTestValue\"";
+        log.info "  testPropertyAtRuntime  [][]  Success: property fetched value \"$returnedPropValue\" and input value \"$propTestValue\" are equal.";		
+        debugLog("  ====  Finished \"testPropertyAtRuntime\".", log);		
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
- //---------------------------------------------------------------------------------------------------------------------------------
+    static def void setTestCaseCustProp(custPropName,custPropValue,log,context,testRunner){
+        debugLog("  ====  Calling \"setTestCaseCustProp\".", log);		
+		testRunner.testCase.setPropertyValue(custPropName,custPropValue);
+		log.info "Test case level custom property \"$custPropName\" set to \"$custPropValue\"."
+		debugLog("  ====  End \"setTestCaseCustProp\".", log);
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getTestCaseCustProp(custPropName,log, context, testRunner){
+		def retPropVal=null;
+        debugLog("  ====  Calling \"getTestCaseCustProp\".", log);		
+		retPropVal=testRunner.testCase.getPropertyValue(custPropName);
+		assert(retPropVal!=null),"Error:getTestCaseCustProp: Couldn't fetch property \"$custPropName\" value";
+		log.info "Test case level custom property fetched \"$custPropName\"= \"$retPropVal\"."
+		debugLog("  ====  End \"getTestCaseCustProp\".", log);
+		return retPropVal;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def ifEmptyReturnDef(value1,value2="dummy"){
+		if(value1==null){
+			assert(value2!="dummy"),"Error: ifEmptyReturnDef: Both values were not set.";
+			return value2;
+		}
+		else{
+			if(value1.trim()==""){
+				assert(value2!="dummy"),"Error: ifEmptyReturnDef: Both values were not set.";
+				return value2;
+			}
+		}
+		return value1;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------
 // Return path to domibus folder
 static def String pathToLogFiles(side, log, context) {
     debugLog("  ====  Calling \"pathToDomibus\".", log)
@@ -2936,6 +3100,24 @@ static def String pathToLogFiles(side, log, context) {
 			sqlDB.execute("UPDATE TB_USER set DEFAULT_PASSWORD=1 WHERE USER_NAME = '${username}'");
 		}else{
 			sqlDB.execute("UPDATE TB_USER set DEFAULT_PASSWORD=0 WHERE USER_NAME = '${username}'");
+		}
+		closeDbConnections(usedDomains)
+    }
+	
+	
+	
+	// Set plugin user's password default parameter
+    def setPluginPasswordDefaultValue(String targetDomainId,String username ,valueToSet=false) {
+        debugLog("  ====  Calling \"setPluginPasswordDefaultValue\".", log)
+        def sqlDB = null;
+		assert((targetDomainId!=null)&&(targetDomainId.trim()!="")),"Error: DomainId provided must not be empty."
+        sqlDB = retrieveSqlConnectionRefFromDomainId(targetDomainId)
+        def usedDomains = [targetDomainId]
+        openDbConnections(usedDomains)
+		if(valueToSet){
+			sqlDB.execute("UPDATE TB_AUTHENTICATION_ENTRY set DEFAULT_PASSWORD=1 WHERE USERNAME = '${username}'");
+		}else{
+			sqlDB.execute("UPDATE TB_AUTHENTICATION_ENTRY set DEFAULT_PASSWORD=0 WHERE USERNAME = '${username}'");
 		}
 		closeDbConnections(usedDomains)
     }
