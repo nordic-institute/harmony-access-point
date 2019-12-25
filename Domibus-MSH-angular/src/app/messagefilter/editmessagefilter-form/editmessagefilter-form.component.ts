@@ -79,6 +79,6 @@ export class EditMessageFilterComponent {
   }
 
   submitForm() {
-    this.dialogRef.close(true);
+    this.dialogRef.close(this);
   }
 }

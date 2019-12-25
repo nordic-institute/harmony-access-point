@@ -2,14 +2,12 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@ang
 import {AuditService} from './audit.service';
 import {UserService} from '../user/user.service';
 import {AlertService} from '../common/alert/alert.service';
-import {AuditCriteria, AuditResponseRo} from './audit';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {Observable} from 'rxjs/Observable';
-import {AlertComponent} from '../common/alert/alert.component';
+import {AuditResponseRo} from './audit';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
  * @author Thomas Dussart
@@ -24,7 +22,8 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
-export class AuditComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit {
+export class AuditComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerPageableListMixin) implements OnInit {
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
@@ -37,22 +36,11 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-  loading: boolean = false;
-
-// --- hide/show binding ---
-  advancedSearch: boolean;
-
 // --- Table binding ---
-  rows = [];
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  offset: number = 0;
-  count: number = 0;
-
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
-              private changeDetector: ChangeDetectorRef) {
+              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
@@ -77,11 +65,15 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     this.timestampToMaxDate = new Date();
 
 // --- lets count the records and fill the table.---
-    this.searchAndCount();
+    this.filterData();
+  }
+
+  filterData() {
+    super.filterData();
+    this.countRecords();
   }
 
   ngAfterViewInit() {
-// --- lets init the table columns ---
     this.initColumns();
   }
 
@@ -89,79 +81,30 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     this.changeDetector.detectChanges();
   }
 
-  searchAndCount() {
-    this.setActiveFilter();
-
-    this.loading = true;
-    this.offset = 0;
-    const auditCriteria: AuditCriteria = this.buildCriteria();
-    const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
-    const auditCountObservable: Observable<number> = this.auditService.countAuditLogs(auditCriteria);
-    auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-        this.rows = response;
-        this.loading = false;
-      },
-      error => {
-        this.alertService.exception('Could not load audits: ', error);
-        this.loading = false;
-      },
-      // on complete of auditLogsObservable Observable, we load the count
-      // TODO: load this in parallel and merge the stream at the end.
-      () => auditCountObservable.subscribe(auditCount => this.count = auditCount,
-        error => {
-          this.alertService.exception('Could not count audits: ', error);
-          this.loading = false;
-        })
-    );
-  }
-
-  toggleAdvancedSearch() {
-    this.advancedSearch = !this.advancedSearch;
-    return false; // to prevent default navigation
-  }
-
-  searchAuditLog() {
-    this.loading = true;
-    const auditCriteria: AuditCriteria = this.buildCriteria();
-    const auditLogsObservable = this.auditService.listAuditLogs(auditCriteria);
-    auditLogsObservable.subscribe((response: AuditResponseRo[]) => {
-        this.rows = response;
-        this.loading = false;
-      },
-      error => {
-        this.alertService.exception('Could not load audits: ', error);
-        this.loading = false;
+  countRecords() {
+    this.auditService.countAuditLogs(this.createAndSetParameters()).toPromise()
+      .then(auditCount => {
+        super.count = auditCount;
+      }, err => {
+        this.alertService.exception('Error counting audit entries: ', err);
       });
   }
 
-  onPage(event) {
-    this.resetFilters();
-
-    this.offset = event.offset;
-    this.searchAuditLog();
+  protected get GETUrl(): string {
+    return 'rest/audit/list';
   }
 
-  buildCriteria(): AuditCriteria {
-    const auditCriteria: AuditCriteria = new AuditCriteria();
-
-    auditCriteria.auditTargetName = this.activeFilter.auditTarget;
-    auditCriteria.user = this.activeFilter.users;
-    auditCriteria.action = this.activeFilter.actions;
-    auditCriteria.from = this.activeFilter.from;
-    auditCriteria.to = this.activeFilter.to;
-
-    auditCriteria.start = this.offset * this.rowLimiter.pageSize;
-    auditCriteria.max = this.rowLimiter.pageSize;
-
-    return auditCriteria;
+  public setServerResults(result: AuditResponseRo[]) {
+    super.rows = result;
   }
 
-  changePageSize(newPageLimit: number) {
-    this.resetFilters();
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
 
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.searchAuditLog();
+    filterParams = filterParams.set('start', this.offset * this.rowLimiter.pageSize);
+    filterParams = filterParams.set('max', this.rowLimiter.pageSize);
+
+    return filterParams;
   }
 
   initColumns() {
@@ -203,21 +146,15 @@ export class AuditComponent extends mix(BaseListComponent).with(FilterableListMi
     })
   }
 
-  saveAsCSV() {
-    if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-    super.resetFilters();
-    const auditCriteria: AuditCriteria = this.buildCriteria();
-    this.auditService.saveAsCsv(auditCriteria);
-  }
-
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
   }
 
   onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
+  }
+
+  get csvUrl(): string {
+    return 'rest/audit/csv?' + this.createAndSetParameters();
   }
 }

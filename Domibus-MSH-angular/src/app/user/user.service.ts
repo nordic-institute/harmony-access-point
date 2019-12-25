@@ -48,9 +48,17 @@ export class UserService {
   private filterData(filter: UserSearchCriteria) {
     return function (users) {
       let results = users.slice();
-      if (filter.deleted != null) {
-        results = users.filter(el => el.deleted === filter.deleted)
+
+      if (filter.userName) {
+        results = results.filter(el => el.userName.indexOf(filter.userName) >= 0);
       }
+      if (!filter.deleted_notSet) {
+        results = results.filter(el => el.deleted === filter.deleted);
+      }
+      if (filter.authRole) {
+        results = results.filter(el => el.roles === filter.authRole);
+      }
+
       users.length = 0;
       users.push(...results);
       return users;
@@ -62,6 +70,8 @@ export class UserService {
 export class UserSearchCriteria {
   authRole: string;
   userName: string;
-  deleted: boolean;
+  deleted: boolean = false;
+  deleted_notSet: boolean = false;
+  i: number = 0;
 }
 

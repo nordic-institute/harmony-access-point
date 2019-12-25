@@ -121,10 +121,6 @@ export class EditUserComponent implements OnInit {
     this.confirmation = event.target.value;
   }
 
-  updateActive(event) {
-    this.active = event.target.checked;
-  }
-
   submitForm() {
     this.dialogRef.close(true);
   }

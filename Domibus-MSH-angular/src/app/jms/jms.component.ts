@@ -5,26 +5,24 @@ import {MessagesRequestRO} from './ro/messages-request-ro';
 import {MatDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {Observable} from 'rxjs/Observable';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
-export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
+export class JmsComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
+  implements OnInit, DirtyOperations {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -44,15 +42,11 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
   currentSearchSelectedSource;
 
-  selectedMessages: any[];
   markedForDeletionMessages: any[];
-  loading: boolean;
 
-  rows: Array<any>;
   request: MessagesRequestRO;
 
   private _selectedSource: any;
-  offset: any;
 
   get selectedSource(): any {
     return this._selectedSource;
@@ -66,16 +60,15 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
-              private changeDetector: ChangeDetectorRef) {
+              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
     super.ngOnInit();
 
-    this['filter'] = new MessagesRequestRO();
+    super.filter = new MessagesRequestRO();
 
-    this.offset = 0;
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
@@ -90,11 +83,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.filter.toDate = new Date();
     this.filter.toDate.setHours(23, 59, 59, 999);
 
-    this.selectedMessages = [];
     this.markedForDeletionMessages = [];
-    this.loading = false;
-
-    this.rows = [];
 
     this.loadDestinations();
 
@@ -103,13 +92,17 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
-      super.trySearch().then(ok => {
-        if (!ok) {
-          //revert the drop-down value to the old oen
+      super.tryFilter().then(done => {
+        if (!done) {
+          //revert the drop-down value to the old one
           this._selectedSource = oldVal;
         }
       });
     });
+  }
+
+  public get name(): string {
+    return 'JMS Messages';
   }
 
   ngAfterViewInit() {
@@ -207,34 +200,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.selectedSource = toSelect;
   }
 
-  changePageSize(newPageSize: number) {
-    super.resetFilters();
-    this.rowLimiter.pageSize = newPageSize;
-    this.refresh();
-  }
-
-  refresh() {
-    // ugly but the grid does not feel the paging changes otherwise
-    this.loading = true;
-    const rows = this.rows;
-    this.rows = [];
-
-    setTimeout(() => {
-      this.rows = rows;
-      this.selectedMessages.length = 0;
-      this.loading = false;
-    }, 50);
-  }
-
-  onSelect({selected}) {
-    this.selectedMessages.splice(0, this.selectedMessages.length);
-    this.selectedMessages.push(...selected);
-  }
-
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
+  edit(row) {
+    this.showDetails(row);
   }
 
   onTimestampFromChange(event) {
@@ -246,63 +213,33 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   canSearch() {
-    return this.filter.source && !this.loading;
+    return this.filter.source && !this.isLoading;
   }
 
-  search() {
-    super.setActiveFilter();
-    this.doSearch();
+  protected get GETUrl(): string {
+    return 'rest/jms/messages';
   }
 
-  private doSearch() {
+  protected async onBeforeGetData(): Promise<any> {
     if (!this.filter.source) {
-      this.alertService.error('Source should be set');
-      return;
-    }
-    if (this.loading) {
-      return;
+      return Promise.reject('Source should be set');
     }
 
-    this.loading = true;
-    this.selectedMessages = [];
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
-    this.http.post<any>('rest/jms/messages', {
-      source: this.activeFilter.source,
-      jmsType: this.activeFilter.jmsType,
-      fromDate: this.activeFilter.fromDate,
-      toDate: this.activeFilter.toDate,
-      selector: this.activeFilter.selector,
-    }).subscribe(
-      res => {
-        this.rows = res.messages;
-        this.offset = 0;
-        this.refresh();
-        this.loading = false;
-
-        this.refreshDestinations();
-      },
-      error => {
-        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
-        this.loading = false;
-      }
-    );
   }
 
-  cancel() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
-        super.resetFilters();
-        this.doSearch();
-      }
-    });
+  public setServerResults(res) {
+    super.rows = res.messages;
+    super.count = res.messages.length;
+    this.refreshDestinations();
   }
 
-  save() {
+  async doSave(): Promise<any> {
     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
     //because the user can change the source after pressing search and then select the messages and press delete
     //in this case I need to use currentSearchSelectedSource
-    this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+    return this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
   }
 
   move() {
@@ -310,10 +247,10 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
 
-      if (this.selectedMessages.length > 1) {
+      if (this.selected.length > 1) {
         dialogRef.componentInstance.queues.push(...this.queues);
       } else {
-        for (let message of this.selectedMessages) {
+        for (let message of this.selected) {
 
           try {
             let originalQueue = message.customProperties.originalQueue;
@@ -349,7 +286,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.destination) {
-        let messageIds = this.selectedMessages.map((message) => message.id);
+        let messageIds = this.selected.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
@@ -386,19 +323,16 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.destination) {
-        let messageIds = this.selectedMessages.map((message) => message.id);
+        let messageIds = this.selected.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
   }
 
-  details(selectedRow: any) {
+  showDetails(selectedRow: any) {
     let dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
-    dialogRef.afterClosed().subscribe(result => {
-      //Todo:
-    });
   }
 
   deleteAction(row) {
@@ -406,21 +340,22 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     let newRows = this.rows.filter((element) => {
       return row !== element;
     });
-    this.selectedMessages = [];
-    this.rows = newRows;
+    super.selected = [];
+    super.rows = newRows;
+    super.count = newRows.length;
   }
 
   delete() {
-    this.markedForDeletionMessages.push(...this.selectedMessages);
+    this.markedForDeletionMessages.push(...this.selected);
     let newRows = this.rows.filter((element) => {
-      return !this.selectedMessages.includes(element);
+      return !this.selected.includes(element);
     });
-    this.selectedMessages = [];
-    this.rows = newRows;
+    super.selected = [];
+    super.rows = newRows;
+    super.count = newRows.length;
   }
 
   serverMove(source: string, destination: string, messageIds: Array<any>) {
-    console.log('serverMove');
     this.http.post('rest/jms/messages/action', {
       source: source,
       destination: destination,
@@ -437,10 +372,11 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
         //remove the selected rows
         let newRows = this.rows.filter((element) => {
-          return !this.selectedMessages.includes(element);
+          return !this.selected.includes(element);
         });
-        this.selectedMessages = [];
-        this.rows = newRows;
+        super.selected = [];
+        super.rows = newRows;
+        super.count = newRows.length;
       },
       error => {
         this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
@@ -448,41 +384,16 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     )
   }
 
-  serverRemove(source: string, messageIds: Array<any>) {
-    this.http.post('rest/jms/messages/action', {
+  serverRemove(source: string, messageIds: Array<any>): Promise<any> {
+    return this.http.post('rest/jms/messages/action', {
       source: source,
       selectedMessages: messageIds,
       action: 'REMOVE'
-    }).subscribe(
-      () => {
-        this.alertService.success('The operation \'updates on message(s)\' completed successfully.');
+    }).toPromise().then(() => {
         this.refreshDestinations();
         this.markedForDeletionMessages = [];
-      },
-      error => {
-        this.alertService.exception('The operation \'updates on message(s)\' could not be completed: ', error);
       }
     )
-  }
-
-  getFilterPath() {
-    let result = '?';
-    if (this.activeFilter.source) {
-      result += 'source=' + this.activeFilter.source + '&';
-    }
-    if (this.activeFilter.jmsType) {
-      result += 'jmsType=' + this.activeFilter.jmsType + '&';
-    }
-    if (this.activeFilter.fromDate) {
-      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
-    }
-    if (this.activeFilter.toDate) {
-      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
-    }
-    if (this.activeFilter.selector) {
-      result += 'selector=' + this.activeFilter.selector + '&';
-    }
-    return result;
   }
 
   saveAsCSV() {
@@ -490,28 +401,27 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       this.alertService.error('Source should be set');
       return;
     }
-    if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-    super.resetFilters();
-    DownloadService.downloadNative('rest/jms/csv' + this.getFilterPath());
+
+    super.saveAsCSV();
+  }
+
+  get csvUrl(): string {
+    return 'rest/jms/csv?' + this.createAndSetParameters();
   }
 
   isDirty(): boolean {
     return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
 
-  onPage($event) {
-    this.offset = $event.offset;
-    super.resetFilters();
+  canCancel() {
+    return (this.markedForDeletionMessages.length > 0);
   }
 
-  onSort() {
-    super.resetFilters();
+  canSave() {
+    return this.canCancel();
   }
 
-  toJson(value) {
-    return JSON.stringify(value);
+  canDelete() {
+    return (this.selected.length > 0);
   }
 }

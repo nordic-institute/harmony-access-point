@@ -4,7 +4,7 @@
   <mat-card>
     <mat-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="trySearch()">
+        <form name="filterForm" #filterForm="ngForm" >
           <!-- Processed -->
           <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
             <mat-option [value]="''"></mat-option>
@@ -14,7 +14,7 @@
           </mat-select>
           <!-- Alert Type (Basic) -->
           <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
-                     id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
+                      id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
             <mat-option [value]="''"></mat-option>
             <mat-option *ngFor="let atype of aTypes" [value]="atype">
               {{atype}}
@@ -22,21 +22,21 @@
           </mat-select>
 
           <mat-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
-                     id="alertstatus_id">
+                      id="alertstatus_id">
             <mat-option [value]="''"></mat-option>
             <mat-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
               {{aStatus}}
             </mat-option>
           </mat-select>
           <!-- Alert Id (Advanced) -->
-          <mat-form-field *ngIf="advancedSearch">
+          <mat-form-field *ngIf="advancedSearch" >
             <input matInput placeholder="Alert Id" name="alertId" [(ngModel)]="filter.alertId"
-                   #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}" [errorStateMatcher]="matcher">
+                   #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}" [errorStateMatcher]="matcher" advanced-filter-behaviour [parent]="this">
             <mat-error *ngIf="alertId.invalid && (alertId.dirty || alertId.touched)">Alert Id must be 19 digits long and must not start with a 0</mat-error>
           </mat-form-field>
           <!-- Alert Level (Basic) -->
           <mat-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
-                     id="alertlevel_id">
+                      id="alertlevel_id">
             <mat-option [value]="''">
             </mat-option>
             <mat-option *ngFor="let alevel of aLevels" [value]="alevel">
@@ -63,9 +63,9 @@
                           #timestampControl="ngModel" id="creationto_id">
           </md2-datepicker>
           <ng-container *ngIf="displayDomainCheckBox">
-            <input type="checkbox" name="showDomainAlerts" [(ngModel)]="filter.domainAlerts"
-                   id="showDomainAlerts_id">
-            <span>Show domain alerts</span>
+            <mat-checkbox name="showDomainAlerts" [(ngModel)]="filter.domainAlerts" id="showDomainAlerts_id">
+              Show domain alerts
+            </mat-checkbox>
           </ng-container>
           <!-- Reporting From -->
           <md2-datepicker placeholder="Reporting From:" appClearInvalid
@@ -74,7 +74,8 @@
                           [max]="timestampReportingFromMaxDate"
                           (change)='onTimestampReportingFromChange($event)'
                           [type]="'datetime'"
-                          #timestampControl="ngModel" id="reportingfrom_id" *ngIf="advancedSearch">
+                          #timestampControl="ngModel" id="reportingfrom_id" *ngIf="advancedSearch"
+                          advanced-filter-behaviour [parent]="this">
           </md2-datepicker>
           <!-- Reporting To -->
           <md2-datepicker placeholder="Reporting To:" appClearInvalid
@@ -84,7 +85,8 @@
                           [max]="timestampReportingToMaxDate"
                           (change)='onTimestampReportingToChange($event)'
                           [type]="'datetime'"
-                          #timestampControl="ngModel" id="reportingto_id" *ngIf="advancedSearch">
+                          #timestampControl="ngModel" id="reportingto_id" *ngIf="advancedSearch"
+                          advanced-filter-behaviour [parent]="this">
           </md2-datepicker>
 
           <!-- Alert Type Criteria -->
@@ -120,65 +122,24 @@
             </mat-card>
           </div>
 
-          <!-- Search Button and Basic/Advanced Search-->
-          <div class="searchArea">
-            <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
-                    button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
-          </div>
+          <filter-area-footer [parent]="this"></filter-area-footer>
+
         </form>
       </div>
     </mat-card-content>
   </mat-card>
 
-  <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
-    <input autofocus type="checkbox" [checked]="value" id="processed{{rows.indexOf(row)}}_id"
-           (click)="setProcessedValue(row)"/>
-  </ng-template>
-
 </div>
 
 <div class="panel">
-  <div class="group-filter-button">
-    <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                       (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-      <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                         (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button mat-icon-button color="primary" (click)="saveAsCSV()"
-            id="saveascsvbutton_id" mat-tooltip="Export as CSV" button-click-behaviour>
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
-  </div>
+  <grid-header [parent]="this"></grid-header>
 
-  <!-- Data Table -->
-  <ngx-datatable
-    id="alertsTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="loading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-  >
-  </ngx-datatable>
+  <page-grid [parent]="this"></page-grid>
+
+  <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
+    <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed" (click)="setProcessedValue(row)">
+    </mat-checkbox>
+  </ng-template>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value| domibusDate: dateFormat}}</span>
@@ -194,7 +155,7 @@
       <mat-icon>cancel</mat-icon>
       <span>Cancel</span>
     </button>
-    <button id="alertsSaveButton" mat-raised-button color="primary" (click)="save(false)"
+    <button id="alertsSaveButton" mat-raised-button color="primary" (click)="saveIfNeeded()"
             [disabled]="!isDirty()" button-click-behaviour>
       <mat-icon>save</mat-icon>
       <span>Save</span>

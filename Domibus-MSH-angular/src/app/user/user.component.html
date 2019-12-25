@@ -1,18 +1,13 @@
 <page-header id="usersheader_id">Users</page-header>
 
-<div *ngIf="false" class="selectionCriteria">
+<div *ngIf="true" class="selectionCriteria">
   <mat-card>
     <mat-card-content>
       <div class="panel">
 
         <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="role_id">
+          <mat-option [value]="''"></mat-option>
           <mat-option *ngFor="let t of userRoles" [value]="t">
-            {{t}}
-          </mat-option>
-        </mat-select>
-
-        <mat-select placeholder="User deleted" [(ngModel)]="filter.deleted" id="deleted_id">
-          <mat-option *ngFor="let t of deletedStatuses" [value]="t">
             {{t}}
           </mat-option>
         </mat-select>
@@ -21,8 +16,12 @@
           <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="username_id">
         </mat-form-field>
 
+        <span style="margin-left: 20px;">
+          <mat-checkbox [(ngModel)]="filter.deleted" [(indeterminate)]="filter.deleted_notSet" (click)="setState()" id="deleted_id">Deleted</mat-checkbox>
+        </span>
+
         <div class="searchArea">
-          <button mat-raised-button color="primary" id="searchbutton_id" (click)="getUsers()" button-click-behaviour>
+          <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()" button-click-behaviour>
             <mat-icon>search</mat-icon>
             <span>Search</span>
           </button>
@@ -35,40 +34,9 @@
 
 <div class="panel">
 
-  <div class="group-filter-button">
-    <span class="row-button">
-    <app-row-limiter [pageSizes]="rowLimiter.pageSizes" [onPageSizeChanging]="onPageSizeChanging"
-                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-    <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
-  </div>
+  <grid-header [parent]="this"></grid-header>
 
-  <ngx-datatable
-    id="userTable"
-    class="material striped"
-    [rows]="users"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [loadingIndicator]="false"
-    [selected]="selected"
-    [limit]="rowLimiter.pageSize"
-    [selectionType]="'multi'"
-    (select)="onSelect($event)"
-    (activate)="onActivate($event)"
-    [offset]="offset"
-    (page)="onChangePage($event)">
-  </ngx-datatable>
+  <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
 
   <ng-template #editableTpl let-value="value" let-row="row" ngx-datatable-cell-template>
           <span class="clickAble" [class.user-deleted]="row.deleted"
@@ -84,56 +52,27 @@
   </ng-template>
 
   <ng-template #checkBoxTpl let-row="row" ngx-datatable-cell-template>
-    <input type="checkbox" [checked]="row['active']" disabled>
+    <mat-checkbox [checked]="row['active']" disabled></mat-checkbox>
     <ng-container *ngIf="row['suspended']">
       <span>(Suspended)</span>
     </ng-container>
   </ng-template>
 
   <ng-template #deletedTpl let-row="row" ngx-datatable-cell-template>
-    <input type="checkbox" [checked]="row['deleted']" disabled>
+    <mat-checkbox [checked]="row['deleted']" disabled></mat-checkbox>
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="userEditButtonRow{{users.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row)"
+    <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading" (click)="buttonEditAction(row)"
             color="primary" tooltip="Edit" button-click-behaviour>
       <mat-icon>edit</mat-icon>
     </button>
-    <button id="userDeleteButtonRow{{users.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isBusy" (click)="buttonDeleteAction(row)" color="primary"
+    <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading" (click)="buttonDeleteAction(row)" color="primary"
             tooltip="Delete" button-click-behaviour>
       <mat-icon>delete</mat-icon>
     </button>
   </ng-template>
 
-  <table class="group-action-button">
-    <tr>
-      <td>
-        <button id="userCancelButton" mat-raised-button (click)="cancel()" color="primary"
-                [disabled]="!enableCancel" button-click-behaviour>
-          <mat-icon>cancel</mat-icon>
-          <span>Cancel</span>
-        </button>
-        <button id="userSaveButton" mat-raised-button (click)="save(false)" color="primary" [disabled]="!enableSave || isBusy"
-                button-click-behaviour>
-          <mat-icon>save</mat-icon>
-          <span>Save</span>
-        </button>
-        <button id="userNewButton" mat-raised-button (click)="buttonNew()" [disabled]="isBusy" color="primary"
-                button-click-behaviour>
-          <mat-icon>add</mat-icon>
-          <span>New</span>
-        </button>
-        <button id="userEditButton" mat-raised-button (click)="buttonEdit()" [disabled]="!enableEdit || isBusy" color="primary"
-                button-click-behaviour>
-          <mat-icon>edit</mat-icon>
-          <span>Edit</span>
-        </button>
-        <button id="userDeleteButton" mat-raised-button (click)="buttonDelete()" [disabled]="!enableDelete || isBusy" color="primary"
-                button-click-behaviour>
-          <mat-icon>delete</mat-icon>
-          <span>Delete</span>
-        </button>
-      </td>
-    </tr>
-  </table>
+  <page-footer [parent]="this"></page-footer>
+
 </div>

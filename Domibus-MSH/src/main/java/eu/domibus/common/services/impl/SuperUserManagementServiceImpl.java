@@ -49,6 +49,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
                 .filter(u -> !u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
         super.updateUsers(regularUsers);
+        super.validateAtLeastOneOfRole(AuthRole.ROLE_ADMIN);
 
         List<eu.domibus.api.user.User> superUsers = users.stream()
                 .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
@@ -58,6 +59,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
             // this block needs to called inside a transaction;
             // for this the whole code inside the block needs to reside into a Spring bean service marked with transaction REQUIRED
             super.updateUsers(superUsers);
+            super.validateAtLeastOneOfRole(AuthRole.ROLE_AP_ADMIN);
         });
     }
 

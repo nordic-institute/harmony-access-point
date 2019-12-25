@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {PartyResponseRo, PartyFilteredResult, ProcessRo, CertificateRo} from './party';
 import {Observable} from 'rxjs/Observable';
-import {DownloadService} from '../common/download.service';
 
 /**
  * @author Thomas Dussart
@@ -26,6 +25,15 @@ export class PartyService {
 
   getCertificate (partyName: string): Observable<CertificateRo> {
     return this.http.get<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName));
+  }
+
+  async getData(activeFilter): Promise<any> {
+    var serverCalls: [Promise<PartyFilteredResult>, Promise<ProcessRo[]>] = [
+      this.listParties(activeFilter.name, activeFilter.endPoint,
+        activeFilter.partyID, activeFilter.process, activeFilter.process_role).toPromise(),
+      this.listProcesses().toPromise()
+    ];
+    return Promise.all(serverCalls);
   }
 
   listProcesses (): Observable<ProcessRo[]> {
@@ -79,10 +87,6 @@ export class PartyService {
       result += 'process=' + process + '&';
     }
     return result;
-  }
-
-  saveAsCsv (name: string, endPoint: string, partyId: string, process: string, process_role: string) {
-    DownloadService.downloadNative(PartyService.CSV_PARTIES + this.getFilterPath(name, endPoint, partyId, process));
   }
 
   initParty () {

@@ -1,23 +1,17 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
-import {Observable} from 'rxjs/Observable';
 import {AlertsResult} from './alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {ErrorStateMatcher, MatDialog, ShowOnDirtyErrorStateMatcher} from '@angular/material';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
 import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
-import {DirtyOperations} from '../common/dirty-operations';
-import {AlertsEntry} from './alertsentry';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import 'rxjs-compat/add/operator/filter';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -25,7 +19,10 @@ import 'rxjs-compat/add/operator/filter';
   providers: []
 })
 
-export class AlertsComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit, DirtyOperations {
+export class AlertsComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerSortableListMixin, ModifiableListMixin, ServerPageableListMixin)
+  implements OnInit {
+
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
   static readonly ALERTS_TYPES_URL: string = AlertsComponent.ALERTS_URL + '/types';
@@ -36,19 +33,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
   @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  public rowLimiter: RowLimiterBase;
-
-  advancedSearch: boolean;
-  loading: boolean;
-
-  // data table
-  rows: Array<AlertsEntry>;
-  count: number;
-  offset: number;
-
-  isChanged: boolean;
 
   aTypes: Array<any>;
   aStatuses: Array<any>;
@@ -74,11 +58,10 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
 
-  filter: any;
-
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private dialogsService: DialogsService,
               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
 
@@ -89,12 +72,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   ngOnInit() {
     super.ngOnInit();
-
-    this.loading = false;
-    this.rows = [];
-    this.count = 0;
-    this.offset = 0;
-    this.isChanged = false;
 
     this.aTypes = [];
     this.aStatuses = [];
@@ -116,14 +93,16 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.dateToName = '';
     this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
 
-    this.filter = {processed: 'UNPROCESSED', domainAlerts: false};
+    super.filter = {processed: 'UNPROCESSED', domainAlerts: false};
 
-    this.rowLimiter = new RowLimiterBase();
+    super.orderBy = 'creationTime';
+    super.asc = false;
 
-    this['orderBy'] = 'creationTime';
-    this['asc'] = false;
+    this.filterData();
+  }
 
-    this.search();
+  public get name(): string {
+    return 'Alerts';
   }
 
   ngAfterViewInit() {
@@ -143,8 +122,9 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     ];
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Reporting Time', 'Parameters'].indexOf(col.name) != -1
+      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Parameters'].indexOf(col.name) != -1
     });
+
   }
 
   ngAfterViewChecked() {
@@ -169,18 +149,28 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       .subscribe(aLevels => this.aLevels = aLevels);
   }
 
-  getAlertsEntries(offset: number, pageSize: number): Observable<AlertsResult> {
-    let searchParams = this.createSearchParams();
-
-    searchParams = searchParams.append('page', offset.toString());
-    searchParams = searchParams.append('pageSize', pageSize.toString());
-
-    return this.http.get<AlertsResult>(AlertsComponent.ALERTS_URL, {params: searchParams});
+  protected get GETUrl(): string {
+    return AlertsComponent.ALERTS_URL;
   }
 
-  private createSearchParams() {
-    let searchParams = this.createStaticSearchParams();
+  public setServerResults(result: AlertsResult) {
+    super.count = result.count;
+    super.rows = result.alertsEntries;
+  }
 
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
+
+    if (this.activeFilter.processed) {
+      filterParams = filterParams.set('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
+    }
+
+    filterParams = this.setDynamicFilterParams(filterParams);
+
+    return filterParams;
+  }
+
+  private setDynamicFilterParams(searchParams: HttpParams) {
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
         searchParams = searchParams.append('parameters', filter || '');
@@ -199,93 +189,6 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
       }
     }
     return searchParams;
-  }
-
-  private createStaticSearchParams() {
-    let searchParams = new HttpParams();
-
-    searchParams = searchParams.append('orderBy', this.orderBy);
-    if (this.asc != null) {
-      searchParams = searchParams.append('asc', this.asc.toString());
-    }
-
-    // filters
-    if (this.activeFilter.processed) {
-      searchParams = searchParams.append('processed', this.activeFilter.processed === 'PROCESSED' ? 'true' : 'false');
-    }
-
-    if (this.activeFilter.alertType) {
-      searchParams = searchParams.append('alertType', this.activeFilter.alertType);
-    }
-
-    if (this.activeFilter.alertStatus) {
-      searchParams = searchParams.append('alertStatus', this.activeFilter.alertStatus);
-    }
-
-    if (this.activeFilter.alertId) {
-      searchParams = searchParams.append('alertId', this.activeFilter.alertId);
-    }
-
-    if (this.activeFilter.alertLevel) {
-      searchParams = searchParams.append('alertLevel', this.activeFilter.alertLevel);
-    }
-
-    if (this.activeFilter.creationFrom) {
-      searchParams = searchParams.append('creationFrom', this.activeFilter.creationFrom.getTime());
-    }
-
-    if (this.activeFilter.creationTo) {
-      searchParams = searchParams.append('creationTo', this.activeFilter.creationTo.getTime());
-    }
-
-    if (this.activeFilter.reportingFrom) {
-      searchParams = searchParams.append('reportingFrom', this.activeFilter.reportingFrom.getTime());
-    }
-
-    if (this.activeFilter.reportingTo) {
-      searchParams = searchParams.append('reportingTo', this.activeFilter.reportingTo.getTime());
-    }
-
-    searchParams = searchParams.append('domainAlerts', this.activeFilter.domainAlerts);
-    return searchParams;
-  }
-
-  page(offset, pageSize) {
-    this.loading = true;
-    this.resetFilters();
-    this.getAlertsEntries(offset, pageSize).subscribe((result: AlertsResult) => {
-      console.log('alerts response: ' + result);
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
-      this.count = result.count;
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.alertsEntries];
-
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.alertsEntries[index++];
-      }
-
-      this.rows = newRows;
-
-      this.loading = false;
-    }, (error: any) => {
-      console.log('error getting the alerts:' + error);
-      this.loading = false;
-      this.alertService.exception('Error occurred:', error);
-    });
-  }
-
-  search() {
-    this.isChanged = false;
-    this.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize);
-  }
-
-  toggleAdvancedSearch() {
-    this.advancedSearch = !this.advancedSearch;
-    return false; // to prevent default navigation
   }
 
   getAlertParameters(alertType: string): Promise<string[]> {
@@ -333,81 +236,17 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
     this.timestampReportingFromMaxDate = event.value;
   }
 
-
-  // datatable methods
-
-  onPage(event) {
-    this.page(event.offset, event.pageSize);
-  }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  public reload() {
-    this.page(0, this.rowLimiter.pageSize);
-  }
-
-  changePageSize(newPageLimit: number) {
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page(0, newPageLimit);
-  }
-
-  saveAsCSV() {
-    if (this.isChanged) {
-      this.save(true);
-    } else {
-      if (this.count > AlertComponent.MAX_COUNT_CSV) {
-        this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-        return;
-      }
-
-      super.resetFilters();
-      // todo: add dynamic params for csv filtering, if requested
-      DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL + '?'
-        + this.createSearchParams().toString());
-    }
-  }
-
-  cancel() {
-    this.dialog.open(CancelDialogComponent)
-      .afterClosed().subscribe(result => {
-      if (result) {
-        this.isChanged = false;
-        this.page(this.offset, this.rowLimiter.pageSize);
-      }
-    });
-  }
-
-  save(withDownloadCSV: boolean) {
-    const dialogRef = this.dialog.open(SaveDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.http.put(AlertsComponent.ALERTS_URL, this.rows).subscribe(() => {
-          this.alertService.success('The operation \'update alerts\' completed successfully.', false);
-          this.page(this.offset, this.rowLimiter.pageSize);
-          this.isChanged = false;
-          if (withDownloadCSV) {
-            DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
-          }
-        }, err => {
-          this.alertService.exception('The operation \'update alerts\' not completed successfully', err);
-          this.page(this.offset, this.rowLimiter.pageSize);
-        });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(AlertsComponent.ALERTS_CSV_URL);
-        }
-      }
-    });
+  async doSave(): Promise<any> {
+    return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise()
+      .then(() => this.loadServerData());
   }
 
   setProcessedValue(row) {
-    this.isChanged = true;
-    row.processed = !row.processed;
-    this.rows[this.rows.indexOf(row)] = row;
+    super.isChanged = true;
   }
 
-  isDirty(): boolean {
-    return this.isChanged;
+  get csvUrl(): string {
+    // todo: add dynamic params for csv filtering, if requested
+    return AlertsComponent.ALERTS_CSV_URL + '?' + this.createAndSetParameters();
   }
 }

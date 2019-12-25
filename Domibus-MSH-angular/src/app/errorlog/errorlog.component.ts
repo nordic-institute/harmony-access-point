@@ -1,18 +1,14 @@
 ﻿import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ErrorLogResult} from './errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
 import {MatDialog, MatDialogRef} from '@angular/material';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -21,10 +17,9 @@ import SortableListMixin from '../common/mixins/sortable-list.mixin';
   styleUrls: ['./errorlog.component.css']
 })
 
-export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  public rowLimiter: RowLimiterBase;
+export class ErrorLogComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerSortableListMixin, ServerPageableListMixin)
+  implements OnInit {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -38,15 +33,8 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   notifiedToMinDate: Date = null;
   notifiedToMaxDate: Date = new Date();
 
-  loading: boolean = false;
-  rows = [];
-  count: number = 0;
-  offset: number = 0;
-
   mshRoles: string[];
   errorCodes: string[];
-
-  advancedSearch: boolean;
 
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
@@ -59,12 +47,10 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   ngOnInit() {
     super.ngOnInit();
 
-    this.rowLimiter = new RowLimiterBase();
+    super.orderBy = 'timestamp';
+    super.asc = false;
 
-    this['orderBy'] = 'timestamp';
-    this['asc'] = false;
-
-    this.search();
+    this.filterData();
   }
 
   ngAfterViewInit() {
@@ -84,7 +70,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       },
       {
         name: 'Error Code',
-        width: 50
+        // width: 50
       },
       {
         name: 'Error Detail',
@@ -93,11 +79,12 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       {
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Timestamp',
-        width: 180
+        // width: 180
       },
       {
         cellTemplate: this.rowWithDateFormatTpl,
-        name: 'Notified'
+        name: 'Notified',
+        width: 50
       }
 
     ];
@@ -111,128 +98,34 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     this.changeDetector.detectChanges();
   }
 
-  createSearchParams(): HttpParams {
-    let searchParams = new HttpParams();
-
-    if (this.orderBy) {
-      searchParams = searchParams.append('orderBy', this.orderBy);
-    }
-    if (this.asc != null) {
-      searchParams = searchParams.append('asc', this.asc.toString());
-    }
-
-    if (this.activeFilter.errorSignalMessageId) {
-      searchParams = searchParams.append('errorSignalMessageId', this.activeFilter.errorSignalMessageId);
-    }
-    if (this.activeFilter.mshRole) {
-      searchParams = searchParams.append('mshRole', this.activeFilter.mshRole);
-    }
-    if (this.activeFilter.messageInErrorId) {
-      searchParams = searchParams.append('messageInErrorId', this.activeFilter.messageInErrorId);
-    }
-    if (this.activeFilter.errorCode) {
-      searchParams = searchParams.append('errorCode', this.activeFilter.errorCode);
-    }
-    if (this.activeFilter.errorDetail) {
-      searchParams = searchParams.append('errorDetail', this.activeFilter.errorDetail);
-    }
-    if (this.activeFilter.timestampFrom != null) {
-      searchParams = searchParams.append('timestampFrom', this.activeFilter.timestampFrom.getTime());
-    }
-    if (this.filter.timestampTo != null) {
-      searchParams = searchParams.append('timestampTo', this.activeFilter.timestampTo.getTime());
-    }
-    if (this.activeFilter.notifiedFrom != null) {
-      searchParams = searchParams.append('notifiedFrom', this.activeFilter.notifiedFrom.getTime());
-    }
-    if (this.activeFilter.notifiedTo != null) {
-      searchParams = searchParams.append('notifiedTo', this.activeFilter.notifiedTo.getTime());
-    }
-
-    return searchParams;
+  protected get name(): string {
+    return 'Error Logs';
   }
 
-  getErrorLogEntries(offset: number, pageSize: number): Observable<ErrorLogResult> {
-    let searchParams = this.createSearchParams();
-
-    searchParams = searchParams.append('page', offset.toString());
-    searchParams = searchParams.append('pageSize', pageSize.toString());
-
-    return this.http.get<ErrorLogResult>(ErrorLogComponent.ERROR_LOG_URL, {params: searchParams});
+  protected get GETUrl(): string {
+    return ErrorLogComponent.ERROR_LOG_URL;
   }
 
-  page(offset, pageSize) {
-    this.loading = true;
-    this.getErrorLogEntries(offset, pageSize).subscribe((result: ErrorLogResult) => {
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
-      this.count = result.count;
+  setServerResults(result: ErrorLogResult) {
+    super.count = result.count;
+    super.rows = result.errorLogEntries;
 
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.errorLogEntries];
+    if (result.filter.timestampFrom) {
+      result.filter.timestampFrom = new Date(result.filter.timestampFrom);
+    }
+    if (result.filter.timestampTo) {
+      result.filter.timestampTo = new Date(result.filter.timestampTo);
+    }
+    if (result.filter.notifiedFrom) {
+      result.filter.notifiedFrom = new Date(result.filter.notifiedFrom);
+    }
+    if (result.filter.notifiedTo) {
+      result.filter.notifiedTo = new Date(result.filter.notifiedTo);
+    }
 
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.errorLogEntries[index++];
-      }
-
-      this.rows = newRows;
-
-      if (result.filter.timestampFrom != null) {
-        result.filter.timestampFrom = new Date(result.filter.timestampFrom);
-      }
-      if (result.filter.timestampTo != null) {
-        result.filter.timestampTo = new Date(result.filter.timestampTo);
-      }
-      if (result.filter.notifiedFrom != null) {
-        result.filter.notifiedFrom = new Date(result.filter.notifiedFrom);
-      }
-      if (result.filter.notifiedTo != null) {
-        result.filter.notifiedTo = new Date(result.filter.notifiedTo);
-      }
-
-      this['filter'] = result.filter;
-      this.mshRoles = result.mshRoles;
-      this.errorCodes = result.errorCodes;
-
-      this.loading = false;
-    }, (error: any) => {
-      console.log('error getting the error log:' + error);
-      this.loading = false;
-      this.alertService.exception('Error occured:', error);
-    });
-
-  }
-
-  onPage(event) {
-    super.resetFilters();
-    this.page(event.offset, event.pageSize);
-  }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  public reload() {
-    this.page(0, this.rowLimiter.pageSize);
-  }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  public onBeforeSort() {
-    super.resetFilters();
-  }
-
-  changePageSize(newPageLimit: number) {
-    super.resetFilters();
-    this.page(0, newPageLimit);
-  }
-
-  search() {
-    console.log('Searching using filter:', this.filter);
-    this.setActiveFilter();
-    this.page(0, this.rowLimiter.pageSize);
+    super.filter = result.filter;
+    this.mshRoles = result.mshRoles;
+    this.errorCodes = result.errorCodes;
   }
 
   onTimestampFromChange(event) {
@@ -251,37 +144,12 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
     this.notifiedFromMaxDate = event.value;
   }
 
-  toggleAdvancedSearch(): boolean {
-    this.advancedSearch = !this.advancedSearch;
-    return false;//to prevent default navigation
-  }
-
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
-  }
-
-  details(selectedRow: any) {
+  showDetails(selectedRow: any) {
     let dialogRef: MatDialogRef<ErrorlogDetailsComponent> = this.dialog.open(ErrorlogDetailsComponent);
     dialogRef.componentInstance.message = selectedRow;
-    // dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
-    dialogRef.afterClosed().subscribe(result => {
-      //Todo:
-    });
   }
 
-  saveAsCSV() {
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-    super.resetFilters();
-    DownloadService.downloadNative(ErrorLogComponent.ERROR_LOG_CSV_URL + this.createSearchParams().toString());
+  get csvUrl(): string {
+    return ErrorLogComponent.ERROR_LOG_CSV_URL + this.createAndSetParameters();
   }
-
-  onClick(event) {
-    console.log(event);
-  }
-
 }

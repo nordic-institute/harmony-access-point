@@ -13,8 +13,9 @@
           </div>
 
           <ng-container *ngIf="showGlobalPropertiesControl">
-            <input type="checkbox" name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id" (ngModelChange)="refresh()">
-            <span>Show Domain Properties</span>
+            <mat-checkbox name="includeSuperProperties" [(ngModel)]="filter.showDomainProperties" id="includeSuperProperties_id" (ngModelChange)="refresh()">
+              Show Domain Properties
+            </mat-checkbox>
           </ng-container>
 
         </form>
@@ -35,7 +36,7 @@
         </div>
 
         <ngx-datatable
-          id="propertiesTable"
+          id="pageGridId"
           class="material striped"
           [rows]="rows"
           [columnMode]="'force'"

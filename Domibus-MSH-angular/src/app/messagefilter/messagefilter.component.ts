@@ -8,9 +8,10 @@ import {BackendFilterEntry} from './backendfilterentry';
 import {RoutingCriteriaEntry} from './routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
-import {DownloadService} from '../common/download.service';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/mixins/base-list.component';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -19,11 +20,11 @@ import {DownloadService} from '../common/download.service';
   styleUrls: ['./messagefilter.component.css']
 })
 
-export class MessageFilterComponent implements OnInit, DirtyOperations {
-  static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
+export class MessageFilterComponent extends mix(BaseListComponent)
+  .with(ModifiableListMixin)
+  implements OnInit, DirtyOperations {
 
-  rows: any [];
-  selected: any[];
+  static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
   backendFilterNames: any[];
 
@@ -36,17 +37,15 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
-  loading: boolean;
   areFiltersPersisted: boolean;
-  dirty: boolean;
   routingCriterias = ['from', 'to', 'action', 'service'];
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
+    super();
   }
 
   ngOnInit() {
-    this.rows = [];
-    this.selected = [];
+    super.ngOnInit();
 
     this.backendFilterNames = [];
 
@@ -60,15 +59,20 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
-    this.loading = true;
+    this.loadServerData();
+  }
 
+  public get name(): string {
+    return 'Message Filters';
+  }
+
+  async getDataAndSetResults(): Promise<any> {
     this.getBackendFiltersInfo();
+    this.disableSelectionAndButtons();
   }
 
   getBackendFiltersInfo() {
-    this.dirty = false;
-    this.getMessageFilterEntries().subscribe((result: MessageFilterResult) => {
-
+    return this.getMessageFilterEntries().toPromise().then((result: MessageFilterResult) => {
       let newRows = [];
       this.backendFilterNames = [];
       if (result.messageFilterEntries) {
@@ -85,7 +89,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
         }
         this.areFiltersPersisted = result.areFiltersPersisted;
 
-        this.rows = newRows;
+        super.rows = newRows;
+        super.count = newRows.length;
 
         if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
           this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
@@ -93,10 +98,6 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
           this.enableSave = true;
         }
       }
-    }, (error: any) => {
-      console.log('error getting the message filter: ' + error);
-      this.loading = false;
-      this.alertService.exception('Error occurred: ', error);
     });
   }
 
@@ -108,15 +109,15 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.rows[row][prop] = newPropValue;
   }
 
-  buttonNew() {
+  add() {
     let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
-    formRef.afterClosed().subscribe(result => {
-      if (result == true) {
-        let backendEntry = this.createEntry(formRef);
+    formRef.afterClosed().toPromise().then(result => {
+      if (result) {
+        let backendEntry = this.createEntry(result);
         if (this.findRowsIndex(backendEntry) == -1) {
-          this.rows.push(backendEntry);
-          this.rows = [...this.rows];
-          this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
+          super.rows = [...this.rows, backendEntry];
+          super.count = this.rows.length + 1;
+          this.setDirty(result.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
         }
@@ -155,26 +156,32 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     return toFind.expression === '' && routingCriterias.length == 0;
   }
 
-  buttonEditAction(row) {
+  edit(row?) {
+    row = row || this.selected[0];
+
     let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
         edit: row
       }
     });
-    formRef.afterClosed().subscribe(result => {
-      if (result == true) {
-        let backendEntry = this.createEntry(formRef);
+    formRef.afterClosed().toPromise().then(result => {
+      if (result) {
+        let backendEntry = this.createEntry(result);
         let backendEntryPos = this.findRowsIndex(backendEntry);
         if (backendEntryPos == -1) {
-          this.updateSelectedPlugin(formRef.componentInstance.plugin);
+          this.updateSelectedPlugin(result.plugin);
 
           for (var criteria of this.routingCriterias) {
-            this.updateSelectedProperty(criteria, formRef.componentInstance[criteria]);
+            this.updateSelectedProperty(criteria, result[criteria]);
           }
 
-          this.rows = [...this.rows];
-          this.setDirty(formRef.componentInstance.messageFilterForm.dirty);
+          const rowCopy = JSON.parse(JSON.stringify(this.rows[this.rowNumber])); // clone
+          this.rows.splice(this.rowNumber, 1, rowCopy);
+          super.rows = [...this.rows];
+          super.count = this.rows.length;
+
+          this.setDirty(result.messageFilterForm.dirty);
         } else {
           if (backendEntryPos != this.rowNumber) {
             this.alertService.error('Impossible to insert a duplicate entry');
@@ -184,16 +191,16 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     });
   }
 
-  private createEntry(formRef: MatDialogRef<EditMessageFilterComponent>) {
+  private createEntry(componentInstance: EditMessageFilterComponent) {
     let routingCriterias: Array<RoutingCriteriaEntry> = [];
 
     for (var criteria of this.routingCriterias) {
-      if (!!formRef.componentInstance[criteria]) {
-        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, formRef.componentInstance[criteria]));
+      if (!!componentInstance[criteria]) {
+        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, componentInstance[criteria]));
       }
     }
 
-    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, formRef.componentInstance.plugin, routingCriterias, false);
+    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, componentInstance.plugin, routingCriterias, false);
     return backendEntry;
   }
 
@@ -238,7 +245,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   private disableSelectionAndButtons() {
-    this.selected = [];
+    super.selected = [];
     this.enableMoveDown = false;
     this.enableMoveUp = false;
     this.enableCancel = false;
@@ -247,42 +254,14 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.enableDelete = false;
   }
 
-  saveAsCSV() {
-    if (this.isDirty()) {
-      this.saveDialog(true);
-    } else {
-      DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
-    }
+  get csvUrl(): string {
+    return MessageFilterComponent.MESSAGE_FILTER_URL + '/csv';
   }
 
-  cancelDialog() {
-    let dialogRef = this.dialog.open(CancelDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.disableSelectionAndButtons();
-        this.getBackendFiltersInfo();
-      }
-    });
-  }
-
-  saveDialog(withDownloadCSV: boolean) {
-    this.dialog.open(SaveDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
-        this.disableSelectionAndButtons();
-        this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).subscribe(res => {
-          this.alertService.success('The operation \'update message filters\' completed successfully.', false);
-          this.getBackendFiltersInfo();
-          if (withDownloadCSV) {
-            DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
-          }
-        }, err => {
-          this.alertService.exception('The operation \'update message filters\' not completed successfully.', err);
-        });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(MessageFilterComponent.MESSAGE_FILTER_URL + '/csv');
-        }
-      }
+  async doSave(): Promise<any> {
+    this.disableSelectionAndButtons();
+    return this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
+      this.getBackendFiltersInfo();
     });
   }
 
@@ -290,7 +269,7 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     this.deleteItems([row]);
   }
 
-  buttonDelete() {
+  delete() {
     this.deleteItems(this.selected);
   }
 
@@ -309,8 +288,9 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
       let rowIndex = copy.indexOf(items[i]);
       copy.splice(rowIndex, 1);
     }
-    this.rows = copy;
-    this.selected = [];
+    super.rows = copy;
+    super.count = copy.length;
+    super.selected = [];
   }
 
   private moveUpInternal(rowNumber) {
@@ -322,7 +302,9 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     array[rowNumber] = array[rowNumber - 1];
     array[rowNumber - 1] = move;
 
-    this.rows = array.slice();
+    super.rows = array.slice();
+    super.count = this.rows.length;
+
     this.rowNumber--;
 
     if (rowNumber == 0) {
@@ -356,7 +338,8 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
     array[rowNumber] = array[rowNumber + 1];
     array[rowNumber + 1] = move;
 
-    this.rows = array.slice();
+    super.rows = array.slice();
+    super.count = this.rows.length;
     this.rowNumber++;
 
     if (rowNumber == this.rows.length - 1) {
@@ -404,18 +387,39 @@ export class MessageFilterComponent implements OnInit, DirtyOperations {
   }
 
   isDirty(): boolean {
+    // return this.isChanged;
     return this.enableCancel;
   }
 
   setDirty(itemValue: boolean) {
-    this.dirty = this.dirty || itemValue;
-    this.enableSave = this.dirty;
-    this.enableCancel = this.dirty;
+    super.isChanged = this.isChanged || itemValue;
+    this.enableSave = this.isChanged;
+    this.enableCancel = this.isChanged;
   }
 
   onActivate(event) {
     if ('dblclick' === event.type) {
-      this.buttonEditAction(event.row);
+      this.edit(event.row);
     }
+  }
+
+  canCancel() {
+    return this.enableCancel;
+  }
+
+  canSave() {
+    return this.enableSave;
+  }
+
+  canAdd() {
+    return true;
+  }
+
+  canEdit() {
+    return this.enableEdit;
+  }
+
+  canDelete() {
+    return this.enableDelete;
   }
 }

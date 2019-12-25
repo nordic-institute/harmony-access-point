@@ -4,6 +4,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.common.dao.ListDao;
 import eu.domibus.common.dao.security.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,6 +125,11 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
         for (final AuthenticationEntity u : users) {
             super.update(u);
         }
+    }
+
+    @Override
+    public List<AuthenticationEntity> findByRole(String roleName) {
+        throw new NotImplementedException("findByRole");
     }
 
     @Override

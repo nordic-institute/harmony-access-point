@@ -4,16 +4,16 @@
     <mat-card-content>
 
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="search()">
+        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="tryFilter()">
 
           <mat-form-field>
             <input matInput placeholder="Package or class name" name="packageClassName"
                    [(ngModel)]="filter.loggerName" #loggerName="ngModel" id="loggerName_id"
                    width="40px" tooltip="Enter here the package name e.g. 'eu.domibus' or 'ROOT' or part of the name">
           </mat-form-field>
-          <input type="checkbox" name="showClasses" [(ngModel)]="filter.showClasses"
-                 #showClasses="ngModel" id="showClasses_id">
-          <span>Show Classes</span>
+          <mat-checkbox name="showClasses" [(ngModel)]="filter.showClasses" #showClasses="ngModel" id="showClasses_id">
+            Show Classes
+          </mat-checkbox>
 
           <div class="searchArea">
             <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
@@ -45,27 +45,7 @@
     </span>
   </div>
 
-  <ngx-datatable
-    id="loggingTable"
-    class="material striped"
-    [rows]="rows"
-    [columnMode]="'force'"
-    [columns]="columnPicker.selectedColumns"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="loading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    [sorts]="[{prop: 'timestamp', dir: 'desc'}]"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-  >
-</ngx-datatable>
+  <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
 
   <ng-template #rowWithToggleTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <mat-button-toggle-group [name]="row.name" (ngModelChange)="onLevelChange($event, row)" [(ngModel)]="row.level">

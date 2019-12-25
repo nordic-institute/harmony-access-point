@@ -2,7 +2,7 @@
 <div class="selectionCriteria">
   <mat-card>
     <mat-card-content>
-      <form (submit)="trySearch()">
+      <form (submit)="tryFilter()">
         <div class="panel">
           <mat-form-field>
             <input matInput placeholder="Name" [(ngModel)]="filter.name" name="name" id="name_id">
@@ -36,68 +36,20 @@
 </div>
 
 <div class="panel">
-  <div class="group-filter-button">
-    <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                       (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-      <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                         (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button mat-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" mat-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
-  </div>
+  <grid-header [parent]="this"></grid-header>
 </div>
 
-<ngx-datatable
-  id="partyTable"
-  class="material striped"
-  [rows]="rows"
-  [columnMode]="'force'"
-  [columns]="columnPicker.selectedColumns"
-  [headerHeight]="50"
-  [footerHeight]="50"
-  [rowHeight]="'auto'"
-  [scrollbarH]="true"
-  [externalPaging]="false"
-  [externalSorting]="false"
-  [loadingIndicator]="loading"
-  [count]="count"
-  [offset]="offset"
-  [limit]="rowLimiter.pageSize"
-  (page)="onPageChange($event)"
-  (sort)="OnSort()"
-  [selected]="selected"
-  [selectionType]="'single'"
-  (activate)="onActivate($event)"
->
-</ngx-datatable>
-<table class="group-action-button">
-  <tr>
-    <td>
-      <button id="cancelPartyButton" mat-raised-button (click)="cancel()" color="primary" [disabled]="!canCancel()" button-click-behaviour>
-        <mat-icon>cancel</mat-icon>
-        <span>Cancel</span>
-      </button>
-      <button id="savePartyButton" mat-raised-button (click)="save()" color="primary" [disabled]="!canSave()" button-click-behaviour>
-        <mat-icon>save</mat-icon>
-        <span>Save</span>
-      </button>
-      <button id="addPartyButton" mat-raised-button (click)="add()" color="primary" [disabled]="!canAdd()" button-click-behaviour>
-        <mat-icon>add</mat-icon>
-        <span>New</span>
-      </button>
-      <button id="editPartyButton" mat-raised-button (click)="edit(null)" color="primary" [disabled]="!canEdit()" button-click-behaviour>
-        <mat-icon>edit</mat-icon>
-        <span>Edit</span>
-      </button>
-      <button id="deletePartyButton" mat-raised-button (click)="remove()" color="primary" [disabled]="!canDelete()" button-click-behaviour>
-        <mat-icon>delete</mat-icon>
-        <span>Delete</span>
-      </button>
-    </td>
-  </tr>
-</table>
+<page-grid [parent]="this" [selectionType]="'single'" ></page-grid>
+
+<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+  <button mat-icon-button (click)="edit(row)"
+          color="primary" tooltip="Edit" button-click-behaviour>
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button mat-icon-button (click)="deleteRow(row)" color="primary"
+          tooltip="Delete" button-click-behaviour>
+    <mat-icon>delete</mat-icon>
+  </button>
+</ng-template>
+
+<page-footer [parent]="this"></page-footer>

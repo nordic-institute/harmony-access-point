@@ -23,22 +23,23 @@ export class UserValidatorService {
   }
 
   validateDomains (users: UserResponseRO[]): string {
-    let errorMessage = '';
-    const activeUsers = users.filter(user => user.active);
-
-    // check at least one active domain admin
-    const domainAdmins = activeUsers.filter(user => user.roles == SecurityService.ROLE_DOMAIN_ADMIN);
-    if (domainAdmins.length < 1) {
-      errorMessage = errorMessage.concat(' There must always be at least one active Domain Admin for each Domain.');
-    }
-    // check at least one ap admin
-    if (this.securityService.isCurrentUserSuperAdmin()) {
-      const apAdmins = activeUsers.filter(user => user.roles == SecurityService.ROLE_AP_ADMIN);
-      if (apAdmins.length < 1) {
-        errorMessage = errorMessage.concat(' There must always be at least one active AP Admin');
-      }
-    }
-    return errorMessage;
+    return '';
+    // let errorMessage = '';
+    // const activeUsers = users.filter(user => user.active);
+    //
+    // // check at least one active domain admin
+    // const domainAdmins = activeUsers.filter(user => user.roles == SecurityService.ROLE_DOMAIN_ADMIN);
+    // if (domainAdmins.length < 1) {
+    //   errorMessage = errorMessage.concat(' There must always be at least one active Domain Admin for each Domain.');
+    // }
+    // // check at least one ap admin
+    // if (this.securityService.isCurrentUserSuperAdmin()) {
+    //   const apAdmins = activeUsers.filter(user => user.roles == SecurityService.ROLE_AP_ADMIN);
+    //   if (apAdmins.length < 1) {
+    //     errorMessage = errorMessage.concat(' There must always be at least one active AP Admin');
+    //   }
+    // }
+    // return errorMessage;
   }
 
   private checkUserNameDuplication (allUsers: UserResponseRO[]) {

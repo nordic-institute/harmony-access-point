@@ -191,9 +191,11 @@ mat-sidenav[_ngcontent-c0] {
     [HEADING]
 ----------------------------------------------------*/
 
-h1 {
-  font-size: 48px;
-  margin-top: 0;
+page-header h1 {
+  /*font-size: 48px;*/
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: xx-large !important;
 }
 
 h2 {
@@ -299,6 +301,7 @@ mat-card {
 /* --- GROUP BUTTON ACTION ---*/
 .group-action-button {
   margin-top: 20px;
+  display: inline-block;
 }
 
 .group-action-button button {
@@ -366,4 +369,14 @@ mat-select .mat-select {
 .mat-form-field-appearance-legacy .mat-form-field-underline {
   height: 0.05em !important;
   background-color: lightgray !important;
+}
+
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-icon-button {
+  height: 30px !important;
+  margin-top: -10px !important;
 }

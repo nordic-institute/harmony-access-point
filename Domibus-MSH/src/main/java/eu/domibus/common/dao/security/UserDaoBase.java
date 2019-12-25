@@ -21,4 +21,6 @@ public interface UserDaoBase<U extends UserEntityBase> {
 
     void update(List<U> users);
 
+    List<U> findByRole(String roleName);
+
 }

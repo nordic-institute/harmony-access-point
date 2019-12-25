@@ -77,11 +77,7 @@ export class EditbasicpluginuserFormComponent implements OnInit {
     this.passwordValidationMessage = passwordPolicy.validationMessage;
   }
 
-  updateActive (event) {
-    this.user.active = event.target.checked;
-  }
-
-  submitForm() {
+   submitForm() {
     this.dialogRef.close(true);
   }
 

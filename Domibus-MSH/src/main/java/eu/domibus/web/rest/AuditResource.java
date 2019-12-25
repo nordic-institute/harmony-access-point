@@ -60,8 +60,8 @@ public class AuditResource extends BaseResource {
      * @param auditCriteria the audit criteria used to filter the returned list.
      * @return an audit list.
      */
-    @PostMapping(value = {"/list"})
-    public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
+    @GetMapping(value = {"/list"})
+    public List<AuditResponseRo> listAudits(@Valid AuditFilterRequestRO auditCriteria) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Audit criteria received:");
             LOG.debug(auditCriteria.toString());
@@ -82,8 +82,8 @@ public class AuditResource extends BaseResource {
     }
 
 
-    @PostMapping(value = {"/count"})
-    public Long countAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
+    @GetMapping(value = {"/count"})
+    public Long countAudits(@Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),

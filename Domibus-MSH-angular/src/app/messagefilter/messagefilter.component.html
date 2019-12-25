@@ -7,18 +7,18 @@
         <img src="assets/images/exportCSV.svg" width="30" height="30">
       </button>
       <ngx-datatable
-          #mydatatable
-          class="material striped"
-          [columnMode]="'force'"
-          [headerHeight]="50"
-          [footerHeight]="50"
-          [rowHeight]="'auto'"
-          [rows]="rows"
-          [selected]="selected"
-          [selectionType]="'multi'"
-          (select)='onSelect($event)'
-          (activate)="onActivate($event)"
-          id="messageFilterTable">
+        #mydatatable
+        class="material striped"
+        [columnMode]="'force'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="'auto'"
+        [rows]="rows"
+        [selected]="selected"
+        [selectionType]="'multi'"
+        (select)='onSelect($event)'
+        (activate)="onActivate($event)"
+        id="pageGridId">
         <ngx-datatable-column name="Plugin" prop="backendName" [sortable]="false">
           <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
               <span class="justified, clickable" style="word-wrap: break-word" id="pluginRow{{rows.indexOf(row)}}_id">
@@ -71,7 +71,7 @@
                     tooltip="Move Down" button-click-behaviour>
               <mat-icon>arrow_drop_down</mat-icon>
             </button>
-            <button mat-icon-button color="primary" type="button" (click)="buttonEditAction(row)"
+            <button mat-icon-button color="primary" type="button" (click)="edit(row)"
                     id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit" button-click-behaviour>
               <mat-icon>edit</mat-icon>
             </button>
@@ -101,37 +101,11 @@
           </td>
         </tr>
       </table>
-      <table class="group-action-button">
-        <tr>
-          <td>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableCancel"
-                    (click)="cancelDialog()" id="cancelbutton_id" button-click-behaviour>
-              <mat-icon>cancel</mat-icon>
-              <span>Cancel</span>
-            </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableSave" (click)="saveDialog(false)"
-                    id="savebutton_id" button-click-behaviour>
-              <mat-icon>save</mat-icon>
-              <span>Save</span>
-            </button>
-            <button mat-raised-button color="primary" type="button" (click)="buttonNew()" id="newbutton_id"
-                    button-click-behaviour>
-              <mat-icon>add</mat-icon>
-              <span>New</span>
-            </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableEdit"
-                    (click)="buttonEditAction(this.selected[0])" id="editbutton_id" button-click-behaviour>
-              <mat-icon>edit</mat-icon>
-              <span>Edit</span>
-            </button>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableDelete"
-                    (click)="buttonDelete()" id="deletebutton_id" button-click-behaviour>
-              <mat-icon>delete</mat-icon>
-              <span>Delete</span>
-            </button>
-          </td>
-        </tr>
-      </table>
+
+      <div>
+        <page-footer [parent]="this"></page-footer>
+      </div>
+
     </form>
   </mat-card-content>
 </mat-card>

@@ -44,7 +44,6 @@ import {UserComponent} from './user/user.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {PmodeUploadComponent} from './pmode/pmode-upload/pmode-upload.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MessagelogDialogComponent} from './messagelog/messagelog-dialog/messagelog-dialog.component';
 import {JmsComponent} from './jms/jms.component';
 import {RowLimiterComponent} from './common/row-limiter/row-limiter.component';
 import {MoveDialogComponent} from './jms/move-dialog/move-dialog.component';
@@ -55,16 +54,14 @@ import {DefaultPasswordDialogComponent} from './security/default-password-dialog
 import {MessagelogDetailsComponent} from './messagelog/messagelog-details/messagelog-details.component';
 import {ErrorlogDetailsComponent} from './errorlog/errorlog-details/errorlog-details.component';
 import {EditMessageFilterComponent} from './messagefilter/editmessagefilter-form/editmessagefilter-form.component';
-import {CancelDialogComponent} from './common/cancel-dialog/cancel-dialog.component';
+import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
 import {DirtyGuard} from './common/guards/dirty.guard';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
-import {SaveDialogComponent} from './common/save-dialog/save-dialog.component';
 import {TruststoreDialogComponent} from './truststore/truststore-dialog/truststore-dialog.component';
 import {TrustStoreUploadComponent} from './truststore/truststore-upload/truststore-upload.component';
 import {ColumnPickerComponent} from './common/column-picker/column-picker.component';
 import {PageHelperComponent} from './common/page-helper/page-helper.component';
 import {SharedModule} from './common/module/SharedModule';
-import {RestoreDialogComponent} from './pmode/restore-dialog/restore-dialog.component';
 import {ActionDirtyDialogComponent} from './pmode/action-dirty-dialog/action-dirty-dialog.component';
 import {AuditComponent} from './audit/audit.component';
 import {PartyComponent} from './party/party.component';
@@ -93,6 +90,12 @@ import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.c
 import {PropertiesComponent} from './properties/properties.component';
 import {HttpClientModule} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import {DialogsService} from './common/dialogs/dialogs.service';
+import {GridHeaderComponent} from './common/grid-header/grid-header.component';
+import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
+import {PageFooterComponent} from './common/page-footer/page-footer.component';
+import {PageGridComponent} from './common/page-grid/page-grid.component';
+
 
 @NgModule({
   declarations: [
@@ -109,9 +112,7 @@ import { CommonModule } from '@angular/common';
     TruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
-    SaveDialogComponent,
-    MessagelogDialogComponent,
-    CancelDialogComponent,
+    YesNoDialogComponent,
     JmsComponent,
     RowLimiterComponent,
     MoveDialogComponent,
@@ -129,7 +130,6 @@ import { CommonModule } from '@angular/common';
     ColumnPickerComponent,
     TrustStoreUploadComponent,
     PageHelperComponent,
-    RestoreDialogComponent,
     ActionDirtyDialogComponent,
     AuditComponent,
     PartyComponent,
@@ -148,24 +148,25 @@ import { CommonModule } from '@angular/common';
     LogoutAuthExtProviderComponent,
     NotAuthorizedComponent,
     PropertiesComponent,
+    GridHeaderComponent,
+    FilterAreaFooterComponent,
+    PageFooterComponent,
+    PageGridComponent
   ],
   entryComponents: [
     AppComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
-    MessagelogDialogComponent,
     MoveDialogComponent,
     MessageDialogComponent,
     MessagelogDetailsComponent,
-    CancelDialogComponent,
-    SaveDialogComponent,
+    YesNoDialogComponent,
     DefaultPasswordDialogComponent,
     EditMessageFilterComponent,
     ErrorlogDetailsComponent,
     EditUserComponent,
     TruststoreDialogComponent,
     TrustStoreUploadComponent,
-    RestoreDialogComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
     EditbasicpluginuserFormComponent,
@@ -220,6 +221,7 @@ import { CommonModule } from '@angular/common';
     },
     UserService,
     UserValidatorService,
+    DialogsService
   ],
   bootstrap: [AppComponent]
 })
