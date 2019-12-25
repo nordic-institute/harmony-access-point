@@ -23,7 +23,7 @@ public class TruststorePage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "#errorLogTable")
+	@FindBy(css = "#pageGridId")
 	WebElement truststoreTable;
 
 

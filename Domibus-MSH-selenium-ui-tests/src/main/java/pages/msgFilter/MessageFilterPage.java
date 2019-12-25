@@ -27,7 +27,7 @@ public class MessageFilterPage extends DomibusPage {
 	}
 
 
-	@FindBy(id = "messageFilterTable")
+	@FindBy(id = "pageGridId")
 	private WebElement gridContainer;
 
 	@FindBy(id = "moveupbutton_id")
@@ -36,19 +36,19 @@ public class MessageFilterPage extends DomibusPage {
 	@FindBy(id = "movedownbutton_id")
 	private WebElement moveDownBtn;
 
-	@FindBy(id = "cancelbutton_id")
+	@FindBy(id = "cancelButtonId")
 	private WebElement cancelBtn;
 
-	@FindBy(id = "savebutton_id")
+	@FindBy(id = "saveButtonId")
 	private WebElement saveBtn;
 
-	@FindBy(id = "newbutton_id")
+	@FindBy(id = "addButtonId")
 	private WebElement newBtn;
 
-	@FindBy(id = "editbutton_id")
+	@FindBy(id = "editButtonId")
 	private WebElement editBtn;
 
-	@FindBy(id = "deletebutton_id")
+	@FindBy(id = "deleteButtonId")
 	private WebElement deleteBtn;
 
 	public MessageFilterGrid grid() {

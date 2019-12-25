@@ -552,8 +552,9 @@ public class MessageFilterPgTest extends BaseTest {
 	public void editAndChangeDomain() throws Exception {
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
-		String anotherActionName = Generator.randomAlphaNumeric(5);
+		String anotherActionName = Generator.randomAlphaNumeric(5) + "mod";
 		rest.createMessageFilter(actionName, null);
+		log.debug("filter with action "+actionName+" created");
 		String domainName = getNonDefaultDomain();
 
 		SoftAssert soft = new SoftAssert();
@@ -567,7 +568,13 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("editing the message filter");
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		modal.getActionInput().fill(anotherActionName);
+		modal.wait.forXMillis(150);
 		modal.clickOK();
+		modal.wait.forXMillis(150);
+
+		log.info("check that new value is present in grid");
+		String listedAction = page.grid().getRowInfo(index).get("Action");
+		soft.assertEquals(listedAction, anotherActionName, "Action is changed after edit form is closed");
 
 		log.info("changing domain");
 		page.getDomainSelector().selectOptionByText(domainName);
@@ -585,10 +592,10 @@ public class MessageFilterPgTest extends BaseTest {
 		page.getDomainSelector().selectOptionByText("Default");
 
 		log.info("check that changes were canceled");
-		String listedAction = page.grid().getRowInfo(index).get("Action");
-		soft.assertEquals(actionName, listedAction, "Action is not changed after the user presses OK in the dialog");
-		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Changes are canceled and save button is disabled");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Changes are canceled and cancel button is disabled");
+		listedAction = page.grid().getRowInfo(index).get("Action");
+		soft.assertEquals(listedAction, actionName, "Action is not changed after the user presses OK in the dialog");
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Changes are canceled and save button is disabled");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Changes are canceled and cancel button is disabled");
 
 
 		page.grid().selectRow(index);
@@ -596,7 +603,11 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("edit the same filter again");
 		modal = new MessageFilterModal(driver);
 		modal.getActionInput().fill(anotherActionName);
+		modal.wait.forXMillis(150);
 		modal.clickOK();
+		modal.wait.forXMillis(150);
+
+		log.info("changing domain");
 		page.getDomainSelector().selectOptionByText(domainName);
 
 		log.info("check that cancel all changes dialog appears");
@@ -611,7 +622,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("check info for filter is still updated");
 		listedAction = page.grid().getRowInfo(index).get("Action");
-		soft.assertEquals(anotherActionName, listedAction, "Action is still changed after the user presses Cancel in the dialog");
+		soft.assertEquals(listedAction, anotherActionName, "Action is still changed after the user presses Cancel in the dialog");
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Changes are NOT canceled and save button is enabled");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Changes are NOT canceled and cancel button is enabled");
 

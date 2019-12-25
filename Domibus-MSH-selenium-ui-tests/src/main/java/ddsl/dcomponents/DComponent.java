@@ -32,10 +32,11 @@ public class DComponent {
 	public void clickVoidSpace() {
 		By selector = By.cssSelector("[class*=\"overlay-backdrop\"]");
 		try {
+			if (driver.findElement(selector) != null)
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
 			wait.forElementToBeGone(driver.findElement(selector));
 		} catch (Exception e) {
-
+//			log.debug("wait for Element to be gone failed ",e);
 		}
 	}
 

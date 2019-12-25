@@ -4,7 +4,6 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -13,6 +12,7 @@ import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
+import utils.BaseUXTest;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ public class UsersPgUXTest extends BaseUXTest {
 		UserModal um = new UserModal(driver);
 		soft.assertTrue(um.isLoaded(), "Doubleclick opens modal");
 
-		soft.assertEquals(username, um.getUserNameInput().getText(), "Usernames match");
-		soft.assertEquals(DRoles.USER, um.getRoleSelect().getSelectedValue(), "Roles match");
+        soft.assertEquals(um.getUserNameInput().getText(), username, "Usernames match");
+        soft.assertEquals(um.getRoleSelect().getSelectedValue(), DRoles.USER, "Roles match");
 
 		if (data.isIsMultiDomain()) {
 			soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
@@ -186,6 +186,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
+        page.includeDeletedUsers();
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 		page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
@@ -360,7 +361,7 @@ public class UsersPgUXTest extends BaseUXTest {
 	}
 
 	/* USR-18 - Admin downloads user list (multitenancy)*/
-	@Test(description = "USR-18", groups = {"multiTenancy"})
+	@Test(description = "USR-18", groups = {"multiTenancy"}, enabled = false)
 	public void csvFileDownloadDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String domainName = getNonDefaultDomain();
@@ -374,6 +375,7 @@ public class UsersPgUXTest extends BaseUXTest {
 		String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
 		log.info("downloaded file with name " + fileName);
 
+        page.includeDeletedUsers();
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 		page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
@@ -382,10 +384,6 @@ public class UsersPgUXTest extends BaseUXTest {
 		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
 		soft.assertAll();
 	}
-
-
-
-
 
 
 }

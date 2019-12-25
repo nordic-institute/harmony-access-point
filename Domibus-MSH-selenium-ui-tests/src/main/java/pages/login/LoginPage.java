@@ -89,17 +89,12 @@ public class LoginPage extends DomibusPage {
 
 	public void login(String userRole) throws Exception {
 		HashMap<String, String> user = data.getUser(userRole);
-		log.debug("Login started");
-		new DInput(driver, username).fill(user.get("username"));
-		new DInput(driver, password).fill(user.get("pass"));
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
-		log.debug("Login action done");
+		this.login(user);
 	}
 
 	public void login(HashMap<String, String> user) throws Exception {
 
-		log.debug("Login started");
+		log.debug("Login started " + user.get("username") + " / " + user.get("pass"));
 		new DInput(driver, username).fill(user.get("username"));
 		new DInput(driver, password).fill(user.get("pass"));
 		loginBtn.click();

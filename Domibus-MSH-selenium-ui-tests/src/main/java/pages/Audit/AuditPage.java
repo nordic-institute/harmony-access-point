@@ -25,7 +25,7 @@ public class AuditPage extends DomibusPage {
     public static final String User_FieldLabel = "User";
     public static final String Action_FieldLabel = "Action";
 
-    @FindBy(id = "auditTable")
+    @FindBy(id = "pageGridId")
     public WebElement gridContainer;
     @FindBy(id = "auditHeader_id")
     public WebElement auditPageHeader;

@@ -1,6 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import utils.BaseTest;
@@ -110,6 +111,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertTrue(page.getCancelButton().isEnabled(), "Cancel button is active");
         log.info("Click on Cancel button");
         page.getCancelButton().click();
+        new Dialog(driver).confirm();
         log.info("validate presence of first party after cancellation");
         soft.assertEquals(page.grid().getRowInfo(0).get(partyName), firstParty.get(partyName), "After cancel party is still present in grid");
         log.info("select row0");
@@ -118,6 +120,7 @@ public class PmodePartiesPgTest extends BaseTest {
         page.getDeleteButton().click();
         log.info("Click on Save button");
         page.getSaveButton().click();
+        new Dialog(driver).confirm();
         log.info("Validate absence of first party from grid data");
         soft.assertTrue(page.grid().scrollTo(partyName, firstParty.get(partyName)) == -1, "After save party is NOT present in grid");
         soft.assertAll();
@@ -141,11 +144,12 @@ public class PmodePartiesPgTest extends BaseTest {
         modal.fillNewPartyForm(newPatyName, "http://test.com", "pid");
         log.info("Click ok button");
         modal.clickOK();
-        page.wait.forXMillis(1000);
+        page.wait.forXMillis(500);
         page.getSaveButton().click();
-        page.wait.forXMillis(5000);
+        new Dialog(driver).confirm();
+        page.wait.forXMillis(3000);
         log.info("validate presence of success message");
-        soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
+        soft.assertFalse(page.getAlertArea().isError(), "page shows success message");
         soft.assertTrue(StringUtils.equalsIgnoreCase(page.getAlertArea().getAlertMessage(),
                 DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
         soft.assertTrue(page.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
@@ -173,8 +177,9 @@ public class PmodePartiesPgTest extends BaseTest {
         modal.getEndpointInput().fill("http://" + newPartyName.toLowerCase() + ".com");
         log.info("Click ok button");
         modal.clickOK();
-        page.wait.forXMillis(1000);
+        page.wait.forXMillis(500);
         page.getSaveButton().click();
+        new Dialog(driver).confirm();
         page.wait.forXMillis(5000);
         log.info("Validate presence of success message");
         soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
@@ -207,6 +212,7 @@ public class PmodePartiesPgTest extends BaseTest {
         modal.clickOK();
         log.info("Click Cancel button ");
         page.getCancelButton().click();
+        new Dialog(driver).confirm();
         log.info("Validate non visibility of new party after cancellation");
         soft.assertTrue(page.grid().scrollTo(partyName, newPartyName) < 0, "New name is NOT visible in grid");
         soft.assertTrue(page.grid().scrollTo(endpoint, "http://" + newPartyName + ".com") < 0, "New endpoint is NOT visible in grid");
@@ -384,9 +390,10 @@ public class PmodePartiesPgTest extends BaseTest {
         modal.fillNewPartyForm(newPatyName, "http://test.com", "pid");
         log.info("Click On Ok Button");
         modal.clickOK();
-        pPage.wait.forXMillis(1000);
+        pPage.wait.forXMillis(500);
         log.info("Click on Save button");
         pPage.getSaveButton().click();
+        new Dialog(driver).confirm();
         pPage.wait.forXMillis(5000);
         log.info("Validate Success Message");
         soft.assertTrue(!pPage.getAlertArea().isError(), "page shows success message");
@@ -434,6 +441,7 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getDeleteButton().click();
         log.info("Click on Save button");
         pPage.getSaveButton().click();
+        new Dialog(driver).confirm();
         log.info(page.getAlertArea().getAlertMessage());
         log.info("Navigate to Pmode Current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -472,6 +480,7 @@ public class PmodePartiesPgTest extends BaseTest {
         pmPage.clickIRCheckboxes();
         log.info("Click on Save button");
         pPage.getSaveButton().click();
+        new Dialog(driver).confirm();
         System.out.println(pPage.getAlertArea().getAlertMessage());
         page.waitForTitle();
         log.info("Navigate to Pmode Current page");
@@ -481,7 +490,7 @@ public class PmodePartiesPgTest extends BaseTest {
         String updatedPmode = Cpage.getTextArea().getText();
         log.info("Validate absence of red_gw as Initiator party");
         soft.assertFalse(updatedPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is not present in pmode");
-       log.info("Validate absence of red_gw as Responder party");
+        log.info("Validate absence of red_gw as Responder party");
         soft.assertFalse(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is not present in pmode");
         page.getSidebar().goToPage(PAGES.TEST_SERVICE);
         log.info("Navigating to Test Service page");
@@ -529,6 +538,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Click on Save button");
         if (!pPage.getSaveButton().isEnabled()) log.warn("Save button not enabled");
         pPage.getSaveButton().click();
+        new Dialog(driver).confirm();
         log.info(pPage.getAlertArea().getAlertMessage());
         page.waitForTitle();
         log.info("Navigate to Pmode current page");

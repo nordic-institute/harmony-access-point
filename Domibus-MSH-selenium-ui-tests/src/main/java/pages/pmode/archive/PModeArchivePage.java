@@ -23,16 +23,16 @@ public class PModeArchivePage extends DomibusPage {
 	}
 
 
-	@FindBy(id = "archivePmodeTable")
+	@FindBy(id = "pageGridId")
 	public WebElement gridContainer;
 
-	@FindBy(id = "cancelbutton_id")
+	@FindBy(id = "cancelButtonId")
 	public WebElement cancelBtn;
 
-	@FindBy(id = "savebutton_id")
+	@FindBy(id = "saveButtonId")
 	public WebElement saveBtn;
 
-	@FindBy(id = "deleteArchivebutton_id")
+	@FindBy(id = "deleteButtonId")
 	public WebElement deleteBtn;
 
 	@FindBy(id = "downloadArchivebutton_id")
