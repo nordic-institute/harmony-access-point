@@ -38,7 +38,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   enableMoveDown: boolean;
 
   areFiltersPersisted: boolean;
-  routingCriterias = ['from', 'to', 'action', 'service'];
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
     super();
@@ -48,11 +47,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     super.ngOnInit();
 
     this.backendFilterNames = [];
-
     this.rowNumber = -1;
-
     this.disableSelectionAndButtons();
-
     this.loadServerData();
   }
 
@@ -71,7 +67,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
       this.backendFilterNames = [];
       if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
-          let currentFilter: BackendFilterEntry = result.messageFilterEntries[i];
+          let currentFilter = result.messageFilterEntries[i];
           if (!(currentFilter)) {
             continue;
           }
@@ -108,14 +104,11 @@ export class MessageFilterComponent extends mix(BaseListComponent)
       }
     }).afterClosed().toPromise().then(ok => {
       if (ok) {
-        // let backendEntry = this.createEntry(result);
-        if (this.findRowIndexWithSameRoutingCriteria(backendEntry) == -1) {
+        if (this.findRowLike(backendEntry) == -1) {
           super.rows = [...this.rows, backendEntry];
           super.count = this.rows.length + 1;
 
           this.setDirty(true);
-
-          // this.setDirty(result.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
         }
@@ -134,7 +127,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
       }
     }).afterClosed().toPromise().then(ok => {
       if (ok) {
-        let backendEntryPos = this.findRowIndexWithSameRoutingCriteria(backendEntry);
+        let backendEntryPos = this.findRowLike(backendEntry);
         if (backendEntryPos == -1) {
           this.rows.splice(this.rowNumber, 1, backendEntry);
           super.rows = [...this.rows];
@@ -242,7 +235,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   isDirty(): boolean {
     return this.isChanged;
-    // return this.enableCancel;
   }
 
   setDirty(itemValue: boolean) {
@@ -271,35 +263,20 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     return this.enableDelete;
   }
 
-  private findRowIndexWithSameRoutingCriteria(backendEntry: BackendFilterEntry): number {
+  private findRowLike(backendEntry: BackendFilterEntry): number {
     for (let i = 0; i < this.rows.length; i++) {
       let currentRow = this.rows[i];
-      if (currentRow.backendName === backendEntry.backendName
-        && this.compareRoutingCriterias(backendEntry.routingCriterias, currentRow.routingCriterias)) {
+      if (currentRow.backendName === backendEntry.backendName && this.RoutingCriteriasAreEqual(backendEntry.routingCriterias, currentRow.routingCriterias)) {
         return i;
       }
     }
     return -1;
   }
 
-  private compareRoutingCriterias(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
-    let found: boolean = true;
-    for (let entry of criteriasA) {
-      found = found && this.findRoutingCriteria(entry, criteriasB);
-    }
-    for (let entry of criteriasB) {
-      found = found && this.findRoutingCriteria(entry, criteriasA);
-    }
-    return found;
-  }
-
-  private findRoutingCriteria(toFind: RoutingCriteriaEntry, routingCriterias: RoutingCriteriaEntry[]): boolean {
-    for (let entry of routingCriterias) {
-      if (entry.name === toFind.name && entry.expression === toFind.expression) {
-        return true;
-      }
-    }
-    return toFind.expression === '' && routingCriterias.length == 0;
+  private RoutingCriteriasAreEqual(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
+    let val1 = criteriasA.map(el => el.name + el.expression).join(',');
+    let val2 = criteriasB.map(el => el.name + el.expression).join(',');
+    return val1 == val2;
   }
 
   private disableSelectionAndButtons() {
