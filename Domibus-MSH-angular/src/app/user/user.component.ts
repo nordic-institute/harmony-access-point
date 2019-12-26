@@ -244,17 +244,14 @@ export class UserComponent extends mix(BaseListComponent)
 
     this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
     this.setIsDirty();
-    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    this.dialog.open(EditUserComponent, {
       data: {
-        edit: false,
         user: this.editedUser,
         userroles: this.userRoles,
         userdomains: this.domains
       }
-    });
-    formRef.afterClosed().subscribe(ok => {
+    }).afterClosed().subscribe(ok => {
       if (ok) {
-        this.onSaveEditForm(formRef);
         super.rows = [...this.rows, this.editedUser];
         super.count = this.count + 1;
         this.currentUser = this.editedUser;
@@ -272,46 +269,30 @@ export class UserComponent extends mix(BaseListComponent)
       this.alertService.error('You cannot edit a deleted user.', false, 5000);
       return;
     }
-    this.buttonEditAction(this.currentUser);
+    this.editUser(this.currentUser);
   }
 
-  buttonEditAction(currentUser) {
+  editUser(currentUser) {
     if (this.isLoading) return;
 
-    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const rowCopy = Object.assign({}, currentUser);
+    this.dialog.open(EditUserComponent, {
       data: {
-        edit: true,
-        user: currentUser,
+        user: rowCopy,
         userroles: this.userRoles,
         userdomains: this.domains
       }
-    });
-    formRef.afterClosed().subscribe(ok => {
+    }).afterClosed().subscribe(ok => {
       if (ok) {
-        this.onSaveEditForm(formRef);
-        this.setIsDirty();
+        if (JSON.stringify(currentUser) !== JSON.stringify(rowCopy)) {
+          Object.assign(currentUser, rowCopy);
+          if (currentUser.status == UserState[UserState.PERSISTED]) {
+            currentUser.status = UserState[UserState.UPDATED]
+          }
+          this.setIsDirty();
+        }
       }
     });
-  }
-
-  private onSaveEditForm(formRef: MatDialogRef<EditUserComponent>) {
-    const editForm = formRef.componentInstance;
-    const user = this.editedUser;
-    if (!user) return;
-
-    user.userName = editForm.userName || user.userName; // only for add
-    user.email = editForm.email;
-    user.roles = editForm.role;
-    user.domain = editForm.domain;
-    this.setDomainName(user);
-    user.password = editForm.password;
-    user.active = editForm.active;
-
-    if (editForm.userForm.dirty) {
-      if (UserState[UserState.PERSISTED] === user.status) {
-        user.status = UserState[UserState.UPDATED]
-      }
-    }
   }
 
   setIsDirty() {
