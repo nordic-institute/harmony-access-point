@@ -15,7 +15,9 @@
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="From" name="from" id="from_id" [(ngModel)]="criteria.from" #from="ngModel"
                  pattern="[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="from.hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule: [partyName]:[partyType]</div>
+          <span class="help-block" *ngIf="shouldShowErrors(from)">
+            <div *ngIf="from.errors?.pattern" style="color:red; font-size: 70%">You should follow the rule: [partyName]:[partyType]</div>
+          </span>
         </mat-form-field>
       </div>
 
@@ -23,7 +25,9 @@
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="To" name="to" id="to_id" [(ngModel)]="criteria.to" #to="ngModel"
                  pattern="[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="to.hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule: [partyName]:[partyType]</div>
+          <span class="help-block" *ngIf="shouldShowErrors(to)">
+            <div *ngIf="to.errors?.pattern" style="color:red; font-size: 70%">You should follow the rule: [partyName]:[partyType]</div>
+          </span>
         </mat-form-field>
       </div>
 
@@ -31,7 +35,9 @@
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Action" name="action" id="action_id" [(ngModel)]="criteria.action" #action="ngModel"
                  pattern="[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="action.hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule : [action]</div>
+          <span class="help-block" *ngIf="shouldShowErrors(action)">
+            <div *ngIf="action.errors?.pattern" style="color:red; font-size: 70%">You should follow the rule : [action]</div>
+          </span>
         </mat-form-field>
       </div>
 
@@ -39,14 +45,15 @@
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Service" name="service" id="service_id" [(ngModel)]="criteria.service" #service="ngModel"
                  pattern="[a-zA-Z0-9_:\\./-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="service.hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule: [serviceName]:[serviceType]</div>
+          <span class="help-block" *ngIf="shouldShowErrors(service)">
+            <div *ngIf="service.errors?.pattern" style="color:red; font-size: 70%">You should follow the rule: [serviceName]:[serviceType]</div>
+          </span>
         </mat-form-field>
       </div>
 
       <div class="buttonsRow">
-        <!-- Can optionally provide a result for the closing dialog. -->
-        <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" type="submit"
-                [disabled]="!messageFilterForm.valid" id="okbutton_id">
+        <button id="okbutton_id" mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm(messageFilterForm)" type="submit"
+                [disabled]="isFormDisabled(messageFilterForm)" >
           <mat-icon>check_circle</mat-icon>
           <span>OK</span>
         </button>

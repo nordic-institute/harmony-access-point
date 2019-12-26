@@ -2,6 +2,7 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {RoutingCriteriaEntry} from '../routingcriteriaentry';
 import {BackendFilterEntry} from '../backendfilterentry';
+import {NgControl, NgForm} from '@angular/forms';
 
 let NEW_MODE = 'New Message Filter';
 let EDIT_MODE = 'Message Filter Edit';
@@ -14,7 +15,7 @@ let MAX_LENGTH = 255;
 })
 export class EditMessageFilterComponent {
 
-  formTitle: string = EDIT_MODE;
+  formTitle: string;
   textMaxLength = MAX_LENGTH;
 
   backendFilterNames: Array<String> = [];
@@ -23,34 +24,12 @@ export class EditMessageFilterComponent {
   criteria: any;
 
   constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
-
     this.backendFilterNames = data.backendFilterNames;
 
     this.entity = this.data.entity;
     this.extractCriteria();
 
-    // if (!(data.edit)) {
-    //   this.formTitle = NEW_MODE;
-    //   this.backendFilterNames = data.backendFilterNames;
-    // this.plugin = this.backendFilterNames[0].toString();
-    // this.from = '';
-    // this.to = '';
-    // this.action = '';
-    // this.service = '';
-    // } else {
-    // let backEntry = new BackendFilterEntry(
-    //   this.data.edit.entityId,
-    //   this.data.edit.index,
-    //   this.data.edit.backendName,
-    //   this.data.edit.routingCriterias,
-    //   this.data.edit.persisted);
-    // this.backendFilterNames = data.backendFilterNames;
-    // this.plugin = backEntry.backendName;
-    // this.from = !(backEntry.from) ? '' : backEntry.from.expression;
-    // this.to = !(backEntry.to) ? '' : backEntry.to.expression;
-    // this.action = !(backEntry.action) ? '' : backEntry.action.expression;
-    // this.service = !(backEntry.service) ? '' : backEntry.service.expression;
-    // }
+    this.formTitle = this.entity.persisted ? EDIT_MODE : NEW_MODE;
   }
 
   private extractCriteria() {
@@ -60,7 +39,11 @@ export class EditMessageFilterComponent {
     }, {});
   }
 
-  submitForm() {
+  submitForm(messageFilterForm: NgForm) {
+    if (messageFilterForm.invalid) {
+      return;
+    }
+
     this.updateRoutingCriteria();
     this.entity.routingCriterias = BackendFilterEntry.routingCriteriaNames.map(name => this.entity[name]).filter(el => el != null);
 
@@ -81,4 +64,11 @@ export class EditMessageFilterComponent {
     });
   }
 
+  shouldShowErrors(field: NgControl): boolean {
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  isFormDisabled(messageFilterForm: NgForm) {
+    return messageFilterForm.invalid || (!messageFilterForm.dirty && this.entity.persisted);
+  }
 }
