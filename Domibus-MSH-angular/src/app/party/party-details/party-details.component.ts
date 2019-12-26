@@ -70,7 +70,6 @@ export class PartyDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.initColumns();
   }
 

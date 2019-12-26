@@ -51,13 +51,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
     this.rowNumber = -1;
 
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableDelete = false;
-    this.enableEdit = false;
-
-    this.enableMoveUp = false;
-    this.enableMoveDown = false;
+    this.disableSelectionAndButtons();
 
     this.loadServerData();
   }
@@ -110,14 +104,22 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   add() {
-    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
-    formRef.afterClosed().toPromise().then(result => {
-      if (result) {
-        let backendEntry = this.createEntry(result);
-        if (this.findRowsIndex(backendEntry) == -1) {
+    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false);
+    this.dialog.open(EditMessageFilterComponent, {
+      data: {
+        backendFilterNames: this.backendFilterNames,
+        entity: backendEntry
+      }
+    }).afterClosed().toPromise().then(ok => {
+      if (ok) {
+        // let backendEntry = this.createEntry(result);
+        if (this.findRowIndexWithSameRoutingCriteria(backendEntry) == -1) {
           super.rows = [...this.rows, backendEntry];
           super.count = this.rows.length + 1;
-          this.setDirty(result.messageFilterForm.dirty);
+
+          this.setDirty(true);
+
+          // this.setDirty(result.messageFilterForm.dirty);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
         }
@@ -125,63 +127,34 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     });
   }
 
-  private findRowsIndex(backendEntry: BackendFilterEntry): number {
-    for (let i = 0; i < this.rows.length; i++) {
-      let currentRow = this.rows[i];
-      if (currentRow.backendName === backendEntry.backendName
-        && this.compareRoutingCriterias(backendEntry.routingCriterias, currentRow.routingCriterias)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  private compareRoutingCriterias(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
-    let found: boolean = true;
-    for (let entry of criteriasA) {
-      found = found && this.findRoutingCriteria(entry, criteriasB);
-    }
-    for (let entry of criteriasB) {
-      found = found && this.findRoutingCriteria(entry, criteriasA);
-    }
-    return found;
-  }
-
-  private findRoutingCriteria(toFind: RoutingCriteriaEntry, routingCriterias: RoutingCriteriaEntry[]): boolean {
-    for (let entry of routingCriterias) {
-      if (entry.name === toFind.name && entry.expression === toFind.expression) {
-        return true;
-      }
-    }
-    return toFind.expression === '' && routingCriterias.length == 0;
-  }
-
   edit(row?) {
     row = row || this.selected[0];
 
-    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
+    const backendEntry = JSON.parse(JSON.stringify(row));
+    this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
-        edit: row
+        entity: backendEntry
       }
-    });
-    formRef.afterClosed().toPromise().then(result => {
-      if (result) {
-        let backendEntry = this.createEntry(result);
-        let backendEntryPos = this.findRowsIndex(backendEntry);
+    }).afterClosed().toPromise().then(ok => {
+      if (ok) {
+        // let backendEntry = this.createEntry(result);
+
+        let backendEntryPos = this.findRowIndexWithSameRoutingCriteria(backendEntry);
         if (backendEntryPos == -1) {
-          this.updateSelectedPlugin(result.plugin);
 
-          for (var criteria of this.routingCriterias) {
-            this.updateSelectedProperty(criteria, result[criteria]);
-          }
+          // this.updateSelectedPlugin(result.plugin);
+          // for (var criteria of this.routingCriterias) {
+          //   this.updateSelectedProperty(criteria, result[criteria]);
+          // }
+          // const rowCopy = JSON.parse(JSON.stringify(this.rows[this.rowNumber])); // clone
 
-          const rowCopy = JSON.parse(JSON.stringify(this.rows[this.rowNumber])); // clone
-          this.rows.splice(this.rowNumber, 1, rowCopy);
+          this.rows.splice(this.rowNumber, 1, backendEntry);
           super.rows = [...this.rows];
           super.count = this.rows.length;
 
-          this.setDirty(result.messageFilterForm.dirty);
+          this.setDirty(true);
+          // this.setDirty(result.messageFilterForm.dirty);
         } else {
           if (backendEntryPos != this.rowNumber) {
             this.alertService.error('Impossible to insert a duplicate entry');
@@ -189,69 +162,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
         }
       }
     });
-  }
-
-  private createEntry(componentInstance: EditMessageFilterComponent) {
-    let routingCriterias: Array<RoutingCriteriaEntry> = [];
-
-    for (var criteria of this.routingCriterias) {
-      if (!!componentInstance[criteria]) {
-        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, componentInstance[criteria]));
-      }
-    }
-
-    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, componentInstance.plugin, routingCriterias, false);
-    return backendEntry;
-  }
-
-  private deleteRoutingCriteria(rc: string) {
-    let numRoutingCriterias = this.rows[this.rowNumber].routingCriterias.length;
-    for (let i = 0; i < numRoutingCriterias; i++) {
-      let routCriteria = this.rows[this.rowNumber].routingCriterias[i];
-      if (routCriteria.name == rc) {
-        this.rows[this.rowNumber].routingCriterias.splice(i, 1);
-        return;
-      }
-    }
-  }
-
-  private createRoutingCriteria(rc: string, value: string) {
-    if (value.length == 0) {
-      return;
-    }
-    let newRC = new RoutingCriteriaEntry(null, rc, value);
-    this.rows[this.rowNumber].routingCriterias.push(newRC);
-    this.createValueProperty(rc, newRC, this.rowNumber);
-  }
-
-  private updateSelectedPlugin(value: string) {
-    this.rows[this.rowNumber].backendName = value;
-  }
-
-  private updateSelectedProperty(prop: string, value: string) {
-    if ((this.rows[this.rowNumber][prop])) {
-      if (value.length == 0) {
-        // delete
-        this.deleteRoutingCriteria(prop);
-        this.rows[this.rowNumber][prop].expression = '';
-      } else {
-        // update
-        this.rows[this.rowNumber][prop].expression = value;
-      }
-    } else {
-      // create
-      this.createRoutingCriteria(prop, value);
-    }
-  }
-
-  private disableSelectionAndButtons() {
-    super.selected = [];
-    this.enableMoveDown = false;
-    this.enableMoveUp = false;
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableEdit = false;
-    this.enableDelete = false;
   }
 
   get csvUrl(): string {
@@ -304,7 +214,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
     super.rows = array.slice();
     super.count = this.rows.length;
-
     this.rowNumber--;
 
     if (rowNumber == 0) {
@@ -365,21 +274,22 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   onSelect({selected}) {
-    if (!(selected) || selected.length == 0) {
-      // unselect
-      this.enableMoveDown = false;
-      this.enableMoveUp = false;
-      this.enableDelete = false;
-      this.enableEdit = false;
-
-      return;
-    }
+    // if (!(selected) || selected.length == 0) {
+    //   // unselect
+    //   this.enableMoveDown = false;
+    //   this.enableMoveUp = false;
+    //   this.enableDelete = false;
+    //   this.enableEdit = false;
+    //
+    //   return;
+    // }
 
     // select
     this.rowNumber = this.rows.indexOf(this.selected[0]);
 
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
+    // this.selected.splice(0, this.selected.length);
+    // this.selected.push(...selected);
+
     this.enableMoveDown = selected.length == 1 && this.rowNumber < this.rows.length - 1;
     this.enableMoveUp = selected.length == 1 && this.rowNumber > 0;
     this.enableDelete = selected.length > 0;
@@ -387,8 +297,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   isDirty(): boolean {
-    // return this.isChanged;
-    return this.enableCancel;
+    return this.isChanged;
+    // return this.enableCancel;
   }
 
   setDirty(itemValue: boolean) {
@@ -397,11 +307,11 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     this.enableCancel = this.isChanged;
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.edit(event.row);
-    }
-  }
+  // onActivate(event) {
+  //   if ('dblclick' === event.type) {
+  //     this.edit(event.row);
+  //   }
+  // }
 
   canCancel() {
     return this.enableCancel;
@@ -422,4 +332,98 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   canDelete() {
     return this.enableDelete;
   }
+
+  private findRowIndexWithSameRoutingCriteria(backendEntry: BackendFilterEntry): number {
+    for (let i = 0; i < this.rows.length; i++) {
+      let currentRow = this.rows[i];
+      if (currentRow.backendName === backendEntry.backendName
+        && this.compareRoutingCriterias(backendEntry.routingCriterias, currentRow.routingCriterias)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private compareRoutingCriterias(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
+    let found: boolean = true;
+    for (let entry of criteriasA) {
+      found = found && this.findRoutingCriteria(entry, criteriasB);
+    }
+    for (let entry of criteriasB) {
+      found = found && this.findRoutingCriteria(entry, criteriasA);
+    }
+    return found;
+  }
+
+  private findRoutingCriteria(toFind: RoutingCriteriaEntry, routingCriterias: RoutingCriteriaEntry[]): boolean {
+    for (let entry of routingCriterias) {
+      if (entry.name === toFind.name && entry.expression === toFind.expression) {
+        return true;
+      }
+    }
+    return toFind.expression === '' && routingCriterias.length == 0;
+  }
+
+  private disableSelectionAndButtons() {
+    super.selected = [];
+    this.enableMoveDown = false;
+    this.enableMoveUp = false;
+    this.enableCancel = false;
+    this.enableSave = false;
+    this.enableEdit = false;
+    this.enableDelete = false;
+  }
+
+  // private createEntry(componentInstance: EditMessageFilterComponent) {
+  //   let routingCriterias: Array<RoutingCriteriaEntry> = [];
+  //
+  //   for (var criteria of this.routingCriterias) {
+  //     if (!!componentInstance[criteria]) {
+  //       routingCriterias.push(new RoutingCriteriaEntry(0, criteria, componentInstance[criteria]));
+  //     }
+  //   }
+  //
+  //   let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, componentInstance.plugin, routingCriterias, false);
+  //   return backendEntry;
+  // }
+
+  // private deleteRoutingCriteria(rc: string) {
+  //   let numRoutingCriterias = this.rows[this.rowNumber].routingCriterias.length;
+  //   for (let i = 0; i < numRoutingCriterias; i++) {
+  //     let routCriteria = this.rows[this.rowNumber].routingCriterias[i];
+  //     if (routCriteria.name == rc) {
+  //       this.rows[this.rowNumber].routingCriterias.splice(i, 1);
+  //       return;
+  //     }
+  //   }
+  // }
+
+  // private createRoutingCriteria(rc: string, value: string) {
+  //   if (value.length == 0) {
+  //     return;
+  //   }
+  //   let newRC = new RoutingCriteriaEntry(null, rc, value);
+  //   this.rows[this.rowNumber].routingCriterias.push(newRC);
+  //   this.createValueProperty(rc, newRC, this.rowNumber);
+  // }
+
+  // private updateSelectedPlugin(value: string) {
+  //   this.rows[this.rowNumber].backendName = value;
+  // }
+
+  // private updateSelectedProperty(prop: string, value: string) {
+  //   if ((this.rows[this.rowNumber][prop])) {
+  //     if (value.length == 0) {
+  //       // delete
+  //       this.deleteRoutingCriteria(prop);
+  //       this.rows[this.rowNumber][prop].expression = '';
+  //     } else {
+  //       // update
+  //       this.rows[this.rowNumber][prop].expression = value;
+  //     }
+  //   } else {
+  //     // create
+  //     this.createRoutingCriteria(prop, value);
+  //   }
+  // }
 }

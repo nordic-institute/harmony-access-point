@@ -7,7 +7,6 @@
         <img src="assets/images/exportCSV.svg" width="30" height="30">
       </button>
       <ngx-datatable
-        #mydatatable
         class="material striped"
         [columnMode]="'force'"
         [headerHeight]="50"
@@ -56,7 +55,7 @@
         </ngx-datatable-column>
         <ngx-datatable-column name="Persisted" prop="persisted" [sortable]="false">
           <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-            <input autofocus type="checkbox" [checked]="value" disabled id="persistedRow{{rows.indexOf(row)}}_id"/>
+            <mat-checkbox [checked]="value" disabled id="persistedRow{{rows.indexOf(row)}}_id"></mat-checkbox>
           </ng-template>
         </ngx-datatable-column>
         <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
@@ -83,24 +82,18 @@
         </ngx-datatable-column>
       </ngx-datatable>
 
-      <table class="group-action-button">
-        <tr>
-          <td>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
-                    (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
-              <mat-icon>arrow_drop_up</mat-icon>
-              <span>Move Up</span>
-            </button>
-          </td>
-          <td>
-            <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
-                    (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
-              <mat-icon>arrow_drop_down</mat-icon>
-              <span>Move Down</span>
-            </button>
-          </td>
-        </tr>
-      </table>
+      <div class="group-action-button">
+        <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
+                (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
+          <mat-icon>arrow_drop_up</mat-icon>
+          <span>Move Up</span>
+        </button>
+        <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
+                (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
+          <mat-icon>arrow_drop_down</mat-icon>
+          <span>Move Down</span>
+        </button>
+      </div>
 
       <div>
         <page-footer [parent]="this"></page-footer>

@@ -31,3 +31,7 @@
   margin-right: 10px;
   margin-top: 10px;
 }
+
+ .mat-dialog-title {
+   margin-bottom: 0 !important;
+ }

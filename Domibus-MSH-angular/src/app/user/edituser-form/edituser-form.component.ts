@@ -18,7 +18,6 @@ const EDIT_MODE = 'User Edit';
 })
 
 export class EditUserComponent implements OnInit {
-
   user: UserResponseRO;
   existingRoles = [];
   existingDomains = [];
@@ -28,7 +27,7 @@ export class EditUserComponent implements OnInit {
   public passwordPattern: string;
   public passwordValidationMessage: string;
   isDomainVisible: boolean;
-  formTitle: string = EDIT_MODE;
+  formTitle: string;
   userForm: FormGroup;
 
   @ViewChild('userForm', {static: false}) signupForm: NgForm;
@@ -84,7 +83,6 @@ export class EditUserComponent implements OnInit {
   }
 
   private async additionalSetUp() {
-
     this.domainService.getCurrentDomain().subscribe((dom) => {
       this.currentDomain = dom.code;
     });
