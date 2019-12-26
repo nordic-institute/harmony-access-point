@@ -25,22 +25,22 @@ public class PluginUsersPage extends DomibusPage {
 
 	public PluginUsersFilterArea filters = new PluginUsersFilterArea(driver);
 
-	@FindBy(css = "#userTable")
+	@FindBy(css = "#pageGridId")
 	private WebElement userGridContainer;
 
-	@FindBy(css = "#userCancelButton")
+	@FindBy(css = "#cancelButtonId")
 	private WebElement cancelBtn;
 
-	@FindBy(css = "#userSaveButton")
+	@FindBy(css = "#saveButtonId")
 	public WebElement saveBtn;
 
-	@FindBy(css = "#userNewButton")
+	@FindBy(css = "#addButtonId")
 	private WebElement newBtn;
 
-	@FindBy(css = "#userEditButton")
+	@FindBy(css = "#editButtonId")
 	private WebElement editBtn;
 
-	@FindBy(css = "#userDeleteButton")
+	@FindBy(css = "#deleteButtonId")
 	private WebElement deleteBtn;
 
 	public PluginUsersFilterArea filters() {

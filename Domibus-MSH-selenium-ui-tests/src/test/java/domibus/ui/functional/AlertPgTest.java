@@ -232,7 +232,7 @@ public class AlertPgTest extends BaseTest {
             log.info("Click on search button");
             apage.filters().getSearchButton().click();
         }
-        log.info("Validate pressence of alert data for user_login_failure alert type for given user");
+        log.info("Validate presence of alert data for user_login_failure alert type for given user");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Top row contains alert level as low");
         soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Top row contains alert status as success");

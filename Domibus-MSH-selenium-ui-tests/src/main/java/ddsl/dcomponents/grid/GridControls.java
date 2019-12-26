@@ -68,7 +68,7 @@ public class GridControls extends DComponent {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
 			WebElement checkbox = chk.findElement(By.cssSelector("input"));
 			if(StringUtils.equalsIgnoreCase(new DObject(driver, labelFor).getText(), name)){
-				new Checkbox(driver, checkbox).check();
+				new Checkbox(driver, checkbox, labelFor).check();
 				found = true;
 			}
 		}
@@ -83,7 +83,7 @@ public class GridControls extends DComponent {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
 			WebElement checkbox = chk.findElement(By.cssSelector("input"));
 			if(StringUtils.equalsIgnoreCase(new DObject(driver, labelFor).getText(), name)){
-				new Checkbox(driver, checkbox).uncheck();
+				new Checkbox(driver, checkbox, labelFor).uncheck();
 				found = true;
 			}
 		}

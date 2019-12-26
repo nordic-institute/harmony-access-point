@@ -418,7 +418,7 @@ public class PluginUsersPgTest extends BaseTest {
 		log.info("checking page for errors");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, "Default"),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, "default"),
 				"Error message is shown");
 
 		soft.assertAll();

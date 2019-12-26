@@ -224,7 +224,7 @@
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
+								<runBrowser>firefox</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>

@@ -1,6 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import utils.BaseTest;
@@ -335,8 +336,9 @@ public class AuditPgTest extends BaseTest {
 		log.info("Click ok button");
 		modal.clickOK();
 
-
 		pPage.getSaveButton().click();
+		new Dialog(driver).confirm();
+
 		log.info("validate presence of success message");
 		soft.assertTrue(!pPage.getAlertArea().isError(), "page shows success message");
 
@@ -379,10 +381,11 @@ public class AuditPgTest extends BaseTest {
 		modal.getEndpointInput().fill("http://" + newPartyName.toLowerCase() + ".com");
 		log.info("Click ok button");
 		modal.clickOK();
-		pPage.wait.forXMillis(1000);
+		pPage.wait.forXMillis(500);
 		pPage.getSaveButton().click();
-		pPage.wait.forXMillis(5000);
-		log.info("Validate presence of success message");
+		new Dialog(driver).confirm();
+		pPage.wait.forXMillis(3000);
+
 		DomibusPage page = new DomibusPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
@@ -411,10 +414,10 @@ public class AuditPgTest extends BaseTest {
 		pPage.grid().scrollToAndSelect("Party Name", "red_gw");
 		pPage.getDeleteButton().click();
 		pPage.getSaveButton().click();
+		new Dialog(driver).confirm();
 		log.info("Message shown : " + pPage.getAlertArea().getAlertMessage());
 
 		pPage.getSidebar().goToPage(PAGES.AUDIT);
-
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Set all search filter data");
@@ -430,7 +433,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
-	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void pmodeDownload() throws Exception {
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
