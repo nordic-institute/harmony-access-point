@@ -1,51 +1,39 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {NgControl, NgForm} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../../user/support/uservalidator.service';
 import {PluginUserRO} from '../support/pluginuser';
 import {PluginUserService} from '../support/pluginuser.service';
-import {SecurityService} from '../../security/security.service';
 import {UserState} from '../../user/support/user';
 
-const NEW_MODE = 'New Plugin User';
+const NEW_MODE = 'New PluginUser';
 const EDIT_MODE = 'Plugin User Edit';
 
 @Component({
-  selector: 'editbasicpluginuser-form',
-  templateUrl: './editbasicpluginuser-form.component.html',
+  selector: 'editcertificatepluginuser-form',
+  templateUrl: './edit-certificate-plugin-user-form.component.html',
   providers: [UserValidatorService]
 })
-
-export class EditbasicpluginuserFormComponent implements OnInit {
+export class EditCertificatePluginUserFormComponent {
 
   existingRoles = [];
-  passwordConfirmation: string;
-  public passwordPattern: string;
-  public passwordValidationMessage: string;
   editMode: boolean;
   formTitle: string;
   user: PluginUserRO;
 
+  public certificateIdPattern = PluginUserService.certificateIdPattern;
+  public certificateIdMessage = PluginUserService.certificateIdMessage;
   public originalUserPattern = PluginUserService.originalUserPattern;
   public originalUserMessage = PluginUserService.originalUserMessage;
 
-  constructor(public dialogRef: MatDialogRef<EditbasicpluginuserFormComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              private securityService: SecurityService) {
+  constructor(public dialogRef: MatDialogRef<EditCertificatePluginUserFormComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
 
     this.existingRoles = data.userroles;
     this.user = data.user;
     this.editMode = this.user.status !== UserState[UserState.NEW];
 
-    this.passwordConfirmation = data.user.password;
-
     this.formTitle = this.editMode ? EDIT_MODE : NEW_MODE;
-  }
-
-  async ngOnInit() {
-    const passwordPolicy = await this.securityService.getPluginPasswordPolicy();
-    this.passwordPattern = passwordPolicy.pattern;
-    this.passwordValidationMessage = passwordPolicy.validationMessage;
   }
 
   submitForm(userForm: NgForm) {
@@ -62,5 +50,4 @@ export class EditbasicpluginuserFormComponent implements OnInit {
   isFormDisabled(form: NgForm) {
     return form.invalid || !form.dirty;
   }
-
 }

@@ -1,9 +1,9 @@
 import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
-import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../party';
+import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../support/party';
 import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party-identifier-details.component';
-import {PartyService} from '../party.service';
+import {PartyService} from '../support/party.service';
 import {AlertService} from '../../common/alert/alert.service';
 
 @Component({

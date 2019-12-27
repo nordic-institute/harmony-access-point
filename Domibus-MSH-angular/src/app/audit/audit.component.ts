@@ -1,8 +1,8 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {AuditService} from './audit.service';
+import {AuditService} from './support/audit.service';
 import {UserService} from '../user/support/user.service';
 import {AlertService} from '../common/alert/alert.service';
-import {AuditResponseRo} from './audit';
+import {AuditResponseRo} from './support/audit';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';

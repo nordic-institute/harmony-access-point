@@ -73,8 +73,8 @@ import {PmodeViewComponent} from './pmode/archive/pmode-view/pmode-view.componen
 import {AlertsComponent} from './alerts/alerts.component';
 import {TestServiceComponent} from './testservice/testservice.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
-import {EditbasicpluginuserFormComponent} from './pluginuser/editpluginuser-form/editbasicpluginuser-form.component';
-import {EditcertificatepluginuserFormComponent} from './pluginuser/editpluginuser-form/editcertificatepluginuser-form.component';
+import {EditBasicPluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-basic-plugin-user-form.component';
+import {EditCertificatePluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-certificate-plugin-user-form.component';
 import {PartyIdentifierDetailsComponent} from './party/party-identifier-details/party-identifier-details.component';
 import {GlobalErrorHandler} from './common/global.error-handler';
 import {UserService} from './user/support/user.service';
@@ -141,8 +141,8 @@ import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross
     AlertsComponent,
     TestServiceComponent,
     PluginUserComponent,
-    EditbasicpluginuserFormComponent,
-    EditcertificatepluginuserFormComponent,
+    EditBasicPluginUserFormComponent,
+    EditCertificatePluginUserFormComponent,
     PartyIdentifierDetailsComponent,
     LoggingComponent,
     ChangePasswordComponent,
@@ -171,8 +171,8 @@ import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross
     TrustStoreUploadComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
-    EditbasicpluginuserFormComponent,
-    EditcertificatepluginuserFormComponent,
+    EditBasicPluginUserFormComponent,
+    EditCertificatePluginUserFormComponent,
     PartyIdentifierDetailsComponent,
     ChangePasswordComponent,
     PropertiesComponent,

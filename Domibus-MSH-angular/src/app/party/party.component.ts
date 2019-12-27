@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material';
-import {PartyService} from './party.service';
-import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
+import {PartyService} from './support/party.service';
+import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
 import {AlertService} from '../common/alert/alert.service';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';

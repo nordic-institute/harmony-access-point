@@ -1,6 +1,6 @@
 ﻿import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {ErrorLogResult} from './errorlogresult';
+import {ErrorLogResult} from './support/errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
 import {MatDialog, MatDialogRef} from '@angular/material';

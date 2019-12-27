@@ -17,7 +17,7 @@
         </mat-form-field>
       </div>
 
-      <div style="margin-top:5px;">
+      <div style="margin-top:0;">
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser"
                  #originalUser="ngModel" [pattern]="originalUserPattern" maxlength="255">
@@ -27,7 +27,7 @@
         </mat-form-field>
       </div>
 
-      <div style="margin-top:10px;">
+      <div style="margin-top:15px;">
         <mat-select matInput placeholder="Role" name="role" id="role_id" [(ngModel)]="user.authRoles"
                     #role="ngModel" required [style.width]="'100%'">
           <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>

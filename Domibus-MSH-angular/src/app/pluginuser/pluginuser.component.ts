@@ -5,8 +5,8 @@ import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.
 import {PluginUserRO} from './support/pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
 import {MatDialog} from '@angular/material';
-import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicpluginuser-form.component';
-import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
+import {EditBasicPluginUserFormComponent} from './editpluginuser-form/edit-basic-plugin-user-form.component';
+import {EditCertificatePluginUserFormComponent} from './editpluginuser-form/edit-certificate-plugin-user-form.component';
 import {UserService} from '../user/support/user.service';
 import {UserState} from '../user/support/user';
 import mix from '../common/mixins/mixin.utils';
@@ -208,7 +208,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   private openItemInEditForm(rowCopy: PluginUserRO) {
-    const editForm = this.inBasicMode() ? EditbasicpluginuserFormComponent : EditcertificatepluginuserFormComponent;
+    const editForm = this.inBasicMode() ? EditBasicPluginUserFormComponent : EditCertificatePluginUserFormComponent;
     // @ts-ignore
     return this.dialog.open(editForm, {
       data: {
