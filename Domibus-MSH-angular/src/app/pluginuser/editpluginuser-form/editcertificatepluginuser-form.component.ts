@@ -1,10 +1,10 @@
 import {Component, Inject} from '@angular/core';
 import {NgControl, NgForm} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {UserValidatorService} from '../../user/uservalidator.service';
-import {PluginUserRO} from '../pluginuser';
-import {PluginUserService} from '../pluginuser.service';
-import {UserState} from '../../user/user';
+import {UserValidatorService} from '../../user/support/uservalidator.service';
+import {PluginUserRO} from '../support/pluginuser';
+import {PluginUserService} from '../support/pluginuser.service';
+import {UserState} from '../../user/support/user';
 
 const NEW_MODE = 'New PluginUser';
 const EDIT_MODE = 'Plugin User Edit';

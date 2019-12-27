@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AuditService} from './audit.service';
-import {UserService} from '../user/user.service';
+import {UserService} from '../user/support/user.service';
 import {AlertService} from '../common/alert/alert.service';
 import {AuditResponseRo} from './audit';
 import mix from '../common/mixins/mixin.utils';

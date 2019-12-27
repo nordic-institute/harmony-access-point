@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
-import {UserValidatorService} from '../../user/uservalidator.service';
+import {UserValidatorService} from '../../user/support/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';

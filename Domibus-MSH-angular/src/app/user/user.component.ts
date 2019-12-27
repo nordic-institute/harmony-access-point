@@ -1,8 +1,8 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {UserResponseRO, UserState} from './user';
-import {UserSearchCriteria, UserService} from './user.service';
+import {UserResponseRO, UserState} from './support/user';
+import {UserSearchCriteria, UserService} from './support/user.service';
 import {MAT_CHECKBOX_CLICK_ACTION, MatDialog, MatDialogRef} from '@angular/material';
-import {UserValidatorService} from 'app/user/uservalidator.service';
+import {UserValidatorService} from 'app/user/support/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {HttpClient} from '@angular/common/http';
@@ -51,22 +51,13 @@ export class UserComponent extends mix(BaseListComponent)
   enableEdit: boolean;
 
   currentUser: UserResponseRO;
-
   editedUser: UserResponseRO;
-
   areRowsDeleted: boolean;
-
   deletedStatuses: any[];
 
-  constructor(private http: HttpClient,
-              private userService: UserService,
-              public dialog: MatDialog,
-              private dialogsService: DialogsService,
-              private userValidatorService: UserValidatorService,
-              private alertService: AlertService,
-              private securityService: SecurityService,
-              private domainService: DomainService,
-              private changeDetector: ChangeDetectorRef) {
+  constructor(private http: HttpClient, private userService: UserService, public dialog: MatDialog, private dialogsService: DialogsService,
+              private userValidatorService: UserValidatorService, private alertService: AlertService, private securityService: SecurityService,
+              private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -358,16 +349,6 @@ export class UserComponent extends mix(BaseListComponent)
 
   isDirty(): boolean {
     return this.enableCancel;
-  }
-
-  setPage(offset: number): void {
-    super.offset = offset;
-  }
-
-  getLastPage(): number {
-    if (!this.rows || !this.rowLimiter || !this.rowLimiter.pageSize)
-      return 0;
-    return Math.floor(this.rows.length / this.rowLimiter.pageSize);
   }
 
   setState() {

@@ -44,6 +44,16 @@ export let ClientPageableListMixin = (superclass: Constructable) => class extend
     super(...args);
     super.type = PaginationType.Client;
   }
+
+  getLastPage(): number {
+    if (!this.rows || !this.rowLimiter || !this.rowLimiter.pageSize)
+      return 0;
+    return Math.floor(this.rows.length / this.rowLimiter.pageSize);
+  }
+
+  setPage(offset: number): void {
+    super.offset = offset;
+  }
 };
 
 /**

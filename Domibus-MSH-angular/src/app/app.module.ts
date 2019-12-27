@@ -77,8 +77,8 @@ import {EditbasicpluginuserFormComponent} from './pluginuser/editpluginuser-form
 import {EditcertificatepluginuserFormComponent} from './pluginuser/editpluginuser-form/editcertificatepluginuser-form.component';
 import {PartyIdentifierDetailsComponent} from './party/party-identifier-details/party-identifier-details.component';
 import {GlobalErrorHandler} from './common/global.error-handler';
-import {UserService} from './user/user.service';
-import {UserValidatorService} from './user/uservalidator.service';
+import {UserService} from './user/support/user.service';
+import {UserValidatorService} from './user/support/uservalidator.service';
 import {DefaultPasswordGuard} from './security/defaultPassword.guard';
 import {SanitizeHtmlPipe} from './common/sanitizeHtml.pipe';
 import {LoggingComponent} from './logging/logging.component';
@@ -95,7 +95,7 @@ import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
 import {PageFooterComponent} from './common/page-footer/page-footer.component';
 import {PageGridComponent} from './common/page-grid/page-grid.component';
-import {UserCrossFieldValidatorsDirective} from './pluginuser/user-cross-field-validators.directive';
+import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross-field-validators.directive';
 
 
 @NgModule({

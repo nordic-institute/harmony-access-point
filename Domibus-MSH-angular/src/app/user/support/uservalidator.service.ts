@@ -1,9 +1,9 @@
 import {UserResponseRO, UserState} from './user';
-import {AlertService} from '../common/alert/alert.service';
+import {AlertService} from '../../common/alert/alert.service';
 import {Injectable} from '@angular/core';
 import {AbstractControl, ValidatorFn} from '@angular/forms';
-import {SecurityService} from '../security/security.service';
-import {DomainService} from '../security/domain.service';
+import {SecurityService} from '../../security/security.service';
+import {DomainService} from '../../security/domain.service';
 
 /**
  * Created by dussath on 6/20/17.

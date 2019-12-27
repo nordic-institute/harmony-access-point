@@ -1,11 +1,11 @@
 import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, NgForm, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {UserValidatorService} from '../uservalidator.service';
+import {UserValidatorService} from '../support/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
-import {UserService} from '../user.service';
+import {UserService} from '../support/user.service';
 import {DomainService} from '../../security/domain.service';
-import {UserResponseRO, UserState} from '../user';
+import {UserResponseRO, UserState} from '../support/user';
 import get = Reflect.get;
 import {Domain} from '../../security/domain';
 

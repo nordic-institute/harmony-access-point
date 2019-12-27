@@ -1,14 +1,14 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {AlertService} from '../common/alert/alert.service';
-import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
-import {PluginUserRO} from './pluginuser';
+import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.service';
+import {PluginUserRO} from './support/pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
 import {MatDialog} from '@angular/material';
 import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicpluginuser-form.component';
 import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
-import {UserService} from '../user/user.service';
-import {UserState} from '../user/user';
+import {UserService} from '../user/support/user.service';
+import {UserState} from '../user/support/user';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -160,6 +160,10 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async add() {
+    if (this.isLoading) return;
+
+    this.setPage(this.getLastPage());
+
     const newItem = this.pluginUserService.createNew();
     newItem.authenticationType = this.filter.authType;
     this.rows.push(newItem);
@@ -205,6 +209,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   private openItemInEditForm(rowCopy: PluginUserRO) {
     const editForm = this.inBasicMode() ? EditbasicpluginuserFormComponent : EditcertificatepluginuserFormComponent;
+    // @ts-ignore
     return this.dialog.open(editForm, {
       data: {
         user: rowCopy,
