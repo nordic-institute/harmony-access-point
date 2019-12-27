@@ -1,10 +1,10 @@
-import {Component, Inject, ChangeDetectorRef, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {Component, Inject} from '@angular/core';
+import {NgControl, NgForm} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../../user/uservalidator.service';
-import {SecurityService} from '../../security/security.service';
 import {PluginUserRO} from '../pluginuser';
 import {PluginUserService} from '../pluginuser.service';
+import {UserState} from '../../user/user';
 
 const NEW_MODE = 'New PluginUser';
 const EDIT_MODE = 'Plugin User Edit';
@@ -19,42 +19,35 @@ export class EditcertificatepluginuserFormComponent {
   existingRoles = [];
   editMode: boolean;
   formTitle: string;
-  userForm: FormGroup;
   user: PluginUserRO;
-
-  public originalUserPattern = PluginUserService.originalUserPattern;
-  public originalUserMessage = PluginUserService.originalUserMessage;
 
   public certificateIdPattern = PluginUserService.certificateIdPattern;
   public certificateIdMessage = PluginUserService.certificateIdMessage;
+  public originalUserPattern = PluginUserService.originalUserPattern;
+  public originalUserMessage = PluginUserService.originalUserMessage;
 
-  constructor (public dialogRef: MatDialogRef<EditcertificatepluginuserFormComponent>,
-               @Inject(MAT_DIALOG_DATA) public data: any,
-               fb: FormBuilder) {
+  constructor(public dialogRef: MatDialogRef<EditcertificatepluginuserFormComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
 
     this.existingRoles = data.userroles;
-    this.editMode = data.edit;
     this.user = data.user;
+    this.editMode = this.user.status !== UserState[UserState.NEW];
 
     this.formTitle = this.editMode ? EDIT_MODE : NEW_MODE;
-
-    if (this.editMode) {
-      this.userForm = fb.group({
-        'certificateId': new FormControl({value: this.user.certificateId, disabled: true}, Validators.nullValidator),
-        'originalUser': new FormControl(this.user.originalUser, null),
-        'role': new FormControl(this.user.authRoles, Validators.required),
-      });
-    } else {
-      this.userForm = fb.group({
-        'certificateId': new FormControl(this.user.certificateId, Validators.required),
-        'originalUser': new FormControl(this.user.originalUser, null),
-        'role': new FormControl(this.user.authRoles, Validators.required),
-      });
-    }
   }
 
-  submitForm () {
+  submitForm(userForm: NgForm) {
+    if (userForm.invalid) {
+      return;
+    }
     this.dialogRef.close(true);
   }
 
+  shouldShowErrors(field: NgControl | NgForm): boolean {
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  isFormDisabled(form: NgForm) {
+    return form.invalid || !form.dirty;
+  }
 }

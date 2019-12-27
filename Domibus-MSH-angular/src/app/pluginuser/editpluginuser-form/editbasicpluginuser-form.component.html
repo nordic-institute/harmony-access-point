@@ -16,7 +16,7 @@
         </mat-form-field>
       </div>
 
-      <div style="margin-top:15px;">
+      <div style="margin-top:5px;">
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser"
                  #originalUser="ngModel" [pattern]="originalUserPattern" maxlength="255">
@@ -70,7 +70,7 @@
       <table class="buttonsRow">
         <tr>
           <td>
-            <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id" [disabled]="!userForm.valid">
+            <button mat-raised-button color="primary" [mat-dialog-close]="true" id="editbuttonok_id"  [disabled]="isFormDisabled(userForm)">
               <mat-icon>check_circle</mat-icon>
               <span>OK</span>
             </button>
