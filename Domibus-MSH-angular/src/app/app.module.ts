@@ -96,6 +96,7 @@ import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area
 import {PageFooterComponent} from './common/page-footer/page-footer.component';
 import {PageGridComponent} from './common/page-grid/page-grid.component';
 import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross-field-validators.directive';
+import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/edit-plugin-user-form-base.component';
 
 
 @NgModule({
@@ -141,6 +142,7 @@ import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross
     AlertsComponent,
     TestServiceComponent,
     PluginUserComponent,
+    EditPluginUserFormBaseComponent,
     EditBasicPluginUserFormComponent,
     EditCertificatePluginUserFormComponent,
     PartyIdentifierDetailsComponent,
@@ -171,6 +173,7 @@ import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross
     TrustStoreUploadComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
+    EditPluginUserFormBaseComponent,
     EditBasicPluginUserFormComponent,
     EditCertificatePluginUserFormComponent,
     PartyIdentifierDetailsComponent,
