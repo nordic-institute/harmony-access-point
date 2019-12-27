@@ -95,6 +95,7 @@ import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
 import {PageFooterComponent} from './common/page-footer/page-footer.component';
 import {PageGridComponent} from './common/page-grid/page-grid.component';
+import {UserCrossFieldValidatorsDirective} from './pluginuser/user-cross-field-validators.directive';
 
 
 @NgModule({
@@ -151,7 +152,8 @@ import {PageGridComponent} from './common/page-grid/page-grid.component';
     GridHeaderComponent,
     FilterAreaFooterComponent,
     PageFooterComponent,
-    PageGridComponent
+    PageGridComponent,
+    UserCrossFieldValidatorsDirective
   ],
   entryComponents: [
     AppComponent,

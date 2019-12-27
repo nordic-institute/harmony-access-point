@@ -170,7 +170,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
     this.setIsDirty();
 
-    const ok = await this.openItemInEditForm(newItem, false);
+    const ok = await this.openItemInEditForm(newItem);
     if (!ok) {
       this.rows.pop();
       super.count = this.count - 1;
@@ -191,7 +191,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     row = row || this.selected[0];
     const rowCopy = Object.assign({}, row);
 
-    const ok = await this.openItemInEditForm(rowCopy, true);
+    const ok = await this.openItemInEditForm(rowCopy);
     if (ok) {
       if (JSON.stringify(row) !== JSON.stringify(rowCopy)) { // the object changed
         Object.assign(row, rowCopy);
@@ -203,11 +203,10 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  private openItemInEditForm(rowCopy: PluginUserRO, edit = true) {
+  private openItemInEditForm(rowCopy: PluginUserRO) {
     const editForm = this.inBasicMode() ? EditbasicpluginuserFormComponent : EditcertificatepluginuserFormComponent;
     return this.dialog.open(editForm, {
       data: {
-        edit: edit,
         user: rowCopy,
         userroles: this.userRoles,
       }

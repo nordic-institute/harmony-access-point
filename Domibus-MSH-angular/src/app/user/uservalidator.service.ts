@@ -1,7 +1,7 @@
 import {UserResponseRO, UserState} from './user';
 import {AlertService} from '../common/alert/alert.service';
 import {Injectable} from '@angular/core';
-import {AbstractControl} from '@angular/forms';
+import {AbstractControl, ValidatorFn} from '@angular/forms';
 import {SecurityService} from '../security/security.service';
 import {DomainService} from '../security/domain.service';
 
@@ -18,28 +18,7 @@ export class UserValidatorService {
   validateUsers(users: UserResponseRO[]): boolean {
     let errorMessage = '';
     errorMessage = errorMessage.concat(this.checkUserNameDuplication(users));
-    errorMessage = errorMessage.concat(this.validateDomains(users));
     return this.triggerValidation(errorMessage);
-  }
-
-  validateDomains(users: UserResponseRO[]): string {
-    return '';
-    // let errorMessage = '';
-    // const activeUsers = users.filter(user => user.active);
-    //
-    // // check at least one active domain admin
-    // const domainAdmins = activeUsers.filter(user => user.roles == SecurityService.ROLE_DOMAIN_ADMIN);
-    // if (domainAdmins.length < 1) {
-    //   errorMessage = errorMessage.concat(' There must always be at least one active Domain Admin for each Domain.');
-    // }
-    // // check at least one ap admin
-    // if (this.securityService.isCurrentUserSuperAdmin()) {
-    //   const apAdmins = activeUsers.filter(user => user.roles == SecurityService.ROLE_AP_ADMIN);
-    //   if (apAdmins.length < 1) {
-    //     errorMessage = errorMessage.concat(' There must always be at least one active AP Admin');
-    //   }
-    // }
-    // return errorMessage;
   }
 
   private checkUserNameDuplication(allUsers: UserResponseRO[]) {
@@ -94,4 +73,6 @@ export class UserValidatorService {
 
   }
 
+
 }
+
