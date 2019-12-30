@@ -62,9 +62,11 @@ export class EditUserComponent implements OnInit {
   }
 
   private buildFormControls() {
-
     this.userForm = this.fb.group({
-      'userName': new FormControl({value: this.user.userName, disabled: !this.isNewUser()}, [Validators.required, Validators.maxLength(255)]),
+      'userName': new FormControl({
+        value: this.user.userName,
+        disabled: !this.isNewUser()
+      }, [Validators.required, Validators.maxLength(255)]),
       'email': new FormControl(this.user.email, [Validators.pattern(this.emailPattern), Validators.maxLength(255)]),
       'roles': new FormControl(this.user.roles, Validators.required),
       'domain': new FormControl({value: this.user.domain, disabled: this.isDomainDisabled()}, Validators.required),
@@ -73,9 +75,9 @@ export class EditUserComponent implements OnInit {
       'confirmation': new FormControl(this.confirmation, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
       'active': new FormControl({value: this.user.active, disabled: this.isCurrentUser()}, Validators.required)
     }, {
-      validator: this.userValidatorService.validateForm()
+      validator: [this.userValidatorService.passwordShouldMatch(), this.userValidatorService.defaultDomain()],
+      // updateOn: 'blur'
     });
-
   }
 
   private isNewUser() {
@@ -115,12 +117,12 @@ export class EditUserComponent implements OnInit {
     return this.user.roles !== SecurityService.ROLE_AP_ADMIN;
   }
 
-  onRoleChange() {
-    if (this.userForm.get('roles').value === SecurityService.ROLE_AP_ADMIN) {
+  onRoleChange($event) {
+    if ($event.value === SecurityService.ROLE_AP_ADMIN) {
       this.userForm.get('domain').enable();
     } else {
       this.userForm.get('domain').disable();
-      this.userForm.patchValue({domain: this.currentDomain});
+      // this.userForm.patchValue({domain: this.currentDomain});
     }
   }
 

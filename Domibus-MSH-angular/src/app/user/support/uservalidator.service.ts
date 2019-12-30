@@ -43,36 +43,47 @@ export class UserValidatorService {
     return true;
   }
 
-  matchPassword(form: AbstractControl) {
-    const password = form.get('password').value;
-    const confirmPassword = form.get('confirmation').value;
-    if (password && confirmPassword && password !== confirmPassword) {
-      form.get('confirmation').setErrors({match: true})
-    }
-  }
-
-  validateForm() {
+  passwordShouldMatch(): ValidatorFn {
     return (form: AbstractControl) => {
-      this.matchPassword(form);
-      this.validateDomainOnAdd(form);
+      return this.matchPassword(form);
     };
   }
 
-  validateDomainOnAdd(form: AbstractControl) {
+  matchPassword(form: AbstractControl): { [key: string]: any } | null {
+    const password = form.get('password').value;
+    const confirmPassword = form.get('confirmation').value;
+    if (password && confirmPassword && password !== confirmPassword) {
+      return {match: true};
+    } else {
+      return null;
+    }
+  }
+
+  defaultDomain(): ValidatorFn {
+    return (form: AbstractControl) => {
+      let res = {res: null};
+      this.validateDomain(form, res);
+      return res.res;
+    };
+  }
+
+  async validateDomain(form: AbstractControl, res: { res: any }) {
     if (!form.get('domain')) {
       return;
     }
     const role = form.get('roles').value;
-    if (role && role !== SecurityService.ROLE_AP_ADMIN) {
-      const domain = form.get('domain').value;
-      this.domainService.getCurrentDomain()
-        .subscribe((currDomain) => {
-          form.get('domain').setErrors({domain: domain && currDomain && domain !== currDomain.code})
-        });
+    if (role && role === SecurityService.ROLE_AP_ADMIN) {
+      return;
     }
-
+    const domain = form.get('domain').value;
+    this.domainService.getCurrentDomain().subscribe((currDomain) => {
+      if (domain && currDomain && domain !== currDomain.code) {
+        res.res = {domain: true};
+      } else {
+        res.res = null;
+      }
+    });
   }
-
 
 }
 

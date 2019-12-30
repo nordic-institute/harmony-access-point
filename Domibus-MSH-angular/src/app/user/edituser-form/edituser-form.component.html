@@ -26,7 +26,7 @@
       </div>
 
       <div style="margin-top:10px;">
-        <mat-select matInput id="role_id" name="roles" formControlName="roles" (selectionChange)="onRoleChange()" [style.width]="'100%'" placeholder="Role *">
+        <mat-select matInput id="role_id" name="roles" formControlName="roles" (selectionChange)="onRoleChange($event)" [style.width]="'100%'" placeholder="Role *">
           <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
         </mat-select>
         <span class="help-block" *ngIf="shouldShowErrors('roles')">
@@ -39,8 +39,8 @@
           <mat-option *ngFor="let item of existingDomains" [value]="item.code">{{item.name}}</mat-option>
         </mat-select>
         <span class="help-block" *ngIf="shouldShowErrors('domain')">
-          <div *ngIf="userForm.get('domain').errors?.required" style="color:red; font-size: 70%">You need to choose a domain for this user</div>
-          <div *ngIf="userForm.get('domain').errors?.domain" style="color:red; font-size: 70%">The domain should be the current one</div>
+<!--          <div *ngIf="userForm.get('domain').errors?.required" style="color:red; font-size: 70%">You need to choose a domain for this user</div>-->
+          <div *ngIf="userForm.errors?.domain" style="color:red; font-size: 70%">The domain should be the current one</div>
         </span>
       </div>
 
@@ -63,7 +63,7 @@
 
           <span class="help-block" *ngIf="shouldShowErrors('confirmation')">
             <div *ngIf="userForm.get('confirmation').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
-            <div *ngIf="userForm.get('confirmation').errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
+            <div *ngIf="userForm.errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
           </span>
         </mat-form-field>
       </div>

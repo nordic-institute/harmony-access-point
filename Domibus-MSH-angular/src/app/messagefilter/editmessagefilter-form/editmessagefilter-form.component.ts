@@ -1,7 +1,7 @@
 import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {RoutingCriteriaEntry} from '../routingcriteriaentry';
-import {BackendFilterEntry} from '../backendfilterentry';
+import {RoutingCriteriaEntry} from '../support/routingcriteriaentry';
+import {BackendFilterEntry} from '../support/backendfilterentry';
 import {NgControl, NgForm} from '@angular/forms';
 
 let NEW_MODE = 'New Message Filter';

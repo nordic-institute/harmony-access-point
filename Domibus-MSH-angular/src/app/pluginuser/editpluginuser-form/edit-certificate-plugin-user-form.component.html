@@ -8,7 +8,7 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Certificate Id" name="certificateId" id="username_id" [(ngModel)]="user.certificateId"
+          <input matInput placeholder="Certificate Id" name="certificateId" id="username_id" [(ngModel)]="user.certificateId" [ngModelOptions]="{updateOn: 'blur'}"
                  #certificateId="ngModel" [pattern]="certificateIdPattern" maxlength="255" required>
           <span class="help-block" *ngIf="shouldShowErrors(certificateId)">
             <div *ngIf="certificateId.errors?.required" style="color:red; font-size: 70%">You should type a certificate id</div>
@@ -19,7 +19,7 @@
 
       <div style="margin-top:0;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser"
+          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" [ngModelOptions]="{updateOn: 'blur'}"
                  #originalUser="ngModel" [pattern]="originalUserPattern" maxlength="255">
           <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
             <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserMessage}}</div>

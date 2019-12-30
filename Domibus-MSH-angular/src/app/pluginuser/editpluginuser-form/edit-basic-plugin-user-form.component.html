@@ -8,8 +8,8 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" #userName="ngModel"
-                 maxlength="255" required>
+          <input matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" [ngModelOptions]="{updateOn: 'blur'}"
+                 #userName="ngModel" maxlength="255" required>
           <span class="help-block" *ngIf="shouldShowErrors(userName)">
             <div *ngIf="userName.errors?.required" style="color:red; font-size: 70%">You should type an username</div>
           </span>
@@ -18,7 +18,7 @@
 
       <div style="margin-top:5px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser"
+          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" [ngModelOptions]="{updateOn: 'blur'}"
                  #originalUser="ngModel" [pattern]="originalUserPattern" maxlength="255">
           <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
             <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserMessage}}</div>
@@ -38,8 +38,8 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput type="password" placeholder="Password" name="password" id="password_id" [(ngModel)]="user.password" #password="ngModel"
-                 [pattern]="passwordPattern" [required]="!editMode">
+          <input matInput type="password" placeholder="Password" name="password" id="password_id" [(ngModel)]="user.password" [ngModelOptions]="{updateOn: 'blur'}"
+                 #password="ngModel" [pattern]="passwordPattern" [required]="!editMode">
           <span class="help-block" *ngIf="shouldShowErrors(password)">
             <div *ngIf="password.errors?.required" style="color:red; font-size: 70%">You should type a password</div>
             <div *ngIf="password.errors?.pattern" style="color:red; font-size: 70%">
@@ -52,7 +52,7 @@
 
       <div>
         <mat-form-field [style.width]="'100%'">
-          <input matInput type="password" placeholder="Confirmation" name="confirmation" id="confirmation_id" [(ngModel)]="passwordConfirmation"
+          <input matInput type="password" placeholder="Confirmation" name="confirmation" id="confirmation_id" [(ngModel)]="passwordConfirmation" [ngModelOptions]="{updateOn: 'blur'}"
                  #confirmation="ngModel" [required]="!editMode">
           <span class="help-block" *ngIf="shouldShowErrors(confirmation) || shouldShowErrors(userForm)">
             <div *ngIf="confirmation.errors?.required" style="color:red; font-size: 70%">You should type a password</div>
