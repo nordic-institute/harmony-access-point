@@ -45,11 +45,6 @@ export class UserComponent extends mix(BaseListComponent)
   domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
-  // enableCancel: boolean;
-  // enableSave: boolean;
-  // enableDelete: boolean;
-  // enableEdit: boolean;
-
   currentUser: UserResponseRO;
   editedUser: UserResponseRO;
   areRowsDeleted: boolean;
@@ -66,22 +61,12 @@ export class UserComponent extends mix(BaseListComponent)
 
     super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
-
     this.userRoles = [];
-
-    // this.enableCancel = false;
-    // this.enableSave = false;
-    // this.enableDelete = false;
-    // this.enableEdit = false;
     this.currentUser = null;
     this.editedUser = null;
-
     this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
-
     this.getUserRoles();
-
     this.areRowsDeleted = false;
-
     this.filterData();
   }
 
@@ -174,7 +159,7 @@ export class UserComponent extends mix(BaseListComponent)
       super.rows = results;
       super.count = results.length;
       this.areRowsDeleted = false;
-      this.disableSelectionAndButtons();
+      this.disableSelection();
     });
   }
 
@@ -202,19 +187,8 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   onSelect({selected}) {
-    // if (!selected || selected.length == 0) {
-    //   // this.enableDelete = false;
-    //   this.enableEdit = false;
-    //
-    //   return;
-    // }
-
-    // select
     this.currentUser = this.selected[0];
     this.editedUser = this.currentUser;
-
-    // this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
-    // this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }
 
   private isLoggedInUserSelected(selected): boolean {
@@ -247,8 +221,6 @@ export class UserComponent extends mix(BaseListComponent)
         this.currentUser = this.editedUser;
       } else {
         super.selected = [];
-        // this.enableEdit = false;
-        // this.enableDelete = false;
       }
       this.setIsDirty();
     });
@@ -286,11 +258,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   setIsDirty() {
-    super.isChanged = this.areRowsDeleted
-      || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
-
-    // this.enableSave = this.isChanged;
-    // this.enableCancel = this.isChanged;
+    super.isChanged = this.areRowsDeleted || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
   delete() {
@@ -307,9 +275,6 @@ export class UserComponent extends mix(BaseListComponent)
       return;
     }
 
-    // this.enableDelete = false;
-    // this.enableEdit = false;
-
     for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
         this.rows.splice(this.rows.indexOf(itemToDelete), 1);
@@ -324,17 +289,13 @@ export class UserComponent extends mix(BaseListComponent)
     this.setIsDirty();
   }
 
-  private disableSelectionAndButtons() {
+  private disableSelection() {
     super.selected = [];
-    // this.enableCancel = false;
-    // this.enableSave = false;
-    // this.enableEdit = false;
-    // this.enableDelete = false;
   }
 
   async doSave(): Promise<any> {
     const isValid = this.userValidatorService.validateUsers(this.rows);
-    if (!isValid) return false; // TODO throw instead
+    if (!isValid) return false; // TODO throw instead??
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
     return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
@@ -348,7 +309,6 @@ export class UserComponent extends mix(BaseListComponent)
 
   isDirty(): boolean {
     return this.isChanged;
-    // return this.enableCancel;
   }
 
   setState() {
@@ -360,12 +320,10 @@ export class UserComponent extends mix(BaseListComponent)
 
   canCancel() {
     return this.isDirty();
-    // return this.enableCancel;
   }
 
   canSave() {
     return this.isDirty() && !this.isBusy();
-    // return this.enableSave && !this.isLoading;
   }
 
   canAdd() {
@@ -374,11 +332,9 @@ export class UserComponent extends mix(BaseListComponent)
 
   canEdit() {
     return !this.isBusy() && this.selected.length == 1 && !this.selected[0].deleted;
-    // return this.enableEdit && !this.isLoading;
   }
 
   canDelete() {
     return !this.isBusy() && this.selected.length > 0 && !this.selected.every(el => el.deleted);
-    // return this.enableDelete && !this.isLoading;
   }
 }
