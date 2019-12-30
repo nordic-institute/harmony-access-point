@@ -20,25 +20,18 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
   styleUrls: ['./messagefilter.component.css']
 })
 
-export class MessageFilterComponent extends mix(BaseListComponent)
-  .with(ModifiableListMixin)
+export class MessageFilterComponent extends mix(BaseListComponent).with(ModifiableListMixin)
   implements OnInit, DirtyOperations {
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
   backendFilterNames: any[];
-
   rowNumber: number;
+  areFiltersPersisted: boolean;
 
-  // enableCancel: boolean;
   enableSave: boolean;
-  // enableDelete: boolean;
-  // enableEdit: boolean;
-
   enableMoveUp: boolean;
   enableMoveDown: boolean;
-
-  areFiltersPersisted: boolean;
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
     super();
@@ -82,6 +75,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
         super.rows = newRows;
         super.count = newRows.length;
+
+        super.isChanged = false;
 
         if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
           this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
@@ -146,7 +141,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
         setTimeout(() => {
           document.getElementById('pluginRow' + (this.rowNumber) + '_id').click();
         }, 50);
-
       }
     });
   }
@@ -172,9 +166,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   private deleteItems(items: any[]) {
     this.setDirty(true);
-
-    // this.enableDelete = false;
-    // this.enableEdit = false;
 
     this.enableMoveUp = false;
     this.enableMoveDown = false;
@@ -232,8 +223,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
     this.enableMoveDown = selected.length == 1 && this.rowNumber < this.rows.length - 1;
     this.enableMoveUp = selected.length == 1 && this.rowNumber > 0;
-    // this.enableDelete = selected.length > 0;
-    // this.enableEdit = selected.length == 1;
   }
 
   isDirty(): boolean {
@@ -243,12 +232,10 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   setDirty(itemValue: boolean) {
     super.isChanged = this.isChanged || itemValue;
     this.enableSave = this.isChanged;
-    // this.enableCancel = this.isChanged;
   }
 
   canCancel() {
     return this.isDirty();
-    // return this.enableCancel;
   }
 
   canSave() {
@@ -261,12 +248,10 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   canEdit() {
     return this.selected.length === 1;
-    // return this.enableEdit;
   }
 
   canDelete() {
     return this.selected.length > 0;
-    // return this.enableDelete;
   }
 
   private findRowLike(backendEntry: BackendFilterEntry): number {
@@ -289,9 +274,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     super.selected = [];
     this.enableMoveDown = false;
     this.enableMoveUp = false;
-    // this.enableCancel = false;
     this.enableSave = false;
-    // this.enableEdit = false;
-    // this.enableDelete = false;
   }
 }
