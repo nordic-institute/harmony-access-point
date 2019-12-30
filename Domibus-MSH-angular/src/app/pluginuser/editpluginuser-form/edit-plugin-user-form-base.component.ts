@@ -14,7 +14,7 @@ const EDIT_MODE = 'Plugin User Edit';
   template: '',
 })
 
-export class EditPluginUserFormBaseComponent implements OnInit {
+export class EditPluginUserFormBaseComponent {
 
   existingRoles = [];
   editMode: boolean;
@@ -32,9 +32,6 @@ export class EditPluginUserFormBaseComponent implements OnInit {
     this.editMode = this.user.status !== UserState[UserState.NEW];
     this.formTitle = this.editMode ? EDIT_MODE : NEW_MODE;
 
-  }
-
-  async ngOnInit() {
   }
 
   submitForm(editForm: NgForm) {

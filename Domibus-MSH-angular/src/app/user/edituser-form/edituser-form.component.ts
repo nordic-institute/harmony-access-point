@@ -28,7 +28,7 @@ export class EditUserComponent implements OnInit {
   public passwordValidationMessage: string;
   isDomainVisible: boolean;
   formTitle: string;
-  userForm: FormGroup;
+  editForm: FormGroup;
 
   @ViewChild('userForm', {static: false}) signupForm: NgForm;
 
@@ -51,7 +51,7 @@ export class EditUserComponent implements OnInit {
     await this.additionalSetUp();
     this.buildFormControls();
 
-    this.userForm.valueChanges.subscribe((changes) => {
+    this.editForm.valueChanges.subscribe((changes) => {
       this.updateModel(changes);
     })
   }
@@ -62,7 +62,7 @@ export class EditUserComponent implements OnInit {
   }
 
   private buildFormControls() {
-    this.userForm = this.fb.group({
+    this.editForm = this.fb.group({
       'userName': new FormControl({
         value: this.user.userName,
         disabled: !this.isNewUser()
@@ -101,8 +101,8 @@ export class EditUserComponent implements OnInit {
     this.formTitle = this.isNewUser() ? NEW_MODE : EDIT_MODE;
   }
 
-  submitForm() {
-    if (this.userForm.valid) {
+  submitForm(editForm: FormGroup) {
+    if (this.editForm.valid) {
       this.dialogRef.close(true);
     }
   }
@@ -119,10 +119,10 @@ export class EditUserComponent implements OnInit {
 
   onRoleChange($event) {
     if ($event.value === SecurityService.ROLE_AP_ADMIN) {
-      this.userForm.get('domain').enable();
+      this.editForm.get('domain').enable();
     } else {
-      this.userForm.get('domain').disable();
-      // this.userForm.patchValue({domain: this.currentDomain});
+      this.editForm.get('domain').disable();
+      this.editForm.patchValue({domain: this.currentDomain});
     }
   }
 
@@ -136,7 +136,11 @@ export class EditUserComponent implements OnInit {
   }
 
   shouldShowErrors(fieldName: string): boolean {
-    let field = this.userForm.get(fieldName);
+    let field = this.editForm.get(fieldName);
     return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  isFormDisabled(editForm: FormGroup) {
+    return editForm.invalid || !editForm.dirty;
   }
 }

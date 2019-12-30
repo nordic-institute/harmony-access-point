@@ -5,6 +5,7 @@ import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../support/party';
 import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party-identifier-details.component';
 import {PartyService} from '../support/party.service';
 import {AlertService} from '../../common/alert/alert.service';
+import {NgControl, NgForm} from '@angular/forms';
 
 @Component({
   selector: 'app-party-details',
@@ -165,11 +166,22 @@ export class PartyDetailsComponent implements OnInit {
     this.party.identifiers = [...this.party.identifiers];
   }
 
-  ok() {
+  submitForm(editForm: NgForm) {
+    if (editForm.invalid) {
+      return;
+    }
+
     this.persistProcesses();
     this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
+
     this.dialogRef.close(true);
   }
+
+  // ok() {
+  //   this.persistProcesses();
+  //   this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
+  //   this.dialogRef.close(true);
+  // }
 
   persistProcesses() {
     this.party.processesWithPartyAsInitiator = [];
@@ -208,4 +220,11 @@ export class PartyDetailsComponent implements OnInit {
     }
   }
 
+  shouldShowErrors(field: NgControl | NgForm): boolean {
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  isFormDisabled(editForm: NgForm) {
+    return editForm.invalid || !editForm.dirty || this.party.identifiers.length == 0;
+  }
 }
