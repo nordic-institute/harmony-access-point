@@ -145,7 +145,7 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    return !!this.pModeExists && !this.isSaving;
+    return !!this.pModeExists && !this.isBusy();
   }
 
   canSave() {
@@ -177,7 +177,9 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   async add() {
-    if (this.isSaving) return;
+    if (this.isBusy()) return;
+
+    this.setPage(this.getLastPage());
 
     const newParty = this.partyService.initParty();
     this.rows.push(newParty);

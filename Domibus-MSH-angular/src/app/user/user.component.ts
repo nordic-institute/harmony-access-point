@@ -45,10 +45,10 @@ export class UserComponent extends mix(BaseListComponent)
   domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
-  enableCancel: boolean;
-  enableSave: boolean;
-  enableDelete: boolean;
-  enableEdit: boolean;
+  // enableCancel: boolean;
+  // enableSave: boolean;
+  // enableDelete: boolean;
+  // enableEdit: boolean;
 
   currentUser: UserResponseRO;
   editedUser: UserResponseRO;
@@ -69,10 +69,10 @@ export class UserComponent extends mix(BaseListComponent)
 
     this.userRoles = [];
 
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableDelete = false;
-    this.enableEdit = false;
+    // this.enableCancel = false;
+    // this.enableSave = false;
+    // this.enableDelete = false;
+    // this.enableEdit = false;
     this.currentUser = null;
     this.editedUser = null;
 
@@ -202,20 +202,19 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   onSelect({selected}) {
-    if (!selected || selected.length == 0) {
-      // unselect
-      this.enableDelete = false;
-      this.enableEdit = false;
-
-      return;
-    }
+    // if (!selected || selected.length == 0) {
+    //   // this.enableDelete = false;
+    //   this.enableEdit = false;
+    //
+    //   return;
+    // }
 
     // select
     this.currentUser = this.selected[0];
     this.editedUser = this.currentUser;
 
-    this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
-    this.enableEdit = selected.length == 1 && !selected[0].deleted;
+    // this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
+    // this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }
 
   private isLoggedInUserSelected(selected): boolean {
@@ -229,7 +228,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   add(): void {
-    if (this.isLoading) return;
+    if (this.isBusy()) return;
 
     this.setPage(this.getLastPage());
 
@@ -248,8 +247,8 @@ export class UserComponent extends mix(BaseListComponent)
         this.currentUser = this.editedUser;
       } else {
         super.selected = [];
-        this.enableEdit = false;
-        this.enableDelete = false;
+        // this.enableEdit = false;
+        // this.enableDelete = false;
       }
       this.setIsDirty();
     });
@@ -290,8 +289,8 @@ export class UserComponent extends mix(BaseListComponent)
     super.isChanged = this.areRowsDeleted
       || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
 
-    this.enableSave = this.isChanged;
-    this.enableCancel = this.isChanged;
+    // this.enableSave = this.isChanged;
+    // this.enableCancel = this.isChanged;
   }
 
   delete() {
@@ -308,8 +307,8 @@ export class UserComponent extends mix(BaseListComponent)
       return;
     }
 
-    this.enableDelete = false;
-    this.enableEdit = false;
+    // this.enableDelete = false;
+    // this.enableEdit = false;
 
     for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
@@ -327,10 +326,10 @@ export class UserComponent extends mix(BaseListComponent)
 
   private disableSelectionAndButtons() {
     super.selected = [];
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableEdit = false;
-    this.enableDelete = false;
+    // this.enableCancel = false;
+    // this.enableSave = false;
+    // this.enableEdit = false;
+    // this.enableDelete = false;
   }
 
   async doSave(): Promise<any> {
@@ -348,7 +347,8 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   isDirty(): boolean {
-    return this.enableCancel;
+    return this.isChanged;
+    // return this.enableCancel;
   }
 
   setState() {
@@ -359,22 +359,26 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   canCancel() {
-    return this.enableCancel;
+    return this.isDirty();
+    // return this.enableCancel;
   }
 
   canSave() {
-    return this.enableSave && !this.isLoading;
+    return this.isDirty() && !this.isBusy();
+    // return this.enableSave && !this.isLoading;
   }
 
   canAdd() {
-    return !this.isLoading;
+    return !this.isBusy();
   }
 
   canEdit() {
-    return this.enableEdit && !this.isLoading;
+    return !this.isBusy() && this.selected.length == 1 && !this.selected[0].deleted;
+    // return this.enableEdit && !this.isLoading;
   }
 
   canDelete() {
-    return this.enableDelete && !this.isLoading;
+    return !this.isBusy() && this.selected.length > 0 && !this.selected.every(el => el.deleted);
+    // return this.enableDelete && !this.isLoading;
   }
 }

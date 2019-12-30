@@ -30,10 +30,11 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
   rowNumber: number;
 
-  enableCancel: boolean;
+  // enableCancel: boolean;
   enableSave: boolean;
-  enableDelete: boolean;
-  enableEdit: boolean;
+  // enableDelete: boolean;
+  // enableEdit: boolean;
+
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
@@ -96,6 +97,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   add() {
+    if (this.isBusy()) return;
+
     let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false);
     this.dialog.open(EditMessageFilterComponent, {
       data: {
@@ -170,8 +173,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   private deleteItems(items: any[]) {
     this.setDirty(true);
 
-    this.enableDelete = false;
-    this.enableEdit = false;
+    // this.enableDelete = false;
+    // this.enableEdit = false;
 
     this.enableMoveUp = false;
     this.enableMoveDown = false;
@@ -229,8 +232,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
 
     this.enableMoveDown = selected.length == 1 && this.rowNumber < this.rows.length - 1;
     this.enableMoveUp = selected.length == 1 && this.rowNumber > 0;
-    this.enableDelete = selected.length > 0;
-    this.enableEdit = selected.length == 1;
+    // this.enableDelete = selected.length > 0;
+    // this.enableEdit = selected.length == 1;
   }
 
   isDirty(): boolean {
@@ -240,11 +243,12 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   setDirty(itemValue: boolean) {
     super.isChanged = this.isChanged || itemValue;
     this.enableSave = this.isChanged;
-    this.enableCancel = this.isChanged;
+    // this.enableCancel = this.isChanged;
   }
 
   canCancel() {
-    return this.enableCancel;
+    return this.isDirty();
+    // return this.enableCancel;
   }
 
   canSave() {
@@ -256,11 +260,13 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   canEdit() {
-    return this.enableEdit;
+    return this.selected.length === 1;
+    // return this.enableEdit;
   }
 
   canDelete() {
-    return this.enableDelete;
+    return this.selected.length > 0;
+    // return this.enableDelete;
   }
 
   private findRowLike(backendEntry: BackendFilterEntry): number {
@@ -283,9 +289,9 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     super.selected = [];
     this.enableMoveDown = false;
     this.enableMoveUp = false;
-    this.enableCancel = false;
+    // this.enableCancel = false;
     this.enableSave = false;
-    this.enableEdit = false;
-    this.enableDelete = false;
+    // this.enableEdit = false;
+    // this.enableDelete = false;
   }
 }

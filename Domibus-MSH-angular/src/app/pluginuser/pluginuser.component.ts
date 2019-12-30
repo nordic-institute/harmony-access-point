@@ -160,12 +160,13 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async add() {
-    if (this.isLoading) return;
+    if (this.isBusy()) return;
 
     this.setPage(this.getLastPage());
 
     const newItem = this.pluginUserService.createNew();
     newItem.authenticationType = this.filter.authType;
+
     this.rows.push(newItem);
     super.count = this.count + 1;
 
@@ -207,12 +208,12 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  private openItemInEditForm(rowCopy: PluginUserRO) {
+  private openItemInEditForm(item: PluginUserRO) {
     const editForm = this.inBasicMode() ? EditBasicPluginUserFormComponent : EditCertificatePluginUserFormComponent;
     // @ts-ignore
     return this.dialog.open(editForm, {
       data: {
-        user: rowCopy,
+        user: item,
         userroles: this.userRoles,
       }
     }).afterClosed().toPromise();
@@ -223,7 +224,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    return true;
+    !this.isBusy();
   }
 
   async doSave(): Promise<any> {

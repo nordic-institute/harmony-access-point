@@ -13,6 +13,9 @@ export interface IBaseList<T> {
   count: number;
   readonly csvUrl: string;
   columnPicker: ColumnPickerBase;
+  isLoading: boolean;
+
+  isBusy(): boolean;
 
   getDataAndSetResults(): Promise<any>;
 
