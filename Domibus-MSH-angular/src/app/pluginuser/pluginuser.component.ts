@@ -50,9 +50,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
     this.userRoles = [];
-
     this.getUserRoles();
-
     this.filterData();
   }
 
