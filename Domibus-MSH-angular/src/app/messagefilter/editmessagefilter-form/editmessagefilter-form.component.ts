@@ -39,8 +39,8 @@ export class EditMessageFilterComponent {
     }, {});
   }
 
-  submitForm(messageFilterForm: NgForm) {
-    if (messageFilterForm.invalid) {
+  submitForm(editForm: NgForm) {
+    if (editForm.invalid) {
       return;
     }
 
@@ -68,7 +68,7 @@ export class EditMessageFilterComponent {
     return (field.touched || field.dirty) && !!field.errors;
   }
 
-  isFormDisabled(messageFilterForm: NgForm) {
-    return messageFilterForm.invalid || (!messageFilterForm.dirty && this.entity.persisted);
+  isFormDisabled(editForm: NgForm) {
+    return editForm.invalid || (!editForm.dirty && this.entity.persisted);
   }
 }

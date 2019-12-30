@@ -1,6 +1,6 @@
 <div style="width: 500px">
   <h2 mat-dialog-title>{{formTitle}}</h2>
-  <form #messageFilterForm="ngForm">
+  <form #editForm="ngForm">
     <mat-card>
       <div>
         <mat-select matInput placeholder="Plugin" id="backendfilter_id" name="plugin" [(ngModel)]="entity.backendName" #plugin="ngModel"
@@ -52,8 +52,8 @@
       </div>
 
       <div class="buttonsRow">
-        <button id="okbutton_id" mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm(messageFilterForm)" type="submit"
-                [disabled]="isFormDisabled(messageFilterForm)" >
+        <button id="okbutton_id" mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm(editForm)" type="submit"
+                [disabled]="isFormDisabled(editForm)" >
           <mat-icon>check_circle</mat-icon>
           <span>OK</span>
         </button>

@@ -37,8 +37,8 @@ export class EditPluginUserFormBaseComponent implements OnInit {
   async ngOnInit() {
   }
 
-  submitForm(userForm: NgForm) {
-    if (userForm.invalid) {
+  submitForm(editForm: NgForm) {
+    if (editForm.invalid) {
       return;
     }
     this.dialogRef.close(true);
@@ -48,8 +48,8 @@ export class EditPluginUserFormBaseComponent implements OnInit {
     return (field.touched || field.dirty) && !!field.errors;
   }
 
-  isFormDisabled(form: NgForm) {
-    return form.invalid || !form.dirty;
+  isFormDisabled(editForm: NgForm) {
+    return editForm.invalid || !editForm.dirty;
   }
 
 }
