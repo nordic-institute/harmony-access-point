@@ -28,9 +28,9 @@ export class EditUserComponent implements OnInit {
   public passwordValidationMessage: string;
   isDomainVisible: boolean;
   formTitle: string;
-  editForm: FormGroup;
+  // editForm: FormGroup;
 
-  @ViewChild('userForm', {static: false}) signupForm: NgForm;
+  @ViewChild('editForm', {static: false}) editForm: FormGroup;
 
   constructor(public dialogRef: MatDialogRef<EditUserComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,

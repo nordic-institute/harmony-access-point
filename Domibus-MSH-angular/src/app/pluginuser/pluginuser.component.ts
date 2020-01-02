@@ -222,7 +222,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    !this.isBusy();
+    return !this.isBusy();
   }
 
   async doSave(): Promise<any> {

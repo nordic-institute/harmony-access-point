@@ -97,6 +97,8 @@ import {PageFooterComponent} from './common/page-footer/page-footer.component';
 import {PageGridComponent} from './common/page-grid/page-grid.component';
 import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross-field-validators.directive';
 import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/edit-plugin-user-form-base.component';
+import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-footer.component';
+import {EditPopupBaseComponent} from './common/edit-popup-base.component';
 
 
 @NgModule({
@@ -155,7 +157,9 @@ import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/
     FilterAreaFooterComponent,
     PageFooterComponent,
     PageGridComponent,
-    UserCrossFieldValidatorsDirective
+    UserCrossFieldValidatorsDirective,
+    EditPopupFooterComponent,
+    EditPopupBaseComponent
   ],
   entryComponents: [
     AppComponent,
@@ -179,6 +183,7 @@ import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/
     PartyIdentifierDetailsComponent,
     ChangePasswordComponent,
     PropertiesComponent,
+    EditPopupBaseComponent
   ],
   imports: [
     BrowserModule,

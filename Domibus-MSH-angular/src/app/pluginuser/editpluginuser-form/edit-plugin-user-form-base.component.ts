@@ -6,6 +6,7 @@ import {PluginUserRO} from '../support/pluginuser';
 import {PluginUserService} from '../support/pluginuser.service';
 import {SecurityService} from '../../security/security.service';
 import {UserState} from '../../user/support/user';
+import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
 const NEW_MODE = 'New Plugin User';
 const EDIT_MODE = 'Plugin User Edit';
@@ -14,7 +15,7 @@ const EDIT_MODE = 'Plugin User Edit';
   template: '',
 })
 
-export class EditPluginUserFormBaseComponent {
+export class EditPluginUserFormBaseComponent extends EditPopupBaseComponent {
 
   existingRoles = [];
   editMode: boolean;
@@ -24,8 +25,9 @@ export class EditPluginUserFormBaseComponent {
   public originalUserPattern = PluginUserService.originalUserPattern;
   public originalUserMessage = PluginUserService.originalUserMessage;
 
-  constructor(public dialogRef: MatDialogRef<EditPluginUserFormBaseComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(public dialogRef: MatDialogRef<EditPluginUserFormBaseComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+
+    super(dialogRef, data);
 
     this.existingRoles = data.userroles;
     this.user = data.user;
@@ -34,19 +36,19 @@ export class EditPluginUserFormBaseComponent {
 
   }
 
-  submitForm(editForm: NgForm) {
-    if (editForm.invalid) {
-      return;
-    }
-    this.dialogRef.close(true);
-  }
-
-  shouldShowErrors(field: NgControl | NgForm): boolean {
-    return (field.touched || field.dirty) && !!field.errors;
-  }
-
-  isFormDisabled(editForm: NgForm) {
-    return editForm.invalid || !editForm.dirty;
-  }
+  // submitForm(editForm: NgForm) {
+  //   if (editForm.invalid) {
+  //     return;
+  //   }
+  //   this.dialogRef.close(true);
+  // }
+  //
+  // shouldShowErrors(field: NgControl | NgForm): boolean {
+  //   return (field.touched || field.dirty) && !!field.errors;
+  // }
+  //
+  // isFormDisabled(editForm: NgForm) {
+  //   return editForm.invalid || !editForm.dirty;
+  // }
 
 }
