@@ -156,15 +156,18 @@
       </div>
     </div>
 
-    <div class="edit-form-buttons">
-      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"
-              [disabled]="isFormDisabled(editForm)">
-        <span>OK</span>
-      </button>
-      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>
-        <span>Cancel</span>
-      </button>
-    </div>
+    <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+<!--    <div class="edit-form-buttons">-->
+<!--      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"-->
+<!--              [disabled]="isFormDisabled(editForm)">-->
+<!--        <span>OK</span>-->
+<!--      </button>-->
+<!--      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>-->
+<!--        <span>Cancel</span>-->
+<!--      </button>-->
+<!--    </div>-->
+
   </form>
 </mat-dialog-content>
 

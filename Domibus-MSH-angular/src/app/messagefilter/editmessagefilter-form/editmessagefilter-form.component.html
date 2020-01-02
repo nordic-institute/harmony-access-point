@@ -51,19 +51,20 @@
         </mat-form-field>
       </div>
 
-      <div class="edit-form-buttons">
-        <button id="okbutton_id" mat-raised-button color="primary" [mat-dialog-close]="true" type="submit"
-                [disabled]="isFormDisabled(editForm)" >
-          <mat-icon>check_circle</mat-icon>
-          <span>OK</span>
-        </button>
-        <button mat-raised-button color="primary" mat-dialog-close id="cancelbutton_id">
-          <mat-icon>cancel</mat-icon>
-          <span>Cancel</span>
-        </button>
-      </div>
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
 
-      <div></div>
+<!--      <div class="edit-form-buttons">-->
+<!--        <button id="okbutton_id" mat-raised-button color="primary" [mat-dialog-close]="true" type="submit"-->
+<!--                [disabled]="isFormDisabled(editForm)" >-->
+<!--          <mat-icon>check_circle</mat-icon>-->
+<!--          <span>OK</span>-->
+<!--        </button>-->
+<!--        <button mat-raised-button color="primary" mat-dialog-close id="cancelbutton_id">-->
+<!--          <mat-icon>cancel</mat-icon>-->
+<!--          <span>Cancel</span>-->
+<!--        </button>-->
+<!--      </div>-->
+
     </mat-card>
   </form>
 </div>

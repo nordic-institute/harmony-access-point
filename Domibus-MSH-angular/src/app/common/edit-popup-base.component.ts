@@ -6,7 +6,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
   template: '',
 })
 
-export class EditPopupBaseComponent {
+export abstract class EditPopupBaseComponent {
 
   constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
   }
@@ -14,10 +14,16 @@ export class EditPopupBaseComponent {
   @ViewChild('editForm', {static: false})
   public editForm: NgForm | FormGroup;
 
+  onSubmitForm() {
+  }
+
   public submitForm() {
     if (this.editForm.invalid) {
       return;
     }
+
+    this.onSubmitForm();
+
     this.dialogRef.close(true);
   }
 

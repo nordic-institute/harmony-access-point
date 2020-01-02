@@ -15,9 +15,4 @@ export class EditPopupFooterComponent {
   @Input()
   parent: EditPopupBaseComponent;
 
-  ngOnChanges(changes: SimpleChanges) {
-     console.log(' changes ', changes)
-    console.log(' this.parent = ',this.parent)
-  }
-
 }

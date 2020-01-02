@@ -6,6 +6,7 @@ import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party
 import {PartyService} from '../support/party.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {NgControl, NgForm} from '@angular/forms';
+import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
 @Component({
   selector: 'app-party-details',
@@ -13,7 +14,7 @@ import {NgControl, NgForm} from '@angular/forms';
   templateUrl: './party-details.component.html',
   styleUrls: ['./party-details.component.css']
 })
-export class PartyDetailsComponent implements OnInit {
+export class PartyDetailsComponent extends EditPopupBaseComponent implements OnInit {
 
   processesRows: ProcessInfoRo[] = [];
   allProcesses: string[];
@@ -31,11 +32,11 @@ export class PartyDetailsComponent implements OnInit {
 
   endpointPattern = '^(?:(?:(?:https?):)?\\/\\/)(?:\\S+)$';
 
-  constructor(public dialogRef: MatDialogRef<PartyDetailsComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              private dialog: MatDialog,
-              public partyService: PartyService,
-              public alertService: AlertService, private cdr: ChangeDetectorRef) {
+  constructor(public dialogRef: MatDialogRef<PartyDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private dialog: MatDialog, public partyService: PartyService, public alertService: AlertService) {
+
+    super(dialogRef, data);
+
     this.party = data.edit;
     this.identifiers = this.party.identifiers;
     this.allProcesses = data.allProcesses;
@@ -166,16 +167,21 @@ export class PartyDetailsComponent implements OnInit {
     this.party.identifiers = [...this.party.identifiers];
   }
 
-  submitForm(editForm: NgForm) {
-    if (editForm.invalid) {
-      return;
-    }
-
+  onSubmitForm() {
     this.persistProcesses();
     this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
-
-    this.dialogRef.close(true);
   }
+
+  // submitForm(editForm: NgForm) {
+  //   if (editForm.invalid) {
+  //     return;
+  //   }
+  //
+  //   this.persistProcesses();
+  //   this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
+  //
+  //   this.dialogRef.close(true);
+  // }
 
   persistProcesses() {
     this.party.processesWithPartyAsInitiator = [];
@@ -210,11 +216,11 @@ export class PartyDetailsComponent implements OnInit {
     }
   }
 
-  shouldShowErrors(field: NgControl | NgForm): boolean {
-    return (field.touched || field.dirty) && !!field.errors;
-  }
-
-  isFormDisabled(editForm: NgForm) {
-    return editForm.invalid || !editForm.dirty || this.party.identifiers.length == 0;
-  }
+  // shouldShowErrors(field: NgControl | NgForm): boolean {
+  //   return (field.touched || field.dirty) && !!field.errors;
+  // }
+  //
+  // isFormDisabled(editForm: NgForm) {
+  //   return editForm.invalid || !editForm.dirty || this.party.identifiers.length == 0;
+  // }
 }
