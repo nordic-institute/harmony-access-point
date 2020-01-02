@@ -27,11 +27,15 @@
   color: red;
 }
 
-.button-container button {
+.edit-form-buttons button {
   margin-right: 10px;
   margin-top: 10px;
 }
 
- .mat-dialog-title {
-   margin-bottom: 0 !important;
- }
+.mat-dialog-title {
+  margin-bottom: 0 !important;
+}
+
+.edit-form-buttons {
+  margin-top: 10px;
+}

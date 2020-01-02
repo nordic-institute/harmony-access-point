@@ -1,10 +1,9 @@
 <h2 mat-dialog-title>Party</h2>
 
-<mat-dialog-content style="width:75vw;height:750px;padding-top:25px;overflow-y: hidden;">
-  <form #editForm="ngForm" (submit)="submitForm(editForm)" style="display: block; height: 100%; overflow-y: hidden;">
-
-    <div style="height: 100%; overflow-y: auto;margin-bottom: -50px;">
-      <div>
+<mat-dialog-content style="height:750px;padding-top:15px;">
+  <form #editForm="ngForm" (submit)="submitForm(editForm)" style="height: 100%;">
+    <div style="height: calc(100% - 60px); overflow-y: auto;">
+      <div style="overflow-y: hidden;">
         <div>
           <mat-card>
             <mat-card-content>
@@ -88,7 +87,7 @@
                 >
                 </ngx-datatable>
 
-                <div class="button-container">
+                <div class="edit-form-buttons">
                   <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour id="partydetails_addbutton_id">
                     <mat-icon>add</mat-icon>
                     <span>New</span>
@@ -156,13 +155,13 @@
         </div>
       </div>
     </div>
-    <div class="button-container">
-      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_okbutton_id"
+
+    <div class="edit-form-buttons">
+      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"
               [disabled]="isFormDisabled(editForm)">
-        <!--        [disabled]="party_name.invalid || party_endPoint.invalid || party.identifiers.length == 0"-->
         <span>OK</span>
       </button>
-      <button mat-raised-button (click)="cancel()" color="primary" button-click-behaviour id="partydetails_cancelbutton_id">
+      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>
         <span>Cancel</span>
       </button>
     </div>

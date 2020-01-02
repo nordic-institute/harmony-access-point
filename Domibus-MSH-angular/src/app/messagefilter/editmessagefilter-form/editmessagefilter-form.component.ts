@@ -4,9 +4,9 @@ import {RoutingCriteriaEntry} from '../support/routingcriteriaentry';
 import {BackendFilterEntry} from '../support/backendfilterentry';
 import {NgControl, NgForm} from '@angular/forms';
 
-let NEW_MODE = 'New Message Filter';
-let EDIT_MODE = 'Message Filter Edit';
-let MAX_LENGTH = 255;
+const NEW_MODE = 'New Message Filter';
+const EDIT_MODE = 'Message Filter Edit';
+const MAX_LENGTH = 255;
 
 @Component({
   selector: 'editmessagefilter-form',

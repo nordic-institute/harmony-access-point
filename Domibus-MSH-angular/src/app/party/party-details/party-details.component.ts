@@ -177,12 +177,6 @@ export class PartyDetailsComponent implements OnInit {
     this.dialogRef.close(true);
   }
 
-  // ok() {
-  //   this.persistProcesses();
-  //   this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
-  //   this.dialogRef.close(true);
-  // }
-
   persistProcesses() {
     this.party.processesWithPartyAsInitiator = [];
     this.party.processesWithPartyAsResponder = [];
@@ -208,10 +202,6 @@ export class PartyDetailsComponent implements OnInit {
 
     if (this.party.joinedProcesses.endsWith(', '))
       this.party.joinedProcesses = this.party.joinedProcesses.substr(0, this.party.joinedProcesses.length - 2);
-  }
-
-  cancel() {
-    this.dialogRef.close(false);
   }
 
   onActivate(event) {
