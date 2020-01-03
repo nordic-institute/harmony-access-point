@@ -8,17 +8,18 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 export abstract class EditPopupBaseComponent {
 
-  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
-  }
-
   @ViewChild('editForm', {static: false})
   public editForm: NgForm | FormGroup;
+
+  protected constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  }
 
   onSubmitForm() {
   }
 
   public submitForm() {
-    if (this.editForm.invalid) {
+    console.log('submitForm')
+    if (this.isFormDisabled()) {
       return;
     }
 
@@ -32,8 +33,7 @@ export abstract class EditPopupBaseComponent {
   }
 
   public isFormDisabled() {
-    if (!this.editForm) return true;
-    return this.editForm.invalid || !this.editForm.dirty;
+    return !this.editForm || this.editForm.invalid || !this.editForm.dirty;
   }
 
 }
