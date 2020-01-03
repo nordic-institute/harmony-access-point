@@ -1,6 +1,6 @@
 <div style="width: 500px">
   <h2 mat-dialog-title>{{formTitle}}</h2>
-  <form #editForm="ngForm" (submit)="submitForm(editForm)">
+  <form #editForm="ngForm" (submit)="submitForm()">
     <mat-card>
       <div>
         <mat-select matInput placeholder="Plugin" id="backendfilter_id" name="plugin" [(ngModel)]="entity.backendName" #plugin="ngModel"

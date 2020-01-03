@@ -76,7 +76,8 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
   //   return (field.touched || field.dirty) && !!field.errors;
   // }
   //
-  // isFormDisabled(editForm: NgForm) {
-  //   return editForm.invalid || (!editForm.dirty && this.entity.persisted);
-  // }
+
+  isFormDisabled() {
+    return this.editForm.invalid || (!this.editForm.dirty && this.entity.persisted);
+  }
 }

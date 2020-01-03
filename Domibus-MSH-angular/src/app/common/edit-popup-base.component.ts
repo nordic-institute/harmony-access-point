@@ -1,5 +1,5 @@
 import {Component, Inject, ViewChild} from '@angular/core';
-import {FormGroup, NgControl, NgForm} from '@angular/forms';
+import {AbstractControl, FormGroup, NgControl, NgForm} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 @Component({
@@ -27,7 +27,7 @@ export abstract class EditPopupBaseComponent {
     this.dialogRef.close(true);
   }
 
-  public shouldShowErrors(field: NgControl | NgForm): boolean {
+  public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
     return (field.touched || field.dirty) && !!field.errors;
   }
 

@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Party</h2>
 
-<mat-dialog-content style="height:750px;padding-top:15px;">
-  <form #editForm="ngForm" (submit)="submitForm(editForm)" style="height: 100%;">
+<mat-dialog-content style="height:750px;padding-top:15px;overflow-y: hidden;">
+  <form #editForm="ngForm" (submit)="submitForm()" style="height: 100%;">
     <div style="height: calc(100% - 60px); overflow-y: auto;">
       <div style="overflow-y: hidden;">
         <div>
@@ -158,15 +158,15 @@
 
     <popup-edit-footer [parent]="this"></popup-edit-footer>
 
-<!--    <div class="edit-form-buttons">-->
-<!--      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"-->
-<!--              [disabled]="isFormDisabled(editForm)">-->
-<!--        <span>OK</span>-->
-<!--      </button>-->
-<!--      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>-->
-<!--        <span>Cancel</span>-->
-<!--      </button>-->
-<!--    </div>-->
+    <!--    <div class="edit-form-buttons">-->
+    <!--      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"-->
+    <!--              [disabled]="isFormDisabled(editForm)">-->
+    <!--        <span>OK</span>-->
+    <!--      </button>-->
+    <!--      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>-->
+    <!--        <span>Cancel</span>-->
+    <!--      </button>-->
+    <!--    </div>-->
 
   </form>
 </mat-dialog-content>

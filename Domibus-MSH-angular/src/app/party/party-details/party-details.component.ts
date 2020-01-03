@@ -220,7 +220,8 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   //   return (field.touched || field.dirty) && !!field.errors;
   // }
   //
-  // isFormDisabled(editForm: NgForm) {
-  //   return editForm.invalid || !editForm.dirty || this.party.identifiers.length == 0;
-  // }
+
+  isFormDisabled() {
+    return super.isFormDisabled() || this.party.identifiers.length == 0;
+  }
 }
