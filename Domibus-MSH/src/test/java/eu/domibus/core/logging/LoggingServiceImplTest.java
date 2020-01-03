@@ -158,9 +158,12 @@ public class LoggingServiceImplTest {
     public void testResetLogging(final @Mocked LogbackLoggingConfigurator logbackLoggingConfigurator) {
 
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        String domibusConfigLocation = "";//TODO
+        String domibusConfigLocation = "/home";//TODO
 
         new Expectations(loggingService) {{
+            domibusConfigurationService.getConfigLocation();
+            result = domibusConfigLocation;
+
             new LogbackLoggingConfigurator(domibusConfigLocation);
             result = logbackLoggingConfigurator;
 
