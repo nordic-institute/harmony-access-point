@@ -49,8 +49,9 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   }
 
   writeValue(value: string) {
+    console.log('writeValue', value);
     const element = this._elementRef.nativeElement;
-    this._renderer.setProperty(element, 'value', value);
+    this._renderer.setProperty(element, 'value', (value == null ? '' : value));
   }
 
   registerOnChange(fn: Function) {
