@@ -9,14 +9,14 @@
             <mat-card-content>
               <div class="panel">
                 <mat-form-field style="width:100%">
-                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" [ngModelOptions]="{updateOn: 'blur'}"
+                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" input-debounce
                          #party_name="ngModel" required [maxlength]="255">
                   <span class="help-block" *ngIf="shouldShowErrors(party_name)">
-                  <div *ngIf="party_name.errors?.required" style="color:red; font-size: 70%">You should type a party name</div>
-                </span>
+                    <div *ngIf="party_name.errors?.required" style="color:red; font-size: 70%">You should type a party name</div>
+                  </span>
                 </mat-form-field>
                 <mat-form-field style="width:100%">
-                  <input matInput placeholder="End Point" name="endPoint" id="endPoint_id_detail" [(ngModel)]="party.endpoint" [ngModelOptions]="{updateOn: 'blur'}"
+                  <input matInput placeholder="End Point" name="endPoint" id="endPoint_id_detail" [(ngModel)]="party.endpoint" input-debounce
                          #party_endPoint="ngModel" required [maxlength]="255" [pattern]="endpointPattern">
                   <span class="help-block" *ngIf="shouldShowErrors(party_endPoint)">
                   <div *ngIf="party_endPoint.errors?.pattern" style="color:red; font-size: 70%">
@@ -88,16 +88,16 @@
                 </ngx-datatable>
 
                 <div class="edit-form-buttons">
-                  <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour id="partydetails_addbutton_id">
+                  <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour id="partydetails_addbutton_id" type="button">
                     <mat-icon>add</mat-icon>
                     <span>New</span>
                   </button>
-                  <button mat-raised-button (click)="editIdentifier()" color="primary" id="partydetails_editbutton_id"
+                  <button mat-raised-button (click)="editIdentifier()" color="primary" id="partydetails_editbutton_id" type="button"
                           [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                     <mat-icon>edit</mat-icon>
                     <span>Edit</span>
                   </button>
-                  <button mat-raised-button (click)="removeIdentifier()" color="primary" id="partydetails_removebutton_id"
+                  <button mat-raised-button (click)="removeIdentifier()" color="primary" id="partydetails_removebutton_id" type="button"
                           [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                     <mat-icon>delete</mat-icon>
                     <span>Delete</span>
