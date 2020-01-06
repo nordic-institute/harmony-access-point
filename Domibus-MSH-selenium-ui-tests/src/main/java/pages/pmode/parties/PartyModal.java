@@ -2,6 +2,7 @@ package pages.pmode.parties;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.By;
@@ -20,19 +21,13 @@ import java.util.List;
 
  * @since 4.1
  */
-public class PartyModal extends DomibusPage {
+public class PartyModal extends EditModal {
 	public PartyModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
 		wait.forElementToBeEnabled(nameInput);
 	}
-
-	@FindBy(css = "mat-dialog-content > form #partydetails_okbutton_id")
-	protected WebElement okBtn;
-
-	@FindBy(css = "mat-dialog-content > form #partydetails_cancelbutton_id")
-	protected WebElement cancelBtn;
 
 	@FindBy(css = "#name_id_detail")
 	protected WebElement nameInput;
@@ -132,10 +127,6 @@ public class PartyModal extends DomibusPage {
 		return new DGrid(driver, processTable);
 	}
 
-	public DButton getOkButton() {
-		return new DButton(driver, okBtn);
-	}
-
 	public void fillNewPartyForm(String name, String endpoint, String partyId) throws Exception {
 		getNameInput().fill(name);
 		getEndpointInput().fill(endpoint);
@@ -144,11 +135,6 @@ public class PartyModal extends DomibusPage {
 		PartyIdentifierModal pimodal = new PartyIdentifierModal(driver);
 		pimodal.fillFields(partyId);
 		pimodal.clickOK();
-	}
-
-	public void clickOK() throws Exception {
-		new DButton(driver, okBtn).click();
-		wait.forElementToBeGone(okBtn);
 	}
 
 	public void clickIRCheckboxes() throws Exception{
@@ -168,8 +154,7 @@ public class PartyModal extends DomibusPage {
 			responderCheckbox.click();
 		}
 		log.info("Click on Ok button");
-		getOkButton().click();
-
+		getOkBtn().click();
 	}
 
 	public Boolean getCheckboxStatus(String fieldName){
