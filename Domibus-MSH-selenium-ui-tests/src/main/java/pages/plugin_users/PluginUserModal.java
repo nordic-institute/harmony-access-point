@@ -46,19 +46,19 @@ public class PluginUserModal extends EditModal {
 	@FindBy(css = "#editbuttoncancel_id")
 	private WebElement cancelBtn;
 
-	@FindBy(css = "editbasicpluginuser-form form #username_id + div")
+	@FindBy(css = "editbasicpluginuser-form form #username_id + span.help-block>div")
 	private WebElement usernameErrMess;
 
-	@FindBy(css = "editbasicpluginuser-form form #originalUser_id + div")
+	@FindBy(css = "editbasicpluginuser-form form #originalUser_id + span.help-block>div")
 	private WebElement originalUserErrMess;
 
-	@FindBy(css = "editbasicpluginuser-form form #password_id + div")
+	@FindBy(css = "editbasicpluginuser-form form #password_id + span.help-block>div")
 	private WebElement passErrMess;
 
-	@FindBy(css = "editbasicpluginuser-form form #confirmation_id + div")
+	@FindBy(css = "editbasicpluginuser-form form #confirmation_id + span.help-block>div")
 	private WebElement confirmationErrMess;
 
-	@FindBy(css = "editbasicpluginuser-form form mat-select[placeholder=\"Role\"] + div")
+	@FindBy(css = "editbasicpluginuser-form form mat-select[placeholder=\"Role\"] + span.help-block>div")
 	private WebElement roleErrMess;
 
 

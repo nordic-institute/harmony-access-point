@@ -184,6 +184,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		pum.getUserNameInput().clear();
 		String errMess = pum.getUsernameErrMess().getText();
+		log.info("pum.getUsernameErrMess() = " + errMess);
 		soft.assertEquals(errMess, DMessages.USER_USERNAME_NO_EMPTY, "Username should not be empty");
 
 		pum.getUserNameInput().fill(username);
