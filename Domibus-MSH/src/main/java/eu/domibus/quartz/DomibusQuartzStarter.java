@@ -194,27 +194,29 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             if (CollectionUtils.isNotEmpty(triggers)) {
                 for (Trigger trigger : triggers) {
                     Trigger.TriggerState triggerState = quartzScheduler.getTriggerState(trigger.getKey());
-                    triggerInfoList = getTriggersInErrorAndBlockedState(domainName, triggerInfoList, jobName, triggerState, trigger);
+                    if (isTriggerInErrorOrBlockedState(triggerState, trigger)) {
+                        MonitoringStatus state = triggerState.equals(Trigger.TriggerState.ERROR) ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
+                        QuartzTriggerDetails quartzTriggerDetails = new QuartzTriggerDetails();
+                        quartzTriggerDetails.setDomainName(domainName);
+                        quartzTriggerDetails.setTriggerStatus(state);
+                        quartzTriggerDetails.setJobName(jobName);
+                        LOG.debug("Quartz job [{}] is in [{}] state.", jobName, state);
+                        triggerInfoList.add(quartzTriggerDetails);
+                    }
                 }
             }
         }
         return triggerInfoList;
     }
 
-    protected List<QuartzTriggerDetails> getTriggersInErrorAndBlockedState(String domainName, List<QuartzTriggerDetails> triggerInfoList, String jobName, Trigger.TriggerState triggerState, Trigger trigger) {
+    protected boolean isTriggerInErrorOrBlockedState(Trigger.TriggerState triggerState, Trigger trigger) {
         Date now = new Date();
         Date previousFireTime = trigger.getPreviousFireTime();
         //checking triggers in error status or blocked for the duration of more than 5 minutes
         if (triggerState.equals(Trigger.TriggerState.ERROR) || (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > TRIGGER_BLOCKED_DURATION))) {
-            MonitoringStatus state = triggerState.equals(Trigger.TriggerState.ERROR) ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
-            QuartzTriggerDetails quartzTriggerDetails = new QuartzTriggerDetails();
-            quartzTriggerDetails.setDomainName(domainName);
-            quartzTriggerDetails.setTriggerStatus(state);
-            quartzTriggerDetails.setJobName(jobName);
-            LOG.debug("Quartz jobName [{}] trigger state [{}]", jobName, state);
-            triggerInfoList.add(quartzTriggerDetails);
+            return true;
         }
-        return triggerInfoList;
+       return false;
     }
 
     /**
