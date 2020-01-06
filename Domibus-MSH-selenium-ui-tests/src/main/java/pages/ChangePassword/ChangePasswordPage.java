@@ -139,10 +139,10 @@ public class ChangePasswordPage extends DomibusPage {
 			String fieldLabel = fieldName;
 			String[] labels = fieldLabel.split(" ");
 			String FieldName1 = labels[0].toLowerCase().concat(labels[1]);
-			return "input[id='" + FieldName1 + "_id']~div>div";
+			return "input[id='" + FieldName1 + "_id']~span.help-block>div";
 		} else if (fieldName.equals(confirmationFieldLabel)) {
 			String str = fieldName.toLowerCase();
-			return "input[id='" + str + "_id']~div>div";
+			return "input[id='" + str + "_id']~span.help-block>div";
 		} else {
 			return "";
 		}
