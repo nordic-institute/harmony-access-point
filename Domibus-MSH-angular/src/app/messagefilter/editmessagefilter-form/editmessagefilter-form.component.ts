@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {RoutingCriteriaEntry} from '../support/routingcriteriaentry';
 import {BackendFilterEntry} from '../support/backendfilterentry';
@@ -24,7 +24,8 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
   entity: BackendFilterEntry;
   criteria: any;
 
-  constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private cdr: ChangeDetectorRef) {
     super(dialogRef, data);
 
     this.backendFilterNames = data.backendFilterNames;
@@ -33,6 +34,10 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
     this.extractCriteria();
 
     this.formTitle = this.entity.persisted ? EDIT_MODE : NEW_MODE;
+  }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
   }
 
   private extractCriteria() {
@@ -45,6 +50,8 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
   onSubmitForm() {
     this.updateRoutingCriteria();
     this.entity.routingCriterias = BackendFilterEntry.routingCriteriaNames.map(name => this.entity[name]).filter(el => el != null);
+
+    console.log('onsubmit ', this.entity.routingCriterias)
   }
 
   private updateRoutingCriteria() {
@@ -76,7 +83,9 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
   //   return (field.touched || field.dirty) && !!field.errors;
   // }
   //
-  // isFormDisabled(editForm: NgForm) {
-  //   return editForm.invalid || (!editForm.dirty && this.entity.persisted);
-  // }
+
+  isFormDisabled() {
+    if (!this.editForm) return true;
+    return this.editForm.invalid || (!this.editForm.dirty && this.entity.persisted);
+  }
 }

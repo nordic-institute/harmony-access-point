@@ -1,7 +1,7 @@
-<div style="width: 700px" *ngIf="editForm">
+<div style="width: 700px" *ngIf="userForm">
   <p class="domibusTextSmall" style="margin:0;font-weight: bold">{{formTitle}}</p>
 
-  <form [formGroup]="editForm" (submit)="submitForm(editForm)" novalidate autocomplete="off">
+  <form [formGroup]="userForm" (submit)="submitForm()" novalidate autocomplete="off">
 
     <mat-card>
 
@@ -11,8 +11,8 @@
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
           <input matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName">
-          <span class="help-block" *ngIf="shouldShowErrors('userName')">
-            <div *ngIf="editForm.get('userName').errors?.required" style="color:red; font-size: 70%">You should type an username</div>
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('userName')">
+            <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">You should type an username</div>
           </span>
         </mat-form-field>
       </div>
@@ -20,8 +20,8 @@
       <div style="margin-top:-5px;">
         <mat-form-field [style.width]="'100%'">
           <input matInput id="email_id" name="email" formControlName="email" placeholder="Email">
-          <span class="help-block" *ngIf="shouldShowErrors('email')">
-            <div *ngIf="editForm.get('email').errors?.pattern" style="color:red; font-size: 70%">You should type a valid email</div>
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('email')">
+            <div *ngIf="userForm.get('email').errors?.pattern" style="color:red; font-size: 70%">You should type a valid email</div>
           </span>
         </mat-form-field>
       </div>
@@ -30,8 +30,8 @@
         <mat-select matInput id="role_id" name="roles" formControlName="roles" (selectionChange)="onRoleChange($event)" [style.width]="'100%'" placeholder="Role *">
           <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
         </mat-select>
-        <span class="help-block" *ngIf="shouldShowErrors('roles')">
-          <div *ngIf="editForm.get('roles').errors?.required" style="color:red; font-size: 70%">You need to choose at least one role for this user</div>
+        <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('roles')">
+          <div *ngIf="userForm.get('roles').errors?.required" style="color:red; font-size: 70%">You need to choose at least one role for this user</div>
         </span>
       </div>
 
@@ -39,9 +39,9 @@
         <mat-select matInput id="domain_id" name="domain" formControlName="domain" placeholder="Domain *" [style.width]="'100%'">
           <mat-option *ngFor="let item of existingDomains" [value]="item.code">{{item.name}}</mat-option>
         </mat-select>
-        <span class="help-block" *ngIf="shouldShowErrors('domain')">
+        <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('domain')">
 <!--          <div *ngIf="userForm.get('domain').errors?.required" style="color:red; font-size: 70%">You need to choose a domain for this user</div>-->
-          <div *ngIf="editForm.errors?.domain" style="color:red; font-size: 70%">The domain should be the current one</div>
+          <div *ngIf="userForm.errors?.domain" style="color:red; font-size: 70%">The domain should be the current one</div>
         </span>
       </div>
 
@@ -49,9 +49,9 @@
         <mat-form-field [style.width]="'100%'">
           <input matInput type="password" id="password_id" name="password" formControlName="password" placeholder="Password *">
 
-          <span class="help-block" *ngIf="shouldShowErrors('password')">
-            <div *ngIf="editForm.get('password').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
-            <div *ngIf="editForm.get('password').errors?.pattern" style="color:red; font-size: 70%">
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('password')">
+            <div *ngIf="userForm.get('password').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="userForm.get('password').errors?.pattern" style="color:red; font-size: 70%">
               Password should follow all of these rules:<br><div [innerHTML]="passwordValidationMessage"></div>
             </div>
           </span>
@@ -62,9 +62,9 @@
         <mat-form-field [style.width]="'100%'">
           <input matInput type="password" id="confirmation_id" name="confirmation" formControlName="confirmation" placeholder="Confirmation *">
 
-          <span class="help-block" *ngIf="shouldShowErrors('confirmation')">
-            <div *ngIf="editForm.get('confirmation').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
-            <div *ngIf="editForm.errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('confirmation')">
+            <div *ngIf="userForm.get('confirmation').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="userForm.errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
           </span>
         </mat-form-field>
       </div>
@@ -73,18 +73,21 @@
         <mat-checkbox id="active_id" formControlName="active">Active</mat-checkbox>
       </div>
 
-      <div class="edit-form-buttons">
-        <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id"
-                [disabled]="isFormDisabled(editForm)">
-          <mat-icon>check_circle</mat-icon>
-          <span>OK</span>
-        </button>
-        <button mat-raised-button color="primary" id="editbuttoncancel_id" mat-dialog-close>
-          <mat-icon>cancel</mat-icon>
-          <span>Cancel</span>
-        </button>
-      </div>
-      <div style="text-align: right; font-size: 70%">* required fields</div>
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+<!--      <div class="edit-form-buttons">-->
+<!--        <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id"-->
+<!--                [disabled]="isFormDisabled()">-->
+<!--          <mat-icon>check_circle</mat-icon>-->
+<!--          <span>OK</span>-->
+<!--        </button>-->
+<!--        <button mat-raised-button color="primary" id="editbuttoncancel_id" mat-dialog-close>-->
+<!--          <mat-icon>cancel</mat-icon>-->
+<!--          <span>Cancel</span>-->
+<!--        </button>-->
+<!--      </div>-->
+<!--      <div style="text-align: right; font-size: 70%">* required fields</div>-->
+
     </mat-card>
   </form>
 </div>

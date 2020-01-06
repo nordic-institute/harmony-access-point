@@ -1,13 +1,12 @@
-import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, NgForm, Validators} from '@angular/forms';
+import {Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../support/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
 import {UserService} from '../support/user.service';
 import {DomainService} from '../../security/domain.service';
 import {UserResponseRO, UserState} from '../support/user';
-import get = Reflect.get;
-import {Domain} from '../../security/domain';
+import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
 const NEW_MODE = 'New User';
 const EDIT_MODE = 'User Edit';
@@ -28,19 +27,11 @@ export class EditUserComponent implements OnInit {
   public passwordValidationMessage: string;
   isDomainVisible: boolean;
   formTitle: string;
-  // editForm: FormGroup;
+  userForm: FormGroup;
 
-  @ViewChild('editForm', {static: false}) editForm: FormGroup;
-
-  constructor(public dialogRef: MatDialogRef<EditUserComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              private fb: FormBuilder,
-              private userValidatorService: UserValidatorService,
-              private userService: UserService,
-              private securityService: SecurityService,
-              private cdr: ChangeDetectorRef,
-              private domainService: DomainService) {
-
+  constructor(public dialogRef: MatDialogRef<EditUserComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private fb: FormBuilder, private userValidatorService: UserValidatorService,
+              private userService: UserService, private securityService: SecurityService, private domainService: DomainService) {
     this.existingRoles = data.userroles;
     this.existingDomains = data.userdomains;
     this.user = data.user;
@@ -51,7 +42,7 @@ export class EditUserComponent implements OnInit {
     await this.additionalSetUp();
     this.buildFormControls();
 
-    this.editForm.valueChanges.subscribe((changes) => {
+    this.userForm.valueChanges.subscribe((changes) => {
       this.updateModel(changes);
     })
   }
@@ -62,7 +53,7 @@ export class EditUserComponent implements OnInit {
   }
 
   private buildFormControls() {
-    this.editForm = this.fb.group({
+    this.userForm = this.fb.group({
       'userName': new FormControl({
         value: this.user.userName,
         disabled: !this.isNewUser()
@@ -101,12 +92,6 @@ export class EditUserComponent implements OnInit {
     this.formTitle = this.isNewUser() ? NEW_MODE : EDIT_MODE;
   }
 
-  submitForm(editForm: FormGroup) {
-    if (this.editForm.valid) {
-      this.dialogRef.close(true);
-    }
-  }
-
   isCurrentUser(): boolean {
     let currentUser = this.securityService.getCurrentUser();
     return currentUser && currentUser.username === this.user.userName;
@@ -119,10 +104,10 @@ export class EditUserComponent implements OnInit {
 
   onRoleChange($event) {
     if ($event.value === SecurityService.ROLE_AP_ADMIN) {
-      this.editForm.get('domain').enable();
+      this.userForm.get('domain').enable();
     } else {
-      this.editForm.get('domain').disable();
-      this.editForm.patchValue({domain: this.currentDomain});
+      this.userForm.get('domain').disable();
+      this.userForm.patchValue({domain: this.currentDomain});
     }
   }
 
@@ -135,12 +120,18 @@ export class EditUserComponent implements OnInit {
     }
   }
 
-  shouldShowErrors(fieldName: string): boolean {
-    let field = this.editForm.get(fieldName);
+  submitForm() {
+    if (this.userForm.valid) {
+      this.dialogRef.close(true);
+    }
+  }
+
+  shouldShowErrorsForFieldNamed(fieldName: string): boolean {
+    let field = this.userForm.get(fieldName);
     return (field.touched || field.dirty) && !!field.errors;
   }
 
-  isFormDisabled(editForm: FormGroup) {
-    return editForm.invalid || !editForm.dirty;
+  isFormDisabled() {
+    return this.userForm.invalid || !this.userForm.dirty;
   }
 }

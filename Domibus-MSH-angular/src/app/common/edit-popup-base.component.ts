@@ -1,5 +1,5 @@
 import {Component, Inject, ViewChild} from '@angular/core';
-import {FormGroup, NgControl, NgForm} from '@angular/forms';
+import {AbstractControl, FormGroup, NgControl, NgForm} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 @Component({
@@ -8,17 +8,18 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 export abstract class EditPopupBaseComponent {
 
-  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
-  }
-
   @ViewChild('editForm', {static: false})
   public editForm: NgForm | FormGroup;
+
+  protected constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  }
 
   onSubmitForm() {
   }
 
   public submitForm() {
-    if (this.editForm.invalid) {
+    console.log('submitForm')
+    if (this.isFormDisabled()) {
       return;
     }
 
@@ -27,13 +28,12 @@ export abstract class EditPopupBaseComponent {
     this.dialogRef.close(true);
   }
 
-  public shouldShowErrors(field: NgControl | NgForm): boolean {
+  public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
     return (field.touched || field.dirty) && !!field.errors;
   }
 
   public isFormDisabled() {
-    if (!this.editForm) return true;
-    return this.editForm.invalid || !this.editForm.dirty;
+    return !this.editForm || this.editForm.invalid || !this.editForm.dirty;
   }
 
 }

@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Party</h2>
 
-<mat-dialog-content style="height:750px;padding-top:15px;">
-  <form #editForm="ngForm" (submit)="submitForm(editForm)" style="height: 100%;">
+<mat-dialog-content style="height:750px;padding-top:15px;overflow-y: hidden;">
+  <form #editForm="ngForm" (submit)="submitForm()" style="height: 100%;">
     <div style="height: calc(100% - 60px); overflow-y: auto;">
       <div style="overflow-y: hidden;">
         <div>
@@ -9,14 +9,14 @@
             <mat-card-content>
               <div class="panel">
                 <mat-form-field style="width:100%">
-                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" [ngModelOptions]="{updateOn: 'blur'}"
+                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" input-debounce
                          #party_name="ngModel" required [maxlength]="255">
                   <span class="help-block" *ngIf="shouldShowErrors(party_name)">
-                  <div *ngIf="party_name.errors?.required" style="color:red; font-size: 70%">You should type a party name</div>
-                </span>
+                    <div *ngIf="party_name.errors?.required" style="color:red; font-size: 70%">You should type a party name</div>
+                  </span>
                 </mat-form-field>
                 <mat-form-field style="width:100%">
-                  <input matInput placeholder="End Point" name="endPoint" id="endPoint_id_detail" [(ngModel)]="party.endpoint" [ngModelOptions]="{updateOn: 'blur'}"
+                  <input matInput placeholder="End Point" name="endPoint" id="endPoint_id_detail" [(ngModel)]="party.endpoint" input-debounce
                          #party_endPoint="ngModel" required [maxlength]="255" [pattern]="endpointPattern">
                   <span class="help-block" *ngIf="shouldShowErrors(party_endPoint)">
                   <div *ngIf="party_endPoint.errors?.pattern" style="color:red; font-size: 70%">
@@ -88,16 +88,16 @@
                 </ngx-datatable>
 
                 <div class="edit-form-buttons">
-                  <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour id="partydetails_addbutton_id">
+                  <button mat-raised-button (click)="addIdentifier()" color="primary" button-click-behaviour id="partydetails_addbutton_id" type="button">
                     <mat-icon>add</mat-icon>
                     <span>New</span>
                   </button>
-                  <button mat-raised-button (click)="editIdentifier()" color="primary" id="partydetails_editbutton_id"
+                  <button mat-raised-button (click)="editIdentifier()" color="primary" id="partydetails_editbutton_id" type="button"
                           [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                     <mat-icon>edit</mat-icon>
                     <span>Edit</span>
                   </button>
-                  <button mat-raised-button (click)="removeIdentifier()" color="primary" id="partydetails_removebutton_id"
+                  <button mat-raised-button (click)="removeIdentifier()" color="primary" id="partydetails_removebutton_id" type="button"
                           [disabled]="selectedIdentifiers.length==0" button-click-behaviour>
                     <mat-icon>delete</mat-icon>
                     <span>Delete</span>
@@ -158,15 +158,15 @@
 
     <popup-edit-footer [parent]="this"></popup-edit-footer>
 
-<!--    <div class="edit-form-buttons">-->
-<!--      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"-->
-<!--              [disabled]="isFormDisabled(editForm)">-->
-<!--        <span>OK</span>-->
-<!--      </button>-->
-<!--      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>-->
-<!--        <span>Cancel</span>-->
-<!--      </button>-->
-<!--    </div>-->
+    <!--    <div class="edit-form-buttons">-->
+    <!--      <button mat-raised-button  [mat-dialog-close]="true" type="submit" color="primary" button-click-behaviour id="partydetails_okbutton_id"-->
+    <!--              [disabled]="isFormDisabled(editForm)">-->
+    <!--        <span>OK</span>-->
+    <!--      </button>-->
+    <!--      <button mat-raised-button color="primary" button-click-behaviour id="partydetails_cancelbutton_id" mat-dialog-close>-->
+    <!--        <span>Cancel</span>-->
+    <!--      </button>-->
+    <!--    </div>-->
 
   </form>
 </mat-dialog-content>

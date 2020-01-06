@@ -159,7 +159,7 @@ import {EditPopupBaseComponent} from './common/edit-popup-base.component';
     PageGridComponent,
     UserCrossFieldValidatorsDirective,
     EditPopupFooterComponent,
-    EditPopupBaseComponent
+    // EditPopupBaseComponent,
   ],
   entryComponents: [
     AppComponent,
@@ -183,7 +183,7 @@ import {EditPopupBaseComponent} from './common/edit-popup-base.component';
     PartyIdentifierDetailsComponent,
     ChangePasswordComponent,
     PropertiesComponent,
-    EditPopupBaseComponent
+    // EditPopupBaseComponent,
   ],
   imports: [
     BrowserModule,

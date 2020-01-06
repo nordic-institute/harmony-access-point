@@ -1,14 +1,14 @@
 <div style="width: 700px">
   <p class="domibusTextSmall" style="margin:0;font-weight: bold">{{formTitle}}</p>
 
-  <form #editForm="ngForm" (submit)="submitForm(editForm)" userCrossFieldValidators>
+  <form #editForm="ngForm" (submit)="submitForm()" userCrossFieldValidators>
     <mat-card>
       <input type="text" name="username" style="position: absolute; top: -100px;">
       <input type="password" name="password" style="position: absolute; top: -100px;">
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" [ngModelOptions]="{updateOn: 'blur'}"
+          <input matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" input-debounce
                  #userName="ngModel" maxlength="255" required>
           <span class="help-block" *ngIf="shouldShowErrors(userName)">
             <div *ngIf="userName.errors?.required" style="color:red; font-size: 70%">You should type an username</div>
@@ -18,7 +18,7 @@
 
       <div style="margin-top:5px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" [ngModelOptions]="{updateOn: 'blur'}"
+          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" input-debounce
                  #originalUser="ngModel" [pattern]="originalUserPattern" maxlength="255">
           <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
             <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserMessage}}</div>
@@ -38,7 +38,7 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput type="password" placeholder="Password" name="password" id="password_id" [(ngModel)]="user.password" [ngModelOptions]="{updateOn: 'blur'}"
+          <input matInput type="password" placeholder="Password" name="password" id="password_id" [(ngModel)]="user.password" input-debounce
                  #password="ngModel" [pattern]="passwordPattern" [required]="!editMode">
           <span class="help-block" *ngIf="shouldShowErrors(password)">
             <div *ngIf="password.errors?.required" style="color:red; font-size: 70%">You should type a password</div>
@@ -52,7 +52,7 @@
 
       <div>
         <mat-form-field [style.width]="'100%'">
-          <input matInput type="password" placeholder="Confirmation" name="confirmation" id="confirmation_id" [(ngModel)]="passwordConfirmation" [ngModelOptions]="{updateOn: 'blur'}"
+          <input matInput type="password" placeholder="Confirmation" name="confirmation" id="confirmation_id" [(ngModel)]="passwordConfirmation" input-debounce
                  #confirmation="ngModel" [required]="!editMode">
           <span class="help-block" *ngIf="shouldShowErrors(confirmation) || shouldShowErrors(editForm)">
             <div *ngIf="confirmation.errors?.required" style="color:red; font-size: 70%">You should type a password</div>
