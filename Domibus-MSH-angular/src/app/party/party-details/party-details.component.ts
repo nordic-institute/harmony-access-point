@@ -5,7 +5,6 @@ import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../support/party';
 import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party-identifier-details.component';
 import {PartyService} from '../support/party.service';
 import {AlertService} from '../../common/alert/alert.service';
-import {NgControl, NgForm} from '@angular/forms';
 import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
 @Component({
@@ -33,7 +32,8 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   endpointPattern = '^(?:(?:(?:https?):)?\\/\\/)(?:\\S+)$';
 
   constructor(public dialogRef: MatDialogRef<PartyDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
-              private dialog: MatDialog, public partyService: PartyService, public alertService: AlertService) {
+              private dialog: MatDialog, public partyService: PartyService, public alertService: AlertService,
+              private cdr: ChangeDetectorRef) {
 
     super(dialogRef, data);
 
@@ -130,7 +130,7 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
 
     const rowClone = JSON.parse(JSON.stringify(identifierRow));
 
-    const dialogRef: MatDialogRef<PartyIdentifierDetailsComponent> = this.dialog.open(PartyIdentifierDetailsComponent, {
+    const dialogRef = this.dialog.open(PartyIdentifierDetailsComponent, {
       data: {
         edit: rowClone
       }
@@ -165,6 +165,10 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
       this.removeIdentifier();
     }
     this.party.identifiers = [...this.party.identifiers];
+  }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
   }
 
   onSubmitForm() {
@@ -222,6 +226,7 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   //
 
   isFormDisabled() {
-    return super.isFormDisabled() || this.party.identifiers.length == 0;
+    return !this.editForm || this.editForm.invalid || this.party.identifiers.length == 0;
+    // return super.isFormDisabled() || this.party.identifiers.length == 0;
   }
 }
