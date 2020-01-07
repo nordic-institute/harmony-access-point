@@ -26,7 +26,7 @@ public class DMessages {
 
 	public static final String PLUGIN_USER_ORIGINAL_USER_INVALID = "You should follow the rule: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]";
 
-	public static final String ROLE_EMPTY = "You need to choose at least one role for this user";
+	public static final String ROLE_EMPTY = "You should choose a role";
 	public static final String PASS_POLICY_MESSAGE = "Password should follow all of these rules:";
 	public static final String PASS_NO_MATCH_MESSAGE = "Passwords do not match";
 	public static final String PASS_EMPTY_MESSAGE = "You should type a password";

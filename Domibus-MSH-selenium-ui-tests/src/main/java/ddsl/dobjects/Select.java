@@ -72,7 +72,7 @@ public class Select extends DComponent {
         return getExpandBtn().isEnabled();
     }
 
-    protected void expand() throws Exception {
+    public void expand() throws Exception {
         try {
             getExpandBtn().click();
             wait.forElementToBeGone(expandBtn);
