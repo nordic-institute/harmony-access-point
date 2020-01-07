@@ -8,8 +8,8 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Certificate Id" name="certificateId" id="username_id" [(ngModel)]="user.certificateId" input-debounce
-                 #certificateId="ngModel" [pattern]="certificateIdPattern" maxlength="255" required>
+          <input matInput placeholder="Certificate Id" name="certificateId" id="username_id" [(ngModel)]="user.certificateId" [disabled]="editMode"
+                 input-debounce #certificateId="ngModel" [pattern]="certificateIdPattern" maxlength="255" required>
           <span class="help-block" *ngIf="shouldShowErrors(certificateId)">
             <div *ngIf="certificateId.errors?.required" style="color:red; font-size: 70%">You should type a certificate id</div>
             <div *ngIf="certificateId.errors?.pattern" style="color:red; font-size: 70%">{{certificateIdMessage}}</div>
