@@ -111,14 +111,17 @@ public class ChangePasswordPage extends DomibusPage {
 	 */
 	public void setPassFields(String currentPass, String newPass, String confirmPass) throws Exception {
 		log.debug("User enters data in current password field");
+		getCPassField().click();
 		getCPassField().fill(currentPass);
 
 		log.debug("User enters data in New password field");
+		getNPassField().click();
 		getNPassField().fill(newPass);
 
 		log.debug("User enters data in Confirmation field");
+		getConfirmationField().click();
 		getConfirmationField().fill(confirmPass);
-
+		getCPassField().click();
 		if (isValidationMsgPresent(confirmationFieldLabel) || isValidationMsgPresent(newPasswordFieldLabel)) {
 			return;
 		}
