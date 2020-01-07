@@ -445,7 +445,7 @@ public class DGrid extends DComponent {
                 String gridValue = gridRow.get(key).replaceAll("\\s", "");
                 String csvValue = record.get(key).replaceAll("\\s", "");
                 if (!StringUtils.equalsIgnoreCase(gridValue, csvValue)) {
-                    //TEMPORARY-to make test pass since it is a back-end bug
+                    //TODO: TEMPORARY-to make test pass since it is a back-end bug
                     if (StringUtils.equalsAnyIgnoreCase(key, "Send Attempts", "Send Attempts Max", "Next Attempt")
                             && (record.get("Message Type").equals("SIGNAL_MESSAGE") || record.get("AP Role").equals("RECEIVING"))
                             && StringUtils.isEmpty(gridValue)) {
