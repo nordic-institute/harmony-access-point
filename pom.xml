@@ -513,7 +513,6 @@
                 <artifactId>asm</artifactId>
                 <version>5.2</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-security</artifactId>
