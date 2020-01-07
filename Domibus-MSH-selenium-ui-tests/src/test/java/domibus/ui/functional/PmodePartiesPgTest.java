@@ -59,7 +59,7 @@ public class PmodePartiesPgTest extends BaseTest {
         page.filters().getEndpointInput().fill(firstParty.get(endpoint));
         log.info("Enter party Id");
         page.filters().getPartyIDInput().fill(firstParty.get(partyID));
-        log.info("Click on serach button");
+        log.info("Click on search button");
         page.filters().getSearchButton().click();
         log.info("Wait for rows to load");
         page.grid().waitForRowsToLoad();

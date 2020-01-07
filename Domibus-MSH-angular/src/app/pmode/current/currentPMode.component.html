@@ -1,14 +1,16 @@
 ﻿<page-header id="pmodeheader_id" style="margin: 0px;">PMode - Current</page-header>
 <div class="selectionCriteria">
   <mat-card>
+
     <mat-card-content>
       <div class="textarea" *ngIf="pModeExists">
-            <textarea id="pmodetextarea_id" class="textarea" style="resize: none"
-                      [(ngModel)]="pModeContents" (change)="textChanged()" (input)="textChanged()"></textarea>
+            <textarea id="pmodetextarea_id" [(ngModel)]="pModeContents" (change)="textChanged()" (input)="textChanged()"
+                      class="textarea" style="resize: none"></textarea>
       </div>
       <div class="pModeInfo" *ngIf="!pModeExists">
         <span>No PMode uploaded yet</span>
       </div>
+
       <table class="group-action-button">
         <tr>
           <td>
@@ -32,6 +34,7 @@
           </td>
         </tr>
       </table>
+
     </mat-card-content>
   </mat-card>
 
