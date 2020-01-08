@@ -33,7 +33,6 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
 
   @HostListener('input', ['$event.target.value'])
   input(value: string) {
-    console.log('input:', value);
     this.lastValue = value;
     if (value) {
       this.onChange(value);
@@ -45,16 +44,13 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   @HostListener('blur')
   onBlur() {
     if (this.setValueFn) {
-      console.log('onBlur:', this.lastValue);
-      if(this.lastValue !== undefined) {
         this.setValueFn(this.lastValue);
-      }
     }
   }
 
   writeValue(value: string) {
+    this.lastValue = value;
     const element = this._elementRef.nativeElement;
-    // console.log('writeValue:', element, value);
     this._renderer.setProperty(element, 'value', (value == null ? '' : value));
   }
 
