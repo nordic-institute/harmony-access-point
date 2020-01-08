@@ -2,7 +2,6 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {SecurityService} from '../../security/security.service';
 import {EditPluginUserFormBaseComponent} from './edit-plugin-user-form-base.component';
-import {NgForm} from '@angular/forms';
 
 @Component({
   selector: 'editbasicpluginuser-form',

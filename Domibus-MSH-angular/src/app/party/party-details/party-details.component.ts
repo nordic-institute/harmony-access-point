@@ -176,17 +176,6 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
     this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
   }
 
-  // submitForm(editForm: NgForm) {
-  //   if (editForm.invalid) {
-  //     return;
-  //   }
-  //
-  //   this.persistProcesses();
-  //   this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
-  //
-  //   this.dialogRef.close(true);
-  // }
-
   persistProcesses() {
     this.party.processesWithPartyAsInitiator = [];
     this.party.processesWithPartyAsResponder = [];
@@ -220,13 +209,7 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
     }
   }
 
-  // shouldShowErrors(field: NgControl | NgForm): boolean {
-  //   return (field.touched || field.dirty) && !!field.errors;
-  // }
-  //
-
   isFormDisabled() {
     return !this.editForm || this.editForm.invalid || this.party.identifiers.length == 0;
-    // return super.isFormDisabled() || this.party.identifiers.length == 0;
   }
 }

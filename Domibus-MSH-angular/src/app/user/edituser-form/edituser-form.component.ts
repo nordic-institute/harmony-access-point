@@ -66,8 +66,7 @@ export class EditUserComponent implements OnInit {
       'confirmation': new FormControl(this.confirmation, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
       'active': new FormControl({value: this.user.active, disabled: this.isCurrentUser()}, Validators.required)
     }, {
-      validator: [this.userValidatorService.passwordShouldMatch(), this.userValidatorService.defaultDomain()],
-      // updateOn: 'blur'
+      validator: [this.userValidatorService.passwordShouldMatch(), this.userValidatorService.defaultDomain()]
     });
   }
 

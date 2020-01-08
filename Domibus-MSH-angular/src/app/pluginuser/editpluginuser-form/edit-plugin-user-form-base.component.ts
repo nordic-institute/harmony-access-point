@@ -1,10 +1,7 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {NgControl, NgForm} from '@angular/forms';
+import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {UserValidatorService} from '../../user/support/uservalidator.service';
 import {PluginUserRO} from '../support/pluginuser';
 import {PluginUserService} from '../support/pluginuser.service';
-import {SecurityService} from '../../security/security.service';
 import {UserState} from '../../user/support/user';
 import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
@@ -35,20 +32,5 @@ export class EditPluginUserFormBaseComponent extends EditPopupBaseComponent {
     this.formTitle = this.editMode ? EDIT_MODE : NEW_MODE;
 
   }
-
-  // submitForm(editForm: NgForm) {
-  //   if (editForm.invalid) {
-  //     return;
-  //   }
-  //   this.dialogRef.close(true);
-  // }
-  //
-  // shouldShowErrors(field: NgControl | NgForm): boolean {
-  //   return (field.touched || field.dirty) && !!field.errors;
-  // }
-  //
-  // isFormDisabled(editForm: NgForm) {
-  //   return editForm.invalid || !editForm.dirty;
-  // }
 
 }

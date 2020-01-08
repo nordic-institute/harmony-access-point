@@ -2,7 +2,6 @@ import {ChangeDetectorRef, Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {RoutingCriteriaEntry} from '../support/routingcriteriaentry';
 import {BackendFilterEntry} from '../support/backendfilterentry';
-import {NgControl, NgForm} from '@angular/forms';
 import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
 const NEW_MODE = 'New Message Filter';
@@ -67,22 +66,6 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
       }
     });
   }
-
-  // submitForm(editForm: NgForm) {
-  //   if (editForm.invalid) {
-  //     return;
-  //   }
-  //
-  //   this.updateRoutingCriteria();
-  //   this.entity.routingCriterias = BackendFilterEntry.routingCriteriaNames.map(name => this.entity[name]).filter(el => el != null);
-  //
-  //   this.dialogRef.close(true);
-  // }
-
-  // shouldShowErrors(field: NgControl): boolean {
-  //   return (field.touched || field.dirty) && !!field.errors;
-  // }
-  //
 
   isFormDisabled() {
     if (!this.editForm) return true;

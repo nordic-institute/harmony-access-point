@@ -22,11 +22,4 @@ export class PartyIdentifierDetailsComponent extends EditPopupBaseComponent impl
   ngOnInit() {
   }
 
-  // ok() {
-  //   this.dialogRef.close(true);
-  // }
-  //
-  // cancel() {
-  //   this.dialogRef.close(false);
-  // }
 }
