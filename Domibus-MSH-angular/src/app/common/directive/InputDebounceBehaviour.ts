@@ -1,5 +1,5 @@
 import {Directive, ElementRef, Renderer2, HostListener, Input, OnInit} from '@angular/core';
-import {NG_VALUE_ACCESSOR, ControlValueAccessor} from '@angular/forms';
+import {NG_VALUE_ACCESSOR, ControlValueAccessor, NgModel} from '@angular/forms';
 
 @Directive({
   selector: '[input-debounce]',
@@ -14,15 +14,15 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   onChange: Function;
   onTouched: Function;
 
-  @Input('jrvDebounceControl') debounceTime: number;
+  @Input('jrvDebounceControl')
+  debounceTime: number;
 
   private _timer = null;
 
   private setValueFn: Function;
   private lastValue: string;
 
-  constructor(private _elementRef: ElementRef, private _renderer: Renderer2,) {
-
+  constructor(private _elementRef: ElementRef, private _renderer: Renderer2) {
   }
 
   ngOnInit() {
@@ -33,6 +33,7 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
 
   @HostListener('input', ['$event.target.value'])
   input(value: string) {
+    console.log('input:', value);
     this.lastValue = value;
     if (value) {
       this.onChange(value);
@@ -44,13 +45,16 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   @HostListener('blur')
   onBlur() {
     if (this.setValueFn) {
-      this.setValueFn(this.lastValue);
+      console.log('onBlur:', this.lastValue);
+      if(this.lastValue !== undefined) {
+        this.setValueFn(this.lastValue);
+      }
     }
   }
 
   writeValue(value: string) {
-    console.log('writeValue', value);
     const element = this._elementRef.nativeElement;
+    // console.log('writeValue:', element, value);
     this._renderer.setProperty(element, 'value', (value == null ? '' : value));
   }
 
