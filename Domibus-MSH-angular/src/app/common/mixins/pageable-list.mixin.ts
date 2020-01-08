@@ -46,8 +46,9 @@ export let ClientPageableListMixin = (superclass: Constructable) => class extend
   }
 
   getLastPage(): number {
-    if (!this.rows || !this.rowLimiter || !this.rowLimiter.pageSize)
+    if (!this.rows || !this.rowLimiter || !this.rowLimiter.pageSize) {
       return 0;
+    }
     return Math.floor(this.rows.length / this.rowLimiter.pageSize);
   }
 
