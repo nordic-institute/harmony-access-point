@@ -57,7 +57,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
     /**
-     * Trigger blocked duration 5 minutes
+     * Used to check if any Quartz Triggers are blocked for more than 5 minutes.
      */
     private long TRIGGER_BLOCKED_DURATION = 5 * 60 * 1000;
 
