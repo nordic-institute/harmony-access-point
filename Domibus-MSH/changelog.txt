@@ -1,3 +1,5 @@
+Domibus 4.1.3
+- Remove unnecessary RMI port usage from ActiveMQ on Tomcat
 Domibus 4.1.2
 - Possibility to encrypt passwords in the configuration files
 - Possibility to encrypt payloads at rest
