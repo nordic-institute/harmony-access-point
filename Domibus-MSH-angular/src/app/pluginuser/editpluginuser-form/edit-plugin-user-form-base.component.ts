@@ -8,6 +8,13 @@ import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 const NEW_MODE = 'New Plugin User';
 const EDIT_MODE = 'Plugin User Edit';
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Base class representing a plugin user edit popup form
+ *
+ */
 @Component({
   template: '',
 })

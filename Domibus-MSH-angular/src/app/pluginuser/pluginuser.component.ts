@@ -208,7 +208,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   private openItemInEditForm(item: PluginUserRO) {
     const editForm = this.inBasicMode() ? EditBasicPluginUserFormComponent : EditCertificatePluginUserFormComponent;
-    // @ts-ignore
     return this.dialog.open(editForm, {
       data: {
         user: item,

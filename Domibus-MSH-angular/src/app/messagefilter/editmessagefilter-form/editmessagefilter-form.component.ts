@@ -8,6 +8,12 @@ const NEW_MODE = 'New Message Filter';
 const EDIT_MODE = 'Message Filter Edit';
 const MAX_LENGTH = 255;
 
+/**
+ * @author Tiago Miguel, Ion Perpegel
+ * @since 3.3
+ *
+ * In charge of creating and updating message filters
+ */
 @Component({
   selector: 'editmessagefilter-form',
   templateUrl: 'editmessagefilter-form.component.html',

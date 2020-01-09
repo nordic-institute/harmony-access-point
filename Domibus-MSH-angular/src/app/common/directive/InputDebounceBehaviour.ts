@@ -1,6 +1,13 @@
 import {Directive, ElementRef, Renderer2, HostListener, Input, OnInit} from '@angular/core';
 import {NG_VALUE_ACCESSOR, ControlValueAccessor, NgModel} from '@angular/forms';
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Behavioural directive for input fields to control when the validation message will be shown
+ * It displays it on blur and by typing, after 2 seconds. When clear value, it does not display the error message
+ */
 @Directive({
   selector: '[input-debounce]',
   providers: [{
@@ -63,7 +70,6 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
     this.onTouched = this._debounce(fn);
   }
 
-  // private
   private _debounce(fn: Function) {
     return (...args: any[]) => {
       if (this._timer) {

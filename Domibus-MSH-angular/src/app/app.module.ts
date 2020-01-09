@@ -95,7 +95,7 @@ import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
 import {PageFooterComponent} from './common/page-footer/page-footer.component';
 import {PageGridComponent} from './common/page-grid/page-grid.component';
-import {UserCrossFieldValidatorsDirective} from './pluginuser/support/user-cross-field-validators.directive';
+import {UserCrossFieldValidatorsDirective} from './common/directive/user-cross-field-validators.directive';
 import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/edit-plugin-user-form-base.component';
 import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-footer.component';
 import {EditPopupBaseComponent} from './common/edit-popup-base.component';

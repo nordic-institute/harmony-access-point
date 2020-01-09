@@ -1,6 +1,14 @@
 import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn} from '@angular/forms';
 import {Directive} from '@angular/core';
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Behavioural directive responsible for validating password and confirmation;
+ * Used as cross fields validation method in template style angular forms
+ *
+ */
 @Directive({
   selector: '[userCrossFieldValidators]',
   providers: [{provide: NG_VALIDATORS, useExisting: UserCrossFieldValidatorsDirective, multi: true}]
