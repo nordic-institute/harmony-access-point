@@ -1,14 +1,14 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {AlertService} from '../common/alert/alert.service';
-import {PluginUserSearchCriteria, PluginUserService} from './pluginuser.service';
-import {PluginUserRO} from './pluginuser';
+import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.service';
+import {PluginUserRO} from './support/pluginuser';
 import {DirtyOperations} from 'app/common/dirty-operations';
 import {MatDialog} from '@angular/material';
-import {EditbasicpluginuserFormComponent} from './editpluginuser-form/editbasicpluginuser-form.component';
-import {EditcertificatepluginuserFormComponent} from './editpluginuser-form/editcertificatepluginuser-form.component';
-import {UserService} from '../user/user.service';
-import {UserState} from '../user/user';
+import {EditBasicPluginUserFormComponent} from './editpluginuser-form/edit-basic-plugin-user-form.component';
+import {EditCertificatePluginUserFormComponent} from './editpluginuser-form/edit-certificate-plugin-user-form.component';
+import {UserService} from '../user/support/user.service';
+import {UserState} from '../user/support/user';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
@@ -50,9 +50,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
 
     this.userRoles = [];
-
     this.getUserRoles();
-
     this.filterData();
   }
 
@@ -160,8 +158,13 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async add() {
+    if (this.isBusy()) return;
+
+    this.setPage(this.getLastPage());
+
     const newItem = this.pluginUserService.createNew();
     newItem.authenticationType = this.filter.authType;
+
     this.rows.push(newItem);
     super.count = this.count + 1;
 
@@ -170,7 +173,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
     this.setIsDirty();
 
-    const ok = await this.openItemInEditForm(newItem, false);
+    const ok = await this.openItemInEditForm(newItem);
     if (!ok) {
       this.rows.pop();
       super.count = this.count - 1;
@@ -191,7 +194,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     row = row || this.selected[0];
     const rowCopy = Object.assign({}, row);
 
-    const ok = await this.openItemInEditForm(rowCopy, true);
+    const ok = await this.openItemInEditForm(rowCopy);
     if (ok) {
       if (JSON.stringify(row) !== JSON.stringify(rowCopy)) { // the object changed
         Object.assign(row, rowCopy);
@@ -203,12 +206,17 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  private openItemInEditForm(rowCopy: PluginUserRO, edit = true) {
-    const editForm = this.inBasicMode() ? EditbasicpluginuserFormComponent : EditcertificatepluginuserFormComponent;
+  private openItemInEditForm(item: PluginUserRO) {
+    var editForm;
+    if (this.inBasicMode()) {
+      editForm = EditBasicPluginUserFormComponent;
+    } else {
+      editForm = EditCertificatePluginUserFormComponent;
+    }
+
     return this.dialog.open(editForm, {
       data: {
-        edit: edit,
-        user: rowCopy,
+        user: item,
         userroles: this.userRoles,
       }
     }).afterClosed().toPromise();
@@ -219,7 +227,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    return true;
+    return !this.isBusy();
   }
 
   async doSave(): Promise<any> {

@@ -74,7 +74,7 @@ public class MessageFilterPgTest extends BaseTest {
 		popup.getPluginSelect().selectOptionByIndex(0);
 		popup.actionInput.sendKeys(actionName);
 		popup.clickOK();
-		log.info("created new filter with action" + actionName);
+		log.info("created new filter with action " + actionName);
 
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is active after new Message Filter was created");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is active after new Message Filter was created");
@@ -83,8 +83,8 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("canceled the changes");
 
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == -1, "New filter is NOT present in the grid");
-		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled after changes are canceled");
-		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled after changes are canceled");
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled after changes are canceled");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled after changes are canceled");
 
 		soft.assertAll();
 	}
@@ -102,7 +102,7 @@ public class MessageFilterPgTest extends BaseTest {
 		popup.getPluginSelect().selectOptionByIndex(0);
 		popup.actionInput.sendKeys(actionName);
 		popup.clickOK();
-		log.info("created new filter with action" + actionName);
+		log.info("created new filter with action " + actionName);
 
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is active after new Message Filter was created");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is active after new Message Filter was created");
@@ -111,6 +111,8 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("saved the changes");
 
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > -1, "New filter is present in the grid");
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled after changes are saved");
+		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled after changes are saved");
 
 		soft.assertAll();
 	}

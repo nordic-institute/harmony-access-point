@@ -1,8 +1,8 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {UserResponseRO, UserState} from './user';
-import {UserSearchCriteria, UserService} from './user.service';
+import {UserResponseRO, UserState} from './support/user';
+import {UserSearchCriteria, UserService} from './support/user.service';
 import {MAT_CHECKBOX_CLICK_ACTION, MatDialog, MatDialogRef} from '@angular/material';
-import {UserValidatorService} from 'app/user/uservalidator.service';
+import {UserValidatorService} from 'app/user/support/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {HttpClient} from '@angular/common/http';
@@ -45,28 +45,14 @@ export class UserComponent extends mix(BaseListComponent)
   domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
-  enableCancel: boolean;
-  enableSave: boolean;
-  enableDelete: boolean;
-  enableEdit: boolean;
-
   currentUser: UserResponseRO;
-
   editedUser: UserResponseRO;
-
   areRowsDeleted: boolean;
-
   deletedStatuses: any[];
 
-  constructor(private http: HttpClient,
-              private userService: UserService,
-              public dialog: MatDialog,
-              private dialogsService: DialogsService,
-              private userValidatorService: UserValidatorService,
-              private alertService: AlertService,
-              private securityService: SecurityService,
-              private domainService: DomainService,
-              private changeDetector: ChangeDetectorRef) {
+  constructor(private http: HttpClient, private userService: UserService, public dialog: MatDialog, private dialogsService: DialogsService,
+              private userValidatorService: UserValidatorService, private alertService: AlertService, private securityService: SecurityService,
+              private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -75,22 +61,12 @@ export class UserComponent extends mix(BaseListComponent)
 
     super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
-
     this.userRoles = [];
-
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableDelete = false;
-    this.enableEdit = false;
     this.currentUser = null;
     this.editedUser = null;
-
     this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
-
     this.getUserRoles();
-
     this.areRowsDeleted = false;
-
     this.filterData();
   }
 
@@ -183,7 +159,7 @@ export class UserComponent extends mix(BaseListComponent)
       super.rows = results;
       super.count = results.length;
       this.areRowsDeleted = false;
-      this.disableSelectionAndButtons();
+      this.disableSelection();
     });
   }
 
@@ -211,20 +187,8 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   onSelect({selected}) {
-    if (!selected || selected.length == 0) {
-      // unselect
-      this.enableDelete = false;
-      this.enableEdit = false;
-
-      return;
-    }
-
-    // select
     this.currentUser = this.selected[0];
     this.editedUser = this.currentUser;
-
-    this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
-    this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }
 
   private isLoggedInUserSelected(selected): boolean {
@@ -238,30 +202,25 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   add(): void {
-    if (this.isLoading) return;
+    if (this.isBusy()) return;
 
     this.setPage(this.getLastPage());
 
     this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
     this.setIsDirty();
-    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    this.dialog.open(EditUserComponent, {
       data: {
-        edit: false,
         user: this.editedUser,
         userroles: this.userRoles,
         userdomains: this.domains
       }
-    });
-    formRef.afterClosed().subscribe(ok => {
+    }).afterClosed().subscribe(ok => {
       if (ok) {
-        this.onSaveEditForm(formRef);
         super.rows = [...this.rows, this.editedUser];
         super.count = this.count + 1;
         this.currentUser = this.editedUser;
       } else {
         super.selected = [];
-        this.enableEdit = false;
-        this.enableDelete = false;
       }
       this.setIsDirty();
     });
@@ -272,54 +231,34 @@ export class UserComponent extends mix(BaseListComponent)
       this.alertService.error('You cannot edit a deleted user.', false, 5000);
       return;
     }
-    this.buttonEditAction(this.currentUser);
+    this.editUser(this.currentUser);
   }
 
-  buttonEditAction(currentUser) {
+  editUser(currentUser) {
     if (this.isLoading) return;
 
-    const formRef: MatDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const rowCopy = Object.assign({}, currentUser);
+    this.dialog.open(EditUserComponent, {
       data: {
-        edit: true,
-        user: currentUser,
+        user: rowCopy,
         userroles: this.userRoles,
         userdomains: this.domains
       }
-    });
-    formRef.afterClosed().subscribe(ok => {
+    }).afterClosed().subscribe(ok => {
       if (ok) {
-        this.onSaveEditForm(formRef);
-        this.setIsDirty();
+        if (JSON.stringify(currentUser) !== JSON.stringify(rowCopy)) {
+          Object.assign(currentUser, rowCopy);
+          if (currentUser.status == UserState[UserState.PERSISTED]) {
+            currentUser.status = UserState[UserState.UPDATED]
+          }
+          this.setIsDirty();
+        }
       }
     });
-  }
-
-  private onSaveEditForm(formRef: MatDialogRef<EditUserComponent>) {
-    const editForm = formRef.componentInstance;
-    const user = this.editedUser;
-    if (!user) return;
-
-    user.userName = editForm.userName || user.userName; // only for add
-    user.email = editForm.email;
-    user.roles = editForm.role;
-    user.domain = editForm.domain;
-    this.setDomainName(user);
-    user.password = editForm.password;
-    user.active = editForm.active;
-
-    if (editForm.userForm.dirty) {
-      if (UserState[UserState.PERSISTED] === user.status) {
-        user.status = UserState[UserState.UPDATED]
-      }
-    }
   }
 
   setIsDirty() {
-    super.isChanged = this.areRowsDeleted
-      || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
-
-    this.enableSave = this.isChanged;
-    this.enableCancel = this.isChanged;
+    super.isChanged = this.areRowsDeleted || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
   delete() {
@@ -336,9 +275,6 @@ export class UserComponent extends mix(BaseListComponent)
       return;
     }
 
-    this.enableDelete = false;
-    this.enableEdit = false;
-
     for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
         this.rows.splice(this.rows.indexOf(itemToDelete), 1);
@@ -353,17 +289,13 @@ export class UserComponent extends mix(BaseListComponent)
     this.setIsDirty();
   }
 
-  private disableSelectionAndButtons() {
+  private disableSelection() {
     super.selected = [];
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableEdit = false;
-    this.enableDelete = false;
   }
 
   async doSave(): Promise<any> {
     const isValid = this.userValidatorService.validateUsers(this.rows);
-    if (!isValid) return false; // TODO throw instead
+    if (!isValid) return false; // TODO throw instead??
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
     return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
@@ -376,17 +308,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   isDirty(): boolean {
-    return this.enableCancel;
-  }
-
-  setPage(offset: number): void {
-    super.offset = offset;
-  }
-
-  getLastPage(): number {
-    if (!this.rows || !this.rowLimiter || !this.rowLimiter.pageSize)
-      return 0;
-    return Math.floor(this.rows.length / this.rowLimiter.pageSize);
+    return this.isChanged;
   }
 
   setState() {
@@ -397,22 +319,22 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   canCancel() {
-    return this.enableCancel;
+    return this.isDirty();
   }
 
   canSave() {
-    return this.enableSave && !this.isLoading;
+    return this.isDirty() && !this.isBusy();
   }
 
   canAdd() {
-    return !this.isLoading;
+    return !this.isBusy();
   }
 
   canEdit() {
-    return this.enableEdit && !this.isLoading;
+    return !this.isBusy() && this.selected.length == 1 && !this.selected[0].deleted;
   }
 
   canDelete() {
-    return this.enableDelete && !this.isLoading;
+    return !this.isBusy() && this.selected.length > 0 && !this.selected.every(el => el.deleted);
   }
 }

@@ -85,25 +85,35 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
 
   public edit(row?: any) {
   }
+
   public delete(row?: any) {
   }
+
   public add() {
   }
 
   canCancel(): boolean {
     return this.isChanged;
   }
+
   canSave(): boolean {
     return this.isChanged;
   }
+
   canDelete(): boolean {
     return !this.isChanged;
   }
-  canEdit(): boolean{
+
+  canEdit(): boolean {
     return !this.isSaving;
   }
-  canAdd(): boolean{
+
+  canAdd(): boolean {
     return !this.isSaving;
+  }
+
+  isBusy(): boolean {
+    return super.isBusy() || this.isSaving;
   }
 };
 

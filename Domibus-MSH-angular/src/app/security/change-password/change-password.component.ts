@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
-import {UserValidatorService} from '../../user/uservalidator.service';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {AbstractControl, NgControl, NgForm} from '@angular/forms';
+import {UserValidatorService} from '../../user/support/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
@@ -15,24 +15,17 @@ export class ChangePasswordComponent implements OnInit {
 
   currentPassword: string;
   password: string;
-  confirmation: string;
+  passwordConfirmation: string;
   public passwordPattern: string;
   public passwordValidationMessage: string;
-  userForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private securityService: SecurityService,
-              private userValidatorService: UserValidatorService, private http: HttpClient,
+  @ViewChild('userForm', {static: false})
+  public userForm: NgForm;
+
+  constructor(private securityService: SecurityService, private http: HttpClient,
               private alertService: AlertService, private router: Router) {
 
     this.currentPassword = this.securityService.password;
-    this.userForm = fb.group({
-      'currentPassword':  [null],
-      'password': [null],
-      'confirmation': [null]
-    }, {
-      validator: userValidatorService.matchPassword
-    });
-
     this.securityService.password = null;
   }
 
@@ -55,6 +48,14 @@ export class ChangePasswordComponent implements OnInit {
     } catch (error) {
       this.alertService.exception('Password could not be changed.', error);
     }
+  }
+
+  public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  public isFormDisabled() {
+    return !this.userForm || this.userForm.invalid || !this.userForm.dirty;
   }
 
 }

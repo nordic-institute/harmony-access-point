@@ -18,7 +18,7 @@ public class DMessages {
 	public static final String DIALOG_CANCEL_ALL = "Do you want to cancel all unsaved operations?";
 
 	public static final String USER_CANNOT_EDIT_DELETED = "You cannot edit a deleted user.";
-	public static final String USER_EMAIL_INVALID = "You should type an email";
+	public static final String USER_EMAIL_INVALID = "You should type a valid email";
 
 	public static final String USER_USERNAME_NO_EMPTY = "You should type an username";
 	public static final String USER_USERNAME_VALIDATION = "Username can only contain alphanumeric characters (letters A-Z, numbers 0-9) and must have from 4 to 32 characters";
@@ -26,7 +26,7 @@ public class DMessages {
 
 	public static final String PLUGIN_USER_ORIGINAL_USER_INVALID = "You should follow the rule: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]";
 
-	public static final String ROLE_EMPTY = "You need to choose at least one role for this user";
+	public static final String ROLE_EMPTY = "You should choose a role";
 	public static final String PASS_POLICY_MESSAGE = "Password should follow all of these rules:";
 	public static final String PASS_NO_MATCH_MESSAGE = "Passwords do not match";
 	public static final String PASS_EMPTY_MESSAGE = "You should type a password";

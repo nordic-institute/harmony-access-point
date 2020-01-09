@@ -73,12 +73,12 @@ import {PmodeViewComponent} from './pmode/archive/pmode-view/pmode-view.componen
 import {AlertsComponent} from './alerts/alerts.component';
 import {TestServiceComponent} from './testservice/testservice.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
-import {EditbasicpluginuserFormComponent} from './pluginuser/editpluginuser-form/editbasicpluginuser-form.component';
-import {EditcertificatepluginuserFormComponent} from './pluginuser/editpluginuser-form/editcertificatepluginuser-form.component';
+import {EditBasicPluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-basic-plugin-user-form.component';
+import {EditCertificatePluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-certificate-plugin-user-form.component';
 import {PartyIdentifierDetailsComponent} from './party/party-identifier-details/party-identifier-details.component';
 import {GlobalErrorHandler} from './common/global.error-handler';
-import {UserService} from './user/user.service';
-import {UserValidatorService} from './user/uservalidator.service';
+import {UserService} from './user/support/user.service';
+import {UserValidatorService} from './user/support/uservalidator.service';
 import {DefaultPasswordGuard} from './security/defaultPassword.guard';
 import {SanitizeHtmlPipe} from './common/sanitizeHtml.pipe';
 import {LoggingComponent} from './logging/logging.component';
@@ -95,6 +95,10 @@ import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
 import {PageFooterComponent} from './common/page-footer/page-footer.component';
 import {PageGridComponent} from './common/page-grid/page-grid.component';
+import {UserCrossFieldValidatorsDirective} from './common/directive/user-cross-field-validators.directive';
+import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/edit-plugin-user-form-base.component';
+import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-footer.component';
+import {EditPopupBaseComponent} from './common/edit-popup-base.component';
 
 
 @NgModule({
@@ -140,8 +144,9 @@ import {PageGridComponent} from './common/page-grid/page-grid.component';
     AlertsComponent,
     TestServiceComponent,
     PluginUserComponent,
-    EditbasicpluginuserFormComponent,
-    EditcertificatepluginuserFormComponent,
+    EditPluginUserFormBaseComponent,
+    EditBasicPluginUserFormComponent,
+    EditCertificatePluginUserFormComponent,
     PartyIdentifierDetailsComponent,
     LoggingComponent,
     ChangePasswordComponent,
@@ -151,7 +156,10 @@ import {PageGridComponent} from './common/page-grid/page-grid.component';
     GridHeaderComponent,
     FilterAreaFooterComponent,
     PageFooterComponent,
-    PageGridComponent
+    PageGridComponent,
+    UserCrossFieldValidatorsDirective,
+    EditPopupFooterComponent,
+    EditPopupBaseComponent,
   ],
   entryComponents: [
     AppComponent,
@@ -169,11 +177,13 @@ import {PageGridComponent} from './common/page-grid/page-grid.component';
     TrustStoreUploadComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
-    EditbasicpluginuserFormComponent,
-    EditcertificatepluginuserFormComponent,
+    EditPluginUserFormBaseComponent,
+    EditBasicPluginUserFormComponent,
+    EditCertificatePluginUserFormComponent,
     PartyIdentifierDetailsComponent,
     ChangePasswordComponent,
     PropertiesComponent,
+    EditPopupBaseComponent,
   ],
   imports: [
     BrowserModule,

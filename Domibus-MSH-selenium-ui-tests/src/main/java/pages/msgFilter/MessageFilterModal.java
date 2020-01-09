@@ -51,25 +51,6 @@ public class MessageFilterModal extends EditModal {
 	@FindBy(css = "mat-card > div:nth-child(5) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement serviceErrMess;
 
-
-	@FindBy(id = "okbutton_id")
-	public WebElement okBtn;
-
-	@FindBy(css = "editmessagefilter-form #cancelbutton_id")
-	public WebElement cancelBtn;
-
-
-	@Override
-	public DButton getOkBtn() {
-		return new DButton(driver, okBtn);
-	}
-
-	@Override
-	public DButton getCancelBtn() {
-		return new DButton(driver, cancelBtn);
-	}
-
-
 	public Select getPluginSelect() {
 		return new Select(driver, pluginSelectContainer);
 	}

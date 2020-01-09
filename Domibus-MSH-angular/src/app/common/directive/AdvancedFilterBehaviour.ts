@@ -1,6 +1,5 @@
-import {Directive, ElementRef, Host, Input, OnInit, Optional} from '@angular/core';
+import {Directive, Input, OnInit} from '@angular/core';
 import {NgControl} from '@angular/forms';
-import BaseListComponent from '../mixins/base-list.component';
 import {IFilterableList} from '../mixins/ifilterable-list';
 
 @Directive({

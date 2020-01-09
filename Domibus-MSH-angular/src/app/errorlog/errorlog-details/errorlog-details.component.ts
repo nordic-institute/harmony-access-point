@@ -6,14 +6,11 @@ import {MatDialogRef} from "@angular/material";
   templateUrl: './errorlog-details.component.html',
   styleUrls: ['./errorlog-details.component.css']
 })
-export class ErrorlogDetailsComponent implements OnInit {
+export class ErrorlogDetailsComponent {
 
   message;
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(public dialogRef: MatDialogRef<ErrorlogDetailsComponent>) { }
-
-  ngOnInit() {
-  }
 
 }

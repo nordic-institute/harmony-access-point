@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {MatDialog, MatDialogRef} from '@angular/material';
-import {PartyService} from './party.service';
-import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
+import {MatDialog} from '@angular/material';
+import {PartyService} from './support/party.service';
+import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
 import {AlertService} from '../common/alert/alert.service';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
@@ -15,7 +15,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 /**
- * @author Thomas Dussart
+ * @author Thomas Dussart, Ion Perpegel
  * @since 4.0
  */
 
@@ -145,7 +145,7 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    return !!this.pModeExists && !this.isSaving;
+    return !!this.pModeExists && !this.isBusy();
   }
 
   canSave() {
@@ -177,7 +177,9 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   async add() {
-    if (this.isSaving) return;
+    if (this.isBusy()) return;
+
+    this.setPage(this.getLastPage());
 
     const newParty = this.partyService.initParty();
     this.rows.push(newParty);

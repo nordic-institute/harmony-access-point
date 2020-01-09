@@ -1,77 +1,80 @@
-<div style="width: 700px">
+<div style="width: 700px" *ngIf="userForm">
   <p class="domibusTextSmall" style="margin:0;font-weight: bold">{{formTitle}}</p>
-  <form [formGroup]="userForm" (submit)="submitForm()" autocomplete="no">
+
+  <form [formGroup]="userForm" (submit)="submitForm()" novalidate autocomplete="off">
+
     <mat-card>
 
-      <input type="text" name="username" style="position: absolute; top: -100px;" >
-      <input type="password" name="password" style="position: absolute; top: -100px;" >
+      <input type="text" name="username" style="position: absolute; top: -100px;">
+      <input type="password" name="password" style="position: absolute; top: -100px;">
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Username" name="username" id="username_id" [value]="userName" (blur)="updateUserName($event)" [formControl]="userForm.controls['userName']" maxlength="255" required>
-          <div *ngIf="userForm.controls['userName'].hasError('required')" style="color:red; font-size: 70%">You should type an username</div>
+          <input matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName">
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('userName')">
+            <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">You should type an username</div>
+          </span>
         </mat-form-field>
       </div>
 
       <div style="margin-top:-5px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Email" name="email" id="email_id" [value]="email" (blur)="updateEmail($event)" [formControl]="userForm.controls['email']" [pattern]=emailPattern maxlength="255">
-          <div *ngIf="userForm.controls['email'].hasError('pattern')" style="color:red; font-size: 70%">You should type an email</div>
+          <input matInput id="email_id" name="email" formControlName="email" placeholder="Email">
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('email')">
+            <div *ngIf="userForm.get('email').errors?.pattern" style="color:red; font-size: 70%">You should type a valid email</div>
+          </span>
         </mat-form-field>
       </div>
 
       <div style="margin-top:10px;">
-        <mat-select matInput placeholder="Role" [style.width]="'100%'" [formControl]="userForm.controls['role']"
-                    [(ngModel)]="role" required (selectionChange)="onRoleChange()" id="role_id">
+        <mat-select matInput id="role_id" name="roles" formControlName="roles" (selectionChange)="onRoleChange($event)" [style.width]="'100%'" placeholder="Role *">
           <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
         </mat-select>
-        <div *ngIf="userForm.controls['role'].hasError('required')" style="color:red; font-size: 70%">You need to choose at least one role for this user</div>
+        <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('roles')">
+          <div *ngIf="userForm.get('roles').errors?.required" style="color:red; font-size: 70%">You need to choose at least one role for this user</div>
+        </span>
       </div>
 
       <div style="margin-top:30px;" [hidden]="!isDomainVisible">
-        <mat-select matInput placeholder="{{isSuperAdmin() ? 'Preferred Domain' : 'Domain'}}" [style.width]="'100%'" [formControl]="userForm.controls['domain']"
-                    [(ngModel)]="domain" [disabled]="isDomainDisabled()" required id="domain_id">
+        <mat-select matInput id="domain_id" name="domain" formControlName="domain" placeholder="Domain *" [style.width]="'100%'">
           <mat-option *ngFor="let item of existingDomains" [value]="item.code">{{item.name}}</mat-option>
         </mat-select>
-        <div *ngIf="userForm.controls['domain'].hasError('required')" style="color:red; font-size: 70%">You need to choose a domain for this user</div>
-        <div *ngIf="userForm.controls['domain'].hasError('domain')" style="color:red; font-size: 70%">The domain should be the current one</div>
+        <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('domain')">
+<!--          <div *ngIf="userForm.get('domain').errors?.required" style="color:red; font-size: 70%">You need to choose a domain for this user</div>-->
+          <div *ngIf="userForm.errors?.domain" style="color:red; font-size: 70%">The domain should be the current one</div>
+        </span>
       </div>
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Password" name="password" id="password_id" type="password" [value]="password" (blur)="updatePassword($event)" [formControl]="userForm.controls['password']" [pattern]=passwordPattern
-                 [required]="!editMode">
-          <div *ngIf="!editMode && userForm.controls['password'].hasError('required')" style="color:red; font-size: 70%">You should type a password</div>
-          <div *ngIf="userForm.controls['password'].dirty && userForm.controls['password'].hasError('pattern')" style="color:red; font-size: 70%">
-            Password should follow all of these rules:<br>
-            <div [innerHTML]="passwordValidationMessage"></div>
-          </div>
+          <input matInput type="password" id="password_id" name="password" formControlName="password" placeholder="Password *">
+
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('password')">
+            <div *ngIf="userForm.get('password').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="userForm.get('password').errors?.pattern" style="color:red; font-size: 70%">
+              Password should follow all of these rules:<br><div [innerHTML]="passwordValidationMessage"></div>
+            </div>
+          </span>
         </mat-form-field>
       </div>
 
       <div>
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="Confirmation" name="confirmation" id="confirmation_id" type="password" [value]="confirmation" [formControl]="userForm.controls['confirmation']" [required]="!editMode">
-          <div *ngIf="!editMode && userForm.controls['confirmation'].hasError('required')" style="color:red; font-size: 70%">You should type a password</div>
-          <div *ngIf="userForm.controls['confirmation'].hasError('confirmation')" style="color:red; font-size: 70%">Passwords do not match</div>
+          <input matInput type="password" id="confirmation_id" name="confirmation" formControlName="confirmation" placeholder="Confirmation *">
+
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('confirmation')">
+            <div *ngIf="userForm.get('confirmation').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="userForm.errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
+          </span>
         </mat-form-field>
       </div>
 
       <div style="margin-bottom: 20px;margin-top: 10px;">
-        <mat-checkbox [(ngModel)]="active" [formControl]="userForm.controls['active']" id="active_id">Active</mat-checkbox>
+        <mat-checkbox id="active_id" formControlName="active">Active</mat-checkbox>
       </div>
 
-      <div class="buttonsRow">
-        <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id" [disabled]="!userForm.valid">
-          <mat-icon>check_circle</mat-icon>
-          <span>OK</span>
-        </button>
-        <button mat-raised-button color="primary" id="editbuttoncancel_id" mat-dialog-close>
-          <mat-icon>cancel</mat-icon>
-          <span>Cancel</span>
-        </button>
-      </div>
-      <div style="text-align: right; font-size: 70%">* required fields</div>
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
     </mat-card>
   </form>
 </div>

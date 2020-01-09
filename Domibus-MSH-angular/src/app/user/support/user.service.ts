@@ -1,10 +1,10 @@
 import {UserResponseRO} from './user';
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {AlertService} from '../common/alert/alert.service';
+import {AlertService} from '../../common/alert/alert.service';
 import {Observable} from 'rxjs/Observable';
-import {SecurityService} from '../security/security.service';
-import {DomainService} from '../security/domain.service';
+import {SecurityService} from '../../security/security.service';
+import {DomainService} from '../../security/domain.service';
 
 @Injectable()
 export class UserService {

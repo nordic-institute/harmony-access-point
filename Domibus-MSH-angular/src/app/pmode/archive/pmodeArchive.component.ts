@@ -137,6 +137,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   }
 
   public async getDataAndSetResults(): Promise<any> {
+    this.deleteList.length = 0;
     this.disableAllButtons();
     return this.getAllPModeEntries();
   }

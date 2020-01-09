@@ -3,9 +3,9 @@ import {MatDialog, MatDialogRef} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {MessageFilterResult} from './messagefilterresult';
-import {BackendFilterEntry} from './backendfilterentry';
-import {RoutingCriteriaEntry} from './routingcriteriaentry';
+import {MessageFilterResult} from './support/messagefilterresult';
+import {BackendFilterEntry} from './support/backendfilterentry';
+import {RoutingCriteriaEntry} from './support/routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
 import {DirtyOperations} from '../common/dirty-operations';
 import {DialogsService} from '../common/dialogs/dialogs.service';
@@ -20,25 +20,18 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
   styleUrls: ['./messagefilter.component.css']
 })
 
-export class MessageFilterComponent extends mix(BaseListComponent)
-  .with(ModifiableListMixin)
+export class MessageFilterComponent extends mix(BaseListComponent).with(ModifiableListMixin)
   implements OnInit, DirtyOperations {
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
   backendFilterNames: any[];
-
   rowNumber: number;
+  areFiltersPersisted: boolean;
 
-  enableCancel: boolean;
   enableSave: boolean;
-  enableDelete: boolean;
-  enableEdit: boolean;
   enableMoveUp: boolean;
   enableMoveDown: boolean;
-
-  areFiltersPersisted: boolean;
-  routingCriterias = ['from', 'to', 'action', 'service'];
 
   constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
     super();
@@ -48,17 +41,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     super.ngOnInit();
 
     this.backendFilterNames = [];
-
     this.rowNumber = -1;
-
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableDelete = false;
-    this.enableEdit = false;
-
-    this.enableMoveUp = false;
-    this.enableMoveDown = false;
-
+    this.disableSelectionAndButtons();
     this.loadServerData();
   }
 
@@ -77,7 +61,7 @@ export class MessageFilterComponent extends mix(BaseListComponent)
       this.backendFilterNames = [];
       if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
-          let currentFilter: BackendFilterEntry = result.messageFilterEntries[i];
+          let currentFilter = result.messageFilterEntries[i];
           if (!(currentFilter)) {
             continue;
           }
@@ -92,6 +76,8 @@ export class MessageFilterComponent extends mix(BaseListComponent)
         super.rows = newRows;
         super.count = newRows.length;
 
+        super.isChanged = false;
+
         if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
           this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
             'It is strongly recommended to double check the filters configuration and afterwards save it.');
@@ -105,19 +91,22 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     return this.http.get<MessageFilterResult>(MessageFilterComponent.MESSAGE_FILTER_URL);
   }
 
-  createValueProperty(prop, newPropValue, row) {
-    this.rows[row][prop] = newPropValue;
-  }
-
   add() {
-    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {data: {backendFilterNames: this.backendFilterNames}});
-    formRef.afterClosed().toPromise().then(result => {
-      if (result) {
-        let backendEntry = this.createEntry(result);
-        if (this.findRowsIndex(backendEntry) == -1) {
+    if (this.isBusy()) return;
+
+    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false);
+    this.dialog.open(EditMessageFilterComponent, {
+      data: {
+        backendFilterNames: this.backendFilterNames,
+        entity: backendEntry
+      }
+    }).afterClosed().toPromise().then(ok => {
+      if (ok) {
+        if (this.findRowLike(backendEntry) == -1) {
           super.rows = [...this.rows, backendEntry];
           super.count = this.rows.length + 1;
-          this.setDirty(result.messageFilterForm.dirty);
+
+          this.setDirty(true);
         } else {
           this.alertService.error('Impossible to insert a duplicate entry');
         }
@@ -125,133 +114,35 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     });
   }
 
-  private findRowsIndex(backendEntry: BackendFilterEntry): number {
-    for (let i = 0; i < this.rows.length; i++) {
-      let currentRow = this.rows[i];
-      if (currentRow.backendName === backendEntry.backendName
-        && this.compareRoutingCriterias(backendEntry.routingCriterias, currentRow.routingCriterias)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  private compareRoutingCriterias(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
-    let found: boolean = true;
-    for (let entry of criteriasA) {
-      found = found && this.findRoutingCriteria(entry, criteriasB);
-    }
-    for (let entry of criteriasB) {
-      found = found && this.findRoutingCriteria(entry, criteriasA);
-    }
-    return found;
-  }
-
-  private findRoutingCriteria(toFind: RoutingCriteriaEntry, routingCriterias: RoutingCriteriaEntry[]): boolean {
-    for (let entry of routingCriterias) {
-      if (entry.name === toFind.name && entry.expression === toFind.expression) {
-        return true;
-      }
-    }
-    return toFind.expression === '' && routingCriterias.length == 0;
-  }
-
   edit(row?) {
     row = row || this.selected[0];
 
-    let formRef: MatDialogRef<EditMessageFilterComponent> = this.dialog.open(EditMessageFilterComponent, {
+    const backendEntry = JSON.parse(JSON.stringify(row));
+    this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
-        edit: row
+        entity: backendEntry
       }
-    });
-    formRef.afterClosed().toPromise().then(result => {
-      if (result) {
-        let backendEntry = this.createEntry(result);
-        let backendEntryPos = this.findRowsIndex(backendEntry);
+    }).afterClosed().toPromise().then(ok => {
+      if (ok) {
+        let backendEntryPos = this.findRowLike(backendEntry);
         if (backendEntryPos == -1) {
-          this.updateSelectedPlugin(result.plugin);
-
-          for (var criteria of this.routingCriterias) {
-            this.updateSelectedProperty(criteria, result[criteria]);
-          }
-
-          const rowCopy = JSON.parse(JSON.stringify(this.rows[this.rowNumber])); // clone
-          this.rows.splice(this.rowNumber, 1, rowCopy);
+          this.rows.splice(this.rowNumber, 1, backendEntry);
           super.rows = [...this.rows];
           super.count = this.rows.length;
 
-          this.setDirty(result.messageFilterForm.dirty);
+          this.setDirty(true);
         } else {
           if (backendEntryPos != this.rowNumber) {
             this.alertService.error('Impossible to insert a duplicate entry');
           }
         }
+
+        setTimeout(() => {
+          document.getElementById('pluginRow' + (this.rowNumber) + '_id').click();
+        }, 50);
       }
     });
-  }
-
-  private createEntry(componentInstance: EditMessageFilterComponent) {
-    let routingCriterias: Array<RoutingCriteriaEntry> = [];
-
-    for (var criteria of this.routingCriterias) {
-      if (!!componentInstance[criteria]) {
-        routingCriterias.push(new RoutingCriteriaEntry(0, criteria, componentInstance[criteria]));
-      }
-    }
-
-    let backendEntry = new BackendFilterEntry(0, this.rowNumber + 1, componentInstance.plugin, routingCriterias, false);
-    return backendEntry;
-  }
-
-  private deleteRoutingCriteria(rc: string) {
-    let numRoutingCriterias = this.rows[this.rowNumber].routingCriterias.length;
-    for (let i = 0; i < numRoutingCriterias; i++) {
-      let routCriteria = this.rows[this.rowNumber].routingCriterias[i];
-      if (routCriteria.name == rc) {
-        this.rows[this.rowNumber].routingCriterias.splice(i, 1);
-        return;
-      }
-    }
-  }
-
-  private createRoutingCriteria(rc: string, value: string) {
-    if (value.length == 0) {
-      return;
-    }
-    let newRC = new RoutingCriteriaEntry(null, rc, value);
-    this.rows[this.rowNumber].routingCriterias.push(newRC);
-    this.createValueProperty(rc, newRC, this.rowNumber);
-  }
-
-  private updateSelectedPlugin(value: string) {
-    this.rows[this.rowNumber].backendName = value;
-  }
-
-  private updateSelectedProperty(prop: string, value: string) {
-    if ((this.rows[this.rowNumber][prop])) {
-      if (value.length == 0) {
-        // delete
-        this.deleteRoutingCriteria(prop);
-        this.rows[this.rowNumber][prop].expression = '';
-      } else {
-        // update
-        this.rows[this.rowNumber][prop].expression = value;
-      }
-    } else {
-      // create
-      this.createRoutingCriteria(prop, value);
-    }
-  }
-
-  private disableSelectionAndButtons() {
-    super.selected = [];
-    this.enableMoveDown = false;
-    this.enableMoveUp = false;
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableEdit = false;
-    this.enableDelete = false;
   }
 
   get csvUrl(): string {
@@ -276,9 +167,6 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   private deleteItems(items: any[]) {
     this.setDirty(true);
 
-    this.enableDelete = false;
-    this.enableEdit = false;
-
     this.enableMoveUp = false;
     this.enableMoveDown = false;
 
@@ -293,118 +181,61 @@ export class MessageFilterComponent extends mix(BaseListComponent)
     super.selected = [];
   }
 
-  private moveUpInternal(rowNumber) {
-    if (rowNumber < 1) {
-      return;
-    }
-    let array = this.rows.slice();
-    let move = array[rowNumber];
-    array[rowNumber] = array[rowNumber - 1];
-    array[rowNumber - 1] = move;
-
-    super.rows = array.slice();
-    super.count = this.rows.length;
-
-    this.rowNumber--;
-
-    if (rowNumber == 0) {
-      this.enableMoveUp = false;
-    }
-    this.enableMoveDown = true;
-
-    this.setDirty(true);
+  buttonMoveUp() {
+    this.moveAction(this.selected[0], -1);
   }
 
-  buttonMoveUpAction(row) {
+  moveAction(row, step: number = 1 | -1) {
     let rowIndex = this.rows.indexOf(row);
-    this.moveUpInternal(rowIndex);
+    this.moveInternal(rowIndex, step);
     setTimeout(() => {
       let rowIndex = this.rows.indexOf(row);
       document.getElementById('pluginRow' + (rowIndex) + '_id').click();
     }, 50);
   }
 
-  buttonMoveUp() {
-    this.buttonMoveUpAction(this.selected[0]);
-  }
-
-  private moveDownInternal(rowNumber) {
-    if (rowNumber > this.rows.length - 1) {
+  private moveInternal(rowNumber, step: number = -1 | 1) {
+    if ((step == -1 && rowNumber < 1) || (step == 1 && rowNumber > this.rows.length - 1)) {
       return;
     }
 
     let array = this.rows.slice();
     let move = array[rowNumber];
-    array[rowNumber] = array[rowNumber + 1];
-    array[rowNumber + 1] = move;
+    array[rowNumber] = array[rowNumber + step];
+    array[rowNumber + step] = move;
 
     super.rows = array.slice();
     super.count = this.rows.length;
-    this.rowNumber++;
+    this.rowNumber = this.rowNumber + step;
 
-    if (rowNumber == this.rows.length - 1) {
-      this.enableMoveDown = false;
-    }
-    this.enableMoveUp = true;
+    this.enableMoveUp = !(rowNumber == 0 && step == -1);
+    this.enableMoveDown = !(rowNumber == this.rows.length - 1 && step == 1);
 
     this.setDirty(true);
   }
 
-  buttonMoveDownAction(row) {
-    let rowIndex = this.rows.indexOf(row);
-    this.moveDownInternal(rowIndex);
-    setTimeout(() => {
-      let rowIndex = this.rows.indexOf(row);
-      let element = document.getElementById('pluginRow' + (rowIndex) + '_id');
-      element.click();
-    }, 50);
-  }
-
   buttonMoveDown() {
-    this.buttonMoveDownAction(this.selected[0]);
+    this.moveAction(this.selected[0], 1);
   }
 
   onSelect({selected}) {
-    if (!(selected) || selected.length == 0) {
-      // unselect
-      this.enableMoveDown = false;
-      this.enableMoveUp = false;
-      this.enableDelete = false;
-      this.enableEdit = false;
-
-      return;
-    }
-
-    // select
     this.rowNumber = this.rows.indexOf(this.selected[0]);
 
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
     this.enableMoveDown = selected.length == 1 && this.rowNumber < this.rows.length - 1;
     this.enableMoveUp = selected.length == 1 && this.rowNumber > 0;
-    this.enableDelete = selected.length > 0;
-    this.enableEdit = selected.length == 1;
   }
 
   isDirty(): boolean {
-    // return this.isChanged;
-    return this.enableCancel;
+    return this.isChanged;
   }
 
   setDirty(itemValue: boolean) {
     super.isChanged = this.isChanged || itemValue;
     this.enableSave = this.isChanged;
-    this.enableCancel = this.isChanged;
-  }
-
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.edit(event.row);
-    }
   }
 
   canCancel() {
-    return this.enableCancel;
+    return this.isDirty();
   }
 
   canSave() {
@@ -416,10 +247,33 @@ export class MessageFilterComponent extends mix(BaseListComponent)
   }
 
   canEdit() {
-    return this.enableEdit;
+    return this.selected.length === 1;
   }
 
   canDelete() {
-    return this.enableDelete;
+    return this.selected.length > 0;
+  }
+
+  private findRowLike(backendEntry: BackendFilterEntry): number {
+    for (let i = 0; i < this.rows.length; i++) {
+      let currentRow = this.rows[i];
+      if (currentRow.backendName === backendEntry.backendName && this.RoutingCriteriasAreEqual(backendEntry.routingCriterias, currentRow.routingCriterias)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private RoutingCriteriasAreEqual(criteriasA: RoutingCriteriaEntry[], criteriasB: RoutingCriteriaEntry[]): boolean {
+    let val1 = criteriasA.map(el => el.name + el.expression).join(',');
+    let val2 = criteriasB.map(el => el.name + el.expression).join(',');
+    return val1 == val2;
+  }
+
+  private disableSelectionAndButtons() {
+    super.selected = [];
+    this.enableMoveDown = false;
+    this.enableMoveUp = false;
+    this.enableSave = false;
   }
 }

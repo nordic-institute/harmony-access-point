@@ -162,7 +162,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 		log.info("check that username field is disabled");
-		soft.assertTrue(pum.getUserNameInput().isDisabled(), "Username is disabled");
+		soft.assertTrue(pum.getUserNameInput().isDisabled(), "Username is disabled.");
 
 		page.clickVoidSpace();
 
@@ -192,25 +192,32 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
 		pum.getOriginalUserInput().clear();
 
-		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty");
-		pum.getRolesSelect().selectOptionByIndex(0);
-
-
+		pum.getPasswordInput().click();
+		pum.getPasswordInput().pressTABKey();
 		errMess = pum.getPassErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 
+		pum.getConfirmationInput().click();
+		pum.getConfirmationInput().pressTABKey();
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 
-		pum.getPasswordInput().fill("tst");
-
+		pum.getPasswordInput().click();
+		pum.getPasswordInput().fill("test");
+		pum.getConfirmationInput().click();
 		errMess = pum.getPassErrMess().getText();
-		soft.assertTrue(errMess.contains(DMessages.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered");
+		soft.assertTrue(errMess.contains(DMessages.PASS_POLICY_MESSAGE), "Password policy clearly displayed when wrong pass is entered.");
 
+		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill(data.defaultPass());
+		pum.getPasswordInput().pressTABKey();
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
+		pum.getPasswordInput().click();
 		errMess = pum.getConfirmationErrMess().getText();
-		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
+		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match.");
+
+		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty.");
+		pum.getRolesSelect().selectOptionByIndex(0);
 
 		page.clickVoidSpace();
 

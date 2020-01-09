@@ -6,7 +6,7 @@ import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList, instanceOfSortableList} from './type.utils';
 import {PaginationType} from './ipageable-list';
-import {ErrorLogResult} from '../../errorlog/errorlogresult';
+import {ErrorLogResult} from '../../errorlog/support/errorlogresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
@@ -135,7 +135,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
 
   public onActivate(event) {
     if ('dblclick' === event.type) {
-      if(instanceOfModifiableList(this)) {
+      if (instanceOfModifiableList(this)) {
         this.edit(event.row);
       } else {
         this.showDetails(event.row);
@@ -144,6 +144,10 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public showDetails(row: T) {
+  }
+
+  isBusy(): boolean {
+    return this.isLoading;
   }
 
 };

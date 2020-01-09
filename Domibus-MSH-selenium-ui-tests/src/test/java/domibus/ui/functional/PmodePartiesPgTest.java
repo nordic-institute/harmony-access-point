@@ -59,7 +59,7 @@ public class PmodePartiesPgTest extends BaseTest {
         page.filters().getEndpointInput().fill(firstParty.get(endpoint));
         log.info("Enter party Id");
         page.filters().getPartyIDInput().fill(firstParty.get(partyID));
-        log.info("Click on serach button");
+        log.info("Click on search button");
         page.filters().getSearchButton().click();
         log.info("Wait for rows to load");
         page.grid().waitForRowsToLoad();
@@ -475,7 +475,7 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getEditButton().click();
         PartyModal pmPage = new PartyModal((driver));
         log.info("Validate Ok button is enabled");
-        soft.assertTrue(pmPage.getOkButton().isEnabled());
+        soft.assertTrue(pmPage.getOkBtn().isEnabled());
         log.info("Uncheck Initiator & Responder checkbox");
         pmPage.clickIRCheckboxes();
         log.info("Click on Save button");
@@ -532,7 +532,7 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getEditButton().click();
         PartyModal pmPage = new PartyModal((driver));
         log.info("Validate Ok button is enabled");
-        soft.assertTrue(pmPage.getOkButton().isEnabled());
+        soft.assertTrue(pmPage.getOkBtn().isEnabled());
         log.info("select checkbox for Initiator & Responder");
         pmPage.clickIRCheckboxes();
         log.info("Click on Save button");
@@ -704,7 +704,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Validate initiator checkbox status");
         soft.assertFalse(pmPage.getCheckboxStatus("Initiator"), "Initiator Checkbox is unchecked");
         soft.assertFalse(pmPage.getCheckboxStatus("Responder"), "Responder Checkbox is unchecked");
-        pmPage.refreshPage();
+        pPage.refreshPage();
         TestServicePage tPage = new TestServicePage(driver);
         log.info("Navigate to Test service page");
         page.getSidebar().goToPage(PAGES.TEST_SERVICE);
