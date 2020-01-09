@@ -18,7 +18,6 @@ export class ChangePasswordComponent implements OnInit {
   passwordConfirmation: string;
   public passwordPattern: string;
   public passwordValidationMessage: string;
-  // userForm: FormGroup;
 
   @ViewChild('userForm', {static: false})
   public userForm: NgForm;
@@ -28,14 +27,6 @@ export class ChangePasswordComponent implements OnInit {
 
     this.currentPassword = this.securityService.password;
     this.securityService.password = null;
-
-    // this.userForm = fb.group({
-    //   'currentPassword':  [null],
-    //   'password': [null],
-    //   'confirmation': [null]
-    // }, {
-    //   validator: userValidatorService.matchPassword
-    // });
   }
 
   async ngOnInit() {
