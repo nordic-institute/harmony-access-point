@@ -219,7 +219,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         Date now = new Date();
         Date previousFireTime = trigger.getPreviousFireTime();
         //checking triggers in error status or blocked for the duration of more than 5 minutes
-        if (triggerState.equals(Trigger.TriggerState.ERROR) || (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > TRIGGER_BLOCKED_DURATION))) {
+        if (triggerState.equals(Trigger.TriggerState.ERROR) ||
+                (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > TRIGGER_BLOCKED_DURATION))) {
             return true;
         }
         return false;
