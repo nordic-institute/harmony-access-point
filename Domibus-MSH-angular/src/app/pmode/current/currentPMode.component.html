@@ -1,37 +1,36 @@
 ﻿<page-header id="pmodeheader_id" style="margin: 0px;">PMode - Current</page-header>
 <div class="selectionCriteria">
   <mat-card>
+
     <mat-card-content>
       <div class="textarea" *ngIf="pModeExists">
-            <textarea id="pmodetextarea_id" class="textarea" style="resize: none"
-                      [(ngModel)]="pModeContents" (change)="textChanged()" (input)="textChanged()"></textarea>
+            <textarea id="pmodetextarea_id" [(ngModel)]="pModeContents" (change)="textChanged()" (input)="textChanged()"
+                      class="textarea" style="resize: none"></textarea>
       </div>
       <div class="pModeInfo" *ngIf="!pModeExists">
         <span>No PMode uploaded yet</span>
       </div>
-      <table class="group-action-button">
-        <tr>
-          <td>
-            <button mat-raised-button color="primary" (click)="cancel()" [disabled]="!canCancel()" button-click-behaviour>
-              <mat-icon>cancel</mat-icon>
-              <span>Cancel</span>
-            </button>
-            <button mat-raised-button color="primary" (click)="save()" [disabled]="!canSave()" button-click-behaviour>
-              <mat-icon>save</mat-icon>
-              <span>Save</span>
-            </button>
 
-            <button mat-raised-button color="primary" (click)="upload()" [disabled]="!canUpload()" button-click-behaviour>
-              <mat-icon>file_upload</mat-icon>
-              <span>Upload</span>
-            </button>
-            <button mat-raised-button color="primary" (click)="download(current)" [disabled]="!canDownload()" button-click-behaviour>
-              <mat-icon>file_download</mat-icon>
-              <span>Download</span>
-            </button>
-          </td>
-        </tr>
-      </table>
+      <div class="group-action-button">
+        <button mat-raised-button id="cancelButtonId" color="primary" (click)="cancel()" [disabled]="!canCancel()" button-click-behaviour>
+          <mat-icon>cancel</mat-icon>
+          <span>Cancel</span>
+        </button>
+        <button mat-raised-button id="saveButtonId" color="primary" (click)="save()" [disabled]="!canSave()" button-click-behaviour>
+          <mat-icon>save</mat-icon>
+          <span>Save</span>
+        </button>
+
+        <button mat-raised-button id="uploadButtonId" color="primary" (click)="upload()" [disabled]="!canUpload()" button-click-behaviour>
+          <mat-icon>file_upload</mat-icon>
+          <span>Upload</span>
+        </button>
+        <button mat-raised-button id="downloadButtonId" color="primary" (click)="download(current)" [disabled]="!canDownload()" button-click-behaviour>
+          <mat-icon>file_download</mat-icon>
+          <span>Download</span>
+        </button>
+      </div>
+
     </mat-card-content>
   </mat-card>
 

@@ -47,14 +47,14 @@ public class UserModal extends EditModal {
 	@FindBy(css = "edituser-form form #active_id")
 	WebElement activeChk;
 
-	@FindBy(css = "edituser-form form #username_id + div")
+	@FindBy(css = "edituser-form form #username_id + span")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form form #email_id + div")
+	@FindBy(css = "edituser-form form #email_id + span")
 	private WebElement emailErrMess;
 
-	@FindBy(css = "edituser-form form #password_id + div")
+	@FindBy(css = "edituser-form form #password_id + span")
 	private WebElement passErrMess;
-	@FindBy(css = "edituser-form form #confirmation_id + div")
+	@FindBy(css = "edituser-form form #confirmation_id + span")
 	private WebElement confirmationErrMess;
 
 

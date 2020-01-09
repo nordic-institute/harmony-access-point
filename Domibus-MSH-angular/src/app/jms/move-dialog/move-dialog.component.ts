@@ -6,16 +6,13 @@ import {MatDialogRef} from "@angular/material";
   templateUrl: './move-dialog.component.html',
   styleUrls: ['./move-dialog.component.css']
 })
-export class MoveDialogComponent implements OnInit {
+export class MoveDialogComponent {
 
   selectedSource: any;
   destinationsChoiceDisabled: boolean = false;
   queues: any[] = [];
 
   constructor(public dialogRef: MatDialogRef<MoveDialogComponent>) {
-  }
-
-  ngOnInit() {
   }
 
   canOk(): boolean {

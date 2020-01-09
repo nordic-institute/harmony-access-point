@@ -197,7 +197,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 
 		log.info("Validation message for mismatch under confirmation field ");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.confirmationFieldLabel), "Message is displayed");
-		soft.assertEquals(cpage.getValidationMsg(cpage.confirmationFieldLabel), DMessages.PASS_NO_MATCH_MESSAGE, "Passwords do not match is displayed");
+		soft.assertEquals(cpage.getValidationMsg(cpage.confirmationFieldLabel), DMessages.PASS_NO_MATCH_MESSAGE, "Passwords do not match is displayed.");
 
 		soft.assertAll();
 	}

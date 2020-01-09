@@ -1,12 +1,13 @@
-import {RoutingCriteriaEntry} from "./routingcriteriaentry";
-
+import {RoutingCriteriaEntry} from './routingcriteriaentry';
 
 export class BackendFilterEntry {
+
+  public static routingCriteriaNames = ['from', 'to', 'action', 'service'];
 
   from: RoutingCriteriaEntry;
   to: RoutingCriteriaEntry;
   action: RoutingCriteriaEntry;
-  service: RoutingCriteriaEntry ;
+  service: RoutingCriteriaEntry;
 
   public constructor(public entityId: number,
                      public index: number,
@@ -17,11 +18,15 @@ export class BackendFilterEntry {
   }
 
   public initRoutingCriteria() {
-    this.from = this.getRoutingCriteria("from");
-    this.to = this.getRoutingCriteria("to");
-    this.action = this.getRoutingCriteria("action");
-    this.service = this.getRoutingCriteria("service");
+    this.from = this.getRoutingCriteria('from');
+    this.to = this.getRoutingCriteria('to');
+    this.action = this.getRoutingCriteria('action');
+    this.service = this.getRoutingCriteria('service');
   }
+
+  // public fromPropertiesToArray() {
+  //   this.routingCriterias = BackendFilterEntry.routingCriteriaNames.map(name => this[name]);
+  // }
 
   public getRoutingCriteria(property: string): RoutingCriteriaEntry {
     for (let i = 0; i < this.routingCriterias.length; i++) {

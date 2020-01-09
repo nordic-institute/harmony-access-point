@@ -1,4 +1,4 @@
-import {Domain} from '../security/domain';
+import {Domain} from '../../security/domain';
 
 export enum UserState {
   PERSISTED,

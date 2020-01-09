@@ -1,13 +1,13 @@
-import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {UserValidatorService} from '../uservalidator.service';
+import {UserValidatorService} from '../support/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
-import {UserService} from '../user.service';
+import {UserService} from '../support/user.service';
 import {DomainService} from '../../security/domain.service';
-import {UserState} from '../user';
+import {UserResponseRO, UserState} from '../support/user';
+import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
-const ROLE_AP_ADMIN = SecurityService.ROLE_AP_ADMIN;
 const NEW_MODE = 'New User';
 const EDIT_MODE = 'User Edit';
 
@@ -17,134 +17,96 @@ const EDIT_MODE = 'User Edit';
 })
 
 export class EditUserComponent implements OnInit {
-
+  user: UserResponseRO;
   existingRoles = [];
   existingDomains = [];
-
-  password: any;
-  confirmation: any;
-  userName = '';
-  email = '';
-  active = true;
-  role: string;
-  domain: string;
-
+  currentDomain: string;
+  confirmation: string;
   public emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}';
   public passwordPattern: string;
   public passwordValidationMessage: string;
-
-  editMode: boolean;
-  canChangePassword: boolean;
   isDomainVisible: boolean;
-
-  formTitle: string = EDIT_MODE;
-
+  formTitle: string;
   userForm: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<EditUserComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              fb: FormBuilder,
-              userValidatorService: UserValidatorService,
-              private userService: UserService,
-              private securityService: SecurityService,
-              private cdr: ChangeDetectorRef,
-              private domainService: DomainService) {
-
+  constructor(public dialogRef: MatDialogRef<EditUserComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private fb: FormBuilder, private userValidatorService: UserValidatorService,
+              private userService: UserService, private securityService: SecurityService, private domainService: DomainService) {
     this.existingRoles = data.userroles;
     this.existingDomains = data.userdomains;
-
-    this.editMode = data.edit;
-    this.userName = data.user.userName;
-    this.email = data.user.email;
-    this.domain = data.user.domain;
-    this.role = data.user.roles;
-    this.password = data.user.password;
+    this.user = data.user;
     this.confirmation = data.user.password;
-    this.active = data.user.active;
-
-    this.canChangePassword = securityService.isCurrentUserSuperAdmin()
-      || (securityService.isCurrentUserAdmin() && this.isCurrentUser());
-
-    const userStatus = data.user.status;
-
-    if (this.editMode) {
-      this.existingRoles = this.getAllowedRoles(data.userroles, this.role);
-
-      this.userForm = fb.group({
-        'userName': new FormControl({value: this.userName, disabled: userStatus != UserState[UserState.NEW]}, Validators.nullValidator),
-        'email': [null, Validators.pattern],
-        'role': new FormControl(this.role, Validators.required),
-        'domain': this.isDomainVisible ? new FormControl({value: this.domain}, Validators.required) : null,
-        'password': [null, Validators.pattern],
-        'confirmation': [null],
-        'active': new FormControl({value: this.active, disabled: this.isCurrentUser()}, Validators.required)
-      }, {
-        validator: userValidatorService.validateForm()
-      });
-    } else {
-      this.formTitle = NEW_MODE;
-      this.userForm = fb.group({
-        'userName': new FormControl(this.userName, Validators.required),
-        'email': [null, Validators.pattern],
-        'role': new FormControl(this.role, Validators.required),
-        'domain': this.isDomainVisible ? new FormControl({value: this.domain}, [Validators.required]) : null,
-        'password': [Validators.required, Validators.pattern],
-        'confirmation': [Validators.required],
-        'active': [Validators.required]
-      }, {
-        validator: userValidatorService.validateForm()
-      });
-    }
   }
 
   async ngOnInit() {
+    await this.additionalSetUp();
+    this.buildFormControls();
+
+    this.userForm.valueChanges.subscribe((changes) => {
+      this.updateModel(changes);
+    })
+  }
+
+  private updateModel(changes) {
+    delete changes.confirmation;
+    Object.assign(this.user, changes);
+  }
+
+  private buildFormControls() {
+    this.userForm = this.fb.group({
+      'userName': new FormControl({
+        value: this.user.userName,
+        disabled: !this.isNewUser()
+      }, [Validators.required, Validators.maxLength(255)]),
+      'email': new FormControl(this.user.email, [Validators.pattern(this.emailPattern), Validators.maxLength(255)]),
+      'roles': new FormControl(this.user.roles, Validators.required),
+      'domain': new FormControl({value: this.user.domain, disabled: this.isDomainDisabled()}, Validators.required),
+      //todo: put pass and confirm into a sub-group to validate separately
+      'password': new FormControl(this.user.password, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
+      'confirmation': new FormControl(this.confirmation, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
+      'active': new FormControl({value: this.user.active, disabled: this.isCurrentUser()}, Validators.required)
+    }, {
+      validator: [this.userValidatorService.passwordShouldMatch(), this.userValidatorService.defaultDomain()]
+    });
+  }
+
+  private isNewUser() {
+    return this.user.status === UserState[UserState.NEW];
+  }
+
+  private async additionalSetUp() {
+    this.domainService.getCurrentDomain().subscribe((dom) => {
+      this.currentDomain = dom.code;
+    });
     this.isDomainVisible = await this.userService.isDomainVisible();
 
     const passwordPolicy = await this.securityService.getPasswordPolicy();
     this.passwordPattern = passwordPolicy.pattern;
     this.passwordValidationMessage = passwordPolicy.validationMessage;
-  }
 
-  updateUserName(event) {
-    this.userName = event.target.value;
-  }
+    if (!this.isNewUser()) {
+      this.existingRoles = this.getAllowedRoles(this.existingRoles, this.user.roles);
+    }
 
-  updateEmail(event) {
-    this.email = event.target.value;
-  }
-
-  updatePassword(event) {
-    this.password = event.target.value;
-  }
-
-  updateConfirmation(event) {
-    this.confirmation = event.target.value;
-  }
-
-  submitForm() {
-    this.dialogRef.close(true);
+    this.formTitle = this.isNewUser() ? NEW_MODE : EDIT_MODE;
   }
 
   isCurrentUser(): boolean {
     let currentUser = this.securityService.getCurrentUser();
-    return currentUser && currentUser.username === this.userName;
-  }
-
-  isSuperAdmin() {
-    return this.role === SecurityService.ROLE_AP_ADMIN;
+    return currentUser && currentUser.username === this.user.userName;
   }
 
   isDomainDisabled() {
     // if the edited user is not super-user
-    return !this.isSuperAdmin();
+    return this.user.roles !== SecurityService.ROLE_AP_ADMIN;
   }
 
-  onRoleChange() {
-    if (this.role !== SecurityService.ROLE_AP_ADMIN) {
-      this.domainService.getCurrentDomain() //.delay(0)
-        .subscribe((dom) => {
-          this.domain = dom.code;
-        });
+  onRoleChange($event) {
+    if ($event.value === SecurityService.ROLE_AP_ADMIN) {
+      this.userForm.get('domain').enable();
+    } else {
+      this.userForm.get('domain').disable();
+      this.userForm.patchValue({domain: this.currentDomain});
     }
   }
 
@@ -157,4 +119,18 @@ export class EditUserComponent implements OnInit {
     }
   }
 
+  submitForm() {
+    if (this.userForm.valid) {
+      this.dialogRef.close(true);
+    }
+  }
+
+  shouldShowErrorsForFieldNamed(fieldName: string): boolean {
+    let field = this.userForm.get(fieldName);
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  isFormDisabled() {
+    return this.userForm.invalid || !this.userForm.dirty;
+  }
 }

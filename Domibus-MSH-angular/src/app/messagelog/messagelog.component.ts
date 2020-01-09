@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {MessageLogResult} from './messagelogresult';
+import {MessageLogResult} from './support/messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
