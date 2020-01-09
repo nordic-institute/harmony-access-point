@@ -310,10 +310,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     /**
      * Returns the metadata for a given propertyName,
      * by interrogating all property managers known to Domibus in order to find it.
-     * If not found, it assumes it is a domain property and it creates the corresponding metadata on-the-fly.
+     * If not found, it assumes it is a global property and it creates the corresponding metadata on-the-fly.
      *
      * @param propertyName
-     * @return
+     * @return DomibusPropertyMetadata
      */
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         initializeIfNeeded(propertyName);
@@ -324,10 +324,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             return prop;
         }
 
-        // try to see if it is a composable property, i.e. propertyName+suffix
+        // try to see if it is a compose-able property, i.e. propertyName+suffix
         Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
-            LOGGER.trace("Found composable property [{}], returning its metadata.", propertyName);
+            LOGGER.trace("Found compose-able property [{}], returning its metadata.", propertyName);
             return propMeta.get();
         }
 

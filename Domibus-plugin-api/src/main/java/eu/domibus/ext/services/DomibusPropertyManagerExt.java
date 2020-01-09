@@ -4,7 +4,8 @@ package eu.domibus.ext.services;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * The interface implemented by the plugins and Domibus delegate class to handle getting and setting of domibus properties at runtime
+ * The interface implemented by the plugins, external modules(DSS), specific server managers and domibus delegate class
+ * to handle exposing all conf property metadata and getting and setting them at runtime
  */
 public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManagerExt {
 

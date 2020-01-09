@@ -4,7 +4,7 @@ package eu.domibus.api.property;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * The interface implemented by MSH and the plugins to handle getting and setting of domibus properties at runtime
+ * The interface implemented by MSH to expose all property metadata and handle getting and setting them at runtime
  */
 public interface DomibusPropertyManager extends DomibusPropertyMetadataManager {
 
