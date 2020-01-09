@@ -168,14 +168,12 @@ public class JmsResourceTest {
     }
 
     @Test
-    public void testGetCsv() {
+    public void testGetCsv(@Injectable JmsMessage jmsMessage) {
         // Given
         String source = "source";
         String jmsType = null;
         String selector = "selector";
-        JmsMessage jmsMessage = new JmsMessage();
-        jmsMessage.setId("id");
-        List<JmsMessage> jmsMessageList = Arrays.asList(jmsMessage);
+        List<JmsMessage> jmsMessageList = new ArrayList<>();
         String mockCsvResult = "csv";
 
         new Expectations(jmsResource) {{

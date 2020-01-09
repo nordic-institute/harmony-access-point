@@ -382,23 +382,28 @@ public class DynamicDiscoveryServiceOASISTest {
 
     @Test
     public void getPartyIdTypeTest() {
-
+        final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
         new Expectations() {{
             domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
+            result = "";
             times = 1;
         }};
-        dynamicDiscoveryServiceOASIS.getPartyIdType();
+        String partyIdType = dynamicDiscoveryServiceOASIS.getPartyIdType();
+        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
     }
 
     @Test
     public void getResponderRoleTest() {
-
+        final String DEFAULT_RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
 
         new Expectations() {{
             domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE);
+            result = "";
             times = 1;
         }};
-        dynamicDiscoveryServiceOASIS.getResponderRole();
+        String responderRole = dynamicDiscoveryServiceOASIS.getResponderRole();
+
+        Assert.assertEquals(responderRole, DEFAULT_RESPONDER_ROLE);
     }
 }
 

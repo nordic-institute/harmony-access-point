@@ -9,6 +9,7 @@ import eu.domibus.ebms3.common.model.*;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * @author Tiago Miguel
@@ -125,16 +127,19 @@ public class MessageResourceTest {
 
     @Test
     public void testReSend() {
-        String messageId = "messageId";
-        new Expectations() {
-            {
-                userMessageService.resendFailedOrSendEnqueuedMessage(messageId);
-                times = 1;
-                auditService.addMessageResentAudit(messageId);
-                times = 1;
-            }
-        };
+        String messageId = UUID.randomUUID().toString();
         messageResource.resend(messageId);
+        new Verifications() {{
+            final String messageIdActual;
+            final String messageIdActual1;
+            userMessageService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
+            times = 1;
+            Assert.assertEquals(messageId, messageIdActual);
+
+            auditService.addMessageResentAudit(messageIdActual1 = withCapture());
+            Assert.assertEquals(messageId, messageIdActual1);
+            times = 1;
+        }};
     }
 
 }
