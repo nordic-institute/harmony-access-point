@@ -44,6 +44,11 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      */
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzStarter.class);
 
+    /**
+     * Used to check if any Quartz Triggers are blocked for more than 5 minutes.
+     */
+    private static final long TRIGGER_BLOCKED_DURATION = 5 * 60 * 1000;
+
     @Autowired
     protected DomibusSchedulerFactory domibusSchedulerFactory;
 
@@ -56,10 +61,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
-    /**
-     * Used to check if any Quartz Triggers are blocked for more than 5 minutes.
-     */
-    private long TRIGGER_BLOCKED_DURATION = 5 * 60 * 1000;
 
     @PostConstruct
     public void initQuartzSchedulers() {
