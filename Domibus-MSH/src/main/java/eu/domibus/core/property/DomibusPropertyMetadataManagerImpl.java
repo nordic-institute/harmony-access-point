@@ -347,7 +347,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
      * later on, the properties from all managers will be added to the map.
      */
     protected void initializeIfNeeded(String propertyName) {
-        // add domibus-core properties directly first, to avoid infinite loop of bean creation (due to DB properties)
+        // add domibus-core and specific server  properties first, to avoid infinite loop of bean creation (due to DB properties)
         if (propertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
                 if (!internalPropertiesLoaded) { // double-check locking
@@ -355,11 +355,6 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
                     propertyMetadataMap = new HashMap<>();
                     loadInternalProperties();
-
-//                    propertyMetadataMap = new HashMap<>(this.getKnownProperties());
-//                    if (serverPropertyManager != null) {
-//                        loadInternalProperties(serverPropertyManager);
-//                    }
 
                     internalPropertiesLoaded = true;
                 }
@@ -383,7 +378,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     }
 
     protected void loadInternalProperties() {
+        // core/msh/common own properties
         loadProperties(this);
+        // server specific properties
         loadProperties(serverPropertyManager);
     }
 
@@ -395,7 +392,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     }
 
     protected void loadExternalProperties() {
-        // we retrieve here all managers: one for each plugin/extension + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+        // we retrieve here all managers: one for each plugin and extension
+        // We get also domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt) which is already loaded
         Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
         propertyManagers.values().forEach(this::loadExternalProperties);
     }
