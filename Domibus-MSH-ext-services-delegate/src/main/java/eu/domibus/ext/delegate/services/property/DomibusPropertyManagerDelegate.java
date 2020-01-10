@@ -18,7 +18,7 @@ import java.util.Map;
  * Delegate/adapter class that wraps the DomibusPropertyManager and exposes the DomibusPropertyManagerExt
  * Injected in ConfigurationPropertyServiceImpl to handle in a polymorphic way plugin and domibus property management
  */
-@Service
+@Service("mshDelegate")
 public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt {
 
     @Autowired

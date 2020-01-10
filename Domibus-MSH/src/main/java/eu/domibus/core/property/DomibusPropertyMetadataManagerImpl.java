@@ -378,7 +378,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     }
 
     protected void loadInternalProperties() {
-        // core/msh/common own properties
+        // core/msh/common 'own' properties
         loadProperties(this);
         // server specific properties
         loadProperties(serverPropertyManager);
@@ -393,17 +393,14 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     protected void loadExternalProperties() {
         // we retrieve here all managers: one for each plugin and extension
-        // We get also domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt) which is already loaded
         Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
+        // We get also domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt) which is already loaded so we remove it first
+        propertyManagers.remove("mshDelegate");
         propertyManagers.values().forEach(this::loadExternalProperties);
     }
 
     protected void loadExternalProperties(DomibusPropertyManagerExt propertyManager) {
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
-            //avoid adding the properties of domibus property manager (added already at the beginning of the load)
-            if (propertyMetadataMap.containsKey(entry.getKey())) {
-                return;
-            }
             DomibusPropertyMetadataDTO extProp = entry.getValue();
             DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
                     extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
