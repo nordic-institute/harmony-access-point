@@ -15,7 +15,7 @@ import java.util.Map;
  * @since 4.1.1
  * <p>
  * Delegate/adapter class that wraps the DomibusPropertyManager and exposes the DomibusPropertyManagerExt
- * Injected in DomibusPropertyService to handle in a polymorphic way plugin and domibus property management
+ * Injected in ConfigurationPropertyServiceImpl to handle in a polymorphic way plugin and domibus property management
  */
 @Service
 public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt {

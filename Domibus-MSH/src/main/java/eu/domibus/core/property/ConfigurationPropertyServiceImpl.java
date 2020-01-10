@@ -43,7 +43,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomibusConfigurationService domibusConfigurationService;
 
     /**
-     * We inject here all managers: one for each plugin + domibus property manager delegate( which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+     * We inject here all property managers: one for each plugin, external module, specific server
+     * and domibus property manager delegate( which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
      */
     @Autowired
     private List<DomibusPropertyManagerExt> propertyManagers;

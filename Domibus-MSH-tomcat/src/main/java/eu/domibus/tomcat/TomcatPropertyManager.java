@@ -1,15 +1,14 @@
 package eu.domibus.tomcat;
 
-import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.api.property.DomibusPropertyManager;
+import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyServiceDelegateAbstract;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Ion Perpegel
@@ -18,9 +17,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Property manager for the Tomcat servers specific properties.
  */
 @Service("serverPropertyManager")
-public class TomcatPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
+public class TomcatPropertyManager extends DomibusPropertyServiceDelegateAbstract
+        implements DomibusPropertyManager {
 
-    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new String[]{
+    private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
             DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME,
             DOMIBUS_DATASOURCE_XA_MAX_LIFETIME,
             DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE,
@@ -51,12 +51,11 @@ public class TomcatPropertyManager extends DomibusPropertyExtServiceDelegateAbst
             ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT, //move the usage from xml ?
 
     })
-            .map(name -> DomibusPropertyMetadataDTO.getReadOnlyGlobalProperty(name, Module.TOMCAT))
+            .map(name -> DomibusPropertyMetadata.getReadOnlyGlobalProperty(name, Module.TOMCAT))
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
-    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
         return knownProperties;
     }
-
 }

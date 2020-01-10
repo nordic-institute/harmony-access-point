@@ -36,6 +36,14 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
     }
 
     @Override
+    public String getKnownPropertyValue(String domainCode, String propertyName){
+        checkPropertyExists(propertyName);
+
+        final Domain domain = domainService.getDomain(domainCode);
+        return domibusPropertyProvider.getProperty(domain, propertyName);
+    }
+
+    @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         checkPropertyExists(propertyName);
 
@@ -46,8 +54,17 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
     @Override
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
         checkPropertyExists(propertyName);
+
         Domain currentDomain = domainContextService.getCurrentDomainSafely();
         domibusPropertyProvider.setPropertyValue(currentDomain, propertyName, propertyValue);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        checkPropertyExists(propertyName);
+
+        final Domain domain = domainService.getDomain(domainCode);
+        domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
     }
 
     @Override
