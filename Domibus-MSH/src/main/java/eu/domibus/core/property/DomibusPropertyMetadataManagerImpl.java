@@ -9,7 +9,6 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +24,6 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     @Autowired
     ApplicationContext applicationContext;
-
-    @Autowired(required = false)
-    @Qualifier("serverPropertyManager")
-    DomibusPropertyManager serverPropertyManager;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
     private volatile boolean internalPropertiesLoaded = false;
@@ -378,10 +373,18 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     }
 
     protected void loadInternalProperties() {
-        // core/msh/common 'own' properties
+        // load manually core/msh/common 'own' properties to avoid  infinite loop
         loadProperties(this);
-        // server specific properties
-        loadProperties(serverPropertyManager);
+
+        // server specific properties (and maybe others in the future)
+        String[] propertyManagerNames = applicationContext.getBeanNamesForType(DomibusPropertyManager.class);
+        Arrays.asList(propertyManagerNames).stream()
+                //exclude me/this one
+                .filter(el -> !el.equals("mshPropertyManager"))
+                .forEach(managerName -> {
+                    DomibusPropertyManager propertyManager = applicationContext.getBean(managerName, DomibusPropertyManager.class);
+                    loadProperties(propertyManager);
+                });
     }
 
     protected void loadProperties(DomibusPropertyMetadataManager propertyManager) {
