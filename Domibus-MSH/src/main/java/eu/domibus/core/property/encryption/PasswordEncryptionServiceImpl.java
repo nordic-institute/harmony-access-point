@@ -71,6 +71,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void encryptPasswords() {
         LOG.debug("Encrypting passwords");
