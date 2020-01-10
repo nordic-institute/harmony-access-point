@@ -290,7 +290,6 @@ public class AuthenticationResourceTest {
         Assert.assertNotNull(userNameActual);
     }
 
-
     @Test
     public void testHandleAccountStatusException(final @Mocked AccountStatusException ex) {
         new Expectations(authenticationResource) {{
@@ -299,6 +298,10 @@ public class AuthenticationResourceTest {
         }};
         //tested method
         authenticationResource.handleAccountStatusException(ex);
+        new FullVerifications() {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            times = 1;
+        }};
     }
 
     @Test
@@ -309,5 +312,9 @@ public class AuthenticationResourceTest {
         }};
         //tested method
         authenticationResource.handleAuthenticationException(ex);
+        new FullVerifications() {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            times = 1;
+        }};
     }
 }
