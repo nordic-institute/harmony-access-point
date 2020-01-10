@@ -21,9 +21,7 @@ public class SecurityBaseConfiguration {
 
     @Bean
     public CsrfTokenRepository tokenRepository(){
-        CookieCsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
-        csrfTokenRepository.setCookieHttpOnly(false);
-        return csrfTokenRepository;
+        return new CookieCsrfTokenRepository();
     }
 
     @Bean
