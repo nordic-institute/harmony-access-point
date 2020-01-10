@@ -6,6 +6,7 @@ import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt {
 
     @Autowired
+    @Qualifier("mshPropertyManager")
     private DomibusPropertyManager domibusPropertyManager;
 
     @Autowired

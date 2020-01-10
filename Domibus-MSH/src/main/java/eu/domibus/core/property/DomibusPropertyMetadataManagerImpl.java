@@ -387,9 +387,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     protected void loadInternalProperties(DomibusPropertyManager propertyManager) {
         for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
-            // todo: revisit 'cause might not this check;
+            //avoid adding the properties of domibus property manager (added already at the beginning of the load)
             if (propertyMetadataMap.containsKey(entry.getKey())) {
-                //avoid adding the properties of domibus property manager (added already at the beginning of the load)
                 return;
             }
             DomibusPropertyMetadata prop = entry.getValue();
@@ -405,8 +404,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     protected void loadExternalProperties(DomibusPropertyManagerExt propertyManager) {
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
+            //avoid adding the properties of domibus property manager (added already at the beginning of the load)
             if (propertyMetadataMap.containsKey(entry.getKey())) {
-                //avoid adding the properties of domibus property manager (added already at the beginning of the load)
                 return;
             }
             DomibusPropertyMetadataDTO extProp = entry.getValue();
