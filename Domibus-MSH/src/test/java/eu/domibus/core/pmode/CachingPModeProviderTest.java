@@ -220,6 +220,7 @@ public class CachingPModeProviderTest {
         }};
 
         Collection<PartyId> partyIdCollection = new ArrayList<>();
+        //TODO Use Mocking instead of real Instances
         PartyId partyId1 = new PartyId();
         partyId1.setValue("EmptyTestParty");
         partyId1.setType("ABC><123");
@@ -255,7 +256,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getRoles();
             result = configuration.getBusinessProcesses().getRoles();
         }};
-
+        //TODO Use Mocking instead of real Instances
         Role expectedRole = new Role();
         expectedRole.setName("defaultInitiatorRole");
         expectedRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
@@ -575,23 +576,14 @@ public class CachingPModeProviderTest {
         new Expectations() {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
             result = configuration.getBusinessProcesses().getProcesses();
-
-//            cachingPModeProvider.getProcessFromService(Ebms3Constants.TEST_SERVICE);
-//            result = getTestProcess(configuration.getBusinessProcesses().getProcesses());
-
         }};
 
         try {
-            String legName = cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc");
+            cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc");
         } catch (EbMS3Exception exc) {
             Assert.assertTrue(ErrorCode.EbMS3ErrorCode.EBMS_0001.equals(exc.getErrorCode()));
-//            , "No Candidates for Legs found"
             throw exc;
-
         }
-
-
-//        Assert.assertEquals("expectedlegname", legName);
     }
 
     @Test
@@ -632,7 +624,6 @@ public class CachingPModeProviderTest {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
         }
-
         // exception should have been raised
         Assert.assertFalse(true);
     }
