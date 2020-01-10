@@ -792,18 +792,12 @@ public class CachingPModeProviderTest {
     }
 
     @Test(expected = EbMS3Exception.class)
-    public void testfindLegNameEmptyCandidate() throws EbMS3Exception {
-        List<LegConfiguration> candidates = new ArrayList<>();
-        Process process = PojoInstaciatorUtil.instanciate(Process.class, "responderParties{[name:red_gw];[name:blue_gw]}");
-        ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("red_gw", "blue_gw");
-        final Set<Party> senderParty = new HashSet<>(configuration.getBusinessProcesses().getParties());
-        final Set<Party> receiverParty = new HashSet<>(configuration.getBusinessProcesses().getParties());
-        final Party red_gw = new Party();
-        red_gw.setName("red_gw");
-        final Party blue_gw = new Party();
-        red_gw.setName("blue_gw");
-        senderParty.add(red_gw);
-        receiverParty.add(blue_gw);
+    public void testfindLegNameEmptyCandidate(@Injectable Party party,
+                                              @Injectable Party responder,
+                                              @Injectable Process process,
+                                              @Injectable ProcessTypePartyExtractor processTypePartyExtractor) throws EbMS3Exception {
+        String senderParty = "red_gw";
+        String receiverParty = "blue_gw";
         new Expectations() {
             {
                 cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
@@ -811,67 +805,78 @@ public class CachingPModeProviderTest {
                 processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), "red_gw", "blue_gw");
                 result = processTypePartyExtractor;
                 process.getInitiatorParties();
+                result = party;
+                party.getName();
+                result = senderParty;
+                processTypePartyExtractor.getSenderParty();
                 result = senderParty;
                 process.getResponderParties();
+                result = responder;
+                responder.getName();
+                result = receiverParty;
+                processTypePartyExtractor.getReceiverParty();
                 result = receiverParty;
             }
         };
         Assert.assertNull(cachingPModeProvider.findLegName("agreementName", "red_gw", "blue_gw", "service", "action"));
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+    @Test
+    public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getActions();
             result = configuration.getBusinessProcesses().getActions();
         }};
-
-        cachingPModeProvider.findActionName("action");
+        try {
+            cachingPModeProvider.findActionName("action");
+        } catch (EbMS3Exception ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0002);
+        }
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void testfindMpc() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+    @Test
+    public void testfindMpc() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getMpcs();
             result = configuration.getMpcs();
         }};
-
-        cachingPModeProvider.findMpc("no_mpc");
-
-        // exception is expected before this line
-        Assert.assertFalse(true);
+        try {
+            cachingPModeProvider.findMpc("no_mpc");
+        } catch (EbMS3Exception ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+        }
     }
 
-    @Test(expected = EbMS3Exception.class)
+    @Test
     public void testfindServiceName(@Mocked eu.domibus.ebms3.common.model.Service service) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getServices();
             result = configuration.getBusinessProcesses().getServices();
         }};
-
-        cachingPModeProvider.findServiceName(service);
-
-        // exception is expected before this line
-        Assert.assertFalse(true);
+        try {
+            cachingPModeProvider.findServiceName(service);
+        } catch (EbMS3Exception ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+        }
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void testfindAgreement() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+    @Test
+    public void testfindAgreement(@Injectable AgreementRef agreementRef) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
+            agreementRef.getValue();
+            result = "test";
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getAgreements();
             result = configuration.getBusinessProcesses().getAgreements();
         }};
-
-        cachingPModeProvider.findAgreement(new AgreementRef() {{
-            setValue("test");
-        }});
-
-        // exception is expected before this line
-        Assert.assertFalse(true);
+        try {
+            cachingPModeProvider.findAgreement(agreementRef);
+        } catch (EbMS3Exception ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+        }
     }
 
     @Test
@@ -881,18 +886,25 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getParties();
             result = configuration.getBusinessProcesses().getParties();
         }};
-        cachingPModeProvider.getPartyByIdentifier("test");
+        Assert.assertNull(cachingPModeProvider.getPartyByIdentifier("test"));
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testGetSenderParty() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        String partyKey = "red_gw";
+        String pModeKey = "test";
         new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getSenderPartyNameFromPModeKey(pModeKey);
+            result = partyKey;
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getParties();
             result = configuration.getBusinessProcesses().getParties();
         }};
-        cachingPModeProvider.getSenderParty("test");
-
+        try {
+            cachingPModeProvider.getSenderParty("test");
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "no matching sender party found with name:" + partyKey);
+        }
     }
 
     @Test
@@ -901,16 +913,19 @@ public class CachingPModeProviderTest {
         String partyKey = "red_gw";
         String pModeKey = "test";
         new Expectations() {{
-
             cachingPModeProvider.getReceiverPartyNameFromPModeKey(pModeKey);
             result = partyKey;
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getParties();
             result = configuration.getBusinessProcesses().getParties();
         }};
-        cachingPModeProvider.getReceiverParty(pModeKey);
+        try {
+            cachingPModeProvider.getReceiverParty(pModeKey);
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "no matching receiver party found with name" + partyKey);
+        }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testGetService(@Mocked PModeProvider pModeProvider, @Mocked MessageExchangeConfiguration messageExchangeConfiguration) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         String serviceKey = "service";
@@ -921,10 +936,14 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getServices();
             result = configuration.getBusinessProcesses().getServices();
         }};
-        cachingPModeProvider.getService(pModeKey);
+        try {
+            cachingPModeProvider.getService(pModeKey);
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "no matching service found with name: " + serviceKey);
+        }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testGetAction(@Mocked PModeProvider pModeProvider, @Mocked MessageExchangeConfiguration messageExchangeConfiguration) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         String actionKey = "actionKey";
@@ -935,10 +954,14 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getActions();
             result = configuration.getBusinessProcesses().getActions();
         }};
-        cachingPModeProvider.getAction(pModeKey);
+        try {
+            cachingPModeProvider.getAction(pModeKey);
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "no matching action found with name: " + actionKey);
+        }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testGetAgreement(@Mocked PModeProvider pModeProvider, @Mocked MessageExchangeConfiguration messageExchangeConfiguration) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         String agreementKey = "agreementKey";
@@ -949,10 +972,14 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getAgreements();
             result = configuration.getBusinessProcesses().getAgreements();
         }};
-        cachingPModeProvider.getAgreement(pModeKey);
+        try {
+            cachingPModeProvider.getAgreement(pModeKey);
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "no matching agreement found with name: " + agreementKey);
+        }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testGetLegConfiguration(@Mocked PModeProvider pModeProvider, @Mocked MessageExchangeConfiguration messageExchangeConfiguration) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         String legKey = "legKey";
@@ -963,7 +990,11 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getLegConfigurations();
             result = configuration.getBusinessProcesses().getLegConfigurations();
         }};
-        cachingPModeProvider.getLegConfiguration(pModeKey);
+        try {
+            cachingPModeProvider.getLegConfiguration(pModeKey);
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "no matching legConfiguration found with name: " + legKey);
+        }
     }
 
     @Test
