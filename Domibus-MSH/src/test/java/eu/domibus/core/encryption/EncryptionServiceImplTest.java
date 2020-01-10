@@ -18,6 +18,10 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.1.3
+ */
 public class EncryptionServiceImplTest {
 
     @Injectable
