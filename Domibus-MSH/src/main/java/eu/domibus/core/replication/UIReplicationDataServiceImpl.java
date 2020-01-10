@@ -100,7 +100,8 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
             //updates are done in parallel and we need a delay as data may not be yet committed /visible
             Thread.sleep(timeToWait);
         } catch (InterruptedException e) {
-            LOG.error("exception while sleeping ", e);
+            LOG.warn("exception while sleeping ", e);
+            Thread.currentThread().interrupt();
         }
 
         //search for an existing record first

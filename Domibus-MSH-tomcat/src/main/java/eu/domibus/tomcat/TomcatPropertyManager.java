@@ -42,7 +42,6 @@ public class TomcatPropertyManager extends DomibusPropertyExtServiceDelegateAbst
             ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE,
             ACTIVE_MQ_JMXURL, //move the usage from xml ?
             ACTIVE_MQ_CONNECTOR_PORT, //move the usage from xml ?
-            ACTIVE_MQ_RMI_SERVER_PORT, //move the usage from xml ?
             ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, //move the usage from xml ?
             ACTIVE_MQ_USERNAME, //move the usage from xml ?
             ACTIVE_MQ_PASSWORD, //move the usage from xml ?
