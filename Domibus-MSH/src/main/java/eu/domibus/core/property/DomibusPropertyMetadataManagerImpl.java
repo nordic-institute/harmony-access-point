@@ -352,11 +352,14 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             synchronized (propertyMetadataMapLock) {
                 if (!internalPropertiesLoaded) { // double-check locking
                     LOGGER.trace("Initializing core properties");
-                    propertyMetadataMap = new HashMap<>(this.getKnownProperties());
 
-                    if (serverPropertyManager != null) {
-                        loadInternalProperties(serverPropertyManager);
-                    }
+                    propertyMetadataMap = new HashMap<>();
+                    loadInternalProperties();
+
+//                    propertyMetadataMap = new HashMap<>(this.getKnownProperties());
+//                    if (serverPropertyManager != null) {
+//                        loadInternalProperties(serverPropertyManager);
+//                    }
 
                     internalPropertiesLoaded = true;
                 }
@@ -379,13 +382,12 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         }
     }
 
-//    protected void loadInternalProperties() {
-//        // we retrieve here all managers: one for each plugin/extension + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
-//        Map<String, DomibusPropertyManager> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManager.class);
-//        propertyManagers.values().forEach(this::loadInternalProperties);
-//    }
+    protected void loadInternalProperties() {
+        loadProperties(this);
+        loadProperties(serverPropertyManager);
+    }
 
-    protected void loadInternalProperties(DomibusPropertyManager propertyManager) {
+    protected void loadProperties(DomibusPropertyMetadataManager propertyManager) {
         for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
             //avoid adding the properties of domibus property manager (added already at the beginning of the load)
             if (propertyMetadataMap.containsKey(entry.getKey())) {
