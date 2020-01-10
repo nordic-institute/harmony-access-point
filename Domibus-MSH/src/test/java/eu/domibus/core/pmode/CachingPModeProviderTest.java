@@ -47,7 +47,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * @author Arun Raj
+ * @author Arun Raj, Soumya Chandran
  * @since 3.3
  */
 @RunWith(JMockit.class)
@@ -789,6 +789,19 @@ public class CachingPModeProviderTest {
             }
         }
         return null;
+    }
+
+
+    @Test
+    public void testgetMpcList(@Injectable Mpc mpc) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getMpcs();
+            result = configuration.getMpcs();
+        }};
+
+        cachingPModeProvider.getMpcList();
+        Assert.assertNotNull(cachingPModeProvider.getMpcList());
     }
 
     @Test(expected = EbMS3Exception.class)
