@@ -389,10 +389,6 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     protected void loadProperties(DomibusPropertyMetadataManager propertyManager) {
         for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
-            //avoid adding the properties of domibus property manager (added already at the beginning of the load)
-            if (propertyMetadataMap.containsKey(entry.getKey())) {
-                return;
-            }
             DomibusPropertyMetadata prop = entry.getValue();
             propertyMetadataMap.put(entry.getKey(), prop);
         }
