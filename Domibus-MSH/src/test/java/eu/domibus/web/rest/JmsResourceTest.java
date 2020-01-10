@@ -42,6 +42,7 @@ public class JmsResourceTest {
     public void testDestinations() {
         // Given
         final SortedMap<String, JMSDestination> resultMap = new TreeMap<>();
+        //TODO Use Mocking instead of real Instances
         JMSDestination destination1 = new JMSDestination();
         destination1.setName("destination1");
         resultMap.put("test1", destination1);
@@ -67,6 +68,7 @@ public class JmsResourceTest {
         JmsFilterRequestRO requestRO = new JmsFilterRequestRO();
 
         final List<JmsMessage> jmsMessageList = new ArrayList<>();
+        //TODO Use Mocking instead of real Instances
         JmsMessage jmsMessage = new JmsMessage();
         jmsMessage.setId("jmsMessageId");
         jmsMessage.setType("type1");
@@ -92,6 +94,7 @@ public class JmsResourceTest {
     public void testActionMoveNoValidParam() {
         // Given
         SortedMap<String, JMSDestination> dests = new TreeMap<>();
+        //TODO Use Mocking instead of real Instances
         dests.put("domibus.queue1", new JMSDestination());
         new Expectations() {{
             jmsManager.getDestinations();
@@ -116,6 +119,7 @@ public class JmsResourceTest {
     @Test
     public void testActionMove() {
         SortedMap<String, JMSDestination> dests = new TreeMap<>();
+        //TODO Use Mocking instead of real Instances
         dests.put("domibus.queue1", new JMSDestination() {{
             setName("domibus.queue1");
         }});
@@ -135,6 +139,7 @@ public class JmsResourceTest {
         // Given
         List<String> selectedMessages = new ArrayList<>();
         selectedMessages.add("message1");
+        //TODO Use Mocking instead of real Instances
         MessagesActionRequestRO request = new MessagesActionRequestRO();
         request.setAction(action);
         request.setSource("source1");
@@ -154,6 +159,7 @@ public class JmsResourceTest {
     @Test
     public void testActionException() {
         // Given
+        //TODO Use Mocking instead of real Instances
         MessagesActionRequestRO request = new MessagesActionRequestRO();
         request.setSelectedMessages(null); // force runtime exception
 
