@@ -49,6 +49,7 @@ public class MessageResourceTest {
     private AuditService auditService;
 
     private UserMessage createUserMessage() {
+        //TODO Use Mocking instead of real Instances
         UserMessage userMessage = new UserMessage();
         userMessage.setEntityId(1);
         userMessage.setMessageInfo(new MessageInfo());
