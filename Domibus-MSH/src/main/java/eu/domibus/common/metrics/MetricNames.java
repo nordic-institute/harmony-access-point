@@ -21,7 +21,8 @@ public enum MetricNames {
     SERVER_POLICY_IN,
     TRUST_SENDER,
     ON_MESSAGE,
-    TEST_CN;
+    TEST_CN,
+    PROCESS_MESSAGE;
 
     public String getCounterName() {
         return this.name().toUpperCase() + "_counter";

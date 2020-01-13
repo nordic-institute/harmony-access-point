@@ -2,6 +2,8 @@ package eu.domibus.ebms3.receiver.handler;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.common.metrics.MetricNames;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.security.AuthorizationService;
@@ -39,10 +41,15 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     private MetricRegistry metricRegistry;
 
     @Override
+    @Timer(MetricNames.PROCESS_MESSAGE)
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(IncomingUserMessageHandler.class, "authorizeUserMessage")).time();
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
+        authorizeUserMessageMetric.stop();
+        com.codahale.metrics.Timer.Context handleNewUserMessageMetric = metricRegistry.timer(MetricRegistry.name(IncomingUserMessageHandler.class, "handleNewUserMessage")).time();
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+        handleNewUserMessageMetric.stop();
         com.codahale.metrics.Timer.Context clean_attachement = null;
         try {
             clean_attachement = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "clean_attachement")).time();
