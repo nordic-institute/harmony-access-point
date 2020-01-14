@@ -1,5 +1,6 @@
 package eu.domibus.common.validators;
 
+import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.web.rest.validators.WhiteListed;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,8 @@ public class BlacklistValidator extends BaseBlacklistValidator<WhiteListed, Stri
         return WhiteListed.MESSAGE;
     }
 
-    public boolean isValid(String value) {
-        return super.isValidValue(value);
+    public boolean isValid(String value, CustomWhiteListed customAnnotation) {
+        return super.isValidValue(value, customAnnotation);
     }
 
 }

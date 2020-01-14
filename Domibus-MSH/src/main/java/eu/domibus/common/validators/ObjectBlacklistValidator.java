@@ -37,10 +37,10 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
     }
 
     @Override
-    public boolean isValid(Object obj) {
+    public boolean isValid(Object obj, CustomWhiteListed customAnnotation) {
         LOG.debug("Validating recursively the object properties [{}]", obj);
         try {
-            doValidate(obj, "root", null);
+            doValidate(obj, "root", customAnnotation);
             LOG.debug("All object properties [{}] are valid.", obj);
             return true;
         } catch (ValidationException ex) {

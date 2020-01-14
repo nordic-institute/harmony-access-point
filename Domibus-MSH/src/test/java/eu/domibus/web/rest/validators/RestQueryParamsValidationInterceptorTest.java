@@ -34,7 +34,7 @@ public class RestQueryParamsValidationInterceptorTest {
         queryParams.put("param1", arr1);
         queryParams.put("param2", arr2);
 
-        boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams);
+        boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
 
         Assert.assertEquals(true, actualValid);
     }
@@ -55,6 +55,6 @@ public class RestQueryParamsValidationInterceptorTest {
         queryParams.put("param1", arr1);
         queryParams.put("param2", arr2);
 
-        boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams);
+        boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
     }
 }
