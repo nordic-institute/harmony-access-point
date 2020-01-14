@@ -279,6 +279,11 @@ public class JMSManagerImpl implements JMSManager {
         return 0;
     }
 
+    @Override
+    public long getDestinationSize(JMSDestination jmsDestination) {
+        return internalJmsManager.getDestinationCount(jmsDestinationMapper.convert(jmsDestination));
+    }
+
     /**
      * tests if the given queue {@code jmsQueueInternalName} should be excluded from current queues of JMS Monitoring page
      * - when the user is logged as Admin domain and queue is defined as JMS Plugin queue

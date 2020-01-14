@@ -43,4 +43,15 @@ public class JMSDestinationMapper {
         result.setProperties(internalJmsDestination.getProperties());
         return result;
     }
+
+    public InternalJMSDestination convert(JMSDestination jmsDestination) {
+        InternalJMSDestination result = new InternalJMSDestination();
+        result.setType(jmsDestination.getType());
+        result.setName(jmsDestination.getName());
+        result.setFullyQualifiedName(jmsDestination.getFullyQualifiedName());
+        result.setNumberOfMessages(jmsDestination.getNumberOfMessages());
+        result.setInternal(jmsDestination.isInternal());
+        result.setProperties(jmsDestination.getProperties());
+        return result;
+    }
 }

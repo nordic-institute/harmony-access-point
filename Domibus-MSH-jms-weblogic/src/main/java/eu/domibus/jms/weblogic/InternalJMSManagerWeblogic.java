@@ -135,9 +135,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                         String configQueueJndiName = (String) mbsc.getAttribute(configQueue, "JNDIName");
                         destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
                         destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
-                        /* in multi-tenancy mode we show the number of messages only to super admin */
-                        destination.setNumberOfMessages(domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin() ? NB_MESSAGES_ADMIN :
-                                getMessagesTotalCount(mbsc, jmsDestination));
+                        destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
                         destinationMap.put(removeJmsModuleAndServer(destinationFQName), destination);
                     }
                 }
@@ -147,6 +145,39 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             throw new InternalJMSException(FAILED_TO_BUILD_JMS_DEST_MAP, e);
         }
     }
+
+    /**
+     *
+     * @param internalJMSDestination
+     * @return
+     */
+    @Override
+    public long getDestinationCount(InternalJMSDestination internalJMSDestination) {
+        return jmxTemplate.query(
+                new JMXOperation() {
+                    @Override
+                    public Long execute(MBeanServerConnection mbsc) {
+                        return getDestinationCount(mbsc, internalJMSDestination);
+                    }
+                }
+        );
+    }
+
+    protected Long getDestinationCount(MBeanServerConnection mbsc, InternalJMSDestination internalJMSDestination) {
+        ObjectName jmsDestination = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
+
+        long result = 0;
+        try {
+            result = getMessagesTotalCount(mbsc, jmsDestination);
+        } catch (Exception e) {
+            LOG.error("Exception while getting count for: [{}]", jmsDestination);
+        }
+
+        return result;
+    }
+
+
+
 
     protected List<String> getManagedServerNames() {
         if (managedServerNames == null) {
@@ -228,9 +259,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                         String configQueueJndiName = (String) mbsc.getAttribute(configQueue, "JNDIName");
                         destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
                         destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
-                        /* in multi-tenancy mode we show the number of messages only to super admin */
-                        destination.setNumberOfMessages(domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin() ? NB_MESSAGES_ADMIN :
-                                getMessagesTotalCount(mbsc, jmsDestination));
+                        destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
                         destinationsMap.put(destinationFQName, destination);
                     }
                 }
@@ -250,6 +279,10 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     protected Long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination) throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException, IOException {
+        if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
+            //in multi-tenancy mode we show the number of messages only to super admin
+            return NB_MESSAGES_ADMIN;
+        }
         Long result = 0L;
 
         Long messagesCurrentCount = (Long) mbsc.getAttribute(jmsDestination, "MessagesCurrentCount");
