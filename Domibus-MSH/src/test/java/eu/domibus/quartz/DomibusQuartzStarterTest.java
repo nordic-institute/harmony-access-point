@@ -34,7 +34,7 @@ public class DomibusQuartzStarterTest {
     private final Set<JobKey> jobKeys = new HashSet<>();
     private final JobKey jobKey1 = new JobKey("retryWorkerJob", groupName);
     private final List<Scheduler> generalSchedulers = new ArrayList<>();
-    private final  Map<Domain, Scheduler> schedulers = new HashMap<>();
+    private final Map<Domain, Scheduler> schedulers = new HashMap<>();
     @Tested
     private DomibusQuartzStarter domibusQuartzStarter;
 
@@ -52,7 +52,6 @@ public class DomibusQuartzStarterTest {
 
     @Injectable
     protected Trigger trigger;
-
 
 
     @Before
@@ -138,7 +137,7 @@ public class DomibusQuartzStarterTest {
         quartzInfo.setQuartzTriggerDetails(triggerInfoList[0]);
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
-            result=true;
+            result = true;
             triggerInfoList[0] = domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
             times = 1;
         }};
@@ -161,7 +160,7 @@ public class DomibusQuartzStarterTest {
         quartzInfo.setQuartzTriggerDetails(triggerInfoList[0]);
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
-            result=false;
+            result = false;
             triggerInfoList[0] = domibusQuartzStarter.getSchedulersInfo(schedulers);
             times = 1;
         }};
@@ -186,11 +185,11 @@ public class DomibusQuartzStarterTest {
             scheduler.getJobGroupNames();
             times = 1;
             result = jobGroups;
-            triggerInfoList[0] =  domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            triggerInfoList[0] = domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
             times = 1;
         }};
 
-        triggerInfoList[0] =  domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
+        triggerInfoList[0] = domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
     }
 
     @Test
@@ -207,7 +206,7 @@ public class DomibusQuartzStarterTest {
             scheduler.getJobGroupNames();
             times = 1;
             result = jobGroups;
-            triggerInfoList[0] = domibusQuartzStarter.getTriggerDetails(scheduler,  groupName, domainName);
+            triggerInfoList[0] = domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
             times = 1;
         }};
 
@@ -217,7 +216,7 @@ public class DomibusQuartzStarterTest {
     @Test
     public void getTriggerDetailsTest() throws Exception {
         schedulers.put(new Domain(), scheduler);
-         trigger = TriggerBuilder.newTrigger()
+        trigger = TriggerBuilder.newTrigger()
                 .withIdentity("myTrigger", "group1")
                 .build();
         final List<Trigger> list = new ArrayList<>();
@@ -244,6 +243,23 @@ public class DomibusQuartzStarterTest {
 
         }};
 
-       domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+        domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+    }
+
+    @Test
+    public void checkJobsAndStartSchedulerTest(@Injectable Domain domain,
+                                               @Injectable Scheduler scheduler) throws Exception {
+        new Expectations() {{
+            domibusSchedulerFactory.createScheduler(domain);
+            result = scheduler;
+            domibusQuartzStarter.checkSchedulerJobs(scheduler);
+            times = 1;
+        }};
+
+        domibusQuartzStarter.checkJobsAndStartScheduler(domain);
+        new Verifications() {{
+            scheduler.start();
+            times = 1;
+        }};
     }
 }
