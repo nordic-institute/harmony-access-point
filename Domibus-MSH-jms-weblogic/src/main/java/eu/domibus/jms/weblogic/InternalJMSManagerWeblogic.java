@@ -44,7 +44,7 @@ import java.io.StringReader;
 import java.util.*;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Catalin Enache
  * @since 3.2
  */
 @Component
@@ -56,6 +56,12 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     private static final String PROPERTY_JNDI_NAME = "Jndi";
     private static final String JMS_TYPE = "JMSType";
     private static final String FAILED_TO_BUILD_JMS_DEST_MAP = "Failed to build JMS destination map";
+    public static final String JMX_SERVER_RUNTIMES = "ServerRuntimes";
+    public static final String JMX_JMS_RUNTIME = "JMSRuntime";
+    public static final String JMX_JMS_SERVERS = "JMSServers";
+    public static final String JMX_DESTINATIONS = "Destinations";
+    public static final String JMX_NAME = "Name";
+    public static final String JMX_ADMIN_SERVER = "AdminServer";
 
 
     protected Map<String, ObjectName> queueMap;
@@ -108,18 +114,18 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> destinationMap = new TreeMap<>();
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
-            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, "ServerRuntimes");
+            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, JMX_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
-                LOG.debug("Server " + server);
-                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, "JMSRuntime");
-                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, "JMSServers");
+                LOG.debug("Server {}", server);
+                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, JMX_JMS_RUNTIME);
+                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, JMX_JMS_SERVERS);
                 for (ObjectName jmsServer : jmsServers) {
-                    LOG.debug("JMS Server " + jmsServer);
-                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, "Destinations");
+                    LOG.debug("JMS Server {}", jmsServer);
+                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, JMX_DESTINATIONS);
                     for (ObjectName jmsDestination : jmsDestinations) {
-                        LOG.debug("JMS Destination " + jmsDestination);
+                        LOG.debug("JMS Destination {}", jmsDestination);
                         InternalJMSDestination destination = new InternalJMSDestination();
-                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, "Name");
+                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, JMX_NAME);
                         // The name must be the queueName in a single server or serverName@queueName in a cluster.
                         String destName = getShortDestName(destinationFQName);
                         destination.setName(destName);
@@ -146,11 +152,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         }
     }
 
-    /**
-     *
-     * @param internalJMSDestination
-     * @return
-     */
     @Override
     public long getDestinationCount(InternalJMSDestination internalJMSDestination) {
         return jmxTemplate.query(
@@ -165,19 +166,15 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected Long getDestinationCount(MBeanServerConnection mbsc, InternalJMSDestination internalJMSDestination) {
         ObjectName jmsDestination = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
-
-        long result = 0;
+        long result;
         try {
             result = getMessagesTotalCount(mbsc, jmsDestination);
         } catch (Exception e) {
-            LOG.error("Exception while getting count for: [{}]", jmsDestination);
-        }
 
+            throw new InternalJMSException("Exception while getting count for destination: " + internalJMSDestination.getName(), e);
+        }
         return result;
     }
-
-
-
 
     protected List<String> getManagedServerNames() {
         if (managedServerNames == null) {
@@ -198,14 +195,14 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         List<String> result = new ArrayList<>();
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
-            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, "ServerRuntimes");
+            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, JMX_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
-                final Boolean isAdminServer = (Boolean) mbsc.getAttribute(server, "AdminServer");
+                final Boolean isAdminServer = (Boolean) mbsc.getAttribute(server, JMX_ADMIN_SERVER);
                 //we want only the managed server names
                 if (isAdminServer) {
                     continue;
                 }
-                String serverName = (String) mbsc.getAttribute(server, "Name");
+                String serverName = (String) mbsc.getAttribute(server, JMX_NAME);
                 LOG.debug("Found managed server [{}]", serverName);
                 result.add(serverName);
             }
@@ -227,23 +224,22 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         );
     }
 
-
     protected Map<String, InternalJMSDestination> findDestinationsGroupedByName(MBeanServerConnection mbsc) {
         Map<String, InternalJMSDestination> destinationsMap = new HashMap<>();
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
-            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, "ServerRuntimes");
+            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, JMX_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
-                LOG.debug("Server " + server);
-                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, "JMSRuntime");
-                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, "JMSServers");
+                LOG.debug("Server {}", server);
+                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, JMX_JMS_RUNTIME);
+                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, JMX_JMS_SERVERS);
                 for (ObjectName jmsServer : jmsServers) {
-                    LOG.debug("JMS Server " + jmsServer);
-                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, "Destinations");
+                    LOG.debug("JMS Server {}", jmsServer);
+                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, JMX_DESTINATIONS);
                     for (ObjectName jmsDestination : jmsDestinations) {
-                        LOG.debug("JMS Destination " + jmsDestination);
+                        LOG.debug("JMS Destination {}", jmsDestination);
                         InternalJMSDestination destination = new InternalJMSDestination();
-                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, "Name");
+                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, JMX_NAME);
                         // The name must be the queueName in a single server or serverName@queueName in a cluster.
                         String destName = getShortDestName(destinationFQName);
                         destination.setName(destName);
@@ -334,17 +330,17 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             ObjectName configJmsResource = (ObjectName) mbsc.getAttribute(configJmsSystemResource, "JMSResource");
             ObjectName[] configQueues = (ObjectName[]) mbsc.getAttribute(configJmsResource, "Queues");
             for (ObjectName configQueue : configQueues) {
-                String configQueueName = (String) mbsc.getAttribute(configQueue, "Name");
+                String configQueueName = (String) mbsc.getAttribute(configQueue, JMX_NAME);
                 queueMap.put(configQueueName, configQueue);
             }
             ObjectName[] configDDQueues = (ObjectName[]) mbsc.getAttribute(configJmsResource, "DistributedQueues");
             for (ObjectName configQueue : configDDQueues) {
-                String configQueueName = (String) mbsc.getAttribute(configQueue, "Name");
+                String configQueueName = (String) mbsc.getAttribute(configQueue, JMX_NAME);
                 queueMap.put(configQueueName, configQueue);
             }
             ObjectName[] configUDDQueues = (ObjectName[]) mbsc.getAttribute(configJmsResource, "UniformDistributedQueues");
             for (ObjectName configQueue : configUDDQueues) {
-                String configQueueName = (String) mbsc.getAttribute(configQueue, "Name");
+                String configQueueName = (String) mbsc.getAttribute(configQueue, JMX_NAME);
                 queueMap.put(configQueueName, configQueue);
             }
         }
@@ -366,7 +362,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
             // the key is not always the same as the jndi name so we try them both
             if (matchesQueue(destName, entry)) {
-                LOG.debug("Internal destination found for source [" + destName + "]");
+                LOG.debug("Internal destination found for source [{}]", destName);
                 internalJmsDestination = entry.getValue();
             }
         }
@@ -374,7 +370,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             throw new InternalJMSException("Destination [" + destName + "] does not exists");
         }
         String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
-        LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
+        LOG.debug("Found JNDI [{}] for destination [{}]", destinationJndi, destName);
         return InitialContext.doLookup(destinationJndi);
     }
 
@@ -452,7 +448,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     public void deleteMessages(String source, String[] messageIds) {
         String selector = jmsSelectorUtil.getSelector(messageIds);
         int n = deleteMessages(getMessageDestinationName(removeJmsModule(source)), selector);
-        LOG.debug(n + " messages have been successfully deleted from [" + source + "]");
+        LOG.debug("{} messages have been successfully deleted from [{}]", n, source);
     }
 
     @Override
@@ -525,7 +521,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                     "getCursorSize",
                     new Object[]{messageCursor}, new String[]{String.class.getName()});
 
-            Integer maxBrowseSize = new Integer(totalAmountOfMessages.intValue());
+            Integer maxBrowseSize = totalAmountOfMessages.intValue();
             final Integer configuredMaxBrowseCount = NumberUtils.toInt(domibusPropertyProvider.getProperty(PROP_MAX_BROWSE_SIZE));
             if (configuredMaxBrowseCount > 0) {
                 LOG.debug("Setting JMS maxBrowse size to [{}]", configuredMaxBrowseCount);
@@ -535,7 +531,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             CompositeData[] allMessageMetaData = (CompositeData[]) mbsc.invoke(
                     destination,
                     "getItems",
-                    new Object[]{messageCursor, new Long(0), maxBrowseSize},
+                    new Object[]{messageCursor, Long.valueOf(0), maxBrowseSize},
                     new String[]{String.class.getName(), Long.class.getName(), Integer.class.getName()});
 
             if (allMessageMetaData != null) {
@@ -577,7 +573,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByName();
         for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
             if (entry.getKey().contains(source)) {
-                LOG.debug("Internal destination found for source [" + source + "]");
+                LOG.debug("Internal destination found for source [{}]", source);
                 destinations.add(entry.getValue());
             }
         }
@@ -600,7 +596,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByFQName();
         for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
             if (entry.getKey().contains(source)) {
-                LOG.debug("Internal destination found for source [" + source + "]");
+                LOG.debug("Internal destination found for source [{}]", source);
                 return entry.getValue();
             }
         }
@@ -692,7 +688,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         try {
             return (Integer) mbsc.invoke(destination, "deleteMessages", new Object[]{selector}, new String[]{String.class.getName()});
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to build JMS destination map", e);
+            throw new InternalJMSException("Failed to delete messages", e);
         }
     }
 
@@ -703,7 +699,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         ObjectName toDestination = getMessageDestinationName(removeJmsModule(sourceTo));
         String selector = jmsSelectorUtil.getSelector(messageIds);
         int n = moveMessages(fromDestination, toDestination, selector);
-        LOG.debug(n + " messages have been successfully moved to [" + sourceTo + "]");
+        LOG.debug("{} messages have been successfully moved to [{}]", n, sourceTo);
     }
 
     protected int moveMessages(final ObjectName from, final ObjectName to, final String selector) {

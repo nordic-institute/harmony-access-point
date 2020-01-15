@@ -45,7 +45,7 @@ public interface InternalJMSManager {
 
     /**
      * Get the number of messages in a JMS Destination
-     * @param internalJMSDestination internal representaion of a JMS Destination
+     * @param internalJMSDestination internal representation of a JMS Destination
      * @return number of messages in a JMS queue (destination)
      */
     long getDestinationCount(InternalJMSDestination internalJMSDestination);
