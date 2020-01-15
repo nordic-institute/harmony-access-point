@@ -828,6 +828,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getActions();
             result = configuration.getBusinessProcesses().getActions();
@@ -835,7 +836,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findActionName("action");
         } catch (EbMS3Exception ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0002);
+            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
         }
     }
 
