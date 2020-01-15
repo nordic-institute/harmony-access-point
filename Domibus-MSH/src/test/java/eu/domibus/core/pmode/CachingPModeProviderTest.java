@@ -828,6 +828,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getActions();
             result = configuration.getBusinessProcesses().getActions();
