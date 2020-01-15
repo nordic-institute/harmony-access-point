@@ -45,7 +45,7 @@ public class JmsResource extends BaseResource {
         final DestinationsResponseRO destinationsResponseRO = new DestinationsResponseRO();
         try {
             destinationsResponseRO.setJmsDestinations(jmsManager.getDestinations());
-            LOGGER.debug("JMS Messages Source Queues fetched successfully are [{}]", destinationsResponseRO.getJmsDestinations());
+            LOGGER.debug("JMS Messages Source Queues are [{}]", destinationsResponseRO.getJmsDestinations());
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(APPLICATION_JSON))
                     .body(destinationsResponseRO);
@@ -94,10 +94,10 @@ public class JmsResource extends BaseResource {
                     throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
                 }
                 jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
-                LOGGER.debug("Jms Messages Moved from the source queue [{}] to the destination queue [{}]", request.getSource(), request.getDestination());
+                LOGGER.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", ids, request.getSource(), request.getDestination());
             } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
                 jmsManager.deleteMessages(request.getSource(), ids);
-                LOGGER.debug("Jms Messages deleted from the source queue [{}] ", request.getSource());
+                LOGGER.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", ids, request.getSource());
             }
 
             return ResponseEntity.ok()
