@@ -20,6 +20,8 @@ import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.util.io.pem.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.Assert;
@@ -27,9 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -37,10 +37,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
@@ -95,7 +92,7 @@ public class CertificateServiceImplTest {
     @Test
     public void testIsCertificateChainValidPathV1() throws CertificateException {
         new Expectations() {{
-            crlService.isCertificateRevoked((X509Certificate)any);
+            crlService.isCertificateRevoked((X509Certificate) any);
             result = false;
         }};
 
@@ -109,7 +106,8 @@ public class CertificateServiceImplTest {
         Assert.assertTrue(certificateService.isCertificateChainValid(certificateChain));
 
         new Verifications() {{
-            crlService.isCertificateRevoked((X509Certificate)any); times=3;
+            crlService.isCertificateRevoked((X509Certificate) any);
+            times = 3;
         }};
     }
 
@@ -117,7 +115,7 @@ public class CertificateServiceImplTest {
     @Test
     public void testIsCertificateChainValidPathV1Revoked() throws CertificateException {
         new Expectations() {{
-            crlService.isCertificateRevoked((X509Certificate)any);
+            crlService.isCertificateRevoked((X509Certificate) any);
             result = true;
         }};
 
@@ -685,4 +683,21 @@ public class CertificateServiceImplTest {
         Assert.assertEquals(fingerprint, entry.getFingerprints());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void serializeCertificateChainIntoPemFormatTest(@Injectable java.security.cert.Certificate certificate,
+                                                           @Injectable PemWriter pw,
+                                                           @Injectable StringWriter sw,
+                                                           @Injectable JcaMiscPEMGenerator jcaMiscPEMGenerator,
+                                                           @Injectable PemObjectGenerator gen
+    ) throws IOException {
+        List<java.security.cert.Certificate> certificates = new ArrayList<>();
+        certificates.add(certificate);
+        new Expectations(certificateService) {{
+        }};
+        certificateService.serializeCertificateChainIntoPemFormat(certificates);
+        new Verifications() {{
+            pw.writeObject(gen);
+            times = 1;
+        }};
+    }
 }
