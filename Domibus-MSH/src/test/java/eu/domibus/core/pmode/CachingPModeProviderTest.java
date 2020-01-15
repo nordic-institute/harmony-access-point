@@ -835,7 +835,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findActionName("action");
         } catch (EbMS3Exception ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0002);
+            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
         }
     }
 
