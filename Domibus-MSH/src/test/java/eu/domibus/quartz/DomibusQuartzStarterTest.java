@@ -275,20 +275,4 @@ public class DomibusQuartzStarterTest {
         boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger);
         Assert.assertTrue(isErrorOrBlockedState);
     }
-    @Test
-    public void checkJobsAndStartSchedulerTest(@Injectable Domain domain,
-                                               @Injectable Scheduler scheduler) throws Exception {
-        new Expectations() {{
-            domibusSchedulerFactory.createScheduler(domain);
-            result = scheduler;
-            domibusQuartzStarter.checkSchedulerJobs(scheduler);
-            times = 1;
-        }};
-
-        domibusQuartzStarter.checkJobsAndStartScheduler(domain);
-        new Verifications() {{
-            scheduler.start();
-            times = 1;
-        }};
-    }
 }
