@@ -20,7 +20,7 @@ import java.util.Map;
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 
-@Service("mshPropertyManager")
+@Service(DomibusPropertyManager.MSH_PROPERTY_MANAGER)
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Autowired

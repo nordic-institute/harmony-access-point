@@ -8,6 +8,8 @@ package eu.domibus.api.property;
  */
 public interface DomibusPropertyManager extends DomibusPropertyMetadataManager {
 
+    public static final String MSH_PROPERTY_MANAGER = "mshPropertyManager";
+
     /**
      * Returns the current property value
      *
