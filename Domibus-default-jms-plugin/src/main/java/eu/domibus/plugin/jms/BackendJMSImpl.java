@@ -172,24 +172,36 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public void deliverMessage(final String messageId) {
-        boolean sendResponseFromC3Plugin = true;
-        final String property = domibusPropertyExtService.getProperty(DOMIBUS_SEND_FROM_C3);
-        if (StringUtils.isNotEmpty(property)) {
-            sendResponseFromC3Plugin = Boolean.parseBoolean(property);
-        }
-        if (sendResponseFromC3Plugin) {
-            domainTaskExtExecutor.submitLongRunningTask(
-                    () -> downloadAndSendBack(messageId),DEFAULT_DOMAIN);
-
-        } else {
-            LOG.debug("Delivering message");
-            final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-            final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
-            if (StringUtils.isEmpty(queueValue)) {
-                throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
+        Timer.Context deliverMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer")).time();
+        Counter deliverMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class,"deliverMessage_counter"));
+        try {
+            deliverMessageCounter.inc();
+            boolean sendResponseFromC3Plugin = true;
+            final String property = domibusPropertyExtService.getProperty(DOMIBUS_SEND_FROM_C3);
+            if (StringUtils.isNotEmpty(property)) {
+                sendResponseFromC3Plugin = Boolean.parseBoolean(property);
             }
-            LOG.info("Sending message to queue [{}]", queueValue);
-            mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+            if (sendResponseFromC3Plugin) {
+                domainTaskExtExecutor.submitLongRunningTask(
+                        () -> downloadAndSendBack(messageId), DEFAULT_DOMAIN);
+
+            } else {
+                LOG.debug("Delivering message");
+                final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+                final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
+                if (StringUtils.isEmpty(queueValue)) {
+                    throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
+                }
+                LOG.info("Sending message to queue [{}]", queueValue);
+                mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+            }
+        } finally {
+            if (deliverMessageTimer != null) {
+                deliverMessageTimer.stop();
+            }
+            if (deliverMessageCounter != null) {
+                deliverMessageCounter.dec();
+            }
         }
     }
 
