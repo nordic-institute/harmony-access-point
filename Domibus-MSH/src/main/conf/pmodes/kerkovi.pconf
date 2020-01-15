@@ -103,7 +103,7 @@ BusinessProcessConfiguration{
 		}
 		Bindings{
 			Binding push : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push'	
-			Binding pushAndPush : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push'		
+			Binding pushAndPush : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush'
 		}
 	}
 	
