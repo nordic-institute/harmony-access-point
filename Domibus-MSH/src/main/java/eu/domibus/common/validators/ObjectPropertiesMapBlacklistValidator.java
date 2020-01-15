@@ -47,7 +47,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
         Class type = null;
         if (value.getTypes() != null && !value.getTypes().isEmpty()) {
-            // todo: check if we have GET REST methods with more than one parameter/payload
+            // all GET REST methods have just one parameter/payload
             type = value.getTypes().get(0);
         }
 
