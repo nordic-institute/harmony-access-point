@@ -104,22 +104,6 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return isValid(value, (CustomWhiteListed) null);
     }
 
-//    protected boolean isValidValue(Collection<String> values, CustomWhiteListed customAnnotation) {
-//        if (CollectionUtils.isEmpty(values)) {
-//            LOG.debug("Collection is empty, exiting");
-//            return true;
-//        }
-//        boolean res = values.stream().allMatch(el -> isValidValue(el, customAnnotation));
-//        LOG.debug("Validated values: [{}] and the outcome is [{}]", values, res);
-//        return res;
-//    }
-
-//    protected boolean isValidValue(String[] values) {
-//        boolean res = isValidValue(Arrays.asList(values));
-//        LOG.debug("Validated values: [{}] and the outcome is [{}]", values, res);
-//        return res;
-//    }
-
     protected boolean isValidValue(String value) {
         return isValidValue(value, null);
     }

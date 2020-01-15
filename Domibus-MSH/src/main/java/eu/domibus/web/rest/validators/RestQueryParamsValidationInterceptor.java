@@ -1,7 +1,6 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.common.validators.ItemsBlacklistValidator;
 import eu.domibus.common.validators.ObjectPropertiesMapBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
@@ -38,7 +37,6 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     @Autowired
     ObjectPropertiesMapBlacklistValidator blacklistValidator;
-//    ItemsBlacklistValidator blacklistValidator;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -72,8 +70,13 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             return true;
         }
         try {
-            List<? extends Class<?>> types = Arrays.asList(method.getMethodParameters()).stream().map(el -> el.getParameterType()).collect(Collectors.toList());
-            validate(queryParams, types);
+            List<? extends Class<?>> types = null;
+            if (method != null) {
+                types = Arrays.asList(method.getMethodParameters()).stream()
+                        .map(el -> el.getParameterType()).collect(Collectors.toList());
+            }
+
+            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, types));
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {
@@ -85,13 +88,4 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
     }
 
-    private void validate(Map<String, String[]> parameterMap, List<? extends Class<?>> types) {
-        blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(parameterMap, types));
-
-//        parameterMap.forEach((key, val) -> {
-//            if (!blacklistValidator.isValid(val)) {
-//                throw new ValidationException(String.format("Forbidden character detected in the query parameter: %s", key));
-//            }
-//        });
-    }
 }
