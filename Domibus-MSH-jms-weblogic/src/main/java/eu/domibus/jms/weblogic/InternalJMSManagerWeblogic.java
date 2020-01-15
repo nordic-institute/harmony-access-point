@@ -119,32 +119,17 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
             ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, ATTR_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
-                LOG.debug("Server {}", server);
+                LOG.debug("Server [{}]", server);
                 ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, ATTR_JMS_RUNTIME);
                 ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, ATTR_JMS_SERVERS);
                 for (ObjectName jmsServer : jmsServers) {
-                    LOG.debug("JMS Server {}", jmsServer);
+                    LOG.debug("JMS Server [{}]", jmsServer);
                     ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, ATTR_DESTINATIONS);
                     for (ObjectName jmsDestination : jmsDestinations) {
-                        LOG.debug("JMS Destination {}", jmsDestination);
-                        InternalJMSDestination destination = new InternalJMSDestination();
                         String destinationFQName = (String) mbsc.getAttribute(jmsDestination, ATTR_NAME);
-                        // The name must be the queueName in a single server or serverName@queueName in a cluster.
-                        String destName = getShortDestName(destinationFQName);
-                        destination.setName(destName);
-                        destination.setFullyQualifiedName(removeJmsModule(destinationFQName));
 
-                        destName = getOnlyDestName(destName);
-                        ObjectName configQueue = getQueueMap(mbsc).get(destName);
-                        // We do not manage Topic at the moment
-                        if (configQueue == null) continue;
-
-                        destination.setType(QUEUE);
-                        destination.setProperty(PROPERTY_OBJECT_NAME, jmsDestination);
-                        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, ATTR_JNDI_NAME);
-                        destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
-                        destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
-                        destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
+                        InternalJMSDestination destination = createInternalJMSDestination(mbsc, jmsDestination, destinationFQName);
+                        if (destination == null) continue; //topic
                         destinationMap.put(removeJmsModuleAndServer(destinationFQName), destination);
                     }
                 }
@@ -153,6 +138,32 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         } catch (Exception e) {
             throw new InternalJMSException(FAILED_TO_BUILD_JMS_DEST_MAP, e);
         }
+    }
+
+    protected InternalJMSDestination createInternalJMSDestination(MBeanServerConnection mbsc, ObjectName jmsDestination, final String destinationFQName)
+            throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException, IOException {
+        LOG.debug("JMS Destination [{}]", jmsDestination);
+
+        // The name must be the queueName in a single server or serverName@queueName in a cluster.
+        String destName = getShortDestName(destinationFQName);
+
+        //getting the destination from queues map
+        ObjectName configQueue = getQueueMap(mbsc).get(getOnlyDestName(destName));
+
+        // We do not manage Topic at the moment
+        if (configQueue == null) return null;
+
+        InternalJMSDestination destination = new InternalJMSDestination();
+        destination.setName(destName);
+        destination.setFullyQualifiedName(removeJmsModule(destinationFQName));
+        destination.setType(QUEUE);
+        destination.setProperty(PROPERTY_OBJECT_NAME, jmsDestination);
+        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, ATTR_JNDI_NAME);
+        destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
+        destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
+        destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
+
+        return destination;
     }
 
     @Override
@@ -240,25 +251,10 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                     LOG.debug("JMS Server {}", jmsServer);
                     ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, ATTR_DESTINATIONS);
                     for (ObjectName jmsDestination : jmsDestinations) {
-                        LOG.debug("JMS Destination {}", jmsDestination);
-                        InternalJMSDestination destination = new InternalJMSDestination();
                         String destinationFQName = (String) mbsc.getAttribute(jmsDestination, ATTR_NAME);
-                        // The name must be the queueName in a single server or serverName@queueName in a cluster.
-                        String destName = getShortDestName(destinationFQName);
-                        destination.setName(destName);
-                        destination.setFullyQualifiedName(removeJmsModule(destinationFQName));
+                        InternalJMSDestination destination = createInternalJMSDestination(mbsc, jmsDestination, destinationFQName);
 
-                        destName = getOnlyDestName(destName);
-                        ObjectName configQueue = getQueueMap(mbsc).get(destName);
-                        // We do not manage Topic at the moment
-                        if (configQueue == null) continue;
-
-                        destination.setType(QUEUE);
-                        destination.setProperty(PROPERTY_OBJECT_NAME, jmsDestination);
-                        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, ATTR_JNDI_NAME);
-                        destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
-                        destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
-                        destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
+                        if (destination == null) continue; //topic
                         destinationsMap.put(destinationFQName, destination);
                     }
                 }
@@ -277,12 +273,12 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return destName;
     }
 
-    protected Long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination) throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException, IOException {
+    protected long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination) throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException, IOException {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
             return NB_MESSAGES_ADMIN;
         }
-        Long result = 0L;
+        long result = 0;
 
         Long messagesCurrentCount = (Long) mbsc.getAttribute(jmsDestination, "MessagesCurrentCount");
         if (messagesCurrentCount != null) {
