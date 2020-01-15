@@ -79,15 +79,15 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
   constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog, private securityService: SecurityService) {
     super();
-
-    this.getAlertTypes();
-    this.getAlertLevels();
-    this.getAlertStatuses();
   }
 
   ngOnInit() {
     super.ngOnInit();
 
+    this.getAlertTypes();
+    this.getAlertLevels();
+    this.getAlertStatuses();
+    
     this.loading = false;
     this.rows = [];
     this.count = 0;
