@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
 /*
  * @author Ioana Dragusanu (idragusa)
  * @since 3.2.5
-*/
+ */
 
 @RunWith(JMockit.class)
 public class DynamicDiscoveryServiceOASISTest {
@@ -62,7 +62,9 @@ public class DynamicDiscoveryServiceOASISTest {
     private static final String DOMAIN = "default";
 
     private static final String ADDRESS = "http://localhost:9090/anonymous/msh";
+    private static final String DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
 
+    private static final String DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.partyid.responder.role";
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
@@ -181,21 +183,21 @@ public class DynamicDiscoveryServiceOASISTest {
         return serviceMetadata;
     }
 
-   @Test
+    @Test
     public void testProxyConfigured() throws Exception {
         // Given
-       new MockUp<DefaultProxy>() {
-           void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
-               Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is not empty",
-                       invocation.getInvocationCount() == 1
-                               && "192.168.0.0".equals(serverAddress)
-                               && 1234 == serverPort
-                               && "proxyUser".equals(user)
-                               && "proxyPassword".equals(password)
-                               && "host1,host2".equals(nonProxyHosts)
-               );
-           }
-       };
+        new MockUp<DefaultProxy>() {
+            void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
+                Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is not empty",
+                        invocation.getInvocationCount() == 1
+                                && "192.168.0.0".equals(serverAddress)
+                                && 1234 == serverPort
+                                && "proxyUser".equals(user)
+                                && "proxyPassword".equals(password)
+                                && "host1,host2".equals(nonProxyHosts)
+                );
+            }
+        };
 
         new Expectations(dynamicDiscoveryServiceOASIS) {{
             DomibusProxy domibusProxy = new DomibusProxy();
@@ -219,21 +221,22 @@ public class DynamicDiscoveryServiceOASISTest {
         //then
         Assert.assertNotNull(defaultProxy);
     }
-   @Test
+
+    @Test
     public void testProxyConfigured_emptyProxyUser() throws Exception {
         // Given
-       new MockUp<DefaultProxy>() {
-           void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
-               Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is empty",
-                       invocation.getInvocationCount() == 1
-                               && "192.168.0.0".equals(serverAddress)
-                               && 1234 == serverPort
-                               && user == null
-                               && password == null
-                               && "host1,host2".equals(nonProxyHosts)
-               );
-           }
-       };
+        new MockUp<DefaultProxy>() {
+            void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
+                Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is empty",
+                        invocation.getInvocationCount() == 1
+                                && "192.168.0.0".equals(serverAddress)
+                                && 1234 == serverPort
+                                && user == null
+                                && password == null
+                                && "host1,host2".equals(nonProxyHosts)
+                );
+            }
+        };
 
         new Expectations(dynamicDiscoveryServiceOASIS) {{
             DomibusProxy domibusProxy = new DomibusProxy();
@@ -272,6 +275,7 @@ public class DynamicDiscoveryServiceOASISTest {
         //then
         Assert.assertNull(defaultProxy);
     }
+
     @Test
     public void testCreateDynamicDiscoveryClientWithProxy() throws Exception {
         // Given
@@ -376,5 +380,30 @@ public class DynamicDiscoveryServiceOASISTest {
         Assert.assertNotNull(endpointInfo);
     }
 
+    @Test
+    public void getPartyIdTypeTest() {
+        final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
+            result = "";
+            times = 1;
+        }};
+        String partyIdType = dynamicDiscoveryServiceOASIS.getPartyIdType();
+        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+    }
+
+    @Test
+    public void getResponderRoleTest() {
+        final String DEFAULT_RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
+
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE);
+            result = "";
+            times = 1;
+        }};
+        String responderRole = dynamicDiscoveryServiceOASIS.getResponderRole();
+
+        Assert.assertEquals(responderRole, DEFAULT_RESPONDER_ROLE);
+    }
 }
 
