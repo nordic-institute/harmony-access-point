@@ -1,5 +1,6 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorResult;
@@ -9,6 +10,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -74,6 +76,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected DomainContextExtService domainContextExtService;
 
     @Autowired
+    private DomainTaskExtExecutor domainTaskExtExecutor;
+
+    @Autowired
     @Qualifier(value = "mshToBackendTemplate")
     private JmsOperations mshToBackendTemplate;
 
@@ -84,6 +89,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     private AccessPointHelper accessPointHelper = new AccessPointHelper();
 
     private EndPointHelper endPointHelper = new EndPointHelper();
+
+    private DomainDTO DEFAULT_DOMAIN = new DomainDTO("default", "Default");
 
     public BackendJMSImpl(String name) {
         super(name);
@@ -171,7 +178,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             sendResponseFromC3Plugin = Boolean.parseBoolean(property);
         }
         if (sendResponseFromC3Plugin) {
-            downloadAndSendBack(messageId);
+            domainTaskExtExecutor.submitLongRunningTask(
+                    () -> downloadAndSendBack(messageId),DEFAULT_DOMAIN);
+
         } else {
             LOG.debug("Delivering message");
             final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
@@ -186,21 +195,21 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     public void downloadAndSendBack(final String messageId) {
         Timer.Context jms_deliver_message_hacked = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "jms_deliver_message_hacked")).time();
+        Counter jms_deliver_message_hacked_counter = domainContextExtService.getMetricRegistry().counter("jms_deliver_message_hacked_counter");
         try {
+            jms_deliver_message_hacked_counter.inc();
             final Submission submission = this.messageRetriever.downloadMessage(messageId);
             Submission submissionResponse = getSubmissionResponse(submission, HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId));
-            new Thread(() -> {
-                try {
-                    messageSubmitter.submit(submissionResponse, getName());
-                } catch (MessagingProcessingException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }).start();
-
+            try {
+                messageSubmitter.submit(submissionResponse, getName());
+            } catch (MessagingProcessingException e) {
+                LOG.error(e.getMessage(), e);
+            }
         } catch (MessagingProcessingException e) {
             LOG.error(e.getMessage(), e);
         } finally {
             jms_deliver_message_hacked.stop();
+            jms_deliver_message_hacked_counter.dec();
         }
     }
 
