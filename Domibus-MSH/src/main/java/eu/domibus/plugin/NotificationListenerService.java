@@ -1,6 +1,7 @@
 
 package eu.domibus.plugin;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
@@ -71,6 +72,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    MetricRegistry metricRegistry;
+
     private Queue backendNotificationQueue;
     private BackendConnector.Mode mode;
     private BackendConnector backendConnector;
@@ -115,14 +119,16 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
-    @Timer(value = ON_MESSAGE)
-    @Counter(ON_MESSAGE)
+//    @Timer(value = ON_MESSAGE)
+//    @Counter(ON_MESSAGE)
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
         }
 
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "listener.on_message"));
         try {
+            methodCounter.inc();
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
@@ -136,7 +142,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
+                    com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.RECEIVED.deliverMessage")).time();
                     backendConnector.deliverMessage(messageId);
+                    deliverMessageMetric.stop();
                     break;
                 case MESSAGE_SEND_FAILURE:
                     backendConnector.messageSendFailed(messageId);
@@ -154,6 +162,8 @@ public class NotificationListenerService implements MessageListener, JmsListener
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
+        } finally {
+            methodCounter.dec();
         }
     }
 
