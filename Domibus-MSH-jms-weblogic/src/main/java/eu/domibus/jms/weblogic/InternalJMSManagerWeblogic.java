@@ -56,12 +56,15 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     private static final String PROPERTY_JNDI_NAME = "Jndi";
     private static final String JMS_TYPE = "JMSType";
     private static final String FAILED_TO_BUILD_JMS_DEST_MAP = "Failed to build JMS destination map";
-    public static final String JMX_SERVER_RUNTIMES = "ServerRuntimes";
-    public static final String JMX_JMS_RUNTIME = "JMSRuntime";
-    public static final String JMX_JMS_SERVERS = "JMSServers";
-    public static final String JMX_DESTINATIONS = "Destinations";
-    public static final String JMX_NAME = "Name";
-    public static final String JMX_ADMIN_SERVER = "AdminServer";
+
+    /** JMX attributes */
+    public static final String ATTR_SERVER_RUNTIMES = "ServerRuntimes";
+    public static final String ATTR_JMS_RUNTIME = "JMSRuntime";
+    public static final String ATTR_JMS_SERVERS = "JMSServers";
+    public static final String ATTR_DESTINATIONS = "Destinations";
+    public static final String ATTR_NAME = "Name";
+    public static final String ATTR_ADMIN_SERVER = "AdminServer";
+    public static final String ATTR_JNDI_NAME = "JNDIName";
 
 
     protected Map<String, ObjectName> queueMap;
@@ -114,18 +117,18 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> destinationMap = new TreeMap<>();
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
-            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, JMX_SERVER_RUNTIMES);
+            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, ATTR_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
                 LOG.debug("Server {}", server);
-                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, JMX_JMS_RUNTIME);
-                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, JMX_JMS_SERVERS);
+                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, ATTR_JMS_RUNTIME);
+                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, ATTR_JMS_SERVERS);
                 for (ObjectName jmsServer : jmsServers) {
                     LOG.debug("JMS Server {}", jmsServer);
-                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, JMX_DESTINATIONS);
+                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, ATTR_DESTINATIONS);
                     for (ObjectName jmsDestination : jmsDestinations) {
                         LOG.debug("JMS Destination {}", jmsDestination);
                         InternalJMSDestination destination = new InternalJMSDestination();
-                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, JMX_NAME);
+                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, ATTR_NAME);
                         // The name must be the queueName in a single server or serverName@queueName in a cluster.
                         String destName = getShortDestName(destinationFQName);
                         destination.setName(destName);
@@ -138,7 +141,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
                         destination.setType(QUEUE);
                         destination.setProperty(PROPERTY_OBJECT_NAME, jmsDestination);
-                        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, "JNDIName");
+                        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, ATTR_JNDI_NAME);
                         destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
                         destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
                         destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
@@ -195,14 +198,14 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         List<String> result = new ArrayList<>();
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
-            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, JMX_SERVER_RUNTIMES);
+            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, ATTR_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
-                final Boolean isAdminServer = (Boolean) mbsc.getAttribute(server, JMX_ADMIN_SERVER);
+                final Boolean isAdminServer = (Boolean) mbsc.getAttribute(server, ATTR_ADMIN_SERVER);
                 //we want only the managed server names
                 if (isAdminServer) {
                     continue;
                 }
-                String serverName = (String) mbsc.getAttribute(server, JMX_NAME);
+                String serverName = (String) mbsc.getAttribute(server, ATTR_NAME);
                 LOG.debug("Found managed server [{}]", serverName);
                 result.add(serverName);
             }
@@ -228,18 +231,18 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> destinationsMap = new HashMap<>();
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
-            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, JMX_SERVER_RUNTIMES);
+            ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, ATTR_SERVER_RUNTIMES);
             for (ObjectName server : servers) {
                 LOG.debug("Server {}", server);
-                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, JMX_JMS_RUNTIME);
-                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, JMX_JMS_SERVERS);
+                ObjectName jmsRuntime = (ObjectName) mbsc.getAttribute(server, ATTR_JMS_RUNTIME);
+                ObjectName[] jmsServers = (ObjectName[]) mbsc.getAttribute(jmsRuntime, ATTR_JMS_SERVERS);
                 for (ObjectName jmsServer : jmsServers) {
                     LOG.debug("JMS Server {}", jmsServer);
-                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, JMX_DESTINATIONS);
+                    ObjectName[] jmsDestinations = (ObjectName[]) mbsc.getAttribute(jmsServer, ATTR_DESTINATIONS);
                     for (ObjectName jmsDestination : jmsDestinations) {
                         LOG.debug("JMS Destination {}", jmsDestination);
                         InternalJMSDestination destination = new InternalJMSDestination();
-                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, JMX_NAME);
+                        String destinationFQName = (String) mbsc.getAttribute(jmsDestination, ATTR_NAME);
                         // The name must be the queueName in a single server or serverName@queueName in a cluster.
                         String destName = getShortDestName(destinationFQName);
                         destination.setName(destName);
@@ -252,7 +255,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
                         destination.setType(QUEUE);
                         destination.setProperty(PROPERTY_OBJECT_NAME, jmsDestination);
-                        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, "JNDIName");
+                        String configQueueJndiName = (String) mbsc.getAttribute(configQueue, ATTR_JNDI_NAME);
                         destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
                         destination.setInternal(jmsDestinationHelper.isInternal(configQueueJndiName));
                         destination.setNumberOfMessages(getMessagesTotalCount(mbsc, jmsDestination));
@@ -330,17 +333,17 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             ObjectName configJmsResource = (ObjectName) mbsc.getAttribute(configJmsSystemResource, "JMSResource");
             ObjectName[] configQueues = (ObjectName[]) mbsc.getAttribute(configJmsResource, "Queues");
             for (ObjectName configQueue : configQueues) {
-                String configQueueName = (String) mbsc.getAttribute(configQueue, JMX_NAME);
+                String configQueueName = (String) mbsc.getAttribute(configQueue, ATTR_NAME);
                 queueMap.put(configQueueName, configQueue);
             }
             ObjectName[] configDDQueues = (ObjectName[]) mbsc.getAttribute(configJmsResource, "DistributedQueues");
             for (ObjectName configQueue : configDDQueues) {
-                String configQueueName = (String) mbsc.getAttribute(configQueue, JMX_NAME);
+                String configQueueName = (String) mbsc.getAttribute(configQueue, ATTR_NAME);
                 queueMap.put(configQueueName, configQueue);
             }
             ObjectName[] configUDDQueues = (ObjectName[]) mbsc.getAttribute(configJmsResource, "UniformDistributedQueues");
             for (ObjectName configQueue : configUDDQueues) {
-                String configQueueName = (String) mbsc.getAttribute(configQueue, JMX_NAME);
+                String configQueueName = (String) mbsc.getAttribute(configQueue, ATTR_NAME);
                 queueMap.put(configQueueName, configQueue);
             }
         }
