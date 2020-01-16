@@ -56,6 +56,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Soumya
  * @since 4.1
  */
 @RunWith(JMockit.class)
@@ -1033,5 +1034,31 @@ public class SplitAndJoinDefaultServiceTest {
         }};
 
         Assert.assertNotNull(splitAndJoinDefaultService.getUserMessage(sourceMessageFileName, contentTypeString));
+    }
+
+
+    @Test
+    public void mergeFilesTest(@Mocked File file1,
+                               @Mocked File file2,
+                               @Injectable OutputStream mergingStream,
+                               @Injectable Files files,
+                               @Injectable Path path) throws IOException {
+        List<File> filesList = new ArrayList<>();
+        filesList.add(file1);
+        filesList.add(file2);
+        new Expectations(splitAndJoinDefaultService) {
+            {
+                file1.toPath();
+                result = path;
+            }
+        };
+        splitAndJoinDefaultService.mergeFiles(filesList, mergingStream);
+        new Verifications() {{
+            files.copy(path, mergingStream);
+            times = 2;
+            mergingStream.flush();
+            times = 2;
+        }};
+
     }
 }

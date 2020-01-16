@@ -213,8 +213,9 @@ public class UserManagementServiceImplTest {
             userManagementService.validateAtLeastOneOfRole(role);
         } catch (UserManagementException ex) {
             Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
+            return;
         }
-
+        Assert.fail();
     }
 }
 

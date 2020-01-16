@@ -99,7 +99,7 @@ public class PullMessageStateServiceImplTest {
 
     @Test
     public void resetTest(@Injectable UserMessageLog userMessageLog,
-                          @Mocked MessageStatus messageStatus,
+                          @Injectable MessageStatus messageStatus,
                           @Mocked Timestamp timestamp) {
         final MessageStatus readyToPull = messageStatus.READY_TO_PULL;
         new Expectations(pullMessageStateService) {{
