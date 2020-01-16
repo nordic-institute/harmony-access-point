@@ -138,7 +138,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private MetricRegistry metricRegistry;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         com.codahale.metrics.Timer.Context checkSelfSending = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "checkSelfSending")).time();
@@ -223,14 +223,23 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 // ping messages are only stored and not notified to the plugins
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, null, null);
             } else {
+                com.codahale.metrics.Timer.Context getMatchingBackendFilter = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "getMatchingBackendFilter")).time();
                 final BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
+                getMatchingBackendFilter.stop();
 
+                com.codahale.metrics.Timer.Context getMessageFragmentTimer = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "getMessageFragment")).time();
                 MessageFragmentType messageFragmentType = messageUtil.getMessageFragment(request);
+                getMessageFragmentTimer.stop();
+
+                com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage")).time();
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName);
+                persistReceivedMessage.stop();
 
                 try {
+                    com.codahale.metrics.Timer.Context notifyMessageReceived = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "notifyMessageReceived")).time();
                     backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
+                    notifyMessageReceived.stop();
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);

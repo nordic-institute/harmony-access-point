@@ -1,5 +1,6 @@
 package eu.domibus.jms.weblogic;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
@@ -91,6 +92,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -367,7 +371,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
+        com.codahale.metrics.Timer.Context send = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "send")).time();
         jmsOperations.send(destination, new JmsMessageCreator(message));
+        send.stop();
     }
 
     @Override

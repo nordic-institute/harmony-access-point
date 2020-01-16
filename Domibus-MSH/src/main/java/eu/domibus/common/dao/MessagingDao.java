@@ -64,6 +64,7 @@ public class MessagingDao extends BasicDao<Messaging> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Messaging findMessageByMessageId(final String messageId) {
         try {
             final TypedQuery<Messaging> query = em.createNamedQuery("Messaging.findMessageByMessageId", Messaging.class);

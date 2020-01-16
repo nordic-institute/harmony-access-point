@@ -62,7 +62,7 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         }
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void update(final T entity) {
         em.merge(entity);
     }

@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -71,6 +73,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
         return messagingConfigurationLoader.getConfiguration(this::readMessageConfiguration);

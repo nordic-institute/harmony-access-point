@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.receiver;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
@@ -12,6 +13,7 @@ import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.common.services.impl.UserMessageHandlerServiceImpl;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
@@ -126,6 +128,9 @@ public class BackendNotificationService {
     @Autowired
     protected UserMessageService userMessageService;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
@@ -164,6 +169,7 @@ public class BackendNotificationService {
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
             return;
@@ -346,7 +352,9 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
+        com.codahale.metrics.Timer.Context sendMessageToQueue = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "sendMessageToQueue")).time();
         jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), notificationListener.getBackendNotificationQueue());
+        sendMessageToQueue.stop();
     }
 
     public void notifyOfSendFailure(UserMessageLog userMessageLog) {
@@ -382,14 +390,17 @@ public class BackendNotificationService {
         uiReplicationSignalService.messageNotificationStatusChange(messageId, NotificationStatus.NOTIFIED);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         notifyOfMessageStatusChange(null, messageLog, newStatus, changeTimestamp);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
+
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
             eventService.enqueueMessageEvent(messageLog.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole());
         }
