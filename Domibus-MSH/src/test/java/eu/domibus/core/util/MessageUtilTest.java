@@ -25,7 +25,7 @@ import javax.xml.transform.TransformerException;
 import java.util.*;
 
 /**
- * @author azhikso
+ * @author Soumya Chandran
  * @since 4.2
  */
 @RunWith(JMockit.class)
