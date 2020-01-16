@@ -60,7 +60,7 @@ public class Configuration {
     @Value("${ws.plugin.url}")
     private String wsdlUrl;
 
-    @Value("${sending.thread.pool.size:50}")
+    @Value("${sending.thread.pool.size:100}")
     private Integer sendingThreadPoolSize;
 
 
@@ -152,7 +152,7 @@ public class Configuration {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setMaxPoolSize(sendingThreadPoolSize);
         threadPoolTaskExecutor.setCorePoolSize(sendingThreadPoolSize);
-        threadPoolTaskExecutor.setQueueCapacity(sendingThreadPoolSize);
+        //threadPoolTaskExecutor.setQueueCapacity(sendingThreadPoolSize);
         return threadPoolTaskExecutor;
     }
 
