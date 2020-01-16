@@ -102,7 +102,6 @@ public class JMSQueuesCountSet implements MetricSet {
     private long getQueueSize(final JMSDestination jmsDestination) {
         return domainTaskExecutor.submit(() -> {
             assureSecurityRights();
-
             final long queueSize = jmsManager.getDestinationSize(jmsDestination);
             LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", jmsDestination.getName(), queueSize);
             return queueSize;
