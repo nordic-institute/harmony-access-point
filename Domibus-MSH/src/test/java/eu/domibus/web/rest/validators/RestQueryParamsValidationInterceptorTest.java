@@ -27,11 +27,6 @@ public class RestQueryParamsValidationInterceptorTest {
         queryParams.put("param1", arr1);
         queryParams.put("param2", arr2);
 
-//        new Expectations() {{
-//            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, null));
-//            result = new ValidationException("");
-//        }};
-
         boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
 
         Assert.assertEquals(true, actualValid);
