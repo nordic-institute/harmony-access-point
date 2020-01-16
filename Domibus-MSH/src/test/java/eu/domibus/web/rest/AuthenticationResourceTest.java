@@ -10,11 +10,13 @@ import eu.domibus.common.services.UserService;
 import eu.domibus.common.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
+import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.security.AuthenticationService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ChangePasswordRO;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoginRO;
+import eu.domibus.web.rest.ro.UserRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -22,8 +24,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -272,4 +278,43 @@ public class AuthenticationResourceTest {
         Assert.assertEquals(userName, userNameActual);
     }
 
+    @Test
+    public void testGetUser(final @Mocked UserDetail userDetail) {
+        new Expectations(authenticationResource) {{
+            authenticationResource.getLoggedUser();
+            result = userDetail;
+        }};
+
+        //tested method
+        final UserRO userNameActual = authenticationResource.getUser();
+        Assert.assertNotNull(userNameActual);
+    }
+
+    @Test
+    public void testHandleAccountStatusException(final @Mocked AccountStatusException ex) {
+        new Expectations(authenticationResource) {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            result = any;
+        }};
+        //tested method
+        authenticationResource.handleAccountStatusException(ex);
+        new FullVerifications() {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testHandleAuthenticationException(final @Mocked AuthenticationException ex) {
+        new Expectations(authenticationResource) {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            result = any;
+        }};
+        //tested method
+        authenticationResource.handleAuthenticationException(ex);
+        new FullVerifications() {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            times = 1;
+        }};
+    }
 }

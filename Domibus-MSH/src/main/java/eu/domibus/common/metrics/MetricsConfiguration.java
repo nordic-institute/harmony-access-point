@@ -8,6 +8,7 @@ import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -60,7 +61,7 @@ public class MetricsConfiguration {
 
     @Bean
     public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry,
-                                         JMSManager jmsManager, AuthUtils authUtils) {
+                                         JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
         MetricRegistry metricRegistry = new MetricRegistry();
         Boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
 
@@ -90,7 +91,7 @@ public class MetricsConfiguration {
         if (monitorJMSQueues) {
             long refreshPeriod = NumberUtils.toLong(domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD), 10);
             boolean showDLQOnly = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
-            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils,
+            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
                     refreshPeriod, showDLQOnly));
         }
 

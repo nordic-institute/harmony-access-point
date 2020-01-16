@@ -14,14 +14,13 @@ import org.junit.runner.RunWith;
 import org.quartz.*;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 import java.util.*;
 
 /**
  * JUnit for {@link DomibusQuartzStarter}
  *
- * @author Catalin Enache
+ * @author Catalin Enache, Soumya Chandran
  * @version 1.0
  * @since 3.3.2
  */
@@ -34,7 +33,7 @@ public class DomibusQuartzStarterTest {
     private final Set<JobKey> jobKeys = new HashSet<>();
     private final JobKey jobKey1 = new JobKey("retryWorkerJob", groupName);
     private final List<Scheduler> generalSchedulers = new ArrayList<>();
-    private final  Map<Domain, Scheduler> schedulers = new HashMap<>();
+    private final Map<Domain, Scheduler> schedulers = new HashMap<>();
     @Tested
     private DomibusQuartzStarter domibusQuartzStarter;
 
@@ -52,7 +51,6 @@ public class DomibusQuartzStarterTest {
 
     @Injectable
     protected Trigger trigger;
-
 
 
     @Before
@@ -128,19 +126,36 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    public void getTriggerInfoMultiTenantAwareTest() throws Exception {
-        generalSchedulers.add(scheduler);
-        QuartzInfo quartzInfo = new QuartzInfo();
-        final List<QuartzTriggerDetails>[] triggerInfoList = new List[]{new ArrayList<>()};
-        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
-        triggerInfo.setJobName("Retry Worker");
-        triggerInfoList[0].add(triggerInfo);
-        quartzInfo.setQuartzTriggerDetails(triggerInfoList[0]);
-        new Expectations() {{
+    public void getTriggerInfoMultiTenantAwareTest(@Injectable QuartzTriggerDetails triggerInfo) throws Exception {
+        final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        new Expectations(domibusQuartzStarter) {{
             domibusConfigurationService.isMultiTenantAware();
-            result=true;
-            triggerInfoList[0] = domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
+            result = true;
+            domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
+            result = triggerInfoList;
+        }};
+
+        domibusQuartzStarter.getTriggerInfo();
+
+        new Verifications() {{
+            domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
             times = 1;
+        }};
+
+    }
+
+    @Test
+    public void getTriggerInfoNonMultiTenantAwareTest(@Injectable QuartzTriggerDetails triggerInfo) throws Exception {
+
+        generalSchedulers.add(scheduler);
+        final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.getSchedulersInfo(schedulers);
+            result = triggerInfoList;
+            times = 1;
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
         }};
 
         QuartzInfo domibusMonitoringInfo = domibusQuartzStarter.getTriggerInfo();
@@ -150,100 +165,114 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    public void getTriggerInfoNonMultiTenantAwareTest() throws Exception {
-
+    public void getGeneralSchedulersInfoTest(@Injectable QuartzTriggerDetails triggerInfo) throws Exception {
         generalSchedulers.add(scheduler);
-        QuartzInfo quartzInfo = new QuartzInfo();
-        final List<QuartzTriggerDetails>[] triggerInfoList = new List[]{new ArrayList<>()};
-        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
-        triggerInfo.setJobName("Retry Worker");
-        triggerInfoList[0].add(triggerInfo);
-        quartzInfo.setQuartzTriggerDetails(triggerInfoList[0]);
+        final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+
         new Expectations() {{
-            domibusConfigurationService.isMultiTenantAware();
-            result=false;
-            triggerInfoList[0] = domibusQuartzStarter.getSchedulersInfo(schedulers);
-            times = 1;
-        }};
-
-        QuartzInfo domibusMonitoringInfo = domibusQuartzStarter.getTriggerInfo();
-
-        Assert.assertNotNull(domibusMonitoringInfo);
-
-    }
-
-    @Test
-    public void getGeneralSchedulersInfoTest() throws Exception {
-        generalSchedulers.add(scheduler);
-        QuartzInfo quartzInfo = new QuartzInfo();
-        final List<QuartzTriggerDetails>[] triggerInfoList = new List[]{new ArrayList<>()};
-        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
-        triggerInfo.setJobName("Retry Worker");
-        triggerInfoList[0].add(triggerInfo);
-        quartzInfo.setQuartzTriggerDetails(triggerInfoList[0]);
-        new Expectations() {{
-
             scheduler.getJobGroupNames();
             times = 1;
             result = jobGroups;
-            triggerInfoList[0] =  domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            result = triggerInfoList;
+        }};
+
+        domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
+        new Verifications() {{
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
             times = 1;
         }};
 
-        triggerInfoList[0] =  domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
     }
 
     @Test
-    public void getSchedulersInfoTest() throws Exception {
-        schedulers.put(new Domain(), scheduler);
-        QuartzInfo quartzInfo = new QuartzInfo();
-        final List<QuartzTriggerDetails>[] triggerInfoList = new List[]{new ArrayList<>()};
-        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
-        triggerInfo.setJobName("Retry Worker");
-        triggerInfoList[0].add(triggerInfo);
-        quartzInfo.setQuartzTriggerDetails(triggerInfoList[0]);
+    public void getSchedulersInfoTest(@Injectable Domain domain,
+                                      @Injectable QuartzTriggerDetails triggerInfo) throws Exception {
+        schedulers.put(domain, scheduler);
+        final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
         new Expectations() {{
-
             scheduler.getJobGroupNames();
             times = 1;
             result = jobGroups;
-            triggerInfoList[0] = domibusQuartzStarter.getTriggerDetails(scheduler,  groupName, domainName);
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            result = triggerInfoList;
+        }};
+        domibusQuartzStarter.getSchedulersInfo(schedulers);
+        new Verifications() {{
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
             times = 1;
         }};
-
-        triggerInfoList[0] = domibusQuartzStarter.getSchedulersInfo(schedulers);
     }
 
     @Test
-    public void getTriggerDetailsTest() throws Exception {
-        schedulers.put(new Domain(), scheduler);
-         trigger = TriggerBuilder.newTrigger()
+    public void getTriggerDetailsTest(@Injectable Domain domain,
+                                      @Injectable QuartzTriggerDetails triggerInfo) throws Exception {
+        schedulers.put(domain, scheduler);
+        String jobName = "Retry Worker";
+        trigger = TriggerBuilder.newTrigger()
                 .withIdentity("myTrigger", "group1")
                 .build();
         final List<Trigger> list = new ArrayList<>();
         list.add(trigger);
-        QuartzInfo quartzInfo = new QuartzInfo();
         List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
-        QuartzTriggerDetails triggerInfo = new QuartzTriggerDetails();
-        triggerInfo.setJobName("Retry Worker");
-        triggerInfoList.add(triggerInfo);
-        quartzInfo.setQuartzTriggerDetails(triggerInfoList);
-
         new Expectations() {{
-
             scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName));
             times = 1;
             result = jobKeys;
-
-            scheduler.getTriggerState(trigger.getKey());
-            result = Trigger.TriggerState.ERROR;
-
+            jobKey1.getName();
+            result = jobName;
             scheduler.getTriggersOfJob(jobKey1);
             times = 1;
             result = list;
-
         }};
 
-       domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+        domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+
+        new Verifications() {{
+            domibusQuartzStarter.getTriggersInErrorOrBlockedState(scheduler, domainName, triggerInfoList, jobName, list);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getTriggersInErrorOrBlockedStateTest(@Injectable Domain domain,
+                                                     @Injectable QuartzTriggerDetails quartzTriggerDetails) throws SchedulerException {
+        schedulers.put(domain, scheduler);
+        String jobName = "Retry Worker";
+        final TriggerKey triggerKey = TriggerBuilder.newTrigger()
+                .withIdentity("myTrigger", "group1")
+                .build().getKey();
+        final List<Trigger> triggers = new ArrayList<>();
+        triggers.add(trigger);
+        final Trigger.TriggerState triggerState = Trigger.TriggerState.ERROR;
+        List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
+        new Expectations(domibusQuartzStarter) {{
+            trigger.getKey();
+            result = triggerKey;
+
+            scheduler.getTriggerState(withAny(triggerKey));
+            result = triggerState;
+
+            domibusQuartzStarter.isTriggerInErrorOrBlockedState(withAny(Trigger.TriggerState.ERROR), withAny(trigger));
+            result = true;
+        }};
+
+        domibusQuartzStarter.getTriggersInErrorOrBlockedState(scheduler, domainName, triggerInfoList, jobName, triggers);
+        new FullVerifications() {{
+            domibusQuartzStarter.isTriggerInErrorOrBlockedState(withAny(Trigger.TriggerState.ERROR), trigger);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void isTriggerInErrorOrBlockedStateTest(@Injectable Trigger.TriggerState triggerState,
+                                                   @Injectable Trigger trigger) {
+        new Expectations() {{
+            trigger.getPreviousFireTime();
+            times = 1;
+        }};
+
+        boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger);
+        Assert.assertTrue(isErrorOrBlockedState);
     }
 }
