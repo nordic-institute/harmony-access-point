@@ -552,18 +552,6 @@ public class MessageUtilTest {
         Assert.assertNotNull(messageUtil.createPullRequest(signalNode));
     }
 
-    /* @Test
-     public void nodeToStringTest(@Injectable final Node node,
-                                  @Injectable Transformer transformer,
-                                  @Injectable TransformerFactory transformerFactory) throws TransformerException {
-         new Expectations() {{
-             XMLUtilImpl.getTransformerFactory();
-             result=transformerFactory;
-             transformerFactory.newTransformer();
-             result = transformer;
-         }};
-         Assert.assertNotNull(messageUtil.nodeToString(node));
-     }*/
     @Test
     public void createMessageInfoTest(@Injectable Node signalNode,
                                       @Injectable Node messageInfoNode) {

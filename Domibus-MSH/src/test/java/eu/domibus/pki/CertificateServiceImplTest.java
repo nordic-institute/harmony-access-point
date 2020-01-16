@@ -692,8 +692,6 @@ public class CertificateServiceImplTest {
     ) throws IOException {
         List<java.security.cert.Certificate> certificates = new ArrayList<>();
         certificates.add(certificate);
-        new Expectations(certificateService) {{
-        }};
         certificateService.serializeCertificateChainIntoPemFormat(certificates);
         new Verifications() {{
             pw.writeObject(gen);

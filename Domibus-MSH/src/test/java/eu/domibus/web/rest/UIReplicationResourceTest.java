@@ -114,9 +114,6 @@ public class UIReplicationResourceTest {
 
         Assert.assertEquals(HttpStatus.OK, restResponse.getStatusCode());
         Assert.assertEquals("UIReplication is disabled. No records will be count to be synced for TB_MESSAGE_UI table", restResponse.getBody());
-
-        new FullVerifications() {{
-        }};
     }
 
     @Test
