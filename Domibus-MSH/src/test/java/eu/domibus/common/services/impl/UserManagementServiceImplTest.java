@@ -1,10 +1,13 @@
 package eu.domibus.common.services.impl;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.converters.UserConverter;
 import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
 import eu.domibus.common.dao.security.UserDao;
@@ -20,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,7 +85,7 @@ public class UserManagementServiceImplTest {
             userConverter.convert(userEntities);
             result = users;
             domainContextProvider.getCurrentDomainSafely();
-            result = new Domain("d1","D1");
+            result = new Domain("d1", "D1");
         }};
 
         List<eu.domibus.api.user.User> result = userManagementService.findUsers();
@@ -193,5 +197,24 @@ public class UserManagementServiceImplTest {
         }};
     }
 
+    @Test
+    public void validateAtLeastOneOfRoleTest(@Injectable AuthRole role,
+                                             @Injectable User user) {
+        List<User> users = new ArrayList<>();
+        long count = 0;
+
+        new Expectations() {{
+            userDao.findByRole(role.toString());
+            result = users;
+            users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
+            result = count;
+        }};
+        try {
+            userManagementService.validateAtLeastOneOfRole(role);
+        } catch (UserManagementException ex) {
+            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
+        }
+
+    }
 }
 
