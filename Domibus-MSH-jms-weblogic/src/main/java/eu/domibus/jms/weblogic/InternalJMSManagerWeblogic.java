@@ -352,7 +352,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
             LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
             search.stop();
-            com.codahale.metrics.Timer.Context lookup = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.search.timer")).time();
+            com.codahale.metrics.Timer.Context lookup = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.lookup.timer")).time();
             Destination destination = InitialContext.doLookup(destinationJndi);
             lookup.stop();
             return destination;
