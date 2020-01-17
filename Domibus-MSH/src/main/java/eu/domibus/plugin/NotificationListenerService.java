@@ -143,17 +143,29 @@ public class NotificationListenerService implements MessageListener, JmsListener
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
                     com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.RECEIVED.deliverMessage")).time();
+                    com.codahale.metrics.Counter c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED"));
+                    c.inc();
                     backendConnector.deliverMessage(messageId);
+                    c.dec();
                     deliverMessageMetric.stop();
                     break;
                 case MESSAGE_SEND_FAILURE:
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE"));
+                    c.inc();
                     backendConnector.messageSendFailed(messageId);
+                    c.dec();
                     break;
                 case MESSAGE_SEND_SUCCESS:
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS"));
+                    c.inc();
                     backendConnector.messageSendSuccess(messageId);
+                    c.dec();
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE"));
+                    c.inc();
                     doMessageReceiveFailure(message);
+                    c.dec();
                     break;
                /* case MESSAGE_STATUS_CHANGE:
                     doMessageStatusChange(message);

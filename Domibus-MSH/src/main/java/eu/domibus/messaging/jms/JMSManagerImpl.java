@@ -193,7 +193,6 @@ public class JMSManagerImpl implements JMSManager {
         });
     }
 
-
     protected void sendMessageToQueue(JmsMessage message, String destination, InternalJmsMessage.MessageType messageType) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination);
