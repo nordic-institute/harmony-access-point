@@ -134,8 +134,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> destinationsMap = new TreeMap<>();
         try {
             for (Map.Entry<String, ObjectName> mapEntry : getJmsDestinations(mbsc).entrySet()) {
-                String destinationFQName = mapEntry.getKey();
-                ObjectName jmsDestination = mapEntry.getValue();
+                final String destinationFQName = mapEntry.getKey();
+                final ObjectName jmsDestination = mapEntry.getValue();
 
                 InternalJMSDestination destination = createInternalJMSDestination(mbsc, jmsDestination, destinationFQName);
                 if (destination == null) continue; //topic
@@ -238,14 +238,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected Long getDestinationCount(MBeanServerConnection mbsc, InternalJMSDestination internalJMSDestination) {
         ObjectName jmsDestination = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
-        long result;
         try {
-            result = getMessagesTotalCount(mbsc, jmsDestination);
+            return getMessagesTotalCount(mbsc, jmsDestination);
         } catch (Exception e) {
-
             throw new InternalJMSException("Exception while getting count for destination: " + internalJMSDestination.getName(), e);
         }
-        return result;
     }
 
     protected List<String> getManagedServerNames() {
@@ -300,8 +297,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         Map<String, InternalJMSDestination> destinationsMap = new HashMap<>();
         try {
             for (Map.Entry<String, ObjectName> mapEntry : getJmsDestinations(mbsc).entrySet()) {
-                String destinationFQName = mapEntry.getKey();
-                ObjectName jmsDestination = mapEntry.getValue();
+                final String destinationFQName = mapEntry.getKey();
+                final ObjectName jmsDestination = mapEntry.getValue();
 
                 InternalJMSDestination destination = createInternalJMSDestination(mbsc, jmsDestination, destinationFQName);
                 if (destination == null) continue; //topic
