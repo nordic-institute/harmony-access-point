@@ -1,8 +1,9 @@
 package eu.domibus.wildfly12.server;
 
-import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.api.property.DomibusPropertyManager;
+import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyServiceDelegateAbstract;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -18,16 +19,17 @@ import static eu.domibus.jms.wildfly.InternalJMSManagerWildFlyArtemis.JMS_BROKER
  * Property manager for the Wildfly Artemis specific properties.
  */
 @Service("serverPropertyManager")
-public class WildflyPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
+public class WildflyPropertyManager extends DomibusPropertyServiceDelegateAbstract
+        implements DomibusPropertyManager {
 
-    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new String[]{
+    private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
             JMS_BROKER_PROPERTY
     })
-            .map(name -> DomibusPropertyMetadataDTO.getReadOnlyGlobalProperty(name, Module.WILDFLY_ARTEMIS))
+            .map(name -> DomibusPropertyMetadata.getReadOnlyGlobalProperty(name, Module.WILDFLY_ARTEMIS))
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
-    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
         return knownProperties;
     }
 

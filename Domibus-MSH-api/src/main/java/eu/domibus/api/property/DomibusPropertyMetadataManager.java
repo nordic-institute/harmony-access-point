@@ -6,7 +6,7 @@ import java.util.Map;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * The interface implemented by MSH and the plugins to handle getting and setting of domibus properties at runtime
+ * The interface implemented by MSH to expose metadata for all of the configuration properties
  */
 public interface DomibusPropertyMetadataManager {
 

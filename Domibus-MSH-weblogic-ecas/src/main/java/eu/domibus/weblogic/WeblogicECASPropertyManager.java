@@ -1,6 +1,6 @@
 package eu.domibus.weblogic;
 
-import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.ext.domain.Module;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +19,14 @@ import static eu.domibus.weblogic.security.ECASUserDetailsService.*;
  */
 @Service("serverPropertyManager")
 public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
-    private Map<String, DomibusPropertyMetadataDTO> allProperties;
+    private Map<String, DomibusPropertyMetadata> allProperties;
 
-    private Map<String, DomibusPropertyMetadataDTO> myProperties = Arrays.stream(new String[]{
+    private Map<String, DomibusPropertyMetadata> myProperties = Arrays.stream(new String[]{
             ECAS_DOMIBUS_LDAP_GROUP_PREFIX_KEY,
             ECAS_DOMIBUS_USER_ROLE_MAPPINGS_KEY,
             ECAS_DOMIBUS_DOMAIN_MAPPINGS_KEY
     })
-            .map(name -> DomibusPropertyMetadataDTO.getReadOnlyGlobalProperty(name, Module.WEBLOGIC_ECAS))
+            .map(name -> DomibusPropertyMetadata.getReadOnlyGlobalProperty(name, Module.WEBLOGIC_ECAS))
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
 
@@ -35,7 +35,7 @@ public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
     }
 
     @Override
-    public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+    public synchronized Map<String, DomibusPropertyMetadata> getKnownProperties() {
         if (allProperties == null) {
             allProperties = new HashMap<>();
             allProperties.putAll(super.getKnownProperties());
