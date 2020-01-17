@@ -12,6 +12,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
 
@@ -19,7 +21,7 @@ import java.util.Map;
 public class DomibusPropertyManagerDelegateTest {
 
     @Injectable
-    private DomibusPropertyManager domibusPropertyManager;
+    private DomibusPropertyManager mshPropertyManager;
 
     @Injectable
     protected DomainExtConverter domainConverter;
@@ -36,7 +38,7 @@ public class DomibusPropertyManagerDelegateTest {
         domibusPropertyManagerDelegate.getKnownProperties();
 
         new Verifications() {{
-            Map<String, DomibusPropertyMetadata> props3 = domibusPropertyManager.getKnownProperties();
+            Map<String, DomibusPropertyMetadata> props3 = mshPropertyManager.getKnownProperties();
             domainConverter.convert(props3, DomibusPropertyMetadataDTO.class);
         }};
     }
@@ -44,14 +46,14 @@ public class DomibusPropertyManagerDelegateTest {
     @Test
     public void getKnownPropertyValue() {
         new Expectations() {{
-            domibusPropertyManager.getKnownPropertyValue(propertyName);
+            mshPropertyManager.getKnownPropertyValue(propertyName);
             result = propertyValue;
         }};
 
         String actual = domibusPropertyManagerDelegate.getKnownPropertyValue(propertyName);
 
         new Verifications() {{
-            domibusPropertyManager.getKnownPropertyValue(propertyName);
+            mshPropertyManager.getKnownPropertyValue(propertyName);
         }};
 
         Assert.assertEquals(propertyValue, actual);
@@ -62,7 +64,7 @@ public class DomibusPropertyManagerDelegateTest {
         domibusPropertyManagerDelegate.setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
 
         new Verifications() {{
-            domibusPropertyManager.setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+            mshPropertyManager.setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
         }};
     }
 
@@ -71,21 +73,21 @@ public class DomibusPropertyManagerDelegateTest {
         domibusPropertyManagerDelegate.setKnownPropertyValue(propertyName, propertyValue);
 
         new Verifications() {{
-            domibusPropertyManager.setKnownPropertyValue(propertyName, propertyValue);
+            mshPropertyManager.setKnownPropertyValue(propertyName, propertyValue);
         }};
     }
 
     @Test
     public void hasKnownProperty() {
         new Expectations() {{
-            domibusPropertyManager.hasKnownProperty(propertyName);
+            mshPropertyManager.hasKnownProperty(propertyName);
             result = true;
         }};
 
         boolean actual = domibusPropertyManagerDelegate.hasKnownProperty(propertyName);
 
         new Verifications() {{
-            domibusPropertyManager.hasKnownProperty(propertyName);
+            mshPropertyManager.hasKnownProperty(propertyName);
         }};
 
         Assert.assertEquals(true, actual);
