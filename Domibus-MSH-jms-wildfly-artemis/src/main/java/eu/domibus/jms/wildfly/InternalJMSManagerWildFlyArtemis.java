@@ -93,23 +93,41 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         Map<String, InternalJMSDestination> destinationMap = new TreeMap<>();
 
         try {
-            Map<String, ObjectName> queueMap = getQueueMap();
-            for (ObjectName objectName : queueMap.values()) {
+            for (ObjectName objectName : getQueueMap().values()) {
                 JMSQueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, JMSQueueControl.class, false);
-                InternalJMSDestination internalJmsDestination = new InternalJMSDestination();
-                internalJmsDestination.setName(jmsQueueControl.getName());
-                internalJmsDestination.setType(InternalJMSDestination.QUEUE_TYPE);
-                /* in multi-tenancy mode we show the number of messages only to super admin */
-                internalJmsDestination.setNumberOfMessages(domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin() ? NB_MESSAGES_ADMIN : jmsQueueControl.getMessageCount());
-                internalJmsDestination.setProperty(PROPERTY_OBJECT_NAME, objectName);
-                internalJmsDestination.setProperty(PROPERTY_JNDI_NAME, jmsQueueControl.getAddress());
-                internalJmsDestination.setInternal(jmsDestinationHelper.isInternal(jmsQueueControl.getAddress()));
+                InternalJMSDestination internalJmsDestination = createInternalJMSDestination(objectName, jmsQueueControl);
                 destinationMap.put(jmsQueueControl.getName(), internalJmsDestination);
             }
             return destinationMap;
         } catch (Exception e) {
             throw new InternalJMSException("Failed to build JMS destination map", e);
         }
+    }
+
+    protected InternalJMSDestination createInternalJMSDestination(ObjectName objectName, JMSQueueControl jmsQueueControl) {
+        InternalJMSDestination internalJmsDestination = new InternalJMSDestination();
+        internalJmsDestination.setName(jmsQueueControl.getName());
+        internalJmsDestination.setType(InternalJMSDestination.QUEUE_TYPE);
+        internalJmsDestination.setNumberOfMessages(getMessagesTotalCount(jmsQueueControl));
+        internalJmsDestination.setProperty(PROPERTY_OBJECT_NAME, objectName);
+        internalJmsDestination.setProperty(PROPERTY_JNDI_NAME, jmsQueueControl.getAddress());
+        internalJmsDestination.setInternal(jmsDestinationHelper.isInternal(jmsQueueControl.getAddress()));
+        return internalJmsDestination;
+    }
+
+    protected long getMessagesTotalCount(JMSQueueControl jmsQueueControl) {
+        if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
+            //in multi-tenancy mode we show the number of messages only to super admin
+            return NB_MESSAGES_ADMIN;
+        }
+        long result;
+        try {
+            result = jmsQueueControl.getMessageCount();
+        }
+        catch (Exception e) {
+            throw new InternalJMSException("Failed to get messages count on JMS destination: " + jmsQueueControl.getName(), e);
+        }
+        return result;
     }
 
     protected Map<String, ObjectName> getQueueMap() {
@@ -204,7 +222,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             destinationJndi = getJndiName(getQueueControl(objectName).getAddress());
         }
 
-        LOG.debug("Found JNDI [" + destinationJndi + "] for queue [" + destName + "]");
+        LOG.debug("Found JNDI [{}] for queue [{}]",  destinationJndi, destName);
         return InitialContext.doLookup(destinationJndi);
     }
 
@@ -283,7 +301,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
             String destinationType = destination.getType();
             if ("Queue".equals(destinationType)) {
-                Map<String, Object> criteria = new HashMap<String, Object>();
+                Map<String, Object> criteria = new HashMap<>();
                 if (jmsType != null) {
                     criteria.put("JMSType", jmsType);
                 }
@@ -401,6 +419,15 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             throw new InternalJMSException("Failed to consume message [" + customMessageId + "] from source [" + source + "]", ex);
         }
         return intJmsMsg;
+    }
+
+    @Override
+    public long getDestinationCount(InternalJMSDestination internalJMSDestination) {
+        final ObjectName objectName = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
+        final JMSQueueControl jmsQueueControl =
+                MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, JMSQueueControl.class, false);
+
+        return getMessagesTotalCount(jmsQueueControl);
     }
 
 }

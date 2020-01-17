@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,26 +58,26 @@ public class JMSQueuesCountSet implements MetricSet {
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
 
-        List<String> queueNames = showDLQOnly ? getQueueNamesDLQ() : getQueueNames();
-        LOG.debug("Using queues [{}] for metrics with refreshPeriod=[{}]", queueNames, refreshPeriod);
+        List<JMSDestination> jmsDestinations = showDLQOnly ? getQueueNamesDLQ() : getQueues();
+        LOG.debug("Using queues [{}] for metrics with refreshPeriod=[{}]", jmsDestinations, refreshPeriod);
 
-        for (String queueName : queueNames) {
-            addQueueCountToMetrics(gauges, queueName, refreshPeriod);
+        for (JMSDestination jmsDestination : jmsDestinations) {
+            addQueueCountToMetrics(gauges, jmsDestination, refreshPeriod);
         }
         return gauges;
     }
 
-    private void addQueueCountToMetrics(Map<String, Metric> gauges, final String queueName, final long refreshPeriod) {
+    private void addQueueCountToMetrics(Map<String, Metric> gauges, final JMSDestination jmsDestination, final long refreshPeriod) {
         if (refreshPeriod == 0) {
             //no cached metrics
-            gauges.put(MetricRegistry.name(queueName),
-                    (Gauge<Long>) () -> getQueueSize(queueName));
+            gauges.put(MetricRegistry.name(jmsDestination.getName()),
+                    (Gauge<Long>) () -> getQueueSize(jmsDestination));
         } else {
-            gauges.put(MetricRegistry.name(queueName),
+            gauges.put(MetricRegistry.name(jmsDestination.getName()),
                     new CachedGauge<Long>(refreshPeriod, TimeUnit.SECONDS) {
                         @Override
                         protected Long loadValue() {
-                            return getQueueSize(queueName);
+                            return getQueueSize(jmsDestination);
                         }
                     });
         }
@@ -88,24 +89,21 @@ public class JMSQueuesCountSet implements MetricSet {
         }
     }
 
-    private List<String> getQueueNames() {
+    private List<JMSDestination> getQueues() {
         assureSecurityRights();
-        return jmsManager.getDestinations().values().stream().map(JMSDestination::getName).collect(Collectors.toList());
+        return new ArrayList<>(jmsManager.getDestinations().values());
     }
 
-    private List<String> getQueueNamesDLQ() {
-        return getQueueNames().stream().filter(s -> StringUtils.containsIgnoreCase(s, "domibus")
-                && StringUtils.containsIgnoreCase(s, "DLQ")).collect(Collectors.toList());
+    private List<JMSDestination> getQueueNamesDLQ() {
+        return getQueues().stream().filter(jmsDestination -> StringUtils.containsIgnoreCase(jmsDestination.getName(), "domibus")
+                && StringUtils.containsIgnoreCase(jmsDestination.getName(), "DLQ")).collect(Collectors.toList());
     }
 
-    private long getQueueSize(final String queueName) {
+    private long getQueueSize(final JMSDestination jmsDestination) {
         return domainTaskExecutor.submit(() -> {
             assureSecurityRights();
-
-            // time consuming mostly on cluster configuration
-            //TODO EDELIVERY-5557
-            final long queueSize = jmsManager.getDestinationSize(queueName);
-            LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", queueName, queueSize);
+            final long queueSize = jmsManager.getDestinationSize(jmsDestination);
+            LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", jmsDestination.getName(), queueSize);
             return queueSize;
         });
     }
