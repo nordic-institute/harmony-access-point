@@ -61,6 +61,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected Map<String, ObjectName> queueMap;
 
+    protected Map<String, String> destinationJndiName=new HashMap<>();
+
     protected List<String> managedServerNames;
 
     @Autowired
