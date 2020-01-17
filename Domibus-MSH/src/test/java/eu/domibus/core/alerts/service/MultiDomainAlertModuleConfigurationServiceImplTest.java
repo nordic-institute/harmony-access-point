@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.model.common.AlertLevel;
@@ -10,11 +11,11 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
-
 import static org.junit.Assert.*;
 
 /**
@@ -147,8 +148,15 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations(configurationService) {{
             configurationService.getMessageCommunicationConfiguration();
             result = messagingConfiguration;
+
+            messagingConfiguration.getMailSubject();
+            result = DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT;
         }};
-        configurationService.getMailSubject(AlertType.MSG_STATUS_CHANGED);
+
+        final String mailSubject = configurationService.getMailSubject(AlertType.MSG_STATUS_CHANGED);
+        Assert.assertNotNull(mailSubject);
+        Assert.assertTrue(mailSubject.contains(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX));
+
         new Verifications() {{
             messagingConfiguration.getMailSubject();
             times = 1;
@@ -160,8 +168,15 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations(configurationService) {{
             configurationService.getAccountDisabledConfiguration();
             this.result = accountDisabledConfiguration;
+
+            accountDisabledConfiguration.getMailSubject();
+            result = DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT;
         }};
-        configurationService.getMailSubject(AlertType.USER_ACCOUNT_DISABLED);
+
+        final String mailSubject = configurationService.getMailSubject(AlertType.USER_ACCOUNT_DISABLED);
+        Assert.assertNotNull(mailSubject);
+        Assert.assertTrue(mailSubject.contains(DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX));
+
         new Verifications() {{
             accountDisabledConfiguration.getMailSubject();
             times = 1;
@@ -174,8 +189,15 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations(configurationService) {{
             configurationService.getLoginFailureConfiguration();
             this.result = loginFailureConfiguration;
+
+            loginFailureConfiguration.getMailSubject();
+            result = DOMIBUS_ALERT_USER_LOGIN_FAILURE_MAIL_SUBJECT;
         }};
-        configurationService.getMailSubject(AlertType.USER_LOGIN_FAILURE);
+
+        final String mailSubject = configurationService.getMailSubject(AlertType.USER_LOGIN_FAILURE);
+        Assert.assertNotNull(mailSubject);
+        Assert.assertTrue(mailSubject.contains(DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX));
+
         new Verifications() {{
             loginFailureConfiguration.getMailSubject();
             times = 1;
@@ -187,8 +209,13 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations(configurationService) {{
             configurationService.getImminentExpirationCertificateConfiguration();
             this.result = imminentExpirationCertificateConfiguration;
+
+            imminentExpirationCertificateConfiguration.getMailSubject();
+            result = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_MAIL_SUBJECT;
         }};
-        configurationService.getMailSubject(AlertType.CERT_IMMINENT_EXPIRATION);
+        final String mailSubject = configurationService.getMailSubject(AlertType.CERT_IMMINENT_EXPIRATION);
+        Assert.assertNotNull(mailSubject);
+        Assert.assertTrue(mailSubject.contains(DomibusPropertyMetadataManager.DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX));
         new Verifications() {{
             imminentExpirationCertificateConfiguration.getMailSubject();
             times = 1;
@@ -200,8 +227,14 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         new Expectations(configurationService) {{
             configurationService.getExpiredCertificateConfiguration();
             this.result = expiredCertificateConfiguration;
+
+            expiredCertificateConfiguration.getMailSubject();
+            result = DOMIBUS_ALERT_CERT_EXPIRED_MAIL_SUBJECT;
         }};
-        configurationService.getMailSubject(AlertType.CERT_EXPIRED);
+
+        final String mailSubject = configurationService.getMailSubject(AlertType.CERT_EXPIRED);
+        Assert.assertNotNull(mailSubject);
+        Assert.assertTrue(mailSubject.contains(DOMIBUS_ALERT_CERT_EXPIRED_PREFIX));
         new Verifications() {{
             expiredCertificateConfiguration.getMailSubject();
             times = 1;

@@ -12,6 +12,7 @@ import groovy.util.AntBuilder
 import com.eviware.soapui.support.GroovyUtils
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+import groovy.json.JsonBuilder
 
 
 class Domibus{
@@ -1772,7 +1773,8 @@ static def ifWindowsEscapeJsonString(json) {
         if (filtersMap.messageFilterEntries.size() == 1) {
             return "ok";
         }
-        debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log)
+        debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log);
+		debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log);
         while (i < filtersMap.messageFilterEntries.size()) {
             assert(filtersMap.messageFilterEntries[i] != null),"Error:formatFilters: Error while parsing filter details.";
             if (filtersMap.messageFilterEntries[i].backendName.toLowerCase() == filterChoice.toLowerCase()) {
@@ -1793,7 +1795,7 @@ static def ifWindowsEscapeJsonString(json) {
         return "ko";
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-        static def setMessageFilters(String side, String filterChoice, context, log, domainValue="Default", String extraCriteria=null, String authUser=null, authPwd=null){
+        static def setMessageFilters(String side, String filterChoice, context, log, domainValue="Default", String authUser=null, authPwd=null, String extraCriteria=null){
         debugLog("  ====  Calling \"setMessageFilters\".", log)
         log.info "  setMessageFilters  [][]  Start setting message filters for Domibus \""+side+"\".";
         def String output=null;
@@ -2994,10 +2996,10 @@ static def String pathToLogFiles(side, log, context) {
 // Load tests verification
 //---------------------------------------------------------------------------------------------------------------------------------
     // Wait until all messages are submitted/received (to be used for load tests ...)
-    def waitMessagesExchangedNumber(countToReachStrC2="0", countToReachStrC3="0",C2Status="acknowledged", C3Status="received", duration=20 ,String senderDomainId=blueDomainID, String receiverDomanId=redDomainID){
+    def waitMessagesExchangedNumber(countToReachStrC2="0", countToReachStrC3="0",C2Status="acknowledged", C3Status="received",String senderDomainId=blueDomainID, String receiverDomanId=redDomainID,duration=20,stepDuration=4){
         debugLog("  ====  Calling \"waitMessagesExchangedNumber\".", log)
         def MAX_WAIT_TIME=(duration*60000); // Maximum time to wait to check that all messages are received.		
-        def STEP_WAIT_TIME=60000; // Time to wait before re-checking the message status.	
+        def STEP_WAIT_TIME=(stepDuration*15000); // Time to wait before re-checking the message status.	
 		def sqlSender = null; def sqlReceiver = null;
 		def countToReachC2=countToReachStrC2.toInteger();def countToReachC3=countToReachStrC3.toInteger();
 		def currentCount=0;
@@ -3035,7 +3037,7 @@ static def String pathToLogFiles(side, log, context) {
 			}
 		}
         log.info "  waitMessagesExchangedNumber  [][]  finished checking C3 for $countToReachC3 messages. MAX_WAIT_TIME: " + MAX_WAIT_TIME;
-        assert(countToReachC3 == currentCount),locateTest(context) + "Error:waitMessagesExchangedNumber: Number of Messages in C3 side is $currentCount instead of $countToReach";
+        assert(countToReachC3 == currentCount),locateTest(context) + "Error:waitMessagesExchangedNumber: Number of Messages in C3 side is $currentCount instead of $countToReachC3";
 		
         closeDbConnections(usedDomains);
 		debugLog("  ====  Ending \"waitMessagesExchangedNumber\".", log)
@@ -3254,5 +3256,27 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 	
 //---------------------------------------------------------------------------------------------------------------------------------
 
+// 	Retrieve domain name from project custom property "allDomainsProperties" and store it in test suite level propect property for easy access 
+    def parseDomainsNamesIntoTSproperty(testRunner) {
+        debugLog("  ====  Calling \"parseDomainsNamesIntoTSpropert\".", log);
+		def domainNamesMap=[:];       
+        allDomainsProperties.each { domain, properties ->
+            debugLog("  parseDomainsNamesIntoTSpropert  [][]  Parsing domain name for domain ID: \"${domain}\".", log);
+			domainNamesMap[properties["site"]+properties["domNo"]]=properties["domainName"];
+        }
+		testRunner.testCase.testSuite.setPropertyValue("domainsNamesList",JsonOutput.toJson(domainNamesMap).toString());
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+
+// 	Retrieve domain name from test suite custom property 
+    def static String retDomName(side,number,testRunner) {
+		def stringValue=testRunner.testCase.testSuite.getPropertyValue("domainsNamesList");
+		def jsonSlurper = new JsonSlurper();
+        def mapValue = jsonSlurper.parseText(stringValue);
+		return mapValue[side+number];
+    }
+	
+	
+	
 } // Domibus class end
 
