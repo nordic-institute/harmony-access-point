@@ -1,7 +1,7 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.common.validators.ItemsBlacklistValidator;
+import eu.domibus.common.validators.ObjectPropertiesMapBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -16,7 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -34,16 +36,16 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
     }
 
     @Autowired
-    ItemsBlacklistValidator blacklistValidator;
+    ObjectPropertiesMapBlacklistValidator blacklistValidator;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (handler instanceof HandlerMethod && shouldSkipValidation((HandlerMethod) handler)) {
             return true;
         }
 
         Map<String, String[]> queryParams = request.getParameterMap();
-        return handleQueryParams(queryParams);
+        return handleQueryParams(queryParams, (HandlerMethod) handler);
     }
 
     private boolean shouldSkipValidation(HandlerMethod handler) {
@@ -61,14 +63,20 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         return false;
     }
 
-    protected boolean handleQueryParams(Map<String, String[]> queryParams) {
+    protected boolean handleQueryParams(Map<String, String[]> queryParams, HandlerMethod method) {
         LOG.debug("Validate query params:[{}]", queryParams);
         if (queryParams == null || queryParams.isEmpty()) {
             LOG.debug("Query params are empty, exiting.");
             return true;
         }
         try {
-            validate(queryParams);
+            List<? extends Class<?>> types = null;
+            if (method != null) {
+                types = Arrays.asList(method.getMethodParameters()).stream()
+                        .map(el -> el.getParameterType()).collect(Collectors.toList());
+            }
+
+            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, types));
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {
@@ -80,11 +88,4 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
     }
 
-    private void validate(Map<String, String[]> parameterMap) {
-        parameterMap.forEach((key, val) -> {
-            if (!blacklistValidator.isValid(val)) {
-                throw new ValidationException(String.format("Forbidden character detected in the query parameter: %s", key));
-            }
-        });
-    }
 }
