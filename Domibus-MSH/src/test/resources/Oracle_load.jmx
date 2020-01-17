@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.2.1">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.2">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -18,17 +18,17 @@
         <stringProp name="connectionAge">5000</stringProp>
         <stringProp name="connectionProperties"></stringProp>
         <stringProp name="dataSource">rac_pool</stringProp>
-        <stringProp name="dbUrl">jdbc:oracle:thin:@127.0.0.1:1521:orcl</stringProp>
+        <stringProp name="dbUrl">jdbc:oracle:thin:@(DESCRIPTION=(CONNECT_TIMEOUT=10)(TRANSPORT_CONNECT_TIMEOUT=3000)(RETRY_COUNT=6)(ADDRESS= (PROTOCOL=tcp)(HOST=rac1-ext.taxudtest.westeurope.cloudapp.azure.com) (PORT=1521))(ADDRESS= (PROTOCOL=tcp) (HOST=rac2-ext.taxudtest.westeurope.cloudapp.azure.com) (PORT=1521))(CONNECT_DATA=(SERVER = DEDICATED)(SERVICE_NAME=orcl.taxudtest.westeurope.cloudapp.azure.com)))</stringProp>
         <stringProp name="driver">oracle.jdbc.OracleDriver</stringProp>
         <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
-        <stringProp name="password">DOMIBUS_RED</stringProp>
+        <stringProp name="password">edelivery</stringProp>
         <stringProp name="poolMax">30</stringProp>
         <boolProp name="preinit">true</boolProp>
         <stringProp name="timeout">10000</stringProp>
         <stringProp name="transactionIsolation">TRANSACTION_READ_COMMITTED</stringProp>
         <stringProp name="trimInterval">60000</stringProp>
-        <stringProp name="username">domibus_red</stringProp>
+        <stringProp name="username">edelivery</stringProp>
         <stringProp name="TestPlan.comments">create connection pool</stringProp>
       </JDBCDataSource>
       <hashTree/>

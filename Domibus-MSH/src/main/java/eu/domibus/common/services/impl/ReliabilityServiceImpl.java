@@ -5,7 +5,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.metrics.MetricsHelper;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;

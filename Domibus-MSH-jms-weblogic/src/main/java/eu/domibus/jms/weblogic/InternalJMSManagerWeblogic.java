@@ -1,5 +1,6 @@
 package eu.domibus.jms.weblogic;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
@@ -91,6 +92,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -327,22 +331,35 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     protected Destination lookupDestination(String destName) throws NamingException {
-        // It is enough to get the first destination object also in case of clustered destinations because then a JNDI look up is performed.
-        InternalJMSDestination internalJmsDestination = null;
-        Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByFQName();
-        for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
-            // the key is not always the same as the jndi name so we try them both
-            if (matchesQueue(destName, entry)) {
-                LOG.debug("Internal destination found for source [" + destName + "]");
-                internalJmsDestination = entry.getValue();
+        com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.counter"));
+        try {
+            methodCounter.inc();
+            // It is enough to get the first destination object also in case of clustered destinations because then a JNDI look up is performed.
+            com.codahale.metrics.Timer.Context search = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.search.timer")).time();
+            InternalJMSDestination internalJmsDestination = null;
+            Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByFQName();
+            for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
+                // the key is not always the same as the jndi name so we try them both
+                if (matchesQueue(destName, entry)) {
+                    LOG.debug("Internal destination found for source [" + destName + "]");
+                    internalJmsDestination = entry.getValue();
+                }
             }
+            if (internalJmsDestination == null) {
+                throw new InternalJMSException("Destination [" + destName + "] does not exists");
+            }
+            String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
+            LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
+            search.stop();
+            com.codahale.metrics.Timer.Context lookup = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.lookup.timer")).time();
+            Destination destination = InitialContext.doLookup(destinationJndi);
+            lookup.stop();
+            return destination;
+        } finally {
+            deliverMessageMetric.stop();
+            methodCounter.dec();
         }
-        if (internalJmsDestination == null) {
-            throw new InternalJMSException("Destination [" + destName + "] does not exists");
-        }
-        String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
-        LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
-        return InitialContext.doLookup(destinationJndi);
     }
 
     protected boolean matchesQueue(String destName, Map.Entry<String, InternalJMSDestination> entry) {
@@ -359,7 +376,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     @Override
     public void sendMessage(InternalJmsMessage message, String destName) {
         try {
-            jmsOperations.send(lookupDestination(destName), new JmsMessageCreator(message));
+            Destination destination = lookupDestination(destName);
+            JmsMessageCreator messageCreator = new JmsMessageCreator(message);
+            jmsOperations.send(destination, messageCreator);
         } catch (NamingException e) {
             throw new InternalJMSException("Error performing lookup for [" + destName + "]", e);
         }
@@ -372,7 +391,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination) {
-       sendMessageToTopic(internalJmsMessage, destination, false);
+        sendMessageToTopic(internalJmsMessage, destination, false);
     }
 
     protected void sendMessage(InternalJmsMessage internalJmsMessage, Topic destination) {
@@ -392,7 +411,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         final List<String> managedServerNames = getManagedServerNames();
         LOG.debug("Found managed servers [{}]", managedServerNames);
 
-        if(StringUtils.isNotBlank(originServer)) {
+        if (StringUtils.isNotBlank(originServer)) {
             managedServerNames.remove(originServer);
             LOG.debug("Managed servers [{}] after exclusion of origin server [{}]", managedServerNames, originServer);
         }

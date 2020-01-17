@@ -1,5 +1,6 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorResult;
@@ -9,6 +10,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -74,6 +76,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected DomainContextExtService domainContextExtService;
 
     @Autowired
+    private DomainTaskExtExecutor domainTaskExtExecutor;
+
+    @Autowired
     @Qualifier(value = "mshToBackendTemplate")
     private JmsOperations mshToBackendTemplate;
 
@@ -84,6 +89,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     private AccessPointHelper accessPointHelper = new AccessPointHelper();
 
     private EndPointHelper endPointHelper = new EndPointHelper();
+
+    private DomainDTO DEFAULT_DOMAIN = new DomainDTO("default", "Default");
 
     public BackendJMSImpl(String name) {
         super(name);
@@ -165,42 +172,56 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public void deliverMessage(final String messageId) {
-        boolean sendResponseFromC3Plugin = true;
-        final String property = domibusPropertyExtService.getProperty(DOMIBUS_SEND_FROM_C3);
-        if (StringUtils.isNotEmpty(property)) {
-            sendResponseFromC3Plugin = Boolean.parseBoolean(property);
-        }
-        if (sendResponseFromC3Plugin) {
-            downloadAndSendBack(messageId);
-        } else {
-            LOG.debug("Delivering message");
-            final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-            final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
-            if (StringUtils.isEmpty(queueValue)) {
-                throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
+        Timer.Context deliverMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer")).time();
+        Counter deliverMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class,"deliverMessage_counter"));
+        try {
+            deliverMessageCounter.inc();
+            boolean sendResponseFromC3Plugin = true;
+            final String property = domibusPropertyExtService.getProperty(DOMIBUS_SEND_FROM_C3);
+            if (StringUtils.isNotEmpty(property)) {
+                sendResponseFromC3Plugin = Boolean.parseBoolean(property);
             }
-            LOG.info("Sending message to queue [{}]", queueValue);
-            mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+            if (sendResponseFromC3Plugin) {
+                domainTaskExtExecutor.submitLongRunningTask(
+                        () -> downloadAndSendBack(messageId), DEFAULT_DOMAIN);
+
+            } else {
+                LOG.debug("Delivering message");
+                final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+                final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
+                if (StringUtils.isEmpty(queueValue)) {
+                    throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
+                }
+                LOG.info("Sending message to queue [{}]", queueValue);
+                mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+            }
+        } finally {
+            if (deliverMessageTimer != null) {
+                deliverMessageTimer.stop();
+            }
+            if (deliverMessageCounter != null) {
+                deliverMessageCounter.dec();
+            }
         }
     }
 
     public void downloadAndSendBack(final String messageId) {
         Timer.Context jms_deliver_message_hacked = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "jms_deliver_message_hacked")).time();
+        Counter jms_deliver_message_hacked_counter = domainContextExtService.getMetricRegistry().counter("jms_deliver_message_hacked_counter");
         try {
+            jms_deliver_message_hacked_counter.inc();
             final Submission submission = this.messageRetriever.downloadMessage(messageId);
             Submission submissionResponse = getSubmissionResponse(submission, HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId));
-            new Thread(() -> {
-                try {
-                    messageSubmitter.submit(submissionResponse, getName());
-                } catch (MessagingProcessingException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }).start();
-
+            try {
+                messageSubmitter.submit(submissionResponse, getName());
+            } catch (MessagingProcessingException e) {
+                LOG.error(e.getMessage(), e);
+            }
         } catch (MessagingProcessingException e) {
             LOG.error(e.getMessage(), e);
         } finally {
             jms_deliver_message_hacked.stop();
+            jms_deliver_message_hacked_counter.dec();
         }
     }
 

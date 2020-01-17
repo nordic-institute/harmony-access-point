@@ -141,8 +141,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Transactional(propagation = Propagation.REQUIRED)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
+        com.codahale.metrics.Timer.Context checkSelfSending = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "checkSelfSending")).time();
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
+        checkSelfSending.stop();
+        com.codahale.metrics.Timer.Context checkDuplicate = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "checkDuplicate")).time();
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
+        checkDuplicate.stop();
         com.codahale.metrics.Timer.Context handle_incoming_message = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "handle_incoming_message")).time();
         handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
         handle_incoming_message.stop();

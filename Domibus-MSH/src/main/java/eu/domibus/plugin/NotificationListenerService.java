@@ -1,6 +1,7 @@
 
 package eu.domibus.plugin;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
@@ -11,6 +12,8 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.*;
 import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -39,6 +42,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
+import static eu.domibus.common.metrics.MetricNames.ON_MESSAGE;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -67,6 +71,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    MetricRegistry metricRegistry;
 
     private Queue backendNotificationQueue;
     private BackendConnector.Mode mode;
@@ -112,12 +119,16 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
+//    @Timer(value = ON_MESSAGE)
+//    @Counter(ON_MESSAGE)
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
         }
 
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "listener.on_message"));
         try {
+            methodCounter.inc();
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
@@ -131,16 +142,30 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
+                    com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.RECEIVED.deliverMessage")).time();
+                    com.codahale.metrics.Counter c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED"));
+                    c.inc();
                     backendConnector.deliverMessage(messageId);
+                    c.dec();
+                    deliverMessageMetric.stop();
                     break;
                 case MESSAGE_SEND_FAILURE:
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE"));
+                    c.inc();
                     backendConnector.messageSendFailed(messageId);
+                    c.dec();
                     break;
                 case MESSAGE_SEND_SUCCESS:
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS"));
+                    c.inc();
                     backendConnector.messageSendSuccess(messageId);
+                    c.dec();
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE"));
+                    c.inc();
                     doMessageReceiveFailure(message);
+                    c.dec();
                     break;
                /* case MESSAGE_STATUS_CHANGE:
                     doMessageStatusChange(message);
@@ -149,6 +174,8 @@ public class NotificationListenerService implements MessageListener, JmsListener
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
+        } finally {
+            methodCounter.dec();
         }
     }
 

@@ -2,7 +2,7 @@ package eu.domibus.ebms3.receiver;
 
 import com.codahale.metrics.Timer;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.common.metrics.MetricsHelper;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;

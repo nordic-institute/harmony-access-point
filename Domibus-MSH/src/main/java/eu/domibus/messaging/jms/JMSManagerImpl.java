@@ -1,9 +1,13 @@
 package eu.domibus.messaging.jms;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -196,7 +200,21 @@ public class JMSManagerImpl implements JMSManager {
         message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
         InternalJmsMessage internalJmsMessage = jmsMessageMapper.convert(message);
         internalJmsMessage.setMessageType(messageType);
-        internalJmsManager.sendMessage(internalJmsMessage, destination);
+        Timer.Context sendMessageTimerContext = null;
+        Counter sendMessageCounterContext = null;
+        try {
+            sendMessageCounterContext = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(JMSManagerImpl.class, "sendMessageDestName_counter"));
+            sendMessageTimerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(JMSManagerImpl.class, "sendMessageDestName_timer")).time();
+            sendMessageCounterContext.inc();
+            internalJmsManager.sendMessage(internalJmsMessage, destination);
+        } finally {
+            if (sendMessageTimerContext != null) {
+                sendMessageTimerContext.stop();
+            }
+            if (sendMessageCounterContext != null) {
+                sendMessageCounterContext.dec();
+            }
+        }
     }
 
     @Override
@@ -220,7 +238,21 @@ public class JMSManagerImpl implements JMSManager {
 
     protected void sendMessageToDestination(JmsMessage message, Destination destination, InternalJmsMessage.MessageType messageType) {
         InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, messageType);
-        internalJmsManager.sendMessage(internalJmsMessage, destination);
+        Timer.Context sendMessageTimerContext = null;
+        Counter sendMessageCounterContext = null;
+        try {
+            sendMessageCounterContext = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(JMSManagerImpl.class, "sendMessageDestName_counter"));
+            sendMessageTimerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(JMSManagerImpl.class, "sendMessageDestination_timer")).time();
+            sendMessageCounterContext.inc();
+            internalJmsManager.sendMessage(internalJmsMessage, destination);
+        } finally {
+            if (sendMessageTimerContext != null) {
+                sendMessageTimerContext.stop();
+            }
+            if (sendMessageCounterContext != null) {
+                sendMessageCounterContext.dec();
+            }
+        }
     }
 
     private InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
