@@ -218,7 +218,13 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void sendMessageToQueue(JmsMessage message, Queue destination) {
+        com.codahale.metrics.Timer.Context validateAndNotifyTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(JMSManagerImpl.class, "validateAndNotify.timer")).time();
+        com.codahale.metrics.Counter validateAndNotifyCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(JMSManagerImpl.class, "validateAndNotify.counter"));
+        validateAndNotifyCounter.inc();
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
+        validateAndNotifyTimer.stop();
+        validateAndNotifyCounter.dec();
+
     }
 
     @Override
