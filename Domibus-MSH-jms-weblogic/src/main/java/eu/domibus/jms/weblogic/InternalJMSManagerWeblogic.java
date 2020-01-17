@@ -330,16 +330,18 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return (Topic) lookupDestination(topicName);
     }
 
-    protected Destination lookupDestination(String destName) throws NamingException {
-        com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.timer")).time();
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.counter"));
+
+    private String getJndiName(String destName) {
+        com.codahale.metrics.Timer.Context getJndiTimer = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "getJndiName.timer")).time();
+        com.codahale.metrics.Counter getJndiCounter = metricRegistry.counter(MetricRegistry.name(InternalJMSManagerWeblogic.class, "getJndiName..counter"));
         try {
-            methodCounter.inc();
+            getJndiCounter.inc();
             // It is enough to get the first destination object also in case of clustered destinations because then a JNDI look up is performed.
-            com.codahale.metrics.Timer.Context search = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.search.timer")).time();
             InternalJMSDestination internalJmsDestination = null;
             Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByFQName();
             for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
+                InternalJMSDestination value = entry.getValue();
+                LOG.trace("Jms destination, key:[{}], fullyQualifiedName:[{}] " + entry.getKey(), value.getFullyQualifiedName());
                 // the key is not always the same as the jndi name so we try them both
                 if (matchesQueue(destName, entry)) {
                     LOG.debug("Internal destination found for source [" + destName + "]");
@@ -351,15 +353,19 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             }
             String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
             LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
-            search.stop();
+            return destinationJndi;
+        }finally {
+            getJndiTimer.stop();
+            getJndiCounter.dec();
+        }
+    }
+    protected Destination lookupDestination(String destName) throws NamingException {
+            String destinationJndi = getJndiName(destName);
+            LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
             com.codahale.metrics.Timer.Context lookup = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.destination.lookup.timer")).time();
             Destination destination = InitialContext.doLookup(destinationJndi);
             lookup.stop();
             return destination;
-        } finally {
-            deliverMessageMetric.stop();
-            methodCounter.dec();
-        }
     }
 
     protected boolean matchesQueue(String destName, Map.Entry<String, InternalJMSDestination> entry) {
