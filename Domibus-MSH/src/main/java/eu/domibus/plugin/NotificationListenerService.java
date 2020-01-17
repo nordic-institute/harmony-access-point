@@ -118,7 +118,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     }
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
 //    @Timer(value = ON_MESSAGE)
 //    @Counter(ON_MESSAGE)
     public void onMessage(final Message message) {
