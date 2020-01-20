@@ -284,7 +284,7 @@ public class MessageUtil {
         return result;
     }
 
-    private AgreementRef createAgreementRef(Node collaborationInfoNode) {
+    protected AgreementRef createAgreementRef(Node collaborationInfoNode) {
         final Node agreementRefNode = getFirstChild(collaborationInfoNode, "AgreementRef");
         if (agreementRefNode == null) {
             LOG.debug("AgreementRef is null");
