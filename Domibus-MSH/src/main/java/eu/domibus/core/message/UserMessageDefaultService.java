@@ -311,13 +311,6 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected void scheduleSending(final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage, boolean isSplitAndJoin) {
-        if (isSplitAndJoin) {
-            LOG.debug("Sending message to sendLargeMessageQueue");
-            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
-        } else {
-            LOG.debug("Sending message to sendMessageQueue");
-            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
-        }
         if (userMessageLog == null) {
             LOG.debug("Getting UserMessageLog for message id [{}]", messageId);
             userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
@@ -327,6 +320,13 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
             userMessageLog.setScheduled(true);
             userMessageLogDao.update(userMessageLog);
+        }
+        if (isSplitAndJoin) {
+            LOG.debug("Sending message to sendLargeMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+        } else {
+            LOG.debug("Sending message to sendMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
         }
     }
 

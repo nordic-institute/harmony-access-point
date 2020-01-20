@@ -120,7 +120,6 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      * @param map The incoming JMS Message
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Transactional
     public void receiveMessage(final MapMessage map) {
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);

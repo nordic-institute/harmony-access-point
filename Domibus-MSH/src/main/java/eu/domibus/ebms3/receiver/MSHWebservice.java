@@ -53,7 +53,6 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Timer(value = INCOMING_USER_MESSAGE)
     @Counter(INCOMING_USER_MESSAGE)
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
 

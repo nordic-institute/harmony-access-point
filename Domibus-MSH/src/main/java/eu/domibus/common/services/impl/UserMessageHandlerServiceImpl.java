@@ -302,7 +302,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     /**
      * {@inheritDoc}
      */
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
