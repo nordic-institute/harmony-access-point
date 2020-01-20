@@ -75,7 +75,7 @@ public class ReliabilityChecker {
     @Autowired
     protected SoapUtil soapUtil;
 
-    @Transactional(rollbackFor = EbMS3Exception.class)
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, reliability, pushMatcher);
     }

@@ -273,7 +273,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void removeFromPending(final String messageId) throws MessageNotFoundException {
 

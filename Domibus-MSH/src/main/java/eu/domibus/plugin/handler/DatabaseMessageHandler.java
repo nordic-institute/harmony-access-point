@@ -147,7 +147,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
 
@@ -353,7 +353,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(value = SUBMITTED_MESSAGES)
     @Counter(SUBMITTED_MESSAGES)

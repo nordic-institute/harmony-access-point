@@ -60,7 +60,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void saveResponse(SOAPMessage response, SignalMessage signalMessage) {
         if (isNonRepudiationAuditDisabled()) {
             return;
