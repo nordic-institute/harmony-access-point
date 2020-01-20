@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -106,7 +107,7 @@ public class PModeResource extends BaseResource {
         try {
             byte[] bytes = pmode.getBytes();
 
-            List<String> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
+            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
                 message += " but some issues were detected: <br>" + StringUtils.join(pmodeUpdateMessage, " <br>");
@@ -159,7 +160,7 @@ public class PModeResource extends BaseResource {
 
         String message = "PMode was successfully uploaded";
         try {
-            List<String> pmodeUpdateMessage = pModeProvider.updatePModes(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
+            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
 
             if (pmodeUpdateMessage != null && !pmodeUpdateMessage.isEmpty()) {
                 message += " but some issues were detected: \n" + StringUtils.join(pmodeUpdateMessage, "\n");

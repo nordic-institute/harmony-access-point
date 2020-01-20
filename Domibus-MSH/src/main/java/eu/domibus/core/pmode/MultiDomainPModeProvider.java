@@ -3,6 +3,7 @@ package eu.domibus.core.pmode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -295,7 +296,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> updatePModes(byte[] bytes, String description) throws XmlProcessingException {
+    public List<PModeIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException {
         return getCurrentPModeProvider().updatePModes(bytes, description);
     }
 

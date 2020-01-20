@@ -16,5 +16,5 @@ public interface PModeService {
 
     PModeArchiveInfo getCurrentPMode();
 
-    List<String> updatePModeFile(byte[] bytes, String description) throws PModeException;
+    List<PModeIssue> updatePModeFile(byte[] bytes, String description) throws PModeException;
 }
