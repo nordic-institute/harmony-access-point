@@ -155,9 +155,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
      * @return JMSDestinations as {@code ObjectName}
      */
     protected Map<String, ObjectName> getJmsDestinations(MBeanServerConnection mbsc) {
-        if (jmsDestinationsMap != null) {
-            return jmsDestinationsMap;
-        }
+//        if (jmsDestinationsMap != null) {
+//            return jmsDestinationsMap;
+//        }
         jmsDestinationsMap = new LinkedHashMap<>(); //keep order of insertion
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
