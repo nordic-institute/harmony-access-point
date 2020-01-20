@@ -335,7 +335,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     private String getJndiName(String destName) {
         com.codahale.metrics.Timer.Context getJndiTimer = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "getJndiName.timer")).time();
-        com.codahale.metrics.Counter getJndiCounter = metricRegistry.counter(MetricRegistry.name(InternalJMSManagerWeblogic.class, "getJndiName..counter"));
+        com.codahale.metrics.Counter getJndiCounter = metricRegistry.counter(MetricRegistry.name(InternalJMSManagerWeblogic.class, "getJndiName.counter"));
         try {
             getJndiCounter.inc();
             String jndiName = jndiMap.get(destName);

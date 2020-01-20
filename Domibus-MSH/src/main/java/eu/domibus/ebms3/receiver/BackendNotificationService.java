@@ -2,6 +2,7 @@ package eu.domibus.ebms3.receiver;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
@@ -219,6 +220,9 @@ public class BackendNotificationService {
     }
 
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
+        com.codahale.metrics.Timer.Context notifyOfIncomingTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "notifyOfIncoming.timer")).time();
+        com.codahale.metrics.Counter notifyOfIncomingCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(BackendNotificationService.class, "notifyOfIncoming.counter"));
+        notifyOfIncomingCounter.inc();
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [" + userMessage.getMessageInfo().getMessageId() + "] found. Sending notification to [" + unknownReceiverQueue + "]");
             String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -228,6 +232,8 @@ public class BackendNotificationService {
         }
 
         validateAndNotify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
+        notifyOfIncomingTimer.stop();
+        notifyOfIncomingCounter.dec();
     }
 
     protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
@@ -318,6 +324,9 @@ public class BackendNotificationService {
     }
 
     protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, Object> properties) {
+        com.codahale.metrics.Timer.Context validateAndNotifyTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "validateAndNotify.timer")).time();
+        com.codahale.metrics.Counter validateAndNotifyCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(BackendNotificationService.class, "validateAndNotify.counter"));
+        validateAndNotifyCounter.inc();
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
         validateSubmission(userMessage, backendName, notificationType);
@@ -326,6 +335,8 @@ public class BackendNotificationService {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
         }
         notify(userMessage.getMessageInfo().getMessageId(), backendName, notificationType, properties);
+        validateAndNotifyTimer.stop();
+        validateAndNotifyCounter.dec();
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType) {
