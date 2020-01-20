@@ -443,8 +443,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 to = createNewParty(userMessage.getMpc());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
+                com.codahale.metrics.Timer.Context findTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findUserMessageExchangeContext.timer")).time();
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+                findTimer.stop();
             }
+            com.codahale.metrics.Timer.Context getLegConfigurationTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "getLegConfiguration.timer")).time();
+
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
             if (to == null) {
@@ -469,6 +473,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
 
+            getLegConfigurationTimer.stop();
+
+            com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storeMessage.timer")).time();
             try {
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
@@ -478,17 +485,25 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
 
+            storeMessageTimer.stop();
+
+            com.codahale.metrics.Timer.Context getMessageStatusTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "getMessageStatus.timer")).time();
             if (messageStatus == null) {
                 messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             }
+            getMessageStatusTimer.stop();
+
+            com.codahale.metrics.Timer.Context saveTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "userMessageLogService.save.timer")).time();
             final boolean sourceMessage = userMessage.isSourceMessage();
             final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
-
+            saveTimer.stop();
+            com.codahale.metrics.Timer.Context prepareForPushOrPullTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "prepareForPushOrPull.timer")).time();
             if (!sourceMessage) {
                 prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
             }
+            prepareForPushOrPullTimer.stop();
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
 
