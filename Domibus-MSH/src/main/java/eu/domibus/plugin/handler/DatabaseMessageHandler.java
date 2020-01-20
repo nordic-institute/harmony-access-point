@@ -1,6 +1,8 @@
 package eu.domibus.plugin.handler;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Sets;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
@@ -149,36 +151,62 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
-        LOG.info("Downloading message with id [{}]", messageId);
+        com.codahale.metrics.Counter downloadMessageCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class,"downloadMessage.counter"));
+        try {
+            downloadMessageCounter.inc();
+            LOG.info("Downloading message with id [{}]", messageId);
 
-        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
-        if (messaging == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
-
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
-        UserMessage userMessage = messaging.getUserMessage();
-
-        checkMessageAuthorization(userMessage, messageLog);
-
-        boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage);
-        if (shouldDeleteDownloadedMessage) {
-            messagingDao.clearPayloadData(userMessage);
-
-            // Sets the message log status to DELETED
-            userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
-            // Sets the log status to deleted also for the signal messages (if present).
-
-            SignalMessage signalMessage = messaging.getSignalMessage();
-            if (signalMessage != null) {
-                String signalMessageId = signalMessage.getMessageInfo().getMessageId();
-                userMessageLogService.setSignalMessageAsDeleted(signalMessageId);
-                LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
+            com.codahale.metrics.Timer.Context findMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findMessageById.timer")).time();
+            Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+            if (messaging == null) {
+                throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
             }
-        } else {
-            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
+            findMessageTimer.stop();
+
+            com.codahale.metrics.Timer.Context findUserMessageLogTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findUserMessageLogById.timer")).time();
+            final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+            findUserMessageLogTimer.stop();
+
+            com.codahale.metrics.Timer.Context checkMessageAuthorizationTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "checkMessageAuthorization.timer")).time();
+            UserMessage userMessage = messaging.getUserMessage();
+            checkMessageAuthorization(userMessage, messageLog);
+            checkMessageAuthorizationTimer.stop();
+
+            com.codahale.metrics.Timer.Context shouldDeleteTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "shouldDelete.timer")).time();
+            boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage);
+            shouldDeleteTimer.stop();
+
+            if (shouldDeleteDownloadedMessage) {
+                com.codahale.metrics.Timer.Context clearPayloadTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "clearPayload.timer")).time();
+                messagingDao.clearPayloadData(userMessage);
+                clearPayloadTimer.stop();
+
+                com.codahale.metrics.Timer.Context setAsDeletedTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "setAsDeleted.timer")).time();
+                // Sets the message log status to DELETED
+                userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
+                // Sets the log status to deleted also for the signal messages (if present).
+                setAsDeletedTimer.stop();
+
+                com.codahale.metrics.Timer.Context setSignalAsDeletedTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "setSignalAsDeleted.timer")).time();
+                SignalMessage signalMessage = messaging.getSignalMessage();
+                if (signalMessage != null) {
+                    String signalMessageId = signalMessage.getMessageInfo().getMessageId();
+                    userMessageLogService.setSignalMessageAsDeleted(signalMessageId);
+                    LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
+                }
+                setSignalAsDeletedTimer.stop();
+            } else {
+                com.codahale.metrics.Timer.Context setMessageAsDownloadedimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "setMessageAsDownloaded.timer")).time();
+                userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
+                setMessageAsDownloadedimer.stop();
+            }
+            com.codahale.metrics.Timer.Context transformFromMessagingTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "transformFromMessaging.timer")).time();
+            Submission submission = transformer.transformFromMessaging(userMessage);
+            transformFromMessagingTimer.stop();
+            return submission;
+        }finally {
+            downloadMessageCounter.dec();
         }
-        return transformer.transformFromMessaging(userMessage);
     }
 
     protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage) {
