@@ -11,6 +11,8 @@ import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.api.message.MessageSubtype;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of Default Service for SignalMessageLog
@@ -37,6 +39,7 @@ public class SignalMessageLogDefaultService implements SignalMessageLogService {
 
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void save(String messageId, String userMessageService, String userMessageAction) {
         // Sets the subtype
         MessageSubtype messageSubtype = null;

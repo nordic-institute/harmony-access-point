@@ -52,6 +52,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             }
             rawEnvelopeLog.setRawXML(rawXMLMessage);
             rawEnvelopeLog.setUserMessage(userMessage);
+            LOG.info("saveRequest !!!!!!!!!!!!!!!!!!!!!!!!!! ********************************* ");
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
@@ -59,6 +60,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveResponse(SOAPMessage response, SignalMessage signalMessage) {
         if (isNonRepudiationAuditDisabled()) {
             return;
@@ -70,7 +72,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
             rawEnvelopeLog.setRawXML(rawXMLMessage);
             rawEnvelopeLog.setSignalMessage(signalMessage);
+            LOG.info("saveResponse !!!!!!!!!!!!!!!!!!!!!!!!!! ********************************* ");
             rawEnvelopeLogDao.create(rawEnvelopeLog);
+            LOG.info(" after create in saveResponse !!!!!!!!!!!!!!!!!!!!!!!!!! ********************************* ");
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
         }

@@ -210,10 +210,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         Counter jms_deliver_message_hacked_counter = domainContextExtService.getMetricRegistry().counter("jms_deliver_message_hacked_counter");
         try {
             jms_deliver_message_hacked_counter.inc();
+            Timer.Context jms_deliver_message_hacked_download = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "jms_deliver_message_hacked_download")).time();
             final Submission submission = this.messageRetriever.downloadMessage(messageId);
+            jms_deliver_message_hacked_download.stop();
             Submission submissionResponse = getSubmissionResponse(submission, HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId));
             try {
+                Timer.Context jms_deliver_message_hacked_submit = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "jms_deliver_message_hacked_submit")).time();
                 messageSubmitter.submit(submissionResponse, getName());
+                jms_deliver_message_hacked_submit.stop();
             } catch (MessagingProcessingException e) {
                 LOG.error(e.getMessage(), e);
             }

@@ -138,5 +138,6 @@
         <cve>CVE-2019-16942</cve>
         <!-- We don't have the p6spy (3.8.6) jar in the classpath -->
         <cve>CVE-2019-16943</cve>
+        CVE-2019-20330
     </suppress>
 </suppressions>

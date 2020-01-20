@@ -80,7 +80,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
@@ -121,6 +121,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                                 }
                             }
                         }
+                        LOG.info("Handling reliability case OK ******** ");
                         break;
                     case WARNING:
                         userMessageLogService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
@@ -131,7 +132,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 if (!isTestMessage) {
                     try {
                         timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.notifyOfSendSuccess").time();
-                        backendNotificationService.notifyOfSendSuccess(userMessageLog);
+                        LOG.info("Handling reliability notifyOfSendSuccess ******** ");
+                        //TODO REVERT backendNotificationService.notifyOfSendSuccess(userMessageLog);
                     } finally {
                         if (timerContext != null) {
                             timerContext.stop();
@@ -141,7 +143,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 try {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.clearPayloadData").time();
-                    messagingDao.clearPayloadData(userMessage);
+                    //TODO REVERT messagingDao.clearPayloadData(userMessage);
                 } finally {
                     if (timerContext != null) {
                         timerContext.stop();

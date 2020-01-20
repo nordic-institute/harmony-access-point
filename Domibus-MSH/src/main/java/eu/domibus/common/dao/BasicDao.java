@@ -33,13 +33,13 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         return em.find(typeOfT, id);
     }
 
-    @BasicAudit
+    //@BasicAudit
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(final T entity) {
         em.persist(entity);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(final T entity) {
         em.remove(em.merge(entity));
     }
@@ -48,14 +48,14 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
         return em.find(this.typeOfT, id);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateAll(final Collection<T> update) {
         for (final T t : update) {
             this.update(t);
         }
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteAll(final Collection<T> delete) {
         for (final T t : delete) {
             this.delete(t);

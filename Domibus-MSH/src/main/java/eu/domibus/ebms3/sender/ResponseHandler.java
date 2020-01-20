@@ -86,6 +86,7 @@ public class ResponseHandler {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
+        LOGGER.info("Save response *****");
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         Timer.Context responseHandlerContext = null;
         try {
@@ -96,13 +97,14 @@ public class ResponseHandler {
                 responseHandlerContext.stop();
             }
         }
-
+        LOGGER.info("Save response before create *****");
         responseHandlerContext = null;
         try {
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponse")).time();
             // Stores the signal message
             signalMessageDao.create(signalMessage);
 
+            LOGGER.info("Save response before update *****");
             sentMessage.setSignalMessage(signalMessage);
             messagingDao.update(sentMessage);
 
@@ -120,8 +122,10 @@ public class ResponseHandler {
             String userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
             String userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
 
+            LOGGER.info("Save response before save *****");
             signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
 
+            LOGGER.info("Save response before createWarningEntries *****");
             createWarningEntries(signalMessage);
         } finally {
             if (responseHandlerContext != null) {
@@ -132,6 +136,7 @@ public class ResponseHandler {
         responseHandlerContext = null;
         try {
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.uiReplication")).time();
+            LOGGER.info("Save response before signalMessageReceived *****");
         //UI replication
         uiReplicationSignalService.signalMessageReceived(signalMessage.getMessageInfo().getMessageId());
         } finally {
@@ -139,6 +144,7 @@ public class ResponseHandler {
                 responseHandlerContext.stop();
             }
         }
+        LOGGER.info("Save response end *****");
     }
 
     protected void createWarningEntries(SignalMessage signalMessage) {

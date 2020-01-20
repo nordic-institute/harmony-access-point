@@ -42,8 +42,9 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
      *
      * @param signalMessage the signal message
      */
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void clear(final SignalMessage signalMessage) {
+        LOG.info("SignalMessageDao.clear ********");
         if (signalMessage.getReceipt() != null) {
             signalMessage.getReceipt().getAny().clear();
         }
