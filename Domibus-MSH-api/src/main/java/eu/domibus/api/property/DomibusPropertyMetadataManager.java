@@ -88,6 +88,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_DISPATCHER_CHUNKING_THRESHOLD = "domibus.dispatcher.chunkingThreshold";
     String DOMIBUS_DISPATCHER_CONCURENCY = "domibus.dispatcher.concurency";
     String DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY = "domibus.dispatcher.largeFiles.concurrency";
+    String DOMIBUS_DLQ_CONCURRENCY = "domibus.dlq.concurrency";
     String DOMIBUS_DISPATCHER_CACHEABLE = "domibus.dispatcher.cacheable";
     String DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE = "domibus.dispatcher.connection.keepAlive";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";

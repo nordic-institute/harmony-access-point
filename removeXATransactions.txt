@@ -1,0 +1,9 @@
+- remove XA capability of the connection factory weblogicSingle.properties and webLogicCluster.properties
+* - remove transaction manager from JMS listeners and make sure sessionTransacted=true for jmsTemplate and JMS listeners
+* - use CachingConnectionFactory for JMS ConnectionFactory?
+* - update domibus.properties to remove XA related properties
+* - change domibus xa datource to non xa datasource in WebLogic configuration
+* - verify if domibus xa datource must be changed to non xa datasource in the Spring configuration - no action
+* - change JMS connection factory from XA to non-XA
+
+*- switch JMS filestore to JMS data source

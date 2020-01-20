@@ -7,8 +7,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "TB_RAWMESSAGE")
-public class RawMessage extends AbstractBaseEntity {
+@Table(name = "TB_TESTMESSAGE")
+public class TestMessage extends AbstractBaseEntity {
 
     @Transient
     protected int messageId;
@@ -16,13 +16,9 @@ public class RawMessage extends AbstractBaseEntity {
     @Column(name = "RAWENVELOPE")
     protected String rawEnvelope;
 
-    @Lob
-    @Column(name = "RAWPAYLOAD")
-    protected byte[] rawPayload;
+    public TestMessage() {}
 
-    public RawMessage(){}
-
-    public RawMessage(String rawEnvelope) {
+    public TestMessage(String rawEnvelope) {
         this.rawEnvelope = rawEnvelope;
     }
 
@@ -32,14 +28,6 @@ public class RawMessage extends AbstractBaseEntity {
 
     public void setRawEnvelope(String rawEnvelope) {
         this.rawEnvelope = rawEnvelope;
-    }
-
-    public byte[] getRawPayload() {
-        return rawPayload;
-    }
-
-    public void setRawPayload(byte[] rawPayload) {
-        this.rawPayload = rawPayload;
     }
 
     public int getMessageId() {
@@ -56,7 +44,7 @@ public class RawMessage extends AbstractBaseEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        RawMessage rm = (RawMessage) o;
+        TestMessage rm = (TestMessage) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

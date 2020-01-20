@@ -15,10 +15,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Optional;
 import java.util.Properties;
@@ -36,8 +39,9 @@ public class DomibusJPAConfiguration {
     @Qualifier("domibusProperties")
     protected Properties domibusProperties;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    //TODO check how to solve the circular dependency
+//    @Autowired
+//    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Qualifier("domibusJDBC-XADataSource")
     @Autowired
@@ -50,17 +54,16 @@ public class DomibusJPAConfiguration {
 
     @Bean
     @Primary
-    @DependsOn("transactionManager")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setPersistenceUnitName("domibusJTA");
-        final String packagesToScanString = domibusPropertyProvider.getProperty("domibus.entityManagerFactory.packagesToScan");
+        final String packagesToScanString = domibusProperties.getProperty("domibus.entityManagerFactory.packagesToScan");
         if (StringUtils.isNotEmpty(packagesToScanString)) {
             final String[] packagesToScan = StringUtils.split(packagesToScanString, ",");
             result.setPackagesToScan(packagesToScan);
         }
-        result.setJtaDataSource(dataSource);
+        result.setDataSource(dataSource);
         result.setJpaVendorAdapter(jpaVendorAdapter());
         final PrefixedProperties jpaProperties = jpaProperties();
 
@@ -77,6 +80,15 @@ public class DomibusJPAConfiguration {
 
         return result;
     }
+
+    @DependsOn("entityManagerFactory")
+    @Bean("transactionManager")
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory);
+        return transactionManager;
+    }
+
 
     @Bean
     public PrefixedProperties jpaProperties() {

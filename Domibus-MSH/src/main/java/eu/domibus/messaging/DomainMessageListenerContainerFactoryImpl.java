@@ -34,6 +34,12 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     }
 
     @Override
+    public DomainMessageListenerContainer createDomibusDLQListenerContainer(Domain domain) {
+        LOG.debug("Creating the createDomibusDLQListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean("domibusDLQContainer", domain);
+    }
+
+    @Override
     public DomainMessageListenerContainer createSplitAndJoinListenerContainer(Domain domain) {
         LOG.debug("Creating the SplitAndJoinListenerContainer for domain [{}]", domain);
         return (DomainMessageListenerContainer) applicationContext.getBean("splitAndJoinContainer", domain);

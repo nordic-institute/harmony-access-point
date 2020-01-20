@@ -376,6 +376,7 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setApplicationContext(applicationContext);
         scheduler.setWaitForJobsToCompleteOnShutdown(true);
         scheduler.setOverwriteExistingJobs(true);
+        //TODO check if 2 datasources are needed
         scheduler.setDataSource(dataSource);
         scheduler.setNonTransactionalDataSource(nonTransactionalDataSource);
         scheduler.setTransactionManager(transactionManager);

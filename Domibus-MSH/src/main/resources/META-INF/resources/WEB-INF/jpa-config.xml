@@ -12,7 +12,6 @@
         <property name="connectionFactory" ref="domibusJMS-XAConnectionFactory"/>
         <property name="destination" ref="clusterCommandTopic"/>
         <property name="messageListener" ref="controllerListenerService"/>
-        <property name="transactionManager" ref="transactionManager"/>
         <property name="concurrency" value="1-1"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>

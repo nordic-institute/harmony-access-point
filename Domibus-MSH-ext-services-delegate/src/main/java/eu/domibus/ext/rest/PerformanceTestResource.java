@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
+import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.performancetest.PerformanceTestService;
 import eu.domibus.logging.DomibusLogger;
@@ -30,6 +31,46 @@ public class PerformanceTestResource {
 
     @Autowired
     protected PerformanceTestService performanceTestService;
+
+    @Autowired
+    protected MetricRegistry metricRegistry;
+
+    @Autowired
+    protected JMSManager jmsManager;
+
+    @GetMapping(path = "xa")
+    public void testXA() {
+        com.codahale.metrics.Timer.Context saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testDBSaveAndJMSOutside")).time();
+        performanceTestService.testDBSaveAndJMS();
+        saveSyncTimerContext.stop();
+    }
+
+    @GetMapping(path = "onlydb")
+    public void testSaveOnlyDB() {
+        com.codahale.metrics.Timer.Context saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testOnlyDBOutside")).time();
+        performanceTestService.testSave("sync", 1);
+        saveSyncTimerContext.stop();
+    }
+
+    @GetMapping(path = "jmscommit")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void testJMSCommit() {
+        performanceTestService.testDBJMSCommit();
+    }
+
+    @GetMapping(path = "xawithseparatetransactions")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void testXAWithseparatetransactions() {
+        com.codahale.metrics.Timer.Context saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testDBSaveAndJMSOutsideSeparate")).time();
+        com.codahale.metrics.Timer.Context testSave = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testSaveSeparate")).time();
+        performanceTestService.testSave("sync", 1);
+        testSave.stop();
+
+        com.codahale.metrics.Timer.Context testJMS = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testJMSSeparate")).time();
+        performanceTestService.testJMS();
+        testJMS.stop();
+        saveSyncTimerContext.stop();
+    }
 
     @GetMapping(path = "db/{type}")
     @Transactional(propagation = Propagation.NOT_SUPPORTED)

@@ -14,6 +14,8 @@ public interface DomainMessageListenerContainerFactory {
 
     DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain);
 
+    DomainMessageListenerContainer createDomibusDLQListenerContainer(Domain domain);
+
     DomainMessageListenerContainer createSplitAndJoinListenerContainer(Domain domain);
 
     DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain);

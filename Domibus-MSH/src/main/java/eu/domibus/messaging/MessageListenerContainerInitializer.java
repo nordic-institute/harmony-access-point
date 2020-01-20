@@ -51,6 +51,7 @@ public class MessageListenerContainerInitializer {
         for (Domain domain : domains) {
             createSendMessageListenerContainer(domain);
             createSendLargeMessageListenerContainer(domain);
+//            createDomibusDLQListenerContainer(domain);
             createSplitAndJoinListenerContainer(domain);
             createPullReceiptListenerContainer(domain);
             createPullMessageListenerContainer(domain);
@@ -108,6 +109,14 @@ public class MessageListenerContainerInitializer {
         instance.start();
         instances.add(instance);
         LOG.info("LargeMessageListenerContainer initialized for domain [{}]", domain);
+    }
+
+    public void createDomibusDLQListenerContainer(Domain domain) {
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createDomibusDLQListenerContainer(domain);
+        removeInstance(domain, instance.getName());
+        instance.start();
+        instances.add(instance);
+        LOG.info("createDomibusDLQListenerContainer initialized for domain [{}]", domain);
     }
 
     public void createPullReceiptListenerContainer(Domain domain) {
