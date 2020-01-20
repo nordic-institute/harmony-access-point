@@ -149,7 +149,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         com.codahale.metrics.Counter downloadMessageCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class,"downloadMessage.counter"));
         try {
@@ -381,7 +381,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(value = SUBMITTED_MESSAGES)
     @Counter(SUBMITTED_MESSAGES)

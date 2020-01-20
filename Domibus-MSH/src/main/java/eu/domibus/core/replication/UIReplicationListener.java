@@ -36,7 +36,7 @@ public class UIReplicationListener {
     private UIReplicationSignalService uiReplicationSignalService;
 
     @JmsListener(destination = "${domibus.jms.queue.ui.replication}", containerFactory = "uiReplicationJmsListenerContainerFactory")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void processUIReplication(final MapMessage map) throws JMSException {
 
         final String domainCode = map.getStringProperty(MessageConstants.DOMAIN);
