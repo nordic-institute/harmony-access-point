@@ -206,7 +206,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
-    public Set<String> filterPropertiesName(Predicate<String> predicate) {
+    public Set<String> getPropertyNames(Predicate<String> predicate) {
         Set<String> filteredPropertyNames = new HashSet<>();
         final Enumeration<?> enumeration = domibusProperties.propertyNames();
         while (enumeration.hasMoreElements()) {

@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class XPathPModeValidator extends AbstractPModeValidator {
+public class XPathPModeValidator extends AbstractPModeValidator {
 
     private String targetExpression;
     private String acceptedValuesExpression;
@@ -29,6 +29,9 @@ public abstract class XPathPModeValidator extends AbstractPModeValidator {
     private String errorMessage;
 
     private Document xmlDocument;
+
+    public XPathPModeValidator() {
+    }
 
     public XPathPModeValidator(String targetExpression, String acceptedValuesExpression, String errorMessage) {
         this(targetExpression, acceptedValuesExpression, IssueLevel.WARNING, errorMessage);

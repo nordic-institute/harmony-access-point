@@ -509,7 +509,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = Collections.enumeration(Arrays.asList("alert.email", "cron.expression"));
         }};
 
-        Set<String> res = domibusPropertyProvider.filterPropertiesName(s -> s.startsWith("alert"));
+        Set<String> res = domibusPropertyProvider.getPropertyNames(s -> s.startsWith("alert"));
 
         assertEquals("alert.email", res.toArray()[0]);
     }

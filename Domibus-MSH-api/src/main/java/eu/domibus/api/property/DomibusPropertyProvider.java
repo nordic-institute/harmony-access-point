@@ -35,7 +35,7 @@ public interface DomibusPropertyProvider {
      */
     String getProperty(Domain domain, String propertyName);
 
-    Set<String> filterPropertiesName(Predicate<String> predicate);
+    Set<String> getPropertyNames(Predicate<String> predicate);
 
     /**
      * <p>Reads a property value and parses it safely as an {@code Integer} before returning it.</p><br />

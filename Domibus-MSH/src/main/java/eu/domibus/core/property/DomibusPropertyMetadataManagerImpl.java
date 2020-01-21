@@ -88,6 +88,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Module.MSH, false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, true),
 
+            new DomibusPropertyMetadata("domibus.pMode.xPathValidator", Module.MSH, false, DomibusPropertyMetadata.Usage.GLOBAL, false, true, false, true),
+
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -325,7 +327,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
             LOGGER.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-            return propMeta.get();
+            DomibusPropertyMetadata meta = propMeta.get();
+            meta.setName(propertyName);
+            return meta;
         }
 
         // if still not found, initialize metadata on-the-fly
