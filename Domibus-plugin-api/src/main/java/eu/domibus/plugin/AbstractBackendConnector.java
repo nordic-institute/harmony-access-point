@@ -78,7 +78,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);

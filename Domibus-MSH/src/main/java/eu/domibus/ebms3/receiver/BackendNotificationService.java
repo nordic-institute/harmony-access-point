@@ -329,8 +329,13 @@ public class BackendNotificationService {
         validateAndNotifyCounter.inc();
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
+        com.codahale.metrics.Timer.Context validateSubmission = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "validateSubmission.timer")).time();
         validateSubmission(userMessage, backendName, notificationType);
+        validateSubmission.stop();
+
+        com.codahale.metrics.Timer.Context getFinalRecipient = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "getFinalRecipient.timer")).time();
         String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
+        getFinalRecipient.stop();
         if (properties != null) {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
         }
@@ -344,7 +349,9 @@ public class BackendNotificationService {
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, Object> properties) {
+        com.codahale.metrics.Timer.Context getNotificationListener = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "getNotificationListener.timer")).time();
         NotificationListener notificationListener = getNotificationListener(backendName);
+        getNotificationListener.stop();
         if (notificationListener == null) {
             LOG.warn("No notification listeners found for backend [" + backendName + "]");
             return;
