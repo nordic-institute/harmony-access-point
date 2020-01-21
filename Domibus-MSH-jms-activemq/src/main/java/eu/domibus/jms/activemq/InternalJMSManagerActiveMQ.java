@@ -73,7 +73,6 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
-
         Map<String, InternalJMSDestination> destinationMap = new TreeMap<>();
 
         try {
@@ -88,16 +87,22 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         }
     }
 
-
     protected InternalJMSDestination createInternalJmsDestination(ObjectName name, QueueViewMBean queueMbean) {
         InternalJMSDestination internalJmsDestination = new InternalJMSDestination();
         internalJmsDestination.setName(queueMbean.getName());
         internalJmsDestination.setInternal(jmsDestinationHelper.isInternal(queueMbean.getName()));
         internalJmsDestination.setType(InternalJMSDestination.QUEUE_TYPE);
-        /* in multi-tenancy mode we show the number of messages only to super admin */
-        internalJmsDestination.setNumberOfMessages(domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin() ? NB_MESSAGES_ADMIN : queueMbean.getQueueSize());
+        internalJmsDestination.setNumberOfMessages(getMessagesTotalCount(queueMbean));
         internalJmsDestination.setProperty(PROPERTY_OBJECT_NAME, name);
         return internalJmsDestination;
+    }
+
+    protected long getMessagesTotalCount(QueueViewMBean queueMbean) {
+        if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
+            //in multi-tenancy mode we show the number of messages only to super admin
+            return NB_MESSAGES_ADMIN;
+        }
+        return queueMbean.getQueueSize();
     }
 
     protected QueueViewMBean getQueueViewMBean(ObjectName objectName) {
@@ -311,6 +316,14 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             throw new InternalJMSException("Failed to consume message [" + customMessageId + "] from source [" + source + "]", ex);
         }
         return intJmsMsg;
+    }
+
+    @Override
+    public long getDestinationCount(InternalJMSDestination internalJMSDestination) {
+        ObjectName objectName = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
+        QueueViewMBean queueMbean = getQueueViewMBean(objectName);
+
+        return getMessagesTotalCount(queueMbean);
     }
 
     protected List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws JMSActiveMQException {

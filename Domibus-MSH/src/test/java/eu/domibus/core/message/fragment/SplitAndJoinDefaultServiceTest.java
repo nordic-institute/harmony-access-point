@@ -7,7 +7,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.BasicDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -28,8 +27,10 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.AttachmentCleanupService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Error;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
@@ -38,21 +39,24 @@ import eu.domibus.pki.PolicyService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.neethi.Policy;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -64,7 +68,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Soumya
  * @since 4.1
  */
 @RunWith(JMockit.class)
@@ -470,7 +474,7 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void setUserMessageFragmentAsFailedAcknowledged(@Injectable UserMessage userMessage,
-                                                              @Injectable UserMessageLog messageLog) {
+                                                           @Injectable UserMessageLog messageLog) {
         String messageId = "123";
         new Expectations() {{
             messagingDao.findUserMessageByMessageId(messageId);
@@ -1012,5 +1016,49 @@ public class SplitAndJoinDefaultServiceTest {
         Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
 
+    @Test
+    public void getUserMessage(@Injectable FileInputStream fileInputStream,
+                               @Injectable InputStream inputStream,
+                               @Injectable MessageImpl messageImpl,
+                               @Injectable MessageGroupEntity messageGroupEntity,
+                               @Injectable final SOAPMessage soapMessage) throws IOException, SAXException, ParserConfigurationException, SOAPException, TransformerException {
+        File sourceMessageFileName = testFolder.newFile("file1.txt");
+        final String text1 = "text1";
+        FileUtils.writeStringToFile(sourceMessageFileName, text1, Charset.defaultCharset());
+        String contentTypeString = "application/xml";
+        final File temporaryDirectoryLocation = testFolder.getRoot();
 
+        new Expectations(splitAndJoinDefaultService) {{
+            domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
+            result = temporaryDirectoryLocation.getAbsolutePath();
+        }};
+
+        Assert.assertNotNull(splitAndJoinDefaultService.getUserMessage(sourceMessageFileName, contentTypeString));
+    }
+
+
+    @Test
+    public void mergeFilesTest(@Mocked File file1,
+                               @Mocked File file2,
+                               @Injectable OutputStream mergingStream,
+                               @Injectable Files files,
+                               @Injectable Path path) throws IOException {
+        List<File> filesList = new ArrayList<>();
+        filesList.add(file1);
+        filesList.add(file2);
+        new Expectations(splitAndJoinDefaultService) {
+            {
+                file1.toPath();
+                result = path;
+            }
+        };
+        splitAndJoinDefaultService.mergeFiles(filesList, mergingStream);
+        new Verifications() {{
+            files.copy(path, mergingStream);
+            times = 2;
+            mergingStream.flush();
+            times = 2;
+        }};
+
+    }
 }
