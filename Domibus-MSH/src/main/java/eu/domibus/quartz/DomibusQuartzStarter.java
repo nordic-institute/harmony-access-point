@@ -94,6 +94,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 LOG.error("Error while shutting down Quartz Scheduler for general schema", e);
             }
         }
+
         // Domain Schedulers
         for (Map.Entry<Domain, Scheduler> domainSchedulerEntry : schedulers.entrySet()) {
             final Domain domain = domainSchedulerEntry.getKey();
@@ -177,7 +178,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 List<QuartzTriggerDetails> triggerInfoList = getTriggerDetails(quartzScheduler, groupName, domainName);
                 triggers.addAll(triggerInfoList);
             }
+
         }
+
         return triggers;
     }
 
@@ -234,8 +237,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             return;
         }
         Scheduler generalScheduler = domibusSchedulerFactory.createScheduler(null);
+
         //check Quartz scheduler jobs first
         checkSchedulerJobsByTriggerGroup(generalScheduler, triggerGroup);
+
         generalScheduler.start();
         generalSchedulers.add(generalScheduler);
         LOG.info("Quartz scheduler started for general schema");
@@ -299,6 +304,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             final String jobGroup = jobKey.getGroup();
 
             LOG.info("Found Quartz job: {} from group: {}", jobName, jobGroup);
+
             try {
                 scheduler.getJobDetail(jobKey).getJobClass().getName();
             } catch (SchedulerException se) {
@@ -416,4 +422,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(repeatInterval).repeatForever())
                 .build();
     }
+
+
 }
