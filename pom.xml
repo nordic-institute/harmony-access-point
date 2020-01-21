@@ -49,7 +49,7 @@
         <quartz.version>2.3.0</quartz.version>
         <c3p0.version>0.9.5.3</c3p0.version>
         <org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
-        <jackson.version>2.9.10.2</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
         <commons-test.version>4.2</commons-test.version>
         <xstream.version>1.4.11</xstream.version>
         <freemarker.version>2.3.23</freemarker.version>
@@ -193,7 +193,8 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <!-- fix for OWASP CVE-2019-20330 -->
+                <version>2.9.10.2</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
