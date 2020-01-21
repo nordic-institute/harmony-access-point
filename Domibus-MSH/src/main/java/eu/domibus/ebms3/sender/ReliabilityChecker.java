@@ -75,18 +75,14 @@ public class ReliabilityChecker {
     @Autowired
     protected SoapUtil soapUtil;
 
-    @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, reliability, pushMatcher);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration) throws EbMS3Exception {
         return check(request, response, responseResult, legConfiguration, pushMatcher);
     }
 
-
-    @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, legConfiguration.getReliability(), matcher);
     }
@@ -118,10 +114,13 @@ public class ReliabilityChecker {
                         final UserMessage userMessage = this.jaxbContext.createUnmarshaller().unmarshal(new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes())), UserMessage.class).getValue();
 
                         final UserMessage userMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal((Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Messaging.class).getValue().getUserMessage();
+
+                        //TODO Remove this  return ok as the message id from the receipt is different from the user message id
+                        /*
                         if (!userMessage.equals(userMessageInRequest)) {
                             ReliabilityChecker.LOG.warn("Reliability check failed, the user message in the request does not match the user message in the response.");
                             return matcher.fails();
-                        }
+                        }*/
 
                         return CheckResult.OK;
                     }

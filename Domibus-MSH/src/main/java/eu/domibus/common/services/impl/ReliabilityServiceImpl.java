@@ -92,6 +92,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 Timer.Context timerContext = null;
                 try {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.saveResponse").time();
+
                     responseHandler.saveResponse(responseSoapMessage, messaging, responseResult.getResponseMessaging());
                 } finally {
                     if (timerContext != null) {

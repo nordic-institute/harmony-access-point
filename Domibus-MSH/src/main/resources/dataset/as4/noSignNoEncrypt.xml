@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<S12:Envelope xmlns:S12="http://www.w3.org/2003/05/soap-envelope" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+              xmlns:eb3="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
+              xmlns:ebbp="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0"
+              xmlns:ebint="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/multihop/200902/"
+              xmlns:wsa="http://www.w3.org/2005/08/addressing"
+              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+              xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <S12:Header>
+        <eb3:Messaging S12:mustUnderstand="true" id="_ebmessaging_N65541"
+                       wsu:Id="_1485e0cbdf87b96e23ac48f9f0d81d9176d56ffe95aaecc2d2d0bd9226696a46d">
+            <eb3:SignalMessage>
+                <eb3:MessageInfo>
+                    <eb3:Timestamp>2020-01-21T07:40:20.000Z</eb3:Timestamp>
+                    <eb3:MessageId>SIGNAL_MESSAGE_ID_HOLDER</eb3:MessageId>
+                    <eb3:RefToMessageId>46728953-3c21-11ea-a837-f600e6c928ae@domibus.eu</eb3:RefToMessageId>
+                </eb3:MessageInfo>
+                <eb3:Receipt>
+                    <eb:UserMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
+                                    xmlns:env="http://www.w3.org/2003/05/soap-envelope"
+                                    mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC">
+                        <eb:MessageInfo>
+                            <eb:Timestamp>2020-01-21T07:40:20.172Z</eb:Timestamp>
+                            <eb:MessageId>46728953-3c21-11ea-a837-f600e6c928ae@domibus.eu</eb:MessageId>
+                        </eb:MessageInfo>
+                        <eb:PartyInfo>
+                            <eb:From>
+                                <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red
+                                </eb:PartyId>
+                                <eb:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator
+                                </eb:Role>
+                            </eb:From>
+                            <eb:To>
+                                <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue
+                                </eb:PartyId>
+                                <eb:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder
+                                </eb:Role>
+                            </eb:To>
+                        </eb:PartyInfo>
+                        <eb:CollaborationInfo>
+                            <eb:Service type="tc1">bdx:noprocess</eb:Service>
+                            <eb:Action>TC1Leg1</eb:Action>
+                            <eb:ConversationId>46728952-3c21-11ea-a837-f600e6c928ae@domibus.eu</eb:ConversationId>
+                        </eb:CollaborationInfo>
+                        <eb:MessageProperties>
+                            <eb:Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1
+                            </eb:Property>
+                            <eb:Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4
+                            </eb:Property>
+                        </eb:MessageProperties>
+                        <eb:PayloadInfo>
+                            <eb:PartInfo href="cid:message">
+                                <eb:PartProperties>
+                                    <eb:Property name="MimeType">text/xml</eb:Property>
+                                </eb:PartProperties>
+                            </eb:PartInfo>
+                        </eb:PayloadInfo>
+                    </eb:UserMessage>
+                </eb3:Receipt>
+            </eb3:SignalMessage>
+        </eb3:Messaging>
+    </S12:Header>
+    <S12:Body/>
+</S12:Envelope>

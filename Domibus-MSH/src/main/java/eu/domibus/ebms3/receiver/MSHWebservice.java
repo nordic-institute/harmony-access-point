@@ -6,6 +6,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.metrics.Timer;
+import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -50,6 +51,9 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     private MetricRegistry metricRegistry;
 
+    @Autowired
+    private MessageIdGenerator messageIdGenerator;
+
     @Timer(value = INCOMING_USER_MESSAGE)
     @Counter(INCOMING_USER_MESSAGE)
     @Override
@@ -58,6 +62,10 @@ public class MSHWebservice implements Provider<SOAPMessage> {
 
         com.codahale.metrics.Timer.Context getMessagingMetric = metricRegistry.timer(MetricRegistry.name(MSHWebservice.class, "invoke.getMessaging")).time();
         Messaging messaging = getMessaging();
+
+        //TODO remove this
+        messaging.getUserMessage().getMessageInfo().setMessageId(messageIdGenerator.generateMessageId());
+
         getMessagingMetric.stop();
         if (messaging == null) {
             LOG.error("Error getting Messaging");

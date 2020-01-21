@@ -27,7 +27,6 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
     @Autowired
     private MetricRegistry metricRegistry;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
     public void onMessage(final Message message) {

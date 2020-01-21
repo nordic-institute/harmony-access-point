@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -108,6 +109,7 @@ public class UserResource extends BaseResource {
         return prepareResponse(users);
     }
 
+    @Transactional
     @PutMapping(value = {"/users"})
     public void updateUsers(@RequestBody @Valid List<UserResponseRO> userROS) {
         LOG.debug("Update Users was called: {}", userROS);

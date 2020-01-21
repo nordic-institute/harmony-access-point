@@ -49,7 +49,7 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
         String expectedPolicy = "eDeliveryAS4Policy";
         String expectedSecurityAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
-        String filename = "SOAPMessage2.xml";
+        String filename = "noSignNoEncrypt.xml";
         SoapMessage sm = createSoapMessage(filename);
 
         setPolicyInInterceptorServer.handleMessage(sm);

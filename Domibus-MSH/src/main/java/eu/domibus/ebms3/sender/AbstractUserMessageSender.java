@@ -3,7 +3,6 @@ package eu.domibus.ebms3.sender;
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
-import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
@@ -17,21 +16,34 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.pki.PolicyService;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import javax.xml.soap.SOAPMessage;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.*;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.soap.SOAPFaultException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.sql.Timestamp;
 
 import static eu.domibus.common.metrics.MetricNames.OUTGOING_USER_MESSAGE;
@@ -46,6 +58,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected PModeProvider pModeProvider;
+
+    @Autowired
+    private MessageIdGenerator messageIdGenerator;
 
     @Autowired
     protected MSHDispatcher mshDispatcher;
@@ -71,7 +86,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     private MetricRegistry metricRegistry;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)
@@ -150,8 +164,25 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             createSOAPMessage_before_sending.stop();
 
             com.codahale.metrics.Timer.Context dispatch = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "around_dispatch")).time();
-            responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+
+            try {
+                Thread.sleep(300L);
+            } catch (InterruptedException e) {
+                getLog().error("Error sleeping", e);
+            }
+
+
+//            responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             dispatch.stop();
+
+            com.codahale.metrics.Timer.Context createSOAPMessage_result = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "createSOAPMessage")).time();
+            try {
+                responseSoapMessage = createSOAPMessage("noSignNoEncrypt.xml");
+            } catch (Exception e) {
+                getLog().error("Error creating soap response", e);
+            }
+            createSOAPMessage_result.stop();
+
             com.codahale.metrics.Timer.Context handle_response = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "handle_response")).time();
             responseResult = responseHandler.verifyResponse(responseSoapMessage);
 
@@ -181,7 +212,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
-            com.codahale.metrics.Timer.Context finally_block =null;
+            com.codahale.metrics.Timer.Context finally_block = null;
             try {
                 finally_block = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "handleReliability")).time();
                 getLog().debug("Finally handle reliability");
@@ -189,12 +220,33 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
-            }finally {
-                if(finally_block!=null) {
+            } finally {
+                if (finally_block != null) {
                     finally_block.stop();
                 }
             }
         }
+    }
+
+    public SOAPMessage createSOAPMessage(String dataset) throws SOAPException, IOException, ParserConfigurationException, SAXException {
+
+        MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+        SOAPMessage message = factory.createMessage();
+
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setNamespaceAware(true);
+        DocumentBuilder builder = dbFactory.newDocumentBuilder();
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("dataset/as4/" + dataset);
+        String responseAsString = IOUtils.toString(resourceAsStream, "UTF-8");
+        responseAsString = StringUtils.replace(responseAsString, "SIGNAL_MESSAGE_ID_HOLDER", messageIdGenerator.generateMessageId());
+        InputSource inputSource = new InputSource(new StringReader(responseAsString));
+
+        Document document = builder.parse(inputSource);
+        DOMSource domSource = new DOMSource(document);
+        SOAPPart soapPart = message.getSOAPPart();
+        soapPart.setContent(domSource);
+
+        return message;
     }
 
     protected void validateBeforeSending(final UserMessage userMessage) {

@@ -56,7 +56,6 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
         com.codahale.metrics.Timer.Context findByMessageIdSafely_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "findByMessageIdSafely_before_sending")).time();
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);

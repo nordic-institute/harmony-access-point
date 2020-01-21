@@ -230,9 +230,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         submission.setRefToMessageId(org.apache.commons.lang3.StringUtils.trim(submission.getMessageId()));
         submission.setMessageId(null);
         //EU-ICS2-TI-V1.0
-        submission.setAction("IE3R01");
+        /*submission.setAction("IE3R01");
         submission.setService("eu_ics2_c2t");
-        submission.setAgreementRef("EU-ICS2-TI-V1.0");
+        submission.setAgreementRef("EU-ICS2-TI-V1.0");*/
 
         submission.getPayloads().clear();
         submission.addPayload(getPayload(message, MediaType.TEXT_XML));

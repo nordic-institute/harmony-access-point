@@ -84,12 +84,12 @@ public class ResponseHandler {
         return result;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         Timer.Context responseHandlerContext = null;
         try {
-            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponse")).time();
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponseNonRepudiation")).time();
+            //TODO save async
             nonRepudiationService.saveResponse(response, signalMessage);
         } finally {
             if (responseHandlerContext != null) {
@@ -132,8 +132,8 @@ public class ResponseHandler {
         responseHandlerContext = null;
         try {
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.uiReplication")).time();
-        //UI replication
-        uiReplicationSignalService.signalMessageReceived(signalMessage.getMessageInfo().getMessageId());
+            //UI replication
+            uiReplicationSignalService.signalMessageReceived(signalMessage.getMessageInfo().getMessageId());
         } finally {
             if (responseHandlerContext != null) {
                 responseHandlerContext.stop();
