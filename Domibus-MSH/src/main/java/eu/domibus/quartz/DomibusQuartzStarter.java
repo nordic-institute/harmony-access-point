@@ -47,7 +47,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     /**
      * Used to check if any Quartz Triggers are blocked for more than 5 minutes.
      */
-    private static final long TRIGGER_BLOCKED_DURATION = 5 * 60 * 1000;
+    private static final long TRIGGER_BLOCKED_DURATION = 5 * 60 * 1000L;
 
     @Autowired
     protected DomibusSchedulerFactory domibusSchedulerFactory;
