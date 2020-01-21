@@ -47,4 +47,9 @@ public abstract class AbstractValidatorTest {
         return IOUtils.toString(json.getInputStream(), StandardCharsets.UTF_8);
     }
 
+    protected byte[] getPModeAsByteArray(String resourceName) throws IOException {
+        ClassPathResource res = new ClassPathResource(this.getClass().getPackage().getName().replaceAll("\\.","\\/") + "/" + resourceName);
+        return IOUtils.toByteArray(res.getInputStream());
+    }
+
 }

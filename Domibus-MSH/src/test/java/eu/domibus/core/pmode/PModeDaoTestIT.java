@@ -5,6 +5,7 @@ import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -242,7 +243,7 @@ public class PModeDaoTestIT {
         byte[] pModeBytes = IOUtils.toByteArray(xmlStream);
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(true, jaxbContext, new ByteArrayInputStream(pModeBytes), null);
 
-        List<String> updatePmodeMessage = pModeDao.updatePModes(pModeBytes, "description");
+        List<PModeIssue> updatePmodeMessage = pModeDao.updatePModes(pModeBytes, "description");
         assertNotNull(updatePmodeMessage);
         assertTrue(updatePmodeMessage.size() > 0);
 
@@ -272,7 +273,7 @@ public class PModeDaoTestIT {
         byte[] pModeBytes = IOUtils.toByteArray(xmlStream);
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(true, jaxbContext, new ByteArrayInputStream(pModeBytes), null);
 
-        List<String> updatePmodeMessage = pModeDao.updatePModes(pModeBytes, "description");
+        List<PModeIssue> updatePmodeMessage = pModeDao.updatePModes(pModeBytes, "description");
         //there are no warnings
         assertTrue(updatePmodeMessage.isEmpty());
 
