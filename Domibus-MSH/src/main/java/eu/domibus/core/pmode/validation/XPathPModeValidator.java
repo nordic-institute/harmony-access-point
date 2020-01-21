@@ -3,7 +3,6 @@ package eu.domibus.core.pmode.validation;
 import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.xml.DomibusXMLException;
-import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,19 +23,25 @@ import java.util.List;
 
 public abstract class XPathPModeValidator extends AbstractPModeValidator {
 
-    private String targetExpression; // = "//businessProcesses/legConfigurations/legConfiguration/@service";
-    private String acceptedValuesExpression; // = "//businessProcesses/services/service/@name";
-    private IssueLevel level = IssueLevel.WARNING;
+    private String targetExpression;
+    private String acceptedValuesExpression;
+    private IssueLevel level;
+    private String errorMessage;
 
     private Document xmlDocument;
 
-    public XPathPModeValidator(String targetExpression, String acceptedValuesExpression) {
+    public XPathPModeValidator(String targetExpression, String acceptedValuesExpression, String errorMessage) {
+        this(targetExpression, acceptedValuesExpression, IssueLevel.WARNING, errorMessage);
+    }
+
+    public XPathPModeValidator(String targetExpression, String acceptedValuesExpression, IssueLevel level, String errorMessage) {
         this.targetExpression = targetExpression;
         this.acceptedValuesExpression = acceptedValuesExpression;
+        this.level = level;
+        this.errorMessage = errorMessage;
     }
 
     public List<PModeIssue> validateAsXml(byte[] xmlBytes) {
-
         parseXml(xmlBytes);
 
         List<String> valuesToValidate = extractValues(targetExpression);
@@ -45,7 +50,7 @@ public abstract class XPathPModeValidator extends AbstractPModeValidator {
         List<PModeIssue> issues = new ArrayList<>();
         for (String value : valuesToValidate) {
             if (!acceptedValues.contains(value)) {
-                issues.add(new PModeIssue("Service [" + value + "] not found", level));
+                issues.add(new PModeIssue(String.format(this.errorMessage, value), level));
             }
         }
 
