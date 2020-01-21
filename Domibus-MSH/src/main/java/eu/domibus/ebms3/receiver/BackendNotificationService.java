@@ -2,6 +2,7 @@ package eu.domibus.ebms3.receiver;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
@@ -220,9 +221,6 @@ public class BackendNotificationService {
     }
 
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
-        com.codahale.metrics.Timer.Context notifyOfIncomingTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "notifyOfIncoming.timer")).time();
-        com.codahale.metrics.Counter notifyOfIncomingCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(BackendNotificationService.class, "notifyOfIncoming.counter"));
-        notifyOfIncomingCounter.inc();
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [" + userMessage.getMessageInfo().getMessageId() + "] found. Sending notification to [" + unknownReceiverQueue + "]");
             String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -232,8 +230,6 @@ public class BackendNotificationService {
         }
 
         validateAndNotify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
-        notifyOfIncomingTimer.stop();
-        notifyOfIncomingCounter.dec();
     }
 
     protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
@@ -329,11 +325,15 @@ public class BackendNotificationService {
         validateAndNotifyCounter.inc();
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
+        com.codahale.metrics.Timer.Context validateSubmissionTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "validateSubmission.timer")).time();
         validateSubmission(userMessage, backendName, notificationType);
+        validateSubmissionTimer.stop();
+        com.codahale.metrics.Timer.Context finalRecipientTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "finalRecipient.timer")).time();
         String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
         if (properties != null) {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
         }
+        finalRecipientTimer.stop();
         notify(userMessage.getMessageInfo().getMessageId(), backendName, notificationType, properties);
         validateAndNotifyTimer.stop();
         validateAndNotifyCounter.dec();
@@ -344,17 +344,21 @@ public class BackendNotificationService {
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, Object> properties) {
+        com.codahale.metrics.Timer.Context notificationListenerTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "notificationListener.timer")).time();
         NotificationListener notificationListener = getNotificationListener(backendName);
         if (notificationListener == null) {
             LOG.warn("No notification listeners found for backend [" + backendName + "]");
             return;
         }
+        notificationListenerTimer.stop();
 
+        com.codahale.metrics.Timer.Context requireNotificationTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(BackendNotificationService.class, "requireNotification.timer")).time();
         LOG.debug("Required notifications [{}]", notificationListener.getRequiredNotificationTypeList());
         if (!notificationListener.getRequiredNotificationTypeList().contains(notificationType)) {
             LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, notificationListener.getMode());
             return;
         }
+        requireNotificationTimer.stop();
 
         if (properties != null) {
             String finalRecipient = (String) properties.get(MessageConstants.FINAL_RECIPIENT);
@@ -363,8 +367,17 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-        com.codahale.metrics.Timer.Context sendMessageToQueue = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "sendMessageToQueue")).time();
-        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), notificationListener.getBackendNotificationQueue());
+        com.codahale.metrics.Timer.Context prepareMessageTimer = metricRegistry.timer(MetricRegistry.name(BackendNotificationService.class, "prepareJms.timer")).time();
+        JmsMessage message = new NotifyMessageCreator(messageId, notificationType, properties).createMessage();
+        prepareMessageTimer.stop();
+
+        com.codahale.metrics.Timer.Context getQueueTimer = metricRegistry.timer(MetricRegistry.name(BackendNotificationService.class, "getQueue.timer")).time();
+        Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
+        getQueueTimer.stop();
+
+
+        com.codahale.metrics.Timer.Context sendMessageToQueue = metricRegistry.timer(MetricRegistry.name(BackendNotificationService.class, "sendMessageToQueue")).time();
+        jmsManager.sendMessageToQueue(message, backendNotificationQueue);
         sendMessageToQueue.stop();
     }
 
