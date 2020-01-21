@@ -4,7 +4,10 @@ package eu.domibus.core.pmode;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -17,9 +20,9 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
-import eu.domibus.core.crypto.spi.model.UserMessageMapping;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.validators.ConfigurationValidator;
@@ -50,6 +53,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -89,7 +93,7 @@ public abstract class PModeProvider {
     XMLUtil xmlUtil;
 
     @Autowired
-    List<ConfigurationValidator> configurationValidators;
+    PModeValidationService pModeValidationService;
 
     @Autowired
     protected ProcessDao processDao;
@@ -161,24 +165,32 @@ public abstract class PModeProvider {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public List<String> updatePModes(byte[] bytes, String description) throws XmlProcessingException {
+    public List<PModeIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
         LOG.debug("Updating the PMode");
         description = validateDescriptionSize(description);
-        List<String> resultMessage = new ArrayList<>();
+        List<PModeIssue> issues = new ArrayList<>();
         final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
         if (!unmarshalledConfiguration.isValid()) {
+            List<String> resultMessage = new ArrayList<>();
             resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
             resultMessage.addAll(unmarshalledConfiguration.getErrors());
             final String message = StringUtils.join(resultMessage, " ");
             LOG.warn(message);
+
+            issues.add(new PModeIssue(message, IssueLevel.WARNING));
         }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
+
+        issues.addAll(pModeValidationService.validate(bytes, configuration));
+        if (issues != null && issues.stream().anyMatch(x -> x.getLevel() == IssueLevel.ERROR)) {
+            throw new PModeValidationException(issues);
+        }
         configurationDAO.updateConfiguration(configuration);
 
-        for (ConfigurationValidator validator : configurationValidators) {
-            resultMessage.addAll(validator.validate(configuration));
-        }
+//        for (ConfigurationValidator validator : configurationValidators) {
+//            resultMessage.addAll(validator.validate(configuration));
+//        }
 
         //save the raw configuration
         final ConfigurationRaw configurationRaw = new ConfigurationRaw();
@@ -193,7 +205,7 @@ public abstract class PModeProvider {
         // Sends a message into the topic queue in order to refresh all the singleton instances of the PModeProvider.
         signalService.signalPModeUpdate();
 
-        return resultMessage;
+        return issues;
     }
 
     private String validateDescriptionSize(final String description) {

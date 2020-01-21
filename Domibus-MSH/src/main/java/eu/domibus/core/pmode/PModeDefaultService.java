@@ -3,6 +3,7 @@ package eu.domibus.core.pmode;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.pmode.domain.ReceptionAwareness;
@@ -63,7 +64,7 @@ public class PModeDefaultService implements PModeService {
     }
 
     @Override
-    public List<String> updatePModeFile(byte[] bytes, String description) throws PModeException {
+    public List<PModeIssue> updatePModeFile(byte[] bytes, String description) throws PModeException {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {

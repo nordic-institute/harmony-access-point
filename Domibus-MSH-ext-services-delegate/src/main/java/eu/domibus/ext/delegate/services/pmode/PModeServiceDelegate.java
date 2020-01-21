@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.pmode;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Catalin Enache
@@ -36,6 +38,7 @@ public class PModeServiceDelegate implements PModeExtService {
 
     @Override
     public List<String> updatePModeFile(byte[] bytes, String description) {
-        return pModeService.updatePModeFile(bytes, description);
+        List<PModeIssue> issues = pModeService.updatePModeFile(bytes, description);
+        return issues.stream().map(i -> i.getMessage()).collect(Collectors.toList());
     }
 }

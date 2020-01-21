@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -108,19 +109,28 @@ public class PModeResource extends BaseResource {
             byte[] bytes = pmode.getBytes();
 
             List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
+
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
                 message += " but some issues were detected: <br>" + StringUtils.join(pmodeUpdateMessage, " <br>");
             }
+
             return ResponseEntity.ok(message);
         } catch (XmlProcessingException e) {
             LOG.error("Error uploading the PMode", e);
             String message = "Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e);
             if (CollectionUtils.isNotEmpty(e.getErrors())) {
                 message += ";" + StringUtils.join(e.getErrors(), ";");
-
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
+        } catch (PModeValidationException ve) {
+            LOG.error("Validation exception uploading the PMode", ve);
+            String message = "";
+            if (CollectionUtils.isNotEmpty(ve.getIssues())) {
+                message += "<br>" + StringUtils.join(ve.getIssues(), " <br>");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Failed to upload the PMode file due to validation: " + message);
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e));

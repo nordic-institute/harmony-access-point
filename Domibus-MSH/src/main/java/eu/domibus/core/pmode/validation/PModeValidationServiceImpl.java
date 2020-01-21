@@ -23,6 +23,8 @@ public class PModeValidationServiceImpl implements PModeValidationService {
     public List<PModeIssue> validate(byte[] rawConfiguration, Configuration configuration) {
         List<PModeIssue> issues = new ArrayList<>();
 
+        configuration.preparePersist(); // TODO: review this
+
         for (ConfigurationValidator validator : configurationValidators) {
             List<String> messages = validator.validate(configuration);
             issues.addAll(messages.stream().map(m -> new PModeIssue(m, IssueLevel.WARNING)).collect(Collectors.toList()));
