@@ -80,9 +80,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     /** managed servers names */
     protected List<String> managedServerNames;
 
-    /** JMS Destinations map (including topics) from all servers */
-    protected Map<String, ObjectName> jmsDestinationsMap;
-
     @Autowired
     private JMXHelper jmxHelper;
 
@@ -155,10 +152,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
      * @return JMSDestinations as {@code ObjectName}
      */
     protected Map<String, ObjectName> getJmsDestinations(MBeanServerConnection mbsc) {
-        if (jmsDestinationsMap != null) {
-            return jmsDestinationsMap;
-        }
-        jmsDestinationsMap = new LinkedHashMap<>(); //keep order of insertion
+        Map<String, ObjectName> jmsDestinationsMap = new LinkedHashMap<>(); //keep order of insertion
         try {
             ObjectName drs = jmxHelper.getDomainRuntimeService();
             ObjectName[] servers = (ObjectName[]) mbsc.getAttribute(drs, ATTR_SERVER_RUNTIMES);
