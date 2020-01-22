@@ -19,12 +19,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
  * @since 4.2
- *
+ * <p>
  * Validator that verifies that all element from target are also declared in accepted values collection by using xPath
  */
 public class XPathPModeValidator extends AbstractPModeValidator {
@@ -47,7 +49,13 @@ public class XPathPModeValidator extends AbstractPModeValidator {
         this.targetExpression = targetExpression;
         this.acceptedValuesExpression = acceptedValuesExpression;
         this.level = level;
-        this.errorMessage = errorMessage;
+        if (errorMessage != null) {
+            this.errorMessage = errorMessage;
+        } else {
+            String target = targetExpression.replace("/@name", "").replace("@", "").replace("//", "").replace("/", "->");
+            String accepted = acceptedValuesExpression.replace("/@name", "").replace("//", "").replace("/", "->");
+            this.errorMessage = target + " [%s] not found in " + accepted;
+        }
     }
 
     public List<PModeIssue> validateAsXml(byte[] xmlBytes) {

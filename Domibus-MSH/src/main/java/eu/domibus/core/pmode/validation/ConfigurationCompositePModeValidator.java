@@ -30,8 +30,10 @@ public class ConfigurationCompositePModeValidator extends CompositePModeValidato
             String[] properties = propVal.split(";");
             String targetExpression = properties[0];
             String acceptedValuesExpression = properties[1];
-            String errorMessage = properties[2];
-
+            String errorMessage = null;
+            if (properties.length == 3) {
+                errorMessage = properties[2];
+            }
             this.getValidators().add(new XPathPModeValidator(targetExpression, acceptedValuesExpression, errorMessage));
         });
     }
