@@ -43,14 +43,17 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
             case DELETED:
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
+                //TODO update the SQL update statement to included these flags
                 messageLog.setDeleted(new Date());
                 messageLog.setNextAttempt(null);
                 break;
             case DOWNLOADED:
+                //TODO update the SQL update statement to included these flags
                 messageLog.setDownloaded(new Date());
                 messageLog.setNextAttempt(null);
                 break;
             case SEND_FAILURE:
+                //TODO update the SQL update statement to included these flags
                 messageLog.setFailed(new Date());
                 messageLog.setNextAttempt(null);
                 break;

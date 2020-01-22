@@ -79,8 +79,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     /**
      * {@inheritDoc}
      */
-    @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @Override
     public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 

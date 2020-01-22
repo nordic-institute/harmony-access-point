@@ -73,7 +73,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     /**
      * {@inheritDoc}
      */
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
         return messagingConfigurationLoader.getConfiguration(this::readMessageConfiguration);

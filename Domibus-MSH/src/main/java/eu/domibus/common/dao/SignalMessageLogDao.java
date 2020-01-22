@@ -6,6 +6,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogInfoFilter;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,13 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
             LOG.debug("No result for message with id [" + messageId + "]");
             return MessageStatus.NOT_FOUND;
         }
+    }
+
+    public void updateStatus(final SignalMessageLog messageLog, MessageStatus status) {
+        final Query emptyQuery = em.createNamedQuery("SignalMessageLog.setMessageStatus");
+        emptyQuery.setParameter("ID", messageLog.getEntityId());
+        emptyQuery.setParameter("STATUS", status);
+        emptyQuery.executeUpdate();
     }
 
     public SignalMessageLog findByMessageId(String messageId) {

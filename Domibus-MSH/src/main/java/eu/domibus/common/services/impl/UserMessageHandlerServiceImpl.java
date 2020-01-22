@@ -11,7 +11,6 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessagingService;
@@ -138,7 +137,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private MetricRegistry metricRegistry;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         com.codahale.metrics.Timer.Context checkSelfSending = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "checkSelfSending")).time();
@@ -401,12 +399,15 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             }
         }
 
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "messagingService.storeMessage")).time();
         try {
             messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, backendName);
         } catch (CompressionException exc) {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "Could not persist message" + exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
+        } finally {
+            authorizeUserMessageMetric.stop();
         }
 
         Party to = pModeProvider.getReceiverParty(pmodeKey);
@@ -532,7 +533,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handlePayloads(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");

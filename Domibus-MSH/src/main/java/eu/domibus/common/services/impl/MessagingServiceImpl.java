@@ -1,5 +1,7 @@
 package eu.domibus.common.services.impl;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -13,9 +15,9 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
@@ -78,7 +80,9 @@ public class MessagingServiceImpl implements MessagingService {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Override
     public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (messaging == null || messaging.getUserMessage() == null) {
@@ -106,7 +110,9 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("Saving Messaging");
         setPayloadsContentType(messaging);
+        Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "messagingDao.create")).time();
         messagingDao.create(messaging);
+        timeContext.stop();
     }
 
     protected boolean scheduleSourceMessagePayloads(Messaging messaging, final Domain domain) {
@@ -154,7 +160,6 @@ public class MessagingServiceImpl implements MessagingService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
@@ -184,8 +189,11 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     protected void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
+        Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "storeIncomingPayload")).time();
+
         final PayloadPersistence payloadPersistence = payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
         payloadPersistence.storeIncomingPayload(partInfo, userMessage);
+        timeContext.stop();
 
         // Log Payload size
         String messageId = userMessage.getMessageInfo().getMessageId();
@@ -193,8 +201,11 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     protected void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, final LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception {
+        Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "storeOutgoingPayload")).time();
+
         final PayloadPersistence payloadPersistence = payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
         payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
+        timeContext.stop();
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SENDING_PAYLOAD_SIZE, partInfo.getHref(), userMessage.getMessageInfo().getMessageId(), partInfo.getLength());
 

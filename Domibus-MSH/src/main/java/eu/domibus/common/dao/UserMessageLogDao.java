@@ -1,18 +1,20 @@
 package eu.domibus.common.dao;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Maps;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.model.logging.*;
+import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
@@ -27,10 +29,11 @@ import java.util.*;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-
-
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
@@ -90,9 +93,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public MessageStatus getMessageStatus(String messageId) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageLog.class, "getMessageStatus")).time();
+
         try {
             TypedQuery<MessageStatus> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
@@ -100,19 +104,28 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [" + messageId + "]");
             return MessageStatus.NOT_FOUND;
+        } finally {
+            authorizeUserMessageMetric.stop();
         }
     }
 
 
     public UserMessageLog findByMessageId(String messageId) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageLog.class, "findByMessageId")).time();
+
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        return query.getSingleResult();
+        UserMessageLog singleResult = query.getSingleResult();
 
+        authorizeUserMessageMetric.stop();
+
+        return singleResult;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageLog.class, "findByMessageIdAndRole")).time();
+
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter("MSH_ROLE", mshRole);
@@ -122,6 +135,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         } catch (NoResultException nrEx) {
             LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [" + messageId + "] and MSH role [" + mshRole + "]");
             return null;
+        } finally {
+            authorizeUserMessageMetric.stop();
         }
     }
 
@@ -154,8 +169,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public void setAsNotified(final UserMessageLog messageLog) {
-        messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
-        super.update(messageLog);
+        final Query emptyQuery = em.createNamedQuery("UserMessageLog.setAsNotified");
+        emptyQuery.setParameter("STATUS", NotificationStatus.NOTIFIED);
+        emptyQuery.setParameter("ID", messageLog.getEntityId());
+        emptyQuery.executeUpdate();
+    }
+
+    public void updateStatus(final UserMessageLog messageLog, MessageStatus status) {
+        final Query emptyQuery = em.createNamedQuery("UserMessageLog.setMessageStatus");
+        emptyQuery.setParameter("ID", messageLog.getEntityId());
+        emptyQuery.setParameter("STATUS", status);
+        emptyQuery.executeUpdate();
+    }
+
+    @Transactional
+    public void setAsScheduled(final UserMessageLog messageLog) {
+        final Query emptyQuery = em.createNamedQuery("UserMessageLog.setAsScheduled");
+        emptyQuery.setParameter("ID", messageLog.getEntityId());
+        emptyQuery.executeUpdate();
     }
 
     public int countAllInfo(boolean asc, Map<String, Object> filters) {

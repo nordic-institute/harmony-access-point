@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.sender;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -48,7 +49,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DIS
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class ReliabilityChecker {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
     private final String UNRECOVERABLE_ERROR_RETRY = DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
@@ -74,6 +74,9 @@ public class ReliabilityChecker {
 
     @Autowired
     protected SoapUtil soapUtil;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, reliability, pushMatcher);
@@ -111,9 +114,12 @@ public class ReliabilityChecker {
 
                 try {
                     if (!reliability.isNonRepudiation()) {
-                        final UserMessage userMessage = this.jaxbContext.createUnmarshaller().unmarshal(new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes())), UserMessage.class).getValue();
+                        com.codahale.metrics.Timer.Context handle_response = metricRegistry.timer(MetricRegistry.name(ReliabilityChecker.class, "deserialize")).time();
 
+                        final UserMessage userMessage = this.jaxbContext.createUnmarshaller().unmarshal(new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes())), UserMessage.class).getValue();
                         final UserMessage userMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal((Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Messaging.class).getValue().getUserMessage();
+
+                        handle_response.stop();
 
                         //TODO Remove this  return ok as the message id from the receipt is different from the user message id
                         /*
@@ -201,7 +207,7 @@ public class ReliabilityChecker {
 
 
     protected String soapPartToString(SOAPMessage soapMessage) {
-        if(soapMessage == null) {
+        if (soapMessage == null) {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
@@ -215,7 +221,7 @@ public class ReliabilityChecker {
     }
 
     protected String getMessageId(SignalMessage signalMessage) {
-        if(signalMessage == null || signalMessage.getMessageInfo() == null) {
+        if (signalMessage == null || signalMessage.getMessageInfo() == null) {
             return null;
         }
         return signalMessage.getMessageInfo().getMessageId();

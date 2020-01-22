@@ -16,6 +16,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = "SignalMessageLog.findByMessageId", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "SignalMessageLog.getMessageStatus", query = "select signalMessageLog.messageStatus from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "SignalMessageLog.setMessageStatus", query = "update SignalMessageLog message set message.messageStatus = :STATUS where message.entityId = :ID"),
         @NamedQuery(name = "SignalMessageLog.findByMessageIdAndRole", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID and signalMessageLog.mshRole=:MSH_ROLE")
 })
 public class SignalMessageLog extends MessageLog {

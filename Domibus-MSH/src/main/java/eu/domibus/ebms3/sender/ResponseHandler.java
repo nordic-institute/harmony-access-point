@@ -2,6 +2,8 @@ package eu.domibus.ebms3.sender;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.ErrorLogDao;
@@ -61,7 +63,12 @@ public class ResponseHandler {
     @Autowired
     protected ReliabilityService reliabilityService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    DomainTaskExecutor domainTaskExecutor;
+
     public ResponseResult verifyResponse(final SOAPMessage response) throws EbMS3Exception {
         LOGGER.debug("Verifying response");
 
@@ -84,28 +91,22 @@ public class ResponseHandler {
         return result;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         Timer.Context responseHandlerContext = null;
-        try {
-            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponseNonRepudiation")).time();
-            //TODO save async
-            nonRepudiationService.saveResponse(response, signalMessage);
-        } finally {
-            if (responseHandlerContext != null) {
-                responseHandlerContext.stop();
-            }
-        }
 
         responseHandlerContext = null;
         try {
-            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponse")).time();
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "signalMessageDao.create")).time();
             // Stores the signal message
             signalMessageDao.create(signalMessage);
+            responseHandlerContext.stop();
 
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "messagingDao.update")).time();
             sentMessage.setSignalMessage(signalMessage);
-            messagingDao.update(sentMessage);
-
+            messagingDao.updateSignalMessageId(sentMessage.getEntityId(), signalMessage.getEntityId());
+            responseHandlerContext.stop();
         } finally {
             if (responseHandlerContext != null) {
                 responseHandlerContext.stop();
@@ -123,6 +124,15 @@ public class ResponseHandler {
             signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
 
             createWarningEntries(signalMessage);
+        } finally {
+            if (responseHandlerContext != null) {
+                responseHandlerContext.stop();
+            }
+        }
+
+        try {
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponseNonRepudiation")).time();
+            nonRepudiationService.saveResponse(response, signalMessage);
         } finally {
             if (responseHandlerContext != null) {
                 responseHandlerContext.stop();

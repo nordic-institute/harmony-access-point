@@ -36,7 +36,6 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Autowired
     protected SoapUtil soapUtil;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
