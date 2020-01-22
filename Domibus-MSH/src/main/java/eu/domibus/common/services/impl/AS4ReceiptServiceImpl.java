@@ -283,7 +283,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                         messageSubtype = MessageSubtype.TEST;
                     }
                     sentMessage.setSignalMessage(signalMessage);
-                    messagingDao.updateSignalMessageId(sentMessage.getEntityId(), sentMessage.getEntityId());
+                    messagingDao.updateSignalMessageId(sentMessage.getEntityId(), signalMessage.getEntityId());
                 }
             } finally {
                 if (as4receiptContext != null) {

@@ -168,6 +168,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getSingleResult();
     }
 
+    @Transactional
     public void setAsNotified(final UserMessageLog messageLog) {
         final Query emptyQuery = em.createNamedQuery("UserMessageLog.setAsNotified");
         emptyQuery.setParameter("STATUS", NotificationStatus.NOTIFIED);

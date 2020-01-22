@@ -13,10 +13,19 @@ import java.io.Serializable;
 @MappedSuperclass
 public abstract class AbstractBaseEntity implements Serializable {
 
-    @Id
+
     @XmlTransient
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_PK")
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "hibernate_sequence"
+    )
+    @SequenceGenerator(
+            name = "hibernate_sequence",
+            sequenceName = "hibernate_sequence",
+            allocationSize = 20
+    )
     private long entityId;
 
     /**

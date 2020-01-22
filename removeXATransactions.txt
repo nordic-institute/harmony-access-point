@@ -7,3 +7,4 @@
 * - change JMS connection factory from XA to non-XA
 
 *- switch JMS filestore to JMS data source
+*- modify hibernate sequence so that the database is not called for every next_val

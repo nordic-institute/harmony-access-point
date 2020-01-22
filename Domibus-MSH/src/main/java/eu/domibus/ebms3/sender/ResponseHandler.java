@@ -91,7 +91,6 @@ public class ResponseHandler {
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         Timer.Context responseHandlerContext = null;

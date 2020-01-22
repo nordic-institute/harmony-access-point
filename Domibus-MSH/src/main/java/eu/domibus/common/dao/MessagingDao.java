@@ -93,7 +93,7 @@ public class MessagingDao extends BasicDao<Messaging> {
         }
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void clearPayloadData(final UserMessage userMessage) {
         LOG.debug("Start clearing payloadData");
