@@ -62,6 +62,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     protected Map<String, ObjectName> queueMap;
 
     protected volatile Map<String, String> jndiMap = new HashMap<>();
+    protected volatile Map<String, Destination> destinationsMap = new HashMap<>();
 
     protected List<String> managedServerNames;
 
@@ -360,7 +361,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                     }
                     String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
                     LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
-                    jndiMap.put(destName,destinationJndi);
+                    jndiMap.put(destName, destinationJndi);
                     return destinationJndi;
                 }
             }
@@ -393,11 +394,24 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     @Override
     public void sendMessage(InternalJmsMessage message, String destName) {
         try {
-            Destination destination = lookupDestination(destName);
+            Destination destination = getDestinationByName(destName);
             JmsMessageCreator messageCreator = new JmsMessageCreator(message);
             jmsOperations.send(destination, messageCreator);
         } catch (NamingException e) {
             throw new InternalJMSException("Error performing lookup for [" + destName + "]", e);
+        }
+    }
+
+    protected Destination getDestinationByName(String destName) throws NamingException {
+        Destination destination = destinationsMap.get(destName);
+        if (destination != null) {
+            LOG.trace("Returning destination [{}] from cache", destName);
+            return destination;
+        }
+        synchronized (destinationsMap) {
+            Destination lookupDestination = lookupDestination(destName);
+            destinationsMap.put(destName, lookupDestination);
+            return lookupDestination;
         }
     }
 
