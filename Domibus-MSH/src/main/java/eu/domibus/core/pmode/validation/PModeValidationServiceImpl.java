@@ -32,15 +32,10 @@ public class PModeValidationServiceImpl implements PModeValidationService {
 
     public List<PModeIssue> validate(byte[] rawConfiguration, Configuration configuration) {
         boolean warningsAsErrors = domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
-
         List<PModeIssue> issues = new ArrayList<>();
 
         configuration.preparePersist(); // TODO: review this
 
-//        for (ConfigurationValidator validator : configurationValidators) {
-//            List<String> messages = validator.validate(configuration);
-//            issues.addAll(messages.stream().map(m -> new PModeIssue(m, IssueLevel.WARNING)).collect(Collectors.toList()));
-//        }
         for (PModeValidator validator : pModeValidatorList) {
             issues.addAll(validator.validateAsConfiguration(configuration));
         }

@@ -12,8 +12,8 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
-import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -52,7 +52,7 @@ public class PModeDaoTest {
     XMLUtil xmlUtil;
 
     @Injectable
-    List<ConfigurationValidator> configurationValidators;
+    PModeValidationService pModeValidationService;
 
     @Injectable
     protected ProcessDao processDao;

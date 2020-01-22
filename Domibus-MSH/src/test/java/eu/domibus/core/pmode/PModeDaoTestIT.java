@@ -6,7 +6,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pmode.PModeIssue;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
@@ -25,11 +24,11 @@ import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
+import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
-import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -54,7 +53,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -173,8 +171,8 @@ public class PModeDaoTestIT {
         }
 
         @Bean
-        public ConfigurationValidator validator() {
-            return configuration -> Collections.emptyList();
+        public PModeValidationService pModeValidationService() {
+            return Mockito.mock(PModeValidationService.class);
         }
 
         @Bean

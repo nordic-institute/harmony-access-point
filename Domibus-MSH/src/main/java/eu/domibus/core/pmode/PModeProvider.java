@@ -187,10 +187,6 @@ public abstract class PModeProvider {
         }
         configurationDAO.updateConfiguration(configuration);
 
-//        for (ConfigurationValidator validator : configurationValidators) {
-//            resultMessage.addAll(validator.validate(configuration));
-//        }
-
         //save the raw configuration
         final ConfigurationRaw configurationRaw = new ConfigurationRaw();
         configurationRaw.setConfigurationDate(Calendar.getInstance().getTime());

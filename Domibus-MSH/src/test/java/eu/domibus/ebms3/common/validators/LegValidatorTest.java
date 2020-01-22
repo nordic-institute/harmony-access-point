@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.validators;
 
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -45,15 +46,16 @@ public class LegValidatorTest {
         }};
 
         //tested method
-        final List<String> results = legValidator.validate(configuration);
+        final List<PModeIssue> results = legValidator.validateAsConfiguration(configuration);
+
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() == 6);
-        Assert.assertTrue(results.contains("Invalid action specified for leg configuration [" + legConfigurationName + "]"));
-        Assert.assertTrue(results.contains("Invalid security specified for leg configuration [" + legConfigurationName + "]"));
-        Assert.assertTrue(results.contains("Invalid defaultMpc specified for leg configuration [" + legConfigurationName + "]"));
-        Assert.assertTrue(results.contains("Invalid receptionAwareness specified for leg configuration [" + legConfigurationName + "]"));
-        Assert.assertTrue(results.contains("Invalid reliability specified for leg configuration [" + legConfigurationName + "]"));
-        Assert.assertTrue(results.contains("Invalid errorHandling specified for leg configuration [" + legConfigurationName + "]"));
+        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid action specified for leg configuration [" + legConfigurationName + "]")));
+        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid security specified for leg configuration [" + legConfigurationName + "]")));
+        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid defaultMpc specified for leg configuration [" + legConfigurationName + "]")));
+        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid receptionAwareness specified for leg configuration [" + legConfigurationName + "]")));
+        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid reliability specified for leg configuration [" + legConfigurationName + "]")));
+        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid errorHandling specified for leg configuration [" + legConfigurationName + "]")));
     }
 
 }
