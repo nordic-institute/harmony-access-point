@@ -2,6 +2,7 @@ package eu.domibus.ebms3.sender;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.common.ErrorCode;
@@ -10,7 +11,6 @@ import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.SignalMessageLogDefaultService;
@@ -24,8 +24,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -129,14 +127,9 @@ public class ResponseHandler {
             }
         }
 
-        try {
-            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponseNonRepudiation")).time();
-            nonRepudiationService.saveResponse(response, signalMessage);
-        } finally {
-            if (responseHandlerContext != null) {
-                responseHandlerContext.stop();
-            }
-        }
+        responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "scheduleSaveNonRepudiationAsync")).time();
+        domainTaskExecutor.submitLongRunningTask(() -> saveNonRepudiationAsync(response, signalMessage), domainContextProvider.getCurrentDomain());
+        responseHandlerContext.stop();
 
         responseHandlerContext = null;
         try {
@@ -149,6 +142,19 @@ public class ResponseHandler {
             }
         }
     }
+
+    protected void saveNonRepudiationAsync(SOAPMessage response, SignalMessage signalMessage) {
+        Timer.Context responseHandlerContext = null;
+        try {
+            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponseNonRepudiation")).time();
+            nonRepudiationService.saveResponse(response, signalMessage);
+        } finally {
+            if (responseHandlerContext != null) {
+                responseHandlerContext.stop();
+            }
+        }
+    }
+
 
     protected void createWarningEntries(SignalMessage signalMessage) {
         if (signalMessage.getError() == null || signalMessage.getError().isEmpty()) {
