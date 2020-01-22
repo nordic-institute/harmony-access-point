@@ -6,6 +6,12 @@ import eu.domibus.common.model.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Composition class: validator that has a list of validators: calls all validators and aggregates the results
+ */
 public class CompositePModeValidator extends AbstractPModeValidator {
     List<PModeValidator> validators = new ArrayList<>();
 

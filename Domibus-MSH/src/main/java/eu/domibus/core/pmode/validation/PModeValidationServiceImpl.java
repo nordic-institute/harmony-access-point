@@ -11,6 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Implementation class for pMode validation: Calls al validators(old style and new) and aggregates the results
+ */
 @Service
 public class PModeValidationServiceImpl implements PModeValidationService {
 

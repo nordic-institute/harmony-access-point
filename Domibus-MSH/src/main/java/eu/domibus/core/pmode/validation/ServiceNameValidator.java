@@ -2,6 +2,13 @@ package eu.domibus.core.pmode.validation;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Validates service name existence by harnessing the xPathValidator
+ */
+
 @Component
 public class ServiceNameValidator extends XPathPModeValidator {
     private static final String TARGET_EXPR = "//businessProcesses/legConfigurations/legConfiguration/@service";

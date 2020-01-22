@@ -328,6 +328,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         if (propMeta.isPresent()) {
             LOGGER.trace("Found compose-able property [{}], returning its metadata.", propertyName);
             DomibusPropertyMetadata meta = propMeta.get();
+            // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
             meta.setName(propertyName);
             return meta;
         }

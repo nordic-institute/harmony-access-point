@@ -21,6 +21,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Validator that verifies that all element from target are also declared in accepted values collection by using xPath
+ */
 public class XPathPModeValidator extends AbstractPModeValidator {
 
     private String targetExpression;
