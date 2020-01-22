@@ -88,7 +88,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Module.MSH, false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, true),
 
-            new DomibusPropertyMetadata("domibus.pMode.xPathValidator", Module.MSH, false, DomibusPropertyMetadata.Usage.GLOBAL, false, true, false, true),
+            new DomibusPropertyMetadata("domibus.pMode.validation.xPathValidator", Module.MSH, false, DomibusPropertyMetadata.Usage.GLOBAL, false, true, false, true),
 
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),

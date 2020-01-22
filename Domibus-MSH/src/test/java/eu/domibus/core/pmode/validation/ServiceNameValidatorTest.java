@@ -12,16 +12,16 @@ import java.util.List;
 
 public class ServiceNameValidatorTest extends AbstractValidatorTest {
 
-    @Tested
-    ServiceNameValidator validator;
-
-    @Test
-    public void validateAsXml() throws IOException {
-
-        byte[] input = getPModeAsByteArray("domibus-pmode-validation-tests.xml");
-
-        final List<PModeIssue> issues = validator.validateAsXml(input);
-
-        Assert.assertFalse(issues.isEmpty());
-    }
+//    @Tested
+//    ServiceNameValidator validator;
+//
+//    @Test
+//    public void validateAsXml() throws IOException {
+//
+//        byte[] input = getPModeAsByteArray("domibus-pmode-validation-tests.xml");
+//
+//        final List<PModeIssue> issues = validator.validateAsXml(input);
+//
+//        Assert.assertFalse(issues.isEmpty());
+//    }
 }

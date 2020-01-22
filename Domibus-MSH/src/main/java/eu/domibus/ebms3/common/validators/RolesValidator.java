@@ -29,10 +29,11 @@ public class RolesValidator implements ConfigurationValidator {
         for (Process process : businessProcesses.getProcesses()) {
             final Role initiatorRole = process.getInitiatorRole();
             final Role responderRole = process.getResponderRole();
-            if (initiatorRole.equals(responderRole)) {
+            if (initiatorRole != null && initiatorRole.equals(responderRole)) {
                 issues.add("For the business process [" + process.getName() + "], the initiator role name and the responder role name are identical [" + initiatorRole.getName() + "]");
             }
-            if (StringUtils.equalsIgnoreCase(initiatorRole.getValue(), responderRole.getValue())) {
+            if (initiatorRole != null && responderRole != null
+                    && StringUtils.equalsIgnoreCase(initiatorRole.getValue(), responderRole.getValue())) {
                 issues.add("For the business process [" + process.getName() + "], the initiator role value and the responder role value are identical [" + initiatorRole.getValue() + "]");
             }
         }

@@ -600,6 +600,9 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean isPullProcess(Process process) {
+        if (process.getMepBinding() == null) {
+            return false;
+        }
         return StringUtils.equals(BackendConnector.Mode.PULL.getFileMapping(), process.getMepBinding().getValue());
     }
 

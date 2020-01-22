@@ -21,7 +21,7 @@ public class ConfigurationCompositePModeValidator extends CompositePModeValidato
 
     @PostConstruct
     public void Init() {
-        Set<String> propNames = domibusPropertyProvider.getPropertyNames(s -> s.startsWith("domibus.pMode.xPathValidator."));
+        Set<String> propNames = domibusPropertyProvider.getPropertyNames(s -> s.startsWith("domibus.pMode.validation.xPathValidator."));
         propNames.forEach(propName -> {
             String propVal = domibusPropertyProvider.getProperty(propName);
 
