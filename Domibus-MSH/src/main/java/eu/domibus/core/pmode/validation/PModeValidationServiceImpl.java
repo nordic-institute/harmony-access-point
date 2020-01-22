@@ -4,13 +4,11 @@ import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS;
 
@@ -26,8 +24,8 @@ public class PModeValidationServiceImpl implements PModeValidationService {
     @Autowired(required = false)
     protected List<PModeValidator> pModeValidatorList;
 
-    @Autowired(required = false)
-    protected List<ConfigurationValidator> configurationValidators;
+//    @Autowired(required = false)
+//    protected List<ConfigurationValidator> configurationValidators;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
@@ -39,10 +37,10 @@ public class PModeValidationServiceImpl implements PModeValidationService {
 
         configuration.preparePersist(); // TODO: review this
 
-        for (ConfigurationValidator validator : configurationValidators) {
-            List<String> messages = validator.validate(configuration);
-            issues.addAll(messages.stream().map(m -> new PModeIssue(m, IssueLevel.WARNING)).collect(Collectors.toList()));
-        }
+//        for (ConfigurationValidator validator : configurationValidators) {
+//            List<String> messages = validator.validate(configuration);
+//            issues.addAll(messages.stream().map(m -> new PModeIssue(m, IssueLevel.WARNING)).collect(Collectors.toList()));
+//        }
         for (PModeValidator validator : pModeValidatorList) {
             issues.addAll(validator.validateAsConfiguration(configuration));
         }

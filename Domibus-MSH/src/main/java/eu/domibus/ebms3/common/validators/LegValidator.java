@@ -1,8 +1,11 @@
 package eu.domibus.ebms3.common.validators;
 
+import eu.domibus.api.pmode.IssueLevel;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.pmode.validation.AbstractPModeValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -22,16 +25,16 @@ import java.util.List;
  */
 @Component
 @Order(3)
-public class LegValidator implements ConfigurationValidator {
+public class LegValidator extends AbstractPModeValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LegValidator.class);
 
     final String[] attributesToCheck = {"service", "action", "security", "defaultMpc", "receptionAwareness", "reliability",
             "errorHandling", "compressPayloads"};
 
     @Override
-    public List<String> validate(Configuration configuration) {
+    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
 
-        List<String> issues = new ArrayList<>();
+        List<PModeIssue> issues = new ArrayList<>();
 
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
 
@@ -47,14 +50,14 @@ public class LegValidator implements ConfigurationValidator {
      * @param issues
      * @param legConfiguration
      */
-    private void validateLegConfiguration(List<String> issues, LegConfiguration legConfiguration) {
+    private void validateLegConfiguration(List<PModeIssue> issues, LegConfiguration legConfiguration) {
         String message;
 
-        for (String attribute: attributesToCheck) {
+        for (String attribute : attributesToCheck) {
             message = validateAttributeAgainstNull(legConfiguration, attribute);
             if (StringUtils.isNotEmpty(message)) {
                 message += "for leg configuration [" + legConfiguration.getName() + "]";
-                issues.add(message);
+                issues.add(new PModeIssue(message, IssueLevel.WARNING));
                 LOG.debug(message);
             }
         }

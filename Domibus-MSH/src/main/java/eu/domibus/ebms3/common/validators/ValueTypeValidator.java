@@ -1,6 +1,9 @@
 package eu.domibus.ebms3.common.validators;
 
+import eu.domibus.api.pmode.IssueLevel;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.pmode.validation.AbstractPModeValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -23,14 +26,14 @@ import java.util.List;
  */
 @Component
 @Order(2)
-public class ValueTypeValidator implements ConfigurationValidator {
+public class ValueTypeValidator extends AbstractPModeValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ValueTypeValidator.class);
 
     @Override
-    public List<String> validate(Configuration configuration) {
+    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
 
-        List<String> issues = new ArrayList<>();
+        List<PModeIssue> issues = new ArrayList<>();
 
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
 
@@ -49,8 +52,8 @@ public class ValueTypeValidator implements ConfigurationValidator {
         return Collections.unmodifiableList(issues);
     }
 
-    protected List<String> validateIdentifiers(Party party) {
-        List<String> issues = new ArrayList<>();
+    protected List<PModeIssue> validateIdentifiers(Party party) {
+        List<PModeIssue> issues = new ArrayList<>();
         if(party == null){
             return issues;
         }
@@ -62,7 +65,7 @@ public class ValueTypeValidator implements ConfigurationValidator {
                     URI.create(identifier.getPartyId());
                 } catch (IllegalArgumentException exc) {
                     String msg = "PartyIdType is empty and the partyId is not an URI for " + party.getName();
-                    issues.add(msg);
+                    issues.add(new PModeIssue(msg, IssueLevel.WARNING));
                     LOG.debug(msg);
                 }
             }
@@ -70,28 +73,28 @@ public class ValueTypeValidator implements ConfigurationValidator {
         return Collections.unmodifiableList(issues);
     }
 
-    protected List<String> validateService(Service service) {
-        List<String> issues = new ArrayList<>();
+    protected List<PModeIssue> validateService(Service service) {
+        List<PModeIssue> issues = new ArrayList<>();
         if (StringUtils.isEmpty(service.getServiceType())) {
             try {
                 URI.create(service.getValue());
             } catch (IllegalArgumentException exc) {
                 String msg = "Service type is empty and the service value is not an URI for " + service.getName();
-                issues.add(msg);
+                issues.add(new PModeIssue(msg, IssueLevel.WARNING));
                 LOG.debug(msg);
             }
         }
         return Collections.unmodifiableList(issues);
     }
 
-    protected List<String> validateAgreement(Agreement agreement) {
-        List<String> issues = new ArrayList<>();
+    protected List<PModeIssue> validateAgreement(Agreement agreement) {
+        List<PModeIssue> issues = new ArrayList<>();
         if (StringUtils.isEmpty(agreement.getType())) {
             try {
                 URI.create(agreement.getValue());
             } catch (IllegalArgumentException exc) {
                 String msg = "Agreement type is empty and the agreement value is not an URI for " + agreement.getName();
-                issues.add(msg);
+                issues.add(new PModeIssue(msg, IssueLevel.WARNING));
                 LOG.debug(msg);
             }
         }
