@@ -301,7 +301,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     //TODO refactor this method in order to reuse existing code from the method submit
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public String submitMessageFragment(UserMessage userMessage, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
