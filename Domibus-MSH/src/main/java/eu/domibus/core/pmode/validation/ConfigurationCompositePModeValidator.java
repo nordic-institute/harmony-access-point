@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.validation;
 
+import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,15 +27,26 @@ public class ConfigurationCompositePModeValidator extends CompositePModeValidato
         Set<String> propNames = domibusPropertyProvider.getPropertyNames(s -> s.startsWith(DOMIBUS_P_MODE_VALIDATION_X_PATH_VALIDATOR));
         propNames.forEach(propName -> {
             String propVal = domibusPropertyProvider.getProperty(propName);
-
             String[] properties = propVal.split(";");
+            if (properties.length < 2) {
+                //todo: log
+                return;
+            }
+
             String targetExpression = properties[0];
             String acceptedValuesExpression = properties[1];
-            String errorMessage = null;
-            if (properties.length == 3) {
-                errorMessage = properties[2];
+
+            IssueLevel level = null;
+            if (properties.length >= 3) {
+                level = IssueLevel.valueOf(properties[2]);
             }
-            this.getValidators().add(new XPathPModeValidator(targetExpression, acceptedValuesExpression, errorMessage));
+
+            String errorMessage = null;
+            if (properties.length == 4) {
+                errorMessage = properties[3];
+            }
+
+            this.getValidators().add(new XPathPModeValidator(targetExpression, acceptedValuesExpression, level, errorMessage));
         });
     }
 }

@@ -19,9 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -48,7 +46,7 @@ public class XPathPModeValidator extends AbstractPModeValidator {
     public XPathPModeValidator(String targetExpression, String acceptedValuesExpression, IssueLevel level, String errorMessage) {
         this.targetExpression = targetExpression;
         this.acceptedValuesExpression = acceptedValuesExpression;
-        this.level = level;
+        this.level = level != null ? level : IssueLevel.WARNING;
         if (errorMessage != null) {
             this.errorMessage = errorMessage;
         } else {

@@ -24,9 +24,6 @@ public class PModeValidationServiceImpl implements PModeValidationService {
     @Autowired(required = false)
     protected List<PModeValidator> pModeValidatorList;
 
-//    @Autowired(required = false)
-//    protected List<ConfigurationValidator> configurationValidators;
-
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 

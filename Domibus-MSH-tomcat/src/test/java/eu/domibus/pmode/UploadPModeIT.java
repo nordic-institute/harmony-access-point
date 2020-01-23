@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.PModeResource;
+import eu.domibus.web.rest.ro.SavePModeResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.junit.Test;
@@ -91,8 +92,8 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
 
         MultipartFile pModeContent = new MockMultipartFile("wrong-domibus-configuration", pmodeName, "text/xml", IOUtils.toByteArray(is));
-        ResponseEntity<String> response = adminGui.uploadPMode(pModeContent, "description");
-        assertTrue(response.getBody().contains("Failed to upload the PMode file due to"));
+        ResponseEntity<SavePModeResponseRO> response = adminGui.uploadPMode(pModeContent, "description");
+        assertTrue(response.getBody().getMessage().contains("Failed to upload the PMode file due to"));
     }
 
     private Configuration testUpdatePModes(final byte[] bytes) throws JAXBException {
@@ -202,8 +203,8 @@ public class UploadPModeIT extends AbstractIT {
         String pmodeName = "domibus-configuration-long-names.xml";
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-long-names", pmodeName, "text/xml", IOUtils.toByteArray(is));
-        ResponseEntity<String> response = adminGui.uploadPMode(pModeContent, "description");
-        assertTrue(response.getBody().contains("is not facet-valid with respect to maxLength"));
+        ResponseEntity<SavePModeResponseRO> response = adminGui.uploadPMode(pModeContent, "description");
+        assertTrue(response.getBody().getMessage().contains("is not facet-valid with respect to maxLength"));
     }
 
     /**

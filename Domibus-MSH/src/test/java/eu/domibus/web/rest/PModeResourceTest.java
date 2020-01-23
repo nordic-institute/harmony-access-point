@@ -8,6 +8,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
+import eu.domibus.web.rest.ro.SavePModeResponseRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -121,12 +122,12 @@ public class PModeResourceTest {
         MultipartFile file = new MockMultipartFile("filename", new byte[]{});
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
+        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("Failed to upload the PMode file since it was empty.", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assert.assertEquals("Failed to upload the PMode file since it was empty.", response.getBody().getMessage());
     }
 
     @Test
@@ -135,12 +136,12 @@ public class PModeResourceTest {
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
+        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("PMode file has been successfully uploaded", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertEquals("PMode file has been successfully uploaded", response.getBody().getMessage());
     }
 
     @Test
@@ -154,13 +155,13 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
+        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected: <br>true",
-                stringResponseEntity.getBody());
+                response.getBody().getMessage());
     }
 
     @Test
@@ -174,13 +175,13 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
+        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, stringResponseEntity.getStatusCode());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         Assert.assertEquals("Failed to upload the PMode file due to: XmlProcessingException: UnitTest1",
-                stringResponseEntity.getBody());
+                response.getBody().getMessage());
     }
 
     @Test
@@ -196,13 +197,13 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
+        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, stringResponseEntity.getStatusCode());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         Assert.assertEquals("Failed to upload the PMode file due to: XmlProcessingException: UnitTest1;error1",
-                stringResponseEntity.getBody());
+                response.getBody().getMessage());
     }
 
     @Test
@@ -216,13 +217,13 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<String> stringResponseEntity = pModeResource.uploadPMode(file, "description");
+        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, stringResponseEntity.getStatusCode());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         Assert.assertEquals("Failed to upload the PMode file due to: Exception: UnitTest2",
-                stringResponseEntity.getBody());
+                response.getBody().getMessage());
 
     }
 
@@ -232,12 +233,12 @@ public class PModeResourceTest {
         final ArrayList<String> emptyList = new ArrayList<>();
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePModes(emptyList);
+        final ResponseEntity<String> response = pModeResource.deletePModes(emptyList);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("Failed to delete PModes since the list of ids was empty.", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assert.assertEquals("Failed to delete PModes since the list of ids was empty.", response.getBody());
     }
 
     @Test
@@ -248,12 +249,12 @@ public class PModeResourceTest {
         stringList.add("2");
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePModes(stringList);
+        final ResponseEntity<String> response = pModeResource.deletePModes(stringList);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("PModes were deleted\n", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertEquals("PModes were deleted\n", response.getBody());
     }
 
     @Test
@@ -269,24 +270,24 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.deletePModes(stringList);
+        final ResponseEntity<String> response = pModeResource.deletePModes(stringList);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("Impossible to delete PModes due to \nMocked exception", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        Assert.assertEquals("Impossible to delete PModes due to \nMocked exception", response.getBody());
     }
 
     @Test
     public void testRestorePmodeSuccess() {
         // Given
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
+        final ResponseEntity<String> response = pModeResource.restorePmode(1);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("PMode was successfully uploaded", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertEquals("PMode was successfully uploaded", response.getBody());
     }
 
     @Test
@@ -299,12 +300,12 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
+        final ResponseEntity<String> response = pModeResource.restorePmode(1);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("Impossible to upload PModes due to \nMocked exception", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        Assert.assertEquals("Impossible to upload PModes due to \nMocked exception", response.getBody());
     }
 
     @Test
@@ -318,12 +319,12 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
+        final ResponseEntity<String> response = pModeResource.restorePmode(1);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("Impossible to upload PModes due to \njava.lang.Exception: Nested mocked exception", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        Assert.assertEquals("Impossible to upload PModes due to \njava.lang.Exception: Nested mocked exception", response.getBody());
     }
 
     @Test
@@ -337,12 +338,12 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> stringResponseEntity = pModeResource.restorePmode(1);
+        final ResponseEntity<String> response = pModeResource.restorePmode(1);
 
         // Then
-        Assert.assertNotNull(stringResponseEntity);
-        Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
-        Assert.assertEquals("PMode was successfully uploaded but some issues were detected: \nissue1", stringResponseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertEquals("PMode was successfully uploaded but some issues were detected: \nissue1", response.getBody());
     }
 
     @Test
