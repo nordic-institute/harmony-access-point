@@ -3,6 +3,7 @@ package eu.domibus.common.aspect;
 import eu.domibus.ebms3.common.model.AbstractBaseAuditEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -33,8 +34,12 @@ public class BasicAuditAspect {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Adding basic audit to entity " + auditEntity + " whith id " + auditEntity.getEntityId());
         }
-        final String userName = LOG.getMDC(MDC_USER);
+        String userName = LOG.getMDC(MDC_USER);
         if (auditEntity.getEntityId() == 0) {
+            //TODO check why username is null; remove the logic belos
+            if(StringUtils.isEmpty(userName)) {
+                userName = "domibus";
+            }
             auditEntity.setCreatedBy(userName);
         }
     }
