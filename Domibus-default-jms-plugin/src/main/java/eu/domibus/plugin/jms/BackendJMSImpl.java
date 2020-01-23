@@ -209,14 +209,19 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     public void downloadAndSendBack(final String messageId) {
         Timer.Context jms_deliver_message_hacked = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.timer")).time();
-        Counter jms_deliver_message_hacked_counter = domainContextExtService.getMetricRegistry().counter("downloadAndSendBack.counter");
+        Counter jms_deliver_message_hacked_counter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.counter"));
         try {
             jms_deliver_message_hacked_counter.inc();
             final Submission submission = this.messageRetriever.downloadMessage(messageId);
+            Timer.Context getSubmissionResponseTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "getSubmissionResponse.timer")).time();
+            Counter getSubmissionResponseCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "getSubmissionResponse.counter"));
+            getSubmissionResponseCounter.inc();
             Submission submissionResponse = getSubmissionResponse(submission, HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId));
+            getSubmissionResponseTimer.stop();
+            getSubmissionResponseCounter.dec();
             try {
                 Timer.Context submit = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.submit.timer")).time();
-                Counter submitCounter = domainContextExtService.getMetricRegistry().counter("downloadAndSendBack.submit.counter");
+                Counter submitCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.submit.counter"));
                 submitCounter.inc();
                 messageSubmitter.submit(submissionResponse, getName());
                 submit.stop();
