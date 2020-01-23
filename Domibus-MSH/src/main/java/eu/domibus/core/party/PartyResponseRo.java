@@ -28,6 +28,10 @@ public class PartyResponseRo {
     @CustomWhiteListed(permitted = ":/=?&-+%")
     protected String endpoint;
 
+    /**
+     * Custom annotation to skip the black-list validation altogether because this field is calculated on the fly and does not get persisted
+     */
+    @SkipWhiteListed
     private String joinedIdentifiers;
 
     /**
