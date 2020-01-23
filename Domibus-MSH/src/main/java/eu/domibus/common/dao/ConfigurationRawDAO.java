@@ -10,6 +10,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -31,6 +32,7 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
         return query.getSingleResult();
     }
 
+    @Transactional
     public List<PModeArchiveInfo> getDetailedConfigurationRaw() {
         AuditReader auditReader = AuditReaderFactory.get(em);
         //load Configuration raw + audit, skiping the deleted raws.
