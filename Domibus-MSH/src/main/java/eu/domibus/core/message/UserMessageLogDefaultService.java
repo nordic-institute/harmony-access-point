@@ -18,6 +18,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
@@ -57,6 +59,7 @@ public class UserMessageLogDefaultService {
         return umlBuilder.build();
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public UserMessageLog save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
@@ -82,35 +85,42 @@ public class UserMessageLogDefaultService {
 
     protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
         LOG.debug("Updating message status to [{}]", newStatus);
+
         if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
-        userMessageLogDao.setMessageStatus(messageLog, newStatus);
+        userMessageLogDao.updateStatus(messageLog, newStatus);
         uiReplicationSignalService.messageStatusChange(messageLog.getMessageId(), newStatus);
     }
 
+    @Transactional
     public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
         updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
     }
 
+    @Transactional
     public void setSignalMessageAsDeleted(final String signalMessageid) {
         final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageid);
-        signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
+        signalMessageLogDao.updateStatus(signalMessageLog, MessageStatus.DELETED);
         uiReplicationSignalService.messageStatusChange(signalMessageLog.getMessageId(), MessageStatus.DELETED);
     }
 
+    @Transactional
     public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
     }
 
+    @Transactional
     public void setMessageAsAcknowledged(UserMessage userMessage, UserMessageLog userMessageLog) {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
     }
 
+    @Transactional
     public void setMessageAsAckWithWarnings(UserMessage userMessage, UserMessageLog userMessageLog) {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
     }
 
+    @Transactional
     public void setMessageAsSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }

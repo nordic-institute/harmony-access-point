@@ -48,7 +48,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DIS
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class ReliabilityChecker {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
     private final String UNRECOVERABLE_ERROR_RETRY = DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;

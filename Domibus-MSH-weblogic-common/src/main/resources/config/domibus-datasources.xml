@@ -10,12 +10,18 @@
         <constructor-arg name="prefix" value="domibus.environment.context."/>
     </bean>
 
-    <jee:jndi-lookup id="domibusJMS-XAConnectionFactory"
+    <jee:jndi-lookup id="domibusJMS-XAConnectionFactoryWebLogic"
                      jndi-name="jms/ConnectionFactory"
                      cache="true"
                      resource-ref="true"
                      lookup-on-startup="false"
                      expected-type="javax.jms.ConnectionFactory" environment-ref="contextEnvironment"/>
+
+    <bean id="domibusJMS-XAConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory" lazy-init="true">
+        <property name="sessionCacheSize" value="100" />
+        <property name="targetConnectionFactory" ref="domibusJMS-XAConnectionFactoryWebLogic"/>
+    </bean>
+
 
     <bean id="sendMessageQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="jms/domibus.internal.dispatch.queue"/>
@@ -68,7 +74,6 @@
     <bean id="internalJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
         <property name="connectionFactory" ref="domibusJMS-XAConnectionFactory"/>
-        <property name="transactionManager" ref="transactionManager"/>
         <property name="concurrency" value="${domibus.internal.queue.concurency}"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>
@@ -77,7 +82,6 @@
     <bean id="alertJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
         <property name="connectionFactory" ref="domibusJMS-XAConnectionFactory"/>
-        <property name="transactionManager" ref="transactionManager"/>
         <property name="concurrency" value="${domibus.alert.queue.concurrency}"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>
@@ -87,7 +91,6 @@
     <bean id="uiReplicationJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
         <property name="connectionFactory" ref="domibusJMS-XAConnectionFactory"/>
-        <property name="transactionManager" ref="transactionManager"/>
         <property name="concurrency" value="${domibus.ui.replication.queue.concurency}"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>

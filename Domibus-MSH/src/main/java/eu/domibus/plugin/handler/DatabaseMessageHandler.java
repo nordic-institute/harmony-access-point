@@ -353,7 +353,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
 
     @Override
-    @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(value = SUBMITTED_MESSAGES)
     @Counter(SUBMITTED_MESSAGES)

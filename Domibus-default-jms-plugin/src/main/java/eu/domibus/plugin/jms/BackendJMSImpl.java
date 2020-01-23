@@ -120,7 +120,6 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      * @param map The incoming JMS Message
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Transactional
     public void receiveMessage(final MapMessage map) {
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
@@ -182,8 +181,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 sendResponseFromC3Plugin = Boolean.parseBoolean(property);
             }
             if (sendResponseFromC3Plugin) {
-                domainTaskExtExecutor.submitLongRunningTask(
-                        () -> downloadAndSendBack(messageId), DEFAULT_DOMAIN);
+                downloadAndSendBack(messageId);
+                /*domainTaskExtExecutor.submitLongRunningTask(
+                        () -> downloadAndSendBack(messageId), DEFAULT_DOMAIN);*/
 
             } else {
                 LOG.debug("Delivering message");
@@ -193,7 +193,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                     throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
                 }
                 LOG.info("Sending message to queue [{}]", queueValue);
+                Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "mshToBackendTemplate.send")).time();
                 mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+                mshToBackendTemplateTimer.stop();
             }
         } finally {
             if (deliverMessageTimer != null) {

@@ -148,7 +148,7 @@ public class BackendNotificationService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         if (isPluginNotificationDisabled()) {
             return;

@@ -34,7 +34,6 @@
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
 		<property name="connectionFactory"
                   ref="domibusJMS-XAConnectionFactory"/>
-		<property name="transactionManager" ref="transactionManager"/>
 		<property name="destinationResolver" ref="jndiDestinationResolver"/>
 		<property name="concurrency" value="${jmsplugin.queue.in.concurrency}"/>
 		<property name="sessionTransacted" value="true"/>

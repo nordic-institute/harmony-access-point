@@ -43,7 +43,6 @@ import java.util.*;
  * @since 3.3
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class MessageUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageUtil.class);
@@ -505,10 +504,23 @@ public class MessageUtil {
         }
 
         final Node nonRepudiationInformationNode = getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
+        if(nonRepudiationInformationNode != null) {
+            try {
+                final String nonRepudiationInformation = nodeToString(nonRepudiationInformationNode);
+                Receipt receipt = new Receipt();
+                receipt.getAny().add(nonRepudiationInformation);
+                return receipt;
+            } catch (TransformerException e) {
+                throw new SOAPException("Error while creating Receipt", e);
+            }
+        }
+
+
+        final Node userMessageNode = getFirstChild(receiptNode, USER_MESSAGE);
         try {
-            final String nonRepudiationInformation = nodeToString(nonRepudiationInformationNode);
+            final String userMessageInformation = nodeToString(userMessageNode);
             Receipt receipt = new Receipt();
-            receipt.getAny().add(nonRepudiationInformation);
+            receipt.getAny().add(userMessageInformation);
             return receipt;
         } catch (TransformerException e) {
             throw new SOAPException("Error while creating Receipt", e);

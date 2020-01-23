@@ -80,7 +80,6 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
@@ -92,6 +91,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 Timer.Context timerContext = null;
                 try {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.saveResponse").time();
+
                     responseHandler.saveResponse(responseSoapMessage, messaging, responseResult.getResponseMessaging());
                 } finally {
                     if (timerContext != null) {

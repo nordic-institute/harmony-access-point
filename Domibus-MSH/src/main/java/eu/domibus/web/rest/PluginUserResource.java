@@ -21,6 +21,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,6 +75,7 @@ public class PluginUserResource extends BaseResource {
         return prepareResponse(users, count, request.getPageStart(), request.getPageSize());
     }
 
+    @Transactional
     @PutMapping(value = {"/users"})
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void updateUsers(@RequestBody @Valid List<PluginUserRO> userROs) {

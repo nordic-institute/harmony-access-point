@@ -41,7 +41,9 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
                 retryCount = message.getIntProperty(MessageConstants.RETRY_COUNT);
             }
             domainCode = message.getStringProperty(MessageConstants.DOMAIN);
-            delay = message.getLongProperty(MessageConstants.DELAY);
+            if(message.propertyExists(MessageConstants.DELAY)) {
+                delay = message.getLongProperty(MessageConstants.DELAY);
+            }
         } catch (final NumberFormatException nfe) {
             LOG.trace("Error getting message properties", nfe);
             //This is ok, no delay has been set

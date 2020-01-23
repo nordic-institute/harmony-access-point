@@ -1,5 +1,6 @@
 package eu.domibus.common.dao;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
@@ -8,6 +9,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,6 +41,9 @@ public class MessagingDao extends BasicDao<Messaging> {
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String GROUP_ID = "GROUP_ID";
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     public MessagingDao() {
         super(Messaging.class);
     }
@@ -49,22 +54,33 @@ public class MessagingDao extends BasicDao<Messaging> {
         return query.getResultList();
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public UserMessage findUserMessageByMessageId(final String messageId) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(MessagingDao.class, "findUserMessageByMessageId")).time();
+
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("Messaging.findUserMessageByMessageId", UserMessage.class);
         query.setParameter(MESSAGE_ID, messageId);
 
-        return DataAccessUtils.singleResult(query.getResultList());
+        UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
+        authorizeUserMessageMetric.stop();
+        return userMessage;
     }
 
     public SignalMessage findSignalMessageByMessageId(final String messageId) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(MessagingDao.class, "findSignalMessageByMessageId")).time();
+
         final TypedQuery<SignalMessage> query = this.em.createNamedQuery("Messaging.findSignalMessageByMessageId", SignalMessage.class);
         query.setParameter(MESSAGE_ID, messageId);
 
-        return DataAccessUtils.singleResult(query.getResultList());
+        SignalMessage signalMessage = DataAccessUtils.singleResult(query.getResultList());
+
+        authorizeUserMessageMetric.stop();
+
+        return signalMessage;
     }
 
     public Messaging findMessageByMessageId(final String messageId) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(MessagingDao.class, "findMessageByMessageId")).time();
+
         try {
             final TypedQuery<Messaging> query = em.createNamedQuery("Messaging.findMessageByMessageId", Messaging.class);
             query.setParameter(MESSAGE_ID, messageId);
@@ -72,10 +88,12 @@ public class MessagingDao extends BasicDao<Messaging> {
         } catch (NoResultException nrEx) {
             LOG.debug("Could not find any message for message id[" + messageId + "]");
             return null;
+        } finally {
+            authorizeUserMessageMetric.stop();
         }
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void clearPayloadData(final UserMessage userMessage) {
         LOG.debug("Start clearing payloadData");
@@ -132,6 +150,14 @@ public class MessagingDao extends BasicDao<Messaging> {
 
         final Query emptyQuery = em.createNamedQuery("Messaging.emptyPayloads");
         emptyQuery.setParameter("PARTINFOS", databasePayloads);
+        emptyQuery.executeUpdate();
+    }
+
+    @Transactional
+    public void updateSignalMessageId(Long messagingId, Long signalMessageId) {
+        final Query emptyQuery = em.createNamedQuery("Messaging.updateSignalMessageId");
+        emptyQuery.setParameter("MESSAGING_ID", messagingId);
+        emptyQuery.setParameter("SIGNAL_MESSAGE_ID", signalMessageId);
         emptyQuery.executeUpdate();
     }
 

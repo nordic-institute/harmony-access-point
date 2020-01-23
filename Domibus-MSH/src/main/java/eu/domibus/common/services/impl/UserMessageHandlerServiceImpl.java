@@ -138,7 +138,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private MetricRegistry metricRegistry;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         com.codahale.metrics.Timer.Context checkSelfSending = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "checkSelfSending")).time();
@@ -223,14 +222,23 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 // ping messages are only stored and not notified to the plugins
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, null, null);
             } else {
+                com.codahale.metrics.Timer.Context getMatchingBackendFilter = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "getMatchingBackendFilter")).time();
                 final BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
+                getMatchingBackendFilter.stop();
 
+                com.codahale.metrics.Timer.Context getMessageFragmentTimer = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "getMessageFragment")).time();
                 MessageFragmentType messageFragmentType = messageUtil.getMessageFragment(request);
+                getMessageFragmentTimer.stop();
+
+                com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage")).time();
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName);
+                persistReceivedMessage.stop();
 
                 try {
+                    com.codahale.metrics.Timer.Context notifyMessageReceived = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "notifyMessageReceived")).time();
                     backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
+                    notifyMessageReceived.stop();
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
@@ -293,7 +301,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     /**
      * {@inheritDoc}
      */
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
@@ -393,12 +400,15 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             }
         }
 
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "messagingService.storeMessage")).time();
         try {
             messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, backendName);
         } catch (CompressionException exc) {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "Could not persist message" + exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
+        } finally {
+            authorizeUserMessageMetric.stop();
         }
 
         Party to = pModeProvider.getReceiverParty(pmodeKey);
@@ -524,7 +534,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handlePayloads(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");

@@ -71,7 +71,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     private MetricRegistry metricRegistry;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)
@@ -187,10 +186,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 getLog().debug("Finally handle reliability");
                 reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
-                getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
-            }finally {
-                if(finally_block!=null) {
+                getLog().error("Finally exception when handlingReliability", ex);
+//                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+            } finally {
+                if (finally_block != null) {
                     finally_block.stop();
                 }
             }
