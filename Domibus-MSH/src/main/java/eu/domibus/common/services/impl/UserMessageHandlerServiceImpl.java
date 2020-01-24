@@ -432,7 +432,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PERSISTED);
 
-        nonRepudiationService.saveRequest(request, userMessage);
+        domainTaskExecutor.submitLongRunningTask(() -> nonRepudiationService.saveRequest(request, userMessage), domainContextProvider.getCurrentDomain());
 
         return userMessage.getMessageInfo().getMessageId();
     }
