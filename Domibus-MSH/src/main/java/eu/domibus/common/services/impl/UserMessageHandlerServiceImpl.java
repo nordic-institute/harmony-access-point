@@ -11,7 +11,6 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessagingService;
@@ -40,8 +39,6 @@ import org.apache.commons.lang3.Validate;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Node;
 
 import javax.activation.DataHandler;
@@ -433,7 +430,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PERSISTED);
 
-        nonRepudiationService.saveRequest(request, userMessage);
+        domainTaskExecutor.submitLongRunningTask(() -> nonRepudiationService.saveRequest(request, userMessage), domainContextProvider.getCurrentDomain());
 
         return userMessage.getMessageInfo().getMessageId();
     }
