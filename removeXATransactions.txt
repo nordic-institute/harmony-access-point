@@ -8,3 +8,7 @@
 
 *- switch JMS filestore to JMS data source
 *- modify hibernate sequence so that the database is not called for every next_val
+
+
+executed in database
+alter system set pga_aggregate_limit=0 scope=both;
