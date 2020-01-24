@@ -1,3 +1,14 @@
+Domibus nonxa performance improvement
+                - Perform the following changes in the WebLogic console:
+                    o Decomission the Domibus XA datasource eDeliveryDs and create a new datasource(not XA, the same with the one used for Quartz)
+                    o Change the eDeliveryConnectionFactory JMS connection factory from XA to non-XA( section eDeliveryConnectionFactory->Configuration->Transactions: uncheck "XA Connection Factory Enabled")
+                - Recreate the database schema using the script oracle10g-4.2.ddl
+                - Replace the Domibus war and the JMS default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                - Modify the Domibus properties file "\conf\domibus\domibus.properties":
+                    o change property value to domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class=oracle.jdbc.driver.OracleDriver
+                    o delete the following properties:
+                        - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class
+                        - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform
 Domibus 4.1.2 (from 4.1.1):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.1-to-4.1.2-migration.ddl for MySQL or oracle10g-4.1.1-to-4.1.2-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
