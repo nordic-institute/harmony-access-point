@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -72,12 +73,14 @@ public class CommandServiceImpl implements CommandService {
         return domainConverter.convert(commands, Command.class);
     }
 
+    @Transactional
     @Override
     public List<Command> findCommandsByServerAndDomainName(String serverName, String domain) {
         final List<CommandEntity> commands = commandDao.findCommandsByServerAndDomainName(serverName, domain);
         return domainConverter.convert(commands, Command.class);
     }
 
+    @Transactional
     @Override
     public void executeCommand(String command, Domain domain, Map<String, String> commandProperties) {
 
@@ -129,6 +132,7 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
+    @Transactional
     @Override
     public void deleteCommand(Integer commandId) {
         final CommandEntity commandEntity = commandDao.read(commandId);
