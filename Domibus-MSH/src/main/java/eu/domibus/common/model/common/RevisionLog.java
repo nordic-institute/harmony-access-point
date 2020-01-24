@@ -28,15 +28,7 @@ public class RevisionLog {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RevisionLog.class);
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "hibernate_sequence"
-    )
-    @SequenceGenerator(
-            name = "hibernate_sequence",
-            sequenceName = "hibernate_sequence",
-            allocationSize = 20
-    )
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @RevisionNumber
     private long id;
 

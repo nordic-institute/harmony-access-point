@@ -14,18 +14,10 @@ import java.io.Serializable;
 public abstract class AbstractBaseEntity implements Serializable {
 
 
-    @XmlTransient
-    @Column(name = "ID_PK")
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "hibernate_sequence"
-    )
-    @SequenceGenerator(
-            name = "hibernate_sequence",
-            sequenceName = "hibernate_sequence",
-            allocationSize = 20
-    )
+    @XmlTransient
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ID_PK")
     private long entityId;
 
     /**
