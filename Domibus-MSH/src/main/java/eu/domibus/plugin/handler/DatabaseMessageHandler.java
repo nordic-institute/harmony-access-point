@@ -1,5 +1,6 @@
 package eu.domibus.plugin.handler;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Sets;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
@@ -34,8 +35,6 @@ import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.pull.PartyExtractor;
-import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
@@ -54,7 +53,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,9 +124,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private PullMessageService pullMessageService;
-
-    @Autowired
     protected AuthUtils authUtils;
 
     @Autowired
@@ -145,6 +140,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -318,11 +316,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
-            MessageStatus messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
-                    backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
+            messagingService.persistSubmittedMessageFragment(backendName, userMessage, messageId, message, userMessageExchangeConfiguration, to, pModeKey, legConfiguration);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -338,16 +332,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage());
             errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
-        }
-    }
-
-    private void prepareForPushOrPull(UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
-        if (MessageStatus.READY_TO_PULL != messageStatus) {
-            // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessageLog);
-        } else {
-            LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
-            pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
         }
     }
 
@@ -448,18 +432,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
-
-            if (messageStatus == null) {
-                messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            }
-            final boolean sourceMessage = userMessage.isSourceMessage();
-            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
-                    backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
-
-            if (!sourceMessage) {
-                prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
-            }
+            messagingService.persistSubmittedMessage(messageData, backendName, userMessage, messageId, message, userMessageExchangeConfiguration, to, messageStatus, pModeKey, legConfiguration);
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
 
@@ -500,10 +473,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", runTimEx);
             throw MessagingExceptionFactory.transform(runTimEx, ErrorCode.EBMS_0003);
         }
-    }
-
-    private int getMaxAttempts(LegConfiguration legConfiguration) {
-        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
     }
 
     private void fillMpc(UserMessage userMessage, LegConfiguration legConfiguration, Party to) {

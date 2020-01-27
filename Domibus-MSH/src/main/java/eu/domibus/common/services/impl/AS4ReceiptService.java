@@ -3,6 +3,8 @@ package eu.domibus.common.services.impl;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -42,4 +44,6 @@ public interface AS4ReceiptService {
      * @throws EbMS3Exception
      */
     SOAPMessage generateReceipt(String messageId, final Boolean nonRepudiation) throws EbMS3Exception;
+
+    SignalMessage saveResponse(UserMessage userMessage, SignalMessage signalMessage);
 }

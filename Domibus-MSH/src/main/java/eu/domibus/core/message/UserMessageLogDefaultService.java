@@ -60,7 +60,7 @@ public class UserMessageLogDefaultService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserMessageLog save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
+    public UserMessageLog save(UserMessage userMessage, String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
         final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
@@ -74,7 +74,7 @@ public class UserMessageLogDefaultService {
         }
         userMessageLog.setMessageSubtype(messageSubtype);
         if (!MessageSubtype.TEST.equals(messageSubtype)) {
-            backendNotificationService.notifyOfMessageStatusChange(userMessageLog, status, new Timestamp(System.currentTimeMillis()));
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
         }
         //we set the status after we send the status change event; otherwise the old status and the new status would be the same
         userMessageLog.setMessageStatus(status);

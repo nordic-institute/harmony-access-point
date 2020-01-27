@@ -9,18 +9,13 @@ import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.ebms3.receiver.handler.IncomingMessageHandlerFactory;
-import eu.domibus.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
-import eu.domibus.ebms3.sender.MessageSender;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;

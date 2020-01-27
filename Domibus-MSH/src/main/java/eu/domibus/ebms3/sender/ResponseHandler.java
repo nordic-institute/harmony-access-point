@@ -102,7 +102,8 @@ public class ResponseHandler {
 
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "messagingDao.update")).time();
             sentMessage.setSignalMessage(signalMessage);
-            messagingDao.updateSignalMessageId(sentMessage.getEntityId(), signalMessage.getEntityId());
+            sentMessage.setSignalMessage(signalMessage);
+            messagingDao.update(sentMessage);
             responseHandlerContext.stop();
         } finally {
             if (responseHandlerContext != null) {
