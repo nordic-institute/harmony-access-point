@@ -4,6 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -12,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Ion Perpegel
  * since 4.1
  */
-@Target({FIELD})
+@Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
 public @interface CustomWhiteListed {
     //the characters of the property are permitted even if they appear in blacklist property or do not appear in white list property

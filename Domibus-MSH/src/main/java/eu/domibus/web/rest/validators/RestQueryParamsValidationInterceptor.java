@@ -6,7 +6,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -44,6 +47,8 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             return true;
         }
 
+        String method = request.getMethod();
+
         Map<String, String[]> queryParams = request.getParameterMap();
         return handleQueryParams(queryParams, (HandlerMethod) handler);
     }
@@ -55,7 +60,10 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             return true;
         }
         if (ArrayUtils.isNotEmpty(method.getMethodParameters())) {
-            boolean skip = Arrays.stream(method.getMethodParameters()).anyMatch(param -> param.getParameterAnnotation(SkipWhiteListed.class) != null);
+            boolean skip = Arrays.stream(method.getMethodParameters()).
+                    anyMatch(param -> param.getParameterAnnotation(SkipWhiteListed.class) != null
+                            // if the parameter is marked as RequestBody, the RestBodyValidationInterceptor will handle the request validation, so skip
+                            || param.getParameterAnnotation(RequestBody.class) != null);
             if (skip) {
                 return true;
             }
@@ -70,13 +78,24 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             return true;
         }
         try {
-            List<? extends Class<?>> types = null;
+            MethodParameter parameterInfo = null;
             if (method != null) {
-                types = Arrays.asList(method.getMethodParameters()).stream()
-                        .map(el -> el.getParameterType()).collect(Collectors.toList());
+                List<MethodParameter> parameters = Arrays.asList(method.getMethodParameters()).stream()
+                        .filter(el -> el.hasParameterAnnotation(RequestParam.class))
+                        .collect(Collectors.toList());
+
+                if (parameters != null && !parameters.isEmpty()) {
+                    // all GET methods should have maximum one request parameter
+                    if (parameters.size() == 1) {
+                        parameterInfo = parameters.get(0);
+                    } else {
+                        LOG.trace("Method [{}] has [{}] request parameters instead of maximum one so blacklist validation will not have type information!",
+                                method.getMethod().getName(), parameters.size());
+                    }
+                }
             }
 
-            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, types));
+            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, parameterInfo));
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {

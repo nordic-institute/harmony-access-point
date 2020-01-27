@@ -4,6 +4,7 @@ import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -104,7 +105,7 @@ public class PModeResource extends BaseResource {
     @PostMapping
     public ResponseEntity<SavePModeResponseRO> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
-            @RequestParam("description") @Valid String pModeDescription) {
+            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) {
         if (pmode.isEmpty()) {
             return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file since it was empty."));
         }
@@ -115,7 +116,7 @@ public class PModeResource extends BaseResource {
 
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
-                message += " but some issues were detected";
+                message += " but some issues were detected:";
             }
 
             return ResponseEntity.ok(new SavePModeResponseRO(message, pmodeUpdateMessage));

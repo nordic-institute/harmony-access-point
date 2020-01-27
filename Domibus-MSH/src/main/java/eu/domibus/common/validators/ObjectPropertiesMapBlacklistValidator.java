@@ -5,11 +5,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,20 +45,20 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
             return true;
         }
 
-        Class type = null;
-        if (value.getTypes() != null && !value.getTypes().isEmpty()) {
-            // all GET REST methods have just one parameter/payload
-            type = value.getTypes().get(0);
-        }
-
+        MethodParameter parameterInfo = value.getParameterInfo();
         for (Map.Entry<String, String[]> pair : valuesMap.entrySet()) {
             CustomWhiteListed whitelistAnnotation = null;
-            // use custom whitelist chars, if declared on the corresponding field
-            if (type != null) {
+            // use custom whitelist chars, if declared on the parameter or corresponding field
+            if (parameterInfo != null) {
+                whitelistAnnotation = parameterInfo.getParameterAnnotation(CustomWhiteListed.class);
                 String prop = pair.getKey();
                 try {
-                    Field field = type.getDeclaredField(prop);
-                    whitelistAnnotation = field.getAnnotation(CustomWhiteListed.class);
+                    Field field = parameterInfo.getParameterType().getDeclaredField(prop);
+                    CustomWhiteListed fieldWhitelistAnnotation = field.getAnnotation(CustomWhiteListed.class);
+                    if (fieldWhitelistAnnotation != null) {
+                        // field annotation takes precedence
+                        whitelistAnnotation = fieldWhitelistAnnotation;
+                    }
                 } catch (NoSuchFieldException e) {
                     LOG.trace("Could not find property named [{}] in metadata class", prop);
                 }
@@ -77,7 +77,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     public static class Parameter {
         private Map<String, String[]> values;
-        private List<? extends Class<?>> types;
+        private MethodParameter parameterInfo;
 
         public Map<String, String[]> getValues() {
             return values;
@@ -87,17 +87,17 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
             this.values = values;
         }
 
-        public List<? extends Class<?>> getTypes() {
-            return types;
+        public MethodParameter getParameterInfo() {
+            return parameterInfo;
         }
 
-        public void setTypes(List<? extends Class<?>> types) {
-            this.types = types;
+        public void setParameterInfo(MethodParameter parameterInfo) {
+            this.parameterInfo = parameterInfo;
         }
 
-        public Parameter(Map<String, String[]> values, List<? extends Class<?>> types) {
+        public Parameter(Map<String, String[]> values, MethodParameter parameterInfo) {
             this.values = values;
-            this.types = types;
+            this.parameterInfo = parameterInfo;
         }
     }
 }
