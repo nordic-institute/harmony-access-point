@@ -204,7 +204,8 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-long-names", pmodeName, "text/xml", IOUtils.toByteArray(is));
         ResponseEntity<SavePModeResponseRO> response = adminGui.uploadPMode(pModeContent, "description");
-        assertTrue(response.getBody().getMessage().contains("is not facet-valid with respect to maxLength"));
+        assertTrue(response.getBody().getIssues().size() == 2);
+        assertTrue(response.getBody().getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxLength"));
     }
 
     /**

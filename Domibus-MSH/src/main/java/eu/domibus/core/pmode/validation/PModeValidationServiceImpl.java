@@ -4,12 +4,15 @@ import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_LEVEL;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS;
 
 /**
@@ -20,6 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_M
  */
 @Service
 public class PModeValidationServiceImpl implements PModeValidationService {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeValidationServiceImpl.class);
 
     @Autowired(required = false)
     protected List<PModeValidator> pModeValidatorList;
@@ -29,21 +33,42 @@ public class PModeValidationServiceImpl implements PModeValidationService {
 
     public List<PModeIssue> validate(byte[] rawConfiguration, Configuration configuration) {
         boolean warningsAsErrors = domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
-        List<PModeIssue> issues = new ArrayList<>();
+        List<PModeIssue> allIssues = new ArrayList<>();
 
         configuration.preparePersist(); // TODO: review this
 
         for (PModeValidator validator : pModeValidatorList) {
-            issues.addAll(validator.validateAsConfiguration(configuration));
-        }
-        for (PModeValidator validator : pModeValidatorList) {
-            issues.addAll(validator.validateAsXml(rawConfiguration));
+            String validatorName = validator.getClass().getSimpleName();
+            String levelPropName = DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + validatorName;
+            String level = domibusPropertyProvider.getProperty(levelPropName);
+
+            if ("NONE".equals(level)) {
+                LOG.trace("Skipping [{}] pMode validator due to configuration being NONE.", validatorName);
+                continue;
+            }
+
+            List<PModeIssue> issues1 = validator.validateAsConfiguration(configuration);
+            List<PModeIssue> issues2 = validator.validateAsXml(rawConfiguration);
+
+            if (level != null) {
+                try {
+                    IssueLevel issueLevel = IssueLevel.valueOf(level);
+
+                    issues1.forEach(issue -> issue.setLevel(issueLevel));
+                    issues2.forEach(issue -> issue.setLevel(issueLevel));
+                } catch (IllegalArgumentException ex) {
+                    LOG.warn("Wrong pMode issue level value [{}] red from configuraton for [{}] validator.", level, validatorName);
+                }
+            }
+
+            allIssues.addAll(issues1);
+            allIssues.addAll(issues2);
         }
 
         if (warningsAsErrors) {
-            issues.forEach(issue -> issue.setLevel(IssueLevel.ERROR));
+            allIssues.forEach(issue -> issue.setLevel(IssueLevel.ERROR));
         }
 
-        return issues;
+        return allIssues;
     }
 }
