@@ -5,11 +5,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -24,17 +24,19 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectPropertiesMapBlacklistValidator.class);
 
+    private String message = ObjectWhiteListed.MESSAGE;
+
+    @Autowired
+    ItemsBlacklistValidator listValidator;
+
     @PostConstruct
     public void init() {
         listValidator.init();
     }
 
-    @Autowired
-    ItemsBlacklistValidator listValidator;
-
     @Override
     protected String getErrorMessage() {
-        return ObjectWhiteListed.MESSAGE;
+        return message;
     }
 
     @Override
@@ -66,7 +68,9 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
             String[] val = pair.getValue();
             if (!listValidator.isValid(val, whitelistAnnotation)) {
-                LOG.debug("Forbidden character detected in the query parameter [{}]:[{}] ", pair.getKey(), val);
+                message = String.format("Forbidden character detected in the query parameter [%s]:[%s] ",
+                        pair.getKey(), Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg));
+                LOG.debug(message);
                 return false;
             }
         }
