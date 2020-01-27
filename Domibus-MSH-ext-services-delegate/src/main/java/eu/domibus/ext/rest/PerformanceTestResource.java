@@ -46,10 +46,19 @@ public class PerformanceTestResource {
     }
 
     @GetMapping(path = "onlydb")
-    public void testSaveOnlyDB() {
-        com.codahale.metrics.Timer.Context saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testOnlyDBOutside")).time();
-        performanceTestService.testSave("sync", 1);
-        saveSyncTimerContext.stop();
+    public void testSaveOnlyDB(@QueryParam("mode") String mode) {
+        if("all".equalsIgnoreCase(mode)) {
+            com.codahale.metrics.Timer.Context saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testOnlyDBSeparate")).time();
+            performanceTestService.testSave("sync", 1);
+            performanceTestService.testSave("sync", 1);
+            performanceTestService.testSave("sync", 1);
+            saveSyncTimerContext.stop();
+        } else {
+            com.codahale.metrics.Timer.Context saveSyncTimerContext = metricRegistry.timer(MetricRegistry.name(PerformanceTestResource.class, "testOnlyDBOneTransaction")).time();
+            performanceTestService.testSave("sync", 3);
+            saveSyncTimerContext.stop();
+        }
+
     }
 
     @GetMapping(path = "jmscommit")
