@@ -115,7 +115,7 @@ public class PModeResource extends BaseResource {
 
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
-                message += " but some issues were detected: <br>";
+                message += " but some issues were detected";
             }
 
             return ResponseEntity.ok(new SavePModeResponseRO(message, pmodeUpdateMessage));
@@ -123,6 +123,10 @@ public class PModeResource extends BaseResource {
             LOG.error("Error uploading the PMode", e);
 
             String message = "Failed to upload the PMode file due to: ";
+            if (CollectionUtils.isEmpty(e.getErrors())) {
+                message += "<br>" + ExceptionUtils.getRootCauseMessage(e);
+            }
+
             List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

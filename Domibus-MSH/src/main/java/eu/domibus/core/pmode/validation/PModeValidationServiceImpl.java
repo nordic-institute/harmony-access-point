@@ -16,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_M
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Implementation class for pMode validation: Calls al validators(old style and new) and aggregates the results
+ * Implementation class for pMode validation: Calls all pmode validators and aggregates the results
  */
 @Service
 public class PModeValidationServiceImpl implements PModeValidationService {

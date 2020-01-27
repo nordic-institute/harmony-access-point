@@ -40,7 +40,7 @@
             <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
             <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
             <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-            <binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+            <binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
         </meps>
         <properties>
             <property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
@@ -129,6 +129,20 @@
             </initiatorParties>
             <responderParties>
                 <responderParty name="white_gw"/>
+                <responderParty name="blue_gw"/>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="pushTestcase1tc1Action"/>
+            </legs>
+        </process>
+        <process name="tc1ProcessShouldBeRejected" agreement="agreementEmpty" mep="twoway" binding="pushAndPush" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+                <initiatorParty name="red_gw"/>
+                <initiatorParty name="black_gw"/>
+            </initiatorParties>
+            <responderParties>
                 <responderParty name="blue_gw"/>
                 <responderParty name="red_gw"/>
             </responderParties>
@@ -272,6 +286,21 @@
             </responderParties>
             <legs>
                 <leg name="pushTestcase12tc12Action"/>
+            </legs>
+        </process>
+        <process name="tc9Process56788" agreement="agreementABC" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+                <initiatorParty name="red_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="blue_gw"/>
+                <responderParty name="turquoise_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="pushTestcase9tc9Action"/>
+                <leg name="pushTestcase12tc12Action"/>
+                <leg name="madeUpLegName"/>
             </legs>
         </process>
     </businessProcesses>
