@@ -3,6 +3,8 @@ import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {IPageableList} from '../mixins/ipageable-list';
+import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './multiple-items-response';
 
 @Injectable()
 export class AlertService {
@@ -49,11 +51,8 @@ export class AlertService {
     if (typeof response === 'string') {
       message = response;
     } else {
-      if (response.message) {
-        message = response.message;
-      }
-      if (Array.isArray(response.issues)) {
-        message += this.formatArrayOfItems(response.issues);
+      if(instanceOfMultipleItemsResponse(response)) {
+        message = this.processMultipleItemsResponse(response);
       }
     }
     this.subject.next({type: 'success', text: message});
@@ -136,11 +135,10 @@ export class AlertService {
       errMsg = response;
     } else if (response instanceof HttpErrorResponse) {
       if (response.error) {
-        if (response.error.message) {
+        if(instanceOfMultipleItemsResponse(response.error)) {
+          errMsg = this.processMultipleItemsResponse(response.error);
+        } else if (response.error.message) {
           errMsg = response.error.message;
-        }
-        if (response.error.issues && Array.isArray(response.error.issues)) {
-          errMsg += '<br>' + this.formatArrayOfItems(response.error.issues);
         }
       }
     } else if (response instanceof HttpResponse) {
@@ -166,10 +164,21 @@ export class AlertService {
     return errMsg;
   }
 
-  private formatArrayOfItems(errors: Array<any>): string {
+  private processMultipleItemsResponse(response: MultipleItemsResponse) {
+    let message = '';
+    if (response.message) {
+      message = response.message;
+    }
+    if (Array.isArray(response.issues)) {
+      message += '<br>' + this.formatArrayOfItems(response.issues);
+    }
+    return message;
+  }
+
+  private formatArrayOfItems(errors: Array<ResponseItemDetail>): string {
     let message = '';
     errors.forEach(err => {
-      let m = (err.level ? err.level + ': ' : '') + (err.message ? err.message : err.toString());
+      let m = (err.level ? err.level + ': ' : '') + (err.message ? err.message : '');
       message += m + '<br>';
     });
     return message;
@@ -201,4 +210,6 @@ export class AlertService {
     }
     return res;
   }
+
+
 }

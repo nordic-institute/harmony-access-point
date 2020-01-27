@@ -5,8 +5,6 @@ import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList, instanceOfSortableList} from './type.utils';
-import {PaginationType} from './ipageable-list';
-import {ErrorLogResult} from '../../errorlog/support/errorlogresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
