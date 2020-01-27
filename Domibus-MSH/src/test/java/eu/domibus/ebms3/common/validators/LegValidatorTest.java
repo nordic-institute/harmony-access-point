@@ -5,6 +5,7 @@ import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Service;
+import eu.domibus.core.pmode.validation.LegValidator;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;

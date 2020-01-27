@@ -90,6 +90,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS),
             new DomibusPropertyMetadata(DOMIBUS_P_MODE_VALIDATION_X_PATH_VALIDATOR, Module.MSH, false, DomibusPropertyMetadata.Usage.GLOBAL, false, true, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_P_MODE_VALIDATION_LEVEL, Module.MSH, false, DomibusPropertyMetadata.Usage.GLOBAL, false, true, false, true),
 
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),

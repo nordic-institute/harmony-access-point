@@ -125,7 +125,7 @@ public class PModeResource extends BaseResource {
 
             String message = "Failed to upload the PMode file due to: ";
             if (CollectionUtils.isEmpty(e.getErrors())) {
-                message += "<br>" + ExceptionUtils.getRootCauseMessage(e);
+                message += ExceptionUtils.getRootCauseMessage(e);
             }
 
             List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());

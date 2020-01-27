@@ -38,7 +38,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -122,7 +121,7 @@ public class PModeValidationServiceImplIT {
 
         @Bean
         public List<PModeValidator> pModeValidatorList() {
-            return Arrays.asList(new TwoWayMepValidator(), new ConfigurationCompositePModeValidator() );
+            return Arrays.asList(new TwoWayMepValidator(), new ConfigurablePModeValidator() );
         }
     }
 

@@ -17,7 +17,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_M
  * Reads xPath validator configurations and creates a composite validator that contains all of them
  */
 @Component
-public class ConfigurationCompositePModeValidator extends CompositePModeValidator {
+public class ConfigurablePModeValidator extends CompositePModeValidator {
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;

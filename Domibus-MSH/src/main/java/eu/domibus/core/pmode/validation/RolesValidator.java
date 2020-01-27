@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common.validators;
+package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;

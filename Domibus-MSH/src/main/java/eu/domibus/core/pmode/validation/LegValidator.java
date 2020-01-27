@@ -1,11 +1,10 @@
-package eu.domibus.ebms3.common.validators;
+package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.pmode.validation.AbstractPModeValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

@@ -278,6 +278,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
     String DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS = "domibus.pMode.validation.warningsAsErrors";
     String DOMIBUS_P_MODE_VALIDATION_X_PATH_VALIDATOR = "domibus.pMode.validation.xPathValidator";
+    String DOMIBUS_P_MODE_VALIDATION_LEVEL = "domibus.pMode.validation.level";
 
     /**
      * Get all the properties metadata that support changing at runtime
