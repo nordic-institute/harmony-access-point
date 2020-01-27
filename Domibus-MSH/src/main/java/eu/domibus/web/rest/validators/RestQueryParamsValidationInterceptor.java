@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.common.validators.ObjectPropertiesMapBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -79,15 +80,21 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
         try {
             MethodParameter parameterInfo = null;
+            Class parameterType = null;
+            CustomWhiteListed parameterAnnotation = null;
+
             if (method != null) {
                 List<MethodParameter> parameters = Arrays.asList(method.getMethodParameters()).stream()
-                        .filter(el -> el.hasParameterAnnotation(RequestParam.class))
+                        .filter(el -> !el.hasParameterAnnotation(RequestPart.class))
+                        .filter(el -> !el.hasParameterAnnotation(RequestBody.class))
                         .collect(Collectors.toList());
 
                 if (parameters != null && !parameters.isEmpty()) {
                     // all GET methods should have maximum one request parameter
                     if (parameters.size() == 1) {
                         parameterInfo = parameters.get(0);
+                        parameterType = parameterInfo.getParameterType();
+                        parameterAnnotation = parameterInfo.getParameterAnnotation(CustomWhiteListed.class);
                     } else {
                         LOG.trace("Method [{}] has [{}] request parameters instead of maximum one so blacklist validation will not have type information!",
                                 method.getMethod().getName(), parameters.size());
@@ -95,7 +102,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
                 }
             }
 
-            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, parameterInfo));
+            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, parameterType, parameterAnnotation));
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {

@@ -45,15 +45,15 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
             return true;
         }
 
-        MethodParameter parameterInfo = value.getParameterInfo();
         for (Map.Entry<String, String[]> pair : valuesMap.entrySet()) {
             CustomWhiteListed whitelistAnnotation = null;
-            // use custom whitelist chars, if declared on the parameter or corresponding field
-            if (parameterInfo != null) {
-                whitelistAnnotation = parameterInfo.getParameterAnnotation(CustomWhiteListed.class);
+            Class parameterType = value.getParameterType();
+            if (parameterType != null) {
+                // use custom whitelist chars, if declared on the parameter or corresponding field
+                whitelistAnnotation = value.getParameterAnnotation();
                 String prop = pair.getKey();
                 try {
-                    Field field = parameterInfo.getParameterType().getDeclaredField(prop);
+                    Field field = parameterType.getDeclaredField(prop);
                     CustomWhiteListed fieldWhitelistAnnotation = field.getAnnotation(CustomWhiteListed.class);
                     if (fieldWhitelistAnnotation != null) {
                         // field annotation takes precedence
@@ -77,7 +77,25 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     public static class Parameter {
         private Map<String, String[]> values;
-        private MethodParameter parameterInfo;
+        private Class parameterType;
+        private CustomWhiteListed parameterAnnotation;
+
+        public Class getParameterType() {
+            return parameterType;
+        }
+
+        public void setParameterType(Class parameterType) {
+            this.parameterType = parameterType;
+        }
+
+
+        public CustomWhiteListed getParameterAnnotation() {
+            return parameterAnnotation;
+        }
+
+        public void setParameterAnnotation(CustomWhiteListed parameterAnnotation) {
+            this.parameterAnnotation = parameterAnnotation;
+        }
 
         public Map<String, String[]> getValues() {
             return values;
@@ -87,17 +105,10 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
             this.values = values;
         }
 
-        public MethodParameter getParameterInfo() {
-            return parameterInfo;
-        }
-
-        public void setParameterInfo(MethodParameter parameterInfo) {
-            this.parameterInfo = parameterInfo;
-        }
-
-        public Parameter(Map<String, String[]> values, MethodParameter parameterInfo) {
+        public Parameter(Map<String, String[]> values, Class parameterType, CustomWhiteListed parameterAnnotation) {
             this.values = values;
-            this.parameterInfo = parameterInfo;
+            this.parameterType = parameterType;
+            this.parameterAnnotation = parameterAnnotation;
         }
     }
 }
