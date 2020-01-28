@@ -56,6 +56,7 @@ public class XPathPModeValidator extends AbstractPModeValidator {
         }
     }
 
+    @Override
     public List<PModeIssue> validateAsXml(byte[] xmlBytes) {
         parseXml(xmlBytes);
 
@@ -72,7 +73,7 @@ public class XPathPModeValidator extends AbstractPModeValidator {
         return issues;
     }
 
-    private List<String> extractValues(String expression) {
+    protected List<String> extractValues(String expression) {
         XPathExpression xPathExpr;
         try {
             xPathExpr = XPathFactory.newInstance().newXPath().compile(expression);
@@ -93,7 +94,7 @@ public class XPathPModeValidator extends AbstractPModeValidator {
         }
     }
 
-    private void parseXml(byte[] xmlBytes) {
+    protected void parseXml(byte[] xmlBytes) {
         try {
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
