@@ -52,7 +52,9 @@ public class PartiesResource {
     @GetMapping(value = {"/list"})
     public List<PartyDTO> listParties(@Valid PartyRequestDTO request){
 
-        return partyExtService.getParties(request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize());
+        return partyExtService.getParties(request.getName(),
+                request.getEndPoint(), request.getPartyId(),
+                request.getProcess(), request.getPageStart(), request.getPageSize());
     }
 
 //    @RequestMapping(path = "/{id}", method = RequestMethod.GET)

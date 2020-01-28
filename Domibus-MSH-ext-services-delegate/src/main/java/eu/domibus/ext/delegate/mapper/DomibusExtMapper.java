@@ -4,8 +4,10 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.party.Identifier;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
@@ -48,4 +50,8 @@ public interface DomibusExtMapper {
     DomibusPropertyMetadata domibusPropertyMetadataDTOToDomibusPropertyMetadata(DomibusPropertyMetadataDTO domibusPropertyMetadata);
 
     PartyDTO partyToPartyDTO(Party party);
+
+    ProcessDTO processToProcessDTO(Process process);
+
+    PartyIdentifierDTO partyIdentifierToPartyIdentifierDto(Identifier partyIdentifier);
 }

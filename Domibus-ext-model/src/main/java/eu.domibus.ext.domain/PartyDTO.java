@@ -17,9 +17,9 @@ public class PartyDTO {
 
     protected Set<PartyIdentifierDTO> identifiers; //NOSONAR
 
-    protected List<Process> processesWithPartyAsInitiator = new ArrayList<>();
+    protected List<ProcessDTO> processesWithPartyAsInitiator = new ArrayList<>();
 
-    protected List<Process> processesWithPartyAsResponder = new ArrayList<>();
+    protected List<ProcessDTO> processesWithPartyAsResponder = new ArrayList<>();
 
     protected String name;
 
@@ -43,19 +43,19 @@ public class PartyDTO {
         this.identifiers = identifiers;
     }
 
-    public List<Process> getProcessesWithPartyAsInitiator() {
+    public List<ProcessDTO> getProcessesWithPartyAsInitiator() {
         return processesWithPartyAsInitiator;
     }
 
-    public void setProcessesWithPartyAsInitiator(List<Process> processesWithPartyAsInitiator) {
+    public void setProcessesWithPartyAsInitiator(List<ProcessDTO> processesWithPartyAsInitiator) {
         this.processesWithPartyAsInitiator = processesWithPartyAsInitiator;
     }
 
-    public List<Process> getProcessesWithPartyAsResponder() {
+    public List<ProcessDTO> getProcessesWithPartyAsResponder() {
         return processesWithPartyAsResponder;
     }
 
-    public void setProcessesWithPartyAsResponder(List<Process> processesWithPartyAsResponder) {
+    public void setProcessesWithPartyAsResponder(List<ProcessDTO> processesWithPartyAsResponder) {
         this.processesWithPartyAsResponder = processesWithPartyAsResponder;
     }
 
