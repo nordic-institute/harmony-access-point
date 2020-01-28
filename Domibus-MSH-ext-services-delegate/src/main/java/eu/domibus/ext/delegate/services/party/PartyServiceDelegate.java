@@ -35,7 +35,7 @@ public class PartyServiceDelegate implements PartyExtService {
                                      int pageStart,
                                      int pageSize) {
         List<Party> parties = partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
-        LOG.debug("Retunred [{}] parties", parties.size());
+        LOG.debug("Returned [{}] parties", parties.size());
         return domainConverter.convert(parties, PartyDTO.class);
     }
 }
