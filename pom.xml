@@ -1087,11 +1087,11 @@
             </modules>
         </profile>
         <profile>
-            <id>wildfly12</id>
+            <id>wildfly</id>
             <modules>
                 <module>Domibus-MSH-jms-wildfly-artemis</module>
                 <module>Domibus-MSH-taskexecutor-wildfly</module>
-                <module>Domibus-MSH-wildfly12</module>
+                <module>Domibus-MSH-wildfly</module>
             </modules>
         </profile>
         <profile>

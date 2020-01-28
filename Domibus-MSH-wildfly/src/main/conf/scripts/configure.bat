@@ -5,8 +5,8 @@ SETLOCAL EnableDelayedExpansion
 :::::::::::::::::::::::::::: The following properties need to be modified by the users :::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-:: The location where the Wildfly12 instance is installed
-SET JBOSS_HOME=C:\path\to\wildfly12
+:: The location where the Wildfly instance is installed
+SET JBOSS_HOME=C:\path\to\wildfly
 
 :: The name of the standalone configuration file that need to be updated
 SET SERVER_CONFIG=standalone-full.xml
@@ -36,6 +36,9 @@ SET JDBC_DRIVER_NAME=mysql-connector-java-X.Y.Z.jar
 :::::::::::::::::::::::::::::: The following part is not to be modified by the users ::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+:: The name of the file containing common configuration
+SET CLI_DOMIBUS_CONFIGURATION_COMMON=resources\domibus-configuration-common.cli
+
 ECHO --------------JBOSS_HOME: %JBOSS_HOME%
 ECHO --------------SERVER_CONFIG: %SERVER_CONFIG%
 ECHO --------------DB_TYPE: %DB_TYPE%
@@ -48,7 +51,7 @@ ECHO --------------JDBC_CONNECTION_URL: %JDBC_CONNECTION_URL%
 ECHO --------------JDBC_DRIVER_DIR: %JDBC_DRIVER_DIR%
 ECHO --------------JDBC_DRIVER_NAME: %JDBC_DRIVER_NAME%
 
-ECHO --------------Configure Wildfly12 to resolve parameter values from properties files
+ECHO --------------Configure Wildfly to resolve parameter values from properties files
 @PowerShell -Command "(Get-Content %JBOSS_HOME%/bin/jboss-cli.xml) -replace '<resolve-parameter-values>false</resolve-parameter-values>', '<resolve-parameter-values>true</resolve-parameter-values>' | Out-File -encoding UTF8 %JBOSS_HOME%/bin/jboss-cli.xml"
 
 ECHO --------------Prepare
@@ -56,7 +59,7 @@ SET > env.properties
 @PowerShell -Command "(Get-Content env.properties) -replace '\\', '\\' | Out-File -encoding ASCII env.properties"
 @PowerShell -Command "(Get-Content env.properties) -replace '\^&', '&' | Out-File -encoding ASCII env.properties"
 
-ECHO --------------Configure Wildfly12
+ECHO --------------Configure Wildfly
 %JBOSS_HOME%\bin\jboss-cli.bat --file=resources\domibus-configuration-%DB_TYPE%.cli --properties=env.properties
 
 ECHO --------------Clean
