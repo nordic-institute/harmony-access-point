@@ -14,6 +14,7 @@ import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.common.services.impl.UserMessageHandlerServiceImpl;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
@@ -67,9 +68,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLU
 public class BackendNotificationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
-
-    @Autowired
-    private MetricRegistry metricRegistry;
 
     @Autowired
     JMSManager jmsManager;
@@ -131,9 +129,13 @@ public class BackendNotificationService {
     @Autowired
     protected UserMessageService userMessageService;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
+
+    protected volatile List<BackendFilter> backendFiltersCache;
 
 
     @PostConstruct
@@ -211,9 +213,8 @@ public class BackendNotificationService {
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
-        List<BackendFilter> backendFilters = getBackendFilters();
+        List<BackendFilter> backendFilters = getBackendFiltersWithCache();
         return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
     }
 
@@ -263,6 +264,19 @@ public class BackendNotificationService {
             }
         }
         return true;
+    }
+
+    protected List<BackendFilter> getBackendFiltersWithCache() {
+        if (backendFiltersCache == null) {
+            synchronized (this) {//TODO use a dedicated lock object
+                LOG.debug("Initializing backendFilterCache");
+                if (backendFiltersCache == null) {
+                    List<BackendFilter> backendFilters = getBackendFilters();
+                    backendFiltersCache = backendFilters;
+                }
+            }
+        }
+        return backendFiltersCache;
     }
 
     protected List<BackendFilter> getBackendFilters() {
@@ -370,9 +384,9 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-
+        com.codahale.metrics.Timer.Context sendMessageToQueue = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "sendMessageToQueue")).time();
         jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), notificationListener.getBackendNotificationQueue());
-
+        sendMessageToQueue.stop();
     }
 
     public void notifyOfSendFailure(UserMessageLog userMessageLog) {

@@ -27,7 +27,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class UIReplicationSignalService {
 
     static final String JMS_PROP_STATUS = "status";

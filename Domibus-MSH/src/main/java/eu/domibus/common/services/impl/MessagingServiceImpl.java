@@ -6,27 +6,41 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
+import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.pmode.PModeDefaultService;
+import eu.domibus.core.pull.PartyExtractor;
+import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -72,13 +86,31 @@ public class MessagingServiceImpl implements MessagingService {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Autowired
     protected BackendNotificationService backendNotificationService;
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
+
+    @Autowired
+    private UserMessageLogDefaultService userMessageLogService;
+
+    @Autowired
+    protected MessageExchangeService messageExchangeService;
+
+    @Autowired
+    protected PullMessageService pullMessageService;
+
+    @Autowired
+    protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
+    protected AS4ReceiptService as4ReceiptService;
+
+    @Autowired
+    protected NonRepudiationService nonRepudiationService;
 
     @Autowired
     private MetricRegistry metricRegistry;
@@ -108,11 +140,107 @@ public class MessagingServiceImpl implements MessagingService {
         } else {
             storePayloads(messaging, mshRole, legConfiguration, backendName);
         }
-        LOG.debug("Saving Messaging");
         setPayloadsContentType(messaging);
+    }
+
+    @Override
+    @Transactional
+    public void persistReceivedMessage(Messaging messaging, Messaging responseMessaging, BackendFilter matchingBackendFilter, UserMessage userMessage, String backendName, Party to, NotificationStatus notificationStatus, String rawXMLMessage) throws EbMS3Exception {
+        LOG.debug("Saving Messaging");
+
+        userMessageLogService.save(
+                userMessage,
+                userMessage.getMessageInfo().getMessageId(),
+                MessageStatus.RECEIVED.toString(),
+                notificationStatus.toString(),
+                MSHRole.RECEIVING.toString(),
+                0,
+                StringUtils.isEmpty(userMessage.getMpc()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpc(),
+                backendName,
+                to.getEndpoint(),
+                userMessage.getCollaborationInfo().getService().getValue(),
+                userMessage.getCollaborationInfo().getAction(), userMessage.isSourceMessage(), userMessage.isUserMessageFragment(), false);
+
+        SignalMessage signalMessage = as4ReceiptService.saveResponse(userMessage, responseMessaging.getSignalMessage());
+
         Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "messagingDao.create")).time();
+        messaging.setSignalMessage(signalMessage);
         messagingDao.create(messaging);
         timeContext.stop();
+
+        try {
+            Timer.Context notifyMessageReceived = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "notifyMessageReceived")).time();
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
+            notifyMessageReceived.stop();
+        } catch (SubmissionValidationException e) {
+            String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
+        }
+
+
+        nonRepudiationService.saveRequest(rawXMLMessage, userMessage);
+    }
+
+    @Override
+    @Transactional
+    public void persistSubmittedMessage(Submission messageData, String backendName, UserMessage userMessage, String messageId, Messaging message, MessageExchangeConfiguration userMessageExchangeConfiguration, Party to, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) {
+        LOG.debug("Saving Messaging");
+        com.codahale.metrics.Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "messagingDao.create")).time();
+        messagingDao.create(message);
+        timeContext.stop();
+
+        if (messageStatus == null) {
+            messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+        }
+        final boolean sourceMessage = userMessage.isSourceMessage();
+
+        if (!sourceMessage) {
+            if (MessageStatus.READY_TO_PULL != messageStatus) {
+                // Sends message to the proper queue if not a message to be pulled.
+
+                final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                        MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
+                        backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null, true);
+
+                userMessageService.scheduleSendingToQueue(messageId, false);
+            } else {
+                final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                        MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
+                        backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null, false);
+                LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
+                pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void persistSubmittedMessageFragment(String backendName, UserMessage userMessage, String messageId, Messaging message, MessageExchangeConfiguration userMessageExchangeConfiguration, Party to, String pModeKey, LegConfiguration legConfiguration) {
+        LOG.debug("Saving Messaging");
+        com.codahale.metrics.Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "messagingDao.create")).time();
+        messagingDao.create(message);
+        timeContext.stop();
+
+        MessageStatus messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
+                backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true, true);
+        prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
+    }
+
+    protected int getMaxAttempts(LegConfiguration legConfiguration) {
+        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
+    }
+
+    protected void prepareForPushOrPull(UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
+        if (MessageStatus.READY_TO_PULL != messageStatus) {
+            // Sends message to the proper queue if not a message to be pulled.
+            userMessageService.scheduleSending(userMessageLog);
+        } else {
+            LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
+            pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
+        }
     }
 
     protected boolean scheduleSourceMessagePayloads(Messaging messaging, final Domain domain) {

@@ -5,6 +5,7 @@ import com.codahale.metrics.Timer;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -15,13 +16,11 @@ import eu.domibus.common.dao.RawEnvelopeLogDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogBuilder;
 import eu.domibus.core.message.fragment.MessageGroupDao;
-import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -34,6 +33,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -78,9 +78,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
     @Autowired
     private SignalMessageLogDao signalMessageLogDao;
-
-    @Autowired
-    protected NonRepudiationService nonRepudiationService;
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
@@ -198,18 +195,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     }
                 }
 
-                if (!duplicate) {
-                    generate_receipt = null;
-                    try {
-                        generate_receipt = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, ".saveNonDuplicate")).time();
-                        saveResponse(responseMessage, selfSendingFlag);
-                    } finally {
-                        if (generate_receipt != null) {
-                            generate_receipt.stop();
-                        }
-                    }
-                }
-
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
             } catch (TransformerConfigurationException | SOAPException | IOException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
@@ -227,101 +212,81 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     /**
      * save response in the DB before sending it back
      *
-     * @param responseMessage SOAP response message
-     * @param selfSendingFlag indicates that the message is sent to the same Domibus instance
+     * @param signalMessage SOAP response message
      */
-    protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) {
+    @Transactional
+    public SignalMessage saveResponse(UserMessage userMessage, SignalMessage signalMessage) {
+
+        LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
+        // Stores the signal message
+
+        Timer.Context as4receiptContext = null;
         try {
-            Timer.Context as4receiptContext = null;
-            Messaging messaging = null;
-            SignalMessage signalMessage = null;
-            try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.1.loadMessaging")).time();
-                LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
-
-                messaging = messageUtil.getMessagingWithDom(responseMessage);
-                signalMessage = messaging.getSignalMessage();
-            } finally {
-                if (as4receiptContext != null) {
-                    as4receiptContext.stop();
-                }
+            as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.2.createSignalMessage")).time();
+            signalMessageDao.create(signalMessage);
+        } finally {
+            if (as4receiptContext != null) {
+                as4receiptContext.stop();
             }
-            if (selfSendingFlag) {
-                /*we add a defined suffix in order to assure DB integrity - messageId unicity
-                basically we are generating another messageId for Signal Message on receiver side
-                */
-                signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getMessageInfo().getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-                signalMessage.getMessageInfo().setMessageId(signalMessage.getMessageInfo().getMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-            }
-            LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
-            // Stores the signal message
-            try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.2.createSignalMessage")).time();
-                signalMessageDao.create(signalMessage);
-            } finally {
-                if (as4receiptContext != null) {
-                    as4receiptContext.stop();
-                }
-            }
-
-            MessageSubtype messageSubtype = null;
-            Messaging sentMessage = null;
-            try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.3.findMessage")).time();
-                // Updating the reference to the signal message
-                sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
-            } finally {
-                if (as4receiptContext != null) {
-                    as4receiptContext.stop();
-                }
-            }
-            try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.4.updateMessage")).time();
-                if (sentMessage != null) {
-                    LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
-                    if (userMessageHandlerService.checkTestMessage(sentMessage.getUserMessage())) {
-                        messageSubtype = MessageSubtype.TEST;
-                    }
-                    sentMessage.setSignalMessage(signalMessage);
-                    messagingDao.updateSignalMessageId(sentMessage.getEntityId(), signalMessage.getEntityId());
-                }
-            } finally {
-                if (as4receiptContext != null) {
-                    as4receiptContext.stop();
-                }
-            }
-
-
-            SignalMessageLog signalMessageLog = null;
-            try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.5.buildAndCreateSignal")).time();
-                // Builds the signal message log
-                SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                        .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
-                        .setMessageStatus(MessageStatus.ACKNOWLEDGED)
-                        .setMshRole(MSHRole.SENDING)
-                        .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
-                // Saves an entry of the signal message log
-                signalMessageLog = smlBuilder.build();
-                signalMessageLog.setMessageSubtype(messageSubtype);
-                signalMessageLogDao.create(signalMessageLog);
-            } finally {
-                if (as4receiptContext != null) {
-                    as4receiptContext.stop();
-                }
-            }
-
-            try {
-                as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "uiReplication")).time();
-                uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
-            } finally {
-                if (as4receiptContext != null) {
-                    as4receiptContext.stop();
-                }
-            }
-        } catch (SOAPException ex) {
-            LOG.error("Unable to save the SignalMessage due to error: ", ex);
         }
+
+        MessageSubtype messageSubtype = null;
+        /*Messaging sentMessage = null;
+        try {
+            as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.3.findMessage")).time();
+            // Updating the reference to the signal message
+            sentMessage = messagingDao.findMessageByMessageId(signalMessage.getMessageInfo().getRefToMessageId());
+        } finally {
+            if (as4receiptContext != null) {
+                as4receiptContext.stop();
+            }
+        }*/
+        try {
+            as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.4.updateMessage")).time();
+//            if (sentMessage != null) {
+                LOG.debug("Updating the reference to the signal message [{}]", userMessage.getMessageInfo().getMessageId());
+                if (userMessageHandlerService.checkTestMessage(userMessage)) {
+                    messageSubtype = MessageSubtype.TEST;
+                }
+//                sentMessage.setSignalMessage(signalMessage);
+//                messagingDao.update(sentMessage);
+//            }
+        } finally {
+            if (as4receiptContext != null) {
+                as4receiptContext.stop();
+            }
+        }
+
+
+        SignalMessageLog signalMessageLog = null;
+        try {
+            as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.5.buildAndCreateSignal")).time();
+            // Builds the signal message log
+            SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
+                    .setMessageId(signalMessage.getMessageInfo().getMessageId())
+                    .setMessageStatus(MessageStatus.ACKNOWLEDGED)
+                    .setMshRole(MSHRole.SENDING)
+                    .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
+            // Saves an entry of the signal message log
+            signalMessageLog = smlBuilder.build();
+            signalMessageLog.setMessageSubtype(messageSubtype);
+            signalMessageLogDao.create(signalMessageLog);
+        } finally {
+            if (as4receiptContext != null) {
+                as4receiptContext.stop();
+            }
+        }
+
+        try {
+            as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "uiReplication")).time();
+            uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
+        } finally {
+            if (as4receiptContext != null) {
+                as4receiptContext.stop();
+            }
+        }
+        return signalMessage;
+
     }
 
 

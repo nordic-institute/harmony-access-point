@@ -3,7 +3,6 @@ package eu.domibus.ebms3.sender;
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
-import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
@@ -17,6 +16,8 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.common.services.impl.MessageIdGenerator;
+import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -67,6 +68,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected ReliabilityService reliabilityService;
+
+    @Autowired
+    protected NonRepudiationService nonRepudiationService;
 
     @Autowired
     private MetricRegistry metricRegistry;
@@ -180,11 +184,14 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
-            com.codahale.metrics.Timer.Context finally_block =null;
+            com.codahale.metrics.Timer.Context finally_block = null;
             try {
                 finally_block = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "handleReliability")).time();
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+
+
+                String nonRepudiationXML = nonRepudiationService.createNonRepudiation(responseSoapMessage);
+                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, nonRepudiationXML, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().error("Finally exception when handlingReliability", ex);
 //                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);

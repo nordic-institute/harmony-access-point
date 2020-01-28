@@ -4,6 +4,7 @@ import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.TransformerException;
 
 /**
  * @author Cosmin Baciu
@@ -12,7 +13,11 @@ import javax.xml.soap.SOAPMessage;
 
 public interface NonRepudiationService {
 
-    void saveRequest(SOAPMessage request, UserMessage userMessage);
+    void saveRequest(String rawXMLMessage, UserMessage userMessage);
 
-    void saveResponse(SOAPMessage response,SignalMessage signalMessage);
+    String createNonRepudiation(SOAPMessage request) throws TransformerException;
+
+    void saveResponse(String rawXMLMessage, SignalMessage signalMessage);
+
+
 }

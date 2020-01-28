@@ -123,6 +123,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return singleResult;
     }
 
+    public Boolean messageExists(String messageId, MSHRole mshRole) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageLog.class, "messageExists")).time();
+
+        TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.messageExist", Long.class);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+        query.setParameter("MSH_ROLE", mshRole);
+
+        try {
+            Long count = query.getSingleResult();
+            return ((count.equals(0L)) ? false : true);
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query UserMessageLog.messageExist did not find any result for message with id [" + messageId + "] and MSH role [" + mshRole + "]");
+            return null;
+        } finally {
+            authorizeUserMessageMetric.stop();
+        }
+    }
+
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageLog.class, "findByMessageIdAndRole")).time();
 
@@ -170,24 +188,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public void setAsNotified(final UserMessageLog messageLog) {
-        final Query emptyQuery = em.createNamedQuery("UserMessageLog.setAsNotified");
-        emptyQuery.setParameter("STATUS", NotificationStatus.NOTIFIED);
-        emptyQuery.setParameter("ID", messageLog.getEntityId());
-        emptyQuery.executeUpdate();
-    }
-
-    public void updateStatus(final UserMessageLog messageLog, MessageStatus status) {
-        final Query emptyQuery = em.createNamedQuery("UserMessageLog.setMessageStatus");
-        emptyQuery.setParameter("ID", messageLog.getEntityId());
-        emptyQuery.setParameter("STATUS", status);
-        emptyQuery.executeUpdate();
-    }
-
-    @Transactional
-    public void setAsScheduled(final UserMessageLog messageLog) {
-        final Query emptyQuery = em.createNamedQuery("UserMessageLog.setAsScheduled");
-        emptyQuery.setParameter("ID", messageLog.getEntityId());
-        emptyQuery.executeUpdate();
+        messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
+        super.update(messageLog);
     }
 
     public int countAllInfo(boolean asc, Map<String, Object> filters) {

@@ -10,8 +10,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -37,42 +35,40 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     protected SoapUtil soapUtil;
 
     @Override
-    public void saveRequest(SOAPMessage request, UserMessage userMessage) {
+    public void saveRequest(String rawXMLMessage, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
             return;
         }
 
-        try {
-            String rawXMLMessage = soapUtil.getRawXMLMessage(request);
-            LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
-            RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
-            if (userMessage != null) {
-                rawEnvelopeLog.setMessageId(userMessage.getMessageInfo().getMessageId());
-            }
-            rawEnvelopeLog.setRawXML(rawXMLMessage);
-            rawEnvelopeLog.setUserMessage(userMessage);
-            rawEnvelopeLogDao.create(rawEnvelopeLog);
-        } catch (TransformerException e) {
-            LOG.warn("Unable to log the raw message XML due to: ", e);
+        LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
+        RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
+        if (userMessage != null) {
+            rawEnvelopeLog.setMessageId(userMessage.getMessageInfo().getMessageId());
         }
+        rawEnvelopeLog.setRawXML(rawXMLMessage);
+        rawEnvelopeLog.setUserMessage(userMessage);
+
+        rawEnvelopeLogDao.create(rawEnvelopeLog);
+
     }
 
     @Override
-    public void saveResponse(SOAPMessage response, SignalMessage signalMessage) {
+    public String createNonRepudiation(SOAPMessage request) throws TransformerException {
+        return soapUtil.getRawXMLMessage(request);
+
+    }
+
+    @Override
+    public void saveResponse(String rawXMLMessage, SignalMessage signalMessage) {
         if (isNonRepudiationAuditDisabled()) {
             return;
         }
 
-        try {
-            String rawXMLMessage = soapUtil.getRawXMLMessage(response);
-            LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
-            RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
-            rawEnvelopeLog.setRawXML(rawXMLMessage);
-            rawEnvelopeLog.setSignalMessage(signalMessage);
-            rawEnvelopeLogDao.create(rawEnvelopeLog);
-        } catch (TransformerException e) {
-            LOG.warn("Unable to log the raw message XML due to: ", e);
-        }
+        LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
+        RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
+        rawEnvelopeLog.setRawXML(rawXMLMessage);
+        rawEnvelopeLog.setSignalMessage(signalMessage);
+        rawEnvelopeLogDao.create(rawEnvelopeLog);
     }
 
     protected boolean isNonRepudiationAuditDisabled() {

@@ -24,8 +24,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -91,7 +89,7 @@ public class ResponseHandler {
         return result;
     }
 
-    public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
+    public void saveResponse(final String nonRepudationXML, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         Timer.Context responseHandlerContext = null;
 
@@ -104,7 +102,7 @@ public class ResponseHandler {
 
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "messagingDao.update")).time();
             sentMessage.setSignalMessage(signalMessage);
-            messagingDao.updateSignalMessageId(sentMessage.getEntityId(), signalMessage.getEntityId());
+            messagingDao.update(sentMessage);
             responseHandlerContext.stop();
         } finally {
             if (responseHandlerContext != null) {
@@ -130,7 +128,7 @@ public class ResponseHandler {
         }
 
         responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "scheduleSaveNonRepudiationAsync")).time();
-        domainTaskExecutor.submitLongRunningTask(() -> saveNonRepudiationAsync(response, signalMessage), domainContextProvider.getCurrentDomain());
+        saveNonRepudiation(nonRepudationXML, signalMessage);//TODO use a queue for saving the receipt
         responseHandlerContext.stop();
 
         responseHandlerContext = null;
@@ -145,11 +143,11 @@ public class ResponseHandler {
         }
     }
 
-    protected void saveNonRepudiationAsync(SOAPMessage response, SignalMessage signalMessage) {
+    protected void saveNonRepudiation(String nonRepudationXML, SignalMessage signalMessage) {
         Timer.Context responseHandlerContext = null;
         try {
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.saveResponseNonRepudiation")).time();
-            nonRepudiationService.saveResponse(response, signalMessage);
+            nonRepudiationService.saveResponse(nonRepudationXML, signalMessage);
         } finally {
             if (responseHandlerContext != null) {
                 responseHandlerContext.stop();

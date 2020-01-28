@@ -28,7 +28,7 @@ public interface ReliabilityService {
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+    void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String nonRepudationXML, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 
     /**
      * This method is used when handleReliability failed
@@ -38,6 +38,6 @@ public interface ReliabilityService {
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliabilityInNewTransaction(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+//    void handleReliabilityInNewTransaction(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 
 }

@@ -122,6 +122,8 @@ public interface UserMessageService {
 
     void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin);
 
+    void scheduleSendingToQueue(String messageId, Boolean isSplitAndJoin);
+
     /**
      * Schedule the sending of the asynchronous Pull Receipt
      *

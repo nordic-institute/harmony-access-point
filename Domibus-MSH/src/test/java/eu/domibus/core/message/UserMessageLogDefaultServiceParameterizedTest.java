@@ -69,7 +69,7 @@ public class UserMessageLogDefaultServiceParameterizedTest {
         final String backendName = "JMS";
         final String endpoint = "http://localhost";
 
-        userMessageLogDefaultService.save(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, service, action, null, null);
+//        userMessageLogDefaultService.save(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, service, action, null, null);//TODO
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));

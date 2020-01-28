@@ -69,18 +69,19 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     /**
      * {@inheritDoc}
      */
-    @Override
+    /*@Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleReliabilityInNewTransaction(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability in a new transaction");
         handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
-    }
+    }*/
 
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
-    public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+    public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String nonRepudationXML, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
         final Boolean isTestMessage = userMessageLog.isTestMessage();
@@ -92,7 +93,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 try {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.saveResponse").time();
 
-                    responseHandler.saveResponse(responseSoapMessage, messaging, responseResult.getResponseMessaging());
+                    responseHandler.saveResponse(nonRepudationXML, messaging, responseResult.getResponseMessaging());
                 } finally {
                     if (timerContext != null) {
                         timerContext.stop();
