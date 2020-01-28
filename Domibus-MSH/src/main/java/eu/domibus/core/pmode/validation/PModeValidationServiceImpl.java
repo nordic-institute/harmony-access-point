@@ -36,7 +36,7 @@ public class PModeValidationServiceImpl implements PModeValidationService {
         boolean warningsAsErrors = domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
         List<PModeIssue> allIssues = new ArrayList<>();
 
-        configuration.preparePersist(); // TODO: review this
+        configuration.preparePersist();
 
         for (PModeValidator validator : pModeValidatorList) {
             String validatorName = validator.getClass().getSimpleName();
@@ -44,7 +44,7 @@ public class PModeValidationServiceImpl implements PModeValidationService {
             String level = domibusPropertyProvider.getProperty(levelPropName);
 
             if ("NONE".equals(level)) {
-                LOG.trace("Skipping [{}] pMode validator due to configuration being NONE.", validatorName);
+                LOG.trace("Skipping [{}] pMode validator due to configuration level being NONE.", validatorName);
                 continue;
             }
 
@@ -55,6 +55,7 @@ public class PModeValidationServiceImpl implements PModeValidationService {
                 try {
                     IssueLevel issueLevel = IssueLevel.valueOf(level);
 
+                    LOG.debug("Setting level=[{}] to all issues of [{}] validator.", validatorName);
                     issues1.forEach(issue -> issue.setLevel(issueLevel));
                     issues2.forEach(issue -> issue.setLevel(issueLevel));
                 } catch (IllegalArgumentException ex) {
@@ -67,7 +68,10 @@ public class PModeValidationServiceImpl implements PModeValidationService {
         }
 
         if (warningsAsErrors) {
-            allIssues.forEach(issue -> issue.setLevel(IssueLevel.ERROR));
+            LOG.debug("Setting level as error for all issues due to warningsAsErrors being true.");
+            allIssues.stream()
+                    .filter(el -> el.getLevel() == IssueLevel.WARNING)
+                    .forEach(issue -> issue.setLevel(IssueLevel.ERROR));
         }
 
         return allIssues;

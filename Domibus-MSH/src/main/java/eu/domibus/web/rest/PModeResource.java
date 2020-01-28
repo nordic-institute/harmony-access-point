@@ -105,7 +105,9 @@ public class PModeResource extends BaseResource {
     @PostMapping
     public ResponseEntity<SavePModeResponseRO> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
+            //we permit more chars for description
             @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) {
+
         if (pmode.isEmpty()) {
             return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file since it was empty."));
         }
@@ -130,15 +132,13 @@ public class PModeResource extends BaseResource {
 
             List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new SavePModeResponseRO(message, errors));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SavePModeResponseRO(message, errors));
         } catch (PModeValidationException ve) {
             LOG.error("Validation exception uploading the PMode", ve);
 
             String message = "Failed to upload the PMode file due to validation: ";
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new SavePModeResponseRO(message, ve.getIssues()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseRO(message, ve.getIssues()));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
