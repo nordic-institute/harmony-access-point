@@ -16,7 +16,15 @@ public abstract class AbstractBaseEntity implements Serializable {
 
     @Id
     @XmlTransient
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "hibernate_sequence"
+    )
+    @SequenceGenerator(
+            name = "hibernate_sequence",
+            sequenceName = "hibernate_sequence",
+            allocationSize = 50
+    )
     @Column(name = "ID_PK")
     private long entityId;
 
