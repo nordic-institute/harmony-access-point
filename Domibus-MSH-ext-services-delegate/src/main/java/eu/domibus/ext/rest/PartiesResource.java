@@ -51,6 +51,12 @@ public class PartiesResource {
 //
     @GetMapping(value = {"/list"})
     public List<PartyDTO> listParties(@Valid PartyRequestDTO request){
+        if (request.getPageStart() <= 0) {
+            request.setPageStart(0);
+        }
+        if (request.getPageSize() <= 0) {
+            request.setPageSize(10);
+        }
 
         return partyExtService.getParties(request.getName(),
                 request.getEndPoint(), request.getPartyId(),
