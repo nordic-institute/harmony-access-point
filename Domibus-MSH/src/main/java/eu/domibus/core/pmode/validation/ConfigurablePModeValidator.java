@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_X_PATH_VALIDATOR;
 
@@ -22,13 +23,18 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_M
 public class ConfigurablePModeValidator extends CompositePModeValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConfigurablePModeValidator.class);
+    protected static final Predicate<String> STRING_PREDICATE = s -> s.startsWith(DOMIBUS_P_MODE_VALIDATION_X_PATH_VALIDATOR);
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
     @PostConstruct
     public void Init() {
-        Set<String> propNames = domibusPropertyProvider.getPropertyNames(s -> s.startsWith(DOMIBUS_P_MODE_VALIDATION_X_PATH_VALIDATOR));
+        readConfigurationAndCreateValidators();
+    }
+
+    protected void readConfigurationAndCreateValidators() {
+        Set<String> propNames = domibusPropertyProvider.getPropertyNames(STRING_PREDICATE);
         propNames.forEach(propName -> {
             String propVal = domibusPropertyProvider.getProperty(propName);
             String[] properties = propVal.split(";");
@@ -53,4 +59,6 @@ public class ConfigurablePModeValidator extends CompositePModeValidator {
             this.getValidators().add(new XPathPModeValidator(targetExpression, acceptedValuesExpression, level, errorMessage));
         });
     }
+
+
 }

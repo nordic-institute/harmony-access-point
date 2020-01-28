@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author nperpion
+ * @author Ion Perpegel
  * @since 4.2
  * <p>
  * Two-Way mep with binding pushAndPush, pullAndPush and pushAndPull are not accepted.

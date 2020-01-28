@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +13,9 @@ import java.util.List;
  *
  * Composition class: validator that has a list of validators: calls all validators and aggregates the results
  */
+@Component
 public class CompositePModeValidator extends AbstractPModeValidator {
-    List<PModeValidator> validators = new ArrayList<>();
+    protected List<PModeValidator> validators = new ArrayList<>();
 
     @Override
     public List<PModeIssue> validateAsXml(byte[] xmlBytes) {
