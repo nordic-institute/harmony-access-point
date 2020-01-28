@@ -2,6 +2,8 @@ package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +21,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_M
 @Component
 public class ConfigurablePModeValidator extends CompositePModeValidator {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConfigurablePModeValidator.class);
+
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
@@ -29,7 +33,7 @@ public class ConfigurablePModeValidator extends CompositePModeValidator {
             String propVal = domibusPropertyProvider.getProperty(propName);
             String[] properties = propVal.split(";");
             if (properties.length < 2) {
-                //todo: log
+                LOG.warn("Wrong configuration value [{}] for property [{}]. There should be at least target and lookup paths configured.", propVal, propName);
                 return;
             }
 

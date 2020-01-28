@@ -23,6 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_M
  */
 @Service
 public class PModeValidationServiceImpl implements PModeValidationService {
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeValidationServiceImpl.class);
 
     @Autowired(required = false)
