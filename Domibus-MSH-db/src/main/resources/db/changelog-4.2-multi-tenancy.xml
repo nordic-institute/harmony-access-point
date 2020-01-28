@@ -11,7 +11,7 @@
     <!-- sequences -->
     <changeSet dbms="oracle" author="Cosmin Baciu" id="hibernate_sequence_multi_tenancy">
         <createSequence sequenceName="HIBERNATE_SEQUENCE" minValue="2" maxValue="9999999999999999999999999999"
-                        incrementBy="1" startValue="2" cacheSize="20" cycle="false" ordered="false"/>
+                        incrementBy="50" startValue="10" cacheSize="1000" cycle="false" ordered="false"/>
     </changeSet>
 
     <!-- Quartz tables -->
