@@ -11,6 +11,7 @@ import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.delegate.mapper.MonitoringMapper;
@@ -116,15 +117,10 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             return (T) domibusExtMapper.partyToPartyDTO((Party) source);
         }
 
-//        if (typeOfT == ProcessDTO.class) {
-//            LOG.debug(debugMessage, typeOfT, source.getClass());
-//            return (T) domibusExtMapper.processToProcessDTO((Process) source);
-//        }
-//
-//        if (typeOfT == PartyIdentifierDTO.class) {
-//            LOG.debug(debugMessage, typeOfT, source.getClass());
-//            return (T) domibusExtMapper.partyIdentifierToPartyIdentifierDto((Identifier) source);
-//        }
+        if (typeOfT == TrustStoreDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.trustStoreEntryToTrustStoreDTO((TrustStoreEntry) source);
+        }
 
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);

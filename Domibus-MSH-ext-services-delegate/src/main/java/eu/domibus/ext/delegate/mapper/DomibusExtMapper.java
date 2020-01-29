@@ -10,6 +10,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.domain.*;
 import org.mapstruct.Mapper;
@@ -54,4 +55,6 @@ public interface DomibusExtMapper {
     ProcessDTO processToProcessDTO(Process process);
 
     PartyIdentifierDTO partyIdentifierToPartyIdentifierDto(Identifier partyIdentifier);
+
+    TrustStoreDTO trustStoreEntryToTrustStoreDTO(TrustStoreEntry trustStoreEntry);
 }

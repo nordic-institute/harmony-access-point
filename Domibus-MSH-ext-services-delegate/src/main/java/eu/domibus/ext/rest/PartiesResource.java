@@ -2,17 +2,21 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.domain.PartyDTO;
 import eu.domibus.ext.domain.PartyRequestDTO;
+import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.security.KeyStoreException;
 import java.util.List;
 
 /**
@@ -30,9 +34,9 @@ public class PartiesResource {
 
     @ApiOperation(value = "Get Parties", notes = "Get Parties using certain criteria like name, endpoint, partyId, process name. " +
             "Use pageStart and pageSize for pagination purposes",
-            authorizations = @Authorization(value = "basicAuth"), tags = "parties")
+            authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/list"})
-    public List<PartyDTO> listParties(@Valid PartyRequestDTO request){
+    public List<PartyDTO> listParties(@Valid PartyRequestDTO request) {
         if (request.getPageStart() <= 0) {
             request.setPageStart(0);
         }
@@ -46,6 +50,23 @@ public class PartiesResource {
         return partyExtService.getParties(request.getName(),
                 request.getEndPoint(), request.getPartyId(),
                 request.getProcess(), request.getPageStart(), request.getPageSize());
+    }
+
+    @ApiOperation(value = "Get Certificate for a Party",
+            notes = "Get Certificate for a Party based on party name",
+            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @GetMapping(value = "/{name}/certificate")
+    public ResponseEntity<TrustStoreDTO> getCertificateForParty(@PathVariable(name = "name") String partyName) {
+        try {
+            TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
+            if (cert == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(cert);
+        } catch (KeyStoreException e) {
+            LOG.error("Failed to get certificate from truststore", e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 //    @PutMapping(value = {"/update"})
@@ -71,7 +92,6 @@ public class PartiesResource {
 //        }
 //    }
 //
-
 
 
 //    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
