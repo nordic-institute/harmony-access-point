@@ -1,6 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
+import eu.domibus.ext.domain.PModeIssueDTO;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public interface PModeExtService {
      * @param description of the PMode uploaded version
      * @return List<String> as errors
      */
-    List<String> updatePModeFile(byte[] bytes, String description);
+    List<PModeIssueDTO> updatePModeFile(byte[] bytes, String description);
 
     // TODO: should we modify the ext interface too ??
 
