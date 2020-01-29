@@ -3,6 +3,7 @@ package eu.domibus.ext.domain;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
+ * Party Identifier class for external API
  *
  * @author Catalin Enache
  * @since 4.2
@@ -11,7 +12,7 @@ public class PartyIdentifierDTO {
 
     private String partyId;
 
-    private PartyIdentifierDTO partyIdType;
+    private PartyIdentifierTypeDTO partyIdType;
 
     public String getPartyId() {
         return partyId;
@@ -21,11 +22,11 @@ public class PartyIdentifierDTO {
         this.partyId = partyId;
     }
 
-    public PartyIdentifierDTO getPartyIdType() {
+    public PartyIdentifierTypeDTO getPartyIdType() {
         return partyIdType;
     }
 
-    public void setPartyIdType(PartyIdentifierDTO partyIdType) {
+    public void setPartyIdType(PartyIdentifierTypeDTO partyIdType) {
         this.partyIdType = partyIdType;
     }
 

@@ -3,6 +3,8 @@ package eu.domibus.ext.domain;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
+ * Party Identifier Type class for external API
+ *
  * @since 4.2
  * @author Catalin Enache
  */

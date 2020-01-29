@@ -8,6 +8,7 @@ import java.util.Set;
 
 /**
  * Party class for external API
+ *
  * @since 4.2
  * @author Catalin Enache
  */
@@ -15,7 +16,7 @@ public class PartyDTO {
 
     protected Integer entityId;
 
-    protected Set<PartyIdentifierDTO> identifiers; //NOSONAR
+    protected Set<PartyIdentifierDTO> identifiers;
 
     protected List<ProcessDTO> processesWithPartyAsInitiator = new ArrayList<>();
 

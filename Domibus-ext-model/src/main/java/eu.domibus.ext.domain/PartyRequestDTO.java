@@ -3,16 +3,19 @@ package eu.domibus.ext.domain;
 import java.io.Serializable;
 
 /**
- * @since 4.2
+ * Party request for listing parties on external API
+ *
  * @author Catalin Enache
+ * @since 4.2
  */
-public class PartyRequestDTO  implements Serializable {
-        private String name;
-        private String endPoint;
-        private String partyId;
-        private String process;
-        private int pageStart;
-        private int pageSize;
+public class PartyRequestDTO implements Serializable {
+
+    private String name;
+    private String endPoint;
+    private String partyId;
+    private String process;
+    private int pageStart;
+    private int pageSize;
 
 
     public String getName() {

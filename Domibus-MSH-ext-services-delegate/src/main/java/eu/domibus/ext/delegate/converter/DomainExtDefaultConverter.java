@@ -7,10 +7,8 @@ import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.party.Identifier;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
@@ -118,15 +116,15 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             return (T) domibusExtMapper.partyToPartyDTO((Party) source);
         }
 
-        if (typeOfT == ProcessDTO.class) {
-            LOG.debug(debugMessage, typeOfT, source.getClass());
-            return (T) domibusExtMapper.processToProcessDTO((Process) source);
-        }
-
-        if (typeOfT == PartyIdentifierDTO.class) {
-            LOG.debug(debugMessage, typeOfT, source.getClass());
-            return (T) domibusExtMapper.partyIdentifierToPartyIdentifierDto((Identifier) source);
-        }
+//        if (typeOfT == ProcessDTO.class) {
+//            LOG.debug(debugMessage, typeOfT, source.getClass());
+//            return (T) domibusExtMapper.processToProcessDTO((Process) source);
+//        }
+//
+//        if (typeOfT == PartyIdentifierDTO.class) {
+//            LOG.debug(debugMessage, typeOfT, source.getClass());
+//            return (T) domibusExtMapper.partyIdentifierToPartyIdentifierDto((Identifier) source);
+//        }
 
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
