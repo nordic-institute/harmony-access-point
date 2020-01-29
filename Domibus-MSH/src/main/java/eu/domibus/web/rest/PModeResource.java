@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -106,15 +107,20 @@ public class PModeResource extends BaseResource {
     public ResponseEntity<SavePModeResponseRO> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             //we permit more chars for description
-            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) {
+            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws IOException {
 
         if (pmode.isEmpty()) {
             return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file since it was empty."));
         }
-        try {
-            byte[] bytes = pmode.getBytes();
 
-            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
+        byte[] pModeContent = pmode.getBytes();
+
+        return savePModeAndHandleResponse(pModeContent, pModeDescription);
+    }
+
+    private ResponseEntity<SavePModeResponseRO> savePModeAndHandleResponse(byte[] pModeContent,  String pModeDescription) {
+        try {
+            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(pModeContent, pModeDescription);
 
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
@@ -165,7 +171,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ResponseEntity<String> restorePmode(@PathVariable(value = "id") Integer id) {
+    public ResponseEntity<SavePModeResponseRO> restorePmode(@PathVariable(value = "id") Integer id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);
@@ -177,17 +183,7 @@ public class PModeResource extends BaseResource {
         newRawConfiguration.setConfigurationDate(new Date());
         newRawConfiguration.setXml(existingRawConfiguration.getXml());
 
-        String message = "PMode was successfully uploaded";
-        try {
-            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
-
-            if (pmodeUpdateMessage != null && !pmodeUpdateMessage.isEmpty()) {
-                message += " but some issues were detected: \n" + StringUtils.join(pmodeUpdateMessage, "\n");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible to upload PModes due to \n" + e.getMessage());
-        }
-        return ResponseEntity.ok(message);
+        return savePModeAndHandleResponse(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
     }
 
     @GetMapping(value = {"/list"})

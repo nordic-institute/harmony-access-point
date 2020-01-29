@@ -292,8 +292,9 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   private async restore(selectedRow) {
     this.rows[this.actualRow].current = false;
     try {
-      await this.http.put(PModeArchiveComponent.PMODE_URL + '/restore/' + selectedRow.id, null)
+      let res = await this.http.put(PModeArchiveComponent.PMODE_URL + '/restore/' + selectedRow.id, null)
         .toPromise();
+      this.alertService.success(res);
 
       this.deleteList = [];
       this.disableAllButtons();

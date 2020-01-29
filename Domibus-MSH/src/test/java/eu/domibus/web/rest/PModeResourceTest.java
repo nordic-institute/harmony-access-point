@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -117,7 +118,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodesEmptyFile() {
+    public void testUploadPmodesEmptyFile() throws IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{});
 
@@ -131,7 +132,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodesSuccess() {
+    public void testUploadPmodesSuccess() throws IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -145,7 +146,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodesIssues() throws XmlProcessingException {
+    public void testUploadPmodesIssues() throws XmlProcessingException, IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -165,7 +166,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPModesXmlProcessingException() throws XmlProcessingException {
+    public void testUploadPModesXmlProcessingException() throws XmlProcessingException, IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -185,7 +186,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPModesXmlProcessingWithErrorException() throws XmlProcessingException {
+    public void testUploadPModesXmlProcessingWithErrorException() throws XmlProcessingException, IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
         XmlProcessingException xmlProcessingException = new XmlProcessingException("UnitTest1");
@@ -209,7 +210,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPModesException() throws XmlProcessingException {
+    public void testUploadPModesException() throws XmlProcessingException, IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -284,12 +285,12 @@ public class PModeResourceTest {
     public void testRestorePmodeSuccess() {
         // Given
         // When
-        final ResponseEntity<String> response = pModeResource.restorePmode(1);
+        final ResponseEntity<SavePModeResponseRO> response = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertEquals("PMode was successfully uploaded", response.getBody());
+        Assert.assertEquals("PMode file has been successfully uploaded", response.getBody().getMessage());
     }
 
     @Test
@@ -302,12 +303,12 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> response = pModeResource.restorePmode(1);
+        final ResponseEntity<SavePModeResponseRO> response = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assert.assertEquals("Impossible to upload PModes due to \nMocked exception", response.getBody());
+        Assert.assertEquals("Failed to upload the PMode file due to: Exception: Mocked exception", response.getBody().getMessage());
     }
 
     @Test
@@ -321,12 +322,12 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> response = pModeResource.restorePmode(1);
+        final ResponseEntity<SavePModeResponseRO> response = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assert.assertEquals("Impossible to upload PModes due to \njava.lang.Exception: Nested mocked exception", response.getBody());
+        Assert.assertEquals("Failed to upload the PMode file due to: Exception: Nested mocked exception", response.getBody().getMessage());
     }
 
     @Test
@@ -340,12 +341,13 @@ public class PModeResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> response = pModeResource.restorePmode(1);
+        final ResponseEntity<SavePModeResponseRO> response = pModeResource.restorePmode(1);
 
         // Then
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertEquals("PMode was successfully uploaded but some issues were detected: \nissue1", response.getBody());
+        Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected:", response.getBody().getMessage());
+        Assert.assertEquals(1, response.getBody().getIssues().size());
     }
 
     @Test
